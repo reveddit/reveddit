@@ -1,0 +1,56 @@
+{
+  "name": "revddit",
+  "version": "2.0",
+  "description": "Review removed content on reddit user pages and discover whether it was removed by automod or by a mod.",
+  "main": "src/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rhaksw/revddit.git"
+  },
+  "keywords": [
+    "reddit",
+    "comments",
+    "removed",
+    "deleted"
+  ],
+  "author": "Rob Hawkins",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/rhaksw/revddit/issues"
+  },
+  "homepage": "http://revddit.com",
+  "standard": {
+    "parser": "babel-eslint"
+  },
+  "scripts": {
+    "start": "webpack-dev-server --mode development",
+    "build": "yarn build-sass; webpack --mode production",
+    "build-sass": "node-sass --style compressed src/sass/index.sass dist/main.css"
+  },
+  "dependencies": {
+    "babel-polyfill": "^6.26.0",
+    "react": "^16.4.1",
+    "react-dom": "^16.4.1",
+    "react-router-dom": "^4.3.1",
+    "snuownd": "git+https://github.com/JordanMilne/snuownd.git",
+    "unstated": "^2.1.1",
+    "whatwg-fetch": "^2.0.4"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
+    "babel-eslint": "^8.2.6",
+    "babel-loader": "^7.1.5",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react": "^6.24.1",
+    "history": "^4.7.2",
+    "node-sass": "^4.9.2",
+    "scroll-to-element": "^2.0.2",
+    "standard": "^11.0.1",
+    "webpack": "^4.16.0",
+    "webpack-cli": "^3.0.8",
+    "webpack-dev-server": "^3.1.4"
+  }
+}
