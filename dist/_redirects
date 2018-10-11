@@ -1,3 +1,3 @@
-http://revddit.netlify.com/* http://revddit.com/index.html 301!
+https://revddit.netlify.com/* https://revddit.com/:splat 301!
 
 /*    /index.html   200
