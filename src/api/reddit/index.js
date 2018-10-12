@@ -58,7 +58,7 @@ export const queryUserPage = (user, kind, sort, before, after, limit = 100) => {
 
 
 export const queryByID = (ids) => {
-  var url = new URL('https://oauth.reddit.com/api/info.json')
+  var url = new URL('https://oauth.reddit.com/api/info')
   var params = {id: ids.join()}
   url.search = new URLSearchParams(params)
   return getAuth()
