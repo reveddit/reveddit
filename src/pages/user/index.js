@@ -31,6 +31,7 @@ const after_this_utc_force_subreddit_query = NOW - 60*10
 const allItems = []
 var numPages = 0
 const searchPage_userPosts = {}
+var notYetQueriedSearchPage = true
 
 class User extends React.Component {
   state = {
@@ -302,10 +303,11 @@ class User extends React.Component {
       })
       promises.push(promise)
     })
-    if ( (! after && ! searchPage_after) ||
-         (  after &&   searchPage_after) ) {
+
+    if ( notYetQueriedSearchPage || searchPage_after ) {
       searchPage_promise = querySearchPageByUser(user, sort, searchPage_after)
       .then(searchPageData => {
+        notYetQueriedSearchPage = false
         let searchPage_last_created_utc = 99999999999
         searchPageData.posts.forEach(
         post => {
