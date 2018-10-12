@@ -70,6 +70,11 @@ class User extends React.Component {
       this.props.global.setError(Error('Invalid sort type, check url'))
       return
     }
+    if ( (kind === '' || kind === 'overview' || kind === 'submitted') &&
+          s.sort !== 'new') {
+      this.props.global.setError(Error('Invalid sort type, check url'))
+      return
+    }
     if (s.removal_status === 'all') {
       this.props.global.setItemFilter(item_filter.all)
     } else if (s.removal_status === 'unknown') {

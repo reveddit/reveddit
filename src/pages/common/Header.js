@@ -7,7 +7,7 @@ class Header extends React.Component {
   getSortLink(sort) {
     const { user, kind = ''} = this.props.match.params
     const s = getSettings()
-    return <a className={sort === s.sort ? 'selected': ''} href={`/user/${user}/${kind}?sort=${sort}`}>{sort}</a>
+    return <a key={sort} className={sort === s.sort ? 'selected': ''} href={`/user/${user}/${kind}?sort=${sort}`}>{sort}</a>
   }
   render() {
     const props = this.props
@@ -25,9 +25,14 @@ class Header extends React.Component {
               <a className={kind === 'submitted' ? 'selected': ''} href={`${userLink}/submitted`}>submitted</a>
             <br/>
               {this.getSortLink('new')}
-              {this.getSortLink('top')}
-              {this.getSortLink('hot')}
-              {this.getSortLink('controversial')}
+              { (kind !== 'overview' && kind !== '' && kind !== 'submitted') ?
+                  [
+                    this.getSortLink('top'),
+                    this.getSortLink('hot'),
+                    this.getSortLink('controversial')
+                  ]
+                : ''
+              }
             </nav>
         </React.Fragment>
       )
