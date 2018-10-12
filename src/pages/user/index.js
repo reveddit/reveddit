@@ -20,6 +20,7 @@ import { REMOVAL_META, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUT
 import scrollToElement from 'scroll-to-element'
 import { isRemovedComment, isRemovedSelfPost, isComment, isPost } from '../../utils'
 import { connect, item_filter } from '../../state'
+import Time from '../common/Time'
 
 const OVERVIEW = 'overview', SUBMITTED = 'submitted', BLANK='', COMMENTS='comments'
 const NOW = Math.floor((new Date).getTime()/1000)
@@ -28,6 +29,7 @@ const acceptable_sorts = ['new', 'top', 'controversial', 'hot']
 const after_this_utc_force_subreddit_query = NOW - 60*10
 
 const allItems = []
+var numPages = 0
 const searchPage_userPosts = {}
 
 class User extends React.Component {
@@ -78,7 +80,7 @@ class User extends React.Component {
     if (s.subreddit) {
       this.props.global.setUserSubredditFilter(s.subreddit)
     }
-    // quick fix to avoid reloading when hitting back button after visiting /about .. 
+    // quick fix to avoid reloading when hitting back button after visiting /about ..
     if (! allItems.length) {
       this.getItems_wrapper(user, kind, s.sort, s.before, s.after, s.limit, s.loadAll, s.searchPage_after)
     }
@@ -191,6 +193,7 @@ class User extends React.Component {
     let promises = []
     return queryUserPage(user, kind, sort, before, after, limit)
     .then(userPageData => {
+      numPages += 1
       const userPage_userPosts = []
       const userPage_comments = []
       userPageData.items.forEach(item => {
@@ -380,7 +383,12 @@ class User extends React.Component {
     const visibleItems = this.getVisibleItemsWithoutSubredditFilter()
     let loadAllLink = ''
     let nextLink = ''
+    let lastTimeLoaded = ''
     const showAllSubreddits = this.props.global.state.userSubredditFilter === 'all'
+    let totalPages = 10
+    if (! this.props.global.state.userNext.userPage_after) {
+      totalPages = numPages
+    }
 
     if (! this.props.global.state.loading) {
       if (! s.after && this.props.global.state.userNext.userPage_after) {
@@ -388,12 +396,17 @@ class User extends React.Component {
       }
     }
     if (this.props.global.state.loading) {
-      nextLink = <div className='next-parent'><img className='spin' src='/images/spin.gif'/></div>
+      nextLink = <div className='non-item'><img className='spin' src='/images/spin.gif'/></div>
     } else if (this.props.global.state.userNext.userPage_after) {
-      nextLink = <div className='next-parent'>
+      nextLink = <div className='non-item'>
         <LoadLink next={this.state.next} user={user} sort={s.sort} this={this} kind={kind} show={s.show} limit={s.limit} loadAll={false}/></div>
     }
-
+    if (allItems.length) {
+      lastTimeLoaded = <React.Fragment>
+                         <div className='non-item text'>since <Time created_utc={allItems.slice(-1)[0].created_utc} /></div>
+                         <div className='non-item text'>loaded pages {`${numPages}/${totalPages}`}</div>
+                       </React.Fragment>
+    }
     return (
       <div className='userpage'>
         <div className='subreddit-box'>
@@ -415,6 +428,7 @@ class User extends React.Component {
             }
           })
         }
+        {lastTimeLoaded}
         {nextLink}
       </div>
     )

@@ -4,7 +4,7 @@ import { connect } from '../../state'
 import { withRouter } from 'react-router';
 
 
-class LoadAllLink extends React.Component {
+class LoadLink extends React.Component {
 
   render() {
     let userPage_after   = this.props.global.state.userNext.userPage_after
@@ -14,8 +14,10 @@ class LoadAllLink extends React.Component {
     let to = this.props.location.pathname+this.props.location.search
 
     if (this.props.loadAll) {
+      const queryParams = new URLSearchParams(this.props.location.search)
+      queryParams.set('all', '')
+      to = `${this.props.location.pathname}?${queryParams.toString()}`
       className = 'load-all'
-      to = '?all'
       text = 'load all'
     }
     if (userPage_after && ! this.props.show) {
@@ -28,4 +30,4 @@ class LoadAllLink extends React.Component {
     }
   }
 }
-export default withRouter(connect(LoadAllLink))
+export default withRouter(connect(LoadLink))

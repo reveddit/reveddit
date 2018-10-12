@@ -65,17 +65,23 @@ class Selections extends React.Component {
   }
 
   render() {
+    const subreddit_visible_counts = {}
     const subreddit_counts = {}
     this.props.allItems.forEach(item => {
-      subreddit_counts[item.subreddit] = 0
+      subreddit_visible_counts[item.subreddit] = 0
+      if (item.subreddit in subreddit_counts) {
+        subreddit_counts[item.subreddit] += 1
+      } else {
+        subreddit_counts[item.subreddit] = 1
+      }
     })
     this.props.visibleItems.forEach(item => {
-      subreddit_counts[item.subreddit] += 1
+      subreddit_visible_counts[item.subreddit] += 1
     })
 
-    const subs_ordered = Object.keys(subreddit_counts).sort((a,b) => {
+    const subs_ordered = Object.keys(subreddit_visible_counts).sort((a,b) => {
       let alpha = a.toLowerCase() < b.toLowerCase() ? -1 : 1
-      return (subreddit_counts[b] - subreddit_counts[a]) || alpha
+      return (subreddit_visible_counts[b] - subreddit_visible_counts[a]) || alpha
     })
     const userPageItemFilter = this.props.global.state.userPageItemFilter
     const userPageRemovedByFilter = this.props.global.state.userPageRemovedByFilter
@@ -125,7 +131,11 @@ class Selections extends React.Component {
             <option key='all' value='all'>all</option>
             {
               subs_ordered.map(subreddit => {
-                return <option key={subreddit} value={subreddit}>{subreddit} ({subreddit_counts[subreddit]})</option>
+                return (
+                  <option key={subreddit} value={subreddit}>
+                    {subreddit} ({`${subreddit_visible_counts[subreddit]} / ${subreddit_counts[subreddit]}`})
+                  </option>
+                )
               })
             }
           </select>
