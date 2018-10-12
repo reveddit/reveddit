@@ -74,7 +74,8 @@ class Selections extends React.Component {
     })
 
     const subs_ordered = Object.keys(subreddit_counts).sort((a,b) => {
-      return subreddit_counts[b] - subreddit_counts[a]
+      let alpha = a.toLowerCase() < b.toLowerCase() ? -1 : 1
+      return (subreddit_counts[b] - subreddit_counts[a]) || alpha
     })
     const userPageItemFilter = this.props.global.state.userPageItemFilter
     const userPageRemovedByFilter = this.props.global.state.userPageRemovedByFilter
