@@ -4,8 +4,6 @@ import { withRouter } from 'react-router'
 import {
   queryUserPage,
   queryByID as queryRedditByID,
-  querySearchPageByUser,
-  querySubredditPageUntil
 } from '../../api/reddit'
 import Post from '../common/Post'
 import Comment from './Comment'
@@ -18,7 +16,7 @@ import {
 } from '../../api/pushshift'
 import { REMOVAL_META, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED } from '../common/RemovedBy'
 import scrollToElement from 'scroll-to-element'
-import { isRemovedComment, isRemovedSelfPost, isComment, isPost } from '../../utils'
+import { itemIsRemovedOrDeleted, isComment, isPost } from '../../utils'
 import { connect, item_filter } from '../../state'
 import Time from '../common/Time'
 
@@ -70,15 +68,10 @@ class User extends React.Component {
       this.props.global.setError(Error('Invalid sort type, check url'))
       return
     }
-    if ( (kind === '' || kind === 'overview' || kind === 'submitted') &&
-          s.sort !== 'new') {
-      this.props.global.setError(Error('Invalid sort type, check url'))
-      return
-    }
     if (s.removal_status === 'all') {
       this.props.global.setItemFilter(item_filter.all)
-    } else if (s.removal_status === 'unknown') {
-      this.props.global.setItemFilter(item_filter.unknown)
+    } else if (s.removal_status === 'not_removed') {
+      this.props.global.setItemFilter(item_filter.not_removed)
     }
     if (s.removedby) {
       this.props.global.setRemovedByFilter_viaString(s.removedby)
@@ -88,7 +81,7 @@ class User extends React.Component {
     }
     // quick fix to avoid reloading when hitting back button after visiting /about ..
     if (! allItems.length) {
-      this.getItems_wrapper(user, kind, s.sort, s.before, s.after, s.limit, s.loadAll, s.searchPage_after)
+      this.getItems_wrapper(user, kind, s.sort, s.before, s.after, s.limit, s.loadAll)
     }
   }
   jumpToHash () {
@@ -194,167 +187,37 @@ class User extends React.Component {
     })
   }
 
-  getItems (user, kind, sort, before = '', after = '', limit, loadAll = false, searchPage_after = '') {
-    let searchPage_promise = Promise.resolve()
-    let promises = []
+  getItems (user, kind, sort, before = '', after = '', limit, loadAll = false) {
     return queryUserPage(user, kind, sort, before, after, limit)
     .then(userPageData => {
       numPages += 1
-      const userPage_userPosts = []
-      const userPage_comments = []
+      const userPage_item_lookup = {}
+      const ids = []
       userPageData.items.forEach(item => {
-        if (item.name.slice(0,2) === 't3') {
-          userPage_userPosts.push(item)
-        } else if (item.name.slice(0,2) === 't1') {
-          userPage_comments.push(item)
-        }
-        if (allItems.length > 0) {
-          item.prev = allItems[allItems.length-1].name
+        userPage_item_lookup[item.name] = item
+        ids.push(item.name)
+        if (isPost(item)) {
+          item.selftext = ''
         }
         allItems.push(item)
       })
-      allItems.slice().reverse().forEach((item, index, array) => {
-        if (index > 0) {
-          item.next = array[index-1].name
-        }
-      })
-      if (userPage_userPosts.length) {
-        const result = this.processPosts(user, sort, after, searchPage_after, userPage_userPosts)
-        promises = result.promises
-        searchPage_promise = result.searchPage_promise
-      }
-      if (userPage_comments.length) {
-        const comments_promise = this.processComments(userPage_comments)
-        promises.push(comments_promise)
-      }
-      return userPageData.after
-    }).then(userPageData_after => {
-      return Promise.all(promises).then( values => {
-        return Promise.resolve(searchPage_promise).then(searchPage_promise_result => {
-          //console.log('searchPage_userPosts length: '+Object.keys(searchPage_userPosts).length)
-          let searchPage_after = null
-          const last_value = values.slice(-1)[0]
-          if (searchPage_promise_result && searchPage_promise_result.searchPage_after) {
-            searchPage_after = searchPage_promise_result.searchPage_after
+
+      return queryRedditByID(ids)
+      .then(redditInfoItems => {
+        redditInfoItems.forEach(item => {
+          if (itemIsRemovedOrDeleted(item)) {
+            userPage_item_lookup[item.name].removed = true
           }
-          if (userPageData_after && loadAll) {
-            return this.getItems(user, kind, sort, '', userPageData_after, limit, loadAll, searchPage_after)
-          }
-          return {  userPage_after: userPageData_after,
-                  searchPage_after: searchPage_after}
         })
+        this.setState({numItems: allItems.length})
+        if (userPageData.after && loadAll) {
+          return this.getItems(user, kind, sort, '', userPageData.after, limit, loadAll)
+        }
+        return userPageData.after
       })
     })
   }
 
-  processComments(comments) {
-    const ids = comments.map(c => c.name)
-    return queryRedditByID(ids)
-    .then(redditInfoComments => {
-      const redditUserCommentLookup = {}
-      comments.forEach(comment => {
-        redditUserCommentLookup[comment.name] = comment
-      })
-      redditInfoComments.forEach(infoComment => {
-        const userComment = redditUserCommentLookup[infoComment.name]
-        if (isRemovedComment(infoComment)) {
-          userComment.removed = true
-        }
-      })
-      this.setState({numItems: allItems.length})
-    })
-    .catch(this.props.global.setError)
-  }
-
-  processPosts (user, sort, after, searchPage_after, userPage_userPosts) {
-    let searchPage_promise = Promise.resolve()
-    let promises = []
-    const userPage_userPosts_groupedBy_subreddit__recent = {}
-    const userPage_userPosts__old = []
-    userPage_userPosts.forEach(post => {
-      // scan r/subreddit page for recent items to determine removed or not
-      // this is necessary since reddit's /search may not return recent items (< 3 mins)
-      if (post.created_utc >= after_this_utc_force_subreddit_query) {
-        if (! (post.subreddit in userPage_userPosts_groupedBy_subreddit__recent)) {
-          userPage_userPosts_groupedBy_subreddit__recent[post.subreddit] = {posts: []}
-        }
-        userPage_userPosts_groupedBy_subreddit__recent[post.subreddit].posts.push(post)
-        userPage_userPosts_groupedBy_subreddit__recent[post.subreddit].oldest_created_utc = post.created_utc
-      } else {
-        userPage_userPosts__old.push(post)
-      }
-    })
-    Object.keys(userPage_userPosts_groupedBy_subreddit__recent).forEach(
-    sub => {
-      const sub_data = userPage_userPosts_groupedBy_subreddit__recent[sub]
-      const promise = querySubredditPageUntil(sub, sub_data.oldest_created_utc)
-      .then(posts => {
-        const subreddit_recentPosts = {}
-        posts.forEach(
-        post => {
-          subreddit_recentPosts[post.name] = post
-        })
-        sub_data.posts.forEach(
-        post => {
-          if (subreddit_recentPosts[post.name] === undefined || isRemovedSelfPost(post)) {
-            post.removed = true
-          } else {
-            post.removed = false
-          }
-          post.selftext = ''
-        })
-
-        this.setState({ numItems: allItems.length })
-      })
-      promises.push(promise)
-    })
-
-    if ( notYetQueriedSearchPage || searchPage_after ) {
-      searchPage_promise = querySearchPageByUser(user, sort, searchPage_after)
-      .then(searchPageData => {
-        notYetQueriedSearchPage = false
-        let searchPage_last_created_utc = 99999999999
-        searchPageData.posts.forEach(
-        post => {
-          searchPage_userPosts[post.name] = true
-          if (post.created_utc < searchPage_last_created_utc) {
-            searchPage_last_created_utc = post.created_utc
-          }
-        })
-        return { searchPage_after: searchPageData.after,
-                 searchPage_last_created_utc: searchPage_last_created_utc}
-      })
-      promises.push(searchPage_promise)
-    }
-    const another_promise = Promise.resolve(searchPage_promise)
-    .then(result => {
-      userPage_userPosts__old.forEach(
-      post => {
-        if (isRemovedSelfPost(post)) {
-          post.removed = true
-        } else if (searchPage_userPosts[post.name] === undefined) {
-          if (Object.keys(searchPage_userPosts).length < 100) {
-            // • ~80% sure this condition is correct
-            // • i'm assuming if /search query of author:xyz returns < 100 posts,
-            //   then xyz has not posted more than 100 posts
-            // • /search has a limit of how many posts are returned, and it
-            //   seems to be around 230 or 240. it is not 1,000
-            post.removed = true
-          } else if (result && post.created_utc > result.searchPage_last_created_utc) {
-            post.removed = true
-          } else if (! post.is_self) {
-            post.unknown = true
-          }
-        } else {
-          post.removed = false
-        }
-        post.selftext = ''
-      })
-      this.setState({ numItems: allItems.length })
-    })
-    promises.push(another_promise)
-    return {promises: promises, searchPage_promise: searchPage_promise}
-  }
 
   getVisibleItemsWithoutSubredditFilter() {
     const s = User.getSettings()
@@ -374,7 +237,8 @@ class User extends React.Component {
                 this.props.global.state.userPageItemFilter === item_filter.removed &&
                 (item.removed || (item.removedby && item.removedby !== NOT_REMOVED))
               ) ||
-              (this.props.global.state.userPageItemFilter === item_filter.unknown && item.unknown)
+              (this.props.global.state.userPageItemFilter === item_filter.not_removed &&
+                (! item.removed && item.removedby === NOT_REMOVED) )
              ) &&
              (removedByFilterIsUnset || itemIsOneOfSelectedRemovedBy)) {
           visibleItems.push(item)
@@ -393,18 +257,18 @@ class User extends React.Component {
     let lastTimeLoaded = ''
     const showAllSubreddits = this.props.global.state.userSubredditFilter === 'all'
     let totalPages = 10
-    if (! this.props.global.state.userNext.userPage_after) {
+    if (! this.props.global.state.userNext) {
       totalPages = numPages
     }
 
     if (! this.props.global.state.loading) {
-      if (! s.after && this.props.global.state.userNext.userPage_after) {
+      if (! s.after && this.props.global.state.userNext) {
         loadAllLink = <LoadLink next={this.state.next} user={user} sort={s.sort} this={this} kind={kind} limit={100} show={s.show} loadAll={true}/>
       }
     }
     if (this.props.global.state.loading) {
       nextLink = <div className='non-item'><img className='spin' src='/images/spin.gif'/></div>
-    } else if (this.props.global.state.userNext.userPage_after) {
+    } else if (this.props.global.state.userNext) {
       nextLink = <div className='non-item'>
         <LoadLink next={this.state.next} user={user} sort={s.sort} this={this} kind={kind} show={s.show} limit={s.limit} loadAll={false}/></div>
     }

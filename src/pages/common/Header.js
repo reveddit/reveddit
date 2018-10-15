@@ -25,14 +25,9 @@ class Header extends React.Component {
               <a className={kind === 'submitted' ? 'selected': ''} href={`${userLink}/submitted`}>submitted</a>
             <br/>
               {this.getSortLink('new')}
-              { (kind !== 'overview' && kind !== '' && kind !== 'submitted') ?
-                  [
-                    this.getSortLink('top'),
-                    this.getSortLink('hot'),
-                    this.getSortLink('controversial')
-                  ]
-                : ''
-              }
+              {this.getSortLink('top')}
+              {this.getSortLink('hot')}
+              {this.getSortLink('controversial')}
             </nav>
         </React.Fragment>
       )

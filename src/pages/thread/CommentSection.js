@@ -7,7 +7,7 @@ import {
 } from '../../utils'
 
 
-class commentSection extends React.Component {
+class CommentSection extends React.Component {
   arrayToLookup (commentList, removed, deleted) {
     const lookup = {}
 
@@ -26,14 +26,13 @@ class commentSection extends React.Component {
     return lookup
   }
 
-  unflatten (comments, root, removed, deleted) {
+  unflatten (comments, root, removed, deleted, link_author) {
     const lookup = this.arrayToLookup(comments, removed, deleted)
     const commentTree = []
-
     Object.keys(lookup).forEach(commentID => {
       const comment = lookup[commentID]
+      comment.link_author = link_author
       const parentID = comment.parent_id
-
       if (parentID === root) {
         commentTree.push(comment)
       } else {
@@ -87,11 +86,9 @@ class commentSection extends React.Component {
     return hasOkComment
   }
   render() {
-    console.time('render comment section')
     const props = this.props
-    const commentTree = this.unflatten(props.comments, props.root, props.removed, props.deleted)
+    const commentTree = this.unflatten(props.comments, props.root, props.removed, props.deleted, props.link_author)
     const {commentFilter, commentSort} = props.global.state
-
     if (commentFilter === filter.removedDeleted) {
       this.filterCommentTree(commentTree, showRemovedAndDeleted)
     } else if (commentFilter === filter.removed) {
@@ -109,20 +106,19 @@ class commentSection extends React.Component {
     } else if (commentSort === sort.old) {
       this.sortCommentTree(commentTree, oldSort)
     }
-    console.timeEnd('render comment section')
 
     return (
       commentTree.length !== 0
-        ? commentTree.map(comment => (
-          <Comment
+        ? commentTree.map(comment => {
+          return <Comment
             key={comment.id}
             {...comment}
             depth={0}
           />
-        ))
+        })
         : <p>No comments found</p>
     )
   }
 }
 
-export default connect(commentSection)
+export default connect(CommentSection)

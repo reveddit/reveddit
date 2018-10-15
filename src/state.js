@@ -22,7 +22,7 @@ export const filter = {
 export const item_filter = {
   all: 'SHOW_ALL',
   removed: 'SHOW_REMOVED',
-  unknown: 'SHOW_UNKNOWN',
+  not_removed: 'SHOW_NOT_REMOVED',
 }
 
 // Keys for localStorage

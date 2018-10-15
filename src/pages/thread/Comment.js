@@ -21,7 +21,7 @@ class Comment extends React.Component {
   }
 
   render() {
-    const props = this.props
+    let props = this.props
     let commentStyle = 'comment '
 
     if (props.removed) {
@@ -32,21 +32,30 @@ class Comment extends React.Component {
       commentStyle += props.depth % 2 === 0 ? 'comment-even' : 'comment-odd'
     }
 
-    const innerHTML = (isRemoved(props.body) && props.removed) ? '<p>[removed too quickly to be archived]</p>' : parse(props.body)
+    let innerHTML = ''
+    let author = props.author
+    if (! props.deleted) {
+        innerHTML = (isRemoved(props.body) && props.removed) ? '<p>[removed too quickly to be archived]</p>' : parse(props.body)
+    } else {
+      author = '[deleted]'
+    }
     const permalink = `/r/${props.subreddit}/comments/${props.link_id}/_/${props.id}/`
     const name = `t1_${props.id}`
-
+    let submitter = ''
+    if (! props.deleted && author === props.link_author) {
+      submitter = ' submitter '
+    }
     return (
       <div id={name} className={commentStyle}>
         <div className='comment-head'>
           <a onClick={() => this.toggleDisplayBody()} className='collapse title'>{this.getExpandIcon()}</a>
           <span className='space' />
           <a
-            href={props.author !== '[deleted]' ? `/user/${props.author}` : undefined}
-            className='author comment-author'
+            href={author !== '[deleted]' ? `/user/${author}` : undefined}
+            className={`author comment-author ${submitter}`}
           >
-            {props.author}
-            {props.deleted && ' (deleted by user)'}
+            {author}
+            {props.deleted && ' (by user)'}
           </a>
           <span className='space' />
           <span className='comment-score'>{prettyScore(props.score)} point{(props.score !== 1) && 's'}</span>

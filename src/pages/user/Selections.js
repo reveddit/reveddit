@@ -14,8 +14,8 @@ class Selections extends React.Component {
     const queryParams = new URLSearchParams(this.props.location.search)
     if (event.target.value === item_filter.all) {
       queryParams.set('removal_status', 'all')
-    } else if (event.target.value === item_filter.unknown) {
-      queryParams.set('removal_status', 'unknown')
+    } else if (event.target.value === item_filter.not_removed) {
+      queryParams.set('removal_status', 'not_removed')
     } else {
       queryParams.delete('removal_status')
     }
@@ -105,9 +105,9 @@ class Selections extends React.Component {
             removed
           </label>
           <label>
-            <input name='item_filter' type='radio' value={item_filter.unknown}
-              checked={this.isChecked(item_filter.unknown)} onChange={this.set_itemFilter.bind(this)}/>
-            unknown
+            <input name='item_filter' type='radio' value={item_filter.not_removed}
+              checked={this.isChecked(item_filter.not_removed)} onChange={this.set_itemFilter.bind(this)}/>
+            not removed
           </label>
         </div>
         <div className={`removedbyFilter filter ${Object.keys(userPageRemovedByFilter).length !== 0 ? 'set': ''}`}>

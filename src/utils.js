@@ -35,20 +35,19 @@ export const isPost = item => {
   return item.name.slice(0,2) === 't3'
 }
 
-export const isRemovedComment = comment => {
-  if (comment.name.slice(0,2) === 't1') {
-    return comment.body.replace(/\\/g,'') === '[removed]' && comment.author === '[deleted]'
-  } else {
-    return false
+export const itemIsRemovedOrDeleted = item => {
+  if (item.name.slice(0,2) === 't1') {
+    return item.body.replace(/\\/g,'') === '[removed]' && item.author.replace(/\\/g,'') === '[deleted]'
+  } else if (item.name.slice(0,2) === 't3') {
+    return ! item.is_robot_indexable
   }
 }
 
-export const isRemovedSelfPost = post => {
-  if (post.name.slice(0,2) === 't3' && post.is_self) {
-    return post.selftext.replace(/\\/g,'') === '[removed]'
-  } else {
-    return false
+export const postIsDeleted = post => {
+  if (itemIsRemovedOrDeleted(post)) {
+    return post.author.replace(/\\/g,'') === '[deleted]'
   }
+  return false
 }
 
 // Default thumbnails for reddit threads
