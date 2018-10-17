@@ -43,6 +43,15 @@ export const getComments = commentIDs => {
     .catch(errorHandler)
 }
 
+export const getItems = ids => {
+  return Promise.all(chunk(ids, 100)
+    .map(ids_chunk => queryByID(ids_chunk)))
+    .then(flatten)
+    .catch(errorHandler)
+}
+
+
+
 export const queryUserPage = (user, kind, sort, before, after, limit = 100) => {
   var url = new URL(`https://oauth.reddit.com/user/${user}/${kind}.json`)
   var params = {sort: sort, after: after, before: before, limit: limit}

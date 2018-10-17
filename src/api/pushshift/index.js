@@ -3,6 +3,38 @@ import { toBase10, toBase36 } from '../../utils'
 const postURL = 'https://elastic.pushshift.io/rs/submissions/_search?source='
 const commentURL = 'https://elastic.pushshift.io/rc/comments/_search?source='
 
+
+export const getRecentPostsBySubreddit = (subreddits_str, n = 1000) => {
+  const subreddits = subreddits_str.split(',')
+  const elasticQuery = {
+    size:n,
+    query: {
+      bool: {
+        filter: {
+          terms: {
+            subreddit: subreddits
+          }
+        }
+      }
+    },
+    sort: {
+      ['created_utc']: 'desc'
+    },
+    _source: ['retrieved_on','created_utc', 'is_crosspostable']
+  }
+  return window.fetch(postURL + JSON.stringify(elasticQuery))
+    .then(response => response.json())
+    .then(data => {
+      return data.hits.hits.map( post => {
+        const id = toBase36(post._id)
+        post._source.id = id
+        post._source.name = 't3_'+id
+        return post._source
+      })
+    })
+    .catch(() => { throw new Error('Unable to access Pushshift, cannot load recent posts') })
+}
+
 // supply either comments or posts using fullname of id (t1_+id or t3_+id)
 // note: if a post is old, pushshift will not have the is_crosspostable field..
 //       technically, this should be marked as removedby='unknown'

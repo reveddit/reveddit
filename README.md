@@ -1,6 +1,6 @@
 # revddit
-[revddit](https://revddit.com) is a site for reviewing removed content on [reddit](https://www.reddit.com) user pages.
-Visit any `reddit.com/user/<username>` page and add a `v` to the URL to see all removed content.
+[revddit](https://revddit.com/about) is a site for reviewing removed content on [reddit](https://www.reddit.com) user and subreddit pages.
+Visit any `reddit.com/user/<username>` or `reddit.com/r/<subreddit>` page and add a `v` to the URL to see recent removed content.
 
 This is done by comparing the content shown on a reddit user page to what is displayed elsewhere publicly on reddit. The code uses
 Jason Baumgartner's [Pushshift API](https://github.com/pushshift/api) to determine whether content was removed immediately (by automod)
