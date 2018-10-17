@@ -9,6 +9,7 @@ import { itemIsRemovedOrDeleted, postIsDeleted } from '../../utils'
 import Time from '../common/Time'
 import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED } from '../common/RemovedBy'
 
+var numDeletedNotShown = 0
 class Subreddit extends React.Component {
   state = {
     threads: [],
@@ -80,8 +81,10 @@ class Subreddit extends React.Component {
                 if (post.num_comments > 0) {
                   post.deleted = true
                   show_posts.push(post)
+                } else {
+                  // not showing deleted posts with 0 comments
+                  numDeletedNotShown += 1
                 }
-                // not showing deleted posts with 0 comments
               } else {
                 post.removed = true
                 if (! ps_item.is_crosspostable) {
@@ -119,6 +122,10 @@ class Subreddit extends React.Component {
     const { subreddit = 'all' } = this.props.match.params
     const noThreadsFound = this.state.threads.length === 0 && !this.state.loading
     let lastTimeLoaded = ''
+    let numPostsTitle = ''
+    if (numDeletedNotShown) {
+      numPostsTitle = `${numDeletedNotShown} user-deleted posts that have no comments are not shown`
+    }
 
     if (this.state.threads.length) {
       let oldest_time = 99999999999
@@ -130,7 +137,11 @@ class Subreddit extends React.Component {
       lastTimeLoaded = (
                           <React.Fragment>
                             <div className='non-item text'>since <Time created_utc={oldest_time} /></div>
-                            {subreddit !== 'all' ? <div className='non-item text'>of {this.state.n.toLocaleString()} posts</div> : ''}
+                            {subreddit !== 'all' ?
+                              <React.Fragment>
+                                <div className='non-item text' title={numPostsTitle}>of {this.state.n.toLocaleString()} posts</div>
+                              </React.Fragment>
+                            : ''}
                           </React.Fragment>
                        )
     }
