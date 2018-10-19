@@ -44,10 +44,13 @@ export const getComments = commentIDs => {
 }
 
 export const getItems = ids => {
-  return Promise.all(chunk(ids, 100)
-    .map(ids_chunk => queryByID(ids_chunk)))
-    .then(flatten)
-    .catch(errorHandler)
+  return getAuth()
+    .then(auth => (
+      Promise.all(chunk(ids, 100)
+      .map(ids_chunk => queryByID(ids_chunk, auth)))
+      .then(flatten)
+      .catch(errorHandler)
+    ))
 }
 
 
@@ -66,16 +69,15 @@ export const queryUserPage = (user, kind, sort, before, after, limit = 100) => {
 }
 
 
-export const queryByID = (ids) => {
+export const queryByID = (ids, auth) => {
   var url = new URL('https://oauth.reddit.com/api/info')
   var params = {id: ids.join()}
   url.search = new URLSearchParams(params)
-  return getAuth()
-    .then(auth => window.fetch(url, auth))
-    .then(response => response.json())
-    .then(results => results.data.children)
-    .then(data => data.map(thing => thing.data))
-    .catch(errorHandler)
+  return window.fetch(url, auth)
+  .then(response => response.json())
+  .then(results => results.data.children)
+  .then(data => data.map(thing => thing.data))
+  .catch(errorHandler)
 }
 
 // Results must include a post w/created_utc less than encompass_created_utc
