@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { withRouter } from 'react-router'
 import {
   queryUserPage,
-  queryByID as queryRedditByID,
+  getItems as getRedditItemsByID,
 } from '../../api/reddit'
 import Post from '../common/Post'
 import Comment from './Comment'
@@ -202,7 +202,7 @@ class User extends React.Component {
         allItems.push(item)
       })
 
-      return queryRedditByID(ids)
+      return getRedditItemsByID(ids)
       .then(redditInfoItems => {
         redditInfoItems.forEach(item => {
           if (itemIsRemovedOrDeleted(item)) {
