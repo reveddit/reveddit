@@ -31,6 +31,7 @@ class CommentSection extends React.Component {
     const commentTree = []
     Object.keys(lookup).forEach(commentID => {
       const comment = lookup[commentID]
+
       comment.link_author = link_author
       const parentID = comment.parent_id
       if (parentID === root) {

@@ -117,7 +117,7 @@ export const getComments = threadID => {
     },
     size: 20000,
     _source: [
-      'author', 'body', 'created_utc', 'parent_id', 'score', 'subreddit', 'link_id'
+      'author', 'body', 'created_utc', 'parent_id', 'score', 'subreddit', 'link_id', 'author_flair_text'
     ]
   }
 
