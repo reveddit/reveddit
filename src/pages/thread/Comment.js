@@ -35,7 +35,9 @@ class Comment extends React.Component {
     let innerHTML = ''
     let author = props.author
     if (! props.deleted) {
-        innerHTML = (isRemoved(props.body) && props.removed) ? '<p>[removed too quickly to be archived]</p>' : parse(props.body)
+        innerHTML = (isRemoved(props.body) && props.removed) ?
+          '<p>[removed too quickly to be archived]</p>' :
+          parse(props.body).replace(/&amp;/g, '&')
     } else {
       author = '[deleted]'
     }

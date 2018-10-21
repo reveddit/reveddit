@@ -36,7 +36,7 @@ class Comment extends React.Component {
       commentStyle += 'comment-even'
     }
 
-    const innerHTML = parse(props.body)
+    const innerHTML = parse(props.body).replace(/&amp;/g, '&')
 
     let link = '?'
     if (props.prev) {

@@ -8,18 +8,25 @@ const errorHandler = (e) => {
 
 // Thread = Post + Comments
 // Return the post itself
-export const getPost = (subreddit, threadID) => (
-  getAuth()
-    .then(auth => window.fetch(`https://oauth.reddit.com/r/${subreddit}/comments/${threadID}/_/`, auth))
+export const getPost = (subreddit, threadID) => {
+  var url = new URL(`https://oauth.reddit.com/r/${subreddit}/comments/${threadID}/_/`)
+  var params = {raw_json:1}
+  url.search = new URLSearchParams(params)
+  return getAuth()
+    .then(auth => window.fetch(url, auth))
     .then(response => response.json())
     .then(thread => thread[0].data.children[0].data)
     .catch(errorHandler)
-)
+}
 
 // Fetch multiple threads (via the info endpoint)
 export const getThreads = threadIDs => {
+  var url = new URL(`https://oauth.reddit.com/api/info`)
+  var ids = threadIDs.map(id => `t3_${id}`)
+  var params = {id: ids.join(), raw_json:1}
+  url.search = new URLSearchParams(params)
   return getAuth()
-    .then(auth => window.fetch(`https://oauth.reddit.com/api/info?id=${threadIDs.map(id => `t3_${id}`).join()}`, auth))
+    .then(auth => window.fetch(url, auth))
     .then(response => response.json())
     .then(response => response.data.children.map(threadData => threadData.data))
     .catch(errorHandler)
@@ -27,7 +34,11 @@ export const getThreads = threadIDs => {
 
 // Helper function that fetches a list of comments
 const fetchComments = (commentIDs, auth) => {
-  return window.fetch(`https://oauth.reddit.com/api/info?id=${commentIDs.map(id => `t1_${id}`).join()}`, auth)
+  var url = new URL(`https://oauth.reddit.com/api/info`)
+  var ids = commentIDs.map(id => `t1_${id}`)
+  var params = {id: ids.join(), raw_json:1}
+  url.search = new URLSearchParams(params)
+  return window.fetch(url, auth)
     .then(response => response.json())
     .then(results => results.data.children)
     .then(commentsData => commentsData.map(commentData => commentData.data))
@@ -57,7 +68,7 @@ export const getItems = ids => {
 
 export const queryUserPage = (user, kind, sort, before, after, limit = 100) => {
   var url = new URL(`https://oauth.reddit.com/user/${user}/${kind}.json`)
-  var params = {sort: sort, after: after, before: before, limit: limit}
+  var params = {sort: sort, after: after, before: before, limit: limit, raw_json:1}
   url.search = new URLSearchParams(params)
   return getAuth()
     .then(auth => window.fetch(url, auth))
@@ -71,7 +82,7 @@ export const queryUserPage = (user, kind, sort, before, after, limit = 100) => {
 
 export const queryByID = (ids, auth) => {
   var url = new URL('https://oauth.reddit.com/api/info')
-  var params = {id: ids.join()}
+  var params = {id: ids.join(), raw_json:1}
   url.search = new URLSearchParams(params)
   return window.fetch(url, auth)
   .then(response => response.json())
@@ -96,7 +107,7 @@ export const querySubredditPageUntil = (sub, encompass_created_utc, after = '') 
 
 export const querySubredditPage = (subreddit, sort, after = '') => {
   var url = new URL(`https://oauth.reddit.com/r/${subreddit}/${sort}.json`)
-  var params = {after: after, limit: 100}
+  var params = {after: after, limit: 100, raw_json:1}
   url.search = new URLSearchParams(params)
   return getAuth()
     .then(auth => window.fetch(url, auth))

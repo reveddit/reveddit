@@ -22,7 +22,7 @@ class Post extends React.Component {
       message_mods = <a href={mods_link} target="_blank">message mods</a>
     }
     let url = props.url.replace('https://www.reddit.com', '')
-    url = (new DOMParser).parseFromString(url, 'text/html').body.textContent
+
     const userLink = isDeleted(props.author) ? undefined : `/user/${props.author}`
 
     let thumbnail
