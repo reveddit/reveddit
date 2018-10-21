@@ -41,6 +41,7 @@ class Comment extends React.Component {
     } else {
       author = '[deleted]'
     }
+
     const permalink = `/r/${props.subreddit}/comments/${props.link_id}/_/${props.id}/`
     const name = `t1_${props.id}`
     let submitter = ''
@@ -59,6 +60,10 @@ class Comment extends React.Component {
             {author}
             {props.deleted && ' (by user)'}
           </a>
+          <span className='space' />
+          {author !== '[deleted]' && props.author_flair_text ?
+            <span className='flair'>{props.author_flair_text}</span>
+          : ''}
           <span className='space' />
           <span className='comment-score'>{prettyScore(props.score)} point{(props.score !== 1) && 's'}</span>
           <span className='space' />
