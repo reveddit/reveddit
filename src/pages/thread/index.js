@@ -10,12 +10,13 @@ import {
   getPost as getRemovedPost,
   getComments as getPushshiftComments
 } from '../../api/pushshift'
-import { isRemoved, isDeleted, itemIsRemovedOrDeleted, postIsDeleted } from '../../utils'
+import { isRemoved, isDeleted, commentIsRemoved, itemIsRemovedOrDeleted, postIsDeleted } from '../../utils'
 import { connect } from '../../state'
 import Post from '../common/Post'
 import CommentSection from './CommentSection'
 import SortBy from './SortBy'
 import CommentInfo from './CommentInfo'
+import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED } from '../common/RemovedBy'
 
 class Thread extends React.Component {
   state = {
@@ -75,7 +76,15 @@ class Thread extends React.Component {
             pushshiftComments.forEach(comment => {
               const redditComment = redditCommentLookup[comment.id]
               if (redditComment !== undefined) {
+                comment.permalink = redditComment.permalink
                 comment.score = redditComment.score
+                if (! commentIsRemoved(redditComment)) {
+                  comment.author = redditComment.author
+                  comment.body = redditComment.body
+                  if (commentIsRemoved(comment)) {
+                    comment.removedby = AUTOMOD_REMOVED_MOD_APPROVED
+                  }
+                }
               }
             })
 
@@ -115,9 +124,9 @@ class Thread extends React.Component {
     }
   }
   render () {
-    const { subreddit, id, author } = this.state.post
+    const { subreddit, id, author, permalink } = this.state.post
     const { commentID } = this.props.match.params
-    const linkToRestOfComments = `/r/${subreddit}/comments/${id}/_/`
+    const linkToRestOfComments = permalink
     const isSingleComment = (commentID !== undefined && ! this.props.history.location.hash)
     const root = isSingleComment ? commentID : id
 

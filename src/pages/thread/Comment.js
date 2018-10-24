@@ -42,7 +42,10 @@ class Comment extends React.Component {
       author = '[deleted]'
     }
 
-    const permalink = `/r/${props.subreddit}/comments/${props.link_id}/_/${props.id}/`
+    let permalink = `/r/${props.subreddit}/comments/${props.link_id}/_/${props.id}/`
+    if (props.permalink) {
+      permalink = props.permalink
+    }
     const name = `t1_${props.id}`
     let submitter = ''
     if (! props.deleted && author !== '[deleted]' && author === props.link_author) {

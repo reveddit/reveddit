@@ -35,6 +35,10 @@ export const isPost = item => {
   return item.name.slice(0,2) === 't3'
 }
 
+export const commentIsRemoved = comment => {
+  return comment.body.replace(/\\/g,'') === '[removed]' && comment.author.replace(/\\/g,'') === '[deleted]'
+}
+
 export const itemIsRemovedOrDeleted = item => {
   if (item.name.slice(0,2) === 't1') {
     return item.body.replace(/\\/g,'') === '[removed]' && item.author.replace(/\\/g,'') === '[deleted]'
