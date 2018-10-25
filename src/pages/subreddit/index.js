@@ -68,7 +68,7 @@ class Subreddit extends React.Component {
           ids.push(post.name)
           posts_pushshift_lookup[post.id] = post
         })
-        console.log(posts_pushshift)
+
         getItems(ids)
         .then(posts_reddit => {
           const show_posts = []
@@ -107,7 +107,7 @@ class Subreddit extends React.Component {
               //show_posts.push(post)
             }
           })
-          console.log(show_posts)
+
           return show_posts
         })
         .then(posts => {
