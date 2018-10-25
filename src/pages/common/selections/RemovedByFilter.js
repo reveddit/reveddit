@@ -48,7 +48,7 @@ class RemovedByFilter extends React.Component {
     const removedByFilter = this.props.global.state.removedByFilter
 
     return (
-        <div className={`removedbyFilter filter ${Object.keys(removedByFilter).length !== 0 ? 'set': ''}`}>
+        <div className={`removedbyFilter selection filter ${Object.keys(removedByFilter).length !== 0 ? 'set': ''}`}>
           <div className='title'>Removed By</div>
           {
             Object.keys(REMOVAL_META).map(type => {

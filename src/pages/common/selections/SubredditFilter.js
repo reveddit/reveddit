@@ -51,7 +51,7 @@ class SubredditFilter extends React.Component {
     }
 
     return (
-      <div className={`subredditFilter filter ${subredditFilter !== 'all'? 'set': ''}`}>
+      <div className={`subredditFilter selection filter ${subredditFilter !== 'all'? 'set': ''}`}>
         <div className='title'>Subreddit</div>
         <select value={subredditFilter} onChange={this.updateStateAndURL}>
           <option key='all' value='all'>all</option>

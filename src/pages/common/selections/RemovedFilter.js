@@ -38,7 +38,7 @@ class RemovedFilter extends React.Component {
     const removedFilter = this.props.global.state.removedFilter
 
     return (
-        <div className={`removalStatusFilter filter ${removedFilter !== removedFilter_types.all ? 'set': ''}`}>
+        <div className={`removalStatusFilter selection filter ${removedFilter !== removedFilter_types.all ? 'set': ''}`}>
           <div className='title'>Removal Status</div>
           <label>
             <input name='removedFilter_types' type='radio' value={removedFilter_types.all}

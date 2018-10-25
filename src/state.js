@@ -18,12 +18,21 @@ export const filter = {
   deleted: 'SHOW_DELETED'
 }
 
-// Filter types for items on user pages
+
 export const removedFilter_types = {
   all: 'SHOW_ALL',
   removed: 'SHOW_REMOVED',
   not_removed: 'SHOW_NOT_REMOVED',
 }
+
+export const localSort_types = {
+  score: 'score',
+  date: 'date',
+  num_comments: 'num_comments',
+  default: 'date'
+}
+
+
 
 // Keys for localStorage
 const sortKey = 'commentSort'
@@ -37,10 +46,17 @@ class GlobalState extends Container {
     removedFilter: removedFilter_types.removed,
     removedByFilter: {},
     subredditFilter: 'all',
+    localSort: localSort_types.default,
     statusText: '',
     statusImage: undefined,
     loading: false,
     error: false
+  }
+
+  setLocalSort(value) {
+    if (Object.values(localSort_types).includes(value)) {
+      this.setState({localSort: value})
+    }
   }
 
   setSubredditFilter(subreddit) {
