@@ -8,7 +8,9 @@ import {
 import Post from '../common/Post'
 import Comment from './Comment'
 import LoadLink from './LoadLink'
-import Selections from './Selections'
+import RemovedFilter from '../common/selections/RemovedFilter'
+import RemovedByFilter from '../common/selections/RemovedByFilter'
+import SubredditFilter from '../common/selections/SubredditFilter'
 import {
   getPost as getRemovedPost,
   getComments as getPushshiftComments,
@@ -17,7 +19,7 @@ import {
 import { REMOVAL_META, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED } from '../common/RemovedBy'
 import scrollToElement from 'scroll-to-element'
 import { itemIsRemovedOrDeleted, isComment, isPost } from '../../utils'
-import { connect, item_filter } from '../../state'
+import { connect, removedFilter_types } from '../../state'
 import Time from '../common/Time'
 
 const OVERVIEW = 'overview', SUBMITTED = 'submitted', BLANK='', COMMENTS='comments'
@@ -40,14 +42,16 @@ class User extends React.Component {
   }
 
   static getSettings() {
-    const result = {sort: 'new', before: '', after: '', limit: 100, loadAll: false, searchPage_after: '', show:'',
+    const result = {
+                    sort: 'new', before: '', after: '', limit: 100,
+                    loadAll: false, searchPage_after: '', show:'',
                     filter:'', removedby:'', subreddit:''}
     const url = new URL(window.location.href);
     const queryParams = new URLSearchParams(url.search);
 
     if (queryParams.has('all')) { result.loadAll = true }
 
-    ['sort', 'before', 'after', 'limit', 'searchPage_after', 'show', 'removal_status', 'removedby', 'subreddit'].forEach(p => {
+    ['sort', 'before', 'after', 'limit', 'searchPage_after', 'show'].forEach(p => {
       if (queryParams.has(p)) {
         result[p] = queryParams.get(p)
       }
@@ -67,17 +71,6 @@ class User extends React.Component {
     if (! acceptable_sorts.includes(s.sort)) {
       this.props.global.setError(Error('Invalid sort type, check url'))
       return
-    }
-    if (s.removal_status === 'all') {
-      this.props.global.setItemFilter(item_filter.all)
-    } else if (s.removal_status === 'not_removed') {
-      this.props.global.setItemFilter(item_filter.not_removed)
-    }
-    if (s.removedby) {
-      this.props.global.setRemovedByFilter_viaString(s.removedby)
-    }
-    if (s.subreddit) {
-      this.props.global.setUserSubredditFilter(s.subreddit)
     }
     // quick fix to avoid reloading when hitting back button after visiting /about ..
     if (! allItems.length) {
@@ -226,18 +219,18 @@ class User extends React.Component {
     allItems.forEach(item =>  {
       let itemIsOneOfSelectedRemovedBy = false
       Object.keys(REMOVAL_META).forEach(type => {
-        if (this.props.global.state.userPageRemovedByFilter[type] && item.removedby && item.removedby === type) {
+        if (this.props.global.state.removedByFilter[type] && item.removedby && item.removedby === type) {
           itemIsOneOfSelectedRemovedBy = true
         }
       })
       if (! s.show || s.show === item.name) {
         if ( (s.show === item.name ||
-              this.props.global.state.userPageItemFilter === item_filter.all ||
+              this.props.global.state.removedFilter === removedFilter_types.all ||
               (
-                this.props.global.state.userPageItemFilter === item_filter.removed &&
+                this.props.global.state.removedFilter === removedFilter_types.removed &&
                 (item.removed || (item.removedby && item.removedby !== NOT_REMOVED))
               ) ||
-              (this.props.global.state.userPageItemFilter === item_filter.not_removed &&
+              (this.props.global.state.removedFilter === removedFilter_types.not_removed &&
                 (! item.removed && item.removedby === NOT_REMOVED) )
              ) &&
              (removedByFilterIsUnset || itemIsOneOfSelectedRemovedBy)) {
@@ -255,7 +248,7 @@ class User extends React.Component {
     let loadAllLink = ''
     let nextLink = ''
     let lastTimeLoaded = ''
-    const showAllSubreddits = this.props.global.state.userSubredditFilter === 'all'
+    const showAllSubreddits = this.props.global.state.subredditFilter === 'all'
     let totalPages = 10
     if (! this.props.global.state.userNext) {
       totalPages = numPages
@@ -283,11 +276,15 @@ class User extends React.Component {
         <div className='subreddit-box'>
         {loadAllLink}
         </div>
-        <Selections visibleItems={visibleItems} allItems={allItems}/>
+        <div className='selections'>
+          <RemovedFilter />
+          <RemovedByFilter />
+          <SubredditFilter visibleItems={visibleItems} allItems={allItems}/>
+        </div>
         {
           visibleItems.map(item => {
             let itemIsOneOfSelectedSubreddits = false
-            if (this.props.global.state.userSubredditFilter === item.subreddit) {
+            if (this.props.global.state.subredditFilter === item.subreddit) {
               itemIsOneOfSelectedSubreddits = true
             }
             if (showAllSubreddits || itemIsOneOfSelectedSubreddits) {

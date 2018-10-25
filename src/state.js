@@ -19,7 +19,7 @@ export const filter = {
 }
 
 // Filter types for items on user pages
-export const item_filter = {
+export const removedFilter_types = {
   all: 'SHOW_ALL',
   removed: 'SHOW_REMOVED',
   not_removed: 'SHOW_NOT_REMOVED',
@@ -34,27 +34,27 @@ class GlobalState extends Container {
     commentSort: get(sortKey, sort.top),
     commentFilter: get(filterKey, filter.removedDeleted),
     userNext: {},
-    userPageItemFilter: item_filter.removed,
-    userPageRemovedByFilter: {},
-    userSubredditFilter: 'all',
+    removedFilter: removedFilter_types.removed,
+    removedByFilter: {},
+    subredditFilter: 'all',
     statusText: '',
     statusImage: undefined,
     loading: false,
     error: false
   }
 
-  setUserSubredditFilter(subreddit) {
-    this.setState({userSubredditFilter: subreddit})
+  setSubredditFilter(subreddit) {
+    this.setState({subredditFilter: subreddit})
   }
 
   setRemovedByFilter (filterType, isChecked) {
-    let userPageRemovedByFilter = this.state.userPageRemovedByFilter
+    let removedByFilter = this.state.removedByFilter
     if (isChecked) {
-      userPageRemovedByFilter[filterType] = true
+      removedByFilter[filterType] = true
     } else {
-      delete userPageRemovedByFilter[filterType]
+      delete removedByFilter[filterType]
     }
-    this.setState({userPageRemovedByFilter: userPageRemovedByFilter})
+    this.setState({removedByFilter: removedByFilter})
   }
 
   setRemovedByFilter_viaString(removedby_str) {
@@ -65,15 +65,15 @@ class GlobalState extends Container {
         removedby_obj[type.trim()] = true
       }
     })
-    this.setState({userPageRemovedByFilter: removedby_obj})
+    this.setState({removedByFilter: removedby_obj})
   }
 
   removedByFilterIsUnset () {
-    return Object.keys(this.state.userPageRemovedByFilter).length === 0
+    return Object.keys(this.state.removedByFilter).length === 0
   }
 
-  setItemFilter (filterType) {
-    this.setState({userPageItemFilter: filterType})
+  setRemovedFilter (filterType) {
+    this.setState({removedFilter: filterType})
   }
 
   setCommentSort (sortType) {
@@ -100,7 +100,7 @@ class GlobalState extends Container {
 export const connect = Component => {
   return props => (
     <Subscribe to={[GlobalState]}>
-      {gloablState => <Component {...props} global={gloablState} />}
+      {globalState => <Component {...props} global={globalState} />}
     </Subscribe>
   )
 }
