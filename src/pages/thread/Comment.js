@@ -2,6 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { prettyScore, parse, isRemoved } from '../../utils'
 import Time from '../common/Time'
+import RemovedBy from '../common/RemovedBy'
 import { connect } from '../../state'
 
 
@@ -37,7 +38,7 @@ class Comment extends React.Component {
     if (! props.deleted) {
         innerHTML = (isRemoved(props.body) && props.removed) ?
           '<p>[removed too quickly to be archived]</p>' :
-          parse(props.body).replace(/&amp;/g, '&')
+          parse(props.body.replace(/&amp;/g, '&').replace(/&gt;/g, '>').replace(/&lt;/g, '<'))
     } else {
       author = '[deleted]'
     }
@@ -54,7 +55,7 @@ class Comment extends React.Component {
     return (
       <div id={name} className={commentStyle}>
         <div className='comment-head'>
-          <a onClick={() => this.toggleDisplayBody()} className='collapse title'>{this.getExpandIcon()}</a>
+          <a onClick={() => this.toggleDisplayBody()} className='collapseToggle'>{this.getExpandIcon()}</a>
           <span className='space' />
           <a
             href={author !== '[deleted]' ? `/user/${author}` : undefined}
@@ -70,7 +71,7 @@ class Comment extends React.Component {
           <span className='space' />
           <span className='comment-score'>{prettyScore(props.score)} point{(props.score !== 1) && 's'}</span>
           <span className='space' />
-          <Time created_utc={props.created_utc}/>
+          <Time created_utc={props.created_utc}/>  <RemovedBy removedby={props.removedby} />
         </div>
         {
           this.state.displayBody ?

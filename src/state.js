@@ -24,15 +24,23 @@ export const removedFilter_types = {
   removed: 'SHOW_REMOVED',
   not_removed: 'SHOW_NOT_REMOVED',
 }
+export const removedFilter_text = {
+  SHOW_ALL: '',
+  SHOW_REMOVED: 'removed',
+  SHOW_NOT_REMOVED: 'not removed',
+}
 
 export const localSort_types = {
   score: 'score',
   date: 'date',
   num_comments: 'num_comments',
+  controversiality: 'controversiality',
+  controversiality1: 'controversiality1',
+  controversiality2: 'controversiality2',
   default: 'date'
 }
 
-
+export const localSortReverseDefault = false
 
 // Keys for localStorage
 const sortKey = 'commentSort'
@@ -47,6 +55,7 @@ class GlobalState extends Container {
     removedByFilter: {},
     subredditFilter: 'all',
     localSort: localSort_types.default,
+    localSortReverse: localSortReverseDefault,
     statusText: '',
     statusImage: undefined,
     loading: false,
@@ -57,6 +66,9 @@ class GlobalState extends Container {
     if (Object.values(localSort_types).includes(value)) {
       this.setState({localSort: value})
     }
+  }
+  setLocalSortReverse(value) {
+    this.setState({localSortReverse: value})
   }
 
   setSubredditFilter(subreddit) {

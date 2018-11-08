@@ -11,12 +11,15 @@ import {
   getComments as getPushshiftComments
 } from '../../api/pushshift'
 import { isRemoved, isDeleted, commentIsRemoved, itemIsRemovedOrDeleted, postIsDeleted } from '../../utils'
-import { connect } from '../../state'
+import { connect, localSort_types } from '../../state'
 import Post from '../common/Post'
 import CommentSection from './CommentSection'
 import SortBy from './SortBy'
 import CommentInfo from './CommentInfo'
 import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED } from '../common/RemovedBy'
+import RemovedFilter from '../common/selections/RemovedFilter'
+import RemovedByFilter from '../common/selections/RemovedByFilter'
+import LocalSort from '../common/selections/LocalSort'
 
 class Thread extends React.Component {
   state = {
@@ -73,16 +76,30 @@ class Thread extends React.Component {
             })
 
             // Replace pushshift score with reddit (its usually more accurate)
-            pushshiftComments.forEach(comment => {
-              const redditComment = redditCommentLookup[comment.id]
+            pushshiftComments.forEach(ps_comment => {
+              const retrievalLatency = ps_comment.retrieved_on-ps_comment.created_utc
+              const redditComment = redditCommentLookup[ps_comment.id]
               if (redditComment !== undefined) {
-                comment.permalink = redditComment.permalink
-                comment.score = redditComment.score
+                ps_comment.permalink = redditComment.permalink
+                ps_comment.score = redditComment.score
+                ps_comment.controversiality = redditComment.controversiality
                 if (! commentIsRemoved(redditComment)) {
-                  comment.author = redditComment.author
-                  comment.body = redditComment.body
-                  if (commentIsRemoved(comment)) {
-                    comment.removedby = AUTOMOD_REMOVED_MOD_APPROVED
+                  ps_comment.author = redditComment.author
+                  ps_comment.body = redditComment.body
+                  if (commentIsRemoved(ps_comment) && retrievalLatency <= 5) {
+                    ps_comment.removedby = AUTOMOD_REMOVED_MOD_APPROVED
+                  } else {
+                    ps_comment.removedby = NOT_REMOVED
+                  }
+                } else {
+                  if (commentIsRemoved(ps_comment)) {
+                    if (retrievalLatency <= 5) {
+                      ps_comment.removedby = AUTOMOD_REMOVED
+                    } else {
+                      ps_comment.removedby = UNKNOWN_REMOVED
+                    }
+                  } else {
+                    ps_comment.removedby = MOD_OR_AUTOMOD_REMOVED
                   }
                 }
               }
@@ -136,7 +153,11 @@ class Thread extends React.Component {
         {
           (!this.state.loadingComments && root) &&
           <React.Fragment>
-            <SortBy />
+          <div className='selections'>
+            <LocalSort type='comments' defaultSort={localSort_types.score} />
+            <RemovedFilter />
+            <RemovedByFilter />
+          </div>
             {isSingleComment &&
               <div className='view-rest-of-comment'>
                 <div>{"you are viewing a single comment's thread."}</div>

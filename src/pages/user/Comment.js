@@ -57,7 +57,7 @@ class Comment extends React.Component {
     return (
       <div id={props.name} className={commentStyle}>
         <div className='comment-head'>
-          <a onClick={() => this.toggleDisplayBody()} className='collapse title'>{this.getExpandIcon()}</a>
+          <a onClick={() => this.toggleDisplayBody()} className='collapseToggle'>{this.getExpandIcon()}</a>
           <span className='space' />
           <a
             href={props.link_permalink}

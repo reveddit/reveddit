@@ -23,6 +23,9 @@ const byDate = (a, b) => {
 const byNumComments = (a, b) => {
   return (b.num_comments - a.num_comments) || (b.created_utc - a.created_utc)
 }
+const byControversiality = (a, b) => {
+  return (a.score - b.score) || (b.num_comments - a.num_comments)
+}
 
 
 class Subreddit extends React.Component {
@@ -153,6 +156,11 @@ class Subreddit extends React.Component {
       posts_sorted.sort( byNumComments )
     } else if (localSort === localSort_types.score) {
       posts_sorted.sort( byScore )
+    } else if (localSort === localSort_types.controversiality) {
+      posts_sorted.sort( byControversiality )
+    }
+    if (this.props.global.state.localSortReverse) {
+      posts_sorted.reverse()
     }
 
     const visible = []
@@ -210,7 +218,7 @@ class Subreddit extends React.Component {
           <a href={`https://snew.github.io/r/${subreddit}`} className='subreddit-title-link'>ceddit</a>
         </div>
         <div className='selections'>
-          <LocalSort />
+          <LocalSort defaultSort={localSort_types.date}/>
           <RemovedFilter />
           <RemovedByFilter />
         </div>
