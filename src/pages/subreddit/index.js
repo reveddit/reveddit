@@ -1,5 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import scrollToElement from 'scroll-to-element'
 import { getRemovedPostIDs } from '../../api/removeddit'
 import { getRecentPostsBySubreddit } from '../../api/pushshift'
 import { getPosts, getItems } from '../../api/reddit'
@@ -49,7 +50,12 @@ class Subreddit extends React.Component {
       this.getRemovedPosts(newSubreddit)
     }
   }
-
+  jumpToHash () {
+    const hash = this.props.history.location.hash;
+    if (hash) {
+      scrollToElement(hash, { offset: -10 });
+    }
+  }
   // Download post IDs from removeddit API, then post info from reddit API
   getRemovedPosts (subreddit) {
     document.title = `/r/${subreddit}`
@@ -70,7 +76,7 @@ class Subreddit extends React.Component {
             post.removed = true
           }
         })
-        this.setState({ posts, loading: false })
+        this.setState({ posts, loading: false }, this.jumpToHash)
         this.props.global.setSuccess()
       })
       .catch(this.props.global.setError)
@@ -131,7 +137,7 @@ class Subreddit extends React.Component {
           return show_posts
         })
         .then(posts => {
-          this.setState({ posts: posts, loading: false })
+          this.setState({ posts: posts, loading: false }, this.jumpToHash)
           this.props.global.setSuccess()
         })
       })
