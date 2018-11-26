@@ -1,33 +1,16 @@
 import React from 'react'
 import { Subscribe, Container } from 'unstated'
-import { get, put } from './utils'
-
-// Sort types for comments
-export const sort = {
-  top: 'SORT_TOP',
-  bottom: 'SORT_BOTTOM',
-  new: 'SORT_NEW',
-  old: 'SORT_OLD'
-}
-
-// Filter types for comments
-export const filter = {
-  all: 'SHOW_ALL',
-  removedDeleted: 'SHOW_REMOVED_DELETED',
-  removed: 'SHOW_REMOVED',
-  deleted: 'SHOW_DELETED'
-}
-
 
 export const removedFilter_types = {
-  all: 'SHOW_ALL',
-  removed: 'SHOW_REMOVED',
-  not_removed: 'SHOW_NOT_REMOVED',
+  all: 'all',
+  removed: 'removed',
+  not_removed: 'not_removed',
+  default: 'all',
 }
 export const removedFilter_text = {
-  SHOW_ALL: '',
-  SHOW_REMOVED: 'removed',
-  SHOW_NOT_REMOVED: 'not removed',
+  all: '',
+  removed: 'removed',
+  not_removed: 'not removed',
 }
 
 export const localSort_types = {
@@ -42,16 +25,11 @@ export const localSort_types = {
 
 export const localSortReverseDefault = false
 
-// Keys for localStorage
-const sortKey = 'commentSort'
-const filterKey = 'commentFilter'
 
 class GlobalState extends Container {
   state = {
-    commentSort: get(sortKey, sort.top),
-    commentFilter: get(filterKey, filter.removedDeleted),
     userNext: {},
-    removedFilter: removedFilter_types.removed,
+    removedFilter: removedFilter_types.all,
     removedByFilter: {},
     subredditFilter: 'all',
     localSort: localSort_types.default,
@@ -102,16 +80,6 @@ class GlobalState extends Container {
 
   setRemovedFilter (filterType) {
     this.setState({removedFilter: filterType})
-  }
-
-  setCommentSort (sortType) {
-    put(sortKey, sortType)
-    this.setState({commentSort: sortType})
-  }
-
-  setCommentFilter (filterType) {
-    put(filterKey, filterType)
-    this.setState({commentFilter: filterType})
   }
 
   setSuccess = () => {

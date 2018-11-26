@@ -14,7 +14,6 @@ import { isRemoved, isDeleted, commentIsRemoved, itemIsRemovedOrDeleted, postIsD
 import { connect, localSort_types } from '../../state'
 import Post from '../common/Post'
 import CommentSection from './CommentSection'
-import SortBy from './SortBy'
 import CommentInfo from './CommentInfo'
 import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED } from '../common/RemovedBy'
 import RemovedFilter from '../common/selections/RemovedFilter'
