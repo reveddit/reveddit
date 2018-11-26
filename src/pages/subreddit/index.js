@@ -11,6 +11,7 @@ import Time from '../common/Time'
 import { REMOVAL_META, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED } from '../common/RemovedBy'
 import RemovedFilter from '../common/selections/RemovedFilter'
 import RemovedByFilter from '../common/selections/RemovedByFilter'
+import CategoryFilter from '../common/selections/CategoryFilter'
 import LocalSort from '../common/selections/LocalSort'
 
 var numDeletedNotShown = 0
@@ -144,9 +145,35 @@ class Subreddit extends React.Component {
     }
   }
 
+  getVisibleItemsWithoutCategoryFilter() {
+    const removedByFilterIsUnset = this.props.global.removedByFilterIsUnset()
+    const visibleItems = []
+    this.state.posts.forEach(post => {
+      let itemIsOneOfSelectedRemovedBy = false
+      Object.keys(REMOVAL_META).forEach(type => {
+        if (this.props.global.state.removedByFilter[type] && post.removedby && post.removedby === type) {
+          itemIsOneOfSelectedRemovedBy = true
+        }
+      })
+      if (
+        (this.props.global.state.removedFilter === removedFilter_types.all ||
+          (
+            this.props.global.state.removedFilter === removedFilter_types.removed &&
+            (post.deleted || post.removed || (post.removedby && post.removedby !== NOT_REMOVED))
+          ) ||
+          (this.props.global.state.removedFilter === removedFilter_types.not_removed &&
+            (! post.removed && post.removedby === NOT_REMOVED) )
+        ) &&
+        (removedByFilterIsUnset || itemIsOneOfSelectedRemovedBy)
+      ) {
+        visibleItems.push(post)
+      }
+    })
+    return visibleItems
+  }
+
   render () {
     const { subreddit = 'all' } = this.props.match.params
-    const removedByFilterIsUnset = this.props.global.removedByFilterIsUnset()
     const localSort = this.props.global.state.localSort
     const noPostsFound = this.state.posts.length === 0 && !this.state.loading
     let lastTimeLoaded = ''
@@ -168,29 +195,9 @@ class Subreddit extends React.Component {
     if (this.props.global.state.localSortReverse) {
       posts_sorted.reverse()
     }
+    const visibleItems = this.getVisibleItemsWithoutCategoryFilter()
+    const showAllDomains = this.props.global.state.categoryFilter_domain === 'all'
 
-    const visible = []
-    posts_sorted.forEach(post => {
-      let itemIsOneOfSelectedRemovedBy = false
-      Object.keys(REMOVAL_META).forEach(type => {
-        if (this.props.global.state.removedByFilter[type] && post.removedby && post.removedby === type) {
-          itemIsOneOfSelectedRemovedBy = true
-        }
-      })
-      if (
-        (this.props.global.state.removedFilter === removedFilter_types.all ||
-          (
-            this.props.global.state.removedFilter === removedFilter_types.removed &&
-            (post.deleted || post.removed || (post.removedby && post.removedby !== NOT_REMOVED))
-          ) ||
-          (this.props.global.state.removedFilter === removedFilter_types.not_removed &&
-            (! post.removed && post.removedby === NOT_REMOVED) )
-        ) &&
-        (removedByFilterIsUnset || itemIsOneOfSelectedRemovedBy)
-      ) {
-        visible.push(post)
-      }
-    })
 
 
     if (this.state.posts.length) {
@@ -200,12 +207,18 @@ class Subreddit extends React.Component {
           oldest_time = post.created_utc
         }
       })
+      let num_showing = visibleItems.length.toLocaleString()
+      if (! showAllDomains) {
+        num_showing = (visibleItems.filter(p =>
+          p.domain === this.props.global.state.categoryFilter_domain)
+          .length)
+      }
       lastTimeLoaded = (
         <React.Fragment>
           <div className='non-item text'>since <Time created_utc={oldest_time} /></div>
           {subreddit !== 'all' ?
             <React.Fragment>
-              <div className='non-item text' title={numPostsTitle}>{visible.length.toLocaleString()} of {this.state.n.toLocaleString()} posts</div>
+              <div className='non-item text' title={numPostsTitle}>{num_showing} of {this.state.n.toLocaleString()} posts</div>
             </React.Fragment>
           : ''}
         </React.Fragment>
@@ -225,14 +238,21 @@ class Subreddit extends React.Component {
           <LocalSort page_type='subreddit_posts'/>
           <RemovedFilter page_type='subreddit_posts' />
           <RemovedByFilter />
+          <CategoryFilter visibleItems={visibleItems} allItems={this.state.posts} type='domain'/>
         </div>
         {lastTimeLoaded}
         {
           noPostsFound
             ? <p>No removed posts found for /r/{subreddit}</p>
             :
-            visible.map(post => {
-              return <Post key={post.id} {...post} />
+            visibleItems.map(post => {
+              let itemIsOneOfSelectedDomains = false
+              if (this.props.global.state.categoryFilter_domain === post.domain) {
+                itemIsOneOfSelectedDomains = true
+              }
+              if (showAllDomains || itemIsOneOfSelectedDomains) {
+                return <Post key={post.id} {...post} />
+              }
             })
         }
       </React.Fragment>

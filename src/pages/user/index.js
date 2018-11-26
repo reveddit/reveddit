@@ -10,7 +10,7 @@ import Comment from './Comment'
 import LoadLink from './LoadLink'
 import RemovedFilter from '../common/selections/RemovedFilter'
 import RemovedByFilter from '../common/selections/RemovedByFilter'
-import SubredditFilter from '../common/selections/SubredditFilter'
+import CategoryFilter from '../common/selections/CategoryFilter'
 import {
   getPost as getRemovedPost,
   getComments as getPushshiftComments,
@@ -221,7 +221,7 @@ class User extends React.Component {
   }
 
 
-  getVisibleItemsWithoutSubredditFilter() {
+  getVisibleItemsWithoutCategoryFilter() {
     const s = User.getSettings()
     const removedByFilterIsUnset = this.props.global.removedByFilterIsUnset()
     const visibleItems = []
@@ -253,11 +253,11 @@ class User extends React.Component {
   render () {
     const { user, kind = ''} = this.props.match.params
     const s = User.getSettings()
-    const visibleItems = this.getVisibleItemsWithoutSubredditFilter()
+    const visibleItems = this.getVisibleItemsWithoutCategoryFilter()
     let loadAllLink = ''
     let nextLink = ''
     let lastTimeLoaded = ''
-    const showAllSubreddits = this.props.global.state.subredditFilter === 'all'
+    const showAllSubreddits = this.props.global.state.categoryFilter_subreddit === 'all'
     let totalPages = 10
     if (! this.props.global.state.userNext) {
       totalPages = numPages
@@ -288,12 +288,12 @@ class User extends React.Component {
         <div className='selections'>
           <RemovedFilter page_type='user' />
           <RemovedByFilter />
-          <SubredditFilter visibleItems={visibleItems} allItems={allItems}/>
+          <CategoryFilter visibleItems={visibleItems} allItems={allItems} type='subreddit'/>
         </div>
         {
           visibleItems.map(item => {
             let itemIsOneOfSelectedSubreddits = false
-            if (this.props.global.state.subredditFilter === item.subreddit) {
+            if (this.props.global.state.categoryFilter_subreddit === item.subreddit) {
               itemIsOneOfSelectedSubreddits = true
             }
             if (showAllSubreddits || itemIsOneOfSelectedSubreddits) {

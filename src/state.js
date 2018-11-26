@@ -38,7 +38,8 @@ class GlobalState extends Container {
     selection_defaults: {},
     removedFilter: removedFilter_types.all,
     removedByFilter: {},
-    subredditFilter: 'all',
+    categoryFilter_subreddit: 'all',
+    categoryFilter_domain: 'all',
     localSort: localSort_types.default,
     localSortReverse: localSortReverseDefault,
     statusText: '',
@@ -64,8 +65,8 @@ class GlobalState extends Container {
     this.setState({localSortReverse: value})
   }
 
-  setSubredditFilter(subreddit) {
-    this.setState({subredditFilter: subreddit})
+  setCategoryFilter(type, value) {
+    this.setState({['categoryFilter_'+type]: value})
   }
 
   setRemovedByFilter (filterType, isChecked) {
