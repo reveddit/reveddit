@@ -63,6 +63,7 @@ class User extends React.Component {
   componentDidMount () {
     const { user, kind = '' } = this.props.match.params
     const s = User.getSettings()
+
     document.title = `/u/${user} revddit`
     if (! acceptable_kinds.includes(kind)) {
       this.props.global.setError(Error('Invalid page, check url'))
@@ -285,7 +286,7 @@ class User extends React.Component {
         {loadAllLink}
         </div>
         <div className='selections'>
-          <RemovedFilter />
+          <RemovedFilter page_type='user' />
           <RemovedByFilter />
           <SubredditFilter visibleItems={visibleItems} allItems={allItems}/>
         </div>

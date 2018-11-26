@@ -5,7 +5,10 @@ export const removedFilter_types = {
   all: 'all',
   removed: 'removed',
   not_removed: 'not_removed',
-  default: 'all',
+  user_default: 'removed',
+  thread_default: 'all',
+  subreddit_posts_default: 'removed',
+  subreddit_comments_default: 'removed'
 }
 export const removedFilter_text = {
   all: '',
@@ -20,7 +23,10 @@ export const localSort_types = {
   controversiality: 'controversiality',
   controversiality1: 'controversiality1',
   controversiality2: 'controversiality2',
-  default: 'date'
+  user_default: 'date',
+  thread_default: 'score',
+  subreddit_posts_default: 'date',
+  subreddit_comments_default: 'date'
 }
 
 export const localSortReverseDefault = false
@@ -29,6 +35,7 @@ export const localSortReverseDefault = false
 class GlobalState extends Container {
   state = {
     userNext: {},
+    selection_defaults: {},
     removedFilter: removedFilter_types.all,
     removedByFilter: {},
     subredditFilter: 'all',
@@ -39,12 +46,18 @@ class GlobalState extends Container {
     loading: false,
     error: false
   }
-
   setLocalSort(value) {
     if (Object.values(localSort_types).includes(value)) {
       this.setState({localSort: value})
     }
   }
+  setLocalSortAndDefault(value, defaultValue) {
+    let selection_defaults = this.state.selection_defaults
+    selection_defaults.localSort = defaultValue
+    this.setState({localSort: value,
+                   selection_defaults: selection_defaults})
+  }
+
   setLocalSortReverse(value) {
     this.setState({localSortReverse: value})
   }
@@ -78,8 +91,14 @@ class GlobalState extends Container {
     return Object.keys(this.state.removedByFilter).length === 0
   }
 
-  setRemovedFilter (filterType) {
-    this.setState({removedFilter: filterType})
+  setRemovedFilter (value) {
+    this.setState({removedFilter: value})
+  }
+  setRemovedFilterAndDefault (value, defaultValue) {
+    let selection_defaults = this.state.selection_defaults
+    selection_defaults.removedFilter = defaultValue
+    this.setState({removedFilter: value,
+                   selection_defaults: selection_defaults})
   }
 
   setSuccess = () => {

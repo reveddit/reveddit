@@ -224,8 +224,8 @@ class Subreddit extends React.Component {
           <a href={`https://snew.github.io/r/${subreddit}`} className='subreddit-title-link'>ceddit</a>
         </div>
         <div className='selections'>
-          <LocalSort defaultSort={localSort_types.date}/>
-          <RemovedFilter />
+          <LocalSort page_type='subreddit_posts'/>
+          <RemovedFilter page_type='subreddit_posts' />
           <RemovedByFilter />
         </div>
         {lastTimeLoaded}

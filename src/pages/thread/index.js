@@ -153,8 +153,8 @@ class Thread extends React.Component {
           (!this.state.loadingComments && root) &&
           <React.Fragment>
           <div className='selections'>
-            <LocalSort type='comments' defaultSort={localSort_types.score} />
-            <RemovedFilter />
+            <LocalSort page_type='thread' />
+            <RemovedFilter page_type='thread' />
             <RemovedByFilter />
           </div>
             {isSingleComment &&

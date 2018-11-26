@@ -10,10 +10,11 @@ class LocalSort extends React.Component {
   componentDidMount() {
     const queryParams = new URLSearchParams(this.props.location.search)
     const paramValue_sortType = queryParams.get(paramKey_sortType)
-    if (paramValue_sortType) {
-      this.props.global.setLocalSort(paramValue_sortType)
+    const defaultValue_sortType = localSort_types[this.props.page_type+'_default']
+    if (paramValue_sortType in localSort_types) {
+      this.props.global.setLocalSortAndDefault(paramValue_sortType, defaultValue_sortType)
     } else {
-      this.props.global.setLocalSort(this.props.defaultSort)
+      this.props.global.setLocalSortAndDefault(defaultValue_sortType, defaultValue_sortType)
     }
     const paramValue_reverse = queryParams.get(paramKey_reverse)
     if (paramValue_reverse) {
@@ -30,7 +31,7 @@ class LocalSort extends React.Component {
 
     const queryParams = new URLSearchParams(this.props.location.search)
 
-    if (event.target.value === this.props.defaultSort) {
+    if (event.target.value === this.props.global.state.selection_defaults.localSort) {
       queryParams.delete(paramKey_sortType)
     } else {
       queryParams.set(paramKey_sortType, event.target.value)
@@ -59,7 +60,7 @@ class LocalSort extends React.Component {
     return (
         <div className={`localSort selection`}>
           <div className='title'>Sort By</div>
-          {this.props.type === 'comments' ?
+          {this.props.page_type === 'thread' ?
             <React.Fragment>
               <label>
                 <input type='radio' value={localSort_types.controversiality1}

@@ -9,14 +9,15 @@ class RemovedByFilter extends React.Component {
 
   componentDidMount() {
     const queryParams = new URLSearchParams(this.props.location.search)
-    if (queryParams.get(paramKey)) {
-      this.props.global.setRemovedByFilter_viaString(queryParams.get(paramKey))
+    let value = queryParams.get(paramKey)
+    if (! value) {
+      value = ''
     }
+    this.props.global.setRemovedByFilter_viaString(value)
   }
 
   updateStateAndURL = (event) => {
     this.props.global.setRemovedByFilter(event.target.value, event.target.checked)
-    // TODO: Change query params based on checked values
     const queryParams = new URLSearchParams(this.props.location.search)
     let removedby_str = queryParams.get(paramKey)
     if (! removedby_str) {

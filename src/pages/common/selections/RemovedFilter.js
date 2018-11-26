@@ -9,10 +9,12 @@ class RemovedFilter extends React.Component {
 
   componentDidMount() {
     const queryParams = new URLSearchParams(this.props.location.search)
-    if (queryParams.get(paramKey) === 'all') {
-      this.props.global.setRemovedFilter(removedFilter_types.all)
-    } else if (queryParams.get(paramKey) === 'not_removed') {
-      this.props.global.setRemovedFilter(removedFilter_types.not_removed)
+    const paramValue = queryParams.get(paramKey)
+    const defaultValue = removedFilter_types[this.props.page_type+'_default']
+    if (paramValue in removedFilter_types) {
+      this.props.global.setRemovedFilterAndDefault(paramValue, defaultValue)
+    } else {
+      this.props.global.setRemovedFilterAndDefault(defaultValue, defaultValue)
     }
   }
 
@@ -23,7 +25,7 @@ class RemovedFilter extends React.Component {
     this.props.global.setRemovedFilter(event.target.value)
 
     const queryParams = new URLSearchParams(this.props.location.search)
-    if (event.target.value === removedFilter_types.default) {
+    if (event.target.value === this.props.global.state.selection_defaults.removedFilter) {
       queryParams.delete(paramKey)
     } else {
       queryParams.set(paramKey, event.target.value)
