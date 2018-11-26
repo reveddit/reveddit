@@ -46,6 +46,8 @@ class GlobalState extends Container {
     loading: false,
     error: false
   }
+
+
   setLocalSort(value) {
     if (Object.values(localSort_types).includes(value)) {
       this.setState({localSort: value})
@@ -89,6 +91,16 @@ class GlobalState extends Container {
 
   removedByFilterIsUnset () {
     return Object.keys(this.state.removedByFilter).length === 0
+  }
+  removedFiltersAreUnset() {
+    return (this.removedByFilterIsUnset() &&
+            this.state.removedFilter === removedFilter_types.all)
+  }
+  resetRemovedFilters = () => {
+    this.setState({
+        removedFilter: this.state.selection_defaults.removedFilter,
+      removedByFilter: {}
+    })
   }
 
   setRemovedFilter (value) {

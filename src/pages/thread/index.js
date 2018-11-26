@@ -139,12 +139,14 @@ class Thread extends React.Component {
       scrollToElement(hash, { offset: -10 });
     }
   }
+
   render () {
     const { subreddit, id, author, permalink } = this.state.post
     const { commentID } = this.props.match.params
     const linkToRestOfComments = permalink
     const isSingleComment = (commentID !== undefined && ! this.props.history.location.hash)
     const root = isSingleComment ? commentID : id
+    const removedFiltersAreUnset = this.props.global.removedFiltersAreUnset()
 
     return (
       <React.Fragment>
@@ -160,7 +162,13 @@ class Thread extends React.Component {
             {isSingleComment &&
               <div className='view-rest-of-comment'>
                 <div>{"you are viewing a single comment's thread."}</div>
-                <Link to={linkToRestOfComments}>view the rest of the comments</Link>
+                <Link to={linkToRestOfComments}>view all comments</Link>
+              </div>
+            }
+            {! isSingleComment && ! removedFiltersAreUnset &&
+              <div className='view-rest-of-comment'>
+                <div>{"some comments may be hidden by selected filters."}</div>
+                <Link to={linkToRestOfComments} onClick={this.props.global.resetRemovedFilters}>view all comments</Link>
               </div>
             }
             <CommentSection
