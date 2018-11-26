@@ -81,7 +81,6 @@ class Comment extends React.Component {
                 <a href={`${permalink}#${name}`}>hashlink</a>
                 <Link to={permalink}>permalink</Link>
                 <a href={`https://www.reddit.com${permalink}`}>reddit</a>
-                <a href={`https://snew.github.io${permalink}`}>ceddit</a>
               </div>
               <div>
                 {props.replies.map(comment => (

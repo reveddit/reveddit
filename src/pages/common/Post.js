@@ -68,7 +68,6 @@ class Post extends React.Component {
             <Link to={props.permalink}>{props.num_comments} comments</Link>
             <a href={`${current_page}#${props.name}`}>hashlink</a>
             <a href={`https://www.reddit.com${props.permalink}`}>reddit</a>
-            <a href={`https://snew.github.io${props.permalink}`}>ceddit</a>
             {message_mods}
           </div>
         </div>

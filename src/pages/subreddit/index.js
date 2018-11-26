@@ -220,8 +220,6 @@ class Subreddit extends React.Component {
           <Link to={`/r/${subreddit}`} className='subreddit-title'>/r/{subreddit}</Link>
           <span className='space' />
           <a href={`https://www.reddit.com/r/${subreddit}`} className='subreddit-title-link'>reddit</a>
-          <span className='space' />
-          <a href={`https://snew.github.io/r/${subreddit}`} className='subreddit-title-link'>ceddit</a>
         </div>
         <div className='selections'>
           <LocalSort page_type='subreddit_posts'/>
