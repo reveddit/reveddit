@@ -7,7 +7,7 @@ import {
   getComments as getRedditComments
 } from '../../api/reddit'
 import {
-  getPost as getRemovedPost,
+  getPost as getPushshiftPost,
   getComments as getPushshiftComments
 } from '../../api/pushshift'
 import { isRemoved, isDeleted, commentIsRemoved, itemIsRemovedOrDeleted, postIsDeleted } from '../../utils'
@@ -34,30 +34,44 @@ class Thread extends React.Component {
     this.props.global.setLoading('Loading comments from Pushshift...')
 
     // Get thread from reddit
-    getPost(subreddit, threadID)
-      .then(post => {
-        document.title = post.title
-        // Fetch the thread from pushshift if it was deleted/removed
-        if (itemIsRemovedOrDeleted(post)) {
-          if (postIsDeleted(post)) {
-            post.deleted = true
-            post.selftext = ''
-          } else {
-            post.removed = true
-          }
-          this.setState({ post })
-          if (! postIsDeleted(post) && post.is_self) {
-            getRemovedPost(threadID)
-            .then(removedPost => {
-              post.selftext = removedPost.selftext
-              this.setState({ post })
-            })
-          }
+    const reddit_promise = getPost(subreddit, threadID)
+    const pushshift_promise = getPushshiftPost(threadID)
+    Promise.all([reddit_promise, pushshift_promise])
+    .then(values => {
+      const post = values[0]
+      const ps_post = values[1]
+      document.title = post.title
+      const retrievalLatency = ps_post.retrieved_on-ps_post.created_utc
+      if (itemIsRemovedOrDeleted(post)) {
+        if (postIsDeleted(post)) {
+          post.deleted = true
+          post.selftext = ''
         } else {
-          this.setState({ post })
+          post.removed = true
+          if (post.is_self) {
+            post.selftext = ps_post.selftext
+          }
+          if (! ps_post.is_crosspostable) {
+            if (retrievalLatency <= 5) {
+              post.removedby = AUTOMOD_REMOVED
+            } else {
+              post.removedby = UNKNOWN_REMOVED
+            }
+          } else {
+            post.removedby = MOD_OR_AUTOMOD_REMOVED
+          }
         }
-      })
-      .catch(this.props.global.setError)
+      } else {
+        // not-removed posts
+        if (! ps_post.is_crosspostable && retrievalLatency <= 5) {
+          post.removedby = AUTOMOD_REMOVED_MOD_APPROVED
+        } else {
+          post.removedby = NOT_REMOVED
+        }
+      }
+      this.setState({ post })
+    })
+    .catch(this.props.global.setError)
 
     // Get comment ids from pushshift
     getPushshiftComments(threadID)
