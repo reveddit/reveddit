@@ -192,7 +192,15 @@ class User extends React.Component {
         if (isPost(item)) {
           item.selftext = ''
         }
+        if (allItems.length > 0) {
+          item.prev = allItems[allItems.length-1].name
+        }
         allItems.push(item)
+      })
+      allItems.slice().reverse().forEach((item, index, array) => {
+        if (index > 0) {
+          item.next = array[index-1].name
+        }
       })
 
       return getRedditItemsByID(ids)
