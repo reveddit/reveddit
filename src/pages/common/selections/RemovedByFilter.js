@@ -61,7 +61,7 @@ class RemovedByFilter extends React.Component {
                       value={type}
                       onChange={this.updateStateAndURL}
                     />
-                    {REMOVAL_META[type].filter_text}
+                    <span>{REMOVAL_META[type].filter_text}</span>
                   </label>
                 </div>
               )

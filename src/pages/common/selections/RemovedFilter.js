@@ -43,17 +43,17 @@ class RemovedFilter extends React.Component {
           <label>
             <input name='removedFilter_types' type='radio' value={removedFilter_types.all}
               checked={this.isChecked(removedFilter_types.all)} onChange={this.updateStateAndURL}/>
-            all
+            <span>all</span>
           </label>
           <label>
             <input name='removedFilter_types' type='radio' value={removedFilter_types.removed}
               checked={this.isChecked(removedFilter_types.removed)} onChange={this.updateStateAndURL}/>
-            removed
+            <span>removed</span>
           </label>
           <label>
             <input name='removedFilter_types' type='radio' value={removedFilter_types.not_removed}
               checked={this.isChecked(removedFilter_types.not_removed)} onChange={this.updateStateAndURL}/>
-            not removed
+            <span>not removed</span>
           </label>
         </div>
     )

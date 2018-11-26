@@ -54,53 +54,38 @@ class LocalSort extends React.Component {
     this.props.history.push(to)
   }
 
+  makeLabel(value, text) {
+    return (
+      <label>
+        <input type='radio' value={localSort_types[value]}
+          checked={this.isChecked(localSort_types[value])} onChange={this.updateStateAndURL_sortType}/>
+        <span>{text}</span>
+      </label>
+    )
+  }
+
   render() {
     const localSortReverse = this.props.global.state.localSortReverse
-
     return (
         <div className={`localSort selection`}>
           <div className='title'>Sort By</div>
           {this.props.page_type === 'thread' ?
             <React.Fragment>
-              <label>
-                <input type='radio' value={localSort_types.controversiality1}
-                  checked={this.isChecked(localSort_types.controversiality1)} onChange={this.updateStateAndURL_sortType}/>
-                controversiality v1
-              </label>
-              <label>
-                <input type='radio' value={localSort_types.controversiality2}
-                  checked={this.isChecked(localSort_types.controversiality2)} onChange={this.updateStateAndURL_sortType}/>
-                controversiality v2
-              </label>
+              {this.makeLabel('controversiality1', 'controversiality v1')}
+              {this.makeLabel('controversiality2', 'controversiality v2')}
             </React.Fragment>
           :
-            <label>
-              <input type='radio' value={localSort_types.controversiality}
-                checked={this.isChecked(localSort_types.controversiality)} onChange={this.updateStateAndURL_sortType}/>
-              controversiality
-            </label>
+            this.makeLabel('controversiality', 'controversiality')
           }
-          <label>
-            <input type='radio' value={localSort_types.num_comments}
-              checked={this.isChecked(localSort_types.num_comments)} onChange={this.updateStateAndURL_sortType}/>
-            number of comments
-          </label>
-          <label>
-            <input type='radio' value={localSort_types.score}
-              checked={this.isChecked(localSort_types.score)} onChange={this.updateStateAndURL_sortType}/>
-            score
-          </label>
-          <label>
-            <input type='radio' value={localSort_types.date}
-              checked={this.isChecked(localSort_types.date)} onChange={this.updateStateAndURL_sortType}/>
-            date
-          </label>
+          {this.makeLabel('num_comments', 'number of comments')}
+          {this.makeLabel('score', 'score')}
+          {this.makeLabel('date', 'date')}
           <label id='reverseSort'>
             <input type='checkbox'
               checked={localSortReverse}
               onChange={this.updateStateAndURL_reverse}
             />
-          reverse
+            <span>reverse</span>
           </label>
         </div>
     )
