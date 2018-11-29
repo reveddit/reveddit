@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { connect } from '../../state'
-import { getSettings } from '../user'
+import { connect } from 'state'
+import { getSettings } from 'pages/user'
 
 class Header extends React.Component {
   getSortLink(sort) {

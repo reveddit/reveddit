@@ -1,4 +1,4 @@
-import { chunk, flatten } from '../../utils'
+import { chunk, flatten } from 'utils'
 import { getAuth } from './auth'
 
 const errorHandler = (e) => {

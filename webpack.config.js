@@ -19,5 +19,8 @@ module.exports = (env, argv) => ({
         use: 'babel-loader'
       }
     ]
+  },
+  resolve: {
+    modules: [path.resolve(__dirname, 'src'), 'node_modules']
   }
 })

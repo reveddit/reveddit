@@ -1,6 +1,6 @@
 import React from 'react'
 import { withRouter } from 'react-router';
-import { connect } from '../../../state'
+import { connect } from 'state'
 
 class CategoryFilter extends React.Component {
 

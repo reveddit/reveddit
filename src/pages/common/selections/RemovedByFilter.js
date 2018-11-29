@@ -1,9 +1,9 @@
 import React from 'react'
-import { connect } from '../../../state'
+import { connect } from 'state'
 import { withRouter } from 'react-router';
-import { REMOVAL_META } from '../RemovedBy'
+import { REMOVAL_META } from 'pages/common/RemovedBy'
 
-const paramKey = 'removedby'
+const paramKey = 'pages/common/RemovedBy'
 
 class RemovedByFilter extends React.Component {
 

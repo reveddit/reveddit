@@ -1,5 +1,5 @@
 import React from 'react'
-import { connect } from '../../state'
+import { connect } from 'state'
 
 class Time extends React.Component {
   finePrettyDate(createdUTC) {

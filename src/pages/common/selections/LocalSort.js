@@ -1,5 +1,5 @@
 import React from 'react'
-import { connect, localSort_types, localSortReverseDefault } from '../../../state'
+import { connect, localSort_types, localSortReverseDefault } from 'state'
 import { withRouter } from 'react-router';
 
 const paramKey_sortType = 'localSort'

@@ -1,4 +1,4 @@
-import { toBase10, toBase36 } from '../../utils'
+import { toBase10, toBase36 } from 'utils'
 
 const postURL = 'https://elastic.pushshift.io/rs/submissions/_search?source='
 const commentURL = 'https://elastic.pushshift.io/rc/comments/_search?source='

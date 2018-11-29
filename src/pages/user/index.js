@@ -4,23 +4,23 @@ import { withRouter } from 'react-router'
 import {
   queryUserPage,
   getItems as getRedditItemsByID,
-} from '../../api/reddit'
-import Post from '../common/Post'
+} from 'api/reddit'
+import Post from 'pages/common/Post'
 import Comment from './Comment'
 import LoadLink from './LoadLink'
-import RemovedFilter from '../common/selections/RemovedFilter'
-import RemovedByFilter from '../common/selections/RemovedByFilter'
-import CategoryFilter from '../common/selections/CategoryFilter'
+import RemovedFilter from 'pages/common/selections/RemovedFilter'
+import RemovedByFilter from 'pages/common/selections/RemovedByFilter'
+import CategoryFilter from 'pages/common/selections/CategoryFilter'
 import {
   getPost as getRemovedPost,
   getComments as getPushshiftComments,
   getAutoremovedItems
-} from '../../api/pushshift'
-import { REMOVAL_META, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED } from '../common/RemovedBy'
+} from 'api/pushshift'
+import { REMOVAL_META, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED } from 'pages/common/RemovedBy'
 import scrollToElement from 'scroll-to-element'
-import { itemIsRemovedOrDeleted, isComment, isPost } from '../../utils'
-import { connect, removedFilter_types } from '../../state'
-import Time from '../common/Time'
+import { itemIsRemovedOrDeleted, isComment, isPost } from 'utils'
+import { connect, removedFilter_types } from 'state'
+import Time from 'pages/common/Time'
 
 const OVERVIEW = 'overview', SUBMITTED = 'submitted', BLANK='', COMMENTS='comments'
 const NOW = Math.floor((new Date).getTime()/1000)

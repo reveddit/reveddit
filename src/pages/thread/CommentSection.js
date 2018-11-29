@@ -1,9 +1,9 @@
 import React from 'react'
 import { withRouter } from 'react-router';
 import Comment from './Comment'
-import {connect, localSort_types, removedFilter_types, removedFilter_text} from '../../state'
-import { showRemovedAndDeleted } from '../../utils'
-import { NOT_REMOVED, REMOVAL_META } from '../common/RemovedBy'
+import {connect, localSort_types, removedFilter_types, removedFilter_text} from 'state'
+import { showRemovedAndDeleted } from 'utils'
+import { NOT_REMOVED, REMOVAL_META } from 'pages/common/RemovedBy'
 const byScore = (a, b) => {
   return (b.score - a.score) || (b.replies.length - a.replies.length)
 }

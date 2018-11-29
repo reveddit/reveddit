@@ -1,7 +1,7 @@
 import React from 'react'
-import { connect, removedFilter_types } from '../../../state'
+import { connect, removedFilter_types } from 'state'
 import { withRouter } from 'react-router';
-import { REMOVAL_META, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED } from '../RemovedBy'
+import { REMOVAL_META, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED } from 'pages/common/RemovedBy'
 
 const paramKey = 'removal_status'
 

@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { connect } from '../../state'
+import { connect } from 'state'
 import { withRouter } from 'react-router';
 
 

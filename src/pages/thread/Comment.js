@@ -1,9 +1,9 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { prettyScore, parse, isRemoved } from '../../utils'
-import Time from '../common/Time'
-import RemovedBy from '../common/RemovedBy'
-import { connect } from '../../state'
+import { prettyScore, parse, isRemoved } from 'utils'
+import Time from 'pages/common/Time'
+import RemovedBy from 'pages/common/RemovedBy'
+import { connect } from 'state'
 
 
 class Comment extends React.Component {

@@ -1,10 +1,10 @@
 import React from 'react'
 import { withRouter } from 'react-router'
 import { Link } from 'react-router-dom'
-import { prettyScore, parse, redditThumbnails, isDeleted } from '../../utils'
-import Time from '../common/Time'
-import RemovedBy from '../common/RemovedBy'
-import { NOT_REMOVED } from '../common/RemovedBy'
+import { prettyScore, parse, redditThumbnails, isDeleted } from 'utils'
+import Time from 'pages/common/Time'
+import RemovedBy from 'pages/common/RemovedBy'
+import { NOT_REMOVED } from 'pages/common/RemovedBy'
 
 class Post extends React.Component {
   render() {

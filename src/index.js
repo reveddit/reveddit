@@ -7,6 +7,7 @@ import { Provider } from 'unstated'
 import Header from './pages/common/Header'
 import About from './pages/about'
 import Subreddit from './pages/subreddit'
+import SubredditComments from './pages/subreddit/comments'
 import Thread from './pages/thread'
 import User from './pages/user'
 import NotFound from './pages/404'
@@ -34,6 +35,7 @@ class App extends React.Component {
             <DefaultLayout path='/about' component={About} />
             <DefaultLayout path='/r/:subreddit/comments/:threadID/:junk/:commentID' component={Thread} />
             <DefaultLayout path='/r/:subreddit/comments/:threadID' component={Thread} />
+            <DefaultLayout path='/r/:subreddit/comments/' component={SubredditComments} />
             <DefaultLayout path='/r/:subreddit' component={Subreddit} />
             <DefaultLayout path='/user/:user/:kind' component={User} />
             <DefaultLayout path='/user/:user' component={User} />
