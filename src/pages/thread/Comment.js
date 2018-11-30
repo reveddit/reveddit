@@ -83,13 +83,16 @@ class Comment extends React.Component {
                 <a href={`https://www.reddit.com${permalink}`}>reddit</a>
               </div>
               <div>
-                {props.replies.map(comment => (
-                  <Comment
-                    key={comment.id}
-                    {...comment}
-                    depth={props.depth + 1}
-                  />
-                ))}
+                {
+                  'replies' in props &&
+                    props.replies.map(comment => (
+                      <Comment
+                        key={comment.id}
+                        {...comment}
+                        depth={props.depth + 1}
+                      />
+                    ))
+                }
               </div>
             </div>
 

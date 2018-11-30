@@ -3,9 +3,9 @@ import { Link } from 'react-router-dom'
 import { withRouter } from 'react-router'
 import scrollToElement from 'scroll-to-element'
 import {
-  getPost,
-  getComments as getRedditComments
+  getPost
 } from 'api/reddit'
+import { combinePushshiftAndRedditComments } from 'dataProcessing'
 import {
   getPost as getPushshiftPost,
   getComments as getPushshiftComments
@@ -23,8 +23,6 @@ class Thread extends React.Component {
   state = {
     post: {},
     pushshiftComments: [],
-    removed: [],
-    deleted: [],
     loadingComments: true
   }
 
@@ -74,77 +72,21 @@ class Thread extends React.Component {
 
     // Get comment ids from pushshift
     getPushshiftComments(threadID)
-      .then(pushshiftComments => {
-        // Extract ids from pushshift response
-        const ids = pushshiftComments.map(comment => comment.id)
-        this.props.global.setLoading('Comparing comments to Reddit API...')
-        // Get all the comments from reddit
-        return getRedditComments(ids)
-          .then(redditComments => {
-            // Temporary lookup for updating score
-            const redditCommentLookup = {}
-            redditComments.forEach(comment => {
-              redditCommentLookup[comment.id] = comment
-            })
-
-            // Replace pushshift score with reddit (its usually more accurate)
-            pushshiftComments.forEach(ps_comment => {
-              const retrievalLatency = ps_comment.retrieved_on-ps_comment.created_utc
-              const redditComment = redditCommentLookup[ps_comment.id]
-              if (redditComment !== undefined) {
-                ps_comment.permalink = redditComment.permalink
-                ps_comment.score = redditComment.score
-                ps_comment.controversiality = redditComment.controversiality
-                if (! commentIsRemoved(redditComment)) {
-                  ps_comment.author = redditComment.author
-                  ps_comment.body = redditComment.body
-                  if (commentIsRemoved(ps_comment) && retrievalLatency <= 5) {
-                    ps_comment.removedby = AUTOMOD_REMOVED_MOD_APPROVED
-                  } else {
-                    ps_comment.removedby = NOT_REMOVED
-                  }
-                } else {
-                  if (commentIsRemoved(ps_comment)) {
-                    if (retrievalLatency <= 5) {
-                      ps_comment.removedby = AUTOMOD_REMOVED
-                    } else {
-                      ps_comment.removedby = UNKNOWN_REMOVED
-                    }
-                  } else {
-                    ps_comment.removedby = MOD_OR_AUTOMOD_REMOVED
-                  }
-                }
-              }
-            })
-
-            const removed = []
-            const deleted = []
-
-            // Check what as removed / deleted according to reddit
-            redditComments.forEach(comment => {
-              if (isRemoved(comment.body)) {
-                removed.push(comment.id)
-              } else if (isDeleted(comment.body)) {
-                deleted.push(comment.id)
-              }
-            })
-
-            console.log(`Pushshift: ${pushshiftComments.length} comments`)
-            console.log(`Reddit: ${redditComments.length} comments`)
-
-            this.props.global.setSuccess()
-            this.setState({
-              pushshiftComments,
-              removed,
-              deleted,
-              loadingComments: false
-            })
-          })
-      })
+    .then(pushshiftComments => {
+      this.props.global.setLoading('Comparing comments to Reddit API...')
+      combinePushshiftAndRedditComments(pushshiftComments)
       .then(result => {
-        this.jumpToHash()
+        this.props.global.setSuccess()
+        this.setState({
+          pushshiftComments,
+          loadingComments: false
+        })
       })
-      .catch(this.props.global.setError)
+    })
+    .then(result => {
+      this.jumpToHash()
+    })
+    .catch(this.props.global.setError)
   }
   jumpToHash () {
     const hash = this.props.history.location.hash;
@@ -187,8 +129,6 @@ class Thread extends React.Component {
             <CommentSection
               root={root}
               comments={this.state.pushshiftComments}
-              removed={this.state.removed}
-              deleted={this.state.deleted}
               link_author={author}
               isSingleComment={isSingleComment}
             />

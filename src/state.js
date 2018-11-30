@@ -10,6 +10,9 @@ export const removedFilter_types = {
   subreddit_posts_default: 'removed',
   subreddit_comments_default: 'removed'
 }
+
+export const removedFilter_key = 'removal_status'
+
 export const removedFilter_text = {
   all: '',
   removed: 'removed',
@@ -40,6 +43,7 @@ class GlobalState extends Container {
     removedByFilter: {},
     categoryFilter_subreddit: 'all',
     categoryFilter_domain: 'all',
+    categoryFilter_link_title: 'all',
     localSort: localSort_types.default,
     localSortReverse: localSortReverseDefault,
     statusText: '',
@@ -99,7 +103,7 @@ class GlobalState extends Container {
   }
   resetRemovedFilters = () => {
     this.setState({
-        removedFilter: this.state.selection_defaults.removedFilter,
+        removedFilter: removedFilter_types.all,
       removedByFilter: {}
     })
   }

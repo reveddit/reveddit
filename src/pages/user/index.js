@@ -288,7 +288,8 @@ class User extends React.Component {
         <div className='selections'>
           <RemovedFilter page_type='user' />
           <RemovedByFilter />
-          <CategoryFilter visibleItems={visibleItems} allItems={allItems} type='subreddit'/>
+          <CategoryFilter visibleItems={visibleItems} allItems={allItems}
+            type='subreddit' title='Subreddit'/>
         </div>
         {
           visibleItems.map(item => {

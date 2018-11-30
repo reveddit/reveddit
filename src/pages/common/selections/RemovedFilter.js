@@ -1,9 +1,9 @@
 import React from 'react'
-import { connect, removedFilter_types } from 'state'
+import { connect, removedFilter_types, removedFilter_key } from 'state'
 import { withRouter } from 'react-router';
 import { REMOVAL_META, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED } from 'pages/common/RemovedBy'
 
-const paramKey = 'removal_status'
+const paramKey = removedFilter_key
 
 class RemovedFilter extends React.Component {
 

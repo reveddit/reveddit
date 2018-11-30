@@ -35,6 +35,10 @@ export const isPost = item => {
   return item.name.slice(0,2) === 't3'
 }
 
+export const commentIsDeleted = comment => {
+  return comment.body.replace(/\\/g,'') === '[deleted]' && comment.author.replace(/\\/g,'') === '[deleted]'
+}
+
 export const commentIsRemoved = comment => {
   return comment.body.replace(/\\/g,'') === '[removed]' && comment.author.replace(/\\/g,'') === '[deleted]'
 }

@@ -60,11 +60,10 @@ class Subreddit extends React.Component {
   // Download post IDs from removeddit API, then post info from reddit API
   getRemovedPosts (subreddit) {
     document.title = `/r/${subreddit}`
-    this.setState({ posts: [], loading: true })
+    const n = 1000
+    this.setState({ posts: [], loading: true, n: n })
     this.props.global.setLoading('Loading removed posts...')
     subreddit = subreddit.toLowerCase()
-    const n = 1000
-    this.setState({n: n})
     if (subreddit === 'all') {
       getRemovedPostIDs(subreddit)
       .then(postIDs => getPosts(postIDs))
@@ -181,8 +180,9 @@ class Subreddit extends React.Component {
     if (numDeletedNotShown) {
       numPostsTitle = `${numDeletedNotShown} user-deleted posts that have no comments are not shown`
     }
+    const visibleItems = this.getVisibleItemsWithoutCategoryFilter()
 
-    const posts_sorted = this.state.posts
+    const posts_sorted = visibleItems
     if (localSort === localSort_types.date) {
       posts_sorted.sort( byDate )
     } else if (localSort === localSort_types.num_comments) {
@@ -195,7 +195,6 @@ class Subreddit extends React.Component {
     if (this.props.global.state.localSortReverse) {
       posts_sorted.reverse()
     }
-    const visibleItems = this.getVisibleItemsWithoutCategoryFilter()
     const showAllDomains = this.props.global.state.categoryFilter_domain === 'all'
 
 
@@ -229,16 +228,17 @@ class Subreddit extends React.Component {
 
     return (
       <React.Fragment>
-        <div className='subreddit-box'>
-          <Link to={`/r/${subreddit}`} className='subreddit-title'>/r/{subreddit}</Link>
+        <div className='page-box'>
+          <Link to={`/r/${subreddit}`} className='page-title'>/r/{subreddit}</Link>
           <span className='space' />
-          <a href={`https://www.reddit.com/r/${subreddit}`} className='subreddit-title-link'>reddit</a>
+          <a href={`https://www.reddit.com/r/${subreddit}`} className='page-title-link'>reddit</a>
         </div>
         <div className='selections'>
           <LocalSort page_type='subreddit_posts'/>
           <RemovedFilter page_type='subreddit_posts' />
           <RemovedByFilter />
-          <CategoryFilter visibleItems={visibleItems} allItems={this.state.posts} type='domain'/>
+          <CategoryFilter visibleItems={visibleItems} allItems={this.state.posts}
+            type='domain' title='Domain'/>
         </div>
         {lastTimeLoaded}
         {

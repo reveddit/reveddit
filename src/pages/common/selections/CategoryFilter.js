@@ -30,6 +30,7 @@ class CategoryFilter extends React.Component {
     const category_visible_counts = {}
     const category_counts = {}
     const type = this.props.type
+    const title = this.props.title
     this.props.allItems.forEach(item => {
       category_visible_counts[item[type]] = 0
       if (item[type] in category_counts) {
@@ -52,7 +53,7 @@ class CategoryFilter extends React.Component {
 
     return (
       <div className={`categoryFilter selection filter ${categoryFilter !== 'all'? 'set': ''}`}>
-        <div className='title'>{type.charAt(0).toUpperCase() + type.slice(1)}</div>
+        <div className='title'>{title}</div>
         <select value={categoryFilter} onChange={this.updateStateAndURL}>
           <option key='all' value='all'>all</option>
           {

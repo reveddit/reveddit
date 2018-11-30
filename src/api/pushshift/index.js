@@ -2,10 +2,13 @@ import { toBase10, toBase36 } from 'utils'
 
 const postURL = 'https://elastic.pushshift.io/rs/submissions/_search?source='
 const commentURL = 'https://elastic.pushshift.io/rc/comments/_search?source='
-
+const comment_fields = [
+  'author', 'body', 'created_utc', 'parent_id', 'score',
+  'subreddit', 'link_id', 'author_flair_text', 'retrieved_on'
+]
 
 export const getRecentPostsBySubreddit = (subreddits_str, n = 1000) => {
-  const subreddits = subreddits_str.split(',')
+  const subreddits = subreddits_str.toLowerCase().split(',')
   const elasticQuery = {
     size:n,
     query: {
@@ -33,6 +36,40 @@ export const getRecentPostsBySubreddit = (subreddits_str, n = 1000) => {
       })
     })
     .catch(() => { throw new Error('Unable to access Pushshift, cannot load recent posts') })
+}
+
+export const getRecentCommentsBySubreddit = (subreddits_str, n = 1000) => {
+  const subreddits = subreddits_str.toLowerCase().split(',')
+  const elasticQuery = {
+    size:n,
+    query: {
+      bool: {
+        filter: {
+          terms: {
+            subreddit: subreddits
+          }
+        }
+      }
+    },
+    sort: {
+      ['created_utc']: 'desc'
+    },
+    _source: comment_fields
+  }
+  if (subreddits_str === 'all') {
+    delete(elasticQuery.query.bool)
+  }
+  return window.fetch(commentURL + JSON.stringify(elasticQuery))
+    .then(response => response.json())
+    .then(data => {
+      return data.hits.hits.map( comment => {
+        const id = toBase36(comment._id)
+        comment._source.id = id
+        comment._source.name = 't1_'+id
+        return comment._source
+      })
+    })
+    .catch(() => { throw new Error('Unable to access Pushshift, cannot load recent comments') })
 }
 
 // supply either comments or posts using fullname of id (t1_+id or t3_+id)
@@ -99,13 +136,13 @@ export const getPost = threadID => {
   }
 
   return window.fetch(postURL + JSON.stringify(elasticQuery))
-    .then(response => response.json())
-    .then(response => {
-      const post = response.hits.hits[0]._source
-      post.id = toBase36(post.id)
-      return post
-    })
-    .catch(() => { throw new Error('Could not get removed post') })
+  .then(response => response.json())
+  .then(response => {
+    const post = response.hits.hits[0]._source
+    post.id = toBase36(post.id)
+    return post
+  })
+  .catch(() => { throw new Error('Could not get removed post') })
 }
 
 export const getComments = threadID => {
@@ -116,28 +153,26 @@ export const getComments = threadID => {
       }
     },
     size: 20000,
-    _source: [
-      'author', 'body', 'created_utc', 'parent_id', 'score', 'subreddit', 'link_id', 'author_flair_text'
-    ]
+    _source: comment_fields
   }
 
   return window.fetch(commentURL + JSON.stringify(elasticQuery))
-    .then(response => response.json())
-    .then(response => {
-      const comments = response.hits.hits
-      return comments.map(comment => {
-        comment._source.id = toBase36(comment._id)
-        comment._source.link_id = toBase36(comment._source.link_id)
+  .then(response => response.json())
+  .then(response => {
+    const comments = response.hits.hits
+    return comments.map(comment => {
+      comment._source.id = toBase36(comment._id)
+      comment._source.link_id = toBase36(comment._source.link_id)
 
-        // Missing parent id === direct reply to thread
-        if (!comment._source.parent_id) {
-          comment._source.parent_id = threadID
-        } else {
-          comment._source.parent_id = toBase36(comment._source.parent_id)
-        }
+      // Missing parent id === direct reply to thread
+      if (!comment._source.parent_id) {
+        comment._source.parent_id = threadID
+      } else {
+        comment._source.parent_id = toBase36(comment._source.parent_id)
+      }
 
-        return comment._source
-      })
+      return comment._source
     })
-    .catch(() => { throw new Error('Could not get removed comments') })
+  })
+  .catch(() => { throw new Error('Could not get removed comments') })
 }

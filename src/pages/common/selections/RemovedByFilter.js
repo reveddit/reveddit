@@ -3,7 +3,7 @@ import { connect } from 'state'
 import { withRouter } from 'react-router';
 import { REMOVAL_META } from 'pages/common/RemovedBy'
 
-const paramKey = 'pages/common/RemovedBy'
+const paramKey = 'removedby'
 
 class RemovedByFilter extends React.Component {
 

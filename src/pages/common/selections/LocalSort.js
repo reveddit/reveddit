@@ -69,7 +69,7 @@ class LocalSort extends React.Component {
     return (
         <div className={`localSort selection`}>
           <div className='title'>Sort By</div>
-          {this.props.page_type === 'thread' ?
+          {['thread', 'subreddit_comments'].includes(this.props.page_type) ?
             <React.Fragment>
               {this.makeLabel('controversiality1', 'controversiality v1')}
               {this.makeLabel('controversiality2', 'controversiality v2')}
@@ -77,7 +77,9 @@ class LocalSort extends React.Component {
           :
             this.makeLabel('controversiality', 'controversiality')
           }
-          {this.makeLabel('num_comments', 'number of comments')}
+          {['thread', 'subreddit_posts'].includes(this.props.page_type) &&
+            this.makeLabel('num_comments', 'number of comments')}
+
           {this.makeLabel('score', 'score')}
           {this.makeLabel('date', 'date')}
           <label id='reverseSort'>

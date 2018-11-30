@@ -30,26 +30,17 @@ const byControversiality2 = (a, b) => {
 const showNotRemoved = comment => comment.removedby === NOT_REMOVED
 
 class CommentSection extends React.Component {
-  arrayToLookup (commentList, removed, deleted) {
+  arrayToLookup (commentList) {
     const lookup = {}
-
     commentList.forEach(comment => {
       comment.replies = []
-
-      if (removed.includes(comment.id)) {
-        comment.removed = true
-      } else if (deleted.includes(comment.id)) {
-        comment.deleted = true
-      }
-
       lookup[comment.id] = comment
     })
-
     return lookup
   }
 
-  unflatten (comments, root, removed, deleted, link_author) {
-    const lookup = this.arrayToLookup(comments, removed, deleted)
+  unflatten (comments, root, link_author) {
+    const lookup = this.arrayToLookup(comments)
     const commentTree = []
     Object.keys(lookup).forEach(commentID => {
       const comment = lookup[commentID]
@@ -126,7 +117,7 @@ class CommentSection extends React.Component {
 
   render() {
     const props = this.props
-    const commentTree = this.unflatten(props.comments, props.root, props.removed, props.deleted, props.link_author)
+    const commentTree = this.unflatten(props.comments, props.root, props.link_author)
     const {removedFilter, removedByFilter, localSort, localSortReverse} = props.global.state
     const removedByFilterIsUnset = this.props.global.removedByFilterIsUnset()
 

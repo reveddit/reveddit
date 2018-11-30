@@ -31,12 +31,22 @@ class Comment extends React.Component {
       submitter = ' submitter '
     }
     if (props.removed) {
-      commentStyle += 'removed'
+      commentStyle += 'removed '
+    } else if (props.deleted) {
+      commentStyle += 'deleted '
     } else {
-      commentStyle += 'comment-even'
+      commentStyle += 'comment-even '
     }
 
-    const innerHTML = parse(props.body).replace(/&amp;/g, '&')
+    let innerHTML = ''
+    let author = props.author
+    if (! props.deleted) {
+        innerHTML = (isRemoved(props.body) && props.removed) ?
+          '<p>[removed too quickly to be archived]</p>' :
+          parse(props.body.replace(/&amp;/g, '&').replace(/&gt;/g, '>').replace(/&lt;/g, '<'))
+    } else {
+      author = '[deleted]'
+    }
 
     let link = '?'
     if (props.prev) {
@@ -65,28 +75,36 @@ class Comment extends React.Component {
           >
           {props.link_title}
           </a>
-          {` by `}
-          <a
-            href={`/user/${props.link_author}`}
-            className='author comment-author'
-          >
-          {props.link_author}
-          </a>
-          {` in `}
-          <a
-            href={`/r/${props.subreddit}`}
-            className='subreddit-link subreddit'
-            data-subreddit={props.subreddit}
-          >
-          {props.subreddit}
-          </a>
+          {'link_author' in props &&
+            <React.Fragment>
+              <span> by </span>
+              <a
+                href={`/user/${props.link_author}`}
+                className='author comment-author'>
+                {props.link_author}
+              </a>
+            </React.Fragment>
+          }
+          {'subreddit' in props &&
+            <React.Fragment>
+              <span> in </span>
+              <a
+                href={`/r/${props.subreddit}`}
+                className='subreddit-link subreddit'
+                data-subreddit={props.subreddit}
+              >
+                {`/r/${props.subreddit}`}
+              </a>
+            </React.Fragment>
+          }
         </div>
         <div className='comment-head subhead'>
         <a
-          href={`/user/${props.author}`}
+          href={`/user/${author}`}
           className={`author comment-author ${submitter}`}
         >
-        {props.author}
+          {author}
+          {props.deleted && ' (by user)'}
         </a>
         <span className='space' />
         <span className='comment-score'>{prettyScore(props.score)} point{(props.score !== 1) && 's'}</span>
@@ -102,7 +120,8 @@ class Comment extends React.Component {
                 <a href={`${current_page}#${props.name}`}>hashlink</a>
                 <a href={props.permalink}>permalink</a>
                 <a href={reddit+props.permalink+'?context=3'}>context</a>
-                <a href={props.link_permalink.replace('reddit','revddit')}>full comments ({props.num_comments})</a>
+                <a href={props.link_permalink.replace('reddit','revddit')}>full comments
+                  {'num_comments' in props && `(${props.num_comments})`}</a>
                 {message_mods}
               </div>
             </div>
