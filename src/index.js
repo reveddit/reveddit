@@ -4,13 +4,13 @@ import ReactDOM from 'react-dom'
 import { BrowserRouter, Switch, Route, Redirect } from 'react-router-dom'
 import { Provider } from 'unstated'
 
-import Header from './pages/common/Header'
-import About from './pages/about'
-import Subreddit from './pages/subreddit'
-import SubredditComments from './pages/subreddit/comments'
-import Thread from './pages/thread'
-import User from './pages/user'
-import NotFound from './pages/404'
+import Header from 'pages/common/Header'
+import About from 'pages/about'
+import Subreddit from 'pages/subreddit'
+import SubredditComments from 'pages/subreddit/comments'
+import Thread from 'pages/thread'
+import User from 'pages/user'
+import NotFound from 'pages/404'
 
 const DefaultLayout = ({component: Component, ...rest}) => {
   return (
