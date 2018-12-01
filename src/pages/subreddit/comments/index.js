@@ -9,10 +9,7 @@ import { combinePushshiftAndRedditComments } from 'dataProcessing'
 import { connect, localSort_types, removedFilter_types } from 'state'
 import Time from 'pages/common/Time'
 import Comment from 'pages/user/Comment'
-import CategoryFilter from 'pages/common/selections/CategoryFilter'
-import RemovedFilter from 'pages/common/selections/RemovedFilter'
-import RemovedByFilter from 'pages/common/selections/RemovedByFilter'
-import LocalSort from 'pages/common/selections/LocalSort'
+import Selections from 'pages/common/selections'
 import { REMOVAL_META, NOT_REMOVED } from 'pages/common/RemovedBy'
 
 const byScore = (a, b) => {
@@ -159,13 +156,9 @@ class SubredditComments extends React.Component {
         {
           ! loadingComments &&
           <React.Fragment>
-            <div className='selections'>
-              <LocalSort page_type='subreddit_comments' />
-              <RemovedFilter page_type='subreddit_comments' />
-              <RemovedByFilter />
-              <CategoryFilter visibleItems={visibleItems}
-                allItems={this.state.pushshiftComments} type='link_title' title='Post Title'/>
-            </div>
+            <Selections page_type='subreddit_comments' visibleItems={visibleItems}
+              allItems={this.state.pushshiftComments}
+              category_type='link_title' category_title='Post Title'/>
             {lastTimeLoaded}
             <React.Fragment>
             {

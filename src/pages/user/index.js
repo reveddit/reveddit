@@ -8,9 +8,7 @@ import {
 import Post from 'pages/common/Post'
 import Comment from './Comment'
 import LoadLink from './LoadLink'
-import RemovedFilter from 'pages/common/selections/RemovedFilter'
-import RemovedByFilter from 'pages/common/selections/RemovedByFilter'
-import CategoryFilter from 'pages/common/selections/CategoryFilter'
+import Selections from 'pages/common/selections'
 import {
   getPost as getRemovedPost,
   getComments as getPushshiftComments,
@@ -285,12 +283,9 @@ class User extends React.Component {
         <div className='subreddit-box'>
         {loadAllLink}
         </div>
-        <div className='selections'>
-          <RemovedFilter page_type='user' />
-          <RemovedByFilter />
-          <CategoryFilter visibleItems={visibleItems} allItems={allItems}
-            type='subreddit' title='Subreddit'/>
-        </div>
+        <Selections page_type='user' visibleItems={visibleItems}
+          allItems={allItems}
+          category_type='subreddit' category_title='Subreddit'/>
         {
           visibleItems.map(item => {
             let itemIsOneOfSelectedSubreddits = false

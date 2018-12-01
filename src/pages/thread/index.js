@@ -15,9 +15,7 @@ import { connect, localSort_types } from 'state'
 import Post from 'pages/common/Post'
 import CommentSection from './CommentSection'
 import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED } from 'pages/common/RemovedBy'
-import RemovedFilter from 'pages/common/selections/RemovedFilter'
-import RemovedByFilter from 'pages/common/selections/RemovedByFilter'
-import LocalSort from 'pages/common/selections/LocalSort'
+import Selections from 'pages/common/selections'
 
 class Thread extends React.Component {
   state = {
@@ -109,11 +107,7 @@ class Thread extends React.Component {
         {
           (!this.state.loadingComments && root) &&
           <React.Fragment>
-          <div className='selections'>
-            <LocalSort page_type='thread' />
-            <RemovedFilter page_type='thread' />
-            <RemovedByFilter />
-          </div>
+          <Selections page_type='thread'/>
             {isSingleComment &&
               <div className='view-rest-of-comment'>
                 <div>{"you are viewing a single comment's thread."}</div>

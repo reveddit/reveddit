@@ -9,10 +9,7 @@ import {connect, removedFilter_types, localSort_types} from 'state'
 import { itemIsRemovedOrDeleted, postIsDeleted } from 'utils'
 import Time from 'pages/common/Time'
 import { REMOVAL_META, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED } from 'pages/common/RemovedBy'
-import RemovedFilter from 'pages/common/selections/RemovedFilter'
-import RemovedByFilter from 'pages/common/selections/RemovedByFilter'
-import CategoryFilter from 'pages/common/selections/CategoryFilter'
-import LocalSort from 'pages/common/selections/LocalSort'
+import Selections from 'pages/common/selections'
 
 var numDeletedNotShown = 0
 
@@ -233,13 +230,8 @@ class Subreddit extends React.Component {
           <span className='space' />
           <a href={`https://www.reddit.com/r/${subreddit}`} className='page-title-link'>reddit</a>
         </div>
-        <div className='selections'>
-          <LocalSort page_type='subreddit_posts'/>
-          <RemovedFilter page_type='subreddit_posts' />
-          <RemovedByFilter />
-          <CategoryFilter visibleItems={visibleItems} allItems={this.state.posts}
-            type='domain' title='Domain'/>
-        </div>
+        <Selections page_type='subreddit_posts' visibleItems={visibleItems}
+            allItems={this.state.posts} category_type='domain' category_title='Domain'/>
         {lastTimeLoaded}
         {
           noPostsFound
