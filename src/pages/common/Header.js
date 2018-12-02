@@ -11,18 +11,28 @@ class Header extends React.Component {
   }
   render() {
     const props = this.props
-    const { user, kind = ''} = props.match.params
-    let userHeader = ''
-    let userNav = ''
-    if (user) {
-      const userLink = `/user/${user}`
-      userHeader = <a className='subheading' href={userLink}>{userLink}</a>
-      userNav = (
+    const { page_type } = props
+    const { user, kind = '', subreddit = ''} = props.match.params
+    let link = ''
+    let sublink = ''
+    let subtext = ''
+    let nav = ''
+    if (['subreddit_posts','thread'].includes(page_type)) {
+      link = `/r/${subreddit}`
+      sublink = `/r/${subreddit}/comments`
+      subtext = 'view comments'
+    } else if (page_type === 'subreddit_comments') {
+      link = `/r/${subreddit}/comments`
+      sublink = `/r/${subreddit}/`
+      subtext = 'view posts'
+    } else if (user) {
+      link = `/user/${user}`
+      nav = (
         <React.Fragment>
             <nav>
-              <a className={kind === 'overview' || kind === '' ? 'selected': ''} href={`${userLink}/`}>overview</a>
-              <a className={kind === 'comments' ? 'selected': ''} href={`${userLink}/comments`}>comments</a>
-              <a className={kind === 'submitted' ? 'selected': ''} href={`${userLink}/submitted`}>submitted</a>
+              <a className={kind === 'overview' || kind === '' ? 'selected': ''} href={`${link}/`}>overview</a>
+              <a className={kind === 'comments' ? 'selected': ''} href={`${link}/comments`}>comments</a>
+              <a className={kind === 'submitted' ? 'selected': ''} href={`${link}/submitted`}>submitted</a>
             <br/>
               {this.getSortLink('new')}
               {this.getSortLink('top')}
@@ -39,7 +49,10 @@ class Header extends React.Component {
             <h1>
               <Link to='/about'>revddit</Link>
             </h1>
-            {userHeader}
+            <a className='subheading' href={link}>{link}</a>
+            {sublink &&
+              <div className='tempNav'><a className='subheading' href={sublink}>{subtext}</a></div>
+            }
           </div>
           <div id='status'>
             {props.global.state.statusText &&
@@ -48,7 +61,7 @@ class Header extends React.Component {
             <img id='status-image' src={props.global.state.statusImage} alt='status' />}
           </div>
         </header>
-        {userNav}
+        {nav}
       </React.Fragment>
     )
   }

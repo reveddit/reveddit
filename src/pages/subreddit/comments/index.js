@@ -148,11 +148,6 @@ class SubredditComments extends React.Component {
 
     return (
       <React.Fragment>
-        <div className='page-box'>
-          <Link to={`/r/${subreddit}/comments`} className='page-title'>/r/{subreddit}/comments</Link>
-          <span className='space' />
-          <a href={`https://www.reddit.com/r/${subreddit}/comments`} className='page-title-link'>reddit</a>
-        </div>
         {
           ! loadingComments &&
           <React.Fragment>

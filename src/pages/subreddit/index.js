@@ -225,11 +225,6 @@ class Subreddit extends React.Component {
 
     return (
       <React.Fragment>
-        <div className='page-box'>
-          <Link to={`/r/${subreddit}`} className='page-title'>/r/{subreddit}</Link>
-          <span className='space' />
-          <a href={`https://www.reddit.com/r/${subreddit}`} className='page-title-link'>reddit</a>
-        </div>
         <Selections page_type='subreddit_posts' visibleItems={visibleItems}
             allItems={this.state.posts} category_type='domain' category_title='Domain'/>
         {lastTimeLoaded}

@@ -16,7 +16,7 @@ const DefaultLayout = ({component: Component, ...rest}) => {
   return (
     <Route {...rest} render={matchProps => (
       <React.Fragment>
-        <Header {...matchProps}/>
+        <Header {...matchProps} page_type={rest.page_type}/>
         <div className='main'>
           <Component {...matchProps} />
         </div>
@@ -33,12 +33,12 @@ class App extends React.Component {
             <Redirect exact from='/' to='/about' />
             <Redirect from='/u/*' to='/user/*' />
             <DefaultLayout path='/about' component={About} />
-            <DefaultLayout path='/r/:subreddit/comments/:threadID/:junk/:commentID' component={Thread} />
-            <DefaultLayout path='/r/:subreddit/comments/:threadID' component={Thread} />
-            <DefaultLayout path='/r/:subreddit/comments/' component={SubredditComments} />
-            <DefaultLayout path='/r/:subreddit' component={Subreddit} />
-            <DefaultLayout path='/user/:user/:kind' component={User} />
-            <DefaultLayout path='/user/:user' component={User} />
+            <DefaultLayout path='/r/:subreddit/comments/:threadID/:junk/:commentID' page_type='thread' component={Thread} />
+            <DefaultLayout path='/r/:subreddit/comments/:threadID' page_type='thread' component={Thread} />
+            <DefaultLayout path='/r/:subreddit/comments/' page_type='subreddit_comments' component={SubredditComments} />
+            <DefaultLayout path='/r/:subreddit' page_type='subreddit_posts' component={Subreddit} />
+            <DefaultLayout path='/user/:user/:kind' page_type='user' component={User} />
+            <DefaultLayout path='/user/:user' page_type='user' component={User} />
             <DefaultLayout component={NotFound} />
           </Switch>
         </BrowserRouter>
