@@ -102,6 +102,11 @@ class SubredditComments extends React.Component {
     const { pushshiftComments, loadingComments, n } = this.state
     const visibleItems = this.getVisibleItemsWithoutCategoryFilter()
     let category = 'link_title'
+    let category_title = 'Post Title'
+    if (subreddit.toLowerCase() === 'all') {
+      category = 'subreddit'
+      category_title = 'Subreddit'
+    }
     let category_state = this.props.global.state['categoryFilter_'+category]
     const showAllCategories = category_state === 'all'
     const {localSort, localSortReverse} = this.props.global.state
@@ -153,13 +158,13 @@ class SubredditComments extends React.Component {
           <React.Fragment>
             <Selections page_type='subreddit_comments' visibleItems={visibleItems}
               allItems={this.state.pushshiftComments}
-              category_type='link_title' category_title='Post Title'/>
+              category_type={category} category_title={category_title}/>
             {lastTimeLoaded}
             <React.Fragment>
             {
               items_sorted.map(item => {
                 let itemIsOneOfSelectedCategory = false
-                if (category_state === item.link_title) {
+                if (category_state === item[category]) {
                   itemIsOneOfSelectedCategory = true
                 }
                 if (showAllCategories || itemIsOneOfSelectedCategory) {

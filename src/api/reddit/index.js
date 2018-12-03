@@ -20,15 +20,15 @@ export const getPost = (subreddit, threadID) => {
 }
 
 // Fetch multiple threads (via the info endpoint)
-export const getThreads = threadIDs => {
+export const getPosts = postIDs => {
   var url = new URL(`https://oauth.reddit.com/api/info`)
-  var ids = threadIDs.map(id => `t3_${id}`)
+  var ids = postIDs.map(id => `t3_${id}`)
   var params = {id: ids.join(), raw_json:1}
   url.search = new URLSearchParams(params)
   return getAuth()
     .then(auth => window.fetch(url, auth))
     .then(response => response.json())
-    .then(response => response.data.children.map(threadData => threadData.data))
+    .then(response => response.data.children.map(data => data.data))
     .catch(errorHandler)
 }
 

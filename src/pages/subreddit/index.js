@@ -172,6 +172,15 @@ class Subreddit extends React.Component {
     const { subreddit = 'all' } = this.props.match.params
     const localSort = this.props.global.state.localSort
     const noPostsFound = this.state.posts.length === 0 && !this.state.loading
+    let category = 'domain'
+    let category_title = 'Domain'
+    if (subreddit.toLowerCase() === 'all') {
+      category = 'subreddit'
+      category_title = 'Subreddit'
+    }
+    let category_state = this.props.global.state['categoryFilter_'+category]
+    const showAllCategories = category_state === 'all'
+
     let lastTimeLoaded = ''
     let numPostsTitle = ''
     if (numDeletedNotShown) {
@@ -192,7 +201,6 @@ class Subreddit extends React.Component {
     if (this.props.global.state.localSortReverse) {
       posts_sorted.reverse()
     }
-    const showAllDomains = this.props.global.state.categoryFilter_domain === 'all'
 
 
 
@@ -204,9 +212,9 @@ class Subreddit extends React.Component {
         }
       })
       let num_showing = visibleItems.length.toLocaleString()
-      if (! showAllDomains) {
+      if (! showAllCategories) {
         num_showing = (visibleItems.filter(p =>
-          p.domain === this.props.global.state.categoryFilter_domain)
+          p[category] === category_state)
           .length)
       }
       lastTimeLoaded = (
@@ -226,18 +234,18 @@ class Subreddit extends React.Component {
     return (
       <React.Fragment>
         <Selections page_type='subreddit_posts' visibleItems={visibleItems}
-            allItems={this.state.posts} category_type='domain' category_title='Domain'/>
+            allItems={this.state.posts} category_type={category} category_title={category_title}/>
         {lastTimeLoaded}
         {
           noPostsFound
             ? <p>No removed posts found for /r/{subreddit}</p>
             :
             visibleItems.map(post => {
-              let itemIsOneOfSelectedDomains = false
-              if (this.props.global.state.categoryFilter_domain === post.domain) {
-                itemIsOneOfSelectedDomains = true
+              let itemIsOneOfSelectedCategories = false
+              if (category_state === post[category]) {
+                itemIsOneOfSelectedCategories = true
               }
-              if (showAllDomains || itemIsOneOfSelectedDomains) {
+              if (showAllCategories || itemIsOneOfSelectedCategories) {
                 return <Post key={post.id} {...post} />
               }
             })
