@@ -4,6 +4,8 @@
   display: flex
   flex-wrap: wrap
   margin-top: -10px
+  a
+    color: #828282
   .categoryFilter
     width: 150px
   .selection
@@ -30,7 +32,7 @@
         background-image: url('/images/filter_set.svg')
   #reverseSort
     margin-top: 5px
-  input:checked ~ *
+  input:checked ~ *, a.selected
     color: white
 
 .removedby

@@ -4,6 +4,8 @@ import RemovedFilter from 'pages/common/selections/RemovedFilter'
 import RemovedByFilter from 'pages/common/selections/RemovedByFilter'
 import CategoryFilter from 'pages/common/selections/CategoryFilter'
 import LocalSort from 'pages/common/selections/LocalSort'
+import RedditSort from 'pages/common/selections/RedditSort'
+import Content from 'pages/common/selections/Content'
 
 class Selections extends React.Component {
   state = {
@@ -35,6 +37,7 @@ class Selections extends React.Component {
                 case 'subreddit_posts':
                   return (
                     <React.Fragment>
+                      <Content page_type={page_type}/>
                       <LocalSort page_type={page_type}/>
                       <RemovedFilter page_type={page_type} />
                       <RemovedByFilter />
@@ -44,6 +47,7 @@ class Selections extends React.Component {
                 case 'subreddit_comments':
                   return (
                     <React.Fragment>
+                      <Content page_type={page_type}/>
                       <LocalSort page_type={page_type} />
                       <RemovedFilter page_type={page_type} />
                       <RemovedByFilter />
@@ -53,6 +57,8 @@ class Selections extends React.Component {
                 case 'user':
                   return (
                     <React.Fragment>
+                      <Content page_type={page_type} />
+                      <RedditSort page_type={page_type} />
                       <RemovedFilter page_type={page_type} />
                       <RemovedByFilter />
                       <CategoryFilter visibleItems={visibleItems} allItems={allItems}
