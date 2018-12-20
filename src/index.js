@@ -33,7 +33,7 @@ class App extends React.Component {
             <Redirect exact from='/' to='/about' />
             <Redirect from='/u/*' to='/user/*' />
             <DefaultLayout path='/about' component={About} />
-            <DefaultLayout path='/r/:subreddit/comments/:threadID/:junk/:commentID' page_type='thread' component={Thread} />
+            <DefaultLayout path='/r/:subreddit/comments/:threadID/:urlTitle/:commentID' page_type='thread' component={Thread} />
             <DefaultLayout path='/r/:subreddit/comments/:threadID' page_type='thread' component={Thread} />
             <DefaultLayout path='/r/:subreddit/comments/' page_type='subreddit_comments' component={SubredditComments} />
             <DefaultLayout path='/r/:subreddit' page_type='subreddit_posts' component={Subreddit} />

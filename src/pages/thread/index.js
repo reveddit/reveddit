@@ -94,9 +94,9 @@ class Thread extends React.Component {
   }
 
   render () {
-    const { subreddit, id, author, permalink } = this.state.post
-    const { commentID } = this.props.match.params
-    const linkToRestOfComments = permalink
+    const { id, author } = this.state.post
+    const { subreddit, threadID, urlTitle, commentID } = this.props.match.params
+    const linkToRestOfComments = `/r/${subreddit}/comments/${threadID}/${urlTitle}/`
     const isSingleComment = (commentID !== undefined && ! this.props.history.location.hash)
     const root = isSingleComment ? commentID : id
     const removedFiltersAreUnset = this.props.global.removedFiltersAreUnset()
@@ -111,7 +111,7 @@ class Thread extends React.Component {
             {isSingleComment &&
               <div className='view-rest-of-comment'>
                 <div>{"you are viewing a single comment's thread."}</div>
-                <Link to={linkToRestOfComments}>view all comments</Link>
+                <Link to={linkToRestOfComments} onClick={this.props.global.resetRemovedFilters}>view all comments</Link>
               </div>
             }
             {! isSingleComment && ! removedFiltersAreUnset &&

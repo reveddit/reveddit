@@ -6,7 +6,7 @@ import {
   getItems as getRedditItemsByID,
 } from 'api/reddit'
 import Post from 'pages/common/Post'
-import Comment from './Comment'
+import Comment from 'pages/common/Comment'
 import LoadLink from './LoadLink'
 import Selections from 'pages/common/selections'
 import {

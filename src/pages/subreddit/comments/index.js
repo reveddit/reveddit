@@ -5,10 +5,10 @@ import scrollToElement from 'scroll-to-element'
 import {
   getRecentCommentsBySubreddit as getPushshiftCommentsBySubreddit
 } from 'api/pushshift'
-import { combinePushshiftAndRedditComments } from 'dataProcessing'
+import { combinePushshiftAndRedditComments, getFullTitles } from 'dataProcessing'
 import { connect, localSort_types, removedFilter_types } from 'state'
 import Time from 'pages/common/Time'
-import Comment from 'pages/user/Comment'
+import Comment from 'pages/common/Comment'
 import Selections from 'pages/common/selections'
 import { REMOVAL_META, NOT_REMOVED } from 'pages/common/RemovedBy'
 
@@ -47,8 +47,16 @@ class SubredditComments extends React.Component {
     getPushshiftCommentsBySubreddit(subreddit, this.state.n)
     .then(pushshiftComments => {
       this.props.global.setLoading('Comparing comments to Reddit API...')
-      combinePushshiftAndRedditComments(pushshiftComments)
-      .then(result => {
+      const fullTitlePromise = getFullTitles(pushshiftComments)
+      const combinePromise = combinePushshiftAndRedditComments(pushshiftComments)
+      Promise.all([fullTitlePromise, combinePromise])
+      .then(values => {
+        const full_titles = values[0]
+        pushshiftComments.forEach(ps_comment => {
+          if (ps_comment.link_id in full_titles) {
+            ps_comment.link_title = full_titles[ps_comment.link_id]
+          }
+        })
         this.props.global.setSuccess()
         this.setState({
           pushshiftComments,

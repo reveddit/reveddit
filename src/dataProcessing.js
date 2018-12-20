@@ -1,8 +1,23 @@
 import {
   getComments as getRedditComments
 } from 'api/reddit'
+import {
+  getPosts as getPushshiftPosts
+} from 'api/pushshift'
 import { commentIsDeleted, commentIsRemoved } from 'utils'
 import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED } from 'pages/common/RemovedBy'
+
+export const getFullTitles = pushshiftComments => {
+  const link_ids_set = {}
+  pushshiftComments.forEach(ps_comment => {
+    link_ids_set[ps_comment.link_id] = true
+  })
+  const link_ids = Object.keys(link_ids_set)
+  return getPushshiftPosts(link_ids)
+  .then(ps_posts => {
+    return Object.assign(...ps_posts.map(post => ({[post.name]: post.title})))
+  })
+}
 
 export const combinePushshiftAndRedditComments = pushshiftComments => {
   // Extract ids from pushshift response

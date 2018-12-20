@@ -66,6 +66,7 @@ export const getRecentCommentsBySubreddit = (subreddits_str, n = 1000) => {
         const id = toBase36(comment._id)
         comment._source.id = id
         comment._source.name = 't1_'+id
+        comment._source.link_id = 't3_'+toBase36(comment._source.link_id)
         return comment._source
       })
     })
@@ -125,6 +126,31 @@ export const getAutoremovedItems = names => {
     .catch(() => { throw new Error('Unable to access Pushshift, cannot load removed-by labels') })
 }
 
+export const getPosts = threadIDs => {
+  const ids_base10 = threadIDs.map(id => toBase10(id.slice(3)))
+  const elasticQuery = {
+    query: {
+      terms: {
+        id: ids_base10
+      }
+    },
+    size: threadIDs.length,
+    _source: ['title']
+  }
+
+  return window.fetch(postURL + JSON.stringify(elasticQuery))
+  .then(response => response.json())
+  .then(response => {
+    const posts = response.hits.hits
+    return posts.map(post => {
+      const id = toBase36(post._id)
+      post._source.id = id
+      post._source.name = 't3_'+id
+      return post._source
+    })
+  })
+  .catch(() => { throw new Error('Could not get posts') })
+}
 
 export const getPost = threadID => {
   const elasticQuery = {
@@ -138,11 +164,15 @@ export const getPost = threadID => {
   return window.fetch(postURL + JSON.stringify(elasticQuery))
   .then(response => response.json())
   .then(response => {
-    const post = response.hits.hits[0]._source
-    post.id = toBase36(post.id)
-    return post
+    if (response.hits.hits.length) {
+      const post = response.hits.hits[0]._source
+      post.id = toBase36(post.id)
+      return post
+    } else {
+      return {}
+    }
   })
-  .catch(() => { throw new Error('Could not get removed post') })
+  .catch(() => { throw new Error('Could not get post') })
 }
 
 export const getComments = threadID => {
