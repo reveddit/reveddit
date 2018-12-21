@@ -1,6 +1,6 @@
 {
   "name": "revddit",
-  "version": "2.0.10",
+  "version": "2.0.11",
   "description": "Review removed content on reddit user pages and discover whether it was removed by automod or by a mod.",
   "main": "src/index.js",
   "repository": {
