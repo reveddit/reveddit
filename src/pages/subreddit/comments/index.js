@@ -41,10 +41,21 @@ class SubredditComments extends React.Component {
     let { subreddit } = this.props.match.params
     this.props.global.setLoading('Loading comments from Pushshift...')
     document.title = `/r/${subreddit}/comments`
+    const queryParams = new URLSearchParams(this.props.location.search)
+    const paramValue = queryParams.get('n')
+    let n = this.state.n
+    const maxN = 60000
+    if (paramValue) {
+      if (paramValue > maxN) {
+        n = maxN
+      } else {
+        n = paramValue
+      }
+    }
 
     subreddit = subreddit.toLowerCase()
     // Get comment ids from pushshift
-    getPushshiftCommentsBySubreddit(subreddit, this.state.n)
+    getPushshiftCommentsBySubreddit(subreddit, n)
     .then(pushshiftComments => {
       this.props.global.setLoading('Comparing comments to Reddit API...')
       const fullTitlePromise = getFullTitles(pushshiftComments)
@@ -111,9 +122,11 @@ class SubredditComments extends React.Component {
     const visibleItems = this.getVisibleItemsWithoutCategoryFilter()
     let category = 'link_title'
     let category_title = 'Post Title'
+    let category_unique_field = 'link_id'
     if (subreddit.toLowerCase() === 'all') {
       category = 'subreddit'
       category_title = 'Subreddit'
+      category_unique_field = 'subreddit'
     }
     let category_state = this.props.global.state['categoryFilter_'+category]
     const showAllCategories = category_state === 'all'
@@ -166,13 +179,14 @@ class SubredditComments extends React.Component {
           <React.Fragment>
             <Selections page_type='subreddit_comments' visibleItems={visibleItems}
               allItems={this.state.pushshiftComments}
-              category_type={category} category_title={category_title}/>
+              category_type={category} category_title={category_title}
+              category_unique_field={category_unique_field}/>
             {lastTimeLoaded}
             <React.Fragment>
             {
               items_sorted.map(item => {
                 let itemIsOneOfSelectedCategory = false
-                if (category_state === item[category]) {
+                if (category_state === item[category_unique_field]) {
                   itemIsOneOfSelectedCategory = true
                 }
                 if (showAllCategories || itemIsOneOfSelectedCategory) {

@@ -29,18 +29,25 @@ class CategoryFilter extends React.Component {
   render() {
     const category_visible_counts = {}
     const category_counts = {}
-    const type = this.props.type
-    const title = this.props.title
+    const category_unique_to_displayValue = {}
+
+    const { type, title } = this.props
+    let unique_field = type
+    if (this.props.unique_field) {
+      unique_field = this.props.unique_field
+    }
     this.props.allItems.forEach(item => {
-      category_visible_counts[item[type]] = 0
-      if (item[type] in category_counts) {
-        category_counts[item[type]] += 1
+      const unique_value = item[unique_field]
+      category_visible_counts[unique_value] = 0
+      category_unique_to_displayValue[unique_value] = item[type]
+      if (unique_value in category_counts) {
+        category_counts[unique_value] += 1
       } else {
-        category_counts[item[type]] = 1
+        category_counts[unique_value] = 1
       }
     })
     this.props.visibleItems.forEach(item => {
-      category_visible_counts[item[type]] += 1
+      category_visible_counts[item[unique_field]] += 1
     })
     const category_ordered = Object.keys(category_visible_counts).sort((a,b) => {
       let alpha = a.toLowerCase() < b.toLowerCase() ? -1 : 1
@@ -60,7 +67,7 @@ class CategoryFilter extends React.Component {
             category_ordered.map(category => {
               return (
                 <option key={category} value={category}>
-                  {category} ({`${category_visible_counts[category]} / ${category_counts[category]}`})
+                  {category_unique_to_displayValue[category]} ({`${category_visible_counts[category]} / ${category_counts[category]}`})
                 </option>
               )
             })

@@ -23,7 +23,7 @@ class Selections extends React.Component {
   }
   render () {
     const { page_type, visibleItems, allItems,
-            category_type, category_title } = this.props
+            category_type, category_title, category_unique_field } = this.props
     return (
       <React.Fragment>
         <div className='toggleFilters'><a onClick={this.toggleDisplayFilters}
@@ -42,7 +42,7 @@ class Selections extends React.Component {
                       <RemovedFilter page_type={page_type} />
                       <RemovedByFilter />
                       <CategoryFilter visibleItems={visibleItems} allItems={allItems}
-                        type={category_type} title={category_title}/>
+                        type={category_type} title={category_title} unique_field={category_unique_field}/>
                     </React.Fragment>)
                 case 'subreddit_comments':
                   return (
@@ -52,7 +52,7 @@ class Selections extends React.Component {
                       <RemovedFilter page_type={page_type} />
                       <RemovedByFilter />
                       <CategoryFilter visibleItems={visibleItems} allItems={allItems}
-                        type={category_type} title={category_title}/>
+                        type={category_type} title={category_title} unique_field={category_unique_field}/>
                     </React.Fragment>)
                 case 'user':
                   return (
@@ -62,7 +62,7 @@ class Selections extends React.Component {
                       <RemovedFilter page_type={page_type} />
                       <RemovedByFilter />
                       <CategoryFilter visibleItems={visibleItems} allItems={allItems}
-                        type={category_type} title={category_title}/>
+                        type={category_type} title={category_title} unique_field={category_unique_field}/>
                     </React.Fragment>)
                 case 'thread':
                   return (
