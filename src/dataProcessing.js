@@ -17,6 +17,7 @@ export const getFullTitles = pushshiftComments => {
   .then(ps_posts => {
     return Object.assign(...ps_posts.map(post => ({[post.name]: post.title})))
   })
+  .catch(() => { console.error('Unable to retrieve full titles from Pushshift') })
 }
 
 export const combinePushshiftAndRedditComments = pushshiftComments => {

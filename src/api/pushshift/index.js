@@ -1,4 +1,4 @@
-import { toBase10, toBase36 } from 'utils'
+import { toBase10, toBase36, chunk, flatten } from 'utils'
 
 const postURL = 'https://elastic.pushshift.io/rs/submissions/_search?source='
 const commentURL = 'https://elastic.pushshift.io/rc/comments/_search?source='
@@ -126,7 +126,14 @@ export const getAutoremovedItems = names => {
     .catch(() => { throw new Error('Unable to access Pushshift, cannot load removed-by labels') })
 }
 
+// ES Pushshift maxClauseCount = 1024
 export const getPosts = threadIDs => {
+  return Promise.all(chunk(threadIDs, 1024)
+    .map(ids => getPosts_chunk(ids)))
+    .then(flatten)
+}
+
+export const getPosts_chunk = threadIDs => {
   const ids_base10 = threadIDs.map(id => toBase10(id.slice(3)))
   const elasticQuery = {
     query: {
@@ -149,7 +156,6 @@ export const getPosts = threadIDs => {
       return post._source
     })
   })
-  .catch(() => { throw new Error('Could not get posts') })
 }
 
 export const getPost = threadID => {
