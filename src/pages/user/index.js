@@ -14,7 +14,7 @@ import {
   getComments as getPushshiftComments,
   getAutoremovedItems
 } from 'api/pushshift'
-import { REMOVAL_META, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED } from 'pages/common/RemovedBy'
+import { REMOVAL_META, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED, AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
 import scrollToElement from 'scroll-to-element'
 import { itemIsRemovedOrDeleted, isComment, isPost } from 'utils'
 import { connect, removedFilter_types } from 'state'
@@ -140,7 +140,7 @@ class User extends React.Component {
       if (ps_item) {
         const retrievalLatency = ps_item.retrieved_on-ps_item.created_utc
         if (item.removed) {
-          if (retrievalLatency <= 5) {
+          if (retrievalLatency <= AUTOMOD_LATENCY_THRESHOLD) {
             item.removedby = AUTOMOD_REMOVED
             removed_meta[name] = AUTOMOD_REMOVED
           } else {

@@ -14,7 +14,7 @@ import { isRemoved, isDeleted, commentIsRemoved, itemIsRemovedOrDeleted, postIsD
 import { connect, localSort_types } from 'state'
 import Post from 'pages/common/Post'
 import CommentSection from './CommentSection'
-import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED } from 'pages/common/RemovedBy'
+import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED, AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
 import Selections from 'pages/common/selections'
 
 class Thread extends React.Component {
@@ -47,7 +47,7 @@ class Thread extends React.Component {
             post.selftext = ps_post.selftext
           }
           if (! ps_post.is_crosspostable) {
-            if (retrievalLatency <= 5) {
+            if (retrievalLatency <= AUTOMOD_LATENCY_THRESHOLD) {
               post.removedby = AUTOMOD_REMOVED
             } else {
               post.removedby = UNKNOWN_REMOVED
@@ -58,7 +58,7 @@ class Thread extends React.Component {
         }
       } else {
         // not-removed posts
-        if (! ps_post.is_crosspostable && retrievalLatency <= 5) {
+        if (! ps_post.is_crosspostable && retrievalLatency <= AUTOMOD_LATENCY_THRESHOLD) {
           post.removedby = AUTOMOD_REMOVED_MOD_APPROVED
         } else {
           post.removedby = NOT_REMOVED

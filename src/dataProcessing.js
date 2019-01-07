@@ -5,7 +5,7 @@ import {
   getPosts as getPushshiftPosts
 } from 'api/pushshift'
 import { commentIsDeleted, commentIsRemoved } from 'utils'
-import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED } from 'pages/common/RemovedBy'
+import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED, AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
 
 export const getFullTitles = pushshiftComments => {
   const link_ids_set = {}
@@ -54,17 +54,17 @@ export const combinePushshiftAndRedditComments = pushshiftComments => {
         ps_comment.score = redditComment.score
         ps_comment.controversiality = redditComment.controversiality
         if (! commentIsRemoved(redditComment)) {
-          ps_comment.author = redditComment.author
-          ps_comment.body = redditComment.body
           // could remove latency condition, probably no problem
-          if (commentIsRemoved(ps_comment) && retrievalLatency <= 5) {
+          if (commentIsRemoved(ps_comment) && retrievalLatency <= AUTOMOD_LATENCY_THRESHOLD) {
             ps_comment.removedby = AUTOMOD_REMOVED_MOD_APPROVED
           } else {
             ps_comment.removedby = NOT_REMOVED
           }
+          ps_comment.author = redditComment.author
+          ps_comment.body = redditComment.body
         } else {
           if (commentIsRemoved(ps_comment)) {
-            if (retrievalLatency <= 5) {
+            if (retrievalLatency <= AUTOMOD_LATENCY_THRESHOLD) {
               ps_comment.removedby = AUTOMOD_REMOVED
             } else {
               ps_comment.removedby = UNKNOWN_REMOVED

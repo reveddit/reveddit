@@ -8,7 +8,7 @@ import Post from 'pages/common/Post'
 import {connect, removedFilter_types, localSort_types} from 'state'
 import { itemIsRemovedOrDeleted, postIsDeleted } from 'utils'
 import Time from 'pages/common/Time'
-import { REMOVAL_META, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED } from 'pages/common/RemovedBy'
+import { REMOVAL_META, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED, AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
 import Selections from 'pages/common/selections'
 
 var numDeletedNotShown = 0
@@ -109,7 +109,7 @@ class Subreddit extends React.Component {
               } else {
                 post.removed = true
                 if (! ps_item.is_crosspostable) {
-                  if (retrievalLatency <= 5) {
+                  if (retrievalLatency <= AUTOMOD_LATENCY_THRESHOLD) {
                     post.removedby = AUTOMOD_REMOVED
                   } else {
                     post.removedby = UNKNOWN_REMOVED
@@ -121,7 +121,7 @@ class Subreddit extends React.Component {
               }
             } else {
               // not-removed posts
-              if (! ps_item.is_crosspostable && retrievalLatency <= 5) {
+              if (! ps_item.is_crosspostable && retrievalLatency <= AUTOMOD_LATENCY_THRESHOLD) {
                 post.removedby = AUTOMOD_REMOVED_MOD_APPROVED
                 //show_posts.push(post)
               } else {

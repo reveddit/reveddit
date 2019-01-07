@@ -5,6 +5,7 @@ export const AUTOMOD_REMOVED_MOD_APPROVED = 'automod-rem-mod-app'
 export const MOD_OR_AUTOMOD_REMOVED = 'mod'
 export const UNKNOWN_REMOVED = 'unknown'
 export const NOT_REMOVED = 'none'
+export const AUTOMOD_LATENCY_THRESHOLD = 15
 
 export const REMOVAL_META = {
                [AUTOMOD_REMOVED]: {filter_text: 'automoderator',
