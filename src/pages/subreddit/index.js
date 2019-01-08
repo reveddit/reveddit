@@ -121,7 +121,7 @@ class Subreddit extends React.Component {
               }
             } else {
               // not-removed posts
-              if (! ps_item.is_crosspostable && retrievalLatency <= AUTOMOD_LATENCY_THRESHOLD) {
+              if (! ps_item.is_crosspostable) {
                 post.removedby = AUTOMOD_REMOVED_MOD_APPROVED
                 //show_posts.push(post)
               } else {

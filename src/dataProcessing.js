@@ -54,8 +54,7 @@ export const combinePushshiftAndRedditComments = pushshiftComments => {
         ps_comment.score = redditComment.score
         ps_comment.controversiality = redditComment.controversiality
         if (! commentIsRemoved(redditComment)) {
-          // could remove latency condition, probably no problem
-          if (commentIsRemoved(ps_comment) && retrievalLatency <= AUTOMOD_LATENCY_THRESHOLD) {
+          if (commentIsRemoved(ps_comment)) {
             ps_comment.removedby = AUTOMOD_REMOVED_MOD_APPROVED
           } else {
             ps_comment.removedby = NOT_REMOVED
