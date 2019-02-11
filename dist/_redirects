@@ -2,5 +2,6 @@ https://revddit.netlify.com/* https://revddit.com/:splat 301!
 https://old.revddit.com/* https://revddit.com/:splat 301!
 https://new.revddit.com/* https://revddit.com/:splat 301!
 https://np.revddit.com/* https://revddit.com/:splat 301!
+https://*.revddit.com/* https://revddit.com/:splat 301!
 
 /*    /index.html   200
