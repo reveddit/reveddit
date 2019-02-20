@@ -4,7 +4,7 @@ const postURL = 'https://elastic.pushshift.io/rs/submissions/_search?source='
 const commentURL = 'https://elastic.pushshift.io/rc/comments/_search?source='
 const comment_fields = [
   'author', 'body', 'created_utc', 'parent_id', 'score',
-  'subreddit', 'link_id', 'author_flair_text', 'retrieved_on'
+  'subreddit', 'link_id', 'author_flair_text', 'retrieved_on', 'retrieved_utc'
 ]
 
 export const getRecentPostsBySubreddit = (subreddits_str, n = 1000) => {
@@ -38,23 +38,26 @@ export const getRecentPostsBySubreddit = (subreddits_str, n = 1000) => {
     .catch(() => { throw new Error('Unable to access Pushshift, cannot load recent posts') })
 }
 
-export const getRecentCommentsBySubreddit = (subreddits_str, n = 1000) => {
+export const getRecentCommentsBySubreddit = (subreddits_str, n = 1000, before = '') => {
   const subreddits = subreddits_str.toLowerCase().split(',')
   const elasticQuery = {
     size:n,
     query: {
       bool: {
-        filter: {
+        filter: [{
           terms: {
             subreddit: subreddits
           }
-        }
+        }]
       }
     },
     sort: {
       ['created_utc']: 'desc'
     },
     _source: comment_fields
+  }
+  if (before) {
+    elasticQuery.query.bool.filter.push({'range': {'created_utc': {'lte': before}}})
   }
   if (subreddits_str === 'all') {
     delete(elasticQuery.query.bool)

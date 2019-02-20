@@ -42,20 +42,25 @@ class SubredditComments extends React.Component {
     this.props.global.setLoading('Loading comments from Pushshift...')
     document.title = `/r/${subreddit}/comments`
     const queryParams = new URLSearchParams(this.props.location.search)
-    const paramValue = queryParams.get('n')
+    const paramValueN = queryParams.get('n')
     let n = this.state.n
     const maxN = 60000
-    if (paramValue) {
-      if (paramValue > maxN) {
+    if (paramValueN) {
+      if (paramValueN > maxN) {
         n = maxN
       } else {
-        n = paramValue
+        n = paramValueN
       }
+    }
+    const paramValueBefore = queryParams.get('before')
+    let before = ''
+    if (paramValueBefore) {
+      before = paramValueBefore
     }
 
     subreddit = subreddit.toLowerCase()
     // Get comment ids from pushshift
-    getPushshiftCommentsBySubreddit(subreddit, n)
+    getPushshiftCommentsBySubreddit(subreddit, n, before)
     .then(pushshiftComments => {
       this.props.global.setLoading('Comparing comments to Reddit API...')
       const fullTitlePromise = getFullTitles(pushshiftComments)
