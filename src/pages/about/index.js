@@ -19,9 +19,19 @@ const About = props => {
           <ul>
             <li>a user page: <a href='/user/redditor_3975/'>https://www.re<span className='v'>v</span>ddit.com/user/redditor_3975</a></li>
             <li>r/all: <a href='/r/all/'>https://www.re<span className='v'>v</span>ddit.com/r/all</a></li>
-            <li>a subreddit: <a href='/r/cant_say_goodbye/'>https://www.re<span className='v'>v</span>ddit.com/r/cant_say_goodbye</a></li>
-            <li>all recent subreddit comments: <a href='/r/cant_say_goodbye/comments'>https://www.re<span className='v'>v</span>ddit.com/r/cant_say_goodbye/comments</a></li>
-            <li>a post's comments: <a href='/r/cant_say_goodbye/comments/9ffoqz/comments_mentioning_goodbye_are_removed/'>https://www.re<span className='v'>v</span>ddit.com/r/cant_say_goodbye/comments/9ffoqz/...</a></li>
+            <li>a subreddit:
+              <ul>
+                <li>posts: <a href='/r/cant_say_goodbye/'>https://www.re<span className='v'>v</span>ddit.com/r/cant_say_goodbye</a></li>
+                <li>comments: <a href='/r/cant_say_goodbye/comments'>https://www.re<span className='v'>v</span>ddit.com/r/cant_say_goodbye/comments</a></li>
+              </ul>
+            </li>
+            <li>one post's comments: <a href='/r/cant_say_goodbye/comments/9ffoqz/comments_mentioning_goodbye_are_removed/'>https://www.re<span className='v'>v</span>ddit.com/r/cant_say_goodbye/comments/9ffoqz/...</a></li>
+            <li>multiple subreddits:
+              <ul>
+              <li>posts: <a href='/r/cant_say_goodbye,rdevcoder/'>https://www.re<span className='v'>v</span>ddit.com/r/cant_say_goodbye,rdevcoder/</a></li>
+              <li>comments: <a href='/r/cant_say_goodbye,rdevcoder/'>https://www.re<span className='v'>v</span>ddit.com/r/cant_say_goodbye,rdevcoder/comments</a></li>
+              </ul>
+            </li>
           </ul>
         <p>
           You can also use this bookmarklet

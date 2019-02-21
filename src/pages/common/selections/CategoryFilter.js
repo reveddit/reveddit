@@ -65,9 +65,13 @@ class CategoryFilter extends React.Component {
           <option key='all' value='all'>all</option>
           {
             category_ordered.map(category => {
+              let displayValue = category_unique_to_displayValue[category]
+              if (displayValue.length > 30) {
+                displayValue = displayValue.substr(0, 30)+'...'
+              }
               return (
                 <option key={category} value={category}>
-                  {category_unique_to_displayValue[category]} ({`${category_visible_counts[category]} / ${category_counts[category]}`})
+                  ({`${category_visible_counts[category]} / ${category_counts[category]}`}) {displayValue}
                 </option>
               )
             })
