@@ -1,4 +1,5 @@
 import SnuOwnd from 'snuownd'
+import { AUTOMOD_REMOVED_MOD_APPROVED } from 'pages/common/RemovedBy'
 
 const markdown = SnuOwnd.getParser()
 
@@ -132,4 +133,4 @@ export const oldSort = (commentA, commentB) => {
 // Filter comments
 export const showRemoved = comment => comment.removed === true
 export const showDeleted = comment => comment.deleted === true
-export const showRemovedAndDeleted = comment => comment.removed === true || comment.deleted === true
+export const showRemovedAndDeleted = comment => comment.removed === true || comment.deleted === true || comment.removedby === AUTOMOD_REMOVED_MOD_APPROVED
