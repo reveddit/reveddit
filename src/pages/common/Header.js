@@ -6,7 +6,10 @@ class Header extends React.Component {
   render() {
     const props = this.props
     const { page_type } = props
-    const { user, subreddit = ''} = props.match.params
+    let { user, subreddit = '', userSubreddit = ''} = props.match.params
+    if (userSubreddit) {
+      subreddit = 'u_'+userSubreddit
+    }
     let link = ''
     if (['subreddit_posts','thread'].includes(page_type)) {
       link = `/r/${subreddit}`

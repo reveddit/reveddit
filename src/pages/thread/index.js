@@ -25,7 +25,10 @@ class Thread extends React.Component {
   }
 
   componentDidMount () {
-    const { subreddit, threadID } = this.props.match.params
+    let { subreddit, threadID, userSubreddit } = this.props.match.params
+    if (userSubreddit) {
+      subreddit = 'u_'+userSubreddit
+    }
     this.props.global.setLoading('Loading comments from Pushshift...')
 
     // Get thread from reddit
