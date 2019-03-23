@@ -59,6 +59,19 @@ class Subreddit extends React.Component {
     document.title = `/r/${subreddit}`
     const n = 1000
     this.setState({ posts: [], loading: true, n: n })
+
+    const queryParams = new URLSearchParams(this.props.location.search)
+    const paramValueBefore = queryParams.get('before')
+    let before = ''
+    if (paramValueBefore) {
+      before = paramValueBefore
+    }
+    const paramValueBeforeID = queryParams.get('before_id')
+    let before_id = ''
+    if (paramValueBeforeID) {
+      before_id = paramValueBeforeID
+    }
+
     this.props.global.setLoading('Loading removed posts...')
     subreddit = subreddit.toLowerCase()
     if (subreddit === 'all') {
@@ -78,7 +91,7 @@ class Subreddit extends React.Component {
       })
       .catch(this.props.global.setError)
     } else {
-      getRecentPostsBySubreddit(subreddit, n)
+      getRecentPostsBySubreddit(subreddit, n, before, before_id)
       .then(posts_pushshift => {
         if (posts_pushshift.length < this.state.n) {
           this.setState({n: posts_pushshift.length})
@@ -121,7 +134,7 @@ class Subreddit extends React.Component {
               }
             } else {
               // not-removed posts
-              if (! ps_item.is_crosspostable) {
+              if ('is_crosspostable' in ps_item && ! ps_item.is_crosspostable) {
                 post.removedby = AUTOMOD_REMOVED_MOD_APPROVED
                 //show_posts.push(post)
               } else {

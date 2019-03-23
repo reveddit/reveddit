@@ -61,7 +61,7 @@ class Thread extends React.Component {
         }
       } else {
         // not-removed posts
-        if (! ps_post.is_crosspostable) {
+        if ('is_crosspostable' in ps_post && ! ps_post.is_crosspostable) {
           post.removedby = AUTOMOD_REMOVED_MOD_APPROVED
         } else {
           post.removedby = NOT_REMOVED

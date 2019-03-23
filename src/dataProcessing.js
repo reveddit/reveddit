@@ -72,6 +72,10 @@ export const combinePushshiftAndRedditComments = pushshiftComments => {
             ps_comment.removedby = MOD_OR_AUTOMOD_REMOVED
           }
         }
+      } else {
+        // known issue: r/all/comments?before=1538269380 will show some comments whose redditComment has no data
+        //              looks like spam that was removed
+        //console.log(ps_comment.id)
       }
     })
 

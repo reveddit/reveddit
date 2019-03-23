@@ -120,7 +120,7 @@ class Comment extends React.Component {
                 <a href={`${current_page}#${props.name}`}>hashlink</a>
                 <a href={props.permalink}>permalink</a>
                 <a href={reddit+props.permalink+'?context=3'}>context</a>
-                <a href={props.link_permalink.replace('reddit','revddit')}>full comments
+                <a href={props.link_permalink && props.link_permalink.replace('reddit','revddit')}>full comments
                   {'num_comments' in props && `(${props.num_comments})`}</a>
                 {message_mods}
               </div>

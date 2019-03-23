@@ -57,10 +57,15 @@ class SubredditComments extends React.Component {
     if (paramValueBefore) {
       before = paramValueBefore
     }
+    const paramValueBeforeID = queryParams.get('before_id')
+    let before_id = ''
+    if (paramValueBeforeID) {
+      before_id = paramValueBeforeID
+    }
 
     subreddit = subreddit.toLowerCase()
     // Get comment ids from pushshift
-    getPushshiftCommentsBySubreddit(subreddit, n, before)
+    getPushshiftCommentsBySubreddit(subreddit, n, before, before_id)
     .then(pushshiftComments => {
       this.props.global.setLoading('Comparing comments to Reddit API...')
       const fullTitlePromise = getFullTitles(pushshiftComments)
@@ -69,7 +74,7 @@ class SubredditComments extends React.Component {
       .then(values => {
         const full_titles = values[0]
         pushshiftComments.forEach(ps_comment => {
-          if (ps_comment.link_id in full_titles) {
+          if (full_titles && ps_comment.link_id in full_titles) {
             ps_comment.link_title = full_titles[ps_comment.link_id]
           }
         })
