@@ -72,12 +72,18 @@ class SubredditComments extends React.Component {
       const combinePromise = combinePushshiftAndRedditComments(pushshiftComments)
       Promise.all([fullTitlePromise, combinePromise])
       .then(values => {
+        const show_comments = []
         const full_titles = values[0]
         pushshiftComments.forEach(ps_comment => {
           if (full_titles && ps_comment.link_id in full_titles) {
-            ps_comment.link_title = full_titles[ps_comment.link_id]
+            if ( ! (full_titles[ps_comment.link_id].whitelist_status == 'promo_adult_nsfw' &&
+                     (ps_comment.removed || ps_comment.deleted))) {
+              ps_comment.link_title = full_titles[ps_comment.link_id].title
+              show_comments.push(ps_comment)
+            }
           }
         })
+        pushshiftComments = show_comments
         this.props.global.setSuccess()
         this.setState({
           pushshiftComments,

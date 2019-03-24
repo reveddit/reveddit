@@ -6,7 +6,7 @@ import { getRecentPostsBySubreddit } from 'api/pushshift'
 import { getPosts, getItems } from 'api/reddit'
 import Post from 'pages/common/Post'
 import {connect, removedFilter_types, localSort_types} from 'state'
-import { itemIsRemovedOrDeleted, postIsDeleted } from 'utils'
+import { itemIsRemovedOrDeleted, postIsDeleted, display_post } from 'utils'
 import Time from 'pages/common/Time'
 import { REMOVAL_META, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED, AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
 import Selections from 'pages/common/selections'
@@ -114,7 +114,7 @@ class Subreddit extends React.Component {
               if (postIsDeleted(post)) {
                 if (post.num_comments > 0) {
                   post.deleted = true
-                  show_posts.push(post)
+                  display_post(show_posts, post)
                 } else {
                   // not showing deleted posts with 0 comments
                   numDeletedNotShown += 1
@@ -130,7 +130,7 @@ class Subreddit extends React.Component {
                 } else {
                   post.removedby = MOD_OR_AUTOMOD_REMOVED
                 }
-                show_posts.push(post)
+                display_post(show_posts, post)
               }
             } else {
               // not-removed posts

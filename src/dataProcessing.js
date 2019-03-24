@@ -15,7 +15,7 @@ export const getFullTitles = pushshiftComments => {
   const link_ids = Object.keys(link_ids_set)
   return getPushshiftPosts(link_ids)
   .then(ps_posts => {
-    return Object.assign(...ps_posts.map(post => ({[post.name]: post.title})))
+    return Object.assign(...ps_posts.map(post => ({[post.name]: post})))
   })
   .catch(() => { console.error('Unable to retrieve full titles from Pushshift') })
 }

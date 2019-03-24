@@ -59,6 +59,12 @@ export const postIsDeleted = post => {
   return false
 }
 
+export const display_post = (list, post) => {
+  if (! ('whitelist_status' in post && post.whitelist_status == "promo_adult_nsfw")) {
+    list.push(post)
+  }
+}
+
 // Default thumbnails for reddit threads
 export const redditThumbnails = ['self', 'default', 'image', 'nsfw']
 

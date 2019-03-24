@@ -155,7 +155,7 @@ export const getPosts_chunk = threadIDs => {
       }
     },
     size: threadIDs.length,
-    _source: ['title']
+    _source: ['title','whitelist_status']
   }
 
   return window.fetch(postURL + JSON.stringify(elasticQuery))
