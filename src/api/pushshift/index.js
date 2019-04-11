@@ -201,7 +201,7 @@ export const getComments = threadID => {
         link_id: toBase10(threadID)
       }
     },
-    size: 20000,
+    size: 10000,
     _source: comment_fields
   }
 
