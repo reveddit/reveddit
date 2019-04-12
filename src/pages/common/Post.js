@@ -7,6 +7,12 @@ import RemovedBy from 'pages/common/RemovedBy'
 import { NOT_REMOVED } from 'pages/common/RemovedBy'
 
 class Post extends React.Component {
+  state = {
+    displayFullSelftext: false
+  }
+  displayFullSelftext() {
+    this.setState({displayFullSelftext: true})
+  }
   render() {
     const props = this.props
     if (!props.title) {
@@ -38,6 +44,13 @@ class Post extends React.Component {
         </a>
       )
     }
+    let selftext_snippet = props.selftext
+    const max_length = 100
+    let snippet_is_set = false
+    if (props.selftext && props.selftext.length > max_length + 10) {
+      snippet_is_set = true
+      selftext_snippet = props.selftext.substring(0,max_length)+'...'
+    }
 
     return (
       <div id={props.name} className={`post thread ${props.removed ? 'removed':''} ${props.unknown ? 'unknown':''} ${props.deleted ? 'deleted' : ''}`}>
@@ -63,7 +76,17 @@ class Post extends React.Component {
             &nbsp;<RemovedBy removedby={props.removedby} />
           </div>
           {props.selftext &&
-          <div className='thread-selftext user-text' dangerouslySetInnerHTML={{ __html: parse(props.selftext) }} />}
+            <div className='thread-selftext user-text'>
+              <div dangerouslySetInnerHTML={{ __html: this.state.displayFullSelftext ? parse(props.selftext) : parse(selftext_snippet) }}/>
+              {!this.state.displayFullSelftext && snippet_is_set &&
+                <p>
+                  <a className='collapseToggle' onClick={() => this.displayFullSelftext()}>
+                    ... view full text
+                  </a>
+                </p>
+              }
+            </div>
+          }
           <div className='total-comments post-links'>
             <Link to={props.permalink}>{props.num_comments} comments</Link>
             <a href={`${current_page}#${props.name}`}>hashlink</a>

@@ -8,10 +8,10 @@ import Post from 'pages/common/Post'
 import {connect, removedFilter_types, localSort_types} from 'state'
 import { itemIsRemovedOrDeleted, postIsDeleted, display_post } from 'utils'
 import Time from 'pages/common/Time'
-import { REMOVAL_META, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED, AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
+import { REMOVAL_META, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
+         MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED, USER_REMOVED,
+         AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
 import Selections from 'pages/common/selections'
-
-var numDeletedNotShown = 0
 
 const byScore = (a, b) => {
   return (b.score - a.score) || (b.num_comments - a.num_comments)
@@ -25,18 +25,22 @@ const byNumComments = (a, b) => {
 const byControversiality = (a, b) => {
   return (a.score - b.score) || (b.num_comments - a.num_comments)
 }
-
+const defaultN = 1000
 
 class Subreddit extends React.Component {
   state = {
     posts: [],
     loading: true,
-    n: 1000
+    n: defaultN
   }
 
   componentDidMount () {
     const { subreddit = 'all' } = this.props.match.params
-    this.getRemovedPosts(subreddit)
+    this.props.global.setStateFromQueryParams(this.props.page_type,
+                    new URLSearchParams(this.props.location.search))
+    .then(result => {
+      this.getRemovedPosts()
+    })
   }
 
   // Check if the subreddit has changed in the url, and fetch posts accordingly
@@ -45,7 +49,7 @@ class Subreddit extends React.Component {
     const { subreddit = 'all' } = prevProps.match.params
 
     if (subreddit !== newSubreddit) {
-      this.getRemovedPosts(newSubreddit)
+      this.getRemovedPosts()
     }
   }
   jumpToHash () {
@@ -54,10 +58,20 @@ class Subreddit extends React.Component {
       scrollToElement(hash, { offset: -10 });
     }
   }
+  setBefore = (before, before_id, n) => {
+    this.setState({pushshiftComments: []})
+    this.props.global.upvoteRemovalRateHistory_update(before, before_id, n, this.props)
+    .then(result => {
+      this.getRemovedPosts()
+    })
+  }
+
   // Download post IDs from removeddit API, then post info from reddit API
-  getRemovedPosts (subreddit) {
+  getRemovedPosts () {
+    let { subreddit = 'all' } = this.props.match.params
+    subreddit = subreddit.toLowerCase()
     document.title = `/r/${subreddit}`
-    const n = 1000
+    const n = this.state.n
     this.setState({ posts: [], loading: true, n: n })
 
     const queryParams = new URLSearchParams(this.props.location.search)
@@ -73,7 +87,6 @@ class Subreddit extends React.Component {
     }
 
     this.props.global.setLoading('Loading removed posts...')
-    subreddit = subreddit.toLowerCase()
     if (subreddit === 'all') {
       getRemovedPostIDs(subreddit)
       .then(postIDs => getPosts(postIDs))
@@ -117,7 +130,6 @@ class Subreddit extends React.Component {
                   display_post(show_posts, post)
                 } else {
                   // not showing deleted posts with 0 comments
-                  numDeletedNotShown += 1
                 }
               } else {
                 post.removed = true
@@ -157,25 +169,32 @@ class Subreddit extends React.Component {
   getVisibleItemsWithoutCategoryFilter() {
     const removedByFilterIsUnset = this.props.global.removedByFilterIsUnset()
     const visibleItems = []
-    this.state.posts.forEach(post => {
+    this.state.posts.forEach(item => {
       let itemIsOneOfSelectedRemovedBy = false
-      Object.keys(REMOVAL_META).forEach(type => {
-        if (this.props.global.state.removedByFilter[type] && post.removedby && post.removedby === type) {
-          itemIsOneOfSelectedRemovedBy = true
+      if (this.props.global.state.removedByFilter[USER_REMOVED] && item.deleted) {
+        itemIsOneOfSelectedRemovedBy = true
+      } else {
+        for (let i = 0; i < Object.keys(REMOVAL_META).length; i++) {
+          const type = Object.keys(REMOVAL_META)[i]
+          if (this.props.global.state.removedByFilter[type] && item.removedby && item.removedby === type) {
+            itemIsOneOfSelectedRemovedBy = true
+            break
+          }
         }
-      })
+      }
+
       if (
         (this.props.global.state.removedFilter === removedFilter_types.all ||
           (
             this.props.global.state.removedFilter === removedFilter_types.removed &&
-            (post.deleted || post.removed || (post.removedby && post.removedby !== NOT_REMOVED))
+            (item.deleted || item.removed || (item.removedby && item.removedby !== NOT_REMOVED))
           ) ||
           (this.props.global.state.removedFilter === removedFilter_types.not_removed &&
-            (! post.removed && post.removedby === NOT_REMOVED) )
+            (! item.removed && item.removedby === NOT_REMOVED) )
         ) &&
         (removedByFilterIsUnset || itemIsOneOfSelectedRemovedBy)
       ) {
-        visibleItems.push(post)
+        visibleItems.push(item)
       }
     })
     return visibleItems
@@ -187,6 +206,7 @@ class Subreddit extends React.Component {
     const noPostsFound = this.state.posts.length === 0 && !this.state.loading
     let category = 'domain'
     let category_title = 'Domain'
+    let category_unique_field = 'domain'
     if (subreddit.toLowerCase() === 'all') {
       category = 'subreddit'
       category_title = 'Subreddit'
@@ -194,11 +214,6 @@ class Subreddit extends React.Component {
     let category_state = this.props.global.state['categoryFilter_'+category]
     const showAllCategories = category_state === 'all'
 
-    let lastTimeLoaded = ''
-    let numPostsTitle = ''
-    if (numDeletedNotShown) {
-      numPostsTitle = `${numDeletedNotShown} user-deleted posts that have no comments are not shown`
-    }
     const visibleItems = this.getVisibleItemsWithoutCategoryFilter()
 
     const posts_sorted = visibleItems
@@ -215,43 +230,16 @@ class Subreddit extends React.Component {
       posts_sorted.reverse()
     }
 
-
-
-    if (this.state.posts.length) {
-      let oldest_time = 99999999999
-      this.state.posts.forEach(post => {
-        if (post.created_utc < oldest_time) {
-          oldest_time = post.created_utc
-        }
-      })
-      let num_showing = visibleItems.length.toLocaleString()
-      if (! showAllCategories) {
-        num_showing = (visibleItems.filter(p =>
-          p[category] === category_state)
-          .length)
-      }
-      lastTimeLoaded = (
-        <React.Fragment>
-          <div className='non-item text'>since <Time created_utc={oldest_time} /></div>
-          {subreddit !== 'all' ?
-            <React.Fragment>
-              <div className='non-item text' title={numPostsTitle}>{num_showing} of {this.state.n.toLocaleString()} posts</div>
-            </React.Fragment>
-          : ''}
-        </React.Fragment>
-      )
-    }
-
-
-
     return (
       <React.Fragment>
         <Selections page_type='subreddit_posts' visibleItems={visibleItems}
-            allItems={this.state.posts} category_type={category} category_title={category_title}/>
-        {lastTimeLoaded}
+            allItems={this.state.posts}
+            category_type={category} category_title={category_title}
+            category_unique_field={category_unique_field}
+            setBefore={this.setBefore}/>
         {
-          noPostsFound
-            ? <p>No removed posts found for /r/{subreddit}</p>
+          noPostsFound ?
+            <p>No removed posts found for /r/{subreddit}</p>
             :
             visibleItems.map(post => {
               let itemIsOneOfSelectedCategories = false

@@ -1,5 +1,5 @@
 import React from 'react'
-import { connect, localSort_types, localSortReverseDefault } from 'state'
+import { connect, localSort_types } from 'state'
 import { withRouter } from 'react-router';
 
 const paramKey_sortType = 'localSort'
@@ -7,58 +7,17 @@ const paramKey_reverse = 'localSortReverse'
 
 class LocalSort extends React.Component {
 
-  componentDidMount() {
-    const queryParams = new URLSearchParams(this.props.location.search)
-    const paramValue_sortType = queryParams.get(paramKey_sortType)
-    const defaultValue_sortType = localSort_types[this.props.page_type+'_default']
-    if (paramValue_sortType in localSort_types) {
-      this.props.global.setLocalSortAndDefault(paramValue_sortType, defaultValue_sortType)
-    } else {
-      this.props.global.setLocalSortAndDefault(defaultValue_sortType, defaultValue_sortType)
-    }
-    const paramValue_reverse = queryParams.get(paramKey_reverse)
-    if (paramValue_reverse) {
-      this.props.global.setLocalSortReverse(paramValue_reverse)
-    }
-  }
-
   isChecked(sortType) {
     return this.props.global.state.localSort === sortType
   }
 
-  updateStateAndURL_sortType = (event) => {
-    this.props.global.setLocalSort(event.target.value)
-
-    const queryParams = new URLSearchParams(this.props.location.search)
-
-    if (event.target.value === this.props.global.state.selection_defaults.localSort) {
-      queryParams.delete(paramKey_sortType)
-    } else {
-      queryParams.set(paramKey_sortType, event.target.value)
-    }
-    let to = `${this.props.location.pathname}?${queryParams.toString()}`
-    this.props.history.push(to)
-  }
-
-  updateStateAndURL_reverse = (event) => {
-    this.props.global.setLocalSortReverse(event.target.checked)
-
-    const queryParams = new URLSearchParams(this.props.location.search)
-
-    if (event.target.checked === localSortReverseDefault) {
-      queryParams.delete(paramKey_reverse)
-    } else {
-      queryParams.set(paramKey_reverse, event.target.checked)
-    }
-    let to = `${this.props.location.pathname}?${queryParams.toString()}`
-    this.props.history.push(to)
-  }
-
   makeLabel(value, text) {
+    const updateStateAndURL = this.props.global.selection_update
     return (
       <label>
         <input type='radio' value={localSort_types[value]}
-          checked={this.isChecked(localSort_types[value])} onChange={this.updateStateAndURL_sortType}/>
+          checked={this.isChecked(localSort_types[value])}
+          onChange={(e) => updateStateAndURL('localSort', e.target.value, this.props )}/>
         <span>{text}</span>
       </label>
     )
@@ -66,6 +25,8 @@ class LocalSort extends React.Component {
 
   render() {
     const localSortReverse = this.props.global.state.localSortReverse
+    const updateStateAndURL = this.props.global.selection_update
+
     return (
         <div className={`localSort selection`}>
           <div className='title'>Sort By</div>
@@ -85,7 +46,7 @@ class LocalSort extends React.Component {
           <label id='reverseSort'>
             <input type='checkbox'
               checked={localSortReverse}
-              onChange={this.updateStateAndURL_reverse}
+              onChange={(e) => updateStateAndURL('localSortReverse', e.target.checked, this.props)}
             />
             <span>reverse</span>
           </label>

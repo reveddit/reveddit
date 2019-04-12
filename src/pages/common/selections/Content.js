@@ -19,7 +19,7 @@ class Content extends React.Component {
     const path = link_path_parts.join('/')
     return (<div>
               <a className={kind === path_suffix ? 'selected': ''}
-                 href={`${path}${url.search}`}>{text}</a>
+                 href={path}>{text}</a>
             </div>)
   }
 

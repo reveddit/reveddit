@@ -77,11 +77,15 @@ class Comment extends React.Component {
           this.state.displayBody ?
             <div className='comment-body-and-links'>
               <div className='comment-body' dangerouslySetInnerHTML={{ __html: innerHTML }} />
-              <div className='comment-links'>
-                <a href={`${permalink}#${name}`}>hashlink</a>
-                <Link to={permalink}>permalink</Link>
-                <a href={`https://www.reddit.com${permalink}`}>reddit</a>
-              </div>
+                <div className='comment-links'>
+                { ! props.deleted &&
+                  <React.Fragment>
+                    <a href={`${permalink}#${name}`}>hashlink</a>
+                    <Link to={permalink}>permalink</Link>
+                    <a href={`https://www.reddit.com${permalink}`}>reddit</a>
+                  </React.Fragment>
+                }
+                </div>
               <div>
                 {
                   'replies' in props &&

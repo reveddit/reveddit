@@ -4,28 +4,6 @@ import { connect } from 'state'
 
 class CategoryFilter extends React.Component {
 
-  componentDidMount() {
-    const queryParams = new URLSearchParams(this.props.location.search)
-    const type = this.props.type
-    if (queryParams.get(type)) {
-      this.props.global.setCategoryFilter(type, queryParams.get(type))
-    }
-  }
-
-  updateStateAndURL = (event) => {
-    const value = event.target.value
-    const type = this.props.type
-    this.props.global.setCategoryFilter(type, value)
-    const queryParams = new URLSearchParams(this.props.location.search)
-    if (value !== 'all') {
-      queryParams.set(type, value)
-    } else {
-      queryParams.delete(type)
-    }
-    let to = `${this.props.location.pathname}?${queryParams.toString()}`
-    this.props.history.push(to)
-  }
-
   render() {
     const category_visible_counts = {}
     const category_counts = {}
@@ -57,11 +35,13 @@ class CategoryFilter extends React.Component {
     if (! categoryFilter) {
       categoryFilter = 'all'
     }
+    const updateStateAndURL = this.props.global.categoryFilter_update
 
     return (
       <div className={`categoryFilter selection filter ${categoryFilter !== 'all'? 'set': ''}`}>
         <div className='title'>{title}</div>
-        <select value={categoryFilter} onChange={this.updateStateAndURL}>
+        <select value={categoryFilter}
+          onChange={(e) => updateStateAndURL(type, e.target.value, this.props )}>
           <option key='all' value='all'>all</option>
           {
             category_ordered.map(category => {

@@ -6,6 +6,7 @@ import CategoryFilter from 'pages/common/selections/CategoryFilter'
 import LocalSort from 'pages/common/selections/LocalSort'
 import RedditSort from 'pages/common/selections/RedditSort'
 import Content from 'pages/common/selections/Content'
+import ResultsSummary from 'pages/common/ResultsSummary'
 
 class Selections extends React.Component {
   state = {
@@ -23,7 +24,7 @@ class Selections extends React.Component {
   }
   render () {
     const { page_type, visibleItems, allItems,
-            category_type, category_title, category_unique_field } = this.props
+            category_type, category_title, category_unique_field, setBefore } = this.props
     return (
       <React.Fragment>
         <div className='toggleFilters'><a onClick={this.toggleDisplayFilters}
@@ -40,8 +41,8 @@ class Selections extends React.Component {
                       <Content page_type={page_type}/>
                       <LocalSort page_type={page_type}/>
                       <RemovedFilter page_type={page_type} />
-                      <RemovedByFilter />
-                      <CategoryFilter visibleItems={visibleItems} allItems={allItems}
+                      <RemovedByFilter page_type={page_type} />
+                      <CategoryFilter page_type={page_type} visibleItems={visibleItems} allItems={allItems}
                         type={category_type} title={category_title} unique_field={category_unique_field}/>
                     </React.Fragment>)
                 case 'subreddit_comments':
@@ -50,8 +51,8 @@ class Selections extends React.Component {
                       <Content page_type={page_type}/>
                       <LocalSort page_type={page_type} />
                       <RemovedFilter page_type={page_type} />
-                      <RemovedByFilter />
-                      <CategoryFilter visibleItems={visibleItems} allItems={allItems}
+                      <RemovedByFilter page_type={page_type} />
+                      <CategoryFilter page_type={page_type} visibleItems={visibleItems} allItems={allItems}
                         type={category_type} title={category_title} unique_field={category_unique_field}/>
                     </React.Fragment>)
                 case 'user':
@@ -60,8 +61,8 @@ class Selections extends React.Component {
                       <Content page_type={page_type} />
                       <RedditSort page_type={page_type} />
                       <RemovedFilter page_type={page_type} />
-                      <RemovedByFilter />
-                      <CategoryFilter visibleItems={visibleItems} allItems={allItems}
+                      <RemovedByFilter page_type={page_type} />
+                      <CategoryFilter page_type={page_type} visibleItems={visibleItems} allItems={allItems}
                         type={category_type} title={category_title} unique_field={category_unique_field}/>
                     </React.Fragment>)
                 case 'thread':
@@ -69,12 +70,20 @@ class Selections extends React.Component {
                     <React.Fragment>
                       <LocalSort page_type={page_type} />
                       <RemovedFilter page_type={page_type} />
-                      <RemovedByFilter />
+                      <RemovedByFilter page_type={page_type} />
                     </React.Fragment>)
                 default: return ''
               }
             })()}
           </div>
+        }
+        {allItems.length ?
+          <ResultsSummary allItems={allItems}
+                          visibleItems={visibleItems}
+                          category_type={category_type}
+                          category_unique_field={category_unique_field}
+                          page_type={page_type} />
+                          : ''
         }
       </React.Fragment>
     )

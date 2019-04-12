@@ -3,7 +3,7 @@ import { withRouter } from 'react-router';
 import Comment from './Comment'
 import {connect, localSort_types, removedFilter_types, removedFilter_text} from 'state'
 import { showRemovedAndDeleted } from 'utils'
-import { NOT_REMOVED, REMOVAL_META } from 'pages/common/RemovedBy'
+import { NOT_REMOVED, REMOVAL_META, USER_REMOVED } from 'pages/common/RemovedBy'
 const byScore = (a, b) => {
   return (b.score - a.score) || (b.replies.length - a.replies.length)
 }
@@ -107,11 +107,15 @@ class CommentSection extends React.Component {
 
   itemIsOneOfSelectedRemovedBy = (item) => {
     let itemIsOneOfSelectedRemovedBy = false
-    Object.keys(REMOVAL_META).forEach(type => {
-      if (this.props.global.state.removedByFilter[type] && item.removedby && item.removedby === type) {
-        itemIsOneOfSelectedRemovedBy = true
-      }
-    })
+    if (this.props.global.state.removedByFilter[USER_REMOVED] && item.deleted) {
+      itemIsOneOfSelectedRemovedBy = true
+    } else {
+      Object.keys(REMOVAL_META).forEach(type => {
+        if (this.props.global.state.removedByFilter[type] && item.removedby && item.removedby === type) {
+          itemIsOneOfSelectedRemovedBy = true
+        }
+      })
+    }
     return itemIsOneOfSelectedRemovedBy
   }
 
@@ -152,7 +156,7 @@ class CommentSection extends React.Component {
             depth={0}
           />
         })
-        : <p>No {removedFilter_text[removedFilter]} comments found</p>
+        : <p>No {removedFilter_text[removedFilter].replace('all','')} comments found</p>
     )
   }
 }

@@ -73,7 +73,11 @@ class User extends React.Component {
     }
     // quick fix to avoid reloading when hitting back button after visiting /about ..
     if (! allItems.length) {
-      this.getItems_wrapper(user, kind, s.sort, s.before, s.after, s.limit, s.loadAll)
+      this.props.global.setStateFromQueryParams(this.props.page_type,
+                      new URLSearchParams(this.props.location.search))
+      .then(result => {
+        this.getItems_wrapper(user, kind, s.sort, s.before, s.after, s.limit, s.loadAll)
+      })
     }
   }
   jumpToHash () {
@@ -285,7 +289,8 @@ class User extends React.Component {
         </div>
         <Selections page_type='user' visibleItems={visibleItems}
           allItems={allItems}
-          category_type='subreddit' category_title='Subreddit'/>
+          category_type='subreddit' category_title='Subreddit'
+          category_unique_field='subreddit'/>
         {
           visibleItems.map(item => {
             let itemIsOneOfSelectedSubreddits = false

@@ -28,8 +28,12 @@
     "build-sass": "node-sass --style compressed src/sass/index.sass dist/main.css"
   },
   "dependencies": {
+    "apollo-boost": "^0.3.1",
     "babel-polyfill": "^6.26.0",
+    "graphql": "^14.2.1",
     "react": "^16.4.1",
+    "react-apollo": "^2.5.4",
+    "react-charts": "^2.0.0-alpha.12",
     "react-dom": "^16.4.1",
     "react-router-dom": "^4.3.1",
     "snuownd": "git+https://github.com/JordanMilne/snuownd.git",
@@ -45,12 +49,14 @@
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.7.0",
     "babel-preset-react": "^6.24.1",
+    "d3": "^5.9.2",
     "history": "^4.7.2",
     "node-sass": "^4.9.2",
     "scroll-to-element": "^2.0.2",
     "standard": "^11.0.1",
+    "victory": "^32.2.0",
     "webpack": "^4.16.0",
     "webpack-cli": "^3.0.8",
-    "webpack-dev-server": "^3.1.4"
+    "webpack-dev-server": "^3.2.1"
   }
 }

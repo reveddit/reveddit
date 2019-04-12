@@ -71,27 +71,6 @@ export const redditThumbnails = ['self', 'default', 'image', 'nsfw']
 // Parse comments
 export const parse = text => markdown.render(text)
 
-// UTC to "Reddit time format" (e.g. 5 hours ago, just now, etc...)
-export const prettyDate = createdUTC => {
-  const currentUTC = Math.floor((new Date()).getTime() / 1000)
-  const secondDiff = currentUTC - createdUTC
-  const dayDiff = Math.floor(secondDiff / 86400)
-
-  if (dayDiff < 0) return ''
-  if (dayDiff === 0) {
-    if (secondDiff < 10) return 'just now'
-    if (secondDiff < 60) return `${secondDiff} seconds ago`
-    if (secondDiff < 120) return 'a minute ago'
-    if (secondDiff < 3600) return `${Math.floor(secondDiff / 60)} minutes ago`
-    if (secondDiff < 7200) return 'an hour ago'
-    if (secondDiff < 86400) return `${Math.floor(secondDiff / 3600)} hours ago`
-  }
-  if (dayDiff < 7) return `${dayDiff} days ago`
-  if (dayDiff < 31) return `${Math.floor(dayDiff / 7)} weeks ago`
-  if (dayDiff < 365) return `${Math.floor(dayDiff / 30)} months ago`
-  return `${Math.floor(dayDiff / 365)} years ago`
-}
-
 // Reddit format for scores, e.g. 12000 => 12k
 export const prettyScore = score => {
   if (score >= 100000) {
@@ -140,3 +119,36 @@ export const oldSort = (commentA, commentB) => {
 export const showRemoved = comment => comment.removed === true
 export const showDeleted = comment => comment.deleted === true
 export const showRemovedAndDeleted = comment => comment.removed === true || comment.deleted === true || comment.removedby === AUTOMOD_REMOVED_MOD_APPROVED
+
+export const getPrettyTimeLength = (seconds) => {
+  const thresholds = [[60, 'second', 'seconds'], [60, 'minute', 'minutes'], [24, 'hour', 'hours'], [7, 'day', 'days'],
+                   [365/12/7, 'week', 'weeks'], [12, 'month', 'months'], [10, 'year', 'years'],
+                   [10, 'decade', 'decades'], [10, 'century', 'centuries'], [10, 'millenium', 'millenia']]
+  if (seconds < 60) return seconds + ' seconds'
+  let time = seconds
+  for (var i=0; i<thresholds.length; i++) {
+    let divisor = thresholds[i][0]
+    let text = thresholds[i][1]
+    let textPlural = thresholds[i][2]
+    if (time < divisor) {
+      let extra = (time - Math.floor(time))
+      let prevUnitTime = Math.round(extra*thresholds[i-1][0])
+      if (Math.floor(time) > 1 || Math.floor(time) == 0) {
+        text = textPlural
+      }
+      if (i > 1 && prevUnitTime > 0) {
+        let remainText = thresholds[i-1][1]
+        if (prevUnitTime > 1) {
+          remainText = thresholds[i-1][2]
+        }
+        text += ', ' + String(prevUnitTime) + ' ' + remainText
+      }
+      return String(Math.floor(time)) + ' ' + text
+    }
+    time = time / divisor
+  }
+}
+export const getPrettyDate = (createdUTC) => {
+  const seconds = Math.floor((new Date).getTime()/1000)-createdUTC
+  return getPrettyTimeLength(seconds) + ' ago'
+}

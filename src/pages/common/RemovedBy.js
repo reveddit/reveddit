@@ -5,6 +5,7 @@ export const AUTOMOD_REMOVED_MOD_APPROVED = 'automod-rem-mod-app'
 export const MOD_OR_AUTOMOD_REMOVED = 'mod'
 export const UNKNOWN_REMOVED = 'unknown'
 export const NOT_REMOVED = 'none'
+export const USER_REMOVED = 'user'
 export const AUTOMOD_LATENCY_THRESHOLD = 15
 
 export const REMOVAL_META = {
@@ -21,6 +22,10 @@ export const REMOVAL_META = {
                                          label: 'unknown',
                                           desc: 'Cannot say with certainty whether this was removed by a mod or by automod.'}
                             }
+
+export const USER_REMOVED_META = {filter_text: 'user',
+                                        label: 'user',
+                                         desc: 'user removed'}
 
 class RemovedBy extends React.Component {
   render() {

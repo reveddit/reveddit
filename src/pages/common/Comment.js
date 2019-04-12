@@ -115,15 +115,19 @@ class Comment extends React.Component {
           this.state.displayBody ?
             <div className='comment-body-and-links'>
               <div className='comment-body' dangerouslySetInnerHTML={{ __html: innerHTML }} />
-              <div className='comment-links'>
-                <a href={link}>directlink</a>
-                <a href={`${current_page}#${props.name}`}>hashlink</a>
-                <a href={props.permalink}>permalink</a>
-                <a href={reddit+props.permalink+'?context=3'}>context</a>
-                <a href={props.link_permalink && props.link_permalink.replace('reddit','revddit')}>full comments
-                  {'num_comments' in props && `(${props.num_comments})`}</a>
-                {message_mods}
-              </div>
+                  <div className='comment-links'>
+                  { ! props.deleted &&
+                    <React.Fragment>
+                    <a href={link}>directlink</a>
+                    <a href={`${current_page}#${props.name}`}>hashlink</a>
+                    <a href={props.permalink}>permalink</a>
+                    <a href={reddit+props.permalink+'?context=3'}>context</a>
+                    <a href={props.link_permalink && props.link_permalink.replace('reddit','revddit')}>full comments
+                      {'num_comments' in props && `(${props.num_comments})`}</a>
+                    {message_mods}
+                    </React.Fragment>
+                  }
+                  </div>
             </div>
           : ''
         }
