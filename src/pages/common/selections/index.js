@@ -77,7 +77,7 @@ class Selections extends React.Component {
             })()}
           </div>
         }
-        {allItems.length ?
+        {allItems && allItems.length ?
           <ResultsSummary allItems={allItems}
                           visibleItems={visibleItems}
                           category_type={category_type}
