@@ -6,7 +6,6 @@ import CategoryFilter from 'pages/common/selections/CategoryFilter'
 import LocalSort from 'pages/common/selections/LocalSort'
 import RedditSort from 'pages/common/selections/RedditSort'
 import Content from 'pages/common/selections/Content'
-import UpvoteRemovalRateHistory from 'pages/common/selections/UpvoteRemovalRateHistory'
 import ResultsSummary from 'pages/common/ResultsSummary'
 
 class Selections extends React.Component {
