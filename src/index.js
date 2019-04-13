@@ -8,7 +8,7 @@ import ApolloClient from 'apollo-boost'
 
 import Header from 'pages/common/Header'
 import About from 'pages/about'
-import Subreddit from 'pages/subreddit'
+import SubredditPosts from 'pages/subreddit'
 import SubredditComments from 'pages/subreddit/comments'
 import Thread from 'pages/thread'
 import User from 'pages/user'
@@ -44,7 +44,7 @@ class App extends React.Component {
               <DefaultLayout path='/r/:subreddit/comments/:threadID/:urlTitle/:commentID' page_type='thread' component={Thread} />
               <DefaultLayout path='/r/:subreddit/comments/:threadID' page_type='thread' component={Thread} />
               <DefaultLayout path='/r/:subreddit/comments/' page_type='subreddit_comments' component={SubredditComments} />
-              <DefaultLayout path='/r/:subreddit' page_type='subreddit_posts' component={Subreddit} />
+              <DefaultLayout path='/r/:subreddit' page_type='subreddit_posts' component={SubredditPosts} />
               <DefaultLayout path='/user/:userSubreddit/comments/:threadID/:urlTitle/:commentID' page_type='thread' component={Thread} />
               <DefaultLayout path='/user/:userSubreddit/comments/:threadID/:urlTitle/' page_type='thread' component={Thread} />
               <DefaultLayout path='/user/:user/:kind' page_type='user' component={User} />

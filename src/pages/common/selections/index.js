@@ -6,6 +6,7 @@ import CategoryFilter from 'pages/common/selections/CategoryFilter'
 import LocalSort from 'pages/common/selections/LocalSort'
 import RedditSort from 'pages/common/selections/RedditSort'
 import Content from 'pages/common/selections/Content'
+import UpvoteRemovalRateHistory from 'pages/common/selections/UpvoteRemovalRateHistory'
 import ResultsSummary from 'pages/common/ResultsSummary'
 
 class Selections extends React.Component {
@@ -23,7 +24,7 @@ class Selections extends React.Component {
     }
   }
   render () {
-    const { page_type, visibleItems, allItems,
+    const { page_type, visibleItemsWithoutCategoryFilter, allItems, num_showing,
             category_type, category_title, category_unique_field, setBefore } = this.props
     return (
       <React.Fragment>
@@ -42,8 +43,11 @@ class Selections extends React.Component {
                       <LocalSort page_type={page_type}/>
                       <RemovedFilter page_type={page_type} />
                       <RemovedByFilter page_type={page_type} />
-                      <CategoryFilter page_type={page_type} visibleItems={visibleItems} allItems={allItems}
+                      <CategoryFilter page_type={page_type}
+                        visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
+                        allItems={allItems}
                         type={category_type} title={category_title} unique_field={category_unique_field}/>
+                      <UpvoteRemovalRateHistory page_type={page_type} setBefore={setBefore}/>
                     </React.Fragment>)
                 case 'subreddit_comments':
                   return (
@@ -52,8 +56,11 @@ class Selections extends React.Component {
                       <LocalSort page_type={page_type} />
                       <RemovedFilter page_type={page_type} />
                       <RemovedByFilter page_type={page_type} />
-                      <CategoryFilter page_type={page_type} visibleItems={visibleItems} allItems={allItems}
+                      <CategoryFilter page_type={page_type}
+                        visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
+                        allItems={allItems}
                         type={category_type} title={category_title} unique_field={category_unique_field}/>
+                      <UpvoteRemovalRateHistory page_type={page_type} setBefore={setBefore}/>
                     </React.Fragment>)
                 case 'user':
                   return (
@@ -62,7 +69,9 @@ class Selections extends React.Component {
                       <RedditSort page_type={page_type} />
                       <RemovedFilter page_type={page_type} />
                       <RemovedByFilter page_type={page_type} />
-                      <CategoryFilter page_type={page_type} visibleItems={visibleItems} allItems={allItems}
+                      <CategoryFilter page_type={page_type}
+                        visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
+                        allItems={allItems}
                         type={category_type} title={category_title} unique_field={category_unique_field}/>
                     </React.Fragment>)
                 case 'thread':
@@ -79,7 +88,7 @@ class Selections extends React.Component {
         }
         {allItems && allItems.length ?
           <ResultsSummary allItems={allItems}
-                          visibleItems={visibleItems}
+                          num_showing={num_showing}
                           category_type={category_type}
                           category_unique_field={category_unique_field}
                           page_type={page_type} />

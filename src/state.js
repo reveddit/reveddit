@@ -206,27 +206,6 @@ class GlobalState extends Container {
     this.setState({localSortReverse: value})
   }
 
-  setRemovedByFilter (filterType, isChecked) {
-    let removedByFilter = this.state.removedByFilter
-    if (isChecked) {
-      removedByFilter[filterType] = true
-    } else {
-      delete removedByFilter[filterType]
-    }
-    this.setState({removedByFilter: removedByFilter})
-  }
-
-  setRemovedByFilter_viaString(removedby_str) {
-    const removedby_arr = removedby_str.split(',')
-    const removedby_obj = {}
-    removedby_arr.forEach(type => {
-      if (type.trim()) {
-        removedby_obj[type.trim()] = true
-      }
-    })
-    this.setState({removedByFilter: removedby_obj})
-  }
-
   removedByFilterIsUnset () {
     return Object.keys(this.state.removedByFilter).length === 0
   }

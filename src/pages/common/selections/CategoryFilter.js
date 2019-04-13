@@ -24,7 +24,7 @@ class CategoryFilter extends React.Component {
         category_counts[unique_value] = 1
       }
     })
-    this.props.visibleItems.forEach(item => {
+    this.props.visibleItemsWithoutCategoryFilter.forEach(item => {
       category_visible_counts[item[unique_field]] += 1
     })
     const category_ordered = Object.keys(category_visible_counts).sort((a,b) => {

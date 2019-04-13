@@ -72,7 +72,7 @@ class Post extends React.Component {
           <div className='thread-info'>
             submitted <Time created_utc={props.created_utc}/> by&nbsp;
             <a className='thread-author author' href={userLink}>{props.author}</a>
-            &nbsp;to <Link className='subreddit-link author' to={`/r/${props.subreddit}`}>/r/{props.subreddit}</Link>
+            &nbsp;to <a className='subreddit-link author' href={`/r/${props.subreddit}`}>/r/{props.subreddit}</a>
             &nbsp;<RemovedBy removedby={props.removedby} />
           </div>
           {props.selftext &&

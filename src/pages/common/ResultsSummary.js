@@ -5,11 +5,8 @@ import { connect } from 'state'
 
 class ResultsSummary extends React.Component {
   render() {
-    const {allItems, visibleItems, page_type,
-           category_type, category_unique_field} = this.props
+    const {allItems, num_showing, page_type} = this.props
     const gs = this.props.global.state
-    const category_state = gs['categoryFilter_'+category_type]
-    const showAllCategories = category_state === 'all'
     let oldest_time = Infinity
     let youngest_time = -Infinity
     allItems.forEach(item => {
@@ -20,12 +17,6 @@ class ResultsSummary extends React.Component {
         youngest_time = item.created_utc
       }
     })
-    let num_showing = visibleItems.length.toLocaleString()
-    if (! showAllCategories) {
-      num_showing = (visibleItems.filter(item =>
-        item[category_unique_field] === category_state)
-        .length)
-    }
     let timeFrame =
       <div className='non-item text'>
         since <Time created_utc={oldest_time} />
