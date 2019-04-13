@@ -47,7 +47,6 @@ class Selections extends React.Component {
                         visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
                         allItems={allItems}
                         type={category_type} title={category_title} unique_field={category_unique_field}/>
-                      <UpvoteRemovalRateHistory page_type={page_type} setBefore={setBefore}/>
                     </React.Fragment>)
                 case 'subreddit_comments':
                   return (
@@ -60,7 +59,6 @@ class Selections extends React.Component {
                         visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
                         allItems={allItems}
                         type={category_type} title={category_title} unique_field={category_unique_field}/>
-                      <UpvoteRemovalRateHistory page_type={page_type} setBefore={setBefore}/>
                     </React.Fragment>)
                 case 'user':
                   return (
