@@ -31,6 +31,37 @@ var numPages = 0
 const searchPage_userPosts = {}
 var notYetQueriedSearchPage = true
 
+const getCategorySettings = (page_type, subreddit) => {
+  const category_settings = {
+    'subreddit_comments': {
+      'other': {category: 'link_title',
+                category_title: 'Post Title',
+                category_unique_field: 'link_id'},
+      'all':   {category: 'subreddit',
+                category_title: 'Subreddit',
+                category_unique_field: 'subreddit'}
+    },
+    'subreddit_posts': {
+      'other': {category: 'domain',
+                category_title: 'Domain',
+                category_unique_field: 'domain'},
+      'all':   {category: 'subreddit',
+                category_title: 'Subreddit',
+                category_unique_field: 'subreddit'}
+    },
+    'user': {category: 'subreddit',
+             category_title: 'Subreddit',
+             category_unique_field: 'subreddit'}
+  }
+
+  if (subreddit) {
+    let sub_type = subreddit.toLowerCase() === 'all' ? 'all' : 'other'
+    return category_settings[page_type][sub_type]
+  } else {
+    return category_settings[page_type]
+  }
+}
+
 class User extends React.Component {
   state = {
     numItems: 0,
@@ -251,11 +282,25 @@ class User extends React.Component {
     })
     return visibleItems
   }
+  getViewableItems(items) {
+    const {category, category_unique_field} = getCategorySettings(this.props.page_type)
+    let category_state = this.props.global.state['categoryFilter_'+category]
+    const showAllCategories = category_state === 'all'
+    return items.filter(item => {
+      let itemIsOneOfSelectedCategory = false
+      if (category_state === item[category_unique_field]) {
+        itemIsOneOfSelectedCategory = true
+      }
+      return (showAllCategories || itemIsOneOfSelectedCategory)
+    })
+  }
 
   render () {
     const { user, kind = ''} = this.props.match.params
+    const { page_type } = this.props
     const s = User.getSettings()
-    const visibleItems = this.getVisibleItemsWithoutCategoryFilter()
+    const visibleItemsWithoutCategoryFilter = this.getVisibleItemsWithoutCategoryFilter()
+    const viewableItems = this.getViewableItems(visibleItemsWithoutCategoryFilter)
     let loadAllLink = ''
     let nextLink = ''
     let lastTimeLoaded = ''
@@ -287,12 +332,14 @@ class User extends React.Component {
         <div className='subreddit-box'>
         {loadAllLink}
         </div>
-        <Selections page_type='user' visibleItems={visibleItems}
+        <Selections page_type={page_type}
+          visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
+          num_showing={viewableItems.length}
           allItems={allItems}
           category_type='subreddit' category_title='Subreddit'
           category_unique_field='subreddit'/>
         {
-          visibleItems.map(item => {
+          visibleItemsWithoutCategoryFilter.map(item => {
             let itemIsOneOfSelectedSubreddits = false
             if (this.props.global.state.categoryFilter_subreddit === item.subreddit) {
               itemIsOneOfSelectedSubreddits = true
