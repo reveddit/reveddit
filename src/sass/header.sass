@@ -5,27 +5,31 @@ header
   align-items: center
   padding: 10px
 
-  .subheading
+  .subheading, label
     font-weight: bold
-  .tempNav
-    margin-top: 7px
-    font-size: 12px
-
+  label
+    font-size: 16px
 
   #header
-    a
-      color: #fff		
-  
+    a,label
+      color: #fff
     h1
       margin: 7px 0
-
       a
         transition: color 0.3s
-    
-
       a:hover
         text-decoration: none
         color: #ff8b88
+    #title_and_forms
+      display: flex
+      flex-wrap: wrap
+      form
+        display: flex
+        justify-content: flex-end
+        input[type="text"]
+          margin: 0 5px
+      #forms
+        margin-left: 15px
    
   #status 
     display: flex

@@ -3,6 +3,22 @@ import { Link } from 'react-router-dom'
 import { connect } from 'state'
 
 class Header extends React.Component {
+  handleSubmitSub = (e) => {
+    e.preventDefault()
+    const data = new FormData(e.target)
+    const val = data.get('subreddit').trim().toLowerCase()
+    if (val !== '') {
+      window.location.href = `/r/${val}`
+    }
+  }
+  handleSubmitUser = (e) => {
+    e.preventDefault()
+    const data = new FormData(e.target)
+    const val = data.get('username').trim().toLowerCase()
+    if (val !== '') {
+      window.location.href = `/r/${val}`
+    }
+  }
   render() {
     const props = this.props
     const { page_type } = props
@@ -22,9 +38,27 @@ class Header extends React.Component {
       <React.Fragment>
         <header>
           <div id='header'>
-            <h1>
-              <Link to='/about'>revddit</Link>
-            </h1>
+            <div id='title_and_forms'>
+              <h1>
+                <Link to='/about'>revddit</Link>
+              </h1>
+              <div id='forms'>
+                <form onSubmit={this.handleSubmitSub}>
+                  <label>
+                    /r/
+                    <input type='text' name='subreddit' placeholder='subreddit'/>
+                  </label>
+                  <input type='submit' id='button_s' value='go' />
+                </form>
+                <form onSubmit={this.handleSubmitUser}>
+                  <label>
+                    /u/
+                    <input type='text' name='username' placeholder='username'/>
+                  </label>
+                  <input type='submit' id='button_u' value='go' />
+                </form>
+              </div>
+            </div>
             <a className='subheading' href={link}>{link}</a>
           </div>
           <div id='status'>
