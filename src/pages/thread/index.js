@@ -5,7 +5,7 @@ import scrollToElement from 'scroll-to-element'
 import {
   getPost
 } from 'api/reddit'
-import { combinePushshiftAndRedditComments } from 'dataProcessing'
+import { combinePushshiftAndRedditComments } from 'data_processing/comments'
 import {
   getPost as getPushshiftPost,
   getComments as getPushshiftComments

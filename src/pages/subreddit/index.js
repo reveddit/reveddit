@@ -42,7 +42,7 @@ class SubredditPosts extends React.Component {
       <React.Fragment>
         {
           noItemsFound ?
-          <p>No items found</p> :
+          <p>No posts found</p> :
           items_sorted.map(item => {
             return <Post key={item.id} {...item} />
           })
