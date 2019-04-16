@@ -39,6 +39,8 @@ export const combinePushshiftAndRedditComments = pushshiftComments => {
         ps_comment.link_title = redditComment.permalink.split('/')[5].replace(/_/g, ' ')
         ps_comment.score = redditComment.score
         ps_comment.controversiality = redditComment.controversiality
+        ps_comment.stickied = redditComment.stickied
+        ps_comment.distinguished = redditComment.distinguished
         if (! commentIsRemoved(redditComment)) {
           if (commentIsRemoved(ps_comment)) {
             ps_comment.removedby = AUTOMOD_REMOVED_MOD_APPROVED

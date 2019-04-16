@@ -12,7 +12,7 @@ import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
          AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
 
 
-export const getRevdditThreadPost = (threadID, global) => {
+export const getRevdditThreadPost = (threadID, global, history) => {
   global.setLoading('Loading post from reddit & pushshift...')
   const reddit_promise = getPosts([threadID])
   const pushshift_promise = getPushshiftPost(threadID)
@@ -21,6 +21,9 @@ export const getRevdditThreadPost = (threadID, global) => {
     const post = values[0][0]
     const ps_post = values[1]
     document.title = post.title
+    if ((window.location.pathname.match(/\//g) || []).length < 6) {
+      history.replace(post.permalink+window.location.search)
+    }
     const retrievalLatency = ps_post.retrieved_on-ps_post.created_utc
     if (itemIsRemovedOrDeleted(post)) {
       if (postIsDeleted(post)) {

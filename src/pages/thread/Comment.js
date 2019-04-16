@@ -23,14 +23,10 @@ class Comment extends React.Component {
 
   render() {
     let props = this.props
-    let commentStyle = 'comment '
 
-    if (props.removed) {
-      commentStyle += 'removed'
-    } else if (props.deleted) {
-      commentStyle += 'deleted'
-    } else {
-      commentStyle += props.depth % 2 === 0 ? 'comment-even' : 'comment-odd'
+    let even_odd = ''
+    if (!props.removed && !props.deleted) {
+      even_odd = props.depth % 2 === 0 ? 'comment-even' : 'comment-odd'
     }
 
     let innerHTML = ''
@@ -53,13 +49,19 @@ class Comment extends React.Component {
       submitter = ' submitter '
     }
     return (
-      <div id={name} className={commentStyle}>
+      <div id={name} className={`comment
+            ${props.removed ? 'removed':''}
+            ${props.deleted ? 'deleted':''}
+            ${even_odd}
+      `}>
         <div className='comment-head'>
           <a onClick={() => this.toggleDisplayBody()} className='collapseToggle'>{this.getExpandIcon()}</a>
           <span className='space' />
           <a
             href={author !== '[deleted]' ? `/user/${author}` : undefined}
-            className={`author comment-author ${submitter}`}
+            className={`author comment-author ${submitter}
+                      ${props.distinguished ? 'distinguished':''}
+            `}
           >
             {author}
             {props.deleted && ' (by user)'}

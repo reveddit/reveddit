@@ -7,13 +7,16 @@ import { NOT_REMOVED, REMOVAL_META, USER_REMOVED } from 'pages/common/RemovedBy'
 import { itemIsOneOfSelectedRemovedBy } from 'data_processing/filters'
 
 const byScore = (a, b) => {
-  return (b.score - a.score) || (b.replies.length - a.replies.length)
+  return (b.stickied - a.stickied) || (b.score - a.score)
+      || (b.replies.length - a.replies.length)
 }
 const byDate = (a, b) => {
-  return (b.created_utc - a.created_utc) || (b.replies.length - a.replies.length)
+  return (b.stickied - a.stickied) || (b.created_utc - a.created_utc)
+      || (b.replies.length - a.replies.length)
 }
 const byNumComments = (a, b) => {
-  return (b.replies.length - a.replies.length) || (b.created_utc - a.created_utc)
+  return (b.stickied - a.stickied) || (b.replies.length - a.replies.length)
+      || (b.created_utc - a.created_utc)
 }
 const noNeg = (n) => {
   return n < 0 ? 0 : n
@@ -21,12 +24,14 @@ const noNeg = (n) => {
 const byControversiality1 = (a, b) => {
   let a_score_noneg = a.score < 0 ? 0 : a.score
   let b_score_noneg = b.score < 0 ? 0 : b.score
-  return (a_score_noneg - b_score_noneg) || (b.replies.length - a.replies.length)
+  return (b.stickied - a.stickied) || (a_score_noneg - b_score_noneg)
+      || (b.replies.length - a.replies.length)
 }
 const byControversiality2 = (a, b) => {
   let a_score_abs = Math.abs(a.score)
   let b_score_abs = Math.abs(b.score)
-  return (b.controversiality - a.controversiality) || (b.replies.length - a.replies.length) || (a_score_abs - b_score_abs)
+  return (b.stickied - a.stickied) || (b.controversiality - a.controversiality)
+      || (b.replies.length - a.replies.length) || (a_score_abs - b_score_abs)
 }
 
 const showNotRemoved = comment => comment.removedby === NOT_REMOVED

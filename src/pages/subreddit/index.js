@@ -4,16 +4,20 @@ import { withFetch } from 'pages/RevdditFetcher'
 import { connect, localSort_types } from 'state'
 
 const byScore = (a, b) => {
-  return (b.score - a.score) || (b.num_comments - a.num_comments)
+  return (b.stickied - a.stickied) || (b.score - a.score)
+      || (b.num_comments - a.num_comments)
 }
 const byDate = (a, b) => {
-  return (b.created_utc - a.created_utc) || (b.num_comments - a.num_comments)
+  return (b.stickied - a.stickied) || (b.created_utc - a.created_utc)
+      || (b.num_comments - a.num_comments)
 }
 const byNumComments = (a, b) => {
-  return (b.num_comments - a.num_comments) || (b.created_utc - a.created_utc)
+  return (b.stickied - a.stickied) || (b.num_comments - a.num_comments)
+      || (b.created_utc - a.created_utc)
 }
 const byControversiality = (a, b) => {
-  return (a.score - b.score) || (b.num_comments - a.num_comments)
+  return (b.stickied - a.stickied) || (a.score - b.score)
+      || (b.num_comments - a.num_comments)
 }
 
 class SubredditPosts extends React.Component {

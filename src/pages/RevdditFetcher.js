@@ -6,7 +6,7 @@ import { getRevdditThreadPost, getRevdditThreadComments } from 'data_processing/
 import { itemIsOneOfSelectedRemovedBy } from 'data_processing/filters'
 import Selections from 'pages/common/selections'
 import { removedFilter_types } from 'state'
-import { REMOVAL_META, NOT_REMOVED, USER_REMOVED } from 'pages/common/RemovedBy'
+import { NOT_REMOVED } from 'pages/common/RemovedBy'
 
 const getCategorySettings = (page_type, subreddit) => {
   let sub_type = subreddit.toLowerCase() === 'all' ? 'all' : 'other'
@@ -97,7 +97,7 @@ export const withFetch = (WrappedComponent) =>
                       new URLSearchParams(this.props.location.search))
       .then(result => {
         const [loadDataFunction, param] = getLoadDataFunctionAndParam(page_type, subreddit, user, threadID)
-        const firstPromise = loadDataFunction(param, this.props.global)
+        const firstPromise = loadDataFunction(param, this.props.global, this.props.history)
         const promises = [firstPromise]
         firstPromise
         .then(items => {
@@ -123,7 +123,7 @@ export const withFetch = (WrappedComponent) =>
     }
     setBefore = (before, before_id, n) => {
       this.setState({ items: [], loading: true})
-      const subreddit = this.props.match.params.subreddit.toLowerCase()
+      const subreddit = (this.props.match.params.subreddit || '').toLowerCase()
       const { page_type } = this.props
       this.props.global.upvoteRemovalRateHistory_update(before, before_id, n, this.props)
       .then(result => {
@@ -141,7 +141,7 @@ export const withFetch = (WrappedComponent) =>
       }
     }
     getViewableItems(items) {
-      const subreddit = this.props.match.params.subreddit.toLowerCase()
+      const subreddit = (this.props.match.params.subreddit || '').toLowerCase()
       const {category, category_unique_field} = getCategorySettings(this.props.page_type, subreddit)
       let category_state = this.props.global.state['categoryFilter_'+category]
       const showAllCategories = category_state === 'all'
@@ -179,7 +179,7 @@ export const withFetch = (WrappedComponent) =>
     }
 
     render () {
-      const subreddit = this.props.match.params.subreddit.toLowerCase()
+      const subreddit = (this.props.match.params.subreddit || '').toLowerCase()
       const { page_type } = this.props
       const { items } = this.state
 

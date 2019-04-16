@@ -42,15 +42,16 @@ class App extends React.Component {
               <Redirect from='/u/*' to='/user/*' />
               <DefaultLayout path='/about' component={About} />
               <DefaultLayout path='/r/:subreddit/comments/:threadID/:urlTitle/:commentID' page_type='thread' component={Thread} />
-              <DefaultLayout path='/r/:subreddit/comments/:threadID/:urlTitle/' page_type='thread' component={Thread} />
-              <DefaultLayout path='/r/:subreddit/comments/:threadID/' page_type='thread' component={Thread} />
+              <DefaultLayout path='/r/:subreddit/comments/:threadID/:urlTitle' page_type='thread' component={Thread} />
+              <DefaultLayout path='/r/:subreddit/comments/:threadID' page_type='thread' component={Thread} />
               <DefaultLayout path='/r/:subreddit/comments/' page_type='subreddit_comments' component={SubredditComments} />
               <DefaultLayout path='/r/:subreddit' page_type='subreddit_posts' component={SubredditPosts} />
               <DefaultLayout path='/user/:userSubreddit/comments/:threadID/:urlTitle/:commentID' page_type='thread' component={Thread} />
-              <DefaultLayout path='/user/:userSubreddit/comments/:threadID/:urlTitle/' page_type='thread' component={Thread} />
-              <DefaultLayout path='/user/:userSubreddit/comments/:threadID/' page_type='thread' component={Thread} />
+              <DefaultLayout path='/user/:userSubreddit/comments/:threadID/:urlTitle' page_type='thread' component={Thread} />
+              <DefaultLayout path='/user/:userSubreddit/comments/:threadID' page_type='thread' component={Thread} />
               <DefaultLayout path='/user/:user/:kind' page_type='user' component={User} />
               <DefaultLayout path='/user/:user' page_type='user' component={User} />
+              <DefaultLayout path='/:threadID' page_type='thread' component={Thread} />
               <DefaultLayout component={NotFound} />
             </Switch>
           </BrowserRouter>

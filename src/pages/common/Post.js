@@ -53,7 +53,11 @@ class Post extends React.Component {
     }
 
     return (
-      <div id={props.name} className={`post thread ${props.removed ? 'removed':''} ${props.unknown ? 'unknown':''} ${props.deleted ? 'deleted' : ''}`}>
+      <div id={props.name} className={`post thread
+            ${props.stickied ? 'stickied':''}
+            ${props.removed ? 'removed':''}
+            ${props.unknown ? 'unknown':''}
+            ${props.deleted ? 'deleted' : ''}`}>
         {props.position &&
         <span className='post-rank'>{props.position}</span>}
         <div className='thread-score-box'>
@@ -71,7 +75,9 @@ class Post extends React.Component {
           <span className='domain'>({props.domain})</span>
           <div className='thread-info'>
             submitted <Time created_utc={props.created_utc}/> by&nbsp;
-            <a className='thread-author author' href={userLink}>{props.author}</a>
+            <a className={`thread-author author
+              ${props.distinguished ? 'distinguished':''}`}
+              href={userLink}>{props.author}</a>
             &nbsp;to <a className='subreddit-link author' href={`/r/${props.subreddit}`}>/r/{props.subreddit}</a>
             &nbsp;<RemovedBy removedby={props.removedby} />
           </div>
