@@ -2,137 +2,52 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { withRouter } from 'react-router'
 import scrollToElement from 'scroll-to-element'
-import {
-  getPost
-} from 'api/reddit'
-import { combinePushshiftAndRedditComments } from 'data_processing/comments'
-import {
-  getPost as getPushshiftPost,
-  getComments as getPushshiftComments
-} from 'api/pushshift'
-import { isRemoved, isDeleted, commentIsRemoved, itemIsRemovedOrDeleted, postIsDeleted } from 'utils'
 import { connect, localSort_types } from 'state'
 import Post from 'pages/common/Post'
 import CommentSection from './CommentSection'
-import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED, AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
 import Selections from 'pages/common/selections'
+import { withFetch } from 'pages/RevdditFetcher'
 
 class Thread extends React.Component {
-  state = {
-    post: {},
-    pushshiftComments: [],
-    loadingComments: true
-  }
-
-  componentDidMount () {
-    let { subreddit, threadID, userSubreddit } = this.props.match.params
-    if (userSubreddit) {
-      subreddit = 'u_'+userSubreddit
-    }
-    this.props.global.setLoading('Loading comments from Pushshift...')
-
-    // Get thread from reddit
-    const reddit_promise = getPost(subreddit, threadID)
-    const pushshift_promise = getPushshiftPost(threadID)
-    this.props.global.setStateFromQueryParams(this.props.page_type,
-                    new URLSearchParams(this.props.location.search))
-    .then(result => {
-      Promise.all([reddit_promise, pushshift_promise])
-      .then(values => {
-        const post = values[0]
-        const ps_post = values[1]
-        document.title = post.title
-        const retrievalLatency = ps_post.retrieved_on-ps_post.created_utc
-        if (itemIsRemovedOrDeleted(post)) {
-          if (postIsDeleted(post)) {
-            post.deleted = true
-            post.selftext = ''
-          } else {
-            post.removed = true
-            if (post.is_self) {
-              post.selftext = ps_post.selftext
-            }
-            if (! ps_post.is_crosspostable) {
-              if (retrievalLatency <= AUTOMOD_LATENCY_THRESHOLD) {
-                post.removedby = AUTOMOD_REMOVED
-              } else {
-                post.removedby = UNKNOWN_REMOVED
-              }
-            } else {
-              post.removedby = MOD_OR_AUTOMOD_REMOVED
-            }
-          }
-        } else {
-          // not-removed posts
-          if ('is_crosspostable' in ps_post && ! ps_post.is_crosspostable) {
-            post.removedby = AUTOMOD_REMOVED_MOD_APPROVED
-          } else {
-            post.removedby = NOT_REMOVED
-          }
-        }
-        this.setState({ post })
-      })
-      .catch(this.props.global.setError)
-    })
-
-    // Get comment ids from pushshift
-    getPushshiftComments(threadID)
-    .then(pushshiftComments => {
-      this.props.global.setLoading('Comparing comments to Reddit API...')
-      combinePushshiftAndRedditComments(pushshiftComments)
-      .then(result => {
-        this.props.global.setSuccess()
-        this.setState({
-          pushshiftComments,
-          loadingComments: false
-        })
-      })
-    })
-    .then(result => {
-      this.jumpToHash()
-    })
-    .catch(this.props.global.setError)
-  }
-  jumpToHash () {
-    const hash = this.props.history.location.hash;
-    if (hash) {
-      scrollToElement(hash, { offset: -10 });
-    }
-  }
 
   render () {
-    const { id, author } = this.state.post
-    const { subreddit, threadID, urlTitle, commentID } = this.props.match.params
-    const linkToRestOfComments = `/r/${subreddit}/comments/${threadID}/${urlTitle}/`
+    const post = this.props.threadPost
+    const { id, author } = post
+    const { subreddit, threadID, urlTitle = '', commentID } = this.props.match.params
+    const { items, loading, selections } = this.props
+    const linkToRestOfComments = `/r/${subreddit}/comments/${threadID}/${urlTitle}`
     const isSingleComment = (commentID !== undefined && ! this.props.history.location.hash)
     const root = isSingleComment ? commentID : id
     const removedFiltersAreUnset = this.props.global.removedFiltersAreUnset()
 
     return (
       <React.Fragment>
-        <Post {...this.state.post} />
+        <Post {...post} />
         {
-          (!this.state.loadingComments && root) &&
           <React.Fragment>
-          <Selections page_type='thread'/>
-            {isSingleComment &&
-              <div className='view-rest-of-comment'>
-                <div>{"you are viewing a single comment's thread."}</div>
-                <Link to={linkToRestOfComments} onClick={this.props.global.resetRemovedFilters}>view all comments</Link>
-              </div>
+            {selections}
+            {(!loading && root) &&
+              <React.Fragment>
+                {isSingleComment &&
+                  <div className='view-rest-of-comment'>
+                    <div>{"you are viewing a single comment's thread."}</div>
+                    <Link to={linkToRestOfComments} onClick={this.props.global.resetRemovedFilters}>view all comments</Link>
+                  </div>
+                }
+                {! isSingleComment && ! removedFiltersAreUnset &&
+                  <div className='view-rest-of-comment'>
+                    <div>{"some comments may be hidden by selected filters."}</div>
+                    <Link to={linkToRestOfComments} onClick={this.props.global.resetRemovedFilters}>view all comments</Link>
+                  </div>
+                }
+                <CommentSection
+                  root={root}
+                  comments={items}
+                  link_author={author}
+                  isSingleComment={isSingleComment}
+                />
+              </React.Fragment>
             }
-            {! isSingleComment && ! removedFiltersAreUnset &&
-              <div className='view-rest-of-comment'>
-                <div>{"some comments may be hidden by selected filters."}</div>
-                <Link to={linkToRestOfComments} onClick={this.props.global.resetRemovedFilters}>view all comments</Link>
-              </div>
-            }
-            <CommentSection
-              root={root}
-              comments={this.state.pushshiftComments}
-              link_author={author}
-              isSingleComment={isSingleComment}
-            />
           </React.Fragment>
         }
       </React.Fragment>
@@ -140,4 +55,4 @@ class Thread extends React.Component {
   }
 }
 
-export default withRouter(connect(Thread))
+export default connect(withFetch(Thread))

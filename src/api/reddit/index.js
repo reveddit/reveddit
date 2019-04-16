@@ -6,20 +6,6 @@ const errorHandler = (e) => {
 }
 
 
-// Thread = Post + Comments
-// Return the post itself
-export const getPost = (subreddit, threadID) => {
-  var url = new URL(`https://oauth.reddit.com/r/${subreddit}/comments/${threadID}/_/`)
-  var params = {raw_json:1}
-  url.search = new URLSearchParams(params)
-  return getAuth()
-    .then(auth => window.fetch(url, auth))
-    .then(response => response.json())
-    .then(thread => thread[0].data.children[0].data)
-    .catch(errorHandler)
-}
-
-// Fetch multiple threads (via the info endpoint)
 export const getPosts = postIDs => {
   var url = new URL(`https://oauth.reddit.com/api/info`)
   var ids = postIDs.map(id => `t3_${id}`)

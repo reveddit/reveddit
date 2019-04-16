@@ -37,7 +37,7 @@ class ResultsSummary extends React.Component {
     return (
       <React.Fragment>
         {timeFrame}
-        <div title={page_type === 'subreddit_posts' ? posts_page_title : ''} className='non-item text'>{num_showing} of {allItems.length.toLocaleString()}</div>
+        <div title={page_type === 'subreddit_posts' ? posts_page_title : ''} className='non-item text'>{num_showing.toLocaleString()} of {allItems.length.toLocaleString()}</div>
       </React.Fragment>
     )
   }

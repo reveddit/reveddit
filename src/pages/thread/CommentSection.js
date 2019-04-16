@@ -4,6 +4,8 @@ import Comment from './Comment'
 import {connect, localSort_types, removedFilter_types, removedFilter_text} from 'state'
 import { showRemovedAndDeleted } from 'utils'
 import { NOT_REMOVED, REMOVAL_META, USER_REMOVED } from 'pages/common/RemovedBy'
+import { itemIsOneOfSelectedRemovedBy } from 'data_processing/filters'
+
 const byScore = (a, b) => {
   return (b.score - a.score) || (b.replies.length - a.replies.length)
 }
@@ -105,18 +107,8 @@ class CommentSection extends React.Component {
     return hasOkComment
   }
 
-  itemIsOneOfSelectedRemovedBy = (item) => {
-    let itemIsOneOfSelectedRemovedBy = false
-    if (this.props.global.state.removedByFilter[USER_REMOVED] && item.deleted) {
-      itemIsOneOfSelectedRemovedBy = true
-    } else {
-      Object.keys(REMOVAL_META).forEach(type => {
-        if (this.props.global.state.removedByFilter[type] && item.removedby && item.removedby === type) {
-          itemIsOneOfSelectedRemovedBy = true
-        }
-      })
-    }
-    return itemIsOneOfSelectedRemovedBy
+  itemIsOneOfSelectedRemovedBy_local = (item) => {
+    return itemIsOneOfSelectedRemovedBy(item, this.props.global.state)
   }
 
   render() {
@@ -131,7 +123,7 @@ class CommentSection extends React.Component {
       this.filterCommentTree(commentTree, showNotRemoved)
     }
     if (! removedByFilterIsUnset) {
-      this.filterCommentTree(commentTree, this.itemIsOneOfSelectedRemovedBy)
+      this.filterCommentTree(commentTree, this.itemIsOneOfSelectedRemovedBy_local)
     }
 
     if (localSort === localSort_types.date) {
