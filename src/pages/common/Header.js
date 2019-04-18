@@ -16,7 +16,7 @@ class Header extends React.Component {
     const data = new FormData(e.target)
     const val = data.get('username').trim().toLowerCase()
     if (val !== '') {
-      window.location.href = `/r/${val}`
+      window.location.href = `/user/${val}`
     }
   }
   render() {
