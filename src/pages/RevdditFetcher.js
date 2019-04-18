@@ -44,6 +44,10 @@ const getPageTitle = (page_type, string) => {
       return `/r/${string}/comments`
       break
     }
+    case 'user': {
+      return `/user/${string}`
+      break
+    }
   }
   return null
 

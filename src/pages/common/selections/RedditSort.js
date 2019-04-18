@@ -4,8 +4,7 @@ import { getSettings } from 'pages/user'
 
 class RedditSort extends React.Component {
   state = {
-    s: getSettings(),
-    url: new URL(window.location.href)
+    s: getSettings()
   }
 
   getLink(sort) {

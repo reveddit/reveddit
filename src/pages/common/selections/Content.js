@@ -1,19 +1,13 @@
 import React from 'react'
 import { connect } from 'state'
-import { getSettings } from 'pages/user'
 
 class Content extends React.Component {
-  state = {
-    s: getSettings()
-  }
 
   getLink(path_suffix, text) {
     const url = new URL(window.location.href)
     const path_parts = url.pathname.split('/')
-    let kind = path_parts.splice(3,1)[0]
-    if (! kind) {
-      kind = ''
-    }
+    const kind = path_parts.splice(3,1)[0] || ''
+
     const link_path_parts = path_parts.splice(0,3)
     link_path_parts.push(path_suffix)
     const path = link_path_parts.join('/')

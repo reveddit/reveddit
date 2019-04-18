@@ -1,7 +1,6 @@
 import {
   getRecentPostsBySubreddit
 } from 'api/pushshift'
-import { combinePushshiftAndRedditComments } from 'data_processing/comments'
 import { REMOVAL_META, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
          MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED, USER_REMOVED,
          AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'

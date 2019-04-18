@@ -43,7 +43,7 @@ class Header extends React.Component {
                 <Link to='/about'>revddit</Link>
               </h1>
               <div id='forms'>
-                <form onSubmit={this.handleSubmitSub}>
+                <form className="topForm" onSubmit={this.handleSubmitSub}>
                   <label>
                     /r/
                     <input type='text' name='subreddit' placeholder='subreddit'/>

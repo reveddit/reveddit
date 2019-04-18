@@ -24,12 +24,9 @@ const OVERVIEW = 'overview', SUBMITTED = 'submitted', BLANK='', COMMENTS='commen
 const NOW = Math.floor((new Date).getTime()/1000)
 const acceptable_kinds = [OVERVIEW, COMMENTS, SUBMITTED, BLANK]
 const acceptable_sorts = ['new', 'top', 'controversial', 'hot']
-const after_this_utc_force_subreddit_query = NOW - 60*10
 
 const allItems = []
 var numPages = 0
-const searchPage_userPosts = {}
-var notYetQueriedSearchPage = true
 
 const getCategorySettings = (page_type, subreddit) => {
   const category_settings = {
@@ -73,8 +70,7 @@ class User extends React.Component {
   static getSettings() {
     const result = {
                     sort: 'new', before: '', after: '', limit: 100,
-                    loadAll: false, searchPage_after: '', show:'',
-                    filter:'', removedby:'', subreddit:''}
+                    loadAll: false, searchPage_after: '', show:''}
     const url = new URL(window.location.href);
     const queryParams = new URLSearchParams(url.search);
 
@@ -339,17 +335,11 @@ class User extends React.Component {
           category_type='subreddit' category_title='Subreddit'
           category_unique_field='subreddit'/>
         {
-          visibleItemsWithoutCategoryFilter.map(item => {
-            let itemIsOneOfSelectedSubreddits = false
-            if (this.props.global.state.categoryFilter_subreddit === item.subreddit) {
-              itemIsOneOfSelectedSubreddits = true
-            }
-            if (showAllSubreddits || itemIsOneOfSelectedSubreddits) {
-              if (item.name.slice(0,2) === 't3') {
-                return <Post key={item.name} {...item} />
-              } else {
-                return <Comment key={item.name} {...item} sort={s.sort}/>
-              }
+          viewableItems.map(item => {
+            if (item.name.slice(0,2) === 't3') {
+              return <Post key={item.name} {...item} />
+            } else {
+              return <Comment key={item.name} {...item} sort={s.sort}/>
             }
           })
         }
