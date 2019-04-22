@@ -118,7 +118,8 @@ class CommentSection extends React.Component {
 
   render() {
     const props = this.props
-    const commentTree = this.unflatten(props.comments, props.root, props.link_author)
+    const comments = this.props.global.state.items
+    const commentTree = this.unflatten(comments, props.root, props.link_author)
     const {removedFilter, removedByFilter, localSort, localSortReverse} = props.global.state
     const removedByFilterIsUnset = this.props.global.removedByFilterIsUnset()
 

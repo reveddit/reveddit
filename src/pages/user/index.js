@@ -1,345 +1,68 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { withRouter } from 'react-router'
-import {
-  queryUserPage,
-  getItems as getRedditItemsByID,
-} from 'api/reddit'
 import Post from 'pages/common/Post'
 import Comment from 'pages/common/Comment'
 import LoadLink from './LoadLink'
 import Selections from 'pages/common/selections'
-import {
-  getPost as getRemovedPost,
-  getComments as getPushshiftComments,
-  getAutoremovedItems
-} from 'api/pushshift'
-import { REMOVAL_META, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED, AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
 import scrollToElement from 'scroll-to-element'
-import { itemIsRemovedOrDeleted, isComment, isPost } from 'utils'
 import { connect, removedFilter_types } from 'state'
 import Time from 'pages/common/Time'
-
-const OVERVIEW = 'overview', SUBMITTED = 'submitted', BLANK='', COMMENTS='comments'
-const NOW = Math.floor((new Date).getTime()/1000)
-const acceptable_kinds = [OVERVIEW, COMMENTS, SUBMITTED, BLANK]
-const acceptable_sorts = ['new', 'top', 'controversial', 'hot']
-
-const allItems = []
-var numPages = 0
-
-const getCategorySettings = (page_type, subreddit) => {
-  const category_settings = {
-    'subreddit_comments': {
-      'other': {category: 'link_title',
-                category_title: 'Post Title',
-                category_unique_field: 'link_id'},
-      'all':   {category: 'subreddit',
-                category_title: 'Subreddit',
-                category_unique_field: 'subreddit'}
-    },
-    'subreddit_posts': {
-      'other': {category: 'domain',
-                category_title: 'Domain',
-                category_unique_field: 'domain'},
-      'all':   {category: 'subreddit',
-                category_title: 'Subreddit',
-                category_unique_field: 'subreddit'}
-    },
-    'user': {category: 'subreddit',
-             category_title: 'Subreddit',
-             category_unique_field: 'subreddit'}
-  }
-
-  if (subreddit) {
-    let sub_type = subreddit.toLowerCase() === 'all' ? 'all' : 'other'
-    return category_settings[page_type][sub_type]
-  } else {
-    return category_settings[page_type]
-  }
-}
+import { withFetch } from 'pages/RevdditFetcher'
+import { getQueryParams } from 'data_processing/user'
 
 class User extends React.Component {
-  state = {
-    numItems: 0,
-    next: {},
-    comments_removed_meta: {},
-    posts_removed_meta: {}
-  }
-
-  static getSettings() {
-    const result = {
-                    sort: 'new', before: '', after: '', limit: 100,
-                    loadAll: false, searchPage_after: '', show:''}
-    const url = new URL(window.location.href);
-    const queryParams = new URLSearchParams(url.search);
-
-    if (queryParams.has('all')) { result.loadAll = true }
-
-    ['sort', 'before', 'after', 'limit', 'searchPage_after', 'show'].forEach(p => {
-      if (queryParams.has(p)) {
-        result[p] = queryParams.get(p)
-      }
-    })
-
-    return result
-  }
-
-  componentDidMount () {
-    const { user, kind = '' } = this.props.match.params
-    const s = User.getSettings()
-
-    document.title = `/u/${user} revddit`
-    if (! acceptable_kinds.includes(kind)) {
-      this.props.global.setError(Error('Invalid page, check url'))
-      return
-    }
-    if (! acceptable_sorts.includes(s.sort)) {
-      this.props.global.setError(Error('Invalid sort type, check url'))
-      return
-    }
-    // quick fix to avoid reloading when hitting back button after visiting /about ..
-    if (! allItems.length) {
-      this.props.global.setStateFromQueryParams(this.props.page_type,
-                      new URLSearchParams(this.props.location.search))
-      .then(result => {
-        this.getItems_wrapper(user, kind, s.sort, s.before, s.after, s.limit, s.loadAll)
-      })
-    }
-  }
-  jumpToHash () {
-    const hash = this.props.history.location.hash;
-    if (hash) {
-      scrollToElement(hash, { offset: -10 });
-    }
-  }
-  lookupAndSetRemovedBy() {
-    // comment_ids = comments where (removedby === undefined)
-    // post_ids = post where (removedby === undefined)
-    // query pushshift for comment_ids where author === '[deleted]'
-       //.then(1. markComments; 2. setState(comments_removed_meta: {mod-rem: {}, automod-rem: {}, unknown-rem: {}, automod-rem-mod-app: {}}))
-    // query pushshift for post_ids where is_crosspostable === false
-      //.then(1. markComments; 2. setState(posts_removed_meta: {mod-rem: {}, automod-rem: {}, unknown-rem: {}, automod-rem-mod-app: {}}))
-    // render() in user/Comment.js
-    const comment_names = []
-    const post_names = []
-    const comments_removedBy_undefined = []
-    const posts_removedBy_undefined = []
-    allItems.forEach(item => {
-      if (item.removedby === undefined && ! item.unknown) {
-        if (isComment(item)) {
-          comments_removedBy_undefined.push(item)
-          comment_names.push(item.name)
-        } else if (isPost(item)) {
-          posts_removedBy_undefined.push(item)
-          post_names.push(item.name)
-        }
-      }
-    })
-    let comments_promise = Promise.resolve()
-    if (comments_removedBy_undefined.length) {
-        comments_promise = getAutoremovedItems(comment_names).then(ps_comments_autoremoved => {
-        const removed_meta = this.setRemovedBy(comments_removedBy_undefined, ps_comments_autoremoved)
-        this.setState({comments_removed_meta: removed_meta})
-      })
-      .catch(this.props.global.setError)
-    }
-    let posts_promise = Promise.resolve()
-    if (posts_removedBy_undefined.length) {
-        posts_promise = getAutoremovedItems(post_names).then(ps_posts_autoremoved => {
-        const removed_meta = this.setRemovedBy(posts_removedBy_undefined, ps_posts_autoremoved)
-        this.setState({posts_removed_meta: removed_meta})
-      })
-      .catch(this.props.global.setError)
-    }
-
-    return Promise.all([comments_promise, posts_promise])
-  }
-
-  // this can handle posts or comments but not both together
-  // should change ps_autoremoved_map key if want to do both at same time
-  // - the fix: check for existence of a field that's always existed in one
-  //      but not the other, e.g. link_id is in all PS comments and not in submissions
-  setRemovedBy(items_removedBy_undefined, ps_items_autoremoved) {
-    const removed_meta = {}
-    const ps_autoremoved_map = {}
-    ps_items_autoremoved.forEach(c => {
-      ps_autoremoved_map[c.id] = c
-    })
-    items_removedBy_undefined.forEach(item => {
-      const ps_item = ps_autoremoved_map[item.id]
-      if (ps_item) {
-        const retrievalLatency = ps_item.retrieved_on-ps_item.created_utc
-        if (item.removed) {
-          if (retrievalLatency <= AUTOMOD_LATENCY_THRESHOLD) {
-            item.removedby = AUTOMOD_REMOVED
-            removed_meta[name] = AUTOMOD_REMOVED
-          } else {
-            item.removedby = UNKNOWN_REMOVED
-            removed_meta[name] = UNKNOWN_REMOVED
-          }
-        } else {
-          item.removedby = AUTOMOD_REMOVED_MOD_APPROVED
-          removed_meta[name] = AUTOMOD_REMOVED_MOD_APPROVED
-        }
-      } else if (item.removed) {
-        item.removedby = MOD_OR_AUTOMOD_REMOVED
-        removed_meta[name] = MOD_OR_AUTOMOD_REMOVED
-      } else {
-        item.removedby = NOT_REMOVED
-        removed_meta[name] = NOT_REMOVED
-      }
-    })
-    return removed_meta
-  }
-
-  getItems_wrapper (...args) {
-    this.props.global.setLoading('Loading data...')
-    return this.getItems(...args)
-    .then(result => {
-      this.jumpToHash()
-      return this.lookupAndSetRemovedBy()
-      .then( tempres => {
-        this.props.global.setSuccess()
-        return result
-      })
-    })
-    .then(result => {
-      this.props.global.setState({ userNext: result })
-      return result
-    })
-  }
-
-  getItems (user, kind, sort, before = '', after = '', limit, loadAll = false) {
-    return queryUserPage(user, kind, sort, before, after, limit)
-    .then(userPageData => {
-      numPages += 1
-      const userPage_item_lookup = {}
-      const ids = []
-      userPageData.items.forEach(item => {
-        userPage_item_lookup[item.name] = item
-        ids.push(item.name)
-        if (isPost(item)) {
-          item.selftext = ''
-        }
-        if (allItems.length > 0) {
-          item.prev = allItems[allItems.length-1].name
-        }
-        allItems.push(item)
-      })
-      allItems.slice().reverse().forEach((item, index, array) => {
-        if (index > 0) {
-          item.next = array[index-1].name
-        }
-      })
-
-      return getRedditItemsByID(ids)
-      .then(redditInfoItems => {
-        redditInfoItems.forEach(item => {
-          if (itemIsRemovedOrDeleted(item)) {
-            userPage_item_lookup[item.name].removed = true
-          }
-        })
-        this.setState({numItems: allItems.length})
-        if (userPageData.after && loadAll) {
-          return this.getItems(user, kind, sort, '', userPageData.after, limit, loadAll)
-        }
-        return userPageData.after
-      })
-    })
-  }
-
-
-  getVisibleItemsWithoutCategoryFilter() {
-    const s = User.getSettings()
-    const removedByFilterIsUnset = this.props.global.removedByFilterIsUnset()
-    const visibleItems = []
-    allItems.forEach(item =>  {
-      let itemIsOneOfSelectedRemovedBy = false
-      Object.keys(REMOVAL_META).forEach(type => {
-        if (this.props.global.state.removedByFilter[type] && item.removedby && item.removedby === type) {
-          itemIsOneOfSelectedRemovedBy = true
-        }
-      })
-      if (! s.show || s.show === item.name) {
-        if ( (s.show === item.name ||
-              this.props.global.state.removedFilter === removedFilter_types.all ||
-              (
-                this.props.global.state.removedFilter === removedFilter_types.removed &&
-                (item.removed || (item.removedby && item.removedby !== NOT_REMOVED))
-              ) ||
-              (this.props.global.state.removedFilter === removedFilter_types.not_removed &&
-                (! item.removed && item.removedby === NOT_REMOVED) )
-             ) &&
-             (removedByFilterIsUnset || itemIsOneOfSelectedRemovedBy)) {
-          visibleItems.push(item)
-        }
-      }
-    })
-    return visibleItems
-  }
-  getViewableItems(items) {
-    const {category, category_unique_field} = getCategorySettings(this.props.page_type)
-    let category_state = this.props.global.state['categoryFilter_'+category]
-    const showAllCategories = category_state === 'all'
-    return items.filter(item => {
-      let itemIsOneOfSelectedCategory = false
-      if (category_state === item[category_unique_field]) {
-        itemIsOneOfSelectedCategory = true
-      }
-      return (showAllCategories || itemIsOneOfSelectedCategory)
-    })
-  }
-
   render () {
     const { user, kind = ''} = this.props.match.params
-    const { page_type } = this.props
-    const s = User.getSettings()
-    const visibleItemsWithoutCategoryFilter = this.getVisibleItemsWithoutCategoryFilter()
-    const viewableItems = this.getViewableItems(visibleItemsWithoutCategoryFilter)
+    const { page_type, viewableItems, selections, getRevdditUserItems } = this.props
+    const qp = getQueryParams()
+    const gs = this.props.global.state
     let loadAllLink = ''
     let nextLink = ''
     let lastTimeLoaded = ''
-    const showAllSubreddits = this.props.global.state.categoryFilter_subreddit === 'all'
+    const showAllSubreddits = gs.categoryFilter_subreddit === 'all'
     let totalPages = 10
-    if (! this.props.global.state.userNext) {
-      totalPages = numPages
+    if (! gs.userNext) {
+      totalPages = gs.num_pages
     }
 
-    if (! this.props.global.state.loading) {
-      if (! s.after && this.props.global.state.userNext) {
-        loadAllLink = <LoadLink next={this.state.next} user={user} sort={s.sort} this={this} kind={kind} limit={100} show={s.show} loadAll={true}/>
+    if (! gs.loading) {
+      if (! qp.after && gs.userNext) {
+        loadAllLink = <LoadLink user={user}
+                       getRevdditUserItems={getRevdditUserItems}
+                       kind={kind}
+                       show={qp.show}
+                       loadAll={true}/>
       }
     }
-    if (this.props.global.state.loading) {
+    if (gs.loading) {
       nextLink = <div className='non-item'><img className='spin' src='/images/spin.gif'/></div>
-    } else if (this.props.global.state.userNext) {
+    } else if (gs.userNext) {
       nextLink = <div className='non-item'>
-        <LoadLink next={this.state.next} user={user} sort={s.sort} this={this} kind={kind} show={s.show} limit={s.limit} loadAll={false}/></div>
+        <LoadLink user={user}
+         getRevdditUserItems={getRevdditUserItems}
+         kind={kind}
+         show={qp.show}
+         loadAll={false}/></div>
     }
-    if (allItems.length) {
+    if (gs.items.length) {
       lastTimeLoaded = <React.Fragment>
-                         <div className='non-item text'>since <Time created_utc={allItems.slice(-1)[0].created_utc} /></div>
-                         <div className='non-item text'>loaded pages {`${numPages}/${totalPages}`}</div>
+                         <div className='non-item text'>since <Time created_utc={gs.items.slice(-1)[0].created_utc} /></div>
+                         <div className='non-item text'>loaded pages {`${gs.num_pages}/${totalPages}`}</div>
                        </React.Fragment>
     }
     return (
       <div className='userpage'>
         <div className='subreddit-box'>
-        {loadAllLink}
+          {loadAllLink}
         </div>
-        <Selections page_type={page_type}
-          visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
-          num_showing={viewableItems.length}
-          allItems={allItems}
-          category_type='subreddit' category_title='Subreddit'
-          category_unique_field='subreddit'/>
+        {selections}
         {
           viewableItems.map(item => {
             if (item.name.slice(0,2) === 't3') {
               return <Post key={item.name} {...item} />
             } else {
-              return <Comment key={item.name} {...item} sort={s.sort}/>
+              return <Comment key={item.name} {...item} sort={qp.sort}/>
             }
           })
         }
@@ -350,5 +73,4 @@ class User extends React.Component {
   }
 }
 
-export const getSettings = User.getSettings
-export default withRouter(connect(User))
+export default connect(withFetch(User))

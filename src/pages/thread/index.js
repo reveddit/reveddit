@@ -11,10 +11,10 @@ import { withFetch } from 'pages/RevdditFetcher'
 class Thread extends React.Component {
 
   render () {
-    const post = this.props.threadPost
+    const { items, loading, threadPost: post } = this.props.global.state
     const { id, author } = post
     const { subreddit, threadID, urlTitle = '', commentID } = this.props.match.params
-    const { items, loading, selections } = this.props
+    const { selections } = this.props
     const linkToRestOfComments = `/r/${subreddit}/comments/${threadID}/${urlTitle}`
     const isSingleComment = (commentID !== undefined && ! this.props.history.location.hash)
     const root = isSingleComment ? commentID : id

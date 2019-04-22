@@ -5,11 +5,11 @@ import { connect } from 'state'
 
 class ResultsSummary extends React.Component {
   render() {
-    const {allItems, num_showing, page_type} = this.props
+    const {num_showing, page_type} = this.props
     const gs = this.props.global.state
     let oldest_time = Infinity
     let youngest_time = -Infinity
-    allItems.forEach(item => {
+    gs.items.forEach(item => {
       if (item.created_utc < oldest_time) {
         oldest_time = item.created_utc
       }
@@ -37,7 +37,9 @@ class ResultsSummary extends React.Component {
     return (
       <React.Fragment>
         {timeFrame}
-        <div title={page_type === 'subreddit_posts' ? posts_page_title : ''} className='non-item text'>{num_showing.toLocaleString()} of {allItems.length.toLocaleString()}</div>
+        <div title={page_type === 'subreddit_posts' ? posts_page_title : ''}
+             className='non-item text'>{num_showing.toLocaleString()+' of '}
+             {gs.items.length.toLocaleString()}</div>
       </React.Fragment>
     )
   }

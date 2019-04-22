@@ -2,7 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { connect } from 'state'
 import { withRouter } from 'react-router';
-
+import { getQueryParams } from 'data_processing/user'
 
 class LoadLink extends React.Component {
 
@@ -11,18 +11,21 @@ class LoadLink extends React.Component {
     let className = 'load-next'
     let text = 'view more'
     let to = this.props.location.pathname+this.props.location.search
-
+    const qp = getQueryParams()
     if (this.props.loadAll) {
-      const queryParams = new URLSearchParams(this.props.location.search)
-      queryParams.set('all', '')
-      to = `${this.props.location.pathname}?${queryParams.toString()}`
+      qp.loadAll = true
+      const queryParams_tmp = new URLSearchParams(this.props.location.search)
+      queryParams_tmp.set('all', 'true')
+      to = `${this.props.location.pathname}?${queryParams_tmp.toString()}`
       className = 'load-all'
       text = 'load all'
     }
     if (userPage_after && ! this.props.show) {
       return <Link className={className} to={to} onClick={() => {
-
-        this.props.this.getItems_wrapper(this.props.user, this.props.kind, this.props.sort, '', userPage_after, this.props.limit, this.props.loadAll)
+        this.props.getRevdditUserItems(this.props.user,
+                                       this.props.kind,
+                                       qp,
+                                       this.props.global)
       }}>{text}</Link>
     } else {
       return ''

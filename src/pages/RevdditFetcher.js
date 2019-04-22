@@ -2,14 +2,14 @@ import React from 'react'
 import scrollToElement from 'scroll-to-element'
 import { getRevdditComments } from 'data_processing/subreddit_comments'
 import { getRevdditPosts } from 'data_processing/subreddit_posts'
-import { getRevdditThreadPost, getRevdditThreadComments } from 'data_processing/thread'
+import { getRevdditUserItems, getQueryParams } from 'data_processing/user'
+import { getRevdditThreadItems } from 'data_processing/thread'
 import { itemIsOneOfSelectedRemovedBy } from 'data_processing/filters'
 import Selections from 'pages/common/selections'
 import { removedFilter_types } from 'state'
 import { NOT_REMOVED } from 'pages/common/RemovedBy'
 
 const getCategorySettings = (page_type, subreddit) => {
-  let sub_type = subreddit.toLowerCase() === 'all' ? 'all' : 'other'
   const category_settings = {
     'subreddit_comments': {
       'other': {category: 'link_title',
@@ -26,12 +26,21 @@ const getCategorySettings = (page_type, subreddit) => {
       'all':   {category: 'subreddit',
                 category_title: 'Subreddit',
                 category_unique_field: 'subreddit'}
-    }
+    },
+    'user': {category: 'subreddit',
+             category_title: 'Subreddit',
+             category_unique_field: 'subreddit'}
   }
   if (page_type in category_settings) {
-    return category_settings[page_type][sub_type]
+    if (subreddit) {
+      let sub_type = subreddit.toLowerCase() === 'all' ? 'all' : 'other'
+      return category_settings[page_type][sub_type]
+    } else {
+      return category_settings[page_type]
+    }
+  } else {
+    return {}
   }
-  return {}
 }
 
 const getPageTitle = (page_type, string) => {
@@ -45,29 +54,29 @@ const getPageTitle = (page_type, string) => {
       break
     }
     case 'user': {
-      return `/user/${string}`
+      return `/u/${string}`
       break
     }
   }
   return null
 
 }
-const getLoadDataFunctionAndParam = (page_type, subreddit, user, threadID) => {
+const getLoadDataFunctionAndParam = (page_type, subreddit, user, kind, threadID, queryParams) => {
   switch(page_type) {
     case 'subreddit_posts': {
-      return [getRevdditPosts, subreddit]
+      return [getRevdditPosts, [subreddit]]
       break
     }
     case 'subreddit_comments': {
-      return [getRevdditComments, subreddit]
+      return [getRevdditComments, [subreddit]]
       break
     }
     case 'thread': {
-      return [getRevdditThreadPost, threadID]
+      return [getRevdditThreadItems, [threadID]]
       break
     }
     case 'user': {
-      return [getRevdditUserItems, user]
+      return [getRevdditUserItems, [user, kind, queryParams]]
       break
     }
     default: {
@@ -76,57 +85,55 @@ const getLoadDataFunctionAndParam = (page_type, subreddit, user, threadID) => {
   }
   return null
 }
+const OVERVIEW = 'overview', SUBMITTED = 'submitted', BLANK='', COMMENTS='comments'
+const acceptable_kinds = [OVERVIEW, COMMENTS, SUBMITTED, BLANK]
+const acceptable_sorts = ['new', 'top', 'controversial', 'hot']
 
 export const withFetch = (WrappedComponent) =>
   class extends React.Component {
     state = {
       items: [],
       threadPost: {},
+      num_pages: 0,
       loading: true
     }
     componentDidMount() {
       let subreddit = (this.props.match.params.subreddit || '').toLowerCase()
       const user = (this.props.match.params.user || '' ).toLowerCase()
-      const threadID = this.props.match.params.threadID
+      const { threadID, kind = '' } = this.props.match.params
       const { userSubreddit } = (this.props.match.params.userSubreddit || '').toLowerCase()
+      const queryParams = getQueryParams()
       if (userSubreddit) {
         subreddit = 'u_'+userSubreddit
       }
       const { page_type } = this.props
-      const page_title = getPageTitle(page_type, subreddit)
+      const page_title = getPageTitle(page_type, subreddit || user)
       if (page_title) {
         document.title = page_title
+      }
+      if (page_type === 'user') {
+        if (! acceptable_kinds.includes(kind)) {
+          this.props.global.setError(Error('Invalid page, check url'))
+          return
+        }
+        if (! acceptable_sorts.includes(queryParams.sort)) {
+          this.props.global.setError(Error('Invalid sort type, check url'))
+          return
+        }
       }
       this.props.global.setStateFromQueryParams(page_type,
                       new URLSearchParams(this.props.location.search))
       .then(result => {
-        const [loadDataFunction, param] = getLoadDataFunctionAndParam(page_type, subreddit, user, threadID)
-        const firstPromise = loadDataFunction(param, this.props.global, this.props.history)
-        const promises = [firstPromise]
-        firstPromise
+
+        const [loadDataFunction, params] = getLoadDataFunctionAndParam(page_type, subreddit, user, kind, threadID, queryParams)
+        loadDataFunction(...params, this.props.global, this.props.history)
         .then(items => {
-          let newState = {items, loading:false}
-          if (page_type === 'thread') {
-            newState = {threadPost: items[0]}
-          }
-          this.setState(newState, this.jumpToHash)
-        })
-        if (page_type === 'thread') {
-          const secondPromise = getRevdditThreadComments(threadID, this.props.global)
-          promises.push(secondPromise)
-          secondPromise
-          .then(items => {
-            this.setState({items}, this.jumpToHash)
-          })
-        }
-        Promise.all(promises)
-        .then(result => {
-          this.setState({loading: false})
+          this.jumpToHash()
         })
       })
     }
     setBefore = (before, before_id, n) => {
-      this.setState({ items: [], loading: true})
+      this.props.global.setState({ items: [], loading: true})
       const subreddit = (this.props.match.params.subreddit || '').toLowerCase()
       const { page_type } = this.props
       this.props.global.upvoteRemovalRateHistory_update(before, before_id, n, this.props)
@@ -134,7 +141,7 @@ export const withFetch = (WrappedComponent) =>
         return getLoadDataFunctionAndParam(page_type)[0](subreddit, this.props.global)
       })
       .then(items => {
-        this.setState({items,loading:false}, this.jumpToHash)
+        this.jumpToHash()
       })
     }
 
@@ -164,7 +171,7 @@ export const withFetch = (WrappedComponent) =>
       const removedByFilterIsUnset = this.props.global.removedByFilterIsUnset()
       const visibleItems = []
       const gs = this.props.global.state
-      this.state.items.forEach(item => {
+      gs.items.forEach(item => {
         if (
           (gs.removedFilter === removedFilter_types.all ||
             (gs.removedFilter === removedFilter_types.not_removed &&
@@ -185,7 +192,7 @@ export const withFetch = (WrappedComponent) =>
     render () {
       const subreddit = (this.props.match.params.subreddit || '').toLowerCase()
       const { page_type } = this.props
-      const { items } = this.state
+      const items = this.props.global.state.items
 
       const visibleItemsWithoutCategoryFilter = this.getVisibleItemsWithoutCategoryFilter()
       const viewableItems = this.getViewableItems(visibleItemsWithoutCategoryFilter)
@@ -194,14 +201,14 @@ export const withFetch = (WrappedComponent) =>
       <Selections page_type={page_type}
                   visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
                   num_showing={viewableItems.length}
-                  allItems={items}
+                  num_items={items.length}
                   category_type={category} category_title={category_title}
                   category_unique_field={category_unique_field}
                   setBefore={this.setBefore}/>
 
       return (
         <React.Fragment>
-          <WrappedComponent {...this.props} {...this.state} selections={selections}
+          <WrappedComponent getRevdditUserItems={getRevdditUserItems} {...this.props} {...this.state} selections={selections}
             viewableItems={viewableItems}/>
         </React.Fragment>
       )

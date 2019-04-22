@@ -83,6 +83,9 @@ class GlobalState extends Container {
         n: 1000,
         before: '',
         before_id: '',
+        items: [],
+        threadPost: {},
+        num_pages: 0,
         userNext: {},
         selection_defaults: {},
         removedFilter: removedFilter_types.all,
@@ -227,9 +230,11 @@ class GlobalState extends Container {
                    selection_defaults: selection_defaults})
   }
 
-  setSuccess = () => {
+  setSuccess = (other = {}) => {
     if (! this.state.error) {
-      this.setState({statusText: '', statusImage: '/images/success.png', loading:false})
+      this.setState({statusText: '', statusImage: '/images/success.png', loading:false, ...other})
+    } else if (Object.keys(other).length) {
+      this.setState(other)
     }
   }
   setLoading = (text) => this.setState({statusText: text, statusImage: '/images/loading.gif', loading:true})

@@ -1,19 +1,16 @@
 import React from 'react'
 import { connect } from 'state'
-import { getSettings } from 'pages/user'
+import { getQueryParams } from 'data_processing/user'
 
 class RedditSort extends React.Component {
   state = {
-    s: getSettings()
+    s: getQueryParams()
   }
 
   getLink(sort) {
-    const url = new URL(window.location.href)
-    url.searchParams.set('sort', sort)
-
     return (<div>
               <a className={sort === this.state.s.sort ? 'selected': ''}
-                 href={`${url.pathname}${url.search}`}>{sort}</a>
+                 href={`${window.location.pathname}?sort=${sort}`}>{sort}</a>
             </div>)
   }
 

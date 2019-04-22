@@ -11,9 +11,17 @@ import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
          MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED,
          AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
 
+export const getRevdditThreadItems = (threadID, global, history) => {
+  global.setLoading('Loading...')
+  const promises = [getRevdditThreadPost(threadID, global, history),
+                    getRevdditThreadComments(threadID, global)]
+  return Promise.all(promises)
+  .then(result => {
+    global.setSuccess()
+  })
+}
 
 export const getRevdditThreadPost = (threadID, global, history) => {
-  global.setLoading('Loading post from reddit & pushshift...')
   const reddit_promise = getPosts([threadID])
   const pushshift_promise = getPushshiftPost(threadID)
   return Promise.all([reddit_promise, pushshift_promise])
@@ -52,18 +60,17 @@ export const getRevdditThreadPost = (threadID, global, history) => {
         post.removedby = NOT_REMOVED
       }
     }
-    return [post]
+    global.setState({threadPost: post})
+    return post
   })
 }
 
 export const getRevdditThreadComments = (threadID, global) => {
-  global.setLoading('loading pushshift comments...')
   return getPushshiftComments(threadID)
   .then(pushshiftComments => {
-    global.setLoading('comparing comments to reddit...')
     return combinePushshiftAndRedditComments(pushshiftComments)
     .then(result => {
-      global.setSuccess()
+      global.setSuccess({items: pushshiftComments})
       return pushshiftComments
     })
   })

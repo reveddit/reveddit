@@ -23,8 +23,8 @@ const byControversiality = (a, b) => {
 class SubredditPosts extends React.Component {
   render () {
     const { subreddit } = this.props.match.params
-    const { items, loading, page_type, viewableItems, selections } = this.props
-    const {localSort, localSortReverse} = this.props.global.state
+    const { page_type, viewableItems, selections } = this.props
+    const {items, loading, localSort, localSortReverse} = this.props.global.state
     const noItemsFound = items.length === 0 && ! loading
 
     const items_sorted = viewableItems

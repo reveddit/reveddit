@@ -23,7 +23,7 @@ class Selections extends React.Component {
     }
   }
   render () {
-    const { page_type, visibleItemsWithoutCategoryFilter, allItems, num_showing,
+    const { page_type, visibleItemsWithoutCategoryFilter, num_items, num_showing,
             category_type, category_title, category_unique_field, setBefore } = this.props
     return (
       <React.Fragment>
@@ -44,7 +44,6 @@ class Selections extends React.Component {
                       <RemovedByFilter page_type={page_type} />
                       <CategoryFilter page_type={page_type}
                         visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
-                        allItems={allItems}
                         type={category_type} title={category_title} unique_field={category_unique_field}/>
                     </React.Fragment>)
                 case 'subreddit_comments':
@@ -56,7 +55,6 @@ class Selections extends React.Component {
                       <RemovedByFilter page_type={page_type} />
                       <CategoryFilter page_type={page_type}
                         visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
-                        allItems={allItems}
                         type={category_type} title={category_title} unique_field={category_unique_field}/>
                     </React.Fragment>)
                 case 'user':
@@ -68,7 +66,6 @@ class Selections extends React.Component {
                       <RemovedByFilter page_type={page_type} />
                       <CategoryFilter page_type={page_type}
                         visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
-                        allItems={allItems}
                         type={category_type} title={category_title} unique_field={category_unique_field}/>
                     </React.Fragment>)
                 case 'thread':
@@ -83,9 +80,8 @@ class Selections extends React.Component {
             })()}
           </div>
         }
-        {allItems && allItems.length ?
-          <ResultsSummary allItems={allItems}
-                          num_showing={num_showing}
+        {num_items ?
+          <ResultsSummary num_showing={num_showing}
                           category_type={category_type}
                           category_unique_field={category_unique_field}
                           page_type={page_type} />

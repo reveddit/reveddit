@@ -24,7 +24,7 @@ export const getRevdditPosts = (subreddit, global) => {
           post.removed = true
         }
       })
-      global.setSuccess()
+      global.setSuccess({items: posts})
       return posts
     })
     .catch(global.setError)
@@ -77,7 +77,7 @@ export const getRevdditPosts = (subreddit, global) => {
             show_posts.push(post)
           }
         })
-        global.setSuccess()
+        global.setSuccess({items:show_posts})
         return show_posts
       })
     })

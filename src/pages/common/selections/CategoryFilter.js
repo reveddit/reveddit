@@ -14,7 +14,8 @@ class CategoryFilter extends React.Component {
     if (this.props.unique_field) {
       unique_field = this.props.unique_field
     }
-    this.props.allItems.forEach(item => {
+    const items = this.props.global.state.items
+    items.forEach(item => {
       const unique_value = item[unique_field]
       category_visible_counts[unique_value] = 0
       category_unique_to_displayValue[unique_value] = item[type]

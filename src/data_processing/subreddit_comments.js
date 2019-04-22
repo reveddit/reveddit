@@ -41,7 +41,7 @@ export const getRevdditComments = (subreddit, global) => {
           }
         }
       })
-      global.setSuccess()
+      global.setSuccess({items: show_comments})
       return show_comments
     })
   })

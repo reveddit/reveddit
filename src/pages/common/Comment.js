@@ -54,7 +54,7 @@ class Comment extends React.Component {
     } else if (props.next) {
       link = `?before=${props.next}&`
     }
-    link += `limit=1&sort=${props.sort}&show=${props.name}`
+    link += `limit=1&sort=${props.sort}&show=${props.name}&removal_status=all`
 
     const mods_message_body = '\n\n\n'+reddit+props.permalink;
     const mods_link = reddit+'/message/compose?to='+props.subreddit+'&message='+encodeURI(mods_message_body);
