@@ -34,10 +34,14 @@ export const getRevdditComments = (subreddit, global) => {
       const full_titles = values[0]
       pushshiftComments.forEach(ps_comment => {
         if (full_titles && ps_comment.link_id in full_titles) {
-          if ( ! (full_titles[ps_comment.link_id].whitelist_status === 'promo_adult_nsfw' &&
+          const full_post_data = full_titles[ps_comment.link_id]
+          if ( ! (full_post_data.whitelist_status === 'promo_adult_nsfw' &&
                  (ps_comment.removed || ps_comment.deleted))) {
-            ps_comment.link_title = full_titles[ps_comment.link_id].title
+            ps_comment.link_title = full_post_data.title
             show_comments.push(ps_comment)
+          }
+          if (full_titles[ps_comment.link_id].url) {
+            ps_comment.url = full_post_data.url
           }
         }
       })

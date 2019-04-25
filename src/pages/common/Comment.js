@@ -70,7 +70,7 @@ class Comment extends React.Component {
           <a onClick={() => this.toggleDisplayBody()} className='collapseToggle'>{this.getExpandIcon()}</a>
           <span className='space' />
           <a
-            href={props.link_permalink}
+            href={props.url ? props.url : props.link_permalink}
             className='title'
           >
           {props.link_title}
