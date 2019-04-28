@@ -2,7 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { connect } from 'state'
 import { withRouter } from 'react-router';
-import { getQueryParams } from 'data_processing/user'
+import { getRevdditUserItems, getQueryParams } from 'data_processing/user'
 
 class LoadLink extends React.Component {
 
@@ -22,10 +22,10 @@ class LoadLink extends React.Component {
     }
     if (userPage_after && ! this.props.show) {
       return <Link className={className} to={to} onClick={() => {
-        this.props.getRevdditUserItems(this.props.user,
-                                       this.props.kind,
-                                       qp,
-                                       this.props.global)
+        getRevdditUserItems(this.props.user,
+                            this.props.kind,
+                            qp,
+                            this.props.global)
       }}>{text}</Link>
     } else {
       return ''

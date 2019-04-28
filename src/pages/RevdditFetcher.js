@@ -208,7 +208,7 @@ export const withFetch = (WrappedComponent) =>
 
       return (
         <React.Fragment>
-          <WrappedComponent getRevdditUserItems={getRevdditUserItems} {...this.props} {...this.state} selections={selections}
+          <WrappedComponent {...this.props} {...this.state} selections={selections}
             viewableItems={viewableItems}/>
         </React.Fragment>
       )

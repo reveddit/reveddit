@@ -14,13 +14,12 @@ import { getQueryParams } from 'data_processing/user'
 class User extends React.Component {
   render () {
     const { user, kind = ''} = this.props.match.params
-    const { page_type, viewableItems, selections, getRevdditUserItems } = this.props
+    const { page_type, viewableItems, selections } = this.props
     const qp = getQueryParams()
     const gs = this.props.global.state
     let loadAllLink = ''
     let nextLink = ''
     let lastTimeLoaded = ''
-    const showAllSubreddits = gs.categoryFilter_subreddit === 'all'
     let totalPages = 10
     if (! gs.userNext) {
       totalPages = gs.num_pages
@@ -29,7 +28,6 @@ class User extends React.Component {
     if (! gs.loading) {
       if (! qp.after && gs.userNext) {
         loadAllLink = <LoadLink user={user}
-                       getRevdditUserItems={getRevdditUserItems}
                        kind={kind}
                        show={qp.show}
                        loadAll={true}/>
@@ -40,7 +38,6 @@ class User extends React.Component {
     } else if (gs.userNext) {
       nextLink = <div className='non-item'>
         <LoadLink user={user}
-         getRevdditUserItems={getRevdditUserItems}
          kind={kind}
          show={qp.show}
          loadAll={false}/></div>
