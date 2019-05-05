@@ -43,6 +43,9 @@ export const getRevdditComments = (subreddit, global) => {
           if (full_titles[ps_comment.link_id].url) {
             ps_comment.url = full_post_data.url
           }
+          if (typeof(full_titles[ps_comment.link_id].num_comments) !== 'undefined') {
+            ps_comment.num_comments = full_post_data.num_comments
+          }
         }
       })
       global.setSuccess({items: show_comments})
