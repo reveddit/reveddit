@@ -8,7 +8,7 @@ import { connect } from 'state'
 
 class Comment extends React.Component {
   state = {
-    displayBody: true
+    displayBody: ! this.props.stickied
   }
   toggleDisplayBody() {
     this.setState({displayBody: ! this.state.displayBody})
