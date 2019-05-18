@@ -173,11 +173,10 @@ class GlobalState extends Container {
   }
   upvoteRemovalRateHistory_update = (before, before_id, n, props) => {
     const queryParams = new URLSearchParams()
-    if (props.page_type === 'subreddit_posts') {
-      queryParams.set(urlParamKeys.before_id, before_id)
-    } else {
+    if (props.page_type === 'subreddit_comments') {
       queryParams.set(urlParamKeys.before, before)
     }
+    queryParams.set(urlParamKeys.before_id, before_id)
     queryParams.set(urlParamKeys.n, n)
     queryParams.set(urlParamKeys.removedFilter, removedFilter_types.removed)
     queryParams.set(urlParamKeys.localSort, localSort_types.score)

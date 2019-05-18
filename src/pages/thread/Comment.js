@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { prettyScore, parse, isRemoved } from 'utils'
+import { prettyScore, parse, isRemoved, replaceAmpGTLT } from 'utils'
 import Time from 'pages/common/Time'
 import RemovedBy from 'pages/common/RemovedBy'
 import { connect } from 'state'
@@ -68,7 +68,7 @@ class Comment extends React.Component {
           </a>
           <span className='space' />
           {author !== '[deleted]' && props.author_flair_text ?
-            <span className='flair'>{props.author_flair_text}</span>
+            <span className='flair'>{replaceAmpGTLT(props.author_flair_text)}</span>
           : ''}
           <span className='space' />
           <span className='comment-score'>{prettyScore(props.score)} point{(props.score !== 1) && 's'}</span>

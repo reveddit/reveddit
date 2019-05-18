@@ -152,3 +152,19 @@ export const getPrettyDate = (createdUTC) => {
   const seconds = Math.floor((new Date).getTime()/1000)-createdUTC
   return getPrettyTimeLength(seconds) + ' ago'
 }
+
+export const getQueryString = (queryParams) => {
+  let queryVals = []
+  for (var key in queryParams) {
+      queryVals.push(key+'='+queryParams[key])
+  }
+  return '?'+queryVals.join('&')
+}
+
+export const roundToX = (num, X) => {
+    return +(Math.round(num + "e+"+X)  + "e-"+X);
+}
+
+export const replaceAmpGTLT = (string) => {
+  return string.replace(/&amp;/g, '&').replace(/&gt;/g, '>').replace(/&lt;/g, '<')
+}

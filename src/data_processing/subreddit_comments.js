@@ -1,6 +1,6 @@
 import {
   getPosts as getPushshiftPosts,
-  getRecentCommentsBySubreddit as getPushshiftCommentsBySubreddit,
+  getCommentsBySubreddit as getPushshiftCommentsBySubreddit,
   getRecentPostsBySubreddit
 } from 'api/pushshift'
 import { combinePushshiftAndRedditComments } from 'data_processing/comments'

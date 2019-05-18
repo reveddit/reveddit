@@ -1,4 +1,4 @@
-import { toBase10, toBase36, chunk, flatten } from 'utils'
+import { toBase10, toBase36, chunk, flatten, getQueryString } from 'utils'
 
 const postURL = 'https://elastic.pushshift.io/rs/submissions/_search?source='
 const commentURL = 'https://elastic.pushshift.io/rc/comments/_search?source='
@@ -7,6 +7,67 @@ const comment_fields = [
   'subreddit', 'link_id', 'author_flair_text', 'retrieved_on', 'retrieved_utc'
 ]
 
+const postURL_new = 'https://api.pushshift.io/reddit/submission/search/'
+const commentURL_new = 'https://api.pushshift.io/reddit/comment/search/'
+
+// If before_id is set, response begins with that ID
+export const getCommentsBySubreddit = async function(subreddits_str, n = 1000, before = '', before_id = '') {
+  const data = {}
+  let queryParams = {}
+  let dataLength = 0
+  let foundStartingPoint = true
+  let maxCalls = 5, numCalls = 0
+  if (before_id) {
+    foundStartingPoint = false
+    before = parseInt(before)+1
+  }
+  queryParams['sort'] = 'desc'
+  queryParams['size'] = 1000
+  queryParams['subreddit'] = subreddits_str
+  queryParams['fields'] = 'id,created_utc'
+
+  while (dataLength < n && numCalls < maxCalls) {
+    if (before) {
+      queryParams['before'] = before
+    }
+
+    let url = commentURL_new+getQueryString(queryParams)
+
+    const items = await window.fetch(url)
+      .then(response => response.json())
+      .then(data => data.data)
+    before = items[items.length-1].created_utc+1
+    items.forEach(item => {
+      if (before_id && item.id === before_id) {
+        foundStartingPoint = true
+      }
+      if (foundStartingPoint) {
+        data[item.id] = item
+      }
+    })
+    if (before_id && ! foundStartingPoint) {
+      console.error('id not found in first set of results: '+before_id)
+      break
+    }
+    dataLength = Object.keys(data).length
+    numCalls += 1
+  }
+  const ids = Object.keys(data).sort((a,b) => b.created_utc - a.created_utc).slice(0,n)
+  return chunkAnd_getCommentsByID(ids)
+}
+
+export const chunkAnd_getCommentsByID = (ids) => {
+  return Promise.all(chunk(ids, 1000)
+    .map(ids => getCommentsByID(ids)))
+    .then(flatten)
+}
+
+export const getCommentsByID = (ids) => {
+  const params = 'ids='+ids.join(',')
+  return window.fetch(commentURL_new+'?'+params)
+    .then(response => response.json())
+    .then(data => data.data)
+}
 
 export const getRecentPostsBySubreddit = (subreddits_str, n = 1000, before = '', before_id = '') => {
   const subreddits = subreddits_str.toLowerCase().split(',')
@@ -45,6 +106,9 @@ export const getRecentPostsBySubreddit = (subreddits_str, n = 1000, before = '',
     .catch(() => { throw new Error('Unable to access Pushshift, cannot load recent posts') })
 }
 
+// As of 2019/05/13, querying ES for comments does not return all original body data
+// See: https://www.reddit.com/r/pushshift/comments/blij8z/searching_by_comment_id_returns_old_metadata/emoxm0j/
+// Seems to apply to data in 2017 until ~ October 9
 export const getRecentCommentsBySubreddit = (subreddits_str, n = 1000, before = '', before_id = '') => {
   const subreddits = subreddits_str.toLowerCase().split(',')
   let elasticQuery = {
