@@ -133,6 +133,10 @@ export const getPrettyTimeLength = (seconds) => {
     if (time < divisor) {
       let extra = (time - Math.floor(time))
       let prevUnitTime = Math.round(extra*thresholds[i-1][0])
+      if (thresholds[i-1][0] === prevUnitTime) {
+        time += 1
+        prevUnitTime = 0
+      }
       if (Math.floor(time) > 1 || Math.floor(time) == 0) {
         text = textPlural
       }
