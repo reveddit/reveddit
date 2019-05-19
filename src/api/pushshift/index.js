@@ -23,7 +23,9 @@ export const getCommentsBySubreddit = async function(subreddits_str, n = 1000, b
   }
   queryParams['sort'] = 'desc'
   queryParams['size'] = 1000
-  queryParams['subreddit'] = subreddits_str
+  if (subreddits_str) {
+    queryParams['subreddit'] = subreddits_str
+  }
   queryParams['fields'] = 'id,created_utc'
 
   while (dataLength < n && numCalls < maxCalls) {

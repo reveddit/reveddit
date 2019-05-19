@@ -198,7 +198,8 @@ export const withFetch = (WrappedComponent) =>
       const viewableItems = this.getViewableItems(visibleItemsWithoutCategoryFilter)
       const {category, category_title, category_unique_field} = getCategorySettings(page_type, subreddit)
       const selections =
-      <Selections page_type={page_type}
+      <Selections subreddit={subreddit}
+                  page_type={page_type}
                   visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
                   num_showing={viewableItems.length}
                   num_items={items.length}

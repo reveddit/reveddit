@@ -24,7 +24,7 @@ class Selections extends React.Component {
     }
   }
   render () {
-    const { page_type, visibleItemsWithoutCategoryFilter, num_items, num_showing,
+    const { subreddit, page_type, visibleItemsWithoutCategoryFilter, num_items, num_showing,
             category_type, category_title, category_unique_field, setBefore } = this.props
     return (
       <React.Fragment>
@@ -46,7 +46,9 @@ class Selections extends React.Component {
                       <CategoryFilter page_type={page_type}
                         visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
                         type={category_type} title={category_title} unique_field={category_unique_field}/>
-                      <UpvoteRemovalRateHistory page_type={page_type} setBefore={setBefore}/>
+                      {subreddit !== 'all' &&
+                        <UpvoteRemovalRateHistory page_type={page_type} setBefore={setBefore}/>
+                      }
                     </React.Fragment>)
                 case 'subreddit_comments':
                   return (
@@ -58,7 +60,9 @@ class Selections extends React.Component {
                       <CategoryFilter page_type={page_type}
                         visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
                         type={category_type} title={category_title} unique_field={category_unique_field}/>
-                      <UpvoteRemovalRateHistory page_type={page_type} setBefore={setBefore}/>
+                      {subreddit !== 'all' &&
+                        <UpvoteRemovalRateHistory page_type={page_type} setBefore={setBefore}/>
+                      }
                     </React.Fragment>)
                 case 'user':
                   return (
