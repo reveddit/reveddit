@@ -215,7 +215,7 @@ class UpvoteRemovalRateHistory extends React.Component {
 
   render() {
     const subreddit = this.props.match.params.subreddit.toLowerCase()
-    const {setBefore, page_type} = this.props
+    const {page_type} = this.props
     const {clicked} = this.state
     let {hovered} = this.state
     let preview = ''

@@ -25,7 +25,7 @@ class Selections extends React.Component {
   }
   render () {
     const { subreddit, page_type, visibleItemsWithoutCategoryFilter, num_items, num_showing,
-            category_type, category_title, category_unique_field, setBefore } = this.props
+            category_type, category_title, category_unique_field } = this.props
     return (
       <React.Fragment>
         <div className='toggleFilters'><a onClick={this.toggleDisplayFilters}
@@ -47,7 +47,7 @@ class Selections extends React.Component {
                         visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
                         type={category_type} title={category_title} unique_field={category_unique_field}/>
                       {subreddit !== 'all' &&
-                        <UpvoteRemovalRateHistory page_type={page_type} setBefore={setBefore}/>
+                        <UpvoteRemovalRateHistory page_type={page_type}/>
                       }
                     </React.Fragment>)
                 case 'subreddit_comments':
@@ -61,7 +61,7 @@ class Selections extends React.Component {
                         visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
                         type={category_type} title={category_title} unique_field={category_unique_field}/>
                       {subreddit !== 'all' &&
-                        <UpvoteRemovalRateHistory page_type={page_type} setBefore={setBefore}/>
+                        <UpvoteRemovalRateHistory page_type={page_type}/>
                       }
                     </React.Fragment>)
                 case 'user':
@@ -81,6 +81,9 @@ class Selections extends React.Component {
                       <LocalSort page_type={page_type} />
                       <RemovedFilter page_type={page_type} />
                       <RemovedByFilter page_type={page_type} />
+                      {subreddit !== 'all' &&
+                        <UpvoteRemovalRateHistory page_type={page_type}/>
+                      }
                     </React.Fragment>)
                 default: return ''
               }

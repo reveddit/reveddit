@@ -132,18 +132,6 @@ export const withFetch = (WrappedComponent) =>
         })
       })
     }
-    setBefore = (before, before_id, n) => {
-      this.props.global.setState({ items: [], loading: true})
-      const subreddit = (this.props.match.params.subreddit || '').toLowerCase()
-      const { page_type } = this.props
-      this.props.global.upvoteRemovalRateHistory_update(before, before_id, n, this.props)
-      .then(result => {
-        return getLoadDataFunctionAndParam(page_type)[0](subreddit, this.props.global)
-      })
-      .then(items => {
-        this.jumpToHash()
-      })
-    }
 
     jumpToHash () {
       const hash = this.props.history.location.hash;
@@ -204,8 +192,7 @@ export const withFetch = (WrappedComponent) =>
                   num_showing={viewableItems.length}
                   num_items={items.length}
                   category_type={category} category_title={category_title}
-                  category_unique_field={category_unique_field}
-                  setBefore={this.setBefore}/>
+                  category_unique_field={category_unique_field}/>
 
       return (
         <React.Fragment>
