@@ -82,6 +82,11 @@ export const prettyScore = score => {
   return score
 }
 
+export const kFormatter = num => {
+    return Math.abs(num) > 999 ? Math.sign(num)*((Math.abs(num)/1000).toFixed(1)) + 'k' : Math.sign(num)*Math.abs(num)
+}
+
+
 // Retrieve, store and delete stuff in the local storage
 export const get = (key, defaultValue) => {
   const value = window.localStorage.getItem(key)

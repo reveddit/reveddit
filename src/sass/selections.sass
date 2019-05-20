@@ -53,21 +53,31 @@
   background: green
   color: white
 
-.upvoteRemovalRate .preview
-  padding: 5px 8px
-  position: absolute
-  background-color: $background
-  z-index: 10
-  display: flex
-  &.post
-    font-size: 14px
-  .rate
-    color: #646464
-    font-size: 18px
-    font-weight: bold
-    margin: auto 5px
-    word-break: normal
-  .score, .time, .num_comments
-    font-size: 10px
-  .score, .num_comments
-    color: #b4b4b4
+.upvoteRemovalRate
+  .preview
+    padding: 5px 8px
+    position: absolute
+    background-color: $background
+    z-index: 10
+    display: flex
+    &.post
+      font-size: 14px
+    .rate
+      color: #646464
+      font-size: 18px
+      font-weight: bold
+      margin: auto 5px
+      word-break: normal
+    .score, .time, .num_comments
+      font-size: 10px
+    .score, .num_comments
+      color: #b4b4b4
+  .filter-name
+    width: 42px
+  .graph
+    margin-top: 5px
+  .options
+    margin-top: 5px
+  .toggleOptions a
+    color: $link
+
