@@ -15,7 +15,8 @@ import User from 'pages/user'
 import NotFound from 'pages/404'
 
 const apolloClient = new ApolloClient({
-  uri: "http://localhost:9090/v1alpha1/graphql"
+  uri: "https://api.revddit.com/v1/graphql"
+//  uri: "http://localhost:9090/v1/graphql"
 });
 
 

@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { withRouter } from 'react-router'
-import { prettyScore, parse, isRemoved } from 'utils'
+import { prettyScore, parse, isRemoved, replaceAmpGTLT } from 'utils'
 import Time from 'pages/common/Time'
 import RemovedBy from 'pages/common/RemovedBy'
 import { NOT_REMOVED } from 'pages/common/RemovedBy'
@@ -43,7 +43,7 @@ class Comment extends React.Component {
     if (! props.deleted) {
         innerHTML = (isRemoved(props.body) && props.removed) ?
           '<p>[removed too quickly to be archived]</p>' :
-          parse(props.body.replace(/&amp;/g, '&').replace(/&gt;/g, '>').replace(/&lt;/g, '<'))
+          parse(replaceAmpGTLT(props.body))
     } else {
       author = '[deleted]'
     }
@@ -107,6 +107,13 @@ class Comment extends React.Component {
           {props.deleted && ' (by user)'}
         </a>
         <span className='space' />
+        {
+          props.author_flair_text &&
+          <React.Fragment>
+            <span className='flair'>{replaceAmpGTLT(props.author_flair_text)}</span>
+            <span className='space' />
+          </React.Fragment>
+        }
         <span className='comment-score'>{prettyScore(props.score)} point{(props.score !== 1) && 's'}</span>
         <span className='space' />
         <Time created_utc={props.created_utc}/> <RemovedBy removedby={props.removedby} />

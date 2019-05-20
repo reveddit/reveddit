@@ -171,18 +171,16 @@ class GlobalState extends Container {
     props.history.push(to)
     return this.setStateFromQueryParams(props.page_type, queryParams)
   }
-  upvoteRemovalRateHistory_update = (before, before_id, n, props) => {
-    const queryParams = new URLSearchParams()
-    if (props.page_type === 'subreddit_posts') {
-      queryParams.set(urlParamKeys.before_id, before_id)
-    } else {
+  upvoteRemovalRateHistory_update = (before, before_id, n, content_type, queryParams, baseURL) => {
+    if (content_type === 'comments') {
       queryParams.set(urlParamKeys.before, before)
     }
+    queryParams.set(urlParamKeys.before_id, before_id)
     queryParams.set(urlParamKeys.n, n)
     queryParams.set(urlParamKeys.removedFilter, removedFilter_types.removed)
     queryParams.set(urlParamKeys.localSort, localSort_types.score)
     queryParams.set(urlParamKeys.removedByFilter, [MOD_OR_AUTOMOD_REMOVED, AUTOMOD_REMOVED, UNKNOWN_REMOVED].join(','))
-    return this.updateURLandState(queryParams, props)
+    window.location.href = `${baseURL}?${queryParams.toString()}`
   }
   categoryFilter_update = (type, value, props) => {
     this.selection_update('categoryFilter_'+type, value, props)

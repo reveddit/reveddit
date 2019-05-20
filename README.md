@@ -1,5 +1,5 @@
 # revddit
-[revddit](https://revddit.com/about) is a site for reviewing removed content on [reddit](https://www.reddit.com) user and subreddit pages.
+[revddit](https://revddit.com/about) is a site for reviewing removed content on [reddit](https://www.reddit.com) user, subreddit, and thread pages.
 Visit any `reddit.com/user/<username>` or `reddit.com/r/<subreddit>` page and add a `v` to the URL to see recent removed content. For example,
 
 * https://revddit.com/user/redditor_3975/

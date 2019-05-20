@@ -34,7 +34,7 @@ const byControversiality2 = (a, b) => {
       || (b.replies.length - a.replies.length) || (a_score_abs - b_score_abs)
 }
 
-const showNotRemoved = comment => comment.removedby === NOT_REMOVED
+const showNotRemoved = comment => comment.removedby === NOT_REMOVED && ! comment.deleted
 
 class CommentSection extends React.Component {
   arrayToLookup (commentList) {

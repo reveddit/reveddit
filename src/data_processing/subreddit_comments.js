@@ -1,6 +1,6 @@
 import {
   getPosts as getPushshiftPosts,
-  getRecentCommentsBySubreddit as getPushshiftCommentsBySubreddit,
+  getCommentsBySubreddit as getPushshiftCommentsBySubreddit,
   getRecentPostsBySubreddit
 } from 'api/pushshift'
 import { combinePushshiftAndRedditComments } from 'data_processing/comments'
@@ -23,6 +23,9 @@ export const getRevdditComments = (subreddit, global) => {
   const gs = global.state
 
   global.setLoading('Loading comments from Pushshift...')
+  if (subreddit === 'all') {
+    subreddit = ''
+  }
   return getPushshiftCommentsBySubreddit(subreddit, gs.n, gs.before, gs.before_id)
   .then(pushshiftComments => {
     global.setLoading('Comparing comments to Reddit API...')
@@ -52,5 +55,4 @@ export const getRevdditComments = (subreddit, global) => {
       return show_comments
     })
   })
-  .catch(global.setError)
 }

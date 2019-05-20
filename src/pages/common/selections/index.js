@@ -6,6 +6,7 @@ import CategoryFilter from 'pages/common/selections/CategoryFilter'
 import LocalSort from 'pages/common/selections/LocalSort'
 import RedditSort from 'pages/common/selections/RedditSort'
 import Content from 'pages/common/selections/Content'
+import UpvoteRemovalRateHistory from 'pages/common/selections/UpvoteRemovalRateHistory'
 import ResultsSummary from 'pages/common/ResultsSummary'
 
 class Selections extends React.Component {
@@ -23,8 +24,8 @@ class Selections extends React.Component {
     }
   }
   render () {
-    const { page_type, visibleItemsWithoutCategoryFilter, num_items, num_showing,
-            category_type, category_title, category_unique_field, setBefore } = this.props
+    const { subreddit, page_type, visibleItemsWithoutCategoryFilter, num_items, num_showing,
+            category_type, category_title, category_unique_field } = this.props
     return (
       <React.Fragment>
         <div className='toggleFilters'><a onClick={this.toggleDisplayFilters}
@@ -45,6 +46,9 @@ class Selections extends React.Component {
                       <CategoryFilter page_type={page_type}
                         visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
                         type={category_type} title={category_title} unique_field={category_unique_field}/>
+                      {subreddit !== 'all' &&
+                        <UpvoteRemovalRateHistory page_type={page_type}/>
+                      }
                     </React.Fragment>)
                 case 'subreddit_comments':
                   return (
@@ -56,6 +60,9 @@ class Selections extends React.Component {
                       <CategoryFilter page_type={page_type}
                         visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
                         type={category_type} title={category_title} unique_field={category_unique_field}/>
+                      {subreddit !== 'all' &&
+                        <UpvoteRemovalRateHistory page_type={page_type}/>
+                      }
                     </React.Fragment>)
                 case 'user':
                   return (
@@ -74,6 +81,9 @@ class Selections extends React.Component {
                       <LocalSort page_type={page_type} />
                       <RemovedFilter page_type={page_type} />
                       <RemovedByFilter page_type={page_type} />
+                      {subreddit !== 'all' &&
+                        <UpvoteRemovalRateHistory page_type={page_type}/>
+                      }
                     </React.Fragment>)
                 default: return ''
               }

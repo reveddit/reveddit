@@ -1,0 +1,40 @@
+import React from 'react'
+import { prettyScore, roundToX } from 'utils'
+import Time from 'pages/common/Time'
+
+class CommentPreview extends React.Component {
+  render() {
+    const props = this.props
+    const body = props.body ?
+      props.body.replace(/&amp;/g, '&').replace(/&gt;/g, '>').replace(/&lt;/g, '<')
+      : ''
+
+    return (
+      <div id={props.name} className='comment preview'>
+        <div className='rate'>{roundToX(props.rate*100,1)}%</div>
+        <div className='comment-head-and-body'>
+          <div className='comment-head'>
+            <a
+              href='#'
+              className='title'
+            >
+            {props.title}
+            </a>
+          </div>
+          <div className='comment-head subhead'>
+            <span className='comment-score'>{prettyScore(props.score)} point{(props.score !== 1) && 's'}</span>
+            <span className='space' />
+            <Time created_utc={props.last_created_utc}/>
+          </div>
+          <div className='comment-body-and-links'>
+            <div className='comment-body'>
+              {body}
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+}
+
+export default CommentPreview

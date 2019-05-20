@@ -82,6 +82,11 @@ export const prettyScore = score => {
   return score
 }
 
+export const kFormatter = num => {
+    return Math.abs(num) > 999 ? Math.sign(num)*((Math.abs(num)/1000).toFixed(1)) + 'k' : Math.sign(num)*Math.abs(num)
+}
+
+
 // Retrieve, store and delete stuff in the local storage
 export const get = (key, defaultValue) => {
   const value = window.localStorage.getItem(key)
@@ -133,6 +138,10 @@ export const getPrettyTimeLength = (seconds) => {
     if (time < divisor) {
       let extra = (time - Math.floor(time))
       let prevUnitTime = Math.round(extra*thresholds[i-1][0])
+      if (thresholds[i-1][0] === prevUnitTime) {
+        time += 1
+        prevUnitTime = 0
+      }
       if (Math.floor(time) > 1 || Math.floor(time) == 0) {
         text = textPlural
       }
@@ -151,4 +160,20 @@ export const getPrettyTimeLength = (seconds) => {
 export const getPrettyDate = (createdUTC) => {
   const seconds = Math.floor((new Date).getTime()/1000)-createdUTC
   return getPrettyTimeLength(seconds) + ' ago'
+}
+
+export const getQueryString = (queryParams) => {
+  let queryVals = []
+  for (var key in queryParams) {
+      queryVals.push(key+'='+queryParams[key])
+  }
+  return '?'+queryVals.join('&')
+}
+
+export const roundToX = (num, X) => {
+    return +(Math.round(num + "e+"+X)  + "e-"+X);
+}
+
+export const replaceAmpGTLT = (string) => {
+  return string.replace(/&amp;/g, '&').replace(/&gt;/g, '>').replace(/&lt;/g, '<')
 }
