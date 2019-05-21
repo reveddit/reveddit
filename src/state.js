@@ -168,7 +168,7 @@ class GlobalState extends Container {
   }
   updateURLandState = (queryParams, props) => {
     let to = `${props.location.pathname}?${queryParams.toString()}`
-    props.history.push(to)
+    props.history.replace(to)
     return this.setStateFromQueryParams(props.page_type, queryParams)
   }
   upvoteRemovalRateHistory_update = (before, before_id, n, content_type, queryParams, baseURL) => {

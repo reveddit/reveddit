@@ -188,7 +188,7 @@ class UpvoteRemovalRateHistory extends React.Component {
       queryParams.delete(paramKey)
     }
     let to = `${this.props.location.pathname}?${queryParams.toString()}`
-    this.props.history.push(to)
+    this.props.history.replace(to)
   }
   goToGraphURL = (last_created_utc, last_id, total_items) => {
     const subreddit = (this.props.match.params.subreddit || '').toLowerCase()
