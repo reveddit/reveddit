@@ -219,14 +219,19 @@ class UpvoteRemovalRateHistory extends React.Component {
     const {clicked} = this.state
     let {hovered} = this.state
     let preview = ''
+    let commentFunction = 'getcommentupvoteremovedratesbyrate'
+    let postFunction = 'getpostupvoteremovedratesbyrate'
+    if (this.state[sortByParamKey] === 'last_created_utc') {
+      commentFunction = 'getcommentupvoteremovedratesbydate'
+      postFunction = 'getpostupvoteremovedratesbydate'
+    }
 
     return (
       <Query
         query={gql`
           {
-            commentremovedratesview(where: {subreddit: {_eq: "${subreddit}"}},
-                                    limit: ${this.state[numGraphPointsParamKey]},
-                                    order_by: {${this.state[sortByParamKey]}: desc_nulls_last}) {
+            ${commentFunction}(args: {subreddit: "${subreddit}"},
+                               limit: ${this.state[numGraphPointsParamKey]}) {
               body
               created_utc
               id_of_max_pos_removed_item
@@ -238,9 +243,8 @@ class UpvoteRemovalRateHistory extends React.Component {
               title
               total_items
             }
-            postremovedratesview(where: {subreddit: {_eq: "${subreddit}"}},
-                                 limit: ${this.state[numGraphPointsParamKey]},
-                                 order_by: {${this.state[sortByParamKey]}: desc_nulls_last}) {
+            ${postFunction}(args: {subreddit: "${subreddit}"},
+                           limit: ${this.state[numGraphPointsParamKey]}) {
               created_utc
               id_of_max_pos_removed_item
               last_created_utc
@@ -261,9 +265,9 @@ class UpvoteRemovalRateHistory extends React.Component {
 
           let selected_data = []
           if (this.state[contentTypeParamKey] === 'comments') {
-            selected_data = data.commentremovedratesview
+            selected_data = data[commentFunction]
           } else {
-            selected_data = data.postremovedratesview
+            selected_data = data[postFunction]
           }
           selected_data = selected_data.sort((a,b) => a.last_created_utc - b.last_created_utc).map((y, x) => { return {x, y}; })
           const before_id = new URLSearchParams(window.location.search).get('before_id')
