@@ -33,7 +33,6 @@
     "graphql": "^14.2.1",
     "react": "^16.4.1",
     "react-apollo": "^2.5.4",
-    "react-charts": "^2.0.0-alpha.12",
     "react-dom": "^16.4.1",
     "react-router-dom": "^4.3.1",
     "snuownd": "git+https://github.com/JordanMilne/snuownd.git",
@@ -54,7 +53,6 @@
     "node-sass": "^4.9.2",
     "scroll-to-element": "^2.0.2",
     "standard": "^11.0.1",
-    "victory": "^32.2.0",
     "webpack": "^4.16.0",
     "webpack-cli": "^3.0.8",
     "webpack-dev-server": "^3.2.1"
