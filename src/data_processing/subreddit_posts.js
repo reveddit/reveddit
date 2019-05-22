@@ -49,7 +49,7 @@ export const getRevdditPosts = (subreddit, global) => {
             if (postIsDeleted(post)) {
               if (post.num_comments > 0) {
                 post.deleted = true
-                display_post(show_posts, post)
+                display_post(show_posts, post, ps_item)
               } else {
                 // not showing deleted posts with 0 comments
               }
@@ -64,7 +64,7 @@ export const getRevdditPosts = (subreddit, global) => {
               } else {
                 post.removedby = MOD_OR_AUTOMOD_REMOVED
               }
-              display_post(show_posts, post)
+              display_post(show_posts, post, ps_item)
             }
           } else {
             // not-removed posts
