@@ -1,6 +1,8 @@
 import {
   queryUserPage,
   getItems as getRedditItemsByID,
+  usernameAvailable,
+  userPageHTML
 } from 'api/reddit'
 import {
   getPost as getRemovedPost,
@@ -128,6 +130,28 @@ function getItems (user, kind, global, sort, before = '', after = '', limit, loa
   const gs = global.state
   return queryUserPage(user, kind, sort, before, after, limit)
   .then(userPageData => {
+    if ('error' in userPageData) {
+      if (userPageData.error == 404) {
+        return usernameAvailable(user)
+        .then(result => {
+          if (result === true) {
+            global.setError(Error(''), {userIssueDescription: 'does not exist'})
+          } else {
+            return userPageHTML(user)
+            .then(html_result => {
+              if (html_result.match(/has deleted their account/)) {
+                global.setError(Error(''), {userIssueDescription: 'deleted'})
+              } else {
+                global.setError(Error(''), {userIssueDescription: 'shadowbanned'})
+              }
+              return null
+            })
+          }
+        })
+      } else if ('message' in userPageData && userPageData.message.toLowerCase() == 'forbidden') {
+        global.setError(Error(''), {userIssueDescription: 'suspended'})
+      }
+    }
     const num_pages = gs.num_pages+1
     const userPage_item_lookup = {}
     const ids = []

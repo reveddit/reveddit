@@ -86,7 +86,7 @@ class GlobalState extends Container {
         items: [],
         threadPost: {},
         num_pages: 0,
-        userNext: {},
+        userNext: null,
         selection_defaults: {},
         removedFilter: removedFilter_types.all,
         removedByFilter: {},
@@ -98,7 +98,8 @@ class GlobalState extends Container {
         statusText: '',
         statusImage: undefined,
         loading: false,
-        error: false
+        error: false,
+        userIssueDescription: ''
       }
   }
 
@@ -235,8 +236,10 @@ class GlobalState extends Container {
       this.setState(other)
     }
   }
+  setError = (error, other = {}) => {
+    this.setState({statusText: error.message, statusImage: '/images/error.png', loading:false, error: true, ...other})
+  }
   setLoading = (text) => this.setState({statusText: text, statusImage: '/images/loading.gif', loading:true})
-  setError = (error) => this.setState({statusText: error.message, statusImage: '/images/error.png', loading:false, error: true})
   clearStatus = () => this.setState({statusText: '', statusImage: undefined, loading:false})
 }
 

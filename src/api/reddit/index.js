@@ -54,17 +54,52 @@ export const getItems = ids => {
 
 export const queryUserPage = (user, kind, sort, before, after, limit = 100) => {
   var url = new URL(`https://oauth.reddit.com/user/${user}/${kind}.json`)
-  var params = {sort: sort, after: after, before: before, limit: limit, raw_json:1}
+  var params = {sort: sort, limit: limit, raw_json:1}
+  if (after) {
+    params.after = after
+  }
+  if (before) {
+    params.before = before
+  }
   url.search = new URLSearchParams(params)
   return getAuth()
     .then(auth => window.fetch(url, auth))
     .then(response => response.json())
     .then(results => {
-      return {items: results.data.children.map(item => item.data),
-              after: results.data.after} })
+      if (!('data' in results)) {
+        let empty = {items: [], after: null}
+        if ('message' in results && 'error' in results) {
+          empty.message = results.message
+          empty.error = results.error
+        }
+        return empty
+      } else {
+        return {
+          items: results.data.children.map(item => item.data),
+          after: results.data.after
+        }
+      }
+    })
     .catch(errorHandler)
 }
 
+export const usernameAvailable = (user) => {
+  var url = new URL('https://oauth.reddit.com/api/username_available')
+  var params = {user: user, raw_json:1}
+  url.search = new URLSearchParams(params)
+  return getAuth()
+    .then(auth => window.fetch(url, auth))
+    .then(response => response.json())
+    .catch(errorHandler)
+}
+
+export const userPageHTML = (user) => {
+  var url = new URL(`https://api.revddit.com:9090/https://www.reddit.com/user/${user}`)
+  return getAuth()
+    .then(auth => window.fetch(url))
+    .then(response => response.text())
+    .catch(errorHandler)
+}
 
 export const queryByID = (ids, auth) => {
   var url = new URL('https://oauth.reddit.com/api/info')

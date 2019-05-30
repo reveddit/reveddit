@@ -20,6 +20,7 @@ class User extends React.Component {
     let loadAllLink = ''
     let nextLink = ''
     let lastTimeLoaded = ''
+    let error = ''
     let totalPages = 10
     if (! gs.userNext) {
       totalPages = gs.num_pages
@@ -41,6 +42,8 @@ class User extends React.Component {
          kind={kind}
          show={qp.show}
          loadAll={false}/></div>
+    } else if (gs.userIssueDescription) {
+      error = <div className='non-item text'>{user} {gs.userIssueDescription}</div>
     }
     if (gs.items.length) {
       lastTimeLoaded = <React.Fragment>
@@ -65,6 +68,7 @@ class User extends React.Component {
         }
         {lastTimeLoaded}
         {nextLink}
+        {error}
       </div>
     )
   }
