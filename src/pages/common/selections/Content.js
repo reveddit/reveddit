@@ -3,17 +3,20 @@ import { connect } from 'state'
 
 class Content extends React.Component {
 
-  getLink(path_suffix, text) {
+  getLink(expected_suffix, content_type_description) {
     const url = new URL(window.location.href)
     const path_parts = url.pathname.split('/')
-    const kind = path_parts.splice(3,1)[0] || ''
-
-    const link_path_parts = path_parts.splice(0,3)
-    link_path_parts.push(path_suffix)
+    const suffix = path_parts.slice(3,4)[0] || ''
+    const link_path_parts = path_parts.slice(0,3)
+    link_path_parts.push(expected_suffix)
     const path = link_path_parts.join('/')
     return (<div>
-              <a className={kind === path_suffix ? 'selected': ''}
-                 href={path}>{text}</a>
+              <a className=
+                {suffix === expected_suffix ||
+                  (this.props.page_type === 'subreddit_posts' &&
+                   expected_suffix !== 'comments') ?
+                 'selected': ''}
+                 href={path}>{content_type_description}</a>
             </div>)
   }
 

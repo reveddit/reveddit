@@ -139,7 +139,10 @@ function getItems (user, kind, global, sort, before = '', after = '', limit, loa
           } else {
             return userPageHTML(user)
             .then(html_result => {
-              if (html_result.match(/has deleted their account/)) {
+              if ('error' in html_result) {
+                console.error(html_result.error)
+                global.setError(Error(''), {userIssueDescription: 'deleted or shadowbanned'})
+              } else if (html_result.html.match(/has deleted their account/)) {
                 global.setError(Error(''), {userIssueDescription: 'deleted'})
               } else {
                 global.setError(Error(''), {userIssueDescription: 'shadowbanned'})

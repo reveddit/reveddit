@@ -35,7 +35,7 @@ export const combinePushshiftAndRedditComments = pushshiftComments => {
       const redditComment = redditCommentLookup[ps_comment.id]
       if (redditComment !== undefined) {
         ps_comment.permalink = redditComment.permalink
-        ps_comment.link_permalink = redditComment.permalink.split('/').splice(0,6).join('/')+'/'
+        ps_comment.link_permalink = redditComment.permalink.split('/').slice(0,6).join('/')+'/'
         ps_comment.link_title = redditComment.permalink.split('/')[5].replace(/_/g, ' ')
         ps_comment.score = redditComment.score
         ps_comment.controversiality = redditComment.controversiality

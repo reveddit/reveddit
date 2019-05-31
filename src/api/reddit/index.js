@@ -1,4 +1,4 @@
-import { chunk, flatten } from 'utils'
+import { chunk, flatten, fetchWithTimeout } from 'utils'
 import { getAuth } from './auth'
 
 const errorHandler = (e) => {
@@ -94,11 +94,15 @@ export const usernameAvailable = (user) => {
 }
 
 export const userPageHTML = (user) => {
-  var url = new URL(`https://api.revddit.com:9090/https://www.reddit.com/user/${user}`)
-  return getAuth()
-    .then(auth => window.fetch(url))
+  var url = new URL(`https://api.revddit.com/q/old.reddit.com/user/${user}`)
+  return fetchWithTimeout(url, {}, 3000)
     .then(response => response.text())
-    .catch(errorHandler)
+    .then(html => {
+      return {html: html}
+    })
+    .catch(error => {
+      return {error: error.message}
+    })
 }
 
 export const queryByID = (ids, auth) => {

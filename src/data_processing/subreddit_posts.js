@@ -8,9 +8,12 @@ import { getRemovedPostIDs } from 'api/removeddit'
 import { getPosts, getItems } from 'api/reddit'
 import { itemIsRemovedOrDeleted, postIsDeleted, display_post } from 'utils'
 
-export const getRevdditPosts = (subreddit, global) => {
+export const getRevdditPosts = (subreddit, global, history) => {
   const gs = global.state
-
+  // /r/sub/new , /r/sub/controversial etc. are not implemented, so redirect
+  if (window.location.pathname.match(/^\/r\/([^/]*)\/.+/g)) {
+    history.replace(`/r/${subreddit}/`+window.location.search)
+  }
   global.setLoading('Loading removed posts...')
   if (subreddit === 'all') {
     return getRemovedPostIDs(subreddit)
