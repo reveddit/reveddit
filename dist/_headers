@@ -1,0 +1,3 @@
+/*
+  Access-Control-Allow-Origin: https://api.revddit.com:9090
+  Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept
