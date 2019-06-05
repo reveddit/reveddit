@@ -22,7 +22,7 @@ class Header extends React.Component {
   render() {
     const props = this.props
     const { page_type } = props
-    let { user, subreddit = '', userSubreddit = ''} = props.match.params
+    let { user, subreddit = '', userSubreddit = '', domain = ''} = props.match.params
     if (userSubreddit) {
       subreddit = 'u_'+userSubreddit
     }
@@ -33,6 +33,13 @@ class Header extends React.Component {
       link = `/r/${subreddit}/comments`
     } else if (user) {
       link = `/user/${user}`
+    } else if (domain) {
+      link = `/domain/${domain}`
+    }
+    let display = link
+    const maxLen = 30
+    if ((domain || subreddit) && link.length > maxLen) {
+      display = link.substring(0,maxLen)+'...'
     }
     return (
       <React.Fragment>
@@ -59,7 +66,7 @@ class Header extends React.Component {
                 </form>
               </div>
             </div>
-            <a className='subheading' href={link}>{link}</a>
+            <a className='subheading' href={link}>{display}</a>
           </div>
           <div id='status'>
             {props.global.state.statusText &&

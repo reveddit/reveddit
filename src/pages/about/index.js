@@ -25,6 +25,7 @@ const About = props => {
                 <li>comments: <a href='/r/cant_say_goodbye/comments'>https://www.re<span className='v'>v</span>ddit.com/r/cant_say_goodbye/comments</a></li>
               </ul>
             </li>
+            <li>domain(s): <a href='/domain/reuters.com,economist.com'>https://www.re<span className='v'>v</span>ddit.com/domain/reuters.com,economist.com</a></li>
             <li>one post's comments: <a href='/r/cant_say_goodbye/comments/9ffoqz/comments_mentioning_goodbye_are_removed/'>https://www.re<span className='v'>v</span>ddit.com/r/cant_say_goodbye/comments/9ffoqz/...</a></li>
             <li>multiple subreddits:
               <ul>
