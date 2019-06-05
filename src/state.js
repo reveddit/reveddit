@@ -50,7 +50,7 @@ export const filter_pageType_defaults = {
     thread: localSort_types.score,
     subreddit_posts: localSort_types.date,
     subreddit_comments: localSort_types.date,
-    domain_posts: removedFilter_types.removed
+    domain_posts: localSort_types.date
   },
   localSortReverse: false,
   categoryFilter_subreddit: 'all',
