@@ -108,6 +108,43 @@ export const getRecentPostsBySubreddit = (subreddits_str, n = 1000, before = '',
     .catch(() => { throw new Error('Unable to access Pushshift, cannot load recent posts') })
 }
 
+export const getRecentPostsByDomain = (domains_str, n = 1000, before = '', before_id = '') => {
+  const domains = domains_str.toLowerCase().split(',')
+  const elasticQuery = {
+    size:n,
+    query: {
+      bool: {
+        filter: [{
+          terms: {
+            domain: domains
+          }
+        }]
+      }
+    },
+    sort: {
+      ['created_utc']: 'desc'
+    },
+    _source: ['retrieved_on','created_utc', 'is_crosspostable', 'thumbnail']
+  }
+  if (before_id) {
+    const id_base10 = toBase10(before_id)
+    elasticQuery.query.bool.filter.push({'range' : { 'id': { 'lte': id_base10}}})
+  } else if (before) {
+    elasticQuery.query.bool.filter.push({'range': {'created_utc': {'lte': before}}})
+  }
+  return window.fetch(postURL + JSON.stringify(elasticQuery))
+    .then(response => response.json())
+    .then(data => {
+      return data.hits.hits.map( post => {
+        const id = toBase36(post._id)
+        post._source.id = id
+        post._source.name = 't3_'+id
+        return post._source
+      })
+    })
+    .catch(() => { throw new Error('Unable to access Pushshift, cannot load recent posts') })
+}
+
 // As of 2019/05/13, querying ES for comments does not return all original body data
 // See: https://www.reddit.com/r/pushshift/comments/blij8z/searching_by_comment_id_returns_old_metadata/emoxm0j/
 // Seems to apply to data in 2017 until ~ October 9

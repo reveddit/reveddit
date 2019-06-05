@@ -1,7 +1,8 @@
 import React from 'react'
 import scrollToElement from 'scroll-to-element'
 import { getRevdditComments } from 'data_processing/subreddit_comments'
-import { getRevdditPosts } from 'data_processing/subreddit_posts'
+import { getRevdditPostsBySubreddit } from 'data_processing/subreddit_posts'
+import { getRevdditPostsByDomain } from 'data_processing/posts'
 import { getRevdditUserItems, getQueryParams } from 'data_processing/user'
 import { getRevdditThreadItems } from 'data_processing/thread'
 import { itemIsOneOfSelectedRemovedBy } from 'data_processing/filters'
@@ -27,6 +28,9 @@ const getCategorySettings = (page_type, subreddit) => {
                 category_title: 'Subreddit',
                 category_unique_field: 'subreddit'}
     },
+    'domain_posts': {category: 'subreddit',
+                     category_title: 'Subreddit',
+                     category_unique_field: 'subreddit'},
     'user': {category: 'subreddit',
              category_title: 'Subreddit',
              category_unique_field: 'subreddit'}
@@ -53,6 +57,10 @@ const getPageTitle = (page_type, string) => {
       return `/r/${string}/comments`
       break
     }
+    case 'domain_posts': {
+      return `/domain/${string}`
+      break
+    }
     case 'user': {
       return `/u/${string}`
       break
@@ -61,14 +69,18 @@ const getPageTitle = (page_type, string) => {
   return null
 
 }
-const getLoadDataFunctionAndParam = (page_type, subreddit, user, kind, threadID, queryParams) => {
+const getLoadDataFunctionAndParam = (page_type, subreddit, user, kind, threadID, domain, queryParams) => {
   switch(page_type) {
     case 'subreddit_posts': {
-      return [getRevdditPosts, [subreddit]]
+      return [getRevdditPostsBySubreddit, [subreddit]]
       break
     }
     case 'subreddit_comments': {
       return [getRevdditComments, [subreddit]]
+      break
+    }
+    case 'domain_posts': {
+      return [getRevdditPostsByDomain, [domain]]
       break
     }
     case 'thread': {
@@ -99,6 +111,7 @@ export const withFetch = (WrappedComponent) =>
     }
     componentDidMount() {
       let subreddit = (this.props.match.params.subreddit || '').toLowerCase()
+      const domain = (this.props.match.params.domain || '').toLowerCase()
       const user = (this.props.match.params.user || '' ).toLowerCase()
       const { threadID, kind = '' } = this.props.match.params
       const { userSubreddit } = (this.props.match.params.userSubreddit || '').toLowerCase()
@@ -125,7 +138,7 @@ export const withFetch = (WrappedComponent) =>
                       new URLSearchParams(this.props.location.search))
       .then(result => {
 
-        const [loadDataFunction, params] = getLoadDataFunctionAndParam(page_type, subreddit, user, kind, threadID, queryParams)
+        const [loadDataFunction, params] = getLoadDataFunctionAndParam(page_type, subreddit, user, kind, threadID, domain, queryParams)
         loadDataFunction(...params, this.props.global, this.props.history)
         .then(items => {
           this.jumpToHash()
@@ -179,6 +192,7 @@ export const withFetch = (WrappedComponent) =>
 
     render () {
       const subreddit = (this.props.match.params.subreddit || '').toLowerCase()
+      const domain = (this.props.match.params.domain || '').toLowerCase()
       const { page_type } = this.props
       const items = this.props.global.state.items
 

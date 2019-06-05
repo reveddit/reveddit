@@ -8,7 +8,9 @@ module.exports = (env, argv) => ({
   ],
   devServer: {
     contentBase: path.resolve(__dirname, 'dist'),
-    historyApiFallback: true
+    historyApiFallback: {
+      disableDotRule: true
+    }
   },
   devtool: argv.mode !== 'production' ? 'cheap-module-eval-source-map' : false,
   module: {

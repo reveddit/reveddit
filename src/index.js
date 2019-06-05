@@ -47,6 +47,8 @@ class App extends React.Component {
               <DefaultLayout path='/r/:subreddit/comments/:threadID' page_type='thread' component={Thread} />
               <DefaultLayout path='/r/:subreddit/comments/' page_type='subreddit_comments' component={SubredditComments} />
               <DefaultLayout path='/r/:subreddit' page_type='subreddit_posts' component={SubredditPosts} />
+              <DefaultLayout path='/domain/all' component={NotFound} />
+              <DefaultLayout path='/domain/:domain' page_type='domain_posts' component={SubredditPosts} />
               <DefaultLayout path='/user/:userSubreddit/comments/:threadID/:urlTitle/:commentID' page_type='thread' component={Thread} />
               <DefaultLayout path='/user/:userSubreddit/comments/:threadID/:urlTitle' page_type='thread' component={Thread} />
               <DefaultLayout path='/user/:userSubreddit/comments/:threadID' page_type='thread' component={Thread} />

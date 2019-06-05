@@ -41,14 +41,16 @@ export const filter_pageType_defaults = {
     user: removedFilter_types.removed,
     thread: removedFilter_types.all,
     subreddit_posts: removedFilter_types.removed,
-    subreddit_comments: removedFilter_types.removed
+    subreddit_comments: removedFilter_types.removed,
+    domain_posts: removedFilter_types.removed
   },
   removedByFilter: '', // this is different than the state initialization value
   localSort: {
     user: localSort_types.date,
     thread: localSort_types.score,
     subreddit_posts: localSort_types.date,
-    subreddit_comments: localSort_types.date
+    subreddit_comments: localSort_types.date,
+    domain_posts: removedFilter_types.removed
   },
   localSortReverse: false,
   categoryFilter_subreddit: 'all',

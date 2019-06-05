@@ -37,16 +37,19 @@ class Selections extends React.Component {
             {(() => {
               switch(page_type) {
                 case 'subreddit_posts':
+                case 'domain_posts':
                   return (
                     <React.Fragment>
-                      <Content page_type={page_type}/>
+                      {page_type !== 'domain_posts' &&
+                        <Content page_type={page_type}/>
+                      }
                       <LocalSort page_type={page_type}/>
                       <RemovedFilter page_type={page_type} />
                       <RemovedByFilter page_type={page_type} />
                       <CategoryFilter page_type={page_type}
                         visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
                         type={category_type} title={category_title} unique_field={category_unique_field}/>
-                      {subreddit !== 'all' &&
+                      {subreddit !== 'all' && page_type !== 'domain_posts' &&
                         <UpvoteRemovalRateHistory page_type={page_type}/>
                       }
                     </React.Fragment>)
