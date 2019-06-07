@@ -7,7 +7,7 @@ export class BlankUser extends React.Component {
     const data = new FormData(e.target)
     const val = data.get('username').trim().toLowerCase()
     if (val !== '') {
-      window.location.href = `/user/${val}`
+      window.location.href = `/user/${val}?all=true`
     }
   }
 
@@ -18,7 +18,7 @@ export class BlankUser extends React.Component {
           Enter a reddit username to view removed content:
         </div>
         <form onSubmit={this.handleSubmitUser}>
-          <input type='text' name='username' placeholder='username'/>
+          <input type='text' name='username' placeholder='username' autoFocus='autoFocus'/>
           <input type='submit' id='button_u' value='go' />
         </form>
       </div>
@@ -32,7 +32,7 @@ export class BlankSubreddit extends React.Component {
     const data = new FormData(e.target)
     const val = data.get('subreddit').trim().toLowerCase()
     if (val !== '') {
-      window.location.href = `/r/${val}`
+      window.location.href = `/r/${val}?localSort=num_comments`
     }
   }
   render() {
@@ -42,7 +42,7 @@ export class BlankSubreddit extends React.Component {
           Enter a subreddit to view removed content:
         </div>
         <form onSubmit={this.handleSubmitSub}>
-          <input type='text' name='subreddit' placeholder='subreddit'/>
+          <input type='text' name='subreddit' placeholder='subreddit' autoFocus='autoFocus'/>
           <input type='submit' id='button_s' value='go' />
         </form>
       </div>
