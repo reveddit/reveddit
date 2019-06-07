@@ -6,6 +6,7 @@ import CategoryFilter from 'pages/common/selections/CategoryFilter'
 import LocalSort from 'pages/common/selections/LocalSort'
 import RedditSort from 'pages/common/selections/RedditSort'
 import Content from 'pages/common/selections/Content'
+import TextFilter from 'pages/common/selections/TextFilter'
 import UpvoteRemovalRateHistory from 'pages/common/selections/UpvoteRemovalRateHistory'
 import ResultsSummary from 'pages/common/ResultsSummary'
 
@@ -52,6 +53,7 @@ class Selections extends React.Component {
                       {subreddit !== 'all' && page_type !== 'domain_posts' &&
                         <UpvoteRemovalRateHistory page_type={page_type}/>
                       }
+                      <TextFilter page_type={page_type} />
                     </React.Fragment>)
                 case 'subreddit_comments':
                   return (
@@ -66,6 +68,7 @@ class Selections extends React.Component {
                       {subreddit !== 'all' &&
                         <UpvoteRemovalRateHistory page_type={page_type}/>
                       }
+                      <TextFilter page_type={page_type} />
                     </React.Fragment>)
                 case 'user':
                   return (
@@ -77,6 +80,7 @@ class Selections extends React.Component {
                       <CategoryFilter page_type={page_type}
                         visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
                         type={category_type} title={category_title} unique_field={category_unique_field}/>
+                      <TextFilter page_type={page_type} />
                     </React.Fragment>)
                 case 'thread':
                   return (

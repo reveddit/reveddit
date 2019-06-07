@@ -184,7 +184,30 @@ export const withFetch = (WrappedComponent) =>
           ) &&
           (removedByFilterIsUnset || itemIsOneOfSelectedRemovedBy(item, gs))
         ) {
-          visibleItems.push(item)
+          const keywords = gs.keywords.replace(/\s\s+/g, ' ').trim().toLocaleLowerCase().split(' ')
+          let match = true
+          let titleField = ''
+          if ('title' in item) {
+            titleField = 'title'
+          } else if ('link_title' in item) {
+            titleField = 'link_title'
+          }
+          for (let i = 0; i < keywords.length; i++) {
+            const word = keywords[i]
+            let word_in_title = true
+            if (titleField) {
+              word_in_title = item[titleField].toLocaleLowerCase().includes(word)
+            }
+            if (! (('body' in item && ( word_in_title || item.body.toLocaleLowerCase().includes(word))) ||
+                  (word_in_title)
+            )) {
+              match = false
+              break
+            }
+          }
+          if (match) {
+            visibleItems.push(item)
+          }
         }
       })
       return visibleItems

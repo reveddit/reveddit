@@ -14,13 +14,14 @@ export const urlParamKeys = {
   categoryFilter_link_title: 'link_title',
   n: 'n',
   before: 'before',
-  before_id: 'before_id'
+  before_id: 'before_id',
+  keywords: 'keywords'
 }
 
 export const removedFilter_types = {
   all: 'all',
   removed: 'removed',
-  not_removed: 'not_removed',
+  not_removed: 'not_removed'
 }
 export const removedFilter_text = {
   all: 'all',
@@ -58,7 +59,8 @@ export const filter_pageType_defaults = {
   categoryFilter_link_title: 'all',
   n: 1000,
   before: '',
-  before_id: ''
+  before_id: '',
+  keywords: '',
 }
 
 const maxN = 60000
@@ -85,6 +87,7 @@ class GlobalState extends Container {
         n: 1000,
         before: '',
         before_id: '',
+        keywords: '',
         items: [],
         threadPost: {},
         num_pages: 0,
