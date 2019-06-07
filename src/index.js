@@ -12,6 +12,7 @@ import SubredditPosts from 'pages/subreddit'
 import SubredditComments from 'pages/subreddit/comments'
 import Thread from 'pages/thread'
 import User from 'pages/user'
+import { BlankUser, BlankSubreddit } from 'pages/blank'
 import NotFound from 'pages/404'
 
 const apolloClient = new ApolloClient({
@@ -47,6 +48,7 @@ class App extends React.Component {
               <DefaultLayout path='/r/:subreddit/comments/:threadID' page_type='thread' component={Thread} />
               <DefaultLayout path='/r/:subreddit/comments/' page_type='subreddit_comments' component={SubredditComments} />
               <DefaultLayout path='/r/:subreddit' page_type='subreddit_posts' component={SubredditPosts} />
+              <DefaultLayout path='/r/' page_type='blank_subreddit' component={BlankSubreddit} />
               <DefaultLayout path='/domain/all' component={NotFound} />
               <DefaultLayout path='/domain/:domain' page_type='domain_posts' component={SubredditPosts} />
               <DefaultLayout path='/user/:userSubreddit/comments/:threadID/:urlTitle/:commentID' page_type='thread' component={Thread} />
@@ -54,6 +56,7 @@ class App extends React.Component {
               <DefaultLayout path='/user/:userSubreddit/comments/:threadID' page_type='thread' component={Thread} />
               <DefaultLayout path='/user/:user/:kind' page_type='user' component={User} />
               <DefaultLayout path='/user/:user' page_type='user' component={User} />
+              <DefaultLayout path='/user/' page_type='blank_user' component={BlankUser} />
               <DefaultLayout path='/:threadID' page_type='thread' component={Thread} />
               <DefaultLayout component={NotFound} />
             </Switch>
