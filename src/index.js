@@ -42,6 +42,9 @@ class App extends React.Component {
             <Switch>
               <Redirect exact from='/' to='/about' />
               <Redirect from='/u/*' to='/user/*' />
+              <Redirect from='/u/' to='/user/' />
+              <Redirect from='/usr/*' to='/user/*' />
+              <Redirect from='/usr/' to='/user/*' />
               <DefaultLayout path='/about' component={About} />
               <DefaultLayout path='/r/:subreddit/comments/:threadID/:urlTitle/:commentID' page_type='thread' component={Thread} />
               <DefaultLayout path='/r/:subreddit/comments/:threadID/:urlTitle' page_type='thread' component={Thread} />
