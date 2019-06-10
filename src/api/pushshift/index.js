@@ -94,6 +94,8 @@ export const getRecentPostsBySubreddit = (subreddits_str, n = 1000, before = '',
     elasticQuery.query.bool.filter.push({'range' : { 'id': { 'lte': id_base10}}})
   } else if (before) {
     elasticQuery.query.bool.filter.push({'range': {'created_utc': {'lte': before}}})
+  } else {
+    elasticQuery.query.bool.filter.push({'range': {'created_utc': {'gte': 'now-30d/d'}}})
   }
   return window.fetch(postURL + JSON.stringify(elasticQuery))
     .then(response => response.json())
@@ -131,6 +133,8 @@ export const getRecentPostsByDomain = (domains_str, n = 1000, before = '', befor
     elasticQuery.query.bool.filter.push({'range' : { 'id': { 'lte': id_base10}}})
   } else if (before) {
     elasticQuery.query.bool.filter.push({'range': {'created_utc': {'lte': before}}})
+  } else {
+    elasticQuery.query.bool.filter.push({'range': {'created_utc': {'gte': 'now-30d/d'}}})
   }
   return window.fetch(postURL + JSON.stringify(elasticQuery))
     .then(response => response.json())
@@ -171,6 +175,8 @@ export const getRecentCommentsBySubreddit = (subreddits_str, n = 1000, before = 
     elasticQuery.query.bool.filter.push({'range' : { 'id': { 'lte': id_base10}}})
   } else if (before) {
     elasticQuery.query.bool.filter.push({'range': {'created_utc': {'lte': before}}})
+  } else {
+    elasticQuery.query.bool.filter.push({'range': {'created_utc': {'gte': 'now-30d/d'}}})
   }
   if (subreddits_str === 'all') {
     delete(elasticQuery.query.bool.filter[0])
