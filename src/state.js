@@ -36,6 +36,7 @@ export const localSort_types = {
   controversiality: 'controversiality',
   controversiality1: 'controversiality1',
   controversiality2: 'controversiality2',
+  comment_length: 'comment_length'
 }
 // These defaults are for the URL
 export const filter_pageType_defaults = {

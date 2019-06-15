@@ -23,6 +23,7 @@ class Comment extends React.Component {
 
   render() {
     let props = this.props
+    const showContext = this.props.global.state.showContext
 
     let even_odd = ''
     if (!props.removed && !props.deleted) {
@@ -90,12 +91,14 @@ class Comment extends React.Component {
                 </div>
               <div>
                 {
-                  'replies' in props &&
+                  showContext && 'replies' in props &&
                     props.replies.map(comment => (
                       <Comment
                         key={comment.id}
                         {...comment}
                         depth={props.depth + 1}
+                        global={props.global}
+                        link_author={props.link_author}
                       />
                     ))
                 }
