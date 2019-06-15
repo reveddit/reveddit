@@ -209,9 +209,6 @@ class GlobalState extends Container {
     const value = Object.keys(removedby_settings).join()
     return this.selection_update_qparams('removedByFilter', value, props, queryParams)
   }
-  setLocalSortReverse(value) {
-    this.setState({localSortReverse: value})
-  }
 
   removedByFilterIsUnset () {
     return Object.keys(this.state.removedByFilter).length === 0
