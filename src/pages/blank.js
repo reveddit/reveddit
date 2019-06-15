@@ -12,10 +12,12 @@ export class BlankUser extends React.Component {
   }
 
   render () {
+    const text = this.props.text || "Enter a reddit username to view removed content:"
+
     return (
       <div className='blank_page'>
         <div className='non-item text'>
-          Enter a reddit username to view removed content:
+          {text}
         </div>
         <form onSubmit={this.handleSubmitUser}>
           <input type='text' name='username' placeholder='username' autoFocus='autoFocus'/>

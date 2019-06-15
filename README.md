@@ -40,4 +40,4 @@ yarn run build-sass
 
 # Extra
 
-[ragger](https://github.com/rhaksw/ragger) generates the data used in the upvote removal graph on subreddit pages.
+[ragger](https://github.com/revddit/ragger) generates the data used in the upvote removal graph on subreddit pages.
