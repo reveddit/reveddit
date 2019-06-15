@@ -9,6 +9,7 @@ export const urlParamKeys = {
   removedByFilter: 'removedby',
   localSort: 'localSort',
   localSortReverse: 'localSortReverse',
+  showContext: 'context',
   categoryFilter_subreddit: 'subreddit',
   categoryFilter_domain: 'domain',
   categoryFilter_link_title: 'link_title',
@@ -54,6 +55,7 @@ export const filter_pageType_defaults = {
     domain_posts: localSort_types.date
   },
   localSortReverse: false,
+  showContext: true,
   categoryFilter_subreddit: 'all',
   categoryFilter_domain: 'all',
   categoryFilter_link_title: 'all',
@@ -100,6 +102,7 @@ class GlobalState extends Container {
         categoryFilter_link_title: 'all',
         localSort: localSort_types.date,
         localSortReverse: false,
+        showContext: true,
         statusText: '',
         statusImage: undefined,
         loading: false,
@@ -153,6 +156,9 @@ class GlobalState extends Container {
           break
         }
         default: {
+          if (value === 'false') {
+            value = false
+          }
           stateVar[param] = value
         }
       }
