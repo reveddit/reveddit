@@ -25,6 +25,7 @@ class LocalSort extends React.Component {
 
   render() {
     const localSortReverse = this.props.global.state.localSortReverse
+    const showContext = this.props.global.state.showContext
     const updateStateAndURL = this.props.global.selection_update
 
     return (
@@ -50,6 +51,15 @@ class LocalSort extends React.Component {
             />
             <span>reverse</span>
           </label>
+          { ['thread'].includes(this.props.page_type) &&
+            <label id='context'>
+              <input type='checkbox'
+                checked={showContext}
+                onChange={(e) => updateStateAndURL('showContext', e.target.checked, this.props)}
+              />
+              <span>context</span>
+            </label>
+          }
         </div>
     )
   }
