@@ -15,7 +15,7 @@ The frontend is written in [React](https://reactjs.org/), leveraging the [remove
 Download either [yarn](https://yarnpkg.com/en/docs/install) or [npm](https://www.npmjs.com/get-npm)
 
 ```bash
-git clone git@github.com:rhaksw/revddit.git && cd revddit
+git clone git@github.com:revddit/revddit.git && cd revddit
 
 # npm...
 npm install
