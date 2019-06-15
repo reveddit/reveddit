@@ -18,6 +18,9 @@ const byNumComments = (a, b) => {
   return (b.stickied - a.stickied) || (b.replies.length - a.replies.length)
       || (b.created_utc - a.created_utc)
 }
+const byCommentLength = (a, b) => {
+  return (b.body.length - a.body.length) || (b.score - a.score) || (b.created_utc - a.created_utc)
+}
 const noNeg = (n) => {
   return n < 0 ? 0 : n
 }
@@ -37,6 +40,10 @@ const byControversiality2 = (a, b) => {
 const showNotRemoved = comment => comment.removedby === NOT_REMOVED && ! comment.deleted
 
 class CommentSection extends React.Component {
+  state = {
+    commentTree: []
+  }
+
   arrayToLookup (commentList) {
     const lookup = {}
     commentList.forEach(comment => {
@@ -46,13 +53,13 @@ class CommentSection extends React.Component {
     return lookup
   }
 
-  unflatten (comments, root, link_author) {
-    const lookup = this.arrayToLookup(comments)
+  unflatten () {
+    const { root } = this.props
+    const lookup = this.arrayToLookup(this.props.global.state.items)
     const commentTree = []
     Object.keys(lookup).forEach(commentID => {
       const comment = lookup[commentID]
 
-      comment.link_author = link_author
       const parentID = comment.parent_id
       if (parentID === root) {
         commentTree.push(comment)
@@ -119,18 +126,33 @@ class CommentSection extends React.Component {
   render() {
     const props = this.props
     const comments = this.props.global.state.items
-    const commentTree = this.unflatten(comments, props.root, props.link_author)
+    const showContext = this.props.global.state.showContext
     const {removedFilter, removedByFilter, localSort, localSortReverse} = props.global.state
     const removedByFilterIsUnset = this.props.global.removedByFilterIsUnset()
 
-    if (removedFilter === removedFilter_types.removed) {
-      this.filterCommentTree(commentTree, showRemovedAndDeleted)
-    } else if (removedFilter === removedFilter_types.not_removed) {
-      this.filterCommentTree(commentTree, showNotRemoved)
+    let commentTree = []
+    if (showContext) {
+      //issue: clicking any filter is inefficient b/c it rebuilds the whole tree each time
+      // fix: 1. move unflatten() to componentDidMount() and save result to local state
+      //      2. rewrite filterCommentTree to return copies of objects rather than splicing
+      // why: unflatten() is called every time a filter is changed b/c
+      //      filterCommentTree() below will splice the comment.replies lists, and after splicing,
+      //      they don't "come back", e.g. clicking "show removed" then "show all" would lose comments
+      //      if only fix #1 is applied
+      commentTree = this.unflatten()
+      if (removedFilter === removedFilter_types.removed) {
+        this.filterCommentTree(commentTree, showRemovedAndDeleted)
+      } else if (removedFilter === removedFilter_types.not_removed) {
+        this.filterCommentTree(commentTree, showNotRemoved)
+      }
+      if (! removedByFilterIsUnset) {
+        this.filterCommentTree(commentTree, this.itemIsOneOfSelectedRemovedBy_local)
+      }
+    } else {
+      commentTree = this.props.visibleItemsWithoutCategoryFilter
     }
-    if (! removedByFilterIsUnset) {
-      this.filterCommentTree(commentTree, this.itemIsOneOfSelectedRemovedBy_local)
-    }
+
+
 
     if (localSort === localSort_types.date) {
       this.sortCommentTree( commentTree, byDate )
@@ -142,6 +164,8 @@ class CommentSection extends React.Component {
       this.sortCommentTree( commentTree, byControversiality1 )
     } else if (localSort === localSort_types.controversiality2) {
       this.sortCommentTree( commentTree, byControversiality2 )
+    } else if (localSort === localSort_types.comment_length) {
+      this.sortCommentTree( commentTree, byCommentLength )
     }
 
 
@@ -152,6 +176,7 @@ class CommentSection extends React.Component {
             key={comment.id}
             {...comment}
             depth={0}
+            link_author={props.link_author}
           />
         })
         : <p>No {removedFilter_text[removedFilter].replace('all','')} comments found</p>

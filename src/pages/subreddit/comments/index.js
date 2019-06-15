@@ -15,7 +15,9 @@ const byScore = (a, b) => {
 const byDate = (a, b) => {
   return (b.created_utc - a.created_utc)
 }
-
+const byCommentLength = (a, b) => {
+  return (b.body.length - a.body.length) || (b.score - a.score) || (b.created_utc - a.created_utc)
+}
 const byControversiality1 = (a, b) => {
   let a_score_noneg = a.score < 0 ? 0 : a.score
   let b_score_noneg = b.score < 0 ? 0 : b.score
@@ -44,7 +46,9 @@ class SubredditComments extends React.Component {
     } else if (localSort === localSort_types.controversiality1) {
       items_sorted.sort( byControversiality1 )
     } else if (localSort === localSort_types.controversiality2) {
-      items_sorted.sort( byControversiality2 )
+      items_sorted.sort( byCommentLength )
+    } else if (localSort === localSort_types.comment_length) {
+      items_sorted.sort( byCommentLength )
     }
     if (localSortReverse) {
       items_sorted.reverse()

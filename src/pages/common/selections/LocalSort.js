@@ -41,6 +41,8 @@ class LocalSort extends React.Component {
           }
           {['thread', 'subreddit_posts', 'domain_posts'].includes(this.props.page_type) &&
             this.makeLabel('num_comments', 'number of comments')}
+          {['thread', 'subreddit_comments'].includes(this.props.page_type) &&
+            this.makeLabel('comment_length', 'comment length')}
 
           {this.makeLabel('score', 'score')}
           {this.makeLabel('date', 'date')}

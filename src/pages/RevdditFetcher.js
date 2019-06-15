@@ -217,11 +217,15 @@ export const withFetch = (WrappedComponent) =>
       const subreddit = (this.props.match.params.subreddit || '').toLowerCase()
       const domain = (this.props.match.params.domain || '').toLowerCase()
       const { page_type } = this.props
-      const items = this.props.global.state.items
+      const { items, showContext } = this.props.global.state
 
-      const visibleItemsWithoutCategoryFilter = this.getVisibleItemsWithoutCategoryFilter()
-      const viewableItems = this.getViewableItems(visibleItemsWithoutCategoryFilter)
+      let visibleItemsWithoutCategoryFilter = []
+      let viewableItems = []
+      visibleItemsWithoutCategoryFilter = this.getVisibleItemsWithoutCategoryFilter()
+      viewableItems = this.getViewableItems(visibleItemsWithoutCategoryFilter)
+
       const {category, category_title, category_unique_field} = getCategorySettings(page_type, subreddit)
+
       const selections =
       <Selections subreddit={subreddit}
                   page_type={page_type}
@@ -234,7 +238,7 @@ export const withFetch = (WrappedComponent) =>
       return (
         <React.Fragment>
           <WrappedComponent {...this.props} {...this.state} selections={selections}
-            viewableItems={viewableItems}/>
+            viewableItems={viewableItems} visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}/>
         </React.Fragment>
       )
     }
