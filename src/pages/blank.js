@@ -5,9 +5,12 @@ export class BlankUser extends React.Component {
   handleSubmitUser = (e) => {
     e.preventDefault()
     const data = new FormData(e.target)
+    const queryParams = new URLSearchParams(window.location.search)
+    queryParams.set('all', 'true')
+
     const val = data.get('username').trim().toLowerCase()
     if (val !== '') {
-      window.location.href = `/user/${val}?all=true`
+      window.location.href = `/user/${val}?${queryParams.toString()}`
     }
   }
 
