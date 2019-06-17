@@ -81,15 +81,17 @@ class Header extends React.Component {
                 </form>
               </div>
             </div>
-            <div id='subheading'>
-              <form onSubmit={(e) => this.handleSubmit(e, value)}>
-                <a className='subheading' href={display}>{display}</a>
-                <input type='text' onClick={(e) => this.onClick(e, value)}
-                                    onBlur={(e) =>  this.onBlur(e, value)}
-                name={path_type} defaultValue={value} placeholder={item_type}/>
-                <input type='submit' id='button' value='go' />
-              </form>
-            </div>
+            {value &&
+              <div id='subheading'>
+                <form onSubmit={(e) => this.handleSubmit(e, value)}>
+                  <a className='subheading' href={display}>{display}</a>
+                  <input type='text' onClick={(e) => this.onClick(e, value)}
+                                      onBlur={(e) =>  this.onBlur(e, value)}
+                  name={path_type} defaultValue={value} placeholder={item_type}/>
+                  <input type='submit' id='button' value='go' />
+                </form>
+              </div>
+            }
           </div>
           <div id='status'>
             {props.global.state.statusText &&
