@@ -3,20 +3,25 @@ import { Link } from 'react-router-dom'
 import { connect } from 'state'
 
 class Header extends React.Component {
-  handleSubmitSub = (e) => {
+  handleSubmit = (e, defaultValue) => {
     e.preventDefault()
     const data = new FormData(e.target)
-    const val = data.get('subreddit').trim().toLowerCase()
-    if (val !== '') {
-      window.location.href = `/r/${val}`
+    const pair = Array.from(data.entries())[0]
+    const key = pair[0], val = pair[1].trim().toLowerCase()
+    if (val !== '' && val !== defaultValue) {
+      window.location.href = `/${key}/${val}`
     }
   }
-  handleSubmitUser = (e) => {
-    e.preventDefault()
-    const data = new FormData(e.target)
-    const val = data.get('username').trim().toLowerCase()
-    if (val !== '') {
-      window.location.href = `/user/${val}`
+  onClick = (e, defaultValue) => {
+    const val = e.target.value.trim().toLowerCase()
+    if (val === defaultValue) {
+      e.target.value = ''
+    }
+  }
+  onBlur = (e, defaultValue) => {
+    const val = e.target.value.trim().toLowerCase()
+    if (val === '') {
+      e.target.value = defaultValue
     }
   }
   render() {
@@ -26,20 +31,30 @@ class Header extends React.Component {
     if (userSubreddit) {
       subreddit = 'u_'+userSubreddit
     }
-    let link = ''
+    let path_type = '', value = '', path_post = '', item_type = ''
     if (['subreddit_posts','thread'].includes(page_type)) {
-      link = `/r/${subreddit}`
+      path_type = 'r'
+      value = subreddit
+      item_type = 'subreddit'
     } else if (page_type === 'subreddit_comments') {
-      link = `/r/${subreddit}/comments`
+      path_type = 'r'
+      value = subreddit
+      path_post = 'comments'
+      item_type = 'subreddit'
     } else if (user) {
-      link = `/user/${user}`
+      path_type = 'user'
+      value = user
+      item_type = 'username'
     } else if (domain) {
-      link = `/domain/${domain}`
+      path_type = 'domain'
+      value = domain
+      item_type = 'domain'
     }
-    let display = link
+    value = value.toLowerCase()
+    let display = `/${path_type}/`
     const maxLen = 30
-    if ((domain || subreddit) && link.length > maxLen) {
-      display = link.substring(0,maxLen)+'...'
+    if ((domain || subreddit) && display.length > maxLen) {
+      display = display.substring(0,maxLen)+'...'
     }
     return (
       <React.Fragment>
@@ -50,23 +65,31 @@ class Header extends React.Component {
                 <Link to='/about'>revddit</Link>
               </h1>
               <div id='forms'>
-                <form className="topForm" onSubmit={this.handleSubmitSub}>
+                <form className="topForm" onSubmit={this.handleSubmit}>
                   <label>
                     /r/
-                    <input type='text' name='subreddit' placeholder='subreddit'/>
+                    <input type='text' name='r' placeholder='subreddit'/>
                   </label>
                   <input type='submit' id='button_s' value='go' />
                 </form>
-                <form onSubmit={this.handleSubmitUser}>
+                <form onSubmit={this.handleSubmit}>
                   <label>
                     /u/
-                    <input type='text' name='username' placeholder='username'/>
+                    <input type='text' name='user' placeholder='username'/>
                   </label>
                   <input type='submit' id='button_u' value='go' />
                 </form>
               </div>
             </div>
-            <a className='subheading' href={link}>{display}</a>
+            <div id='subheading'>
+              <form onSubmit={(e) => this.handleSubmit(e, value)}>
+                <a className='subheading' href={display}>{display}</a>
+                <input type='text' onClick={(e) => this.onClick(e, value)}
+                                    onBlur={(e) =>  this.onBlur(e, value)}
+                name={path_type} defaultValue={value} placeholder={item_type}/>
+                <input type='submit' id='button' value='go' />
+              </form>
+            </div>
           </div>
           <div id='status'>
             {props.global.state.statusText &&

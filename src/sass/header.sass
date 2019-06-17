@@ -5,8 +5,17 @@ header
   align-items: center
   padding: 10px
 
-  .subheading, label
+  .subheading, label, #subheading input
     font-weight: bold
+  #subheading input[type="text"]
+    background: $background
+    color: white
+    font-family: verdana, arial, helvetica, sans-serif
+    width: 200px
+    margin-right: 5px
+    &:-webkit-autofill
+      -webkit-box-shadow: 0 0 0 1000px $background inset
+      -webkit-text-fill-color: white
   label
     font-size: 16px
 
