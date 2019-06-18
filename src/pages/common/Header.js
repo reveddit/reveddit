@@ -2,13 +2,34 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { connect } from 'state'
 
+const getEntityName = (params) => {
+  const { user, subreddit = '', userSubreddit = '', domain = ''} = params
+  return (user || subreddit || userSubreddit || domain).toLowerCase()
+}
+
 class Header extends React.Component {
+  state = {
+    entity_name: ''
+  }
+  componentDidMount() {
+    const entity_name = getEntityName(this.props.match.params)
+    this.setState({entity_name})
+  }
+  componentDidUpdate(prevProps) {
+    const entity_name = getEntityName(this.props.match.params)
+    const prev_entity_name = getEntityName(prevProps.match.params)
+    if (entity_name !== prev_entity_name) {
+      this.setState({entity_name})
+    }
+  }
   handleSubmit = (e, defaultValue) => {
     e.preventDefault()
     const data = new FormData(e.target)
     const pair = Array.from(data.entries())[0]
     const key = pair[0], val = pair[1].trim().toLowerCase()
-    if (val !== '' && val !== defaultValue) {
+    if (val !== '' && (this.props.page_type === 'thread' || val !== defaultValue)) {
+      console.log('update', val)
+      this.setState({entity_name: val})
       window.location.href = `/${key}/${val}`
     }
   }
@@ -24,6 +45,9 @@ class Header extends React.Component {
       e.target.value = defaultValue
     }
   }
+  handleNameChange = (e) => {
+    this.setState({entity_name: e.target.value})
+  }
   render() {
     const props = this.props
     const { page_type } = props
@@ -31,7 +55,7 @@ class Header extends React.Component {
     if (userSubreddit) {
       subreddit = 'u_'+userSubreddit
     }
-    let path_type = '', value = '', path_post = '', item_type = ''
+    let path_type = '', value = '', path_suffix = '', item_type = ''
     if (['subreddit_posts','thread'].includes(page_type)) {
       path_type = 'r'
       value = subreddit
@@ -39,7 +63,7 @@ class Header extends React.Component {
     } else if (page_type === 'subreddit_comments') {
       path_type = 'r'
       value = subreddit
-      path_post = 'comments'
+      path_suffix = 'comments'
       item_type = 'subreddit'
     } else if (user) {
       path_type = 'user'
@@ -87,7 +111,10 @@ class Header extends React.Component {
                   <a className='subheading' href={display}>{display}</a>
                   <input type='text' onClick={(e) => this.onClick(e, value)}
                                       onBlur={(e) =>  this.onBlur(e, value)}
-                  name={path_type} defaultValue={value} placeholder={item_type}/>
+                  name={path_type} value={this.state.entity_name} onChange={this.handleNameChange} placeholder={item_type}/>
+                  {path_suffix &&
+                    <a className='subheading' href='#'>{`/${path_suffix}/`}</a>
+                  }
                   <input type='submit' id='button' value='go' />
                 </form>
               </div>
