@@ -48,7 +48,7 @@ class CommentSection extends React.Component {
     const lookup = {}
     commentList.forEach(comment => {
       comment.replies = []
-      lookup[comment.id] = comment
+      lookup['t1_'+comment.id] = comment
     })
     return lookup
   }

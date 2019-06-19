@@ -1,7 +1,7 @@
 import { combinePushshiftAndRedditComments } from 'data_processing/comments'
 import {
   getPost as getPushshiftPost,
-  getComments as getPushshiftComments
+  getCommentsByThread as getPushshiftCommentsByThread
 } from 'api/pushshift'
 import {
   getPosts
@@ -66,7 +66,7 @@ export const getRevdditThreadPost = (threadID, global, history) => {
 }
 
 export const getRevdditThreadComments = (threadID, global) => {
-  return getPushshiftComments(threadID)
+  return getPushshiftCommentsByThread(threadID)
   .then(pushshiftComments => {
     return combinePushshiftAndRedditComments(pushshiftComments)
     .then(result => {

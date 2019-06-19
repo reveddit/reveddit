@@ -1,6 +1,5 @@
 import React from 'react'
 import { withRouter } from 'react-router'
-import { Link } from 'react-router-dom'
 import { prettyScore, parse, redditThumbnails, isDeleted } from 'utils'
 import Time from 'pages/common/Time'
 import RemovedBy from 'pages/common/RemovedBy'
@@ -94,7 +93,7 @@ class Post extends React.Component {
             </div>
           }
           <div className='total-comments post-links'>
-            <Link to={props.permalink}>{props.num_comments} comments</Link>
+            <a href={props.permalink}>{props.num_comments} comments</a>
             <a href={`${current_page}#${props.name}`}>hashlink</a>
             <a href={`https://www.reddit.com${props.permalink}`}>reddit</a>
             {message_mods}

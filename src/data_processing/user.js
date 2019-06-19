@@ -5,8 +5,6 @@ import {
   userPageHTML
 } from 'api/reddit'
 import {
-  getPost as getRemovedPost,
-  getComments as getPushshiftComments,
   getAutoremovedItems
 } from 'api/pushshift'
 import { REMOVAL_META, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,

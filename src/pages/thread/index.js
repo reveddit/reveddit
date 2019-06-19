@@ -17,7 +17,7 @@ class Thread extends React.Component {
     const { selections, visibleItemsWithoutCategoryFilter } = this.props
     const linkToRestOfComments = `/r/${subreddit}/comments/${threadID}/${urlTitle}`
     const isSingleComment = (commentID !== undefined && ! this.props.history.location.hash)
-    const root = isSingleComment ? commentID : id
+    const root = isSingleComment ? `t1_${commentID}` : `t3_${id}`
     const removedFiltersAreUnset = this.props.global.removedFiltersAreUnset()
 
     return (
@@ -26,7 +26,7 @@ class Thread extends React.Component {
         {
           <React.Fragment>
             {selections}
-            {(!loading && root) &&
+            {(!loading && (commentID || id)) &&
               <React.Fragment>
                 {isSingleComment &&
                   <div className='view-rest-of-comment'>

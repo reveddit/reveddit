@@ -44,6 +44,10 @@ class Comment extends React.Component {
     if (props.permalink) {
       permalink = props.permalink
     }
+    let parent_link = undefined
+    if ('parent_id' in props && props.parent_id.substr(0,2) === 't1') {
+      parent_link = permalink.split('/').slice(0,6).join('/')+'/'+props.parent_id.substr(3)+'/'
+    }
     const name = `t1_${props.id}`
     let submitter = ''
     if (! props.deleted && author !== '[deleted]' && author === props.link_author) {
@@ -83,8 +87,11 @@ class Comment extends React.Component {
                 <div className='comment-links'>
                 { ! props.deleted &&
                   <React.Fragment>
-                    <a href={`${permalink}#${name}`}>hashlink</a>
                     <Link to={permalink}>permalink</Link>
+                    {parent_link &&
+                      <Link to={parent_link}>parent</Link>
+                    }
+                    <a href={`${permalink}#${name}`}>hashlink</a>
                     <a href={`https://www.reddit.com${permalink}`}>reddit</a>
                   </React.Fragment>
                 }

@@ -159,6 +159,8 @@ class GlobalState extends Container {
         default: {
           if (value === 'false') {
             value = false
+          } else if (value === 'true') {
+            value = true
           }
           stateVar[param] = value
         }

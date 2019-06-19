@@ -33,7 +33,7 @@
     "graphql": "^14.2.1",
     "react": "^16.4.1",
     "react-apollo": "^2.5.4",
-    "react-dom": "^16.4.1",
+    "react-dom": "^16.8.6",
     "react-router-dom": "^4.3.1",
     "snuownd": "git+https://github.com/JordanMilne/snuownd.git",
     "unstated": "^2.1.1",
