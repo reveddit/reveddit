@@ -187,3 +187,11 @@ export const fetchWithTimeout = (url, options, timeout = 4000) => {
         )
     ]);
 }
+
+export const reversible = (func, reverse) => {
+  if (reverse) {
+    return (a, b) => func(b, a)
+  } else {
+    return (a, b) => func(a, b)
+  }
+}

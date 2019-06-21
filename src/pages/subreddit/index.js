@@ -3,6 +3,8 @@ import Post from 'pages/common/Post'
 import { withFetch } from 'pages/RevdditFetcher'
 import { connect, localSort_types } from 'state'
 import { byScore, byDate, byNumComments, byControversiality } from 'data_processing/posts'
+import { reversible } from 'utils'
+
 
 class SubredditPosts extends React.Component {
   render () {
@@ -12,18 +14,14 @@ class SubredditPosts extends React.Component {
     const noItemsFound = items.length === 0 && ! loading
 
     const items_sorted = viewableItems
-
     if (localSort === localSort_types.date) {
-      items_sorted.sort( byDate )
+      items_sorted.sort( reversible(byDate, localSortReverse) )
     } else if (localSort === localSort_types.num_comments) {
-      items_sorted.sort( byNumComments )
+      items_sorted.sort( reversible(byNumComments, localSortReverse) )
     } else if (localSort === localSort_types.score) {
-      items_sorted.sort( byScore )
+      items_sorted.sort( reversible(byScore, localSortReverse) )
     } else if (localSort === localSort_types.controversiality) {
-      items_sorted.sort( byControversiality )
-    }
-    if (this.props.global.state.localSortReverse) {
-      items_sorted.reverse()
+      items_sorted.sort( reversible(byControversiality, localSortReverse) )
     }
 
     return (

@@ -46,6 +46,7 @@ class Thread extends React.Component {
                   link_author={author}
                   isSingleComment={isSingleComment}
                   visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
+                  page_type={this.props.page_type}
                 />
               </React.Fragment>
             }

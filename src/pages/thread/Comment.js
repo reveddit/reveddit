@@ -4,6 +4,7 @@ import { prettyScore, parse, isRemoved, replaceAmpGTLT } from 'utils'
 import Time from 'pages/common/Time'
 import RemovedBy from 'pages/common/RemovedBy'
 import { connect } from 'state'
+import { withRouter } from 'react-router';
 
 
 class Comment extends React.Component {
@@ -24,6 +25,7 @@ class Comment extends React.Component {
   render() {
     let props = this.props
     const showContext = this.props.global.state.showContext
+    const updateStateAndURL = this.props.global.selection_update
 
     let even_odd = ''
     if (!props.removed && !props.deleted) {
@@ -87,11 +89,10 @@ class Comment extends React.Component {
                 <div className='comment-links'>
                 { ! props.deleted &&
                   <React.Fragment>
-                    <Link to={permalink}>permalink</Link>
+                    <Link to={permalink} onClick={(e) => {updateStateAndURL('showContext', true, props)}}>permalink</Link>
                     {parent_link &&
-                      <Link to={parent_link}>parent</Link>
+                      <Link to={parent_link} onClick={(e) => {updateStateAndURL('showContext', true, props)}}>parent</Link>
                     }
-                    <a href={`${permalink}#${name}`}>hashlink</a>
                     <a href={`https://www.reddit.com${permalink}`}>reddit</a>
                   </React.Fragment>
                 }
@@ -105,7 +106,10 @@ class Comment extends React.Component {
                         {...comment}
                         depth={props.depth + 1}
                         global={props.global}
+                        location={props.location}
+                        history={props.history}
                         link_author={props.link_author}
+                        page_type={props.page_type}
                       />
                     ))
                 }
@@ -119,4 +123,4 @@ class Comment extends React.Component {
   }
 }
 
-export default connect(Comment)
+export default withRouter(connect(Comment))

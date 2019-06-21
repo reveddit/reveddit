@@ -5,6 +5,7 @@ import {connect, localSort_types, removedFilter_types, removedFilter_text} from 
 import { showRemovedAndDeleted } from 'utils'
 import { NOT_REMOVED, REMOVAL_META, USER_REMOVED } from 'pages/common/RemovedBy'
 import { itemIsOneOfSelectedRemovedBy } from 'data_processing/filters'
+import { reversible } from 'utils'
 
 const byScore = (a, b) => {
   return (b.stickied - a.stickied) || (b.score - a.score)
@@ -85,9 +86,6 @@ class CommentSection extends React.Component {
     const {localSortReverse} = this.props.global.state
 
     comments.sort(sortFunction)
-    if (localSortReverse) {
-      comments.reverse()
-    }
 
     comments.forEach(comment => {
       if (comment.replies.length > 0) {
@@ -126,8 +124,7 @@ class CommentSection extends React.Component {
   render() {
     const props = this.props
     const comments = this.props.global.state.items
-    const showContext = this.props.global.state.showContext
-    const {removedFilter, removedByFilter, localSort, localSortReverse} = props.global.state
+    const { removedFilter, removedByFilter, localSort, localSortReverse, showContext } = props.global.state
     const removedByFilterIsUnset = this.props.global.removedByFilterIsUnset()
 
     let commentTree = []
@@ -155,17 +152,17 @@ class CommentSection extends React.Component {
 
 
     if (localSort === localSort_types.date) {
-      this.sortCommentTree( commentTree, byDate )
+      this.sortCommentTree( commentTree, reversible(byDate, localSortReverse) )
     } else if (localSort === localSort_types.num_comments) {
-      this.sortCommentTree( commentTree, byNumComments )
+      this.sortCommentTree( commentTree, reversible(byNumComments, localSortReverse) )
     } else if (localSort === localSort_types.score) {
-      this.sortCommentTree( commentTree, byScore )
+      this.sortCommentTree( commentTree, reversible(byScore, localSortReverse) )
     } else if (localSort === localSort_types.controversiality1) {
-      this.sortCommentTree( commentTree, byControversiality1 )
+      this.sortCommentTree( commentTree, reversible(byControversiality1, localSortReverse) )
     } else if (localSort === localSort_types.controversiality2) {
-      this.sortCommentTree( commentTree, byControversiality2 )
+      this.sortCommentTree( commentTree, reversible(byControversiality2, localSortReverse) )
     } else if (localSort === localSort_types.comment_length) {
-      this.sortCommentTree( commentTree, byCommentLength )
+      this.sortCommentTree( commentTree, reversible(byCommentLength, localSortReverse) )
     }
 
 
@@ -177,6 +174,7 @@ class CommentSection extends React.Component {
             {...comment}
             depth={0}
             link_author={props.link_author}
+            page_type={props.page_type}
           />
         })
         : <p>No {removedFilter_text[removedFilter].replace('all','')} comments found</p>

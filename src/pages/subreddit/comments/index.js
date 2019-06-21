@@ -8,6 +8,7 @@ import Selections from 'pages/common/selections'
 import ResultsSummary from 'pages/common/ResultsSummary'
 import { REMOVAL_META, NOT_REMOVED, USER_REMOVED } from 'pages/common/RemovedBy'
 import { withFetch } from 'pages/RevdditFetcher'
+import { reversible } from 'utils'
 
 const byScore = (a, b) => {
   return (b.score - a.score)
@@ -40,19 +41,17 @@ class SubredditComments extends React.Component {
 
 
     if (localSort === localSort_types.date) {
-      items_sorted.sort( byDate )
+      items_sorted.sort( reversible(byDate, localSortReverse) )
     } else if (localSort === localSort_types.score) {
-      items_sorted.sort( byScore )
+      items_sorted.sort( reversible(byScore, localSortReverse) )
     } else if (localSort === localSort_types.controversiality1) {
-      items_sorted.sort( byControversiality1 )
+      items_sorted.sort( reversible(byControversiality1, localSortReverse) )
     } else if (localSort === localSort_types.controversiality2) {
-      items_sorted.sort( byCommentLength )
+      items_sorted.sort( reversible(byControversiality2, localSortReverse) )
     } else if (localSort === localSort_types.comment_length) {
-      items_sorted.sort( byCommentLength )
+      items_sorted.sort( reversible(byCommentLength, localSortReverse) )
     }
-    if (localSortReverse) {
-      items_sorted.reverse()
-    }
+
     return (
       <React.Fragment>
         {selections}
