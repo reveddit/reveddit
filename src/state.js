@@ -3,6 +3,7 @@ import { Subscribe, Container } from 'unstated'
 import { withRouter } from 'react-router';
 import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED,
          UNKNOWN_REMOVED, NOT_REMOVED } from 'pages/common/RemovedBy'
+import { SimpleURLSearchParams } from 'utils'
 
 export const urlParamKeys = {
   removedFilter: 'removal_status', // removedFilter should appear above removedByFilter
@@ -168,8 +169,7 @@ class GlobalState extends Container {
     }
   }
   selection_update = (selection, value, props) => {
-    const queryParams = new URLSearchParams(props.location.search)
-
+    const queryParams = new SimpleURLSearchParams(props.location.search)
     return this.selection_update_qparams(selection, value, props, queryParams)
   }
   selection_update_qparams = (selection, value, props, queryParams) => {
@@ -201,14 +201,14 @@ class GlobalState extends Container {
     this.selection_update('categoryFilter_'+type, value, props)
   }
   removedFilter_update = (value, props) => {
-    const queryParams = new URLSearchParams(props.location.search)
+    const queryParams = new SimpleURLSearchParams(props.location.search)
     if (value !== removedFilter_types.removed) {
       queryParams.delete(urlParamKeys.removedByFilter)
     }
     return this.selection_update_qparams('removedFilter', value, props, queryParams)
   }
   removedByFilter_update = (target, props) => {
-    const queryParams = new URLSearchParams(props.location.search)
+    const queryParams = new SimpleURLSearchParams(props.location.search)
     const removedby_settings = getRemovedBySettings(queryParams.get(urlParamKeys.removedByFilter) || '')
     if (target.checked) {
       removedby_settings[target.value] = true

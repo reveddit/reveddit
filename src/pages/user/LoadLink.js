@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { connect } from 'state'
 import { withRouter } from 'react-router';
 import { getRevdditUserItems, getQueryParams } from 'data_processing/user'
+import { SimpleURLSearchParams } from 'utils'
 
 class LoadLink extends React.Component {
 
@@ -14,7 +15,7 @@ class LoadLink extends React.Component {
     const qp = getQueryParams()
     if (this.props.loadAll) {
       qp.loadAll = true
-      const queryParams_tmp = new URLSearchParams(this.props.location.search)
+      const queryParams_tmp = new SimpleURLSearchParams(this.props.location.search)
       queryParams_tmp.set('all', 'true')
       to = `${this.props.location.pathname}?${queryParams_tmp.toString()}`
       className = 'load-all'

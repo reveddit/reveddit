@@ -171,6 +171,51 @@ export const getQueryString = (queryParams) => {
   return '?'+queryVals.join('&')
 }
 
+// because archive.is & older iOS safari versions do not support URLSearchParams
+export class SimpleURLSearchParams {
+  //?removal_status=all
+  constructor(search = undefined) {
+    const params = {}
+    if (search !== undefined) {
+      search.replace(/^\?/,'').split('&').forEach(kv => {
+        const [key, value] = kv.split('=')
+        if (key) {
+          params[key] = value
+        }
+      })
+    }
+    this.params = params
+  }
+  has(param) {
+    return (param in this.params)
+  }
+  get(param) {
+    if (param in this.params) {
+      return this.params[param]
+    } else {
+      return null
+    }
+  }
+  set(param, value) {
+    this.params[param] = value
+  }
+  delete(param) {
+    delete this.params[param]
+  }
+  toString() {
+    let queryVals = []
+    for (var key in this.params) {
+        queryVals.push(key+'='+this.params[key])
+    }
+    if (queryVals.length) {
+      return queryVals.join('&')
+    } else {
+      return ''
+    }
+  }
+}
+
+
 export const roundToX = (num, X) => {
     return +(Math.round(num + "e+"+X)  + "e-"+X);
 }

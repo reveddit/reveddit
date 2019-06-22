@@ -10,7 +10,7 @@ import {
 import { REMOVAL_META, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
          MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED,
          AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
-import { itemIsRemovedOrDeleted, isComment, isPost } from 'utils'
+import { itemIsRemovedOrDeleted, isComment, isPost, SimpleURLSearchParams } from 'utils'
 
 
 export const getQueryParams = () => {
@@ -18,7 +18,7 @@ export const getQueryParams = () => {
                   sort: 'new', before: '', after: '', limit: 100,
                   loadAll: false, searchPage_after: '', show:''}
   const url = new URL(window.location.href);
-  const queryParams = new URLSearchParams(url.search);
+  const queryParams = new SimpleURLSearchParams(url.search);
 
   if (queryParams.has('all')) { result.loadAll = true }
 

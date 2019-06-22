@@ -6,7 +6,7 @@ import gql from 'graphql-tag'
 import * as d3 from 'd3'
 import CommentPreview from 'pages/common/CommentPreview'
 import PostPreview from 'pages/common/PostPreview'
-import { kFormatter } from 'utils'
+import { kFormatter, SimpleURLSearchParams } from 'utils'
 
 
 class Sparkline extends React.PureComponent {
@@ -100,7 +100,7 @@ class Sparkline extends React.PureComponent {
   render() {
     const {data, width, height, xAccessor} = this.props
     let { hovered } = this.props
-    const before_id = new URLSearchParams(window.location.search).get('before_id')
+    const before_id = new SimpleURLSearchParams(window.location.search).get('before_id')
     if (before_id) {
       data.forEach(point => {
         if (point.y.last_id == before_id && ! hovered) {
@@ -168,7 +168,7 @@ class UpvoteRemovalRateHistory extends React.Component {
   }
 
   componentDidMount() {
-    const queryParams = new URLSearchParams(this.props.location.search)
+    const queryParams = new SimpleURLSearchParams(this.props.location.search)
     const stateUpdate = {}
     Object.keys(componentParams).forEach(param => {
       let paramVal = queryParams.get(param)
@@ -181,7 +181,7 @@ class UpvoteRemovalRateHistory extends React.Component {
 
   updateStateAndURL = (paramKey, value, defaultValue) => {
     this.setState({[paramKey]: value})
-    const queryParams = new URLSearchParams(this.props.location.search)
+    const queryParams = new SimpleURLSearchParams(this.props.location.search)
     if (value !== defaultValue) {
       queryParams.set(paramKey, value)
     } else {
@@ -192,7 +192,7 @@ class UpvoteRemovalRateHistory extends React.Component {
   }
   goToGraphURL = (last_created_utc, last_id, total_items) => {
     const subreddit = (this.props.match.params.subreddit || '').toLowerCase()
-    const queryParams = new URLSearchParams()
+    const queryParams = new SimpleURLSearchParams()
     // constructing new queryParams, excluding any selections outside this component.
     //  also excluding component param if value is the default
     Object.keys(componentParams).forEach(param => {
@@ -270,7 +270,7 @@ class UpvoteRemovalRateHistory extends React.Component {
             selected_data = data[postFunction]
           }
           selected_data = selected_data.sort((a,b) => a.last_created_utc - b.last_created_utc).map((y, x) => { return {x, y}; })
-          const before_id = new URLSearchParams(window.location.search).get('before_id')
+          const before_id = new SimpleURLSearchParams(window.location.search).get('before_id')
           if (! hovered && before_id) {
             selected_data.forEach(point => {
               if (point.y.last_id == before_id) {

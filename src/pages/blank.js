@@ -1,11 +1,12 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { SimpleURLSearchParams } from 'utils'
 
 export class BlankUser extends React.Component {
   handleSubmitUser = (e) => {
     e.preventDefault()
     const data = new FormData(e.target)
-    const queryParams = new URLSearchParams(window.location.search)
+    const queryParams = new SimpleURLSearchParams(window.location.search)
     queryParams.set('all', 'true')
 
     const val = data.get('username').trim().toLowerCase()

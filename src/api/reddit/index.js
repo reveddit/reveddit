@@ -10,7 +10,7 @@ export const getPosts = postIDs => {
   var url = new URL(`https://oauth.reddit.com/api/info`)
   var ids = postIDs.map(id => `t3_${id}`)
   var params = {id: ids.join(), raw_json:1}
-  url.search = new URLSearchParams(params)
+  url.search = '?'+Object.keys(params).map(k => `${k}=${params[k]}`).join('&')
   return getAuth()
     .then(auth => window.fetch(url, auth))
     .then(response => response.json())
@@ -23,7 +23,7 @@ const fetchComments = (commentIDs, auth) => {
   var url = new URL(`https://oauth.reddit.com/api/info`)
   var ids = commentIDs.map(id => `t1_${id}`)
   var params = {id: ids.join(), raw_json:1}
-  url.search = new URLSearchParams(params)
+  url.search = '?'+Object.keys(params).map(k => `${k}=${params[k]}`).join('&')
   return window.fetch(url, auth)
     .then(response => response.json())
     .then(results => results.data.children)
@@ -61,7 +61,7 @@ export const queryUserPage = (user, kind, sort, before, after, limit = 100) => {
   if (before) {
     params.before = before
   }
-  url.search = new URLSearchParams(params)
+  url.search = '?'+Object.keys(params).map(k => `${k}=${params[k]}`).join('&')
   return getAuth()
     .then(auth => window.fetch(url, auth))
     .then(response => response.json())
@@ -86,7 +86,7 @@ export const queryUserPage = (user, kind, sort, before, after, limit = 100) => {
 export const usernameAvailable = (user) => {
   var url = new URL('https://oauth.reddit.com/api/username_available')
   var params = {user: user, raw_json:1}
-  url.search = new URLSearchParams(params)
+  url.search = '?'+Object.keys(params).map(k => `${k}=${params[k]}`).join('&')
   return getAuth()
     .then(auth => window.fetch(url, auth))
     .then(response => response.json())
@@ -108,7 +108,7 @@ export const userPageHTML = (user) => {
 export const queryByID = (ids, auth) => {
   var url = new URL('https://oauth.reddit.com/api/info')
   var params = {id: ids.join(), raw_json:1}
-  url.search = new URLSearchParams(params)
+  url.search = '?'+Object.keys(params).map(k => `${k}=${params[k]}`).join('&')
   return window.fetch(url, auth)
   .then(response => response.json())
   .then(results => results.data.children)
@@ -133,7 +133,7 @@ export const querySubredditPageUntil = (sub, encompass_created_utc, after = '') 
 export const querySubredditPage = (subreddit, sort, after = '') => {
   var url = new URL(`https://oauth.reddit.com/r/${subreddit}/${sort}.json`)
   var params = {after: after, limit: 100, raw_json:1}
-  url.search = new URLSearchParams(params)
+  url.search = '?'+Object.keys(params).map(k => `${k}=${params[k]}`).join('&')
   return getAuth()
     .then(auth => window.fetch(url, auth))
     .then(response => response.json())
@@ -147,7 +147,7 @@ export const querySubredditPage = (subreddit, sort, after = '') => {
 export const querySearchPageByUser = (user, sort, after = '') => {
   var url = new URL(`https://oauth.reddit.com/search.json`)
   var params = {q:`author:${user}`, sort:sort, after:after, limit:100, t:'all', include_over_18:'on'}
-  url.search = new URLSearchParams(params)
+  url.search = '?'+Object.keys(params).map(k => `${k}=${params[k]}`).join('&')
   return getAuth()
     .then(auth => window.fetch(url, auth))
     .then(response => response.json())

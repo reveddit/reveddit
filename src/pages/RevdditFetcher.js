@@ -9,6 +9,7 @@ import { itemIsOneOfSelectedRemovedBy } from 'data_processing/filters'
 import Selections from 'pages/common/selections'
 import { removedFilter_types } from 'state'
 import { NOT_REMOVED } from 'pages/common/RemovedBy'
+import { SimpleURLSearchParams } from 'utils'
 
 const getCategorySettings = (page_type, subreddit) => {
   const category_settings = {
@@ -135,7 +136,7 @@ export const withFetch = (WrappedComponent) =>
         }
       }
       this.props.global.setStateFromQueryParams(page_type,
-                      new URLSearchParams(this.props.location.search))
+                      new SimpleURLSearchParams(this.props.location.search))
       .then(result => {
 
         const [loadDataFunction, params] = getLoadDataFunctionAndParam(page_type, subreddit, user, kind, threadID, domain, queryParams)

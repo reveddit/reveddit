@@ -57,8 +57,7 @@ class Comment extends React.Component {
 
     const mods_message_body = '\n\n\n'+reddit+props.permalink;
     const mods_link = reddit+'/message/compose?to='+props.subreddit+'&message='+encodeURI(mods_message_body);
-    const queryParams = new URLSearchParams(this.props.location.search)
-    const current_page = `${this.props.location.pathname}?${queryParams.toString()}`
+    const current_page = `${this.props.location.pathname}${this.props.location.search}`
     let message_mods = ''
     if (props.removed || props.removedby && props.removedby !== NOT_REMOVED) {
       message_mods = <a href={mods_link} target="_blank">message mods</a>
