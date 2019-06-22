@@ -264,7 +264,7 @@ export const getCommentsByThread = (threadID) => {
     .then(data => {
       return data.data.map(comment => {
         // Missing parent id === direct reply to thread
-        if (! 'parent_id' in comment || !comment.parent_id) {
+        if ((! ('parent_id' in comment)) || ! comment.parent_id) {
           comment.parent_id = 't3_'+threadID
         }
         return comment
