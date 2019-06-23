@@ -7,16 +7,24 @@ header
 
   .subheading, label, #subheading input
     font-weight: bold
-  #subheading input[type="text"]
-    background: $background
-    color: white
-    font-family: verdana, arial, helvetica, sans-serif
-    width: 150px
-    &:-webkit-autofill
-      -webkit-box-shadow: 0 0 0 1000px $background inset
-      -webkit-text-fill-color: white
+  #subheading
+    .user input[type="text"]
+      width: 118px
+    input[type="text"]
+      background: $background
+      color: white
+      font-family: verdana, arial, helvetica, sans-serif
+      width: 150px
+      &:-webkit-autofill
+        -webkit-box-shadow: 0 0 0 1000px $background inset
+        -webkit-text-fill-color: white
   #subheading input[type="submit"]
     margin-left: 5px
+  .opposite
+    margin-bottom: 3px
+    a
+      opacity: .7
+    
   label
     font-size: 16px
 
@@ -24,7 +32,7 @@ header
     a,label
       color: #fff
     h1
-      margin: 7px 0
+      margin: 0
       a
         transition: color 0.3s
       a:hover

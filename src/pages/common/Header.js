@@ -7,6 +7,19 @@ const getEntityName = (params) => {
   return (user || subreddit || userSubreddit || domain).toLowerCase()
 }
 
+const opposites = {
+  'r': {
+    'path_type': 'user',
+    'item_type': 'username',
+    'display': '/user/'
+  },
+  'user': {
+    'path_type': 'r',
+    'item_type': 'subreddit',
+    'display': '/r/'
+  }
+}
+
 class Header extends React.Component {
   state = {
     entity_name: ''
@@ -22,13 +35,38 @@ class Header extends React.Component {
       this.setState({entity_name})
     }
   }
+  getForm(value, display, path_type, item_type, path_suffix, opposite=false) {
+    let text_input_actions = {}
+    let form_attributes = { className: `opposite ${path_type}` }
+    if (! opposite) {
+      form_attributes = {className: path_type}
+      text_input_actions = {
+        onClick: (e) => this.onClick(e, value),
+        onBlur: (e) =>  this.onBlur(e, value),
+        value: this.state.entity_name,
+        onChange: this.handleNameChange
+      }
+    }
+
+    return (
+      <form {...form_attributes} onSubmit={(e) => this.handleSubmit(e, value)}>
+        <a className='subheading' href={display}>{display}</a>
+        <input type='text' {...text_input_actions}
+        name={path_type} placeholder={item_type}/>
+        {path_suffix &&
+          <a className='subheading' href='#'>{`/${path_suffix}/`}</a>
+        }
+        <input type='submit' id='button' value='go' />
+      </form>
+    )
+  }
+
   handleSubmit = (e, defaultValue) => {
     e.preventDefault()
     const data = new FormData(e.target)
     const pair = Array.from(data.entries())[0]
     const key = pair[0], val = pair[1].trim().toLowerCase()
     if (val !== '' && (this.props.page_type === 'thread' || val !== defaultValue)) {
-      console.log('update', val)
       this.setState({entity_name: val})
       window.location.href = `/${key}/${val}`
     }
@@ -76,10 +114,7 @@ class Header extends React.Component {
     }
     value = value.toLowerCase()
     let display = `/${path_type}/`
-    const maxLen = 30
-    if ((domain || subreddit) && display.length > maxLen) {
-      display = display.substring(0,maxLen)+'...'
-    }
+
     return (
       <React.Fragment>
         <header>
@@ -88,35 +123,16 @@ class Header extends React.Component {
               <h1>
                 <Link to='/about'>revddit</Link>
               </h1>
-              <div id='forms'>
-                <form className="topForm" onSubmit={this.handleSubmit}>
-                  <label>
-                    /r/
-                    <input type='text' name='r' placeholder='subreddit'/>
-                  </label>
-                  <input type='submit' id='button_s' value='go' />
-                </form>
-                <form onSubmit={this.handleSubmit}>
-                  <label>
-                    /u/
-                    <input type='text' name='user' placeholder='username'/>
-                  </label>
-                  <input type='submit' id='button_u' value='go' />
-                </form>
-              </div>
             </div>
+
             {value &&
               <div id='subheading'>
-                <form onSubmit={(e) => this.handleSubmit(e, value)}>
-                  <a className='subheading' href={display}>{display}</a>
-                  <input type='text' onClick={(e) => this.onClick(e, value)}
-                                      onBlur={(e) =>  this.onBlur(e, value)}
-                  name={path_type} value={this.state.entity_name} onChange={this.handleNameChange} placeholder={item_type}/>
-                  {path_suffix &&
-                    <a className='subheading' href='#'>{`/${path_suffix}/`}</a>
-                  }
-                  <input type='submit' id='button' value='go' />
-                </form>
+                {path_type in opposites &&
+                  this.getForm('', opposites[path_type].display,
+                                   opposites[path_type].path_type,
+                                   opposites[path_type].item_type, '', true)
+                }
+                {this.getForm(value, display, path_type, item_type, path_suffix, false)}
               </div>
             }
           </div>
