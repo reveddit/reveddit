@@ -4,8 +4,7 @@ import { connect } from 'state'
 class Content extends React.Component {
 
   getLink(expected_suffix, content_type_description) {
-    const url = new URL(window.location.href)
-    const path_parts = url.pathname.split('/')
+    const path_parts = window.location.pathname.split('/')
     const suffix = path_parts.slice(3,4)[0] || ''
     const link_path_parts = path_parts.slice(0,3)
     link_path_parts.push(expected_suffix)

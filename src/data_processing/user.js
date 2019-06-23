@@ -17,8 +17,7 @@ export const getQueryParams = () => {
   const result = {
                   sort: 'new', before: '', after: '', limit: 100,
                   loadAll: false, searchPage_after: '', show:''}
-  const url = new URL(window.location.href);
-  const queryParams = new SimpleURLSearchParams(url.search);
+  const queryParams = new SimpleURLSearchParams(window.location.search);
 
   if (queryParams.has('all')) { result.loadAll = true }
 
