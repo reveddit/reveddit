@@ -9,16 +9,15 @@ import Content from 'pages/common/selections/Content'
 import TextFilter from 'pages/common/selections/TextFilter'
 import UpvoteRemovalRateHistory from 'pages/common/selections/UpvoteRemovalRateHistory'
 import ResultsSummary from 'pages/common/ResultsSummary'
+import { withRouter } from 'react-router';
 
 class Selections extends React.Component {
-  state = {
-    displayFilters: true
+
+  toggleShowFilters = () => {
+    this.props.global.selection_update('showFilters', ! this.props.global.state.showFilters, this.props)
   }
-  toggleDisplayFilters = () => {
-    this.setState({displayFilters: ! this.state.displayFilters})
-  }
-  getDisplayFiltersText() {
-    if (this.state.displayFilters) {
+  getShowFiltersText() {
+    if (this.props.global.state.showFilters) {
       return '[–] hide filters'
     } else {
       return '[+] show filters'
@@ -27,13 +26,14 @@ class Selections extends React.Component {
   render () {
     const { subreddit, page_type, visibleItemsWithoutCategoryFilter, num_items, num_showing,
             category_type, category_title, category_unique_field } = this.props
+    const showFilters = this.props.global.state.showFilters
     return (
       <React.Fragment>
-        <div className='toggleFilters'><a onClick={this.toggleDisplayFilters}
+        <div className='toggleFilters'><a onClick={this.toggleShowFilters}
                 className='collapseToggle'>
-                {this.getDisplayFiltersText()}</a>
+                {this.getShowFiltersText()}</a>
         </div>
-        {this.state.displayFilters &&
+        {showFilters &&
           <div className='selections'>
             {(() => {
               switch(page_type) {
@@ -109,4 +109,4 @@ class Selections extends React.Component {
   }
 }
 
-export default connect(Selections)
+export default withRouter(connect(Selections))
