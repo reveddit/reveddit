@@ -66,7 +66,7 @@ export const filter_pageType_defaults = {
   before: '',
   before_id: '',
   keywords: '',
-  showFilters: true
+  showFilters: false
 }
 
 const maxN = 60000
@@ -112,7 +112,7 @@ class GlobalState extends Container {
         loading: false,
         error: false,
         userIssueDescription: '',
-        showFilters: true
+        showFilters: false
       }
   }
 
