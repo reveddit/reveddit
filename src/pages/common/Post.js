@@ -98,6 +98,7 @@ class Post extends React.Component {
             {message_mods}
           </div>
         </div>
+        <div className='clearBoth'></div>
       </div>
     )
   }
