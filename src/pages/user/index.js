@@ -56,6 +56,9 @@ class User extends React.Component {
           {loadAllLink}
         </div>
         {selections}
+        <div className='note'>
+          <p>Note: any <span className='quarantined'>quarantined</span> content will not appear here.</p>
+        </div>
         {
           viewableItems.map(item => {
             if (item.name.slice(0,2) === 't3') {
