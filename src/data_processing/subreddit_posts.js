@@ -12,7 +12,7 @@ export const getRevdditPostsBySubreddit = (subreddit, global, history) => {
   if (window.location.pathname.match(/^\/r\/([^/]*)\/.+/g)) {
     history.replace(`/r/${subreddit}/`+window.location.search)
   }
-  global.setLoading('Loading removed posts...')
+  global.setLoading('')
   if (subreddit === 'all') {
     return getRemovedPostIDs(subreddit)
     .then(postIDs => getPosts(postIDs))

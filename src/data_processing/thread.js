@@ -12,7 +12,7 @@ import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
          AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
 
 export const getRevdditThreadItems = (threadID, global, history) => {
-  global.setLoading('Loading...')
+  global.setLoading('')
   const promises = [getRevdditThreadPost(threadID, global, history),
                     getRevdditThreadComments(threadID, global)]
   return Promise.all(promises)

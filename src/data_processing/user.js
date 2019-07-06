@@ -111,7 +111,7 @@ function setRemovedBy(items_removedBy_undefined, ps_items_autoremoved) {
 }
 
 export const getRevdditUserItems = (user, kind, qp, global, history) => {
-  global.setLoading('Loading...')
+  global.setLoading('')
   const gs = global.state
   return getItems(user, kind, global, qp.sort, qp.before, qp.after || gs.userNext, qp.limit, qp.loadAll)
   .then(result => {
@@ -172,7 +172,6 @@ function getItems (user, kind, global, sort, before = '', after = '', limit, loa
         item.next = array[index-1].name
       }
     })
-    global.setState({items, num_pages, userNext: userPageData.after})
 
     return getRedditItemsByID(ids)
     .then(redditInfoItems => {
@@ -181,6 +180,7 @@ function getItems (user, kind, global, sort, before = '', after = '', limit, loa
           userPage_item_lookup[item.name].removed = true
         }
       })
+      global.setState({items, num_pages, userNext: userPageData.after})
       if (userPageData.after && loadAll) {
         return getItems(user, kind, global, sort, '', userPageData.after, limit, loadAll)
       }

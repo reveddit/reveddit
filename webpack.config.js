@@ -1,8 +1,11 @@
+require("dotenv").config();
+
 const path = require('path')
+const webpack = require('webpack');
 
 module.exports = (env, argv) => ({
   entry: [
-    'babel-polyfill',
+    '@babel/polyfill',
     'whatwg-fetch',
     './src/index.js'
   ],
@@ -24,5 +27,11 @@ module.exports = (env, argv) => ({
   },
   resolve: {
     modules: [path.resolve(__dirname, 'src'), 'node_modules']
-  }
+  },
+  plugins: [
+    new webpack.DefinePlugin({
+      LAMBDA_ENDPOINT: JSON.stringify(process.env.LAMBDA_ENDPOINT),
+      STRIPE_PUBLISHABLE_KEY: JSON.stringify(process.env.STRIPE_PUBLISHABLE_KEY)
+    })
+  ]
 })

@@ -10,3 +10,6 @@ dist/main.css
 
 # Log files
 *.log
+
+# Secrets
+.env

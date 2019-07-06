@@ -201,6 +201,7 @@ export class SimpleURLSearchParams {
   }
   delete(param) {
     delete this.params[param]
+    return this
   }
   toString() {
     let queryVals = []

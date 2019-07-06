@@ -24,7 +24,7 @@ export const getCommentsBySubreddit = async function(subreddits_str, n = 1000, b
   queryParams['sort'] = 'desc'
   queryParams['size'] = 1000
   if (subreddits_str) {
-    queryParams['subreddit'] = subreddits_str
+    queryParams['subreddit'] = subreddits_str.replace(/\+/g,',')
   }
   queryParams['fields'] = 'id,created_utc'
 
@@ -72,7 +72,7 @@ export const getCommentsByID = (ids) => {
 }
 
 export const getRecentPostsBySubreddit = (subreddits_str, n = 1000, before = '', before_id = '') => {
-  const subreddits = subreddits_str.toLowerCase().split(',')
+  const subreddits = subreddits_str.toLowerCase().split('+')
   const elasticQuery = {
     size:n,
     query: {
@@ -111,7 +111,7 @@ export const getRecentPostsBySubreddit = (subreddits_str, n = 1000, before = '',
 }
 
 export const getRecentPostsByDomain = (domains_str, n = 1000, before = '', before_id = '') => {
-  const domains = domains_str.toLowerCase().split(',')
+  const domains = domains_str.toLowerCase().split('+')
   const elasticQuery = {
     size:n,
     query: {

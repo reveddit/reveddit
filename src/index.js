@@ -1,4 +1,4 @@
-import 'babel-polyfill'
+import '@babel/polyfill'
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { BrowserRouter, Switch, Route, Redirect } from 'react-router-dom'
@@ -8,32 +8,81 @@ import ApolloClient from 'apollo-boost'
 
 import Header from 'pages/common/Header'
 import About from 'pages/about'
+import Donate from 'pages/common/donate'
 import SubredditPosts from 'pages/subreddit'
 import SubredditComments from 'pages/subreddit/comments'
 import Thread from 'pages/thread'
 import User from 'pages/user'
 import { BlankUser, BlankSubreddit } from 'pages/blank'
 import NotFound from 'pages/404'
+import Modal from 'react-modal'
 
 const apolloClient = new ApolloClient({
   uri: "https://api.revddit.com/v1/graphql"
-//  uri: "http://localhost:9090/v1/graphql"
-});
+})
 
+Modal.setAppElement('#app')
 
-const DefaultLayout = ({component: Component, ...rest}) => {
-  return (
-    <Route {...rest} render={matchProps => (
-      <React.Fragment>
-        <Header {...matchProps} {...rest}/>
-        <div className='main'>
-          <Component {...matchProps} {...rest}/>
-        </div>
-      </React.Fragment>
-    )} />
-  )
+const customStyles = {
+  content : {
+    top                   : '50%',
+    left                  : '50%',
+    right                 : 'auto',
+    bottom                : 'auto',
+    marginRight           : '-50%',
+    transform             : 'translate(-50%, -50%)',
+    padding: 0
+  },
+  overlay: {
+    backgroundColor: 'rgba(255, 255, 255, 0.3)'
+  }
 }
+
+
+class DefaultLayout extends React.Component {
+  state = {
+    modalIsOpen: false
+  }
+  componentDidMount() {
+    document.getElementById('donate-ribbon').onclick = this.openModal
+    const donateLink = document.getElementById('donate-link')
+    if (donateLink) donateLink.onclick = this.openModal
+  }
+  openModal = () => {
+    this.setState({modalIsOpen: true});
+  }
+  closeModal = () => {
+    this.setState({modalIsOpen: false});
+  }
+
+  render() {
+    const {component: Component, ...rest } = this.props
+    return (
+      <Route {...rest} render={matchProps => {
+        return (
+          <React.Fragment>
+            <Header {...matchProps} {...rest}/>
+            <div className='main'>
+              <Modal
+                isOpen={this.state.modalIsOpen}
+                onAfterOpen={this.afterOpenModal}
+                onRequestClose={this.closeModal}
+                style={customStyles}
+              >
+                <Donate/>
+              </Modal>
+              <Component {...matchProps} {...rest} />
+            </div>
+          </React.Fragment>
+        )
+      }} />
+    )
+  }
+}
+
+
 class App extends React.Component {
+
   render() {
     return (
       <ApolloProvider client={apolloClient}>

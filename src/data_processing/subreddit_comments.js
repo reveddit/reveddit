@@ -22,13 +22,12 @@ export const getFullTitles = pushshiftComments => {
 export const getRevdditComments = (subreddit, global) => {
   const gs = global.state
 
-  global.setLoading('Loading comments from Pushshift...')
+  global.setLoading('')
   if (subreddit === 'all') {
     subreddit = ''
   }
   return getPushshiftCommentsBySubreddit(subreddit, gs.n, gs.before, gs.before_id)
   .then(pushshiftComments => {
-    global.setLoading('Comparing comments to Reddit API...')
     const fullTitlePromise = getFullTitles(pushshiftComments)
     const combinePromise = combinePushshiftAndRedditComments(pushshiftComments)
     return Promise.all([fullTitlePromise, combinePromise])
