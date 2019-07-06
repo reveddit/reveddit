@@ -1,5 +1,6 @@
 import React from 'react'
 import { withRouter } from 'react-router'
+import { Link } from 'react-router-dom'
 import Post from 'pages/common/Post'
 import Comment from 'pages/common/Comment'
 import LoadLink from './LoadLink'
@@ -9,27 +10,35 @@ import { connect, removedFilter_types } from 'state'
 import Time from 'pages/common/Time'
 import { withFetch } from 'pages/RevdditFetcher'
 import { getQueryParams } from 'data_processing/user'
+import { SimpleURLSearchParams } from 'utils'
 
 class User extends React.Component {
   render () {
     const { user, kind = ''} = this.props.match.params
     const { page_type, viewableItems, selections } = this.props
-    const qp = getQueryParams()
+    const qp_with_defaults = getQueryParams()
+    const queryParams = new SimpleURLSearchParams(window.location.search)
     const gs = this.props.global.state
     let loadAllLink = ''
     let nextLink = ''
     let lastTimeLoaded = ''
     let error = ''
     let totalPages = 10
+    let selectedItems = null
     if (! gs.userNext) {
       totalPages = gs.num_pages
     }
 
+    let linkToRestOfComments = ''
+    if (! queryParams.get('after') && ! queryParams.get('limit') && queryParams.get('show')) {
+      linkToRestOfComments = window.location.pathname + '?' + (new SimpleURLSearchParams(window.location.search)).delete('show')
+      selectedItems = queryParams.get('show').split(',')
+    }
     if (! gs.loading) {
-      if (! qp.after && gs.userNext) {
+      if (! qp_with_defaults.after && gs.userNext) {
         loadAllLink = <LoadLink user={user}
                        kind={kind}
-                       show={qp.show}
+                       show={qp_with_defaults.show}
                        loadAll={true}/>
       }
     }
@@ -39,7 +48,7 @@ class User extends React.Component {
       nextLink = <div className='non-item'>
         <LoadLink user={user}
          kind={kind}
-         show={qp.show}
+         show={qp_with_defaults.show}
          loadAll={false}/></div>
     } else if (gs.userIssueDescription) {
       error = <div className='non-item text'>{user} {gs.userIssueDescription}</div>
@@ -47,7 +56,7 @@ class User extends React.Component {
     if (gs.items.length) {
       lastTimeLoaded = <React.Fragment>
                          <div className='non-item text'>since <Time created_utc={gs.items.slice(-1)[0].created_utc} /></div>
-                         <div className='non-item text'>loaded pages {`${gs.num_pages}/${totalPages}`}</div>
+                         <div id='pagesloaded' className='non-item text' data-pagesloaded={gs.num_pages}>loaded pages {`${gs.num_pages}/${totalPages}`}</div>
                        </React.Fragment>
     }
     return (
@@ -59,12 +68,20 @@ class User extends React.Component {
         <div className='note'>
           <p>Note: any <span className='quarantined'>quarantined</span> content will not appear here.</p>
         </div>
+        {selectedItems &&
+          <div className='view-rest-of-comment'>
+            <div>{"showing selected items."}</div>
+            <Link to={linkToRestOfComments}>view all items</Link>
+          </div>
+        }
         {
           viewableItems.map(item => {
-            if (item.name.slice(0,2) === 't3') {
-              return <Post key={item.name} {...item} />
-            } else {
-              return <Comment key={item.name} {...item} sort={qp.sort}/>
+            if (! selectedItems || (selectedItems && selectedItems.includes(item.name))) {
+              if (item.name.slice(0,2) === 't3') {
+                return <Post key={item.name} {...item} />
+              } else {
+                return <Comment key={item.name} {...item} sort={qp_with_defaults.sort}/>
+              }
             }
           })
         }
