@@ -119,7 +119,7 @@ export class About extends React.Component {
           <div className='sections'>
             <div className='section half'>
               <h2 className='about'>Donate</h2>
-              <p>re<span className="v white">v</span>ddit is free and ad-free. You can support work like this with a <a className="pointer" id="donate-link">donation</a>, feedback, or code fixes.</p>
+              <p>re<span className="v white">v</span>ddit is free and ad-free. You can support work like this with a <a className="pointer" onClick={this.props.openModal}>donation</a>, feedback, or code fixes.</p>
               <p>Thank you!</p>
             </div>
             <div className='section half'>

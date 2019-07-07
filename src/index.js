@@ -45,8 +45,6 @@ class DefaultLayout extends React.Component {
   }
   componentDidMount() {
     document.getElementById('donate-ribbon').onclick = this.openModal
-    const donateLink = document.getElementById('donate-link')
-    if (donateLink) donateLink.onclick = this.openModal
   }
   openModal = () => {
     this.setState({modalIsOpen: true});
@@ -71,7 +69,7 @@ class DefaultLayout extends React.Component {
               >
                 <Donate/>
               </Modal>
-              <Component {...matchProps} {...rest} />
+              <Component {...matchProps} {...rest} openModal={this.openModal}/>
             </div>
           </React.Fragment>
         )
