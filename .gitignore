@@ -7,6 +7,7 @@ node_modules/
 # Generated files
 dist/main.js
 dist/main.css
+lambda/
 
 # Log files
 *.log

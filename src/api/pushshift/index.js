@@ -1,7 +1,7 @@
 import { toBase10, toBase36, chunk, flatten, getQueryString } from 'utils'
 
-const postURL = 'https://elastic.pushshift.io/rs/submissions/_search?source='
-const commentURL = 'https://elastic.pushshift.io/rc/comments/_search?source='
+const postURL = 'https://elastic.pushshift.io/rs/submissions/_search?source_content_type=application/json&source='
+const commentURL = 'https://elastic.pushshift.io/rc/comments/_search?source_content_type=application/json&source='
 const comment_fields = [
   'id', 'author', 'body', 'created_utc', 'parent_id', 'score',
   'subreddit', 'link_id', 'author_flair_text', 'retrieved_on', 'retrieved_utc'
