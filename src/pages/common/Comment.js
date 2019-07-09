@@ -36,6 +36,9 @@ class Comment extends React.Component {
     } else {
       commentStyle += 'comment-even '
     }
+    if (props.quarantine) {
+      commentStyle += 'quarantine'
+    }
 
     let innerHTML = ''
     let author = props.author
@@ -47,13 +50,15 @@ class Comment extends React.Component {
       author = '[deleted]'
     }
 
-    let link = '?'
+    let directlink = ''
     if (props.prev) {
-      link = `?after=${props.prev}&`
+      directlink = `?after=${props.prev}&`
     } else if (props.next) {
-      link = `?before=${props.next}&`
+      directlink = `?before=${props.next}&`
     }
-    link += `limit=1&sort=${props.sort}&show=${props.name}&removal_status=all`
+    if (directlink) {
+      directlink += `limit=1&sort=${props.sort}&show=${props.name}&removal_status=all`
+    }
 
     const mods_message_body = '\n\n\n'+reddit+props.permalink;
     const mods_link = reddit+'/message/compose?to='+props.subreddit+'&message='+encodeURI(mods_message_body);
@@ -63,7 +68,7 @@ class Comment extends React.Component {
       message_mods = <a href={mods_link} target="_blank">message mods</a>
     }
     return (
-      <div id={props.name} className={commentStyle}>
+      <div id={props.name} className={commentStyle} data-fullname={props.name} data-created_utc={props.created_utc}>
         <div className='comment-head'>
           <a onClick={() => this.toggleDisplayBody()} className='collapseToggle'>{this.getExpandIcon()}</a>
           <span className='space' />
@@ -123,13 +128,14 @@ class Comment extends React.Component {
                   <div className='comment-links'>
                   { ! props.deleted &&
                     <React.Fragment>
-                    <a href={link}>directlink</a>
-                    <a href={`${current_page}#${props.name}`}>hashlink</a>
-                    <a href={props.permalink}>permalink</a>
-                    <a href={reddit+props.permalink+'?context=3'}>context</a>
-                    <a href={props.link_permalink && props.link_permalink.replace('reddit','revddit')}>full comments
-                      {'num_comments' in props && `(${props.num_comments})`}</a>
-                    {message_mods}
+                      {props.quarantine && <span className="quarantined">quarantined</span>}
+                      { directlink && <a href={directlink}>directlink</a>}
+                      <a href={`${current_page}#${props.name}`}>hashlink</a>
+                      <a href={props.permalink}>permalink</a>
+                      <a href={reddit+props.permalink+'?context=3'}>context</a>
+                      <a href={props.link_permalink && props.link_permalink.replace('reddit','revddit')}>full comments
+                        {'num_comments' in props && `(${props.num_comments})`}</a>
+                      {message_mods}
                     </React.Fragment>
                   }
                   </div>

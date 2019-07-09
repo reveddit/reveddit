@@ -49,6 +49,15 @@ class Post extends React.Component {
       snippet_is_set = true
       selftext_snippet = props.selftext.substring(0,max_length)+'...'
     }
+    let directlink = ''
+    if (props.prev) {
+      directlink = `?after=${props.prev}&`
+    } else if (props.next) {
+      directlink = `?before=${props.next}&`
+    }
+    if (directlink) {
+      directlink += `limit=1&sort=${props.sort}&show=${props.name}&removal_status=all`
+    }
 
     return (
       <div id={props.name} className={`post thread
@@ -92,6 +101,8 @@ class Post extends React.Component {
             </div>
           }
           <div className='total-comments post-links'>
+            {props.quarantine && <span className="quarantined">quarantined</span>}
+            { directlink && <a href={directlink}>directlink</a>}
             <a href={props.permalink}>{props.num_comments} comments</a>
             <a href={`${current_page}#${props.name}`}>hashlink</a>
             <a href={`https://www.reddit.com${props.permalink}`}>reddit</a>

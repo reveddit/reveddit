@@ -78,7 +78,7 @@ class User extends React.Component {
           viewableItems.map(item => {
             if (! selectedItems || (selectedItems && selectedItems.includes(item.name))) {
               if (item.name.slice(0,2) === 't3') {
-                return <Post key={item.name} {...item} />
+                return <Post key={item.name} {...item} sort={qp_with_defaults.sort} />
               } else {
                 return <Comment key={item.name} {...item} sort={qp_with_defaults.sort}/>
               }
