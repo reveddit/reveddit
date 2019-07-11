@@ -180,7 +180,8 @@ export const withFetch = (WrappedComponent) =>
               (! item.removed && item.removedby === NOT_REMOVED) ) ||
             (
               gs.removedFilter === removedFilter_types.removed &&
-              (item.deleted || item.removed || (item.removedby && item.removedby !== NOT_REMOVED))
+                (item.deleted || item.removed || item.locked ||
+                (item.removedby && item.removedby !== NOT_REMOVED))
             )
           ) &&
           (removedByFilterIsUnset || itemIsOneOfSelectedRemovedBy(item, gs))

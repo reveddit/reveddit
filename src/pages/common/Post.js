@@ -17,6 +17,7 @@ class Post extends React.Component {
     if (!props.title) {
       return <div />
     }
+
     const current_page = `${this.props.location.pathname}${this.props.location.search}`
     const reddit = 'https://www.reddit.com'
     const mods_message_body = '\n\n\n'+reddit+props.permalink;
@@ -82,10 +83,11 @@ class Post extends React.Component {
           <span className='domain'>({props.domain})</span>
           <div className='thread-info'>
             submitted <Time created_utc={props.created_utc}/> by&nbsp;
-            <a className={`thread-author author
+            <a className={`thread-author
               ${props.distinguished ? 'distinguished':''}`}
               href={userLink}>{props.author}</a>
-            &nbsp;to <a className='subreddit-link author' href={`/r/${props.subreddit}`}>/r/{props.subreddit}</a>
+            &nbsp;to <a className='subreddit-link' href={`/r/${props.subreddit}`}>/r/{props.subreddit}</a>
+            {props.locked && <>&nbsp;<span className='locked'>locked</span></>}
             &nbsp;<RemovedBy removedby={props.removedby} />
           </div>
           {props.selftext &&

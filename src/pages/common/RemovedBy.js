@@ -6,6 +6,7 @@ export const MOD_OR_AUTOMOD_REMOVED = 'mod'
 export const UNKNOWN_REMOVED = 'unknown'
 export const NOT_REMOVED = 'none'
 export const USER_REMOVED = 'user'
+export const LOCKED = 'locked'
 export const AUTOMOD_LATENCY_THRESHOLD = 15
 
 export const REMOVAL_META = {
@@ -26,6 +27,9 @@ export const REMOVAL_META = {
 export const USER_REMOVED_META = {filter_text: 'user',
                                         label: 'user',
                                          desc: 'user removed'}
+export const LOCKED_META = {filter_text: 'locked',
+                                          label: 'locked',
+                                           desc: 'locked'}
 
 class RemovedBy extends React.Component {
   render() {

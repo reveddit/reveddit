@@ -1,18 +1,21 @@
 import React from 'react'
 import { connect } from 'state'
 import { withRouter } from 'react-router';
-import { REMOVAL_META, USER_REMOVED, USER_REMOVED_META } from 'pages/common/RemovedBy'
+import { REMOVAL_META, USER_REMOVED, USER_REMOVED_META, LOCKED, LOCKED_META } from 'pages/common/RemovedBy'
 
 const paramKey = 'removedby'
 
 class RemovedByFilter extends React.Component {
 
   render() {
-    const {page_type} = this.props
+    const {page_type, showLocked} = this.props
     const removedByFilter = this.props.global.state.removedByFilter
     let removal_meta = REMOVAL_META
     if (page_type !== 'user') {
       removal_meta[USER_REMOVED] = USER_REMOVED_META
+    }
+    if (showLocked) {
+      removal_meta[LOCKED] = LOCKED_META
     }
     const updateStateAndURL = this.props.global.removedByFilter_update
     return (
