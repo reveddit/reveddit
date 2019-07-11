@@ -9,7 +9,7 @@ import { itemIsOneOfSelectedRemovedBy } from 'data_processing/filters'
 import Selections from 'pages/common/selections'
 import { removedFilter_types } from 'state'
 import { NOT_REMOVED } from 'pages/common/RemovedBy'
-import { SimpleURLSearchParams } from 'utils'
+import { SimpleURLSearchParams, itemIsALockedPost } from 'utils'
 
 const getCategorySettings = (page_type, subreddit) => {
   const category_settings = {
@@ -180,7 +180,7 @@ export const withFetch = (WrappedComponent) =>
               (! item.removed && item.removedby === NOT_REMOVED) ) ||
             (
               gs.removedFilter === removedFilter_types.removed &&
-                (item.deleted || item.removed || item.locked ||
+                (item.deleted || item.removed || itemIsALockedPost(item) ||
                 (item.removedby && item.removedby !== NOT_REMOVED))
             )
           ) &&
