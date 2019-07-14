@@ -66,7 +66,8 @@ class Post extends React.Component {
             ${props.stickied ? 'stickied':''}
             ${props.removed ? 'removed':''}
             ${props.unknown ? 'unknown':''}
-            ${props.deleted ? 'deleted' : ''}`}>
+            ${props.deleted ? 'deleted' : ''}`}
+            data-created_utc={props.created_utc} >
         {props.position &&
         <span className='post-rank'>{props.position}</span>}
         <div className='thread-score-box'>
