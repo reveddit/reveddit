@@ -62,6 +62,7 @@ class Post extends React.Component {
 
     return (
       <div id={props.name} className={`post thread
+            ${props.locked ? 'locked':''}
             ${props.stickied ? 'stickied':''}
             ${props.removed ? 'removed':''}
             ${props.unknown ? 'unknown':''}
