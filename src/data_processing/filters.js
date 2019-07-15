@@ -5,7 +5,6 @@ export const itemIsOneOfSelectedRemovedBy = (item, gs) => {
   if (gs.removedByFilter[USER_REMOVED] && item.deleted) {
     return true
   } else if (gs.removedByFilter[LOCKED] && itemIsALockedPost(item)) {
-    console.log(item, itemIsALockedPost(item))
     return true
   } else {
     for (let i = 0; i < Object.keys(REMOVAL_META).length; i++) {

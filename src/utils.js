@@ -60,7 +60,7 @@ export const postIsDeleted = post => {
 }
 
 export const itemIsALockedPost = item => {
-  return (item.name.slice(0,2) === 't3' && item.locked)
+  return (('name' in item) && item.name.slice(0,2) === 't3' && item.locked)
 }
 
 export const display_post = (list, post, ps_item) => {
