@@ -65,7 +65,7 @@ class User extends React.Component {
           {loadAllLink}
         </div>
         {selections}
-        <div className='note'>
+        <div className='note quarantine'>
           <p>Note: any <span className='quarantined'>quarantined</span> content will not appear here.</p>
         </div>
         {selectedItems &&

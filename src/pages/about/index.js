@@ -65,7 +65,7 @@ export class About extends React.Component {
             }
             <h2 className='about'>About</h2>
             <BlankUser/>
-            <div className='note'>
+            <div className='note quarantine'>
               <div><span className='quarantined'>Quarantined</span> content is not visible on revddit. The data is not publicly accessible via the reddit API.</div>
             </div>
           </div>
