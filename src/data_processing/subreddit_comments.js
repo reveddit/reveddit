@@ -48,6 +48,8 @@ export const getRevdditComments = (subreddit, global) => {
           if (typeof(full_titles[ps_comment.link_id].num_comments) !== 'undefined') {
             ps_comment.num_comments = full_post_data.num_comments
           }
+        } else {
+          show_comments.push(ps_comment)
         }
       })
       global.setSuccess({items: show_comments})

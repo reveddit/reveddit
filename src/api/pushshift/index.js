@@ -48,10 +48,14 @@ export const getCommentsBySubreddit = async function(subreddits_str, n = 1000, b
       }
     })
     if (before_id && ! foundStartingPoint) {
-      console.error('id not found in first set of results: '+before_id)
+      console.error('data displayed is an approximation, starting id not found in first set of results: '+before_id)
+      items.forEach(item => {
+        data[item.id] = item
+      })
       break
     }
     dataLength = Object.keys(data).length
+
     numCalls += 1
   }
   const ids = Object.keys(data).sort((a,b) => b.created_utc - a.created_utc).slice(0,n)
