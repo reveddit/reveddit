@@ -8,7 +8,7 @@ import Selections from 'pages/common/selections'
 import ResultsSummary from 'pages/common/ResultsSummary'
 import { REMOVAL_META, NOT_REMOVED, USER_REMOVED } from 'pages/common/RemovedBy'
 import { withFetch } from 'pages/RevdditFetcher'
-import { reversible } from 'utils'
+import { reversible, getUrlWithTimestamp, copyLink } from 'utils'
 
 const byScore = (a, b) => {
   return (b.score - a.score)
@@ -54,6 +54,9 @@ class SubredditComments extends React.Component {
 
     return (
       <React.Fragment>
+        <div className="share-link">
+          <a href={getUrlWithTimestamp()} onClick={copyLink}>copy sharelink</a>
+        </div>
         {selections}
         {
           noItemsFound ?

@@ -245,3 +245,30 @@ export const reversible = (func, reverse) => {
     return (a, b) => func(a, b)
   }
 }
+
+export const getUrlWithTimestamp = () => {
+  let urlWithTimestamp = window.location.href
+  const now = Math.floor(new Date()/1000)
+  if (urlWithTimestamp.match(/\?/)) {
+    urlWithTimestamp += '&'
+  } else {
+    urlWithTimestamp += '?'
+  }
+  urlWithTimestamp += `before=${now}`
+  return urlWithTimestamp
+}
+
+export const copyToClipboard = (str) => {
+  const el = document.createElement('textarea')
+  el.value = str
+  document.body.appendChild(el)
+  el.select()
+  document.execCommand('copy')
+  document.body.removeChild(el)
+}
+
+export const copyLink = (e) => {
+  e.preventDefault()
+  copyToClipboard(e.target.href)
+  e.target.title='copied link'
+}

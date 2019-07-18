@@ -3,10 +3,11 @@ import Post from 'pages/common/Post'
 import { withFetch } from 'pages/RevdditFetcher'
 import { connect, localSort_types } from 'state'
 import { byScore, byDate, byNumComments, byControversiality } from 'data_processing/posts'
-import { reversible } from 'utils'
+import { reversible, getUrlWithTimestamp, copyLink } from 'utils'
 
 
 class SubredditPosts extends React.Component {
+
   render () {
     const { subreddit } = this.props.match.params
     const { page_type, viewableItems, selections } = this.props
@@ -24,8 +25,13 @@ class SubredditPosts extends React.Component {
       items_sorted.sort( reversible(byControversiality, localSortReverse) )
     }
 
+
+
     return (
       <React.Fragment>
+        <div className="share-link">
+          <a href={getUrlWithTimestamp()} onClick={copyLink}>copy sharelink</a>
+        </div>
         {selections}
         {
           noItemsFound ?
