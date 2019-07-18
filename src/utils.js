@@ -248,13 +248,15 @@ export const reversible = (func, reverse) => {
 
 export const getUrlWithTimestamp = () => {
   let urlWithTimestamp = window.location.href
-  const now = Math.floor(new Date()/1000)
-  if (urlWithTimestamp.match(/\?/)) {
-    urlWithTimestamp += '&'
-  } else {
-    urlWithTimestamp += '?'
+  if (! urlWithTimestamp.match(/[?&]before=/)) {
+    const now = Math.floor(new Date()/1000)
+    if (urlWithTimestamp.match(/\?/)) {
+      urlWithTimestamp += '&'
+    } else {
+      urlWithTimestamp += '?'
+    }
+    urlWithTimestamp += `before=${now}`
   }
-  urlWithTimestamp += `before=${now}`
   return urlWithTimestamp
 }
 
