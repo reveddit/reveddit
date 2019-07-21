@@ -51,7 +51,7 @@ export class Donate extends React.Component {
             <span>Donation amount</span>
             <div className="amount-container">
               <span className="dollar-sign">$ </span>
-              <input type="number" name="amount" placeholder="1" className="donate-amount field" step=".01" min=".5" required />
+              <input type="number" name="amount" placeholder="1" className="donate-amount field" step="1" min="1" required />
             </div>
           </label>
           <div id='frequency'>
