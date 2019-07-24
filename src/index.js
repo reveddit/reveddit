@@ -8,6 +8,7 @@ import ApolloClient from 'apollo-boost'
 
 import Header from 'pages/common/Header'
 import About from 'pages/about'
+import Info from 'pages/info'
 import Donate from 'pages/common/donate'
 import SubredditPosts from 'pages/subreddit'
 import SubredditComments from 'pages/subreddit/comments'
@@ -92,7 +93,19 @@ class App extends React.Component {
               <Redirect from='/u/' to='/user/' />
               <Redirect from='/usr/*' to='/user/*' />
               <Redirect from='/usr/' to='/user/*' />
+              <Route
+                path="/api/info/"
+                component={({ location }) => (
+                  <Redirect
+                    to={{
+                      ...location,
+                      pathname: location.pathname.replace(/api\/info/, 'info'),
+                    }}
+                  />
+                )}
+              />
               <DefaultLayout path='/about' component={About} />
+              <DefaultLayout path='/info' page_type='info' component={Info} />
               <DefaultLayout path='/r/:subreddit/comments/:threadID/:urlTitle/:commentID' page_type='thread' component={Thread} />
               <DefaultLayout path='/r/:subreddit/comments/:threadID/:urlTitle' page_type='thread' component={Thread} />
               <DefaultLayout path='/r/:subreddit/comments/:threadID' page_type='thread' component={Thread} />

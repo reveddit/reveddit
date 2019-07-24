@@ -24,55 +24,58 @@ export const byControversiality = (a, b) => {
       || (b.num_comments - a.num_comments)
 }
 
-export const processPushshiftPosts = posts_pushshift => {
-  const ids = []
-  const posts_pushshift_lookup = {}
-  posts_pushshift.forEach(post => {
-    ids.push(post.name)
-    posts_pushshift_lookup[post.id] = post
-  })
-
+export const retrieveRedditPosts_and_combineWithPushshiftPosts = pushshiftPosts => {
+  const ids = pushshiftPosts.map(post => post.name)
   return getItems(ids)
-  .then(posts_reddit => {
-    const show_posts = []
-    posts_reddit.forEach(post => {
-      post.selftext = ''
-      const ps_item = posts_pushshift_lookup[post.id]
-      const retrievalLatency = ps_item.retrieved_on-ps_item.created_utc
-      if (itemIsRemovedOrDeleted(post)) {
-        if (postIsDeleted(post)) {
-          if (post.num_comments > 0) {
-            post.deleted = true
-            display_post(show_posts, post, ps_item)
-          } else {
-            // not showing deleted posts with 0 comments
-          }
-        } else {
-          post.removed = true
-          if (! ps_item.is_crosspostable) {
-            if (retrievalLatency <= AUTOMOD_LATENCY_THRESHOLD) {
-              post.removedby = AUTOMOD_REMOVED
-            } else {
-              post.removedby = UNKNOWN_REMOVED
-            }
-          } else {
-            post.removedby = MOD_OR_AUTOMOD_REMOVED
-          }
+  .then(redditPosts => {
+    return combinePushshiftAndRedditPosts(pushshiftPosts, redditPosts)
+  })
+}
+
+
+export const combinePushshiftAndRedditPosts = (pushshiftPosts, redditPosts) => {
+  const pushshiftPosts_lookup = {}
+  pushshiftPosts.forEach(post => {
+    pushshiftPosts_lookup[post.id] = post
+  })
+  const show_posts = []
+  redditPosts.forEach(post => {
+    post.selftext = ''
+    const ps_item = pushshiftPosts_lookup[post.id]
+    const retrievalLatency = ps_item.retrieved_on-ps_item.created_utc
+    if (itemIsRemovedOrDeleted(post)) {
+      if (postIsDeleted(post)) {
+        if (post.num_comments > 0) {
+          post.deleted = true
           display_post(show_posts, post, ps_item)
+        } else {
+          // not showing deleted posts with 0 comments
         }
       } else {
-        // not-removed posts
-        if ('is_crosspostable' in ps_item && ! ps_item.is_crosspostable) {
-          post.removedby = AUTOMOD_REMOVED_MOD_APPROVED
-          //show_posts.push(post)
+        post.removed = true
+        if (! ps_item.is_crosspostable) {
+          if (retrievalLatency <= AUTOMOD_LATENCY_THRESHOLD) {
+            post.removedby = AUTOMOD_REMOVED
+          } else {
+            post.removedby = UNKNOWN_REMOVED
+          }
         } else {
-          post.removedby = NOT_REMOVED
+          post.removedby = MOD_OR_AUTOMOD_REMOVED
         }
-        show_posts.push(post)
+        display_post(show_posts, post, ps_item)
       }
-    })
-    return show_posts
+    } else {
+      // not-removed posts
+      if ('is_crosspostable' in ps_item && ! ps_item.is_crosspostable) {
+        post.removedby = AUTOMOD_REMOVED_MOD_APPROVED
+        //show_posts.push(post)
+      } else {
+        post.removedby = NOT_REMOVED
+      }
+      show_posts.push(post)
+    }
   })
+  return show_posts
 }
 
 export const getRevdditPostsByDomain = (domain, global, history) => {

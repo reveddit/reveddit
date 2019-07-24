@@ -62,6 +62,7 @@ export const getCommentsBySubreddit = async function(subreddits_str, n = 1000, b
   return chunkAnd_getCommentsByID(ids)
 }
 
+// this expects short IDs in base36, without the t3_ prefix
 export const chunkAnd_getCommentsByID = (ids) => {
   return Promise.all(chunk(ids, 1000)
     .map(ids => getCommentsByID(ids)))

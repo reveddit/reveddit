@@ -18,7 +18,8 @@ export const urlParamKeys = {
   before: 'before',
   before_id: 'before_id',
   keywords: 'keywords',
-  showFilters: 'showFilters'
+  showFilters: 'showFilters',
+  id: 'id'
 }
 
 export const removedFilter_types = {
@@ -66,7 +67,8 @@ export const filter_pageType_defaults = {
   before: '',
   before_id: '',
   keywords: '',
-  showFilters: false
+  showFilters: false,
+  id: ''
 }
 
 const maxN = 60000
@@ -112,7 +114,8 @@ class GlobalState extends Container {
         loading: false,
         error: false,
         userIssueDescription: '',
-        showFilters: false
+        showFilters: false,
+        id: ''
       }
   }
 

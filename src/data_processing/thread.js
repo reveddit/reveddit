@@ -1,4 +1,4 @@
-import { combinePushshiftAndRedditComments } from 'data_processing/comments'
+import { retrieveRedditComments_and_combineWithPushshiftComments } from 'data_processing/comments'
 import {
   getPost as getPushshiftPost,
   getCommentsByThread as getPushshiftCommentsByThread
@@ -68,7 +68,7 @@ export const getRevdditThreadPost = (threadID, global, history) => {
 export const getRevdditThreadComments = (threadID, global) => {
   return getPushshiftCommentsByThread(threadID)
   .then(pushshiftComments => {
-    return combinePushshiftAndRedditComments(pushshiftComments)
+    return retrieveRedditComments_and_combineWithPushshiftComments(pushshiftComments)
     .then(result => {
       global.setSuccess({items: pushshiftComments})
       return pushshiftComments

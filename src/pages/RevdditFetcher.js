@@ -5,6 +5,7 @@ import { getRevdditPostsBySubreddit } from 'data_processing/subreddit_posts'
 import { getRevdditPostsByDomain } from 'data_processing/posts'
 import { getRevdditUserItems, getQueryParams } from 'data_processing/user'
 import { getRevdditThreadItems } from 'data_processing/thread'
+import { getRevdditItems } from 'data_processing/info'
 import { itemIsOneOfSelectedRemovedBy } from 'data_processing/filters'
 import Selections from 'pages/common/selections'
 import { removedFilter_types } from 'state'
@@ -33,6 +34,9 @@ const getCategorySettings = (page_type, subreddit) => {
                      category_title: 'Subreddit',
                      category_unique_field: 'subreddit'},
     'user': {category: 'subreddit',
+             category_title: 'Subreddit',
+             category_unique_field: 'subreddit'},
+    'info': {category: 'subreddit',
              category_title: 'Subreddit',
              category_unique_field: 'subreddit'}
   }
@@ -66,6 +70,10 @@ const getPageTitle = (page_type, string) => {
       return `/u/${string}`
       break
     }
+    case 'info': {
+      return `by ID revddit info`
+      break
+    }
   }
   return null
 
@@ -90,6 +98,10 @@ const getLoadDataFunctionAndParam = (page_type, subreddit, user, kind, threadID,
     }
     case 'user': {
       return [getRevdditUserItems, [user, kind, queryParams]]
+      break
+    }
+    case 'info': {
+      return [getRevdditItems, []]
       break
     }
     default: {

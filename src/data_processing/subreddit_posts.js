@@ -4,7 +4,7 @@ import {
 import { getRemovedPostIDs } from 'api/removeddit'
 import { getPosts } from 'api/reddit'
 import { postIsDeleted } from 'utils'
-import { processPushshiftPosts } from 'data_processing/posts'
+import { retrieveRedditPosts_and_combineWithPushshiftPosts } from 'data_processing/posts'
 
 export const getRevdditPostsBySubreddit = (subreddit, global, history) => {
   const gs = global.state
@@ -31,7 +31,7 @@ export const getRevdditPostsBySubreddit = (subreddit, global, history) => {
     .catch(global.setError)
   } else {
     return getRecentPostsBySubreddit(subreddit, gs.n, gs.before, gs.before_id)
-    .then(processPushshiftPosts)
+    .then(retrieveRedditPosts_and_combineWithPushshiftPosts)
     .then(show_posts => {
       global.setSuccess({items:show_posts})
       return show_posts

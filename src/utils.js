@@ -36,6 +36,15 @@ export const isPost = item => {
   return item.name.slice(0,2) === 't3'
 }
 
+export const isCommentID = id => {
+  return id.slice(0,2) === 't1'
+}
+
+export const isPostID = id => {
+  return id.slice(0,2) === 't3'
+}
+
+
 export const commentIsDeleted = comment => {
   return comment.body.replace(/\\/g,'') === '[deleted]' && comment.author.replace(/\\/g,'') === '[deleted]'
 }

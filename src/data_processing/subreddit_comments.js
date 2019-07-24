@@ -3,7 +3,7 @@ import {
   getCommentsBySubreddit as getPushshiftCommentsBySubreddit,
   getRecentPostsBySubreddit
 } from 'api/pushshift'
-import { combinePushshiftAndRedditComments } from 'data_processing/comments'
+import { retrieveRedditComments_and_combineWithPushshiftComments } from 'data_processing/comments'
 
 export const getFullTitles = pushshiftComments => {
   const link_ids_set = {}
@@ -29,7 +29,7 @@ export const getRevdditComments = (subreddit, global) => {
   return getPushshiftCommentsBySubreddit(subreddit, gs.n, gs.before, gs.before_id)
   .then(pushshiftComments => {
     const fullTitlePromise = getFullTitles(pushshiftComments)
-    const combinePromise = combinePushshiftAndRedditComments(pushshiftComments)
+    const combinePromise = retrieveRedditComments_and_combineWithPushshiftComments(pushshiftComments)
     return Promise.all([fullTitlePromise, combinePromise])
     .then(values => {
       const show_comments = []
