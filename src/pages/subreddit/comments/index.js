@@ -54,7 +54,7 @@ class SubredditComments extends React.Component {
 
     return (
       <React.Fragment>
-        <div className="share-link">
+        <div className="revddit-sharing">
           <a href={getUrlWithTimestamp()} onClick={copyLink}>copy sharelink</a>
         </div>
         {selections}
