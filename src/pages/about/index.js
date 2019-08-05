@@ -2,6 +2,7 @@ import React from 'react'
 import { connect } from 'state'
 import { BlankUser, BlankSubreddit } from 'pages/blank'
 import Comment from 'pages/common/Comment'
+import Time from 'pages/common/Time'
 import { getComments } from 'api/reddit'
 import { itemIsRemovedOrDeleted, SimpleURLSearchParams } from 'utils'
 export class About extends React.Component {
@@ -99,6 +100,26 @@ export class About extends React.Component {
           </div>
           <div className='sections'>
             <div className='section half'>
+              <h2 className='about'>News</h2>
+              <ul className='news'>
+                <li><a href='https://www.reddit.com/r/revddit/comments/clwnxg/revddit_linker_a_desktop_browser_extension_for/'>revddit linker extension</a>
+                  <ul><li><Time created_utc='1564927561'/></li></ul></li>
+              </ul>
+            </div>
+            <div className='section half'>
+              <h2 className='about'>Extra tools</h2>
+              <ul>
+                <li>revddit linker - provides a button and context menu item to switch between reddit and re<span className="v red">v</span>ddit views
+                  <ul>
+                    <li><a href="https://chrome.google.com/webstore/detail/revddit-linker/jgnigeenijnjlahckhfomimnjadmkmah">Chrome</a></li>
+                    <li><a href="https://addons.mozilla.org/en-US/firefox/addon/revddit-linker/">Firefox</a></li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div className='sections'>
+            <div className='section half'>
               <h2 className='about'>Feedback</h2>
               <ul>
                 <li><a href='https://www.reddit.com/r/revddit/'>/r/revddit</a></li>
@@ -119,11 +140,11 @@ export class About extends React.Component {
           <div className='sections'>
             <div className='section half'>
               <h2 className='about'>Donate</h2>
-              <p>re<span className="v white">v</span>ddit is free and ad-free. You can support work like this with a <a className="pointer" onClick={this.props.openModal}>donation</a>, feedback, or code fixes.</p>
+              <p>re<span className="v red">v</span>ddit is free and ad-free. You can support work like this with a <a className="pointer" onClick={this.props.openModal}>donation</a>, feedback, or code fixes.</p>
               <p>Thank you!</p>
             </div>
             <div className='section half'>
-            <h2 className='about'>Advanced</h2>
+            <h2 className='about'>Site usage</h2>
               <p>Insert a <span className='v'>v</span> in the URL of any reddit page.</p>
                 <ul>
                   <li><a href='/user/redditor_3975/'>user/redditor_3975</a></li>
@@ -139,10 +160,7 @@ export class About extends React.Component {
                 <a className='bookmarklet' href="javascript:window.fetch('https://www.reddit.com/api/me.json').then(response => response.json()).then(response => { let name = response.data.name; if (name) {window.location.href = `http://revddit.com/user/${response.data.name}`} else {window.location.href = 'https://www.reddit.com/login'}})">
                   revddit-user
                 </a>
-                to go from reddit to your revddit user page, or this one
-                <a className='bookmarklet' href="javascript: document.location = document.URL.replace('reddit.com','revddit.com');">
-                  revddit
-                </a>
+                to go from reddit to your revddit user page, or the <a href="https://www.reddit.com/r/revddit/comments/clwnxg/revddit_linker_a_desktop_browser_extension_for/">revddit linker extension </a>
                 to go from any reddit page to its re<span className='v'>v</span>ddit version.
               </p>
             </div>
