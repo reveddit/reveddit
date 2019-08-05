@@ -102,6 +102,8 @@ export class About extends React.Component {
             <div className='section half'>
               <h2 className='about'>News</h2>
               <ul className='news'>
+                <li><a href='https://www.reddit.com/r/revddit/comments/cmcw3y/revddit_quarantined_a_desktop_browser_extension/'>revddit quarantined extension</a>
+                  <ul><li><Time created_utc='1565021148'/></li></ul></li>
                 <li><a href='https://www.reddit.com/r/revddit/comments/clwnxg/revddit_linker_a_desktop_browser_extension_for/'>revddit linker extension</a>
                   <ul><li><Time created_utc='1564927561'/></li></ul></li>
               </ul>
@@ -109,6 +111,12 @@ export class About extends React.Component {
             <div className='section half'>
               <h2 className='about'>Extra tools</h2>
               <ul>
+              <li>revddit quarantined - enables viewing quarantined content via re<span className="v red">v</span>ddit
+                <ul>
+                  <li><a href="https://chrome.google.com/webstore/detail/revddit-quarantined/cmfgeilnphkjendelakiniceinhjonfh">Chrome</a></li>
+                  <li><a href="https://addons.mozilla.org/en-US/firefox/addon/revddit-quarantined/">Firefox</a></li>
+                </ul>
+              </li>
                 <li>revddit linker - provides a button and context menu item to switch between reddit and re<span className="v red">v</span>ddit views
                   <ul>
                     <li><a href="https://chrome.google.com/webstore/detail/revddit-linker/jgnigeenijnjlahckhfomimnjadmkmah">Chrome</a></li>
