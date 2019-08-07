@@ -67,7 +67,7 @@ export class About extends React.Component {
             <h2 className='about'>About</h2>
             <BlankUser/>
             <div className='note quarantine'>
-              <div><span className='quarantined'>Quarantined</span> content is not visible on revddit. The data is not publicly accessible via the reddit API.</div>
+              <div>To view <span className='quarantined'>quarantined</span> content, install the <a href="https://chrome.google.com/webstore/detail/revddit-quarantined/cmfgeilnphkjendelakiniceinhjonfh">Chrome</a> or <a href="https://addons.mozilla.org/en-US/firefox/addon/revddit-quarantined/">Firefox</a> extension.</div>
             </div>
           </div>
           <div className='section'>

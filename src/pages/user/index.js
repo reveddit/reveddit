@@ -66,7 +66,7 @@ class User extends React.Component {
         </div>
         {selections}
         <div className='note quarantine'>
-          <p>Note: any <span className='quarantined'>quarantined</span> content will not appear here.</p>
+          <p>To view <span className='quarantined'>quarantined</span> content, install the <a href="https://chrome.google.com/webstore/detail/revddit-quarantined/cmfgeilnphkjendelakiniceinhjonfh">Chrome</a> or <a href="https://addons.mozilla.org/en-US/firefox/addon/revddit-quarantined/">Firefox</a> extension.</p>
         </div>
         {selectedItems &&
           <div className='view-rest-of-comment'>
