@@ -156,6 +156,18 @@ export const withFetch = (WrappedComponent) =>
         .then(items => {
           this.jumpToHash()
         })
+        .catch(error => {
+          console.error(error)
+          if (navigator.doNotTrack == "1") {
+            this.props.openErrorModal(
+              <>
+                <p>To view this site with Firefox, add an exception for revddit by clicking the shield icon next to the URL:</p>
+                <img src="https://i.imgur.com/b1ShxoM.png"/>
+              </>
+            )
+          }
+          this.props.global.setError('')
+        })
       })
     }
 

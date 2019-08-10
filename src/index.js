@@ -6,10 +6,9 @@ import { Provider } from 'unstated'
 import { ApolloProvider } from 'react-apollo'
 import ApolloClient from 'apollo-boost'
 
-import Header from 'pages/common/Header'
+import DefaultLayout from 'pages/DefaultLayout'
 import About from 'pages/about'
 import Info from 'pages/info'
-import Donate from 'pages/common/donate'
 import SubredditPosts from 'pages/subreddit'
 import SubredditComments from 'pages/subreddit/comments'
 import Thread from 'pages/thread'
@@ -21,63 +20,6 @@ import Modal from 'react-modal'
 const apolloClient = new ApolloClient({
   uri: "https://api.revddit.com/v1/graphql"
 })
-
-Modal.setAppElement('#app')
-
-const customStyles = {
-  content : {
-    top                   : '50%',
-    left                  : '50%',
-    right                 : 'auto',
-    bottom                : 'auto',
-    marginRight           : '-50%',
-    transform             : 'translate(-50%, -50%)',
-    padding: 0
-  },
-  overlay: {
-    backgroundColor: 'rgba(255, 255, 255, 0.3)'
-  }
-}
-
-
-class DefaultLayout extends React.Component {
-  state = {
-    modalIsOpen: false
-  }
-  componentDidMount() {
-    document.getElementById('donate-ribbon').onclick = this.openModal
-  }
-  openModal = () => {
-    this.setState({modalIsOpen: true});
-  }
-  closeModal = () => {
-    this.setState({modalIsOpen: false});
-  }
-
-  render() {
-    const {component: Component, ...rest } = this.props
-    return (
-      <Route {...rest} render={matchProps => {
-        return (
-          <React.Fragment>
-            <Header {...matchProps} {...rest}/>
-            <div className='main'>
-              <Modal
-                isOpen={this.state.modalIsOpen}
-                onAfterOpen={this.afterOpenModal}
-                onRequestClose={this.closeModal}
-                style={customStyles}
-              >
-                <Donate/>
-              </Modal>
-              <Component {...matchProps} {...rest} openModal={this.openModal}/>
-            </div>
-          </React.Fragment>
-        )
-      }} />
-    )
-  }
-}
 
 
 class App extends React.Component {
