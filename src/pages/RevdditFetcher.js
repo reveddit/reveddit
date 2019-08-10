@@ -158,14 +158,22 @@ export const withFetch = (WrappedComponent) =>
         })
         .catch(error => {
           console.error(error)
+          let modalContent = undefined
           if (navigator.doNotTrack == "1") {
-            this.props.openErrorModal(
+            modalContent =
               <>
+                <p>Error: unable to connect to reddit</p>
                 <p>To view this site with Firefox, add an exception for revddit by clicking the shield icon next to the URL:</p>
                 <img src="https://i.imgur.com/b1ShxoM.png"/>
               </>
-            )
+          } else {
+            modalContent =
+              <>
+                <p>Error: unable to connect to reddit</p>
+                <p>Please check for any extensions that may be blocking connections.</p>
+              </>
           }
+          this.props.openErrorModal(modalContent)
           this.props.global.setError('')
         })
       })
