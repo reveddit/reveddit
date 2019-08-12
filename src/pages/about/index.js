@@ -152,7 +152,7 @@ export class About extends React.Component {
               <p>Thank you!</p>
             </div>
             <div className='section half'>
-            <h2 className='about'>Site usage</h2>
+              <h2 className='about'>Site usage</h2>
               <p>Insert a <span className='v'>v</span> in the URL of any reddit page.</p>
                 <ul>
                   <li><a href='/user/redditor_3975/'>user/redditor_3975</a></li>
@@ -171,6 +171,12 @@ export class About extends React.Component {
                 to go from reddit to your revddit user page, or the <a href="https://www.reddit.com/r/revddit/comments/clwnxg/revddit_linker_a_desktop_browser_extension_for/">revddit linker extension </a>
                 to go from any reddit page to its re<span className='v'>v</span>ddit version.
               </p>
+            </div>
+          </div>
+          <div className='sections'>
+            <div className='section half'>
+              <h2 className='about'>Credo</h2>
+              <p>Secretly removing content is within reddit's free speech rights, and so is revealing said removals.</p>
             </div>
           </div>
         </div>
