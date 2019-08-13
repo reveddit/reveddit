@@ -169,8 +169,13 @@ export const withFetch = (WrappedComponent) =>
           } else {
             modalContent =
               <>
-                <p>Error: unable to connect to reddit</p>
-                <p>Please check for any extensions that may be blocking connections.</p>
+                <p>Error: unable to connect to either reddit or pushshift</p>
+                <p>Possible causes:
+                  <ul>
+                    <li>conflicting extensions that block connections</li>
+                    <li>temporary network outage</li>
+                  </ul>
+                </p>
               </>
           }
           this.props.openErrorModal(modalContent)
