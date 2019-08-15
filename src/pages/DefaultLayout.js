@@ -1,4 +1,5 @@
 import React from 'react'
+import { withRouter } from 'react-router';
 import { Route } from 'react-router-dom'
 import Modal from 'react-modal'
 import { connect } from 'state'
@@ -31,11 +32,18 @@ class DefaultLayout extends React.Component {
   }
   componentDidMount() {
     document.getElementById('donate-ribbon').onclick = this.openDonateModal
+    if (window.location.hash === '#donate') {
+      this.openDonateModal()
+    }
   }
   openDonateModal = () => {
+    const url = window.location.pathname + window.location.search + '#donate'
+    history.replaceState({'donate': true}, 'donate', url)
     this.setState({donateModalIsOpen: true});
   }
   closeDonateModal = () => {
+    const url = window.location.pathname + window.location.search
+    history.replaceState({}, '', url)
     this.setState({donateModalIsOpen: false});
   }
   openErrorModal = (error) => {

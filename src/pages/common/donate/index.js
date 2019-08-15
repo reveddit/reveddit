@@ -42,7 +42,7 @@ export class Donate extends React.Component {
 
   render() {
     const props = this.props
-    document.title = 'Donate'
+    document.title = 'Donate to revddit'
 
     return (this.state.stripe &&
       <div className="donate-form-container">

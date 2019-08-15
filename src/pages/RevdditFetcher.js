@@ -174,6 +174,7 @@ export const withFetch = (WrappedComponent) =>
                   <ul>
                     <li>conflicting extensions that block connections</li>
                     <li>temporary network outage</li>
+                    <li>the page contains <span className='quarantined'>quarantined</span> content that requires a <a href="https://chrome.google.com/webstore/detail/revddit-quarantined/cmfgeilnphkjendelakiniceinhjonfh">Chrome</a> or <a href="https://addons.mozilla.org/en-US/firefox/addon/revddit-quarantined/">Firefox</a> extension to view accurately.</li>
                   </ul>
                 </p>
               </>
