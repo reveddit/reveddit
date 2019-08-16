@@ -34,7 +34,7 @@ class SubredditComments extends React.Component {
   render () {
     const { subreddit } = this.props.match.params
     const { page_type, viewableItems, selections } = this.props
-    const {items, loading, localSort, localSortReverse} = this.props.global.state
+    const {items, loading, localSort, localSortReverse, hasVisitedUserPage} = this.props.global.state
     const noItemsFound = items.length === 0 && ! loading
 
     const items_sorted = viewableItems
@@ -58,6 +58,12 @@ class SubredditComments extends React.Component {
           <a href={getUrlWithTimestamp()} onClick={copyLink}>copy sharelink</a>
         </div>
         {selections}
+        {! hasVisitedUserPage &&
+          <div className='view-rest-of-comment'>
+            <div>{"Check if you have any removed comments."}</div>
+            <Link to={'/user'}>view my removed comments</Link>
+          </div>
+        }
         <div className='note quarantine'>
           <p>To view <span className='quarantined'>quarantined</span> content, install the <a href="https://chrome.google.com/webstore/detail/revddit-quarantined/cmfgeilnphkjendelakiniceinhjonfh">Chrome</a> or <a href="https://addons.mozilla.org/en-US/firefox/addon/revddit-quarantined/">Firefox</a> extension.</p>
         </div>

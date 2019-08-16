@@ -11,7 +11,7 @@ import { withFetch } from 'pages/RevdditFetcher'
 class Thread extends React.Component {
 
   render () {
-    const { items, loading, threadPost: post } = this.props.global.state
+    const { items, loading, threadPost: post, hasVisitedUserPage } = this.props.global.state
     const { id, author } = post
     const { subreddit, threadID, urlTitle = '', commentID } = this.props.match.params
     const { selections, visibleItemsWithoutCategoryFilter } = this.props
@@ -26,6 +26,12 @@ class Thread extends React.Component {
         {
           <React.Fragment>
             {selections}
+            {! hasVisitedUserPage &&
+              <div className='view-rest-of-comment'>
+                <div>{"Check if you have any removed comments."}</div>
+                <Link to={'/user'}>view my removed comments</Link>
+              </div>
+            }
             {(!loading && (commentID || id)) &&
               <React.Fragment>
                 {isSingleComment &&

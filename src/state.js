@@ -68,7 +68,8 @@ export const filter_pageType_defaults = {
   before_id: '',
   keywords: '',
   showFilters: false,
-  id: ''
+  id: '',
+  hasVisitedUserPage: true
 }
 
 const maxN = 60000
@@ -115,15 +116,16 @@ class GlobalState extends Container {
         error: false,
         userIssueDescription: '',
         showFilters: false,
-        id: ''
+        id: '',
+        hasVisitedUserPage: true
       }
   }
 
-  setStateFromQueryParams(page_type, queryParams) {
+  setStateFromQueryParams(page_type, queryParams, extraGlobalStateVars = {}) {
     if (! page_type) {
       console.error('page_type is undefined')
     }
-    const stateVar = {}
+    const stateVar = extraGlobalStateVars
     for (const [param, urlParamKey] of Object.entries(urlParamKeys)) {
       const paramValue = queryParams.get(urlParamKey)
       this.setValuesForParam(param, paramValue, stateVar, page_type)
