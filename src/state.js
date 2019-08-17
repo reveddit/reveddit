@@ -3,7 +3,36 @@ import { Subscribe, Container } from 'unstated'
 import { withRouter } from 'react-router';
 import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED,
          UNKNOWN_REMOVED, NOT_REMOVED } from 'pages/common/RemovedBy'
-import { SimpleURLSearchParams } from 'utils'
+import { SimpleURLSearchParams, get, put } from 'utils'
+
+export const getExtraGlobalStateVars = (page_type, sort) => {
+  let hasVisitedUserPage = false
+  if (get('hasVisitedUserPage', null)) {
+    hasVisitedUserPage = true
+  } else if (page_type === 'user') {
+    hasVisitedUserPage = true
+    put('hasVisitedUserPage', true)
+  }
+
+  let hasVisitedUserPage_sortTop = false
+  if (get('hasVisitedUserPage_sortTop', null)) {
+    hasVisitedUserPage_sortTop = true
+  } else if (page_type === 'user' && sort === 'top') {
+    hasVisitedUserPage_sortTop = true
+    put('hasVisitedUserPage_sortTop', true)
+  }
+
+  let hasVisitedSubredditPage = false
+  if (get('hasVisitedSubredditPage', null)) {
+    hasVisitedSubredditPage = true
+  } else if (page_type === 'subreddit_posts') {
+    hasVisitedSubredditPage = true
+    put('hasVisitedSubredditPage', true)
+  }
+
+  return {hasVisitedUserPage, hasVisitedUserPage_sortTop, hasVisitedSubredditPage}
+}
+
 
 export const urlParamKeys = {
   removedFilter: 'removal_status', // removedFilter should appear above removedByFilter
@@ -68,8 +97,7 @@ export const filter_pageType_defaults = {
   before_id: '',
   keywords: '',
   showFilters: false,
-  id: '',
-  hasVisitedUserPage: true
+  id: ''
 }
 
 const maxN = 60000
@@ -116,8 +144,7 @@ class GlobalState extends Container {
         error: false,
         userIssueDescription: '',
         showFilters: false,
-        id: '',
-        hasVisitedUserPage: true
+        id: ''
       }
   }
 

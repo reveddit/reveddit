@@ -35,7 +35,7 @@ class SubredditPosts extends React.Component {
         </div>
         {selections}
         {! hasVisitedUserPage &&
-          <div className='view-rest-of-comment'>
+          <div className='notice-with-link'>
             <div>{"Check if you have any removed comments."}</div>
             <Link to={'/user'}>view my removed comments</Link>
           </div>

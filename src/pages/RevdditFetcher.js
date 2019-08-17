@@ -8,9 +8,9 @@ import { getRevdditThreadItems } from 'data_processing/thread'
 import { getRevdditItems } from 'data_processing/info'
 import { itemIsOneOfSelectedRemovedBy } from 'data_processing/filters'
 import Selections from 'pages/common/selections'
-import { removedFilter_types } from 'state'
+import { removedFilter_types, getExtraGlobalStateVars } from 'state'
 import { NOT_REMOVED } from 'pages/common/RemovedBy'
-import { SimpleURLSearchParams, itemIsALockedPost, get, put } from 'utils'
+import { SimpleURLSearchParams, itemIsALockedPost } from 'utils'
 
 const getCategorySettings = (page_type, subreddit) => {
   const category_settings = {
@@ -147,17 +147,12 @@ export const withFetch = (WrappedComponent) =>
           return
         }
       }
-      let hasVisitedUserPage = false
-      if (get('hasVisitedUserPage', null)) {
-        hasVisitedUserPage = true
-      } else if (page_type === 'user') {
-        hasVisitedUserPage = true
-        put('hasVisitedUserPage', true)
-      }
+
+
       this.props.global.setStateFromQueryParams(
                       page_type,
                       new SimpleURLSearchParams(this.props.location.search),
-                      {hasVisitedUserPage})
+                      getExtraGlobalStateVars(page_type, queryParams.sort))
       .then(result => {
 
         const [loadDataFunction, params] = getLoadDataFunctionAndParam(page_type, subreddit, user, kind, threadID, domain, queryParams)

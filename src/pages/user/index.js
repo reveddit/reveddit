@@ -68,8 +68,20 @@ class User extends React.Component {
         <div className='note quarantine'>
           <p>To view <span className='quarantined'>quarantined</span> content, install the <a href="https://chrome.google.com/webstore/detail/revddit-quarantined/cmfgeilnphkjendelakiniceinhjonfh">Chrome</a> or <a href="https://addons.mozilla.org/en-US/firefox/addon/revddit-quarantined/">Firefox</a> extension.</p>
         </div>
+        {! gs.hasVisitedUserPage_sortTop &&
+          <div className='notice-with-link'>
+            <div>{"Sorting by top may show more results."}</div>
+            <a href={'?sort=top&all=true'}>sort by top</a>
+          </div>
+        }
+        {gs.hasVisitedUserPage_sortTop && ! gs.hasVisitedSubredditPage &&
+          <div className='notice-with-link'>
+            <div>{"Subreddit pages work too."}</div>
+            <Link to={'/r/'}>view a subreddit</Link>
+          </div>
+        }
         {selectedItems &&
-          <div className='view-rest-of-comment'>
+          <div className='notice-with-link'>
             <div>{"showing selected items."}</div>
             <Link to={linkToRestOfComments}>view all items</Link>
           </div>

@@ -27,7 +27,7 @@ class Thread extends React.Component {
           <React.Fragment>
             {selections}
             {! hasVisitedUserPage &&
-              <div className='view-rest-of-comment'>
+              <div className='notice-with-link'>
                 <div>{"Check if you have any removed comments."}</div>
                 <Link to={'/user'}>view my removed comments</Link>
               </div>
@@ -35,13 +35,13 @@ class Thread extends React.Component {
             {(!loading && (commentID || id)) &&
               <React.Fragment>
                 {isSingleComment &&
-                  <div className='view-rest-of-comment'>
+                  <div className='notice-with-link'>
                     <div>{"you are viewing a single comment's thread."}</div>
                     <Link to={linkToRestOfComments} onClick={this.props.global.resetRemovedFilters}>view all comments</Link>
                   </div>
                 }
                 {! isSingleComment && ! removedFiltersAreUnset &&
-                  <div className='view-rest-of-comment'>
+                  <div className='notice-with-link'>
                     <div>{"some comments may be hidden by selected filters."}</div>
                     <Link to={linkToRestOfComments} onClick={this.props.global.resetRemovedFilters}>view all comments</Link>
                   </div>
