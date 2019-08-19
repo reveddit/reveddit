@@ -121,7 +121,7 @@ class Header extends React.Component {
           <div id='header'>
             <div id='title_and_forms'>
               <h1>
-                <Link to='/about'>revddit</Link>
+                <Link to='/about'>re<span style={{color: 'white'}}>v</span>ddit</Link>
               </h1>
             </div>
 
