@@ -16,7 +16,7 @@ class Thread extends React.Component {
     const { subreddit, threadID, urlTitle = '', commentID } = this.props.match.params
     const { selections, visibleItemsWithoutCategoryFilter } = this.props
     const linkToRestOfComments = `/r/${subreddit}/comments/${threadID}/${urlTitle}`
-    const isSingleComment = (commentID !== undefined && ! this.props.history.location.hash)
+    const isSingleComment = (commentID !== undefined)
     const root = isSingleComment ? `t1_${commentID}` : `t3_${id}`
     const removedFiltersAreUnset = this.props.global.removedFiltersAreUnset()
 

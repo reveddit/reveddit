@@ -10,7 +10,7 @@ import { itemIsOneOfSelectedRemovedBy } from 'data_processing/filters'
 import Selections from 'pages/common/selections'
 import { removedFilter_types, getExtraGlobalStateVars } from 'state'
 import { NOT_REMOVED } from 'pages/common/RemovedBy'
-import { SimpleURLSearchParams, itemIsALockedPost } from 'utils'
+import { SimpleURLSearchParams, itemIsALockedPost, jumpToHash } from 'utils'
 
 const getCategorySettings = (page_type, subreddit) => {
   const category_settings = {
@@ -158,7 +158,7 @@ export const withFetch = (WrappedComponent) =>
         const [loadDataFunction, params] = getLoadDataFunctionAndParam(page_type, subreddit, user, kind, threadID, domain, queryParams)
         loadDataFunction(...params, this.props.global, this.props.history)
         .then(items => {
-          this.jumpToHash()
+          jumpToHash(this.props.history.location.hash)
         })
         .catch(error => {
           console.error(error)
@@ -189,12 +189,6 @@ export const withFetch = (WrappedComponent) =>
       })
     }
 
-    jumpToHash () {
-      const hash = this.props.history.location.hash;
-      if (hash) {
-        scrollToElement(hash, { offset: -10 });
-      }
-    }
     getViewableItems(items) {
       const subreddit = (this.props.match.params.subreddit || '').toLowerCase()
       const {category, category_unique_field} = getCategorySettings(this.props.page_type, subreddit)

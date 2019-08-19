@@ -148,7 +148,7 @@ class GlobalState extends Container {
       }
   }
 
-  setStateFromQueryParams(page_type, queryParams, extraGlobalStateVars = {}) {
+  setStateFromQueryParams(page_type, queryParams, extraGlobalStateVars = {}, callback = () => {}) {
     if (! page_type) {
       console.error('page_type is undefined')
     }
@@ -157,7 +157,7 @@ class GlobalState extends Container {
       const paramValue = queryParams.get(urlParamKey)
       this.setValuesForParam(param, paramValue, stateVar, page_type)
     }
-    return this.setState(stateVar)
+    return this.setState(stateVar, callback)
   }
   setValuesForParam(param, value, stateVar, page_type) {
     if (value === null) {
@@ -203,23 +203,23 @@ class GlobalState extends Container {
       }
     }
   }
-  selection_update = (selection, value, props) => {
+  selection_update = (selection, value, props, callback = () => {}) => {
     const queryParams = new SimpleURLSearchParams(props.location.search)
-    return this.selection_update_qparams(selection, value, props, queryParams)
+    return this.selection_update_qparams(selection, value, props, queryParams, callback)
   }
-  selection_update_qparams = (selection, value, props, queryParams) => {
+  selection_update_qparams = (selection, value, props, queryParams, callback = () => {}) => {
     if (value === filter_pageType_defaults[selection] ||
         value === filter_pageType_defaults[selection][props.page_type]) {
       queryParams.delete(urlParamKeys[selection])
     } else {
       queryParams.set(urlParamKeys[selection], value)
     }
-    return this.updateURLandState(queryParams, props)
+    return this.updateURLandState(queryParams, props, callback)
   }
-  updateURLandState = (queryParams, props) => {
+  updateURLandState = (queryParams, props, callback = () => {}) => {
     let to = `${props.location.pathname}?${queryParams.toString()}`
     props.history.replace(to)
-    return this.setStateFromQueryParams(props.page_type, queryParams)
+    return this.setStateFromQueryParams(props.page_type, queryParams, {}, callback)
   }
   upvoteRemovalRateHistory_update = (before, before_id, n, content_type, queryParams, baseURL) => {
     if (content_type === 'comments') {

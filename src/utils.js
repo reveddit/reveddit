@@ -1,5 +1,6 @@
 import SnuOwnd from 'snuownd'
 import { AUTOMOD_REMOVED_MOD_APPROVED } from 'pages/common/RemovedBy'
+import scrollToElement from 'scroll-to-element'
 
 const markdown = SnuOwnd.getParser()
 
@@ -282,4 +283,11 @@ export const copyLink = (e) => {
   e.preventDefault()
   copyToClipboard(e.target.href)
   e.target.title='copied link'
+}
+
+
+export const jumpToHash = (hash) => {
+  if (hash) {
+    scrollToElement(hash, { offset: -10 });
+  }
 }

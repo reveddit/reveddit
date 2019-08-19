@@ -1,10 +1,11 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { prettyScore, parse, isRemoved, replaceAmpGTLT } from 'utils'
+import { prettyScore, parse, isRemoved, replaceAmpGTLT, jumpToHash } from 'utils'
 import Time from 'pages/common/Time'
 import RemovedBy from 'pages/common/RemovedBy'
 import { connect } from 'state'
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router'
+
 
 
 class Comment extends React.Component {
@@ -21,7 +22,6 @@ class Comment extends React.Component {
       return '[+]'
     }
   }
-
   render() {
     let props = this.props
     const showContext = this.props.global.state.showContext
@@ -48,7 +48,7 @@ class Comment extends React.Component {
     }
     let parent_link = undefined
     if ('parent_id' in props && props.parent_id.substr(0,2) === 't1') {
-      parent_link = permalink.split('/').slice(0,6).join('/')+'/'+props.parent_id.substr(3)+'/'
+      parent_link = permalink.split('/').slice(0,6).join('/')+'/'+props.parent_id.substr(3)+'/#'+props.parent_id
     }
     const name = `t1_${props.id}`
     let submitter = ''
@@ -91,7 +91,10 @@ class Comment extends React.Component {
                   <React.Fragment>
                     <Link to={permalink} onClick={(e) => {updateStateAndURL('showContext', true, props)}}>permalink</Link>
                     {parent_link &&
-                      <Link to={parent_link} onClick={(e) => {updateStateAndURL('showContext', true, props)}}>parent</Link>
+                      <Link to={parent_link} onClick={
+                        (e) => {updateStateAndURL('showContext', true, props,
+                          () => {jumpToHash(this.props.history.location.hash)}
+                          )}}>parent</Link>
                     }
                     <a href={`https://www.reddit.com${permalink}`}>reddit</a>
                   </React.Fragment>
