@@ -6,7 +6,7 @@ import RemovedBy from 'pages/common/RemovedBy'
 import { connect } from 'state'
 import { withRouter } from 'react-router'
 
-
+const contextDefault = 3
 
 class Comment extends React.Component {
   state = {
@@ -26,6 +26,7 @@ class Comment extends React.Component {
     let props = this.props
     const showContext = this.props.global.state.showContext
     const updateStateAndURL = this.props.global.selection_update
+    const context_update = this.props.global.context_update
 
     let even_odd = ''
     if (!props.removed && !props.deleted) {
@@ -60,6 +61,7 @@ class Comment extends React.Component {
             ${props.removed ? 'removed':''}
             ${props.deleted ? 'deleted':''}
             ${even_odd}
+            ${props.id === props.focusCommentID ? 'focus':''}
       `}>
         <div className='comment-head'>
           <a onClick={() => this.toggleDisplayBody()} className='collapseToggle'>{this.getExpandIcon()}</a>
@@ -89,14 +91,17 @@ class Comment extends React.Component {
                 <div className='comment-links'>
                 { ! props.deleted &&
                   <React.Fragment>
-                    <Link to={permalink} onClick={(e) => {updateStateAndURL('showContext', true, props)}}>permalink</Link>
+                    <Link to={permalink} onClick={(e) => {context_update(0, props)}}>permalink</Link>
                     {parent_link &&
                       <Link to={parent_link} onClick={
-                        (e) => {updateStateAndURL('showContext', true, props,
-                          () => {jumpToHash(this.props.history.location.hash)}
+                        (e) => {context_update(0, props,
+                          () => {jumpToHash(window.location.hash)}
                           )}}>parent</Link>
                     }
-                    <a href={`https://www.reddit.com${permalink}`}>reddit</a>
+                    <Link to={permalink+`?context=${contextDefault}#${props.name}`}
+                          onClick={(e) => {context_update(contextDefault, props,
+                          () => {jumpToHash(window.location.hash)}
+                        )}}>context</Link>
                   </React.Fragment>
                 }
                 </div>
@@ -113,6 +118,7 @@ class Comment extends React.Component {
                         history={props.history}
                         link_author={props.link_author}
                         page_type={props.page_type}
+                        focusCommentID={props.focusCommentID}
                       />
                     ))
                 }

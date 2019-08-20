@@ -39,7 +39,7 @@ export const urlParamKeys = {
   removedByFilter: 'removedby',
   localSort: 'localSort',
   localSortReverse: 'localSortReverse',
-  showContext: 'context',
+  showContext: 'showContext',
   categoryFilter_subreddit: 'subreddit',
   categoryFilter_domain: 'domain',
   categoryFilter_link_title: 'link_title',
@@ -48,7 +48,8 @@ export const urlParamKeys = {
   before_id: 'before_id',
   keywords: 'keywords',
   showFilters: 'showFilters',
-  id: 'id'
+  id: 'id',
+  context: 'context'
 }
 
 export const removedFilter_types = {
@@ -97,7 +98,8 @@ export const filter_pageType_defaults = {
   before_id: '',
   keywords: '',
   showFilters: false,
-  id: ''
+  id: '',
+  context: ''
 }
 
 const maxN = 60000
@@ -144,7 +146,8 @@ class GlobalState extends Container {
         error: false,
         userIssueDescription: '',
         showFilters: false,
-        id: ''
+        id: '',
+        context: ''
       }
   }
 
@@ -193,28 +196,38 @@ class GlobalState extends Container {
           break
         }
         default: {
+          const intValue = parseInt(value)
           if (value === 'false') {
             value = false
           } else if (value === 'true') {
             value = true
+          } else if (Number.isInteger(intValue)) {
+            value = parseInt(value)
           }
           stateVar[param] = value
         }
       }
     }
   }
-  selection_update = (selection, value, props, callback = () => {}) => {
-    const queryParams = new SimpleURLSearchParams(props.location.search)
-    return this.selection_update_qparams(selection, value, props, queryParams, callback)
+  context_update = (context, props, callback = () => {}) => {
+    const queryParams = new SimpleURLSearchParams(window.location.search)
+    queryParams.set('context', context)
+    this.adjust_qparams_for_selection(props.page_type, queryParams, 'showContext', true)
+    return this.setStateFromQueryParams(props.page_type, queryParams, {}, callback)
   }
-  selection_update_qparams = (selection, value, props, queryParams, callback = () => {}) => {
+  selection_update = (selection, value, props, callback = () => {}) => {
+    const queryParams = new SimpleURLSearchParams(window.location.search)
+    this.adjust_qparams_for_selection(props.page_type, queryParams, selection, value)
+    return this.updateURLandState(queryParams, props, callback)
+  }
+  adjust_qparams_for_selection = (page_type, queryParams, selection, value) => {
     if (value === filter_pageType_defaults[selection] ||
-        value === filter_pageType_defaults[selection][props.page_type]) {
+        value === filter_pageType_defaults[selection][page_type]) {
       queryParams.delete(urlParamKeys[selection])
     } else {
       queryParams.set(urlParamKeys[selection], value)
     }
-    return this.updateURLandState(queryParams, props, callback)
+    return queryParams
   }
   updateURLandState = (queryParams, props, callback = () => {}) => {
     let to = `${props.location.pathname}?${queryParams.toString()}`
@@ -240,7 +253,9 @@ class GlobalState extends Container {
     if (value !== removedFilter_types.removed) {
       queryParams.delete(urlParamKeys.removedByFilter)
     }
-    return this.selection_update_qparams('removedFilter', value, props, queryParams)
+
+    this.adjust_qparams_for_selection(props.page_type, queryParams, 'removedFilter', value)
+    return this.updateURLandState(queryParams, props)
   }
   removedByFilter_update = (target, props) => {
     const queryParams = new SimpleURLSearchParams(props.location.search)
@@ -251,7 +266,9 @@ class GlobalState extends Container {
       delete removedby_settings[target.value]
     }
     const value = Object.keys(removedby_settings).join()
-    return this.selection_update_qparams('removedByFilter', value, props, queryParams)
+
+    this.adjust_qparams_for_selection(props.page_type, queryParams, 'removedByFilter', value)
+    return this.updateURLandState(queryParams, props)
   }
 
   removedByFilterIsUnset () {

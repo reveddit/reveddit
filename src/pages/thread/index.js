@@ -7,18 +7,37 @@ import Post from 'pages/common/Post'
 import CommentSection from './CommentSection'
 import Selections from 'pages/common/selections'
 import { withFetch } from 'pages/RevdditFetcher'
+import { SimpleURLSearchParams, jumpToHash } from 'utils'
 
 class Thread extends React.Component {
+  componentDidUpdate() {
+    if (window.location.hash) {
+      jumpToHash(window.location.hash)
+    }
+  }
 
   render () {
-    const { items, loading, threadPost: post, hasVisitedUserPage } = this.props.global.state
+    const { items, loading, threadPost: post, hasVisitedUserPage, context } = this.props.global.state
+
     const { id, author } = post
     const { subreddit, threadID, urlTitle = '', commentID } = this.props.match.params
     const { selections, visibleItemsWithoutCategoryFilter } = this.props
     const linkToRestOfComments = `/r/${subreddit}/comments/${threadID}/${urlTitle}`
     const isSingleComment = (commentID !== undefined)
-    const root = isSingleComment ? `t1_${commentID}` : `t3_${id}`
     const removedFiltersAreUnset = this.props.global.removedFiltersAreUnset()
+
+    let root = `t3_${id}`
+
+    if (isSingleComment) {
+      root = `t1_${commentID}`
+      if (parseInt(context) && items.length) {
+        const items_map = items.reduce((map, obj) => (map[obj.name] = obj, map), {})
+        var i
+        for (i = 0; i < context && (root in items_map) && items_map[root].parent_id.substr(0, 2) !== 't3'; i++) {
+          root = items_map[root].parent_id
+        }
+      }
+    }
 
     return (
       <React.Fragment>
@@ -53,6 +72,7 @@ class Thread extends React.Component {
                   isSingleComment={isSingleComment}
                   visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
                   page_type={this.props.page_type}
+                  focusCommentID={commentID}
                 />
               </React.Fragment>
             }

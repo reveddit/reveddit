@@ -123,6 +123,7 @@ class CommentSection extends React.Component {
 
   render() {
     const props = this.props
+    const { focusCommentID } = this.props
     const comments = this.props.global.state.items
     const { removedFilter, removedByFilter, localSort, localSortReverse, showContext } = props.global.state
     const removedByFilterIsUnset = this.props.global.removedByFilterIsUnset()
@@ -165,16 +166,18 @@ class CommentSection extends React.Component {
       this.sortCommentTree( commentTree, reversible(byCommentLength, localSortReverse) )
     }
 
-
     return (
       commentTree.length !== 0
         ? commentTree.map(comment => {
+          // any attributes added below must also be added to thread/Comment.js
+          // in prop.replies.map(...)
           return <Comment
             key={comment.id}
             {...comment}
             depth={0}
             link_author={props.link_author}
             page_type={props.page_type}
+            focusCommentID={props.focusCommentID}
           />
         })
         : <p>No {removedFilter_text[removedFilter].replace('all','')} comments found</p>
