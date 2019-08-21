@@ -130,9 +130,7 @@ class Comment extends React.Component {
                     <React.Fragment>
                       {props.quarantine && <span className="quarantined">quarantined</span>}
                       { directlink && <a href={directlink}>directlink</a>}
-                      <a href={`${current_page}#${props.name}`}>hashlink</a>
-                      <a href={props.permalink}>permalink</a>
-                      <a href={reddit+props.permalink+'?context=3'}>context</a>
+                      <a href={props.permalink+`?context=3#${props.name}`}>context</a>
                       <a href={props.link_permalink && props.link_permalink.replace('reddit','revddit')}>full comments
                         {'num_comments' in props && `(${props.num_comments})`}</a>
                       {message_mods}
