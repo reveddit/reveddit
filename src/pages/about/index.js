@@ -102,6 +102,8 @@ export class About extends React.Component {
             <div className='section half'>
               <h2 className='about'>News</h2>
               <ul className='news'>
+                <li><a href='https://www.reddit.com/r/shortcuts/comments/ct64s6/is_it_possible_to_modify_a_copied_link/exkas2j/?context=3'>revddit shortcut for iOS</a>
+                  <ul><li><Time created_utc='1566381957'/></li></ul></li>
                 <li><a href='https://www.reddit.com/r/revddit/comments/cmcw3y/revddit_quarantined_a_desktop_browser_extension/'>revddit quarantined extension</a>
                   <ul><li><Time created_utc='1565021148'/></li></ul></li>
                 <li><a href='https://www.reddit.com/r/revddit/comments/clwnxg/revddit_linker_a_desktop_browser_extension_for/'>revddit linker extension</a>
@@ -123,6 +125,7 @@ export class About extends React.Component {
                     <li><a href="https://addons.mozilla.org/en-US/firefox/addon/revddit-linker/">Firefox</a></li>
                   </ul>
                 </li>
+                  <li><a href="https://www.icloud.com/shortcuts/62bc7570613c42cb8b851fad264136df">revddit shortcut</a> - iOS shortcut</li>
               </ul>
             </div>
           </div>
