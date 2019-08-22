@@ -33,18 +33,20 @@ class App extends React.Component {
               <Redirect exact from='/' to='/about' />
               <Redirect from='/u/*' to='/user/*' />
               <Redirect from='/u/' to='/user/' />
-              <Redirect from='/usr/*' to='/user/*' />
-              <Redirect from='/usr/' to='/user/*' />
-              <Route
-                path="/api/info/"
-                component={({ location }) => (
+              <Route path="/usr/*" component={({ location }) => (
                   <Redirect
                     to={{
                       ...location,
-                      pathname: location.pathname.replace(/api\/info/, 'info'),
-                    }}
-                  />
-                )}
+                      pathname: location.pathname.replace(/\/usr/, '/user')
+                    }} /> )}
+              />
+              <Redirect from='/usr/' to='/user/' />
+              <Route path="/api/info/" component={({ location }) => (
+                  <Redirect
+                    to={{
+                      ...location,
+                      pathname: location.pathname.replace(/api\/info/, 'info')
+                    }} /> )}
               />
               <DefaultLayout path='/about' component={About} />
               <DefaultLayout path='/info' page_type='info' component={Info} />

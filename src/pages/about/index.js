@@ -5,6 +5,9 @@ import Comment from 'pages/common/Comment'
 import Time from 'pages/common/Time'
 import { getComments } from 'api/reddit'
 import { itemIsRemovedOrDeleted, SimpleURLSearchParams } from 'utils'
+
+const reddit = 'https://www.reddit.com'
+
 export class About extends React.Component {
   state = {
     comments: [],
@@ -102,12 +105,14 @@ export class About extends React.Component {
             <div className='section half'>
               <h2 className='about'>News</h2>
               <ul className='news'>
-                <li><a href='https://www.reddit.com/r/shortcuts/comments/ct64s6/is_it_possible_to_modify_a_copied_link/exkas2j/?context=3'>revddit shortcut for iOS</a>
+                <li><a href={`${reddit}/r/shortcuts/comments/ct64s6/is_it_possible_to_modify_a_copied_link/exkas2j/?context=3`}>revddit shortcut for iOS</a>
                   <ul><li><Time created_utc='1566381957'/></li></ul></li>
-                <li><a href='https://www.reddit.com/r/revddit/comments/cmcw3y/revddit_quarantined_a_desktop_browser_extension/'>revddit quarantined extension</a>
+                <li><a href={`${reddit}/cmcw3y/`}>revddit quarantined extension</a>
                   <ul><li><Time created_utc='1565021148'/></li></ul></li>
-                <li><a href='https://www.reddit.com/r/revddit/comments/clwnxg/revddit_linker_a_desktop_browser_extension_for/'>revddit linker extension</a>
+                <li><a href={`${reddit}/clwnxg/`}>revddit linker extension</a>
                   <ul><li><Time created_utc='1564927561'/></li></ul></li>
+                <li><a href={`${reddit}/9n9l45/`}>site launch</a>
+                  <ul><li><Time created_utc='1539261445'/></li></ul></li>
               </ul>
             </div>
             <div className='section half'>
