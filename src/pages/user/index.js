@@ -59,6 +59,22 @@ class User extends React.Component {
                          <div id='pagesloaded' className='non-item text' data-pagesloaded={gs.num_pages}>loaded pages {`${gs.num_pages}/${totalPages}`}</div>
                        </React.Fragment>
     }
+
+    const shownItems = []
+    const removedCommentIDs = []
+    viewableItems.forEach(item => {
+      if (! selectedItems || (selectedItems && selectedItems.includes(item.name))) {
+        if (item.name.slice(0,2) === 't3') {
+          shownItems.push(<Post key={item.name} {...item} sort={qp_with_defaults.sort} />)
+        } else {
+          shownItems.push(<Comment key={item.name} {...item} sort={qp_with_defaults.sort}/>)
+          if (item.removed) {
+            removedCommentIDs.push(item.name)
+          }
+        }
+      }
+    })
+
     return (
       <div className='userpage'>
         <div className='subreddit-box'>
@@ -68,9 +84,15 @@ class User extends React.Component {
         <div className='note quarantine'>
           <p>To view <span className='quarantined'>quarantined</span> content, install the <a href="https://chrome.google.com/webstore/detail/revddit-quarantined/cmfgeilnphkjendelakiniceinhjonfh">Chrome</a> or <a href="https://addons.mozilla.org/en-US/firefox/addon/revddit-quarantined/">Firefox</a> extension.</p>
         </div>
+        { removedCommentIDs.length > 0 &&
+          <div className='notice-with-link'>
+            <div>Some comments have been removed. To view this on reddit, open the below link in an incognito window or while logged out.</div>
+            <a href={'https://www.reddit.com/api/info?id='+removedCommentIDs.join(',')} target="_blank">view removed comments on reddit</a>
+          </div>
+        }
         {! gs.hasVisitedUserPage_sortTop &&
           <div className='notice-with-link'>
-            <div>{"Sorting by top may show more results."}</div>
+            <div>Sorting by top may show more results.</div>
             <a href={'?sort=top&all=true'}>sort by top</a>
           </div>
         }
@@ -87,15 +109,7 @@ class User extends React.Component {
           </div>
         }
         {
-          viewableItems.map(item => {
-            if (! selectedItems || (selectedItems && selectedItems.includes(item.name))) {
-              if (item.name.slice(0,2) === 't3') {
-                return <Post key={item.name} {...item} sort={qp_with_defaults.sort} />
-              } else {
-                return <Comment key={item.name} {...item} sort={qp_with_defaults.sort}/>
-              }
-            }
-          })
+          shownItems
         }
         {lastTimeLoaded}
         {nextLink}
