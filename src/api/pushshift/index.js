@@ -92,7 +92,7 @@ export const getRecentPostsBySubreddit = (subreddits_str, n = 1000, before = '',
     sort: {
       ['created_utc']: 'desc'
     },
-    _source: ['retrieved_on','created_utc', 'is_robot_indexable', 'is_crosspostable', 'thumbnail']
+    _source: ['retrieved_on','created_utc', 'is_robot_indexable', 'thumbnail']
   }
   if (before_id) {
     const id_base10 = toBase10(before_id)
@@ -131,7 +131,7 @@ export const getRecentPostsByDomain = (domains_str, n = 1000, before = '', befor
     sort: {
       ['created_utc']: 'desc'
     },
-    _source: ['retrieved_on','created_utc', 'is_robot_indexable', 'is_crosspostable', 'thumbnail']
+    _source: ['retrieved_on','created_utc', 'is_robot_indexable', 'thumbnail']
   }
   if (before_id) {
     const id_base10 = toBase10(before_id)
@@ -155,15 +155,14 @@ export const getRecentPostsByDomain = (domains_str, n = 1000, before = '', befor
 }
 
 // Function intended to be called with userpage-driven IDs
-// note: if a post is old, pushshift will have neither the is_crosspostable
-//       nor the is_robot_indexable field..
+// note: if a post is old, pushshift will not have the is_robot_indexable field..
 //       technically, this should be marked as removedby='unknown'
 //       to simplify logic, in pages/user/index.js, marking this as removed by 'mod (or automod)'
 export const getAutoremovedItems = names => {
   const queryParams = {}
   let isPostQuery = true
   let apiURL = postURL_new
-  queryParams['fields'] = 'id,retrieved_on,created_utc,is_robot_indexable,is_crosspostable'
+  queryParams['fields'] = 'id,retrieved_on,created_utc,is_robot_indexable'
   if (names[0].slice(0,2) === 't1') {
     isPostQuery = false
     apiURL = commentURL_new
@@ -178,10 +177,8 @@ export const getAutoremovedItems = names => {
       const items = []
       data.data.forEach(item => {
         if (isPostQuery) {
-          if ( ('is_robot_indexable' in item &&
-                ! item.is_robot_indexable) ||
-              ( 'is_crosspostable' in item &&
-              ! item.is_crosspostable)) {
+          if ('is_robot_indexable' in item &&
+              ! item.is_robot_indexable) {
             items.push(item)
           }
         } else if (item.author.replace(/\\/g,'') === '[deleted]') {
