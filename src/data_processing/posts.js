@@ -53,7 +53,7 @@ export const combinePushshiftAndRedditPosts = (pushshiftPosts, redditPosts) => {
         }
       } else {
         post.removed = true
-        if (! ps_item.is_crosspostable) {
+        if ('is_robot_indexable' in ps_item && ! ps_item.is_robot_indexable) {
           if (retrievalLatency <= AUTOMOD_LATENCY_THRESHOLD) {
             post.removedby = AUTOMOD_REMOVED
           } else {
@@ -66,7 +66,7 @@ export const combinePushshiftAndRedditPosts = (pushshiftPosts, redditPosts) => {
       }
     } else {
       // not-removed posts
-      if ('is_crosspostable' in ps_item && ! ps_item.is_crosspostable) {
+      if ('is_robot_indexable' in ps_item && ! ps_item.is_robot_indexable) {
         post.removedby = AUTOMOD_REMOVED_MOD_APPROVED
         //show_posts.push(post)
       } else {

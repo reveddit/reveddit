@@ -92,7 +92,7 @@ export const getRecentPostsBySubreddit = (subreddits_str, n = 1000, before = '',
     sort: {
       ['created_utc']: 'desc'
     },
-    _source: ['retrieved_on','created_utc', 'is_crosspostable', 'thumbnail']
+    _source: ['retrieved_on','created_utc', 'is_robot_indexable', 'is_crosspostable', 'thumbnail']
   }
   if (before_id) {
     const id_base10 = toBase10(before_id)
