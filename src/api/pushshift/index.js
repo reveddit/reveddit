@@ -154,52 +154,38 @@ export const getRecentPostsByDomain = (domains_str, n = 1000, before = '', befor
     .catch(() => { throw new Error('Unable to access Pushshift, cannot load recent posts') })
 }
 
-// supply either comments or posts using fullname of id (t1_+id or t3_+id)
-// note: if a post is old, pushshift will not have the is_crosspostable field..
+// Function intended to be called with userpage-driven IDs
+// note: if a post is old, pushshift will have neither the is_crosspostable
+//       nor the is_robot_indexable field..
 //       technically, this should be marked as removedby='unknown'
 //       to simplify logic, in pages/user/index.js, marking this as removed by 'mod (or automod)'
 export const getAutoremovedItems = names => {
-  let filter_field = 'author'
-  if (names[0].slice(0,2) === 't3') {
-    filter_field = 'is_crosspostable'
-  }
-  const ids_base10 = names.map(name => toBase10(name.slice(3)))
-  const elasticQuery = {
-    size:5003,
-    query: {
-      bool: {
-        filter: [
-          {'terms': {
-            '_id': ids_base10
-          }}
-        ]
-      }
-    },
-    _source: ['retrieved_on','created_utc', filter_field]
-  }
-  let filter_term = {[filter_field]: '[deleted]'}
-  let url = commentURL
-  let isPostQuery = false
+  const queryParams = {}
+  let isPostQuery = true
+  let apiURL = postURL_new
+  queryParams['fields'] = 'id,retrieved_on,created_utc,is_robot_indexable,is_crosspostable'
   if (names[0].slice(0,2) === 't1') {
-    elasticQuery.query.bool.filter.push({'term': filter_term})
-  } else if (names[0].slice(0,2) === 't3') {
-    //filter_field = 'is_crosspostable'
-    //filter_term = {[filter_field]: false}
-    isPostQuery = true
-    url = postURL
+    isPostQuery = false
+    apiURL = commentURL_new
+    queryParams['fields'] = 'id,retrieved_on,created_utc,author'
   }
+  queryParams['ids'] = names.map(name => name.slice(3)).join(',')
 
-  return window.fetch(url + JSON.stringify(elasticQuery))
+  const url = apiURL+getQueryString(queryParams)
+  return window.fetch(url)
     .then(response => response.json())
     .then(data => {
       const items = []
-      data.hits.hits.forEach( item => {
-        if (! isPostQuery ||
-            (isPostQuery &&
-              ( 'is_crosspostable' in item._source &&
-              ! item._source.is_crosspostable))) {
-          item._source.id = toBase36(item._id);
-          items.push(item._source);
+      data.data.forEach(item => {
+        if (isPostQuery) {
+          if ( ('is_robot_indexable' in item &&
+                ! item.is_robot_indexable) ||
+              ( 'is_crosspostable' in item &&
+              ! item.is_crosspostable)) {
+            items.push(item)
+          }
+        } else if (item.author.replace(/\\/g,'') === '[deleted]') {
+          items.push(item)
         }
       })
       return items
