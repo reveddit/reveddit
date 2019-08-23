@@ -42,7 +42,7 @@ export const getRevdditThreadPost = (threadID, global, history) => {
         if (post.is_self) {
           post.selftext = ps_post.selftext
         }
-        if (! ps_post.is_crosspostable) {
+        if ('is_robot_indexable' in ps_post && ! ps_post.is_robot_indexable) {
           if (retrievalLatency <= AUTOMOD_LATENCY_THRESHOLD) {
             post.removedby = AUTOMOD_REMOVED
           } else {
@@ -54,7 +54,7 @@ export const getRevdditThreadPost = (threadID, global, history) => {
       }
     } else {
       // not-removed posts
-      if ('is_crosspostable' in ps_post && ! ps_post.is_crosspostable) {
+      if ('is_robot_indexable' in ps_post && ! ps_post.is_robot_indexable) {
         post.removedby = AUTOMOD_REMOVED_MOD_APPROVED
       } else {
         post.removedby = NOT_REMOVED

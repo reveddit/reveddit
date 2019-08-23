@@ -85,7 +85,7 @@ export const getRevdditPostsByDomain = (domain, global, history) => {
     history.replace(`/r/${domain}/`+window.location.search)
   }
   return getRecentPostsByDomain(domain, gs.n, gs.before, gs.before_id)
-  .then(processPushshiftPosts)
+  .then(retrieveRedditPosts_and_combineWithPushshiftPosts)
   .then(show_posts => {
     global.setSuccess({items:show_posts})
     return show_posts

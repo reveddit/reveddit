@@ -32,13 +32,6 @@ export const getQueryParams = () => {
 
 
 function lookupAndSetRemovedBy(global) {
-  // comment_ids = comments where (removedby === undefined)
-  // post_ids = post where (removedby === undefined)
-  // query pushshift for comment_ids where author === '[deleted]'
-     //.then(1. markComments; 2. setState(comments_removed_meta: {mod-rem: {}, automod-rem: {}, unknown-rem: {}, automod-rem-mod-app: {}}))
-  // query pushshift for post_ids where is_crosspostable === false
-    //.then(1. markComments; 2. setState(posts_removed_meta: {mod-rem: {}, automod-rem: {}, unknown-rem: {}, automod-rem-mod-app: {}}))
-  // render() in user/Comment.js
   const comment_names = []
   const post_names = []
   const comments_removedBy_undefined = []
