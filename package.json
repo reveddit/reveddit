@@ -61,7 +61,8 @@
     "webpack-dev-server": "^3.2.1"
   },
   "scripts": {
-    "start": "concurrently \"webpack-dev-server --mode development\" \"yarn lambda-serve\"",
+    "start-all": "concurrently \"yarn start\" \"yarn lambda-serve\"",
+    "start": "webpack-dev-server --mode development",
     "build": "yarn build-sass; webpack --mode production && yarn lambda-build",
     "build-sass": "node-sass --style compressed src/sass/index.sass dist/main.css",
     "lambda-serve": "netlify-lambda serve lambda-src",
