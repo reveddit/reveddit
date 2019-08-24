@@ -131,11 +131,11 @@ function getItems (user, kind, global, sort, before = '', after = '', limit, loa
             .then(html_result => {
               if ('error' in html_result) {
                 console.error(html_result.error)
-                global.setError(Error(''), {userIssueDescription: 'deleted or shadowbanned'})
+                global.setError(Error(''), {userIssueDescription: 'may be deleted or shadowbanned, or, may not exist. Verify the url and reload this page to double check.'})
               } else if (html_result.html.match(/has deleted their account/)) {
-                global.setError(Error(''), {userIssueDescription: 'deleted'})
+                global.setError(Error(''), {userIssueDescription: 'has deleted their account'})
               } else {
-                global.setError(Error(''), {userIssueDescription: 'shadowbanned'})
+                global.setError(Error(''), {userIssueDescription: 'may be shadowbanned or may not exist. Verify the url and reload this page to double check. You can also check account status at r/ShadowBan.'})
               }
               return null
             })
