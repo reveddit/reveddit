@@ -1,21 +1,35 @@
 import React from 'react'
 import { connect } from 'state'
 
+const r_all = 'r/all top 100'
+
 class Content extends React.Component {
 
   getLink(expected_suffix, content_type_description) {
+    const frontPage = this.props.global.state.frontPage
     const path_parts = window.location.pathname.split('/')
     const suffix = path_parts.slice(3,4)[0] || ''
     const link_path_parts = path_parts.slice(0,3)
     link_path_parts.push(expected_suffix)
-    const path = link_path_parts.join('/')
+    const path = link_path_parts.join('/').replace(/\/$/,'')
+    let selected = ''
+    let params = ''
+    if (suffix === expected_suffix ||
+          (this.props.page_type === 'subreddit_posts' &&
+           expected_suffix !== 'comments')) {
+      if (content_type_description === r_all) {
+        params = '?frontPage=true'
+        if (frontPage) {
+          selected = 'selected'
+        }
+      } else if (! frontPage) {
+        selected = 'selected'
+      }
+    }
     return (<div>
-              <a className=
-                {suffix === expected_suffix ||
-                  (this.props.page_type === 'subreddit_posts' &&
-                   expected_suffix !== 'comments') ?
-                 'selected': ''}
-                 href={path}>{content_type_description}</a>
+              <a className={selected} href={path+params}>
+                {content_type_description}
+              </a>
             </div>)
   }
 
@@ -33,6 +47,7 @@ class Content extends React.Component {
           {['subreddit_posts', 'subreddit_comments'].includes(this.props.page_type) &&
             <React.Fragment>
               {this.getLink('', 'posts')}
+              {this.getLink('', r_all)}
               {this.getLink('comments', 'comments')}
             </React.Fragment>
           }

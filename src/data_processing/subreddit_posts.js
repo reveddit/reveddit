@@ -13,7 +13,7 @@ export const getRevdditPostsBySubreddit = (subreddit, global, history) => {
     history.replace(`/r/${subreddit}/`+window.location.search)
   }
   global.setLoading('')
-  if (subreddit === 'all') {
+  if (subreddit === 'all' || gs.frontPage) {
     return getRemovedPostIDs(subreddit)
     .then(postIDs => getPosts(postIDs))
     .then(posts => {

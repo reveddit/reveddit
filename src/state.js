@@ -49,7 +49,8 @@ export const urlParamKeys = {
   keywords: 'keywords',
   showFilters: 'showFilters',
   id: 'id',
-  context: 'context'
+  context: 'context',
+  frontPage: 'frontPage'
 }
 
 export const removedFilter_types = {
@@ -99,7 +100,8 @@ export const filter_pageType_defaults = {
   keywords: '',
   showFilters: false,
   id: '',
-  context: ''
+  context: '',
+  frontPage: false
 }
 
 const maxN = 60000
@@ -147,7 +149,8 @@ class GlobalState extends Container {
         userIssueDescription: '',
         showFilters: false,
         id: '',
-        context: ''
+        context: '',
+        frontPage: false
       }
   }
 
