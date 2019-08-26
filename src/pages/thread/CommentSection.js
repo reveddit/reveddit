@@ -165,22 +165,29 @@ class CommentSection extends React.Component {
     } else if (localSort === localSort_types.comment_length) {
       this.sortCommentTree( commentTree, reversible(byCommentLength, localSortReverse) )
     }
-
+    let comments_render = []
+    let status = ''
+    if (commentTree.length) {
+      comments_render = commentTree.map(comment => {
+        // any attributes added below must also be added to thread/Comment.js
+        // in prop.replies.map(...)
+        return <Comment
+          key={comment.id}
+          {...comment}
+          depth={0}
+          link_author={props.link_author}
+          page_type={props.page_type}
+          focusCommentID={props.focusCommentID}
+        />
+      })
+    } else if (removedFilter !== removedFilter_types.all) {
+      status = (<p>No {removedFilter_text[removedFilter]} comments found</p>)
+    }
     return (
-      commentTree.length !== 0
-        ? commentTree.map(comment => {
-          // any attributes added below must also be added to thread/Comment.js
-          // in prop.replies.map(...)
-          return <Comment
-            key={comment.id}
-            {...comment}
-            depth={0}
-            link_author={props.link_author}
-            page_type={props.page_type}
-            focusCommentID={props.focusCommentID}
-          />
-        })
-        : <p>No {removedFilter_text[removedFilter].replace('all','')} comments found</p>
+      <>
+        {comments_render}
+        {status}
+      </>
     )
   }
 }
