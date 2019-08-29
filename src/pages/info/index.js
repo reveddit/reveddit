@@ -27,6 +27,9 @@ export class Info extends React.Component {
     return (
       <div className='infopage'>
         {selections}
+        <div className='note quarantine'>
+          <p>To view <span className='quarantined'>quarantined</span> content, install the <a href="https://chrome.google.com/webstore/detail/revddit-quarantined/cmfgeilnphkjendelakiniceinhjonfh">Chrome</a> or <a href="https://addons.mozilla.org/en-US/firefox/addon/revddit-quarantined/">Firefox</a> extension.</p>
+        </div>
         {
           noItemsFound ?
           <p>No items found</p> :

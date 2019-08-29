@@ -69,9 +69,9 @@ export const getRevdditThreadComments = (threadID, global) => {
   return getPushshiftCommentsByThread(threadID)
   .then(pushshiftComments => {
     return retrieveRedditComments_and_combineWithPushshiftComments(pushshiftComments)
-    .then(result => {
-      global.setSuccess({items: pushshiftComments})
-      return pushshiftComments
+    .then(combinedComments => {
+      global.setSuccess({items: combinedComments})
+      return combinedComments
     })
   })
   .catch(global.setError)

@@ -37,7 +37,7 @@ export const combinePushshiftAndRedditComments = (pushshiftComments, redditComme
     }
 
   })
-
+  const combinedComments = []
   // Replace pushshift data with reddit and mark removedby
   pushshiftComments.forEach(ps_comment => {
     const retrievalLatency = ps_comment.retrieved_on-ps_comment.created_utc
@@ -71,15 +71,16 @@ export const combinePushshiftAndRedditComments = (pushshiftComments, redditComme
           ps_comment.removedby = MOD_OR_AUTOMOD_REMOVED
         }
       }
+      combinedComments.push(ps_comment)
     } else {
       // known issue: r/all/comments?before=1538269380 will show some comments whose redditComment has no data
       //              looks like spam that was removed
       //console.log(ps_comment.id)
     }
   })
-
   console.log(`Pushshift: ${pushshiftComments.length} comments`)
   console.log(`Reddit: ${redditComments.length} comments`)
+  return combinedComments
 
 }
 
@@ -103,22 +104,23 @@ export const getRevdditComments = (pushshiftComments) => {
   .then(values => {
     const show_comments = []
     const full_titles = values[0]
-    pushshiftComments.forEach(ps_comment => {
-      if (full_titles && ps_comment.link_id in full_titles) {
-        const full_post_data = full_titles[ps_comment.link_id]
+    const combinedComments = values[1]
+    combinedComments.forEach(comment => {
+      if (full_titles && comment.link_id in full_titles) {
+        const full_post_data = full_titles[comment.link_id]
         if ( ! (full_post_data.whitelist_status === 'promo_adult_nsfw' &&
-               (ps_comment.removed || ps_comment.deleted))) {
-          ps_comment.link_title = full_post_data.title
-          if (full_titles[ps_comment.link_id].url) {
-            ps_comment.url = full_post_data.url
+               (comment.removed || comment.deleted))) {
+          comment.link_title = full_post_data.title
+          if (full_titles[comment.link_id].url) {
+            comment.url = full_post_data.url
           }
-          if (typeof(full_titles[ps_comment.link_id].num_comments) !== 'undefined') {
-            ps_comment.num_comments = full_post_data.num_comments
+          if (typeof(full_titles[comment.link_id].num_comments) !== 'undefined') {
+            comment.num_comments = full_post_data.num_comments
           }
-          show_comments.push(ps_comment)
+          show_comments.push(comment)
         }
       } else {
-        show_comments.push(ps_comment)
+        show_comments.push(comment)
       }
     })
     return show_comments
