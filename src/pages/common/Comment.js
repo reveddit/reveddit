@@ -83,7 +83,7 @@ class Comment extends React.Component {
               <span> by </span>
               <a
                 href={`/user/${props.link_author}`}
-                className='author comment-author'>
+                className='author'>
                 {props.link_author}
               </a>
             </React.Fragment>
@@ -104,7 +104,7 @@ class Comment extends React.Component {
         <div className='comment-head subhead'>
         <a
           href={`/user/${author}`}
-          className={`author comment-author ${submitter}`}
+          className={`author ${submitter} ${props.distinguished ? 'distinguished '+props.distinguished : ''}`}
         >
           {author}
           {props.deleted && ' (by user)'}

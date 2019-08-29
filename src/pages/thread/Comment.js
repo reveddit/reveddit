@@ -68,8 +68,8 @@ class Comment extends React.Component {
           <span className='space' />
           <a
             href={author !== '[deleted]' ? `/user/${author}` : undefined}
-            className={`author comment-author ${submitter}
-                      ${props.distinguished ? 'distinguished':''}
+            className={`author ${submitter}
+                      ${props.distinguished ? 'distinguished '+props.distinguished : ''}
             `}
           >
             {author}

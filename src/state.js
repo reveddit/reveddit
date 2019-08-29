@@ -50,7 +50,8 @@ export const urlParamKeys = {
   showFilters: 'showFilters',
   id: 'id',
   context: 'context',
-  frontPage: 'frontPage'
+  frontPage: 'frontPage',
+  q: 'q', author: 'author', subreddit: 's_subreddit'
 }
 
 export const removedFilter_types = {
@@ -101,7 +102,8 @@ export const filter_pageType_defaults = {
   showFilters: false,
   id: '',
   context: '',
-  frontPage: false
+  frontPage: false,
+  q: '', author: '', subreddit: ''
 }
 
 const maxN = 60000
@@ -150,7 +152,8 @@ class GlobalState extends Container {
         showFilters: false,
         id: '',
         context: '',
-        frontPage: false
+        frontPage: false,
+        q: '', author: '', subreddit: ''
       }
   }
 
@@ -297,13 +300,13 @@ class GlobalState extends Container {
 
   setSuccess = (other = {}) => {
     if (! this.state.error) {
-      this.setState({statusText: '', statusImage: '/images/success.png', loading:false, ...other})
+      return this.setState({statusText: '', statusImage: '/images/success.png', loading:false, ...other})
     } else if (Object.keys(other).length) {
-      this.setState(other)
+      return this.setState(other)
     }
   }
   setError = (error, other = {}) => {
-    this.setState({statusText: error.message, statusImage: '/images/error.png', loading:false, error: true, ...other})
+    return this.setState({statusText: error.message, statusImage: '/images/error.png', loading:false, error: true, ...other})
   }
   setLoading = (text) => this.setState({statusText: text, statusImage: '/images/loading.gif', loading:true})
   clearStatus = () => this.setState({statusText: '', statusImage: undefined, loading:false})

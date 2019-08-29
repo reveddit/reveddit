@@ -56,6 +56,7 @@ class App extends React.Component {
               />
               <DefaultLayout path='/about' component={About} />
               <DefaultLayout path='/info' page_type='info' component={Info} />
+              <DefaultLayout path='/search' page_type='search' component={Info} />
               <DefaultLayout path='/r/:subreddit/comments/:threadID/:urlTitle/:commentID' page_type='thread' component={Thread} />
               <DefaultLayout path='/r/:subreddit/comments/:threadID/:urlTitle' page_type='thread' component={Thread} />
               <DefaultLayout path='/r/:subreddit/comments/:threadID' page_type='thread' component={Thread} />

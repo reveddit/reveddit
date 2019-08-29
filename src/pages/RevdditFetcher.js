@@ -1,11 +1,11 @@
 import React from 'react'
 import scrollToElement from 'scroll-to-element'
-import { getRevdditComments } from 'data_processing/subreddit_comments'
+import { getRevdditCommentsBySubreddit } from 'data_processing/comments'
 import { getRevdditPostsBySubreddit } from 'data_processing/subreddit_posts'
 import { getRevdditPostsByDomain } from 'data_processing/posts'
 import { getRevdditUserItems, getQueryParams } from 'data_processing/user'
 import { getRevdditThreadItems } from 'data_processing/thread'
-import { getRevdditItems } from 'data_processing/info'
+import { getRevdditItems, getRevdditSearch } from 'data_processing/info'
 import { itemIsOneOfSelectedRemovedBy } from 'data_processing/filters'
 import Selections from 'pages/common/selections'
 import { removedFilter_types, getExtraGlobalStateVars } from 'state'
@@ -38,7 +38,10 @@ const getCategorySettings = (page_type, subreddit) => {
              category_unique_field: 'subreddit'},
     'info': {category: 'subreddit',
              category_title: 'Subreddit',
-             category_unique_field: 'subreddit'}
+             category_unique_field: 'subreddit'},
+    'search': {category: 'subreddit',
+               category_title: 'Subreddit',
+               category_unique_field: 'subreddit'}
   }
   if (page_type in category_settings) {
     if (subreddit) {
@@ -71,7 +74,11 @@ const getPageTitle = (page_type, string) => {
       break
     }
     case 'info': {
-      return `by ID revddit info`
+      return 'by ID revddit info'
+      break
+    }
+    case 'search': {
+      return 'search revddit'
       break
     }
   }
@@ -85,7 +92,7 @@ const getLoadDataFunctionAndParam = (page_type, subreddit, user, kind, threadID,
       break
     }
     case 'subreddit_comments': {
-      return [getRevdditComments, [subreddit]]
+      return [getRevdditCommentsBySubreddit, [subreddit]]
       break
     }
     case 'domain_posts': {
@@ -102,6 +109,10 @@ const getLoadDataFunctionAndParam = (page_type, subreddit, user, kind, threadID,
     }
     case 'info': {
       return [getRevdditItems, []]
+      break
+    }
+    case 'search': {
+      return [getRevdditSearch, []]
       break
     }
     default: {
@@ -189,9 +200,7 @@ export const withFetch = (WrappedComponent) =>
       })
     }
 
-    getViewableItems(items) {
-      const subreddit = (this.props.match.params.subreddit || '').toLowerCase()
-      const {category, category_unique_field} = getCategorySettings(this.props.page_type, subreddit)
+    getViewableItems(items, category, category_unique_field) {
       let category_state = this.props.global.state['categoryFilter_'+category]
       const showAllCategories = category_state === 'all'
       return items.filter(item => {
@@ -213,7 +222,7 @@ export const withFetch = (WrappedComponent) =>
         if (
           (gs.removedFilter === removedFilter_types.all ||
             (gs.removedFilter === removedFilter_types.not_removed &&
-              (! item.removed && item.removedby === NOT_REMOVED) ) ||
+              (! item.deleted && ! item.removed && item.removedby === NOT_REMOVED) ) ||
             (
               gs.removedFilter === removedFilter_types.removed &&
                 (item.deleted || item.removed || itemIsALockedPost(item) ||
@@ -260,9 +269,8 @@ export const withFetch = (WrappedComponent) =>
       let visibleItemsWithoutCategoryFilter = []
       let viewableItems = []
       visibleItemsWithoutCategoryFilter = this.getVisibleItemsWithoutCategoryFilter()
-      viewableItems = this.getViewableItems(visibleItemsWithoutCategoryFilter)
-
       const {category, category_title, category_unique_field} = getCategorySettings(page_type, subreddit)
+      viewableItems = this.getViewableItems(visibleItemsWithoutCategoryFilter, category, category_unique_field)
 
       const selections =
       <Selections subreddit={subreddit}

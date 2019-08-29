@@ -10,6 +10,20 @@ const comment_fields = [
 const postURL_new = 'https://api.pushshift.io/reddit/submission/search/'
 const commentURL_new = 'https://api.pushshift.io/reddit/comment/search/'
 
+export const queryComments = (q, author, subreddit, n = 1000) => {
+  const queryParams = {q, size: n, fields: comment_fields.join(',')}
+  if (author) queryParams.author = author
+  if (subreddit) queryParams.subreddit = subreddit
+
+  return window.fetch(commentURL_new+getQueryString(queryParams))
+    .then(response => response.json())
+    .then(data => data.data)
+}
+
+export const queryPosts = (q, author, subreddit, n = 1000) => {
+  return window.fetch(postURL_new+'?'+params)
+}
+
 // If before_id is set, response begins with that ID
 export const getCommentsBySubreddit = async function(subreddits_str, n = 1000, before = '', before_id = '') {
   const data = {}
@@ -59,21 +73,55 @@ export const getCommentsBySubreddit = async function(subreddits_str, n = 1000, b
     numCalls += 1
   }
   const ids = Object.keys(data).sort((a,b) => b.created_utc - a.created_utc).slice(0,n)
-  return chunkAnd_getCommentsByID(ids)
+  return getCommentsByID(ids)
 }
 
-// this expects short IDs in base36, without the t3_ prefix
-export const chunkAnd_getCommentsByID = (ids) => {
+// this expects short IDs in base36, without the t1_ prefix
+export const getCommentsByID = (ids) => {
   return Promise.all(chunk(ids, 1000)
-    .map(ids => getCommentsByID(ids)))
+    .map(ids => getCommentsByID_chunk(ids)))
     .then(flatten)
 }
 
-export const getCommentsByID = (ids) => {
-  const params = 'ids='+ids.join(',')
+export const getCommentsByID_chunk = (ids) => {
+  const params = 'ids='+ids.join(',')+`&fields=${comment_fields.join(',')}`
   return window.fetch(commentURL_new+'?'+params)
     .then(response => response.json())
     .then(data => data.data)
+}
+
+
+// this expects short IDs in base36, without the t3_ prefix
+export const getPostsByID = (ids) => {
+  return Promise.all(chunk(ids, 1000)
+    .map(ids => getPostsByID_chunk(ids)))
+    .then(flatten)
+}
+
+// get id, add name in post processing
+export const getPostsByID_chunk = (ids) => {
+  const params = 'ids='+ids.join(',')+'&fields=id,title,whitelist_status,url,num_comments'
+  return window.fetch(postURL_new+'?'+params)
+    .then(response => response.json())
+    .then(data => {
+      data.data.forEach(post => {
+        post.name = 't3_'+post.id
+      })
+      return data.data
+    })
+}
+
+export const getPost = id => {
+  const params = 'ids='+id
+  return window.fetch(postURL_new+'?'+params)
+    .then(response => response.json())
+    .then(data => {
+      if (data.data.length) {
+        return data.data[0]
+      } else {
+        return {}
+      }
+    })
 }
 
 export const getRecentPostsBySubreddit = (subreddits_str, n = 1000, before = '', before_id = '') => {
@@ -190,63 +238,9 @@ export const getAutoremovedItems = names => {
     .catch(() => { throw new Error('Unable to access Pushshift, cannot load removed-by labels') })
 }
 
-// ES Pushshift maxClauseCount = 1024
-export const getPosts = threadIDs => {
-  return Promise.all(chunk(threadIDs, 1024)
-    .map(ids => getPosts_chunk(ids)))
-    .then(flatten)
-}
-
-export const getPosts_chunk = threadIDs => {
-  const ids_base10 = threadIDs.map(id => toBase10(id.slice(3)))
-  const elasticQuery = {
-    query: {
-      terms: {
-        id: ids_base10
-      }
-    },
-    size: threadIDs.length,
-    _source: ['title','whitelist_status', 'url','num_comments']
-  }
-
-  return window.fetch(postURL + JSON.stringify(elasticQuery))
-  .then(response => response.json())
-  .then(response => {
-    const posts = response.hits.hits
-    return posts.map(post => {
-      const id = toBase36(post._id)
-      post._source.id = id
-      post._source.name = 't3_'+id
-      return post._source
-    })
-  })
-}
-
-export const getPost = threadID => {
-  const elasticQuery = {
-    query: {
-      term: {
-        id: toBase10(threadID)
-      }
-    }
-  }
-
-  return window.fetch(postURL + JSON.stringify(elasticQuery))
-  .then(response => response.json())
-  .then(response => {
-    if (response.hits.hits.length) {
-      const post = response.hits.hits[0]._source
-      post.id = toBase36(post.id)
-      return post
-    } else {
-      return {}
-    }
-  })
-  .catch(() => { throw new Error('Could not get post') })
-}
 
 export const getCommentsByThread = (threadID) => {
-  const params = `link_id=${threadID}&filter=${comment_fields.join(',')}&sort=asc&limit=30000`
+  const params = `link_id=${threadID}&fields=${comment_fields.join(',')}&sort=asc&limit=30000`
   return window.fetch(commentURL_new+'?'+params)
     .then(response => response.json())
     .then(data => {

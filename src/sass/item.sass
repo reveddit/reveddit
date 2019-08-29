@@ -20,15 +20,17 @@
     padding: 0 2px
     font-size: 10px
 
-.comment, .post
-
-  .author.distinguished, .comment-author.author.distinguished
-    background-color: $distinguished
+  .author.distinguished
     border-radius: 3px
     color: white
     font-weight: 700
     padding: 1px 2px
+    &.moderator
+      background-color: $moderator
+    &.admin
+      background-color: $admin
+
 .post.stickied
   .thread-title
-    color: $distinguished
+    color: $moderator
     font-weight: bold

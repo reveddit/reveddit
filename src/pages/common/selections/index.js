@@ -40,9 +40,10 @@ class Selections extends React.Component {
                 case 'subreddit_posts':
                 case 'domain_posts':
                 case 'info':
+                case 'search':
                   return (
                     <React.Fragment>
-                      {page_type !== 'domain_posts' && page_type !== 'info' &&
+                      {page_type !== 'domain_posts' && page_type !== 'info' && page_type !== 'search' &&
                         <Content page_type={page_type}/>
                       }
                       <LocalSort page_type={page_type}/>
@@ -51,7 +52,7 @@ class Selections extends React.Component {
                       <CategoryFilter page_type={page_type}
                         visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
                         type={category_type} title={category_title} unique_field={category_unique_field}/>
-                      {subreddit !== 'all' && page_type !== 'domain_posts' && page_type !== 'info' &&
+                      {subreddit !== 'all' && page_type !== 'domain_posts' && page_type !== 'info' && page_type !== 'search' &&
                         <UpvoteRemovalRateHistory page_type={page_type}/>
                       }
                       <TextFilter page_type={page_type} />

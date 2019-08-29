@@ -4,27 +4,8 @@ import Post from 'pages/common/Post'
 import Comment from 'pages/common/Comment'
 import { withFetch } from 'pages/RevdditFetcher'
 import { reversible } from 'utils'
+import {byScore, byDate, byNumComments, byControversiality} from 'data_processing/info'
 
-const byScore = (a, b) => {
-  return (b.score - a.score)
-}
-const byDate = (a, b) => {
-  return (b.created_utc - a.created_utc)
-}
-const byNumComments = (a, b) => {
-  if ('num_comments' in a) {
-    return (b.num_comments - a.num_comments) || (b.created_utc - a.created_utc)
-  } else {
-    return 0
-  }
-}
-const byControversiality = (a, b) => {
-  if ('num_comments' in a) {
-    return  (a.score - b.score) || (b.num_comments - a.num_comments)
-  } else {
-    return  (a.score - b.score)
-  }
-}
 
 export class Info extends React.Component {
 

@@ -85,8 +85,7 @@ class Post extends React.Component {
           <span className='domain'>({props.domain})</span>
           <div className='thread-info'>
             submitted <Time created_utc={props.created_utc}/> by&nbsp;
-            <a className={`thread-author
-              ${props.distinguished ? 'distinguished':''}`}
+            <a className={`author ${props.distinguished ? 'distinguished '+props.distinguished : ''}`}
               href={userLink}>{props.author}</a>
             &nbsp;to <a className='subreddit-link' href={`/r/${props.subreddit}`}>/r/{props.subreddit}</a>
             {props.locked && <>&nbsp;<span className='locked'>locked</span></>}
