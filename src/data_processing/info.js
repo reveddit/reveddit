@@ -88,14 +88,13 @@ export const getRevdditSearch = (global, history) => {
     } else if (content === 'posts') {
       nextPromises.push(getRevdditPosts(results[0]))
     } else if (content === 'all') {
-      promises.push(getRevdditComments(results[0]))
-      promises.push(getRevdditPosts(results[1]))
+      nextPromises.push(getRevdditComments(results[0]))
+      nextPromises.push(getRevdditPosts(results[1]))
     }
     return Promise.all(nextPromises)
   })
   .then(results => {
     const items = []
-
     results.forEach(result => {
       items.push(...result)
     })
