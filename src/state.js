@@ -51,7 +51,7 @@ export const urlParamKeys = {
   id: 'id',
   context: 'context',
   frontPage: 'frontPage',
-  q: 'q', author: 'author', subreddit: 's_subreddit', after: 'after'
+  q: 'q', author: 'author', subreddit: 's_subreddit', after: 'after', domain: 's_domain'
 }
 
 export const removedFilter_types = {
@@ -103,7 +103,7 @@ export const filter_pageType_defaults = {
   id: '',
   context: '',
   frontPage: false,
-  q: '', author: '', subreddit: '', after: ''
+  q: '', author: '', subreddit: '', after: '', domain: ''
 }
 
 const maxN = 60000
@@ -153,7 +153,7 @@ class GlobalState extends Container {
         id: '',
         context: '',
         frontPage: false,
-        q: '', author: '', subreddit: '', after: ''
+        q: '', author: '', subreddit: '', after: '', domain: ''
       }
   }
 

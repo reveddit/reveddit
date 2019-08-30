@@ -6,25 +6,36 @@ const comment_fields = [
   'id', 'author', 'body', 'created_utc', 'parent_id', 'score',
   'subreddit', 'link_id', 'author_flair_text', 'retrieved_on', 'retrieved_utc'
 ]
+const post_fields = ['id', 'retrieved_on','created_utc', 'is_robot_indexable', 'thumbnail']
 
 const postURL_new = 'https://api.pushshift.io/reddit/submission/search/'
 const commentURL_new = 'https://api.pushshift.io/reddit/comment/search/'
 
-export const queryComments = (q, author, subreddit, n = 1000, before, after) => {
-  const queryParams = {q, after, before, size: n, fields: comment_fields.join(',')}
+export const queryComments = (params) => {
+  return queryItems(params, commentURL_new, comment_fields, 't1_')
+}
+
+export const queryPosts = (params) => {
+  return queryItems(params, postURL_new, post_fields, 't3_')
+}
+
+const queryItems = ({q, author, subreddit, n = 500, before, after}, url, fields, prefix) => {
+  const queryParams = {q, after, before, size: n, fields: fields.join(',')}
   if (author) queryParams.author = author
   if (subreddit) queryParams.subreddit = subreddit
   if (after) queryParams.after = after
   if (before) queryParams.before = before
 
-  return window.fetch(commentURL_new+getQueryString(queryParams))
+  return window.fetch(url+getQueryString(queryParams))
     .then(response => response.json())
-    .then(data => data.data)
+    .then(data => {
+      data.data.forEach(item => {
+        item.name = prefix+item.id
+      })
+      return data.data
+    })
 }
 
-export const queryPosts = (q, author, subreddit, n = 1000) => {
-  return window.fetch(postURL_new+'?'+params)
-}
 
 // If before_id is set, response begins with that ID
 export const getCommentsBySubreddit = async function(subreddits_str, n = 1000, before = '', before_id = '') {

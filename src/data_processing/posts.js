@@ -32,6 +32,9 @@ export const retrieveRedditPosts_and_combineWithPushshiftPosts = pushshiftPosts 
   })
 }
 
+export const getRevdditPosts = pushshiftPosts => {
+  return retrieveRedditPosts_and_combineWithPushshiftPosts(pushshiftPosts)
+}
 
 export const combinePushshiftAndRedditPosts = (pushshiftPosts, redditPosts) => {
   const pushshiftPosts_lookup = {}

@@ -9,7 +9,7 @@ import {
   queryPosts as pushshiftQueryPosts
 } from 'api/pushshift'
 import { combinePushshiftAndRedditComments, getRevdditComments } from 'data_processing/comments'
-import { combinePushshiftAndRedditPosts } from 'data_processing/posts'
+import { combinePushshiftAndRedditPosts, getRevdditPosts } from 'data_processing/posts'
 
 export const byScore = (a, b) => {
   return (b.score - a.score)
@@ -70,11 +70,19 @@ export const getRevdditItems = (global, history) => {
 }
 
 export const getRevdditSearch = (global, history) => {
-  const gs = global.state
+  const {q, author, subreddit, n, before, after, domain} = global.state
   global.setLoading('')
-  return pushshiftQueryComments(gs.q, gs.author, gs.subreddit, gs.n, gs.before, gs.after)
-  .then(getRevdditComments)
-  .then(comments => {
-    global.setSuccess({items: comments})
+  const promises = [pushshiftQueryComments({q, author, subreddit, n, before, after}),
+                    pushshiftQueryPosts({q, author, subreddit, n, before, after})]
+
+  return Promise.all(promises)
+  .then(result => {
+    const nextPromises = [getRevdditComments(result[0]), getRevdditPosts(result[1])]
+    return Promise.all(nextPromises)
+  })
+  .then(result => {
+    const comments = result[0]
+    const posts = result[1]
+    global.setSuccess({items: comments.concat(posts)})
   })
 }
