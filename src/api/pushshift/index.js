@@ -10,10 +10,12 @@ const comment_fields = [
 const postURL_new = 'https://api.pushshift.io/reddit/submission/search/'
 const commentURL_new = 'https://api.pushshift.io/reddit/comment/search/'
 
-export const queryComments = (q, author, subreddit, n = 1000) => {
-  const queryParams = {q, size: n, fields: comment_fields.join(',')}
+export const queryComments = (q, author, subreddit, n = 1000, before, after) => {
+  const queryParams = {q, after, before, size: n, fields: comment_fields.join(',')}
   if (author) queryParams.author = author
   if (subreddit) queryParams.subreddit = subreddit
+  if (after) queryParams.after = after
+  if (before) queryParams.before = before
 
   return window.fetch(commentURL_new+getQueryString(queryParams))
     .then(response => response.json())

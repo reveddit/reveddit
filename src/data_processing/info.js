@@ -72,7 +72,7 @@ export const getRevdditItems = (global, history) => {
 export const getRevdditSearch = (global, history) => {
   const gs = global.state
   global.setLoading('')
-  return pushshiftQueryComments(gs.q, gs.author, gs.subreddit, gs.n)
+  return pushshiftQueryComments(gs.q, gs.author, gs.subreddit, gs.n, gs.before, gs.after)
   .then(getRevdditComments)
   .then(comments => {
     global.setSuccess({items: comments})

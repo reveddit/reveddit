@@ -51,7 +51,7 @@ export const urlParamKeys = {
   id: 'id',
   context: 'context',
   frontPage: 'frontPage',
-  q: 'q', author: 'author', subreddit: 's_subreddit'
+  q: 'q', author: 'author', subreddit: 's_subreddit', after: 'after'
 }
 
 export const removedFilter_types = {
@@ -103,7 +103,7 @@ export const filter_pageType_defaults = {
   id: '',
   context: '',
   frontPage: false,
-  q: '', author: '', subreddit: ''
+  q: '', author: '', subreddit: '', after: ''
 }
 
 const maxN = 60000
@@ -153,7 +153,7 @@ class GlobalState extends Container {
         id: '',
         context: '',
         frontPage: false,
-        q: '', author: '', subreddit: ''
+        q: '', author: '', subreddit: '', after: ''
       }
   }
 
@@ -202,12 +202,11 @@ class GlobalState extends Container {
           break
         }
         default: {
-          const intValue = parseInt(value)
           if (value === 'false') {
             value = false
           } else if (value === 'true') {
             value = true
-          } else if (Number.isInteger(intValue)) {
+          } else if (/^\d+$/.test(value)) {
             value = parseInt(value)
           }
           stateVar[param] = value
