@@ -70,19 +70,35 @@ export const getRevdditItems = (global, history) => {
 }
 
 export const getRevdditSearch = (global, history) => {
-  const {q, author, subreddit, n, before, after, domain} = global.state
+  const {q, author, subreddit, n, before, after, domain, content} = global.state
   global.setLoading('')
-  const promises = [pushshiftQueryComments({q, author, subreddit, n, before, after}),
-                    pushshiftQueryPosts({q, author, subreddit, n, before, after})]
+  const promises = []
+  if (content === 'comments' || content === 'all') {
+    promises.push(pushshiftQueryComments({q, author, subreddit, n, before, after}))
+  }
+  if (content === 'posts' || content === 'all') {
+    promises.push(pushshiftQueryPosts({q, author, subreddit, n, before, after}))
+  }
 
   return Promise.all(promises)
-  .then(result => {
-    const nextPromises = [getRevdditComments(result[0]), getRevdditPosts(result[1])]
+  .then(results => {
+    const nextPromises = []
+    if (content === 'comments') {
+      nextPromises.push(getRevdditComments(results[0]))
+    } else if (content === 'posts') {
+      nextPromises.push(getRevdditPosts(results[0]))
+    } else if (content === 'all') {
+      promises.push(getRevdditComments(results[0]))
+      promises.push(getRevdditPosts(results[1]))
+    }
     return Promise.all(nextPromises)
   })
-  .then(result => {
-    const comments = result[0]
-    const posts = result[1]
-    global.setSuccess({items: comments.concat(posts)})
+  .then(results => {
+    const items = []
+
+    results.forEach(result => {
+      items.push(...result)
+    })
+    global.setSuccess({items})
   })
 }
