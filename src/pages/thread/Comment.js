@@ -53,7 +53,7 @@ class Comment extends React.Component {
     }
     const name = `t1_${props.id}`
     let submitter = ''
-    if (! props.deleted && author !== '[deleted]' && author === props.link_author) {
+    if (! props.deleted && author !== '[deleted]' && props.is_op) {
       submitter = ' submitter '
     }
     return (
@@ -116,7 +116,6 @@ class Comment extends React.Component {
                         global={props.global}
                         location={props.location}
                         history={props.history}
-                        link_author={props.link_author}
                         page_type={props.page_type}
                         focusCommentID={props.focusCommentID}
                       />

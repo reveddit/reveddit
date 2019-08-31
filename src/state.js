@@ -52,7 +52,8 @@ export const urlParamKeys = {
   context: 'context',
   frontPage: 'frontPage',
   q: 'q', author: 'author', subreddit: 's_subreddit', after: 'after', domain: 's_domain',
-  content: 'content'
+  content: 'content',
+  tagsFilter: 'tags'
 }
 
 export const removedFilter_types = {
@@ -84,6 +85,7 @@ export const filter_pageType_defaults = {
     domain_posts: removedFilter_types.removed
   },
   removedByFilter: '', // this is different than the state initialization value
+  tagsFilter: '',
   localSort: {
     user: localSort_types.date,
     thread: localSort_types.score,
@@ -111,14 +113,14 @@ export const filter_pageType_defaults = {
 const maxN = 60000
 
 
-const getRemovedBySettings = (stringValue) => {
-  const removedby_settings = {}
+const getMultiFilterSettings = (stringValue) => {
+  const settings = {}
   stringValue.split(',').forEach(type => {
     if (type.trim()) {
-      removedby_settings[type.trim()] = true
+      settings[type.trim()] = true
     }
   })
-  return removedby_settings
+  return settings
 }
 
 class GlobalState extends Container {
@@ -140,6 +142,7 @@ class GlobalState extends Container {
         selection_defaults: {},
         removedFilter: removedFilter_types.all,
         removedByFilter: {},
+        tagsFilter: {},
         categoryFilter_subreddit: 'all',
         categoryFilter_domain: 'all',
         categoryFilter_link_title: 'all',
@@ -192,8 +195,9 @@ class GlobalState extends Container {
           stateVar[param] = value
           break
         }
+        case 'tagsFilter':
         case 'removedByFilter': {
-          stateVar[param] = getRemovedBySettings(value)
+          stateVar[param] = getMultiFilterSettings(value)
           break
         }
         case 'n': {
@@ -238,7 +242,7 @@ class GlobalState extends Container {
     return queryParams
   }
   updateURLandState = (queryParams, props, callback = () => {}) => {
-    let to = `${props.location.pathname}?${queryParams.toString()}`
+    let to = `${window.location.pathname}?${queryParams.toString()}`
     props.history.replace(to)
     return this.setStateFromQueryParams(props.page_type, queryParams, {}, callback)
   }
@@ -257,7 +261,7 @@ class GlobalState extends Container {
     this.selection_update('categoryFilter_'+type, value, props)
   }
   removedFilter_update = (value, props) => {
-    const queryParams = new SimpleURLSearchParams(props.location.search)
+    const queryParams = new SimpleURLSearchParams(window.location.search)
     if (value !== removedFilter_types.removed) {
       queryParams.delete(urlParamKeys.removedByFilter)
     }
@@ -266,8 +270,8 @@ class GlobalState extends Container {
     return this.updateURLandState(queryParams, props)
   }
   removedByFilter_update = (target, props) => {
-    const queryParams = new SimpleURLSearchParams(props.location.search)
-    const removedby_settings = getRemovedBySettings(queryParams.get(urlParamKeys.removedByFilter) || '')
+    const queryParams = new SimpleURLSearchParams(window.location.search)
+    const removedby_settings = getMultiFilterSettings(queryParams.get(urlParamKeys.removedByFilter) || '')
     if (target.checked) {
       removedby_settings[target.value] = true
     } else {
@@ -278,9 +282,26 @@ class GlobalState extends Container {
     this.adjust_qparams_for_selection(props.page_type, queryParams, 'removedByFilter', value)
     return this.updateURLandState(queryParams, props)
   }
+  tagsFilter_update = (target, props) => {
+    const queryParams = new SimpleURLSearchParams(window.location.search)
+    const settings = getMultiFilterSettings(queryParams.get(urlParamKeys.tagsFilter) || '')
+    if (target.checked) {
+      settings[target.value] = true
+    } else {
+      delete settings[target.value]
+    }
+    const value = Object.keys(settings).join()
+
+    this.adjust_qparams_for_selection(props.page_type, queryParams, 'tagsFilter', value)
+    return this.updateURLandState(queryParams, props)
+  }
+
 
   removedByFilterIsUnset () {
     return Object.keys(this.state.removedByFilter).length === 0
+  }
+  tagsFilterIsUnset () {
+    return Object.keys(this.state.tagsFilter).length === 0
   }
   removedFiltersAreUnset() {
     return (this.removedByFilterIsUnset() &&

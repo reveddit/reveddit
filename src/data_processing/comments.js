@@ -136,6 +136,10 @@ export const getRevdditComments = (pushshiftComments) => {
           if ('quarantine' in full_post_data) {
             comment.quarantine = full_post_data.quarantine
           }
+          if ('author' in full_post_data && full_post_data.author === comment.author) {
+            comment.is_op = true
+          }
+
           show_comments.push(comment)
         }
       } else {

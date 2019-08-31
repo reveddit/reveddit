@@ -26,7 +26,7 @@ class Comment extends React.Component {
     let commentStyle = 'comment user '
     const reddit = 'https://www.reddit.com'
     let submitter = ''
-    if (props.author === props.link_author) {
+    if (props.is_op) {
       submitter = ' submitter '
     }
     if (props.removed) {

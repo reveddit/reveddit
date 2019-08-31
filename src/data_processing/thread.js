@@ -17,7 +17,14 @@ export const getRevdditThreadItems = (threadID, global, history) => {
                     getRevdditThreadComments(threadID, global)]
   return Promise.all(promises)
   .then(result => {
-    global.setSuccess()
+    const post = result[0]
+    const comments = result[1]
+    comments.forEach(comment => {
+      if (comment.author === post.author) {
+        comment.is_op = true
+      }
+    })
+    global.setSuccess({items: comments})
   })
 }
 
@@ -70,7 +77,6 @@ export const getRevdditThreadComments = (threadID, global) => {
   .then(pushshiftComments => {
     return retrieveRedditComments_and_combineWithPushshiftComments(pushshiftComments)
     .then(combinedComments => {
-      global.setSuccess({items: combinedComments})
       return combinedComments
     })
   })

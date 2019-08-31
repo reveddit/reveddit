@@ -6,7 +6,7 @@ import { getRevdditPostsByDomain } from 'data_processing/posts'
 import { getRevdditUserItems, getQueryParams } from 'data_processing/user'
 import { getRevdditThreadItems } from 'data_processing/thread'
 import { getRevdditItems, getRevdditSearch } from 'data_processing/info'
-import { itemIsOneOfSelectedRemovedBy } from 'data_processing/filters'
+import { itemIsOneOfSelectedRemovedBy, itemIsOneOfSelectedTags } from 'data_processing/filters'
 import Selections from 'pages/common/selections'
 import { removedFilter_types, getExtraGlobalStateVars } from 'state'
 import { NOT_REMOVED } from 'pages/common/RemovedBy'
@@ -216,6 +216,7 @@ export const withFetch = (WrappedComponent) =>
 
     getVisibleItemsWithoutCategoryFilter() {
       const removedByFilterIsUnset = this.props.global.removedByFilterIsUnset()
+      const tagsFilterIsUnset = this.props.global.tagsFilterIsUnset()
       const visibleItems = []
       const gs = this.props.global.state
       gs.items.forEach(item => {
@@ -229,7 +230,8 @@ export const withFetch = (WrappedComponent) =>
                 (item.removedby && item.removedby !== NOT_REMOVED))
             )
           ) &&
-          (removedByFilterIsUnset || itemIsOneOfSelectedRemovedBy(item, gs))
+          ( (removedByFilterIsUnset || itemIsOneOfSelectedRemovedBy(item, gs)) &&
+            (tagsFilterIsUnset || itemIsOneOfSelectedTags(item, gs)))
         ) {
           const keywords = gs.keywords.replace(/\s\s+/g, ' ').trim().toLocaleLowerCase().split(' ')
           let match = true

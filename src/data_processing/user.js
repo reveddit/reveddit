@@ -154,6 +154,10 @@ function getItems (user, kind, global, sort, before = '', after = '', limit, loa
       ids.push(item.name)
       if (isPost(item)) {
         item.selftext = ''
+      } else {
+        if (item.link_author === item.author) {
+          item.is_op = true
+        }
       }
       if (items.length > 0) {
         item.prev = items[items.length-1].name

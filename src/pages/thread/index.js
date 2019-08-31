@@ -68,7 +68,6 @@ class Thread extends React.Component {
                 <CommentSection
                   root={root}
                   comments={items}
-                  link_author={author}
                   isSingleComment={isSingleComment}
                   visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
                   page_type={this.props.page_type}

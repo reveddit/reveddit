@@ -4,7 +4,7 @@ import Comment from './Comment'
 import {connect, localSort_types, removedFilter_types, removedFilter_text} from 'state'
 import { showRemovedAndDeleted } from 'utils'
 import { NOT_REMOVED, REMOVAL_META, USER_REMOVED } from 'pages/common/RemovedBy'
-import { itemIsOneOfSelectedRemovedBy } from 'data_processing/filters'
+import { itemIsOneOfSelectedRemovedBy, itemIsOneOfSelectedTags } from 'data_processing/filters'
 import { reversible } from 'utils'
 
 const byScore = (a, b) => {
@@ -121,12 +121,17 @@ class CommentSection extends React.Component {
     return itemIsOneOfSelectedRemovedBy(item, this.props.global.state)
   }
 
+  itemIsOneOfSelectedTags_local = (item) => {
+    return itemIsOneOfSelectedTags(item, this.props.global.state)
+  }
+
   render() {
     const props = this.props
     const { focusCommentID } = this.props
     const comments = this.props.global.state.items
     const { removedFilter, removedByFilter, localSort, localSortReverse, showContext } = props.global.state
     const removedByFilterIsUnset = this.props.global.removedByFilterIsUnset()
+    const tagsFilterIsUnset = this.props.global.tagsFilterIsUnset()
 
     let commentTree = []
     if (showContext) {
@@ -145,6 +150,9 @@ class CommentSection extends React.Component {
       }
       if (! removedByFilterIsUnset) {
         this.filterCommentTree(commentTree, this.itemIsOneOfSelectedRemovedBy_local)
+      }
+      if (! tagsFilterIsUnset) {
+        this.filterCommentTree(commentTree, this.itemIsOneOfSelectedTags_local)
       }
     } else {
       commentTree = this.props.visibleItemsWithoutCategoryFilter
@@ -175,7 +183,6 @@ class CommentSection extends React.Component {
           key={comment.id}
           {...comment}
           depth={0}
-          link_author={props.link_author}
           page_type={props.page_type}
           focusCommentID={props.focusCommentID}
         />

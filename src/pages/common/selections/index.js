@@ -7,6 +7,7 @@ import LocalSort from 'pages/common/selections/LocalSort'
 import RedditSort from 'pages/common/selections/RedditSort'
 import Content from 'pages/common/selections/Content'
 import TextFilter from 'pages/common/selections/TextFilter'
+import TagsFilter from 'pages/common/selections/TagsFilter'
 import UpvoteRemovalRateHistory from 'pages/common/selections/UpvoteRemovalRateHistory'
 import ResultsSummary from 'pages/common/ResultsSummary'
 import { withRouter } from 'react-router';
@@ -49,6 +50,7 @@ class Selections extends React.Component {
                       <LocalSort page_type={page_type}/>
                       <RemovedFilter page_type={page_type} />
                       <RemovedByFilter page_type={page_type} showLocked={true}/>
+                      <TagsFilter page_type={page_type}/>
                       <CategoryFilter page_type={page_type}
                         visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
                         type={category_type} title={category_title} unique_field={category_unique_field}/>
@@ -64,6 +66,7 @@ class Selections extends React.Component {
                       <LocalSort page_type={page_type} />
                       <RemovedFilter page_type={page_type} />
                       <RemovedByFilter page_type={page_type} />
+                      <TagsFilter page_type={page_type}/>
                       <CategoryFilter page_type={page_type}
                         visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
                         type={category_type} title={category_title} unique_field={category_unique_field}/>
@@ -79,6 +82,7 @@ class Selections extends React.Component {
                       <RedditSort page_type={page_type} />
                       <RemovedFilter page_type={page_type} />
                       <RemovedByFilter page_type={page_type} showLocked={true}/>
+                      <TagsFilter page_type={page_type}/>
                       <CategoryFilter page_type={page_type}
                         visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
                         type={category_type} title={category_title} unique_field={category_unique_field}/>
@@ -90,6 +94,7 @@ class Selections extends React.Component {
                       <LocalSort page_type={page_type} />
                       <RemovedFilter page_type={page_type} />
                       <RemovedByFilter page_type={page_type} />
+                      <TagsFilter page_type={page_type}/>
                       {subreddit !== 'all' &&
                         <UpvoteRemovalRateHistory page_type={page_type}/>
                       }
