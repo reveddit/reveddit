@@ -6,7 +6,9 @@ const comment_fields = [
   'id', 'author', 'body', 'created_utc', 'parent_id', 'score',
   'subreddit', 'link_id', 'author_flair_text', 'retrieved_on', 'retrieved_utc'
 ]
-const post_fields = ['id', 'retrieved_on','created_utc', 'is_robot_indexable', 'thumbnail']
+const post_fields = ['id', 'retrieved_on', 'created_utc', 'is_robot_indexable']
+
+const post_fields_for_comment_data = ['id', 'title', 'whitelist_status', 'url', 'num_comments', 'quarantine']
 
 const postURL_new = 'https://api.pushshift.io/reddit/submission/search/'
 const commentURL_new = 'https://api.pushshift.io/reddit/comment/search/'
@@ -103,17 +105,20 @@ export const getCommentsByID_chunk = (ids) => {
     .then(data => data.data)
 }
 
+export const getPostsByIDForCommentData = (ids) => {
+  const fields = post_fields_for_comment_data
+  return getPostsByID(ids, fields)
+}
 
-// this expects short IDs in base36, without the t3_ prefix
-export const getPostsByID = (ids) => {
+
+export const getPostsByID = (ids, fields = post_fields) => {
   return Promise.all(chunk(ids, 1000)
-    .map(ids => getPostsByID_chunk(ids)))
+    .map(ids => getPostsByID_chunk(ids, fields)))
     .then(flatten)
 }
 
-// get id, add name in post processing
-export const getPostsByID_chunk = (ids) => {
-  const params = 'ids='+ids.join(',')+'&fields=id,title,whitelist_status,url,num_comments'
+export const getPostsByID_chunk = (ids, fields = post_fields) => {
+  const params = 'ids='+ids.join(',')+'&fields='+fields.join(',')
   return window.fetch(postURL_new+'?'+params)
     .then(response => response.json())
     .then(data => {

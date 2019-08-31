@@ -7,18 +7,6 @@ const errorHandler = (e) => {
   throw new Error(`Could not connect to Reddit: ${e}`)
 }
 
-
-export const getPosts = postIDs => {
-  var ids = postIDs.map(id => `t3_${id}`)
-  var params = {id: ids.join(), raw_json:1}
-  const url = oauth_reddit + 'api/info' + '?'+Object.keys(params).map(k => `${k}=${params[k]}`).join('&')
-  return getAuth()
-    .then(auth => window.fetch(url, auth))
-    .then(response => response.json())
-    .then(response => response.data.children.map(data => data.data))
-    .catch(errorHandler)
-}
-
 // Helper function that fetches a list of comments
 const fetchComments = (commentIDs, auth) => {
   var ids = commentIDs.map(id => `t1_${id}`)

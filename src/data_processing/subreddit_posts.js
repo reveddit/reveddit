@@ -2,7 +2,7 @@ import {
   getRecentPostsBySubreddit
 } from 'api/pushshift'
 import { getRemovedPostIDs } from 'api/removeddit'
-import { getPosts } from 'api/reddit'
+import { getItems } from 'api/reddit'
 import { postIsDeleted } from 'utils'
 import { retrieveRedditPosts_and_combineWithPushshiftPosts } from 'data_processing/posts'
 
@@ -15,7 +15,7 @@ export const getRevdditPostsBySubreddit = (subreddit, global, history) => {
   global.setLoading('')
   if (subreddit === 'all' || gs.frontPage) {
     return getRemovedPostIDs(subreddit)
-    .then(postIDs => getPosts(postIDs))
+    .then(postIDs => getItems(postIDs.map(id => 't3_'+id)))
     .then(posts => {
       posts.forEach(post => {
         post.selftext = ''

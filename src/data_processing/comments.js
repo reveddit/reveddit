@@ -1,8 +1,9 @@
 import {
-  getComments as getRedditComments
+  getComments as getRedditComments,
+  getItems
 } from 'api/reddit'
 import {
-  getPostsByID as getPushshiftPosts,
+  getPostsByIDForCommentData as getPushshiftPostsForCommentData,
   getCommentsBySubreddit as getPushshiftCommentsBySubreddit,
   getRecentPostsBySubreddit
 } from 'api/pushshift'
@@ -84,18 +85,33 @@ export const combinePushshiftAndRedditComments = (pushshiftComments, redditComme
 
 }
 
-export const getFullTitles = pushshiftComments => {
+// Faster, but missing quarantine field in submissions data
+export const getFullTitlesFromPushshift = pushshiftComments => {
   const link_ids_set = {}
   pushshiftComments.forEach(ps_comment => {
     link_ids_set[ps_comment.link_id.slice(3)] = true
   })
   const link_ids = Object.keys(link_ids_set)
-  return getPushshiftPosts(link_ids)
+  return getPushshiftPostsForCommentData(link_ids)
   .then(ps_posts => {
     return Object.assign(...ps_posts.map(post => ({[post.name]: post})))
   })
   .catch(() => { console.error('Unable to retrieve full titles from Pushshift') })
 }
+
+export const getFullTitles = pushshiftComments => {
+  const link_ids_set = {}
+  pushshiftComments.forEach(ps_comment => {
+    link_ids_set[ps_comment.link_id] = true
+  })
+  const link_ids = Object.keys(link_ids_set)
+  return getItems(link_ids)
+  .then(posts => {
+    return Object.assign(...posts.map(post => ({[post.name]: post})))
+  })
+  .catch(() => { console.error('Unable to retrieve full titles from reddit') })
+}
+
 
 export const getRevdditComments = (pushshiftComments) => {
   const fullTitlePromise = getFullTitles(pushshiftComments)
@@ -111,11 +127,14 @@ export const getRevdditComments = (pushshiftComments) => {
         if ( ! (full_post_data.whitelist_status === 'promo_adult_nsfw' &&
                (comment.removed || comment.deleted))) {
           comment.link_title = full_post_data.title
-          if (full_titles[comment.link_id].url) {
+          if (full_post_data.url) {
             comment.url = full_post_data.url
           }
-          if (typeof(full_titles[comment.link_id].num_comments) !== 'undefined') {
+          if (typeof(full_post_data.num_comments) !== 'undefined') {
             comment.num_comments = full_post_data.num_comments
+          }
+          if ('quarantine' in full_post_data) {
+            comment.quarantine = full_post_data.quarantine
           }
           show_comments.push(comment)
         }

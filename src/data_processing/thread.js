@@ -4,7 +4,7 @@ import {
   getCommentsByThread as getPushshiftCommentsByThread
 } from 'api/pushshift'
 import {
-  getPosts
+  getItems
 } from 'api/reddit'
 import { itemIsRemovedOrDeleted, postIsDeleted } from 'utils'
 import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
@@ -22,7 +22,7 @@ export const getRevdditThreadItems = (threadID, global, history) => {
 }
 
 export const getRevdditThreadPost = (threadID, global, history) => {
-  const reddit_promise = getPosts([threadID])
+  const reddit_promise = getItems(['t3_'+threadID])
   const pushshift_promise = getPushshiftPost(threadID)
   return Promise.all([reddit_promise, pushshift_promise])
   .then(values => {
