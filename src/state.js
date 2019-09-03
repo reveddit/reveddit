@@ -247,9 +247,7 @@ class GlobalState extends Container {
     return this.setStateFromQueryParams(props.page_type, queryParams, {}, callback)
   }
   upvoteRemovalRateHistory_update = (before, before_id, n, content_type, queryParams, baseURL) => {
-    if (content_type === 'comments') {
-      queryParams.set(urlParamKeys.before, before)
-    }
+    queryParams.set(urlParamKeys.before, before)
     queryParams.set(urlParamKeys.before_id, before_id)
     queryParams.set(urlParamKeys.n, n)
     queryParams.set(urlParamKeys.removedFilter, removedFilter_types.removed)

@@ -1,6 +1,6 @@
 import { getItems } from 'api/reddit'
 import {
-  getRecentPostsByDomain
+  getPostsBySubredditOrDomain as pushshiftGetPosts
 } from 'api/pushshift'
 import { itemIsRemovedOrDeleted, postIsDeleted, display_post } from 'utils'
 import { REMOVAL_META, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
@@ -82,12 +82,12 @@ export const combinePushshiftAndRedditPosts = (pushshiftPosts, redditPosts) => {
 }
 
 export const getRevdditPostsByDomain = (domain, global, history) => {
-  const gs = global.state
+  const {n, before, before_id} = global.state
   global.setLoading('')
   if (window.location.pathname.match(/^\/r\/([^/]*)\/.+/g)) {
     history.replace(`/r/${domain}/`+window.location.search)
   }
-  return getRecentPostsByDomain(domain, gs.n, gs.before, gs.before_id)
+  return pushshiftGetPosts({domain, n, before, before_id})
   .then(retrieveRedditPosts_and_combineWithPushshiftPosts)
   .then(show_posts => {
     global.setSuccess({items:show_posts})

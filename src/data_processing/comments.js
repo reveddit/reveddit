@@ -4,8 +4,7 @@ import {
 } from 'api/reddit'
 import {
   getPostsByIDForCommentData as getPushshiftPostsForCommentData,
-  getCommentsBySubreddit as getPushshiftCommentsBySubreddit,
-  getRecentPostsBySubreddit
+  getCommentsBySubreddit as getPushshiftCommentsBySubreddit
 } from 'api/pushshift'
 import { commentIsDeleted, commentIsRemoved } from 'utils'
 import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED,
@@ -152,13 +151,13 @@ export const getRevdditComments = (pushshiftComments) => {
 }
 
 export const getRevdditCommentsBySubreddit = (subreddit, global) => {
-  const gs = global.state
+  const {n, before, before_id} = global.state
 
   global.setLoading('')
   if (subreddit === 'all') {
     subreddit = ''
   }
-  return getPushshiftCommentsBySubreddit(subreddit, gs.n, gs.before, gs.before_id)
+  return getPushshiftCommentsBySubreddit({subreddit, n, before, before_id})
   .then(getRevdditComments)
   .then(show_comments => {
     global.setSuccess({items: show_comments})

@@ -1,24 +1,32 @@
 import { toBase10, toBase36, chunk, flatten, getQueryString } from 'utils'
 
-const postURL = 'https://elastic.pushshift.io/rs/submissions/_search?source_content_type=application/json&source='
-const commentURL = 'https://elastic.pushshift.io/rc/comments/_search?source_content_type=application/json&source='
 const comment_fields = [
   'id', 'author', 'body', 'created_utc', 'parent_id', 'score',
-  'subreddit', 'link_id', 'author_flair_text', 'retrieved_on', 'retrieved_utc'
-]
-const post_fields = ['id', 'retrieved_on', 'created_utc', 'is_robot_indexable']
+  'subreddit', 'link_id', 'author_flair_text', 'retrieved_on', 'retrieved_utc' ]
+
+const comment_fields_for_autoremoved = ['id', 'retrieved_on' ,'created_utc' ,'author', 'retrieved_utc']
+
+const post_fields = ['id', 'retrieved_on', 'created_utc', 'is_robot_indexable', 'retrieved_utc']
 
 const post_fields_for_comment_data = ['id', 'title', 'whitelist_status', 'url', 'num_comments', 'quarantine']
 
-const postURL_new = 'https://api.pushshift.io/reddit/submission/search/'
-const commentURL_new = 'https://api.pushshift.io/reddit/comment/search/'
+const postURL = 'https://api.pushshift.io/reddit/submission/search/'
+const commentURL = 'https://api.pushshift.io/reddit/comment/search/'
+
+// retrieved_on will become retrieved_utc
+// https://www.reddit.com/r/pushshift/comments/ap6vx5/changelog_changes_to_the_retrieved_on_key/
+const update_retrieved_field = (item) => {
+  if ('retrieved_utc' in item && item.retrieved_utc) {
+    item.retrieved_on = item.retrieved_utc
+  }
+}
 
 export const queryComments = (params) => {
-  return queryItems(params, commentURL_new, comment_fields, 't1_')
+  return queryItems(params, commentURL, comment_fields, 't1_')
 }
 
 export const queryPosts = (params) => {
-  return queryItems(params, postURL_new, post_fields, 't3_')
+  return queryItems(params, postURL, post_fields, 't3_')
 }
 
 const queryItems = ({q, author, subreddit, n = 500, before, after, domain}, url, fields, prefix) => {
@@ -34,6 +42,7 @@ const queryItems = ({q, author, subreddit, n = 500, before, after, domain}, url,
     .then(response => response.json())
     .then(data => {
       data.data.forEach(item => {
+        update_retrieved_field(item)
         item.name = prefix+item.id
       })
       return data.data
@@ -41,7 +50,7 @@ const queryItems = ({q, author, subreddit, n = 500, before, after, domain}, url,
 }
 
 // If before_id is set, response begins with that ID
-export const getCommentsBySubreddit = async function(subreddits_str, n = 1000, before = '', before_id = '') {
+export const getCommentsBySubreddit = async function({subreddit: subreddits_str, n=1000, before='', before_id=''}) {
   const data = {}
   let queryParams = {}
   let dataLength = 0
@@ -54,7 +63,7 @@ export const getCommentsBySubreddit = async function(subreddits_str, n = 1000, b
   queryParams['sort'] = 'desc'
   queryParams['size'] = 1000
   if (subreddits_str) {
-    queryParams['subreddit'] = subreddits_str.replace(/\+/g,',')
+    queryParams['subreddit'] = subreddits_str.toLowerCase().replace(/\+/g,',')
   }
   queryParams['fields'] = 'id,created_utc'
 
@@ -63,7 +72,7 @@ export const getCommentsBySubreddit = async function(subreddits_str, n = 1000, b
       queryParams['before'] = before
     }
 
-    let url = commentURL_new+getQueryString(queryParams)
+    let url = commentURL+getQueryString(queryParams)
 
     const items = await window.fetch(url)
       .then(response => response.json())
@@ -88,7 +97,7 @@ export const getCommentsBySubreddit = async function(subreddits_str, n = 1000, b
 
     numCalls += 1
   }
-  const ids = Object.keys(data).sort((a,b) => b.created_utc - a.created_utc).slice(0,n)
+  const ids = Object.keys(data).sort((a,b) => data[b].created_utc - data[a].created_utc).slice(0,n)
   return getCommentsByID(ids)
 }
 
@@ -101,9 +110,14 @@ export const getCommentsByID = (ids) => {
 
 export const getCommentsByID_chunk = (ids) => {
   const params = 'ids='+ids.join(',')+`&fields=${comment_fields.join(',')}`
-  return window.fetch(commentURL_new+'?'+params)
+  return window.fetch(commentURL+'?'+params)
     .then(response => response.json())
-    .then(data => data.data)
+    .then(data => {
+      data.data.forEach(item => {
+        update_retrieved_field(item)
+      })
+      return data.data
+    })
 }
 
 export const getPostsByIDForCommentData = (ids) => {
@@ -111,6 +125,62 @@ export const getPostsByIDForCommentData = (ids) => {
   return getPostsByID(ids, fields)
 }
 
+// If before_id is set, response begins with that ID
+export const getPostsBySubredditOrDomain = async function({subreddit:subreddits_str, domain:domains_str, n=1000, before='', before_id=''}) {
+  const data = {}
+  let queryParams = {}
+  let dataLength = 0
+  let foundStartingPoint = true
+  let maxCalls = 5, numCalls = 0
+  if (before_id) {
+    foundStartingPoint = false
+    before = parseInt(before)+1
+  }
+  queryParams['sort'] = 'desc'
+  queryParams['size'] = 1000
+  if (subreddits_str) {
+    queryParams['subreddit'] = subreddits_str.toLowerCase().replace(/\+/g,',')
+  } else if (domains_str) {
+    queryParams['domain'] = domains_str.toLowerCase().replace(/\+/g,',')
+  }
+  queryParams['fields'] = post_fields
+
+  while (dataLength < n && numCalls < maxCalls) {
+    if (before) {
+      queryParams['before'] = before
+    }
+
+    let url = postURL+getQueryString(queryParams)
+
+    const items = await window.fetch(url)
+      .then(response => response.json())
+      .then(data => data.data)
+    before = items[items.length-1].created_utc+1
+    items.forEach(item => {
+      if (before_id && item.id === before_id) {
+        foundStartingPoint = true
+      }
+      if (foundStartingPoint) {
+        item.name = 't3_'+item.id
+        update_retrieved_field(item)
+        data[item.id] = item
+      }
+    })
+    if (before_id && ! foundStartingPoint) {
+      console.error('data displayed is an approximation, starting id not found in first set of results: '+before_id)
+      items.forEach(item => {
+        item.name = 't3_'+item.id
+        update_retrieved_field(item)
+        data[item.id] = item
+      })
+      break
+    }
+    dataLength = Object.keys(data).length
+
+    numCalls += 1
+  }
+  return Object.values(data).sort((a,b) => b.created_utc - a.created_utc).slice(0,n)
+}
 
 export const getPostsByID = (ids, fields = post_fields) => {
   return Promise.all(chunk(ids, 1000)
@@ -120,10 +190,11 @@ export const getPostsByID = (ids, fields = post_fields) => {
 
 export const getPostsByID_chunk = (ids, fields = post_fields) => {
   const params = 'ids='+ids.join(',')+'&fields='+fields.join(',')
-  return window.fetch(postURL_new+'?'+params)
+  return window.fetch(postURL+'?'+params)
     .then(response => response.json())
     .then(data => {
       data.data.forEach(post => {
+        update_retrieved_field(post)
         post.name = 't3_'+post.id
       })
       return data.data
@@ -132,93 +203,16 @@ export const getPostsByID_chunk = (ids, fields = post_fields) => {
 
 export const getPost = id => {
   const params = 'ids='+id
-  return window.fetch(postURL_new+'?'+params)
+  return window.fetch(postURL+'?'+params)
     .then(response => response.json())
     .then(data => {
       if (data.data.length) {
+        update_retrieved_field(data.data[0])
         return data.data[0]
       } else {
         return {}
       }
     })
-}
-
-export const getRecentPostsBySubreddit = (subreddits_str, n = 1000, before = '', before_id = '') => {
-  const subreddits = subreddits_str.toLowerCase().split('+')
-  const elasticQuery = {
-    size:n,
-    query: {
-      bool: {
-        filter: [{
-          terms: {
-            subreddit: subreddits
-          }
-        }]
-      }
-    },
-    sort: {
-      ['created_utc']: 'desc'
-    },
-    _source: ['retrieved_on','created_utc', 'is_robot_indexable', 'thumbnail']
-  }
-  if (before_id) {
-    const id_base10 = toBase10(before_id)
-    elasticQuery.query.bool.filter.push({'range' : { 'id': { 'lte': id_base10}}})
-  } else if (before) {
-    elasticQuery.query.bool.filter.push({'range': {'created_utc': {'lte': before}}})
-  } else {
-    elasticQuery.query.bool.filter.push({'range': {'created_utc': {'gte': 'now-30d/d'}}})
-  }
-  return window.fetch(postURL + JSON.stringify(elasticQuery))
-    .then(response => response.json())
-    .then(data => {
-      return data.hits.hits.map( post => {
-        const id = toBase36(post._id)
-        post._source.id = id
-        post._source.name = 't3_'+id
-        return post._source
-      })
-    })
-    .catch(() => { throw new Error('Unable to access Pushshift, cannot load recent posts') })
-}
-
-export const getRecentPostsByDomain = (domains_str, n = 1000, before = '', before_id = '') => {
-  const domains = domains_str.toLowerCase().split('+')
-  const elasticQuery = {
-    size:n,
-    query: {
-      bool: {
-        filter: [{
-          terms: {
-            domain: domains
-          }
-        }]
-      }
-    },
-    sort: {
-      ['created_utc']: 'desc'
-    },
-    _source: ['retrieved_on','created_utc', 'is_robot_indexable', 'thumbnail']
-  }
-  if (before_id) {
-    const id_base10 = toBase10(before_id)
-    elasticQuery.query.bool.filter.push({'range' : { 'id': { 'lte': id_base10}}})
-  } else if (before) {
-    elasticQuery.query.bool.filter.push({'range': {'created_utc': {'lte': before}}})
-  } else {
-    elasticQuery.query.bool.filter.push({'range': {'created_utc': {'gte': 'now-30d/d'}}})
-  }
-  return window.fetch(postURL + JSON.stringify(elasticQuery))
-    .then(response => response.json())
-    .then(data => {
-      return data.hits.hits.map( post => {
-        const id = toBase36(post._id)
-        post._source.id = id
-        post._source.name = 't3_'+id
-        return post._source
-      })
-    })
-    .catch(() => { throw new Error('Unable to access Pushshift, cannot load recent posts') })
 }
 
 // Function intended to be called with userpage-driven IDs
@@ -228,12 +222,12 @@ export const getRecentPostsByDomain = (domains_str, n = 1000, before = '', befor
 export const getAutoremovedItems = names => {
   const queryParams = {}
   let isPostQuery = true
-  let apiURL = postURL_new
-  queryParams['fields'] = 'id,retrieved_on,created_utc,is_robot_indexable'
+  let apiURL = postURL
+  queryParams['fields'] = post_fields.join(',')
   if (names[0].slice(0,2) === 't1') {
     isPostQuery = false
-    apiURL = commentURL_new
-    queryParams['fields'] = 'id,retrieved_on,created_utc,author'
+    apiURL = commentURL
+    queryParams['fields'] = comment_fields_for_autoremoved.join(',')
   }
   queryParams['ids'] = names.map(name => name.slice(3)).join(',')
 
@@ -243,6 +237,7 @@ export const getAutoremovedItems = names => {
     .then(data => {
       const items = []
       data.data.forEach(item => {
+        update_retrieved_field(item)
         if (isPostQuery) {
           if ('is_robot_indexable' in item &&
               ! item.is_robot_indexable) {
@@ -260,10 +255,11 @@ export const getAutoremovedItems = names => {
 
 export const getCommentsByThread = (threadID) => {
   const params = `link_id=${threadID}&fields=${comment_fields.join(',')}&sort=asc&limit=30000`
-  return window.fetch(commentURL_new+'?'+params)
+  return window.fetch(commentURL+'?'+params)
     .then(response => response.json())
     .then(data => {
       return data.data.map(comment => {
+        update_retrieved_field(comment)
         // Missing parent id === direct reply to thread
         if ((! ('parent_id' in comment)) || ! comment.parent_id) {
           comment.parent_id = 't3_'+threadID
