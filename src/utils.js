@@ -69,10 +69,6 @@ export const postIsDeleted = post => {
   return false
 }
 
-export const itemIsALockedPost = item => {
-  return (('name' in item) && item.name.slice(0,2) === 't3' && item.locked)
-}
-
 export const display_post = (list, post, ps_item) => {
   if (! ('whitelist_status' in post && post.whitelist_status == "promo_adult_nsfw") &&
       ! ('thumbnail' in ps_item && ps_item.thumbnail == 'nsfw')) {

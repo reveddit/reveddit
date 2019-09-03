@@ -60,6 +60,7 @@ class Comment extends React.Component {
       <div id={name} className={`comment
             ${props.removed ? 'removed':''}
             ${props.deleted ? 'deleted':''}
+            ${props.locked ? 'locked':''}
             ${even_odd}
             ${props.id === props.focusCommentID ? 'focus':''}
       `}>
@@ -82,7 +83,9 @@ class Comment extends React.Component {
           <span className='space' />
           <span className='comment-score'>{prettyScore(props.score)} point{(props.score !== 1) && 's'}</span>
           <span className='space' />
-          <Time created_utc={props.created_utc}/>  <RemovedBy removedby={props.removedby} />
+          <Time created_utc={props.created_utc}/>
+          {props.locked && <span className='lockedTag'>locked</span>}
+          <RemovedBy removedby={props.removedby} />
         </div>
         {
           this.state.displayBody ?

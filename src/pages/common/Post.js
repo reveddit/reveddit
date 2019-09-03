@@ -88,7 +88,7 @@ class Post extends React.Component {
             <a className={`author ${props.distinguished ? 'distinguished '+props.distinguished : ''}`}
               href={userLink}>{props.author}</a>
             &nbsp;to <a className='subreddit-link' href={`/r/${props.subreddit}`}>/r/{props.subreddit}</a>
-            {props.locked && <>&nbsp;<span className='locked'>locked</span></>}
+            {props.locked && <span className='lockedTag'>locked</span>}
             &nbsp;<RemovedBy removedby={props.removedby} />
           </div>
           {props.selftext &&

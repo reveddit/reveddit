@@ -21,15 +21,15 @@ export const REMOVAL_META = {
                                           desc: '90% chance this was removed by a moderator, 10% chance removed by automod'},
                [UNKNOWN_REMOVED]: {filter_text: 'unknown',
                                          label: 'unknown',
-                                          desc: 'Cannot say with certainty whether this was removed by a mod or by automod.'}
+                                          desc: 'Cannot say with certainty whether this was removed by a mod or by automod.'},
+                        [LOCKED]: {filter_text: 'locked',
+                                         label: 'locked',
+                                          desc: 'locked'}
                             }
 
 export const USER_REMOVED_META = {filter_text: 'user',
                                         label: 'user',
                                          desc: 'user removed'}
-export const LOCKED_META = {filter_text: 'locked',
-                                          label: 'locked',
-                                           desc: 'locked'}
 
 class RemovedBy extends React.Component {
   render() {

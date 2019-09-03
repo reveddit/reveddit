@@ -49,7 +49,7 @@ class Selections extends React.Component {
                       }
                       <LocalSort page_type={page_type}/>
                       <RemovedFilter page_type={page_type} />
-                      <RemovedByFilter page_type={page_type} showLocked={true}/>
+                      <RemovedByFilter page_type={page_type}/>
                       <TagsFilter page_type={page_type}/>
                       <CategoryFilter page_type={page_type}
                         visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
@@ -81,7 +81,7 @@ class Selections extends React.Component {
                       <Content page_type={page_type} />
                       <RedditSort page_type={page_type} />
                       <RemovedFilter page_type={page_type} />
-                      <RemovedByFilter page_type={page_type} showLocked={true}/>
+                      <RemovedByFilter page_type={page_type}/>
                       <TagsFilter page_type={page_type}/>
                       <CategoryFilter page_type={page_type}
                         visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}

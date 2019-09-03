@@ -1,11 +1,10 @@
 import { REMOVAL_META, USER_REMOVED, LOCKED } from 'pages/common/RemovedBy'
 import { TAG_META, QUARANTINE, MOD, ADMIN } from 'pages/common/selections/TagsFilter'
-import { itemIsALockedPost } from 'utils'
 
 export const itemIsOneOfSelectedRemovedBy = (item, gs) => {
   if (gs.removedByFilter[USER_REMOVED] && item.deleted) {
     return true
-  } else if (gs.removedByFilter[LOCKED] && itemIsALockedPost(item)) {
+  } else if (gs.removedByFilter[LOCKED] && item.locked) {
     return true
   } else {
     const filters = Object.keys(gs.removedByFilter)

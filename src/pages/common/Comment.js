@@ -23,22 +23,21 @@ class Comment extends React.Component {
 
   render() {
     const props = this.props
-    let commentStyle = 'comment user '
+    let classNames = ['comment', 'user']
     const reddit = 'https://www.reddit.com'
     let submitter = ''
     if (props.is_op) {
-      submitter = ' submitter '
+      submitter = ' submitter'+' '
     }
     if (props.removed) {
-      commentStyle += 'removed '
+      classNames.push('removed')
     } else if (props.deleted) {
-      commentStyle += 'deleted '
+      classNames.push('deleted')
     } else {
-      commentStyle += 'comment-even '
+      classNames.push('comment-even')
     }
-    if (props.quarantine) {
-      commentStyle += 'quarantine'
-    }
+    props.quarantine && classNames.push('quarantine')
+    props.locked && classNames.push('locked')
 
     let innerHTML = ''
     let author = props.author
@@ -68,7 +67,7 @@ class Comment extends React.Component {
       message_mods = <a href={mods_link} target="_blank">message mods</a>
     }
     return (
-      <div id={props.name} className={commentStyle} data-fullname={props.name} data-created_utc={props.created_utc}>
+      <div id={props.name} className={classNames.join(' ')} data-fullname={props.name} data-created_utc={props.created_utc}>
         <div className='comment-head'>
           <a onClick={() => this.toggleDisplayBody()} className='collapseToggle'>{this.getExpandIcon()}</a>
           <span className='space' />
@@ -119,7 +118,9 @@ class Comment extends React.Component {
         }
         <span className='comment-score'>{prettyScore(props.score)} point{(props.score !== 1) && 's'}</span>
         <span className='space' />
-        <Time created_utc={props.created_utc}/> <RemovedBy removedby={props.removedby} />
+        <Time created_utc={props.created_utc}/>
+        {props.locked && <span className='lockedTag'>locked</span>}
+        <RemovedBy removedby={props.removedby} />
         </div>
         {
           this.state.displayBody ?
