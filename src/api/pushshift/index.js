@@ -21,12 +21,14 @@ export const queryPosts = (params) => {
   return queryItems(params, postURL_new, post_fields, 't3_')
 }
 
-const queryItems = ({q, author, subreddit, n = 500, before, after}, url, fields, prefix) => {
-  const queryParams = {q, after, before, size: n, fields: fields.join(',')}
+const queryItems = ({q, author, subreddit, n = 500, before, after, domain}, url, fields, prefix) => {
+  const queryParams = {size: n, fields: fields.join(',')}
+  if (q) queryParams.q = q
   if (author) queryParams.author = author
   if (subreddit) queryParams.subreddit = subreddit
   if (after) queryParams.after = after
   if (before) queryParams.before = before
+  if (domain) queryParams.domain = domain
 
   return window.fetch(url+getQueryString(queryParams))
     .then(response => response.json())
@@ -37,7 +39,6 @@ const queryItems = ({q, author, subreddit, n = 500, before, after}, url, fields,
       return data.data
     })
 }
-
 
 // If before_id is set, response begins with that ID
 export const getCommentsBySubreddit = async function(subreddits_str, n = 1000, before = '', before_id = '') {

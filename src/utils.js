@@ -291,3 +291,13 @@ export const jumpToHash = (hash) => {
     scrollToElement(hash, { offset: -10 });
   }
 }
+
+const reduceItems = (obj, val) => {
+  obj[val.id] = val
+  return obj
+}
+
+export const getUniqueItems = (arr1, arr2) => {
+  const map1 = arr1.reduce(reduceItems, {})
+  return Object.values(arr2.reduce(reduceItems, map1))
+}

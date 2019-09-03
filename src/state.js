@@ -51,7 +51,7 @@ export const urlParamKeys = {
   id: 'id',
   context: 'context',
   frontPage: 'frontPage',
-  q: 'q', author: 'author', subreddit: 's_subreddit', after: 'after', domain: 's_domain',
+  q: 'q', author: 'author', subreddit: 's_subreddit', after: 'after', domain: 's_domain', or_domain: 's_or_domain',
   content: 'content',
   tagsFilter: 'tags'
 }
@@ -106,7 +106,7 @@ export const filter_pageType_defaults = {
   id: '',
   context: '',
   frontPage: false,
-  q: '', author: '', subreddit: '', after: '', domain: '',
+  q: '', author: '', subreddit: '', after: '', domain: '', or_domain: '',
   content: 'all'
 }
 
@@ -158,7 +158,7 @@ class GlobalState extends Container {
         id: '',
         context: '',
         frontPage: false,
-        q: '', author: '', subreddit: '', after: '', domain: '',
+        q: '', author: '', subreddit: '', after: '', domain: '', or_domain: '',
         content: 'all'
       }
   }

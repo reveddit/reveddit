@@ -1,4 +1,4 @@
-import { isCommentID, isPostID } from 'utils'
+import { isCommentID, isPostID, getUniqueItems } from 'utils'
 import {
   getItems as getRedditItemsByID
 } from 'api/reddit'
@@ -70,14 +70,17 @@ export const getRevdditItems = (global, history) => {
 }
 
 export const getRevdditSearch = (global, history) => {
-  const {q, author, subreddit, n, before, after, domain, content} = global.state
+  const {q, author, subreddit, n, before, after, domain, or_domain, content} = global.state
   global.setLoading('')
   const promises = []
   if (content === 'comments' || content === 'all') {
     promises.push(pushshiftQueryComments({q, author, subreddit, n, before, after}))
   }
   if (content === 'posts' || content === 'all') {
-    promises.push(pushshiftQueryPosts({q, author, subreddit, n, before, after}))
+    promises.push(pushshiftQueryPosts({q, author, subreddit, n, before, after, domain}))
+    if (or_domain) {
+      promises.push(pushshiftQueryPosts({domain: or_domain, author, subreddit, n, before, after}))
+    }
   }
 
   return Promise.all(promises)
@@ -86,10 +89,18 @@ export const getRevdditSearch = (global, history) => {
     if (content === 'comments') {
       nextPromises.push(getRevdditComments(results[0]))
     } else if (content === 'posts') {
-      nextPromises.push(getRevdditPosts(results[0]))
+      let posts = results[0]
+      if (or_domain) {
+        posts = getUniqueItems(results[0], results[1])
+      }
+      nextPromises.push(getRevdditPosts(posts))
     } else if (content === 'all') {
       nextPromises.push(getRevdditComments(results[0]))
-      nextPromises.push(getRevdditPosts(results[1]))
+      let posts = results[1]
+      if (or_domain) {
+        posts = getUniqueItems(results[1], results[2])
+      }
+      nextPromises.push(getRevdditPosts(posts))
     }
     return Promise.all(nextPromises)
   })
