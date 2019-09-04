@@ -47,9 +47,16 @@ class Comment extends React.Component {
     if (props.permalink) {
       permalink = props.permalink
     }
+    permalink += window.location.search
+    let connectingChar = '?'
+    const contextParam = `context=${contextDefault}#${props.name}`
+    if (window.location.search) {
+      connectingChar = '&'
+    }
+    const contextLink = permalink+connectingChar+contextParam
     let parent_link = undefined
     if ('parent_id' in props && props.parent_id.substr(0,2) === 't1') {
-      parent_link = permalink.split('/').slice(0,6).join('/')+'/'+props.parent_id.substr(3)+'/#'+props.parent_id
+      parent_link = permalink.split('/').slice(0,6).join('/')+'/'+props.parent_id.substr(3)+'/'+window.location.search+'#'+props.parent_id
     }
     const name = `t1_${props.id}`
     let submitter = ''
@@ -101,7 +108,7 @@ class Comment extends React.Component {
                           () => {jumpToHash(window.location.hash)}
                           )}}>parent</Link>
                     }
-                    <Link to={permalink+`?context=${contextDefault}#${props.name}`}
+                    <Link to={contextLink}
                           onClick={(e) => {context_update(contextDefault, props,
                           () => {jumpToHash(window.location.hash)}
                         )}}>context</Link>
