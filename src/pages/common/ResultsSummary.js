@@ -1,15 +1,15 @@
 import React from 'react'
-import { getPrettyTimeLength } from 'utils'
+import { getPrettyTimeLength, getPrettyDate } from 'utils'
 import Time from 'pages/common/Time'
 import { connect } from 'state'
 
 class ResultsSummary extends React.Component {
   render() {
     const {num_showing, page_type} = this.props
-    const gs = this.props.global.state
+    const {before, before_id, items} = this.props.global.state
     let oldest_time = Infinity
     let youngest_time = -Infinity
-    gs.items.forEach(item => {
+    items.forEach(item => {
       if (item.created_utc < oldest_time) {
         oldest_time = item.created_utc
       }
@@ -17,11 +17,11 @@ class ResultsSummary extends React.Component {
         youngest_time = item.created_utc
       }
     })
-    let timeFrame =
-      <div className='non-item text'>
-        since <Time created_utc={oldest_time} />
-      </div>
-    if (gs.before || gs.before_id) {
+    const youngest_pretty = getPrettyDate(youngest_time)
+    const oldest_pretty = getPrettyDate(oldest_time)
+
+    let timeFrame = ''
+    if (before || before_id) {
       timeFrame =
         <React.Fragment>
           <div className='non-item text'>
@@ -32,14 +32,25 @@ class ResultsSummary extends React.Component {
             timespan {getPrettyTimeLength(youngest_time - oldest_time)}
           </div>
         </React.Fragment>
+    } else if (youngest_pretty !== oldest_pretty) {
+      timeFrame = <div className='non-item text'>
+                    <Time pretty={youngest_pretty} />
+                    <div>—</div>
+                    <Time pretty={oldest_pretty} />
+                  </div>
+    } else {
+      timeFrame = <div className='non-item text'>
+                    since <Time pretty={oldest_pretty} />
+                  </div>
     }
+
     const posts_page_title = 'user-deleted posts that have no comments are not shown'
     return (
       <React.Fragment>
         {timeFrame}
         <div title={page_type === 'subreddit_posts' ? posts_page_title : ''}
              className='non-item text'>{num_showing.toLocaleString()+' of '}
-             {gs.items.length.toLocaleString()}</div>
+             {items.length.toLocaleString()}</div>
       </React.Fragment>
     )
   }
