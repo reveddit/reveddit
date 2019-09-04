@@ -21,8 +21,8 @@ class User extends React.Component {
     const gs = this.props.global.state
     let loadAllLink = ''
     let nextLink = ''
-    let lastTimeLoaded = ''
-    let error = ''
+    let pagesLoaded = ''
+    let error = '', status = ''
     let totalPages = 10
     let selectedItems = null
     if (! gs.userNext) {
@@ -54,10 +54,11 @@ class User extends React.Component {
       error = <div className='non-item text'>{user} {gs.userIssueDescription}</div>
     }
     if (gs.items.length) {
-      lastTimeLoaded = <React.Fragment>
-                         <div className='non-item text'>since <Time created_utc={gs.items.slice(-1)[0].created_utc} /></div>
-                         <div id='pagesloaded' className='non-item text' data-pagesloaded={gs.num_pages}>loaded pages {`${gs.num_pages}/${totalPages}`}</div>
-                       </React.Fragment>
+      pagesLoaded = <React.Fragment>
+                      <div id='pagesloaded' className='non-item text' data-pagesloaded={gs.num_pages}>loaded pages {`${gs.num_pages}/${totalPages}`}</div>
+                    </React.Fragment>
+    } else if (! gs.loading) {
+      status = <p>No comments or posts are available for this user</p>
     }
 
     const shownItems = []
@@ -75,46 +76,54 @@ class User extends React.Component {
       }
     })
 
+
     return (
-      <div className='userpage'>
-        <div className='subreddit-box'>
-          {loadAllLink}
+      <>
+        <div className='userpage'>
+          <div className='top'>
+            <div className='subreddit-box'>
+              {loadAllLink}
+            </div>
+            {selections}
+            <div className='note quarantine'>
+              <p>To view <span className='quarantined'>quarantined</span> content, install the <a href="https://chrome.google.com/webstore/detail/revddit-quarantined/cmfgeilnphkjendelakiniceinhjonfh">Chrome</a> or <a href="https://addons.mozilla.org/en-US/firefox/addon/revddit-quarantined/">Firefox</a> extension.</p>
+            </div>
+            { removedCommentIDs.length > 0 &&
+              <div className='notice-with-link'>
+                <div>Some comments have been removed. To view this on reddit, open the below link in an incognito window or while logged out.</div>
+                <a href={'https://www.reddit.com/api/info?id='+removedCommentIDs.join(',')} target="_blank">view removed comments on reddit</a>
+              </div>
+            }
+            {! gs.hasVisitedUserPage_sortTop &&
+              <div className='notice-with-link'>
+                <div>Sorting by top may show more results.</div>
+                <a href={'?sort=top&all=true'}>sort by top</a>
+              </div>
+            }
+            {gs.hasVisitedUserPage_sortTop && ! gs.hasVisitedSubredditPage &&
+              <div className='notice-with-link'>
+                <div>{"Subreddit pages work too."}</div>
+                <Link to={'/r/'}>view a subreddit</Link>
+              </div>
+            }
+            {selectedItems &&
+              <div className='notice-with-link'>
+                <div>{"showing selected items."}</div>
+                <Link to={linkToRestOfComments}>view all items</Link>
+              </div>
+            }
+            {
+              shownItems
+            }
+            {error}
+            {status}
+          </div>
+          <div className='footer'>
+            {pagesLoaded}
+            {nextLink}
+          </div>
         </div>
-        {selections}
-        <div className='note quarantine'>
-          <p>To view <span className='quarantined'>quarantined</span> content, install the <a href="https://chrome.google.com/webstore/detail/revddit-quarantined/cmfgeilnphkjendelakiniceinhjonfh">Chrome</a> or <a href="https://addons.mozilla.org/en-US/firefox/addon/revddit-quarantined/">Firefox</a> extension.</p>
-        </div>
-        { removedCommentIDs.length > 0 &&
-          <div className='notice-with-link'>
-            <div>Some comments have been removed. To view this on reddit, open the below link in an incognito window or while logged out.</div>
-            <a href={'https://www.reddit.com/api/info?id='+removedCommentIDs.join(',')} target="_blank">view removed comments on reddit</a>
-          </div>
-        }
-        {! gs.hasVisitedUserPage_sortTop &&
-          <div className='notice-with-link'>
-            <div>Sorting by top may show more results.</div>
-            <a href={'?sort=top&all=true'}>sort by top</a>
-          </div>
-        }
-        {gs.hasVisitedUserPage_sortTop && ! gs.hasVisitedSubredditPage &&
-          <div className='notice-with-link'>
-            <div>{"Subreddit pages work too."}</div>
-            <Link to={'/r/'}>view a subreddit</Link>
-          </div>
-        }
-        {selectedItems &&
-          <div className='notice-with-link'>
-            <div>{"showing selected items."}</div>
-            <Link to={linkToRestOfComments}>view all items</Link>
-          </div>
-        }
-        {
-          shownItems
-        }
-        {lastTimeLoaded}
-        {nextLink}
-        {error}
-      </div>
+      </>
     )
   }
 }
