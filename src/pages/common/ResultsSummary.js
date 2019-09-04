@@ -45,10 +45,12 @@ class ResultsSummary extends React.Component {
     }
 
     const posts_page_title = 'user-deleted posts that have no comments are not shown'
+    // WARNING: a class name & attribute are used by the revddit extension:
+    // #numItemsLoaded, data-numitemsloaded
     return (
       <React.Fragment>
         {timeFrame}
-        <div title={page_type === 'subreddit_posts' ? posts_page_title : ''}
+        <div id='numItemsLoaded' data-numitemsloaded={items.length} title={page_type === 'subreddit_posts' ? posts_page_title : ''}
              className='non-item text'>{num_showing.toLocaleString()+' of '}
              {items.length.toLocaleString()}</div>
       </React.Fragment>
