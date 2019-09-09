@@ -12,7 +12,7 @@ Jason Baumgartner's [Pushshift API](https://github.com/pushshift/api) to determi
 The frontend is written in [React](https://reactjs.org/), leveraging the [removeddit](https://github.com/JubbeArt/removeddit) framework by Jesper Wrang.
 
 # Development
-Download either [yarn](https://yarnpkg.com/en/docs/install) or [npm](https://www.npmjs.com/get-npm)
+1. Download either [yarn](https://yarnpkg.com/en/docs/install) or [npm](https://www.npmjs.com/get-npm) and run:
 
 ```bash
 git clone git@github.com:revddit/revddit.git && cd revddit
@@ -26,9 +26,11 @@ yarn
 yarn start
 ```
 
-This will build the Javascript files and launch a local server for development. Visit http://localhost:8080 and make sure the site is running.
+This will build the Javascript files and launch a local server for development.
 
-CSS is built separately by running
+2. Visit http://localhost:8080 and make sure the site is running.
+
+Note, CSS is built separately by running
 
 ```bash
 # npm
