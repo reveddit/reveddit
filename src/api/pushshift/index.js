@@ -37,7 +37,7 @@ const queryItems = ({q, author, subreddit, n = 500, before, after, domain, url},
   if (after) queryParams.after = after
   if (before) queryParams.before = before
   if (domain) queryParams.domain = domain
-  if (url) queryParams.url = url
+  if (url) queryParams.url = '"'+url+'"'
 
   return window.fetch(apiURL+getQueryString(queryParams))
     .then(response => response.json())
