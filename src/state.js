@@ -53,7 +53,8 @@ export const urlParamKeys = {
   frontPage: 'frontPage',
   q: 'q', author: 'author', subreddit: 's_subreddit', after: 'after', domain: 's_domain', or_domain: 's_or_domain',
   content: 'content',
-  tagsFilter: 'tags'
+  tagsFilter: 'tags',
+  url: 'url'
 }
 
 export const removedFilter_types = {
@@ -107,7 +108,7 @@ export const filter_pageType_defaults = {
   context: '',
   frontPage: false,
   q: '', author: '', subreddit: '', after: '', domain: '', or_domain: '',
-  content: 'all'
+  content: 'all', url: ''
 }
 
 const maxN = 60000
@@ -159,7 +160,7 @@ class GlobalState extends Container {
         context: '',
         frontPage: false,
         q: '', author: '', subreddit: '', after: '', domain: '', or_domain: '',
-        content: 'all'
+        content: 'all', url: ''
       }
   }
 

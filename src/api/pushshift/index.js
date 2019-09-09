@@ -29,7 +29,7 @@ export const queryPosts = (params) => {
   return queryItems(params, postURL, post_fields, 't3_')
 }
 
-const queryItems = ({q, author, subreddit, n = 500, before, after, domain}, url, fields, prefix) => {
+const queryItems = ({q, author, subreddit, n = 500, before, after, domain, url}, apiURL, fields, prefix) => {
   const queryParams = {size: n, fields: fields.join(',')}
   if (q) queryParams.q = q
   if (author) queryParams.author = author
@@ -37,8 +37,9 @@ const queryItems = ({q, author, subreddit, n = 500, before, after, domain}, url,
   if (after) queryParams.after = after
   if (before) queryParams.before = before
   if (domain) queryParams.domain = domain
+  if (url) queryParams.url = url
 
-  return window.fetch(url+getQueryString(queryParams))
+  return window.fetch(apiURL+getQueryString(queryParams))
     .then(response => response.json())
     .then(data => {
       data.data.forEach(item => {
