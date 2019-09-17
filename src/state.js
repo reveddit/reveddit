@@ -29,8 +29,8 @@ export const getExtraGlobalStateVars = (page_type, sort) => {
     hasVisitedSubredditPage = true
     put('hasVisitedSubredditPage', true)
   }
-
-  return {hasVisitedUserPage, hasVisitedUserPage_sortTop, hasVisitedSubredditPage}
+  let hasSeenLanguageModal = get('hasSeenLanguageModal', false)
+  return {hasVisitedUserPage, hasVisitedUserPage_sortTop, hasVisitedSubredditPage, hasSeenLanguageModal}
 }
 
 
