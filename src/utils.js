@@ -54,9 +54,13 @@ export const commentIsRemoved = comment => {
   return comment.body.replace(/\\/g,'') === '[removed]' && comment.author.replace(/\\/g,'') === '[deleted]'
 }
 
-export const itemIsRemovedOrDeleted = item => {
+export const itemIsRemovedOrDeleted = (item, checkCommentBody=true) => {
   if (item.name.slice(0,2) === 't1') {
-    return item.body.replace(/\\/g,'') === '[removed]' && item.author.replace(/\\/g,'') === '[deleted]'
+    if (checkCommentBody) {
+      return item.body.replace(/\\/g,'') === '[removed]' && item.author.replace(/\\/g,'') === '[deleted]'
+    } else {
+      return item.author.replace(/\\/g,'').match(/^\[/)
+    }
   } else if (item.name.slice(0,2) === 't3') {
     return ! item.is_robot_indexable
   }
