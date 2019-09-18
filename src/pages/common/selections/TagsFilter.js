@@ -9,19 +9,19 @@ export const ADMIN = 'admin'
 
 export const TAG_META = {[IS_OP]: {
                           field: 'is_op',
-                          value: true,
+                          values: [true],
                           text: 'OP'},
                          [MOD]: {
                            field: 'distinguished',
-                           value: 'moderator',
+                           values: ['moderator'],
                            text: 'moderator'},
                          [ADMIN]: {
                            field: 'distinguished',
-                           value: 'admin',
-                           text: 'admin'},
+                           values: ['admin','special'],
+                           text: 'admin/special'},
                          [QUARANTINE]: {
                            field: 'quarantine',
-                           value: true,
+                           values: [true],
                            text: 'quarantined'}
                          }
 
