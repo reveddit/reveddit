@@ -2,6 +2,16 @@ https://revddit.netlify.com/* https://revddit.com/:splat 301!
 https://old.revddit.com/* https://revddit.com/:splat 301!
 https://new.revddit.com/* https://revddit.com/:splat 301!
 https://np.revddit.com/* https://revddit.com/:splat 301!
-https://*.revddit.com/* https://revddit.com/:splat 301!
+https://ja.revddit.com/* https://revddit.com/:splat 301!
+https://fr.revddit.com/* https://revddit.com/:splat 301!
+https://es.revddit.com/* https://revddit.com/:splat 301!
+https://zh.revddit.com/* https://revddit.com/:splat 301!
+https://de.revddit.com/* https://revddit.com/:splat 301!
+https://ko.revddit.com/* https://revddit.com/:splat 301!
+https://no.revddit.com/* https://revddit.com/:splat 301!
+https://us.revddit.com/* https://revddit.com/:splat 301!
+https://en.revddit.com/* https://revddit.com/:splat 301!
+https://nl.revddit.com/* https://revddit.com/:splat 301!
+https://fi.revddit.com/* https://revddit.com/:splat 301!
 
 /*    /index.html   200
