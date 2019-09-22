@@ -1,4 +1,4 @@
-import { toBase10, toBase36, chunk, flatten, getQueryString } from 'utils'
+import { toBase10, toBase36, chunk, flatten, getQueryString, promiseDelay } from 'utils'
 
 const comment_fields = [
   'id', 'author', 'body', 'created_utc', 'parent_id', 'score',
@@ -12,6 +12,9 @@ const post_fields_for_comment_data = ['id', 'title', 'whitelist_status', 'url', 
 
 const postURL = 'https://api.pushshift.io/reddit/submission/search/'
 const commentURL = 'https://api.pushshift.io/reddit/comment/search/'
+
+const maxNumItems = 1000
+const waitInterval = 400
 
 // retrieved_on will become retrieved_utc
 // https://www.reddit.com/r/pushshift/comments/ap6vx5/changelog_changes_to_the_retrieved_on_key/
@@ -51,7 +54,7 @@ const queryItems = ({q, author, subreddit, n = 500, before, after, domain, url},
 }
 
 // If before_id is set, response begins with that ID
-export const getCommentsBySubreddit = async function({subreddit: subreddits_str, n=1000, before='', before_id=''}) {
+export const getCommentsBySubreddit = async function({subreddit: subreddits_str, n=maxNumItems, before='', before_id=''}) {
   const data = {}
   let queryParams = {}
   let dataLength = 0
@@ -62,11 +65,14 @@ export const getCommentsBySubreddit = async function({subreddit: subreddits_str,
     before = parseInt(before)+1
   }
   queryParams['sort'] = 'desc'
-  queryParams['size'] = 1000
+  queryParams['size'] = maxNumItems
   if (subreddits_str) {
     queryParams['subreddit'] = subreddits_str.toLowerCase().replace(/\+/g,',')
   }
   queryParams['fields'] = 'id,created_utc'
+  if (n > maxNumItems) {
+    maxCalls = Math.ceil(n/maxNumItems)+2
+  }
 
   while (dataLength < n && numCalls < maxCalls) {
     if (before) {
@@ -74,7 +80,9 @@ export const getCommentsBySubreddit = async function({subreddit: subreddits_str,
     }
 
     let url = commentURL+getQueryString(queryParams)
-
+    if (numCalls > 0) {
+      await promiseDelay(waitInterval)
+    }
     const items = await window.fetch(url)
       .then(response => response.json())
       .then(data => data.data)
@@ -103,10 +111,18 @@ export const getCommentsBySubreddit = async function({subreddit: subreddits_str,
 }
 
 // this expects short IDs in base36, without the t1_ prefix
-export const getCommentsByID = (ids) => {
-  return Promise.all(chunk(ids, 1000)
-    .map(ids => getCommentsByID_chunk(ids)))
-    .then(flatten)
+export const getCommentsByID = async (ids) => {
+  const results = []
+  let i = 0
+  for (const ids_chunk of chunk(ids, maxNumItems)) {
+    if (i > 0) {
+      await promiseDelay(waitInterval)
+    }
+    const result = await getCommentsByID_chunk(ids_chunk)
+    results.push(result)
+    i += 1
+  }
+  return flatten(results)
 }
 
 export const getCommentsByID_chunk = (ids) => {
@@ -127,7 +143,7 @@ export const getPostsByIDForCommentData = (ids) => {
 }
 
 // If before_id is set, response begins with that ID
-export const getPostsBySubredditOrDomain = async function({subreddit:subreddits_str, domain:domains_str, n=1000, before='', before_id=''}) {
+export const getPostsBySubredditOrDomain = async function({subreddit:subreddits_str, domain:domains_str, n=maxNumItems, before='', before_id=''}) {
   const data = {}
   let queryParams = {}
   let dataLength = 0
@@ -138,7 +154,7 @@ export const getPostsBySubredditOrDomain = async function({subreddit:subreddits_
     before = parseInt(before)+1
   }
   queryParams['sort'] = 'desc'
-  queryParams['size'] = 1000
+  queryParams['size'] = maxNumItems
   if (subreddits_str) {
     queryParams['subreddit'] = subreddits_str.toLowerCase().replace(/\+/g,',')
   } else if (domains_str) {
@@ -146,13 +162,18 @@ export const getPostsBySubredditOrDomain = async function({subreddit:subreddits_
   }
   queryParams['fields'] = post_fields
 
+  if (n > maxNumItems) {
+    maxCalls = Math.ceil(n/maxNumItems)+2
+  }
   while (dataLength < n && numCalls < maxCalls) {
     if (before) {
       queryParams['before'] = before
     }
 
     let url = postURL+getQueryString(queryParams)
-
+    if (numCalls > 0) {
+      await promiseDelay(waitInterval)
+    }
     const items = await window.fetch(url)
       .then(response => response.json())
       .then(data => data.data)
@@ -184,7 +205,7 @@ export const getPostsBySubredditOrDomain = async function({subreddit:subreddits_
 }
 
 export const getPostsByID = (ids, fields = post_fields) => {
-  return Promise.all(chunk(ids, 1000)
+  return Promise.all(chunk(ids, maxNumItems)
     .map(ids => getPostsByID_chunk(ids, fields)))
     .then(flatten)
 }

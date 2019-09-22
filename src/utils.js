@@ -307,3 +307,7 @@ export const sleeper = (ms) => {
     return new Promise(resolve => setTimeout(() => resolve(x), ms))
   }
 }
+
+export const promiseDelay = (ms) => {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}

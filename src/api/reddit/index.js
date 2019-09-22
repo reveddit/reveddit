@@ -1,44 +1,37 @@
-import { chunk, flatten, fetchWithTimeout } from 'utils'
+import { chunk, flatten, fetchWithTimeout, promiseDelay } from 'utils'
 import { getAuth } from './auth'
 
 const oauth_reddit = 'https://oauth.reddit.com/'
+const numRequestsBeforeWait = 10
+const waitInterval = numRequestsBeforeWait*500
+const maxNumItems = 100
 
 const errorHandler = (e) => {
   throw new Error(`Could not connect to Reddit: ${e}`)
 }
 
-// Helper function that fetches a list of comments
-const fetchComments = (commentIDs, auth) => {
-  var ids = commentIDs.map(id => `t1_${id}`)
-  var params = {id: ids.join(), raw_json:1}
-  const url = oauth_reddit + 'api/info' + '?'+Object.keys(params).map(k => `${k}=${params[k]}`).join('&')
-  return window.fetch(url, auth)
-    .then(response => response.json())
-    .then(results => results.data.children)
-    .then(commentsData => commentsData.map(commentData => commentData.data))
-}
-
 export const getComments = commentIDs => {
-  return getAuth()
-    .then(auth => (
-      Promise.all(chunk(commentIDs, 100)
-        .map(ids => fetchComments(ids, auth)))
-        .then(flatten)
-    ))
-    .catch(errorHandler)
+  const full_ids = commentIDs.map(id => `t1_${id}`)
+  return getItems(full_ids)
 }
 
-export const getItems = ids => {
+export const getItems = async (ids) => {
   return getAuth()
-    .then(auth => (
-      Promise.all(chunk(ids, 100)
-      .map(ids_chunk => queryByID(ids_chunk, auth)))
-      .then(flatten)
-      .catch(errorHandler)
-    ))
+  .then(async (auth) => {
+    const results = []
+    let i = 0
+    for (const ids_chunk of chunk(ids, maxNumItems)) {
+      if (i > 0 && i % numRequestsBeforeWait === 0) {
+        await promiseDelay(waitInterval)
+      }
+      const result = queryByID(ids_chunk, auth)
+      results.push(result)
+      i += 1
+    }
+    return Promise.all(results).then(flatten)
+  })
+  .catch(errorHandler)
 }
-
-
 
 export const queryUserPage = (user, kind, sort, before, after, limit = 100) => {
   var params = {sort: sort, limit: limit, raw_json:1}
