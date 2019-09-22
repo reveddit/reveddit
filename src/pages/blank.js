@@ -11,7 +11,7 @@ export class BlankUser extends React.Component {
 
     const val = data.get('username').trim().toLowerCase()
     if (val !== '') {
-      window.location.href = `/user/${val}?${queryParams.toString()}`
+      window.location.href = `/user/${val}${queryParams.toString()}`
     }
   }
 

@@ -223,7 +223,7 @@ export class SimpleURLSearchParams {
         queryVals.push(key+'='+this.params[key])
     }
     if (queryVals.length) {
-      return queryVals.join('&')
+      return '?'+queryVals.join('&')
     } else {
       return ''
     }
@@ -300,4 +300,10 @@ const reduceItems = (obj, val) => {
 export const getUniqueItems = (arr1, arr2) => {
   const map1 = arr1.reduce(reduceItems, {})
   return Object.values(arr2.reduce(reduceItems, map1))
+}
+
+export const sleeper = (ms) => {
+  return function(x) {
+    return new Promise(resolve => setTimeout(() => resolve(x), ms))
+  }
 }
