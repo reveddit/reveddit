@@ -22,7 +22,7 @@ export const itemIsOneOfSelectedTags = (item, gs) => {
   const setTags = Object.keys(gs.tagsFilter)
   for (let i = 0; i < setTags.length; i++) {
     const type = setTags[i]
-    if (item[TAG_META[type].field] === TAG_META[type].value) {
+    if (TAG_META[type].values.includes(item[TAG_META[type].field])) {
       return true
     }
   }

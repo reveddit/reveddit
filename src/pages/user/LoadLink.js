@@ -17,7 +17,7 @@ class LoadLink extends React.Component {
       qp.loadAll = true
       const queryParams_tmp = new SimpleURLSearchParams(this.props.location.search)
       queryParams_tmp.set('all', 'true')
-      to = `${this.props.location.pathname}?${queryParams_tmp.toString()}`
+      to = `${this.props.location.pathname}${queryParams_tmp.toString()}`
       className = 'load-all'
       text = 'load all'
     }

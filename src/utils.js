@@ -54,9 +54,13 @@ export const commentIsRemoved = comment => {
   return comment.body.replace(/\\/g,'') === '[removed]' && comment.author.replace(/\\/g,'') === '[deleted]'
 }
 
-export const itemIsRemovedOrDeleted = item => {
+export const itemIsRemovedOrDeleted = (item, checkCommentBody=true) => {
   if (item.name.slice(0,2) === 't1') {
-    return item.body.replace(/\\/g,'') === '[removed]' && item.author.replace(/\\/g,'') === '[deleted]'
+    if (checkCommentBody) {
+      return item.body.replace(/\\/g,'') === '[removed]' && item.author.replace(/\\/g,'') === '[deleted]'
+    } else {
+      return item.author.replace(/\\/g,'').match(/^\[/)
+    }
   } else if (item.name.slice(0,2) === 't3') {
     return ! item.is_robot_indexable
   }
@@ -219,7 +223,7 @@ export class SimpleURLSearchParams {
         queryVals.push(key+'='+this.params[key])
     }
     if (queryVals.length) {
-      return queryVals.join('&')
+      return '?'+queryVals.join('&')
     } else {
       return ''
     }
@@ -296,4 +300,14 @@ const reduceItems = (obj, val) => {
 export const getUniqueItems = (arr1, arr2) => {
   const map1 = arr1.reduce(reduceItems, {})
   return Object.values(arr2.reduce(reduceItems, map1))
+}
+
+export const sleeper = (ms) => {
+  return function(x) {
+    return new Promise(resolve => setTimeout(() => resolve(x), ms))
+  }
+}
+
+export const promiseDelay = (ms) => {
+  return new Promise(resolve => setTimeout(resolve, ms))
 }

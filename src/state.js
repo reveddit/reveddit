@@ -243,7 +243,7 @@ class GlobalState extends Container {
     return queryParams
   }
   updateURLandState = (queryParams, props, callback = () => {}) => {
-    let to = `${window.location.pathname}?${queryParams.toString()}`
+    let to = `${window.location.pathname}${queryParams.toString()}`
     props.history.replace(to)
     return this.setStateFromQueryParams(props.page_type, queryParams, {}, callback)
   }
@@ -254,7 +254,7 @@ class GlobalState extends Container {
     queryParams.set(urlParamKeys.removedFilter, removedFilter_types.removed)
     queryParams.set(urlParamKeys.localSort, localSort_types.score)
     queryParams.set(urlParamKeys.removedByFilter, [MOD_OR_AUTOMOD_REMOVED, AUTOMOD_REMOVED, UNKNOWN_REMOVED].join(','))
-    window.location.href = `${baseURL}?${queryParams.toString()}`
+    window.location.href = `${baseURL}${queryParams.toString()}`
   }
   categoryFilter_update = (type, value, props) => {
     this.selection_update('categoryFilter_'+type, value, props)

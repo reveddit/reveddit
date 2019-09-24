@@ -6,22 +6,27 @@ export const IS_OP = 'is_op'
 export const MOD = 'mod'
 export const QUARANTINE = 'quarantine'
 export const ADMIN = 'admin'
+export const NONE = 'none'
 
 export const TAG_META = {[IS_OP]: {
                           field: 'is_op',
-                          value: true,
+                          values: [true],
                           text: 'OP'},
                          [MOD]: {
                            field: 'distinguished',
-                           value: 'moderator',
+                           values: ['moderator'],
                            text: 'moderator'},
                          [ADMIN]: {
                            field: 'distinguished',
-                           value: 'admin',
-                           text: 'admin'},
+                           values: ['admin','special'],
+                           text: 'admin/special'},
+                         [NONE]: {
+                           field: 'distinguished',
+                           values: [null],
+                           text: 'not mod/admin/special'},
                          [QUARANTINE]: {
                            field: 'quarantine',
-                           value: true,
+                           values: [true],
                            text: 'quarantined'}
                          }
 

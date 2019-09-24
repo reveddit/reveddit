@@ -34,13 +34,13 @@ class ResultsSummary extends React.Component {
         </React.Fragment>
     } else if (youngest_pretty !== oldest_pretty) {
       timeFrame = <div className='non-item text'>
-                    <Time pretty={youngest_pretty} />
+                    <Time created_utc={youngest_time} pretty={youngest_pretty} />
                     <div>—</div>
-                    <Time pretty={oldest_pretty} />
+                    <Time created_utc={oldest_time} pretty={oldest_pretty} />
                   </div>
     } else {
       timeFrame = <div className='non-item text'>
-                    since <Time pretty={oldest_pretty} />
+                    since <Time created_utc={oldest_time} pretty={oldest_pretty} />
                   </div>
     }
 

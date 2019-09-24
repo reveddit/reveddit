@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { prettyScore, parse, isRemoved, replaceAmpGTLT, jumpToHash } from 'utils'
+import { prettyScore, parse, isRemoved, replaceAmpGTLT, jumpToHash, SimpleURLSearchParams } from 'utils'
 import Time from 'pages/common/Time'
 import RemovedBy from 'pages/common/RemovedBy'
 import { connect } from 'state'
@@ -43,20 +43,22 @@ class Comment extends React.Component {
       author = '[deleted]'
     }
 
-    let permalink = `/r/${props.subreddit}/comments/${props.link_id}/_/${props.id}/`
+    let permalink_nohash = `/r/${props.subreddit}/comments/${props.link_id}/_/${props.id}/`
     if (props.permalink) {
-      permalink = props.permalink
+      permalink_nohash = props.permalink
     }
-    permalink += window.location.search
+    const search_nocontext = new SimpleURLSearchParams(window.location.search).delete('context').toString()
+    permalink_nohash += search_nocontext
     let connectingChar = '?'
     const contextParam = `context=${contextDefault}#${props.name}`
-    if (window.location.search) {
+    if (search_nocontext) {
       connectingChar = '&'
     }
-    const contextLink = permalink+connectingChar+contextParam
+    const contextLink = permalink_nohash+connectingChar+contextParam
+    const permalink = permalink_nohash+`#${props.name}`
     let parent_link = undefined
     if ('parent_id' in props && props.parent_id.substr(0,2) === 't1') {
-      parent_link = permalink.split('/').slice(0,6).join('/')+'/'+props.parent_id.substr(3)+'/'+window.location.search+'#'+props.parent_id
+      parent_link = permalink_nohash.split('/').slice(0,6).join('/')+'/'+props.parent_id.substr(3)+'/'+search_nocontext+'#'+props.parent_id
     }
     const name = `t1_${props.id}`
     let submitter = ''
@@ -101,7 +103,9 @@ class Comment extends React.Component {
                 <div className='comment-links'>
                 { ! props.deleted &&
                   <React.Fragment>
-                    <Link to={permalink} onClick={(e) => {context_update(0, props)}}>permalink</Link>
+                    <Link to={permalink} onClick={(e) => {context_update(0, props,
+                      () => {jumpToHash(window.location.hash)}
+                      )}}>permalink</Link>
                     {parent_link &&
                       <Link to={parent_link} onClick={
                         (e) => {context_update(0, props,

@@ -187,7 +187,7 @@ class UpvoteRemovalRateHistory extends React.Component {
     } else {
       queryParams.delete(paramKey)
     }
-    let to = `${this.props.location.pathname}?${queryParams.toString()}`
+    let to = `${this.props.location.pathname}${queryParams.toString()}`
     this.props.history.replace(to)
   }
   goToGraphURL = (last_created_utc, last_id, total_items) => {
