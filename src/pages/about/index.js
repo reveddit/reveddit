@@ -105,6 +105,8 @@ export class About extends React.Component {
             <div className='section half'>
               <h2 className='about'>News</h2>
               <ul className='news'>
+                <li><a href={`${reddit}/d9g5z3/`}>revddit language fix extension</a>
+                  <ul><li><Time created_utc='1569481854'/></li></ul></li>
                 <li><a href={`${reddit}/r/shortcuts/comments/ct64s6/is_it_possible_to_modify_a_copied_link/exkas2j/?context=3`}>revddit shortcut for iOS</a>
                   <ul><li><Time created_utc='1566381957'/></li></ul></li>
                 <li><a href={`${reddit}/cmcw3y/`}>revddit quarantined extension</a>
@@ -118,19 +120,25 @@ export class About extends React.Component {
             <div className='section half'>
               <h2 className='about'>Extra tools</h2>
               <ul>
-              <li>revddit quarantined - enables viewing quarantined content via re<span className="v red">v</span>ddit
-                <ul>
-                  <li><a href="https://chrome.google.com/webstore/detail/revddit-quarantined/cmfgeilnphkjendelakiniceinhjonfh">Chrome</a></li>
-                  <li><a href="https://addons.mozilla.org/en-US/firefox/addon/revddit-quarantined/">Firefox</a></li>
-                </ul>
-              </li>
+                <li>revddit quarantined - enables viewing quarantined content via re<span className="v red">v</span>ddit
+                  <ul>
+                    <li><a href="https://chrome.google.com/webstore/detail/revddit-quarantined/cmfgeilnphkjendelakiniceinhjonfh">Chrome</a></li>
+                    <li><a href="https://addons.mozilla.org/en-US/firefox/addon/revddit-quarantined/">Firefox</a></li>
+                  </ul>
+                </li>
                 <li>revddit linker - provides a button and context menu item to switch between reddit and re<span className="v red">v</span>ddit views
                   <ul>
                     <li><a href="https://chrome.google.com/webstore/detail/revddit-linker/jgnigeenijnjlahckhfomimnjadmkmah">Chrome</a></li>
                     <li><a href="https://addons.mozilla.org/en-US/firefox/addon/revddit-linker/">Firefox</a></li>
                   </ul>
                 </li>
-                  <li><a href="https://www.icloud.com/shortcuts/62bc7570613c42cb8b851fad264136df">revddit shortcut</a> - iOS shortcut</li>
+                <li>revddit language fix - an extension for viewing re<span className="v red">v</span>ddit.com when your browser's preferred language is not English
+                  <ul>
+                    <li><a href="https://chrome.google.com/webstore/detail/revddit-language-fix/fcpgnheagjkmelppbpnbpfimmmjicknj">Chrome</a></li>
+                    <li><a href="https://addons.mozilla.org/en-US/firefox/addon/revddit-language-fix/">Firefox</a></li>
+                  </ul>
+                </li>
+                <li><a href="https://www.icloud.com/shortcuts/62bc7570613c42cb8b851fad264136df">revddit shortcut</a> - iOS shortcut</li>
               </ul>
             </div>
           </div>
