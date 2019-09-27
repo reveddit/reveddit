@@ -10,7 +10,7 @@ import { itemIsOneOfSelectedRemovedBy, itemIsOneOfSelectedTags } from 'data_proc
 import Selections from 'pages/common/selections'
 import { removedFilter_types, getExtraGlobalStateVars } from 'state'
 import { NOT_REMOVED } from 'pages/common/RemovedBy'
-import { SimpleURLSearchParams, jumpToHash, put } from 'utils'
+import { SimpleURLSearchParams, jumpToHash, get, put } from 'utils'
 
 const getCategorySettings = (page_type, subreddit) => {
   const category_settings = {
@@ -159,25 +159,11 @@ export const withFetch = (WrappedComponent) =>
         }
       }
 
-      const extraGlobalStateVars = getExtraGlobalStateVars(page_type, queryParams.sort)
-      if (! window.navigator.language.match(/^en\b/) && ! extraGlobalStateVars.hasSeenLanguageModal) {
-        put('hasSeenLanguageModal', true)
-        extraGlobalStateVars.hasSeenLanguageModal = true
-        this.props.openErrorModal(
-          <>
-            <p>Hi, you may need the revddit non-english extension to view results accurately:</p>
-            <ul>
-              <li><a href="https://chrome.google.com/webstore/detail/revddit-quarantined/cmfgeilnphkjendelakiniceinhjonfh">Chrome</a></li>
-              <li><a href="https://addons.mozilla.org/en-US/firefox/addon/revddit-quarantined/">Firefox</a></li>
-            </ul>
-            <p>See details <a href="#">here</a>. This pop-up will only appear once per session when the extension is not installed.</p>
-          </>
-        )
-      }
+      setTimeout(this.maybeShowLanguageModal, 3000)
       this.props.global.setStateFromQueryParams(
                       page_type,
                       new SimpleURLSearchParams(this.props.location.search),
-                      extraGlobalStateVars)
+                      getExtraGlobalStateVars(page_type, queryParams.sort))
       .then(result => {
 
         const [loadDataFunction, params] = getLoadDataFunctionAndParam(page_type, subreddit, user, kind, threadID, domain, queryParams)
@@ -213,7 +199,22 @@ export const withFetch = (WrappedComponent) =>
         })
       })
     }
-
+    maybeShowLanguageModal = () => {
+      const hasSeenLanguageModal = get('hasSeenLanguageModal', false)
+      if (! window.navigator.language.match(/^en\b/) && ! hasSeenLanguageModal) {
+        put('hasSeenLanguageModal', true)
+        this.props.openErrorModal(
+          <>
+            <p>Hi, when your browser's preferred language is not English, you may need the "revddit language fix" extension to view results accurately:</p>
+            <ul>
+              <li><a href="https://chrome.google.com/webstore/detail/revddit-language-fix/fcpgnheagjkmelppbpnbpfimmmjicknj">Chrome</a></li>
+              <li><a href="https://addons.mozilla.org/en-US/firefox/addon/revddit-language-fix/">Firefox</a> (mobile too)</li>
+            </ul>
+            <p>Please see details <a href="#">here</a>. This pop-up will only appear once per session while the extension is not installed.</p>
+          </>
+        )
+      }
+    }
     getViewableItems(items, category, category_unique_field) {
       let category_state = this.props.global.state['categoryFilter_'+category]
       const showAllCategories = category_state === 'all'
