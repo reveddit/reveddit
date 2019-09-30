@@ -105,6 +105,8 @@ export class About extends React.Component {
             <div className='section half'>
               <h2 className='about'>News</h2>
               <ul className='news'>
+                <li><a href={`${reddit}/db5hfm/`}>tip: /y and /v aliases</a>
+                  <ul><li><Time created_utc='1569812523'/></li></ul></li>
                 <li><a href={`${reddit}/d9g5z3/`}>revddit language fix extension</a>
                   <ul><li><Time created_utc='1569481854'/></li></ul></li>
                 <li><a href={`${reddit}/r/shortcuts/comments/ct64s6/is_it_possible_to_modify_a_copied_link/exkas2j/?context=3`}>revddit shortcut for iOS</a>
