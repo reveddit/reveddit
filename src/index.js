@@ -32,11 +32,11 @@ class App extends React.Component {
               <Redirect exact from='/' to='/about' />
               <Redirect from='/u/*' to='/user/*' />
               <Redirect from='/u/' to='/user/' />
-              <Route path="/usr/" component={({ location }) => (
+              <Route path="/y/" component={({ location }) => (
                   <Redirect
                     to={{
                       ...location,
-                      pathname: location.pathname.replace(/\/usr/, '/user')
+                      pathname: location.pathname.replace(/\/y/, '/user')
                     }} /> )}
               />
               <Route path="/v/" component={({ location }) => (
