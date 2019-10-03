@@ -27,8 +27,8 @@ const customStyles = {
 class DefaultLayout extends React.Component {
   state = {
     donateModalIsOpen: false,
-    errorModalIsOpen: false,
-    error: ''
+    genericModalIsOpen: false,
+    content: ''
   }
   componentDidMount() {
     document.getElementById('donate-ribbon').onclick = this.openDonateModal
@@ -46,11 +46,11 @@ class DefaultLayout extends React.Component {
     history.replaceState({}, '', url)
     this.setState({donateModalIsOpen: false});
   }
-  openErrorModal = (error) => {
-    this.setState({errorModalIsOpen: true, error});
+  openGenericModal = (content) => {
+    this.setState({genericModalIsOpen: true, content});
   }
-  closeErrorModal = () => {
-    this.setState({errorModalIsOpen: false});
+  closeGenericModal = () => {
+    this.setState({genericModalIsOpen: false});
   }
 
   render() {
@@ -69,15 +69,15 @@ class DefaultLayout extends React.Component {
                 <Donate/>
               </Modal>
               <Modal
-                isOpen={this.state.errorModalIsOpen}
-                onRequestClose={this.closeErrorModal}
+                isOpen={this.state.genericModalIsOpen}
+                onRequestClose={this.closeGenericModal}
                 style={customStyles}
               >
-                <div id='errorModal'>
-                  {this.state.error}
+                <div id='genericModal'>
+                  {this.state.content}
                 </div>
               </Modal>
-              <Component {...matchProps} {...rest} openDonateModal={this.openDonateModal} openErrorModal={this.openErrorModal}/>
+              <Component {...matchProps} {...rest} openDonateModal={this.openDonateModal} openGenericModal={this.openGenericModal}/>
             </div>
           </React.Fragment>
         )

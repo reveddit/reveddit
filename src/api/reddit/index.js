@@ -84,7 +84,7 @@ export const userPageHTML = (user) => {
     })
 }
 
-export const queryByID = (ids, auth) => {
+const queryByID = (ids, auth) => {
   var params = {id: ids.join(), raw_json:1}
   const url = oauth_reddit + 'api/info' + '?'+Object.keys(params).map(k => `${k}=${params[k]}`).join('&')
   return window.fetch(url, auth)

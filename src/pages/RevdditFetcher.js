@@ -157,6 +157,7 @@ export const withFetch = (WrappedComponent) =>
           this.props.global.setError(Error('Invalid sort type, check url'))
           return
         }
+        setTimeout(this.maybeShowSubscribeUserModal, 3000)
       }
 
       setTimeout(this.maybeShowLanguageModal, 3000)
@@ -194,27 +195,44 @@ export const withFetch = (WrappedComponent) =>
                 </p>
               </>
           }
-          this.props.openErrorModal(modalContent)
+          this.props.openGenericModal(modalContent)
           this.props.global.setError('')
         })
       })
     }
     maybeShowLanguageModal = () => {
-      const hasSeenLanguageModal = get('hasSeenLanguageModal', false)
+      const hasSeenLanguageModal_text = 'hasSeenLanguageModal'
+      const hasSeenLanguageModal = get(hasSeenLanguageModal_text, false)
       if (! window.navigator.language.match(/^en\b/) && ! hasSeenLanguageModal) {
-        put('hasSeenLanguageModal', true)
-        this.props.openErrorModal(
+        put(hasSeenLanguageModal_text, true)
+        this.props.openGenericModal(
           <>
             <p>Hi, when your browser's preferred language is not English, you may need the "revddit language fix" extension to view results accurately:</p>
             <ul>
               <li><a href="https://chrome.google.com/webstore/detail/revddit-language-fix/fcpgnheagjkmelppbpnbpfimmmjicknj">Chrome</a></li>
               <li><a href="https://addons.mozilla.org/en-US/firefox/addon/revddit-language-fix/">Firefox</a> (mobile too)</li>
             </ul>
-            <p>Please see details <a href="#">here</a>. This pop-up will only appear once per session while the extension is not installed.</p>
+            <p>Please see details <a href="https://redd.it/d4wtes">here</a>. This pop-up appears once per session while the extension is not installed.</p>
           </>
         )
       }
     }
+    maybeShowSubscribeUserModal = () => {
+      const hasSeenSubscribeUserModal_text = 'hasSeenSubscribeUserModal'
+      const extensionSaysNoSubscriptions = get('extensionSaysNoSubscriptions', false)
+      const hasSeenSubscribeUserModal = get(hasSeenSubscribeUserModal_text, false)
+      if (extensionSaysNoSubscriptions && ! hasSeenSubscribeUserModal) {
+        put(hasSeenSubscribeUserModal_text, true)
+        this.props.openGenericModal(
+          <>
+            <p>To receive alerts when content from this user is removed, click 'subscribe' on the extension icon.</p>
+            <img src="https://i.imgur.com/7NRg0sQ.png"/>
+            <p>This pop-up appears once per session on user pages while there are no subscriptions.</p>
+          </>
+        )
+      }
+    }
+
     getViewableItems(items, category, category_unique_field) {
       let category_state = this.props.global.state['categoryFilter_'+category]
       const showAllCategories = category_state === 'all'
