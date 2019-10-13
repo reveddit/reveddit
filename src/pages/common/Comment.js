@@ -62,10 +62,7 @@ class Comment extends React.Component {
     const mods_message_body = '\n\n\n'+reddit+props.permalink;
     const mods_link = reddit+'/message/compose?to='+props.subreddit+'&message='+encodeURI(mods_message_body);
     const current_page = `${this.props.location.pathname}${this.props.location.search}`
-    let message_mods = ''
-    if (props.removed || props.removedby && props.removedby !== NOT_REMOVED) {
-      message_mods = <a href={mods_link} target="_blank">message mods</a>
-    }
+
     return (
       <div id={props.name} className={classNames.join(' ')} data-fullname={props.name} data-created_utc={props.created_utc}>
         <div className='comment-head'>
@@ -134,7 +131,7 @@ class Comment extends React.Component {
                       <a href={props.permalink+`?context=3#${props.name}`}>context</a>
                       <a href={props.link_permalink && props.link_permalink.replace('reddit','revddit')}>full comments
                         {'num_comments' in props && `(${props.num_comments})`}</a>
-                      {message_mods}
+                      <a href={mods_link} target="_blank">message mods</a>
                     </React.Fragment>
                   }
                   </div>

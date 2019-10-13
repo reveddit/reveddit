@@ -22,10 +22,7 @@ class Post extends React.Component {
     const reddit = 'https://www.reddit.com'
     const mods_message_body = '\n\n\n'+reddit+props.permalink;
     const mods_link = reddit+'/message/compose?to='+props.subreddit+'&message='+encodeURI(mods_message_body);
-    let message_mods = ''
-    if (props.removed || props.removedby && props.removedby !== NOT_REMOVED) {
-      message_mods = <a href={mods_link} target="_blank">message mods</a>
-    }
+
     let url = props.url.replace('https://www.reddit.com', '')
 
     const userLink = isDeleted(props.author) ? undefined : `/user/${props.author}`
@@ -109,7 +106,7 @@ class Post extends React.Component {
             <a href={props.permalink}>{props.num_comments} comments</a>
             <a href={`${current_page}#${props.name}`}>hashlink</a>
             <a href={`https://www.reddit.com${props.permalink}`}>reddit</a>
-            {message_mods}
+            <a href={mods_link} target="_blank">message mods</a>
           </div>
         </div>
         <div className='clearBoth'></div>
