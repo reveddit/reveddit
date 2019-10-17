@@ -48,7 +48,7 @@ exports.handler = async function(event) {
         payment_method_types: ['card'],
         line_items: [{
           name: 'Donation',
-          description: 'Donation to revddit.com',
+          description: 'revddit.com (not tax deductible)',
           amount: data.amount * 100,
           currency: 'usd',
           quantity: 1

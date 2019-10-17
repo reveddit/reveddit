@@ -65,7 +65,8 @@ export class Donate extends React.Component {
             </label>
           </div>
           <input type="submit" value="Donate!" className="donate-btn"/>
-          <div  style={{"marginTop":"14px", textAlign:"center"}}>
+          <div  style={{"marginTop":"14px", textAlign:"center", color: "white"}}>
+            <p>(not tax deductible)</p>
             <img src="/images/stripe.png"/>
           </div>
         </form>
