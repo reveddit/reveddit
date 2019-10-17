@@ -65,7 +65,11 @@ export class Donate extends React.Component {
             </label>
           </div>
           <input type="submit" value="Donate!" className="donate-btn"/>
+          <div  style={{"marginTop":"14px", textAlign:"center"}}>
+            <img src="/images/stripe.png"/>
+          </div>
         </form>
+        <hr style={{width:'100%'}}/>
         <div className="more-ways">
           <a href={`bitcoin:${btc}`}>BTC</a>
           <a href={`bitcoincash:${bch}`}>BCH</a>

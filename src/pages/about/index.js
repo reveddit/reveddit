@@ -24,7 +24,7 @@ export class About extends React.Component {
         'eg3ueep', 'eg3bgki', 'eg33rjm', 'eg33ki6', 'eg30s12', 'eg300eo', 'eg2zjb9',
         'eg2xgjc', 'eg2x1kt', 'eg2vm27', 'eg2vamc', 'eg2ugkf', 'eg2ub8f', 'eg2t4zp',
         'eg2s3gf', 'eg2pxd8', 'eg2pa9c', 'eg2oymq', 'eg2nqjz', 'eg2ksrf', 'eg2jrvb',
-        'eg2hdg2', 'eg2giv2', 'esloe21', 'f2a8nug', 'f2ap7p3'
+        'eg2hdg2', 'eg2giv2', 'esloe21', 'f2a8nug', 'f2ap7p3', 'f3uj76k', 'f3ul663'
       ].sort(() => 0.5 - Math.random()))
     .then( comments => {
       const unedited = comments.filter(c => ! itemIsRemovedOrDeleted(c) && (! c.edited || c.edited < 1560668305))
