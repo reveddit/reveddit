@@ -101,7 +101,8 @@ export const getRevdditSearch = (global, history) => {
       if (include_comments) {
         posts = results[1]
         nextPromises.push(getRevdditComments(results[0]))
-      } else if (or_domain) {
+      }
+      if (or_domain) {
         posts = getUniqueItems(results[1], results[2])
       }
       nextPromises.push(getRevdditPosts(posts))
