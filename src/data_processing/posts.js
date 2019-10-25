@@ -24,7 +24,7 @@ export const byControversiality = (a, b) => {
       || (b.num_comments - a.num_comments)
 }
 
-export const retrieveRedditPosts_and_combineWithPushshiftPosts = pushshiftPosts => {
+export const retrieveRedditPosts_and_combineWithPushshiftPosts = (pushshiftPosts) => {
   const ids = pushshiftPosts.map(post => post.name)
   return getItems(ids)
   .then(redditPosts => {
@@ -32,11 +32,11 @@ export const retrieveRedditPosts_and_combineWithPushshiftPosts = pushshiftPosts 
   })
 }
 
-export const getRevdditPosts = pushshiftPosts => {
+export const getRevdditPosts = (pushshiftPosts) => {
   return retrieveRedditPosts_and_combineWithPushshiftPosts(pushshiftPosts)
 }
 
-export const combinePushshiftAndRedditPosts = (pushshiftPosts, redditPosts) => {
+export const combinePushshiftAndRedditPosts = (pushshiftPosts, redditPosts, includePostsWithZeroComments = false) => {
   const pushshiftPosts_lookup = {}
   pushshiftPosts.forEach(post => {
     pushshiftPosts_lookup[post.id] = post
@@ -48,7 +48,7 @@ export const combinePushshiftAndRedditPosts = (pushshiftPosts, redditPosts) => {
     const retrievalLatency = ps_item.retrieved_on-ps_item.created_utc
     if (itemIsRemovedOrDeleted(post)) {
       if (postIsDeleted(post)) {
-        if (post.num_comments > 0) {
+        if (post.num_comments > 0 || includePostsWithZeroComments) {
           post.deleted = true
           display_post(show_posts, post, ps_item)
         } else {
