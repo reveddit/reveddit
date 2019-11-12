@@ -60,7 +60,7 @@ class Comment extends React.Component {
     }
 
     const mods_message_body = '\n\n\n'+reddit+props.permalink;
-    const mods_link = reddit+'/message/compose?to='+props.subreddit+'&message='+encodeURI(mods_message_body);
+    const mods_link = reddit+'/message/compose?to=/r/'+props.subreddit+'&message='+encodeURI(mods_message_body);
     const current_page = `${this.props.location.pathname}${this.props.location.search}`
 
     return (

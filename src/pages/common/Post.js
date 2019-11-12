@@ -21,7 +21,7 @@ class Post extends React.Component {
     const current_page = `${this.props.location.pathname}${this.props.location.search}`
     const reddit = 'https://www.reddit.com'
     const mods_message_body = '\n\n\n'+reddit+props.permalink;
-    const mods_link = reddit+'/message/compose?to='+props.subreddit+'&message='+encodeURI(mods_message_body);
+    const mods_link = reddit+'/message/compose?to=/r/'+props.subreddit+'&message='+encodeURI(mods_message_body);
 
     let url = props.url.replace('https://www.reddit.com', '')
 
