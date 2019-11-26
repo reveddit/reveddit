@@ -1,19 +1,38 @@
-https://revddit.netlify.com/* https://revddit.com/:splat 301!
-https://reveddit.com/* https://revddit.com/:splat 301!
-https://www.reveddit.com/* https://revddit.com/:splat 301!
-https://old.revddit.com/* https://revddit.com/:splat 301!
-https://new.revddit.com/* https://revddit.com/:splat 301!
-https://np.revddit.com/* https://revddit.com/:splat 301!
-https://ja.revddit.com/* https://revddit.com/:splat 301!
-https://fr.revddit.com/* https://revddit.com/:splat 301!
-https://es.revddit.com/* https://revddit.com/:splat 301!
-https://zh.revddit.com/* https://revddit.com/:splat 301!
-https://de.revddit.com/* https://revddit.com/:splat 301!
-https://ko.revddit.com/* https://revddit.com/:splat 301!
-https://no.revddit.com/* https://revddit.com/:splat 301!
-https://us.revddit.com/* https://revddit.com/:splat 301!
-https://en.revddit.com/* https://revddit.com/:splat 301!
-https://nl.revddit.com/* https://revddit.com/:splat 301!
-https://fi.revddit.com/* https://revddit.com/:splat 301!
+https://revddit.netlify.com/* https://www.reveddit.com/:splat 301!
+
+https://revddit.com/* https://www.reveddit.com/:splat 301!
+https://www.revddit.com/* https://www.reveddit.com/:splat 301!
+
+https://ww1.reveddit.com/* https://www.reveddit.com/:splat 301!
+
+https://old.reveddit.com/* https://www.reveddit.com/:splat 301!
+https://new.reveddit.com/* https://www.reveddit.com/:splat 301!
+https://np.reveddit.com/* https://www.reveddit.com/:splat 301!
+https://ja.reveddit.com/* https://www.reveddit.com/:splat 301!
+https://fr.reveddit.com/* https://www.reveddit.com/:splat 301!
+https://es.reveddit.com/* https://www.reveddit.com/:splat 301!
+https://zh.reveddit.com/* https://www.reveddit.com/:splat 301!
+https://de.reveddit.com/* https://www.reveddit.com/:splat 301!
+https://ko.reveddit.com/* https://www.reveddit.com/:splat 301!
+https://no.reveddit.com/* https://www.reveddit.com/:splat 301!
+https://us.reveddit.com/* https://www.reveddit.com/:splat 301!
+https://en.reveddit.com/* https://www.reveddit.com/:splat 301!
+https://nl.reveddit.com/* https://www.reveddit.com/:splat 301!
+https://fi.reveddit.com/* https://www.reveddit.com/:splat 301!
+
+https://old.revddit.com/* https://www.reveddit.com/:splat 301!
+https://new.revddit.com/* https://www.reveddit.com/:splat 301!
+https://np.revddit.com/* https://www.reveddit.com/:splat 301!
+https://ja.revddit.com/* https://www.reveddit.com/:splat 301!
+https://fr.revddit.com/* https://www.reveddit.com/:splat 301!
+https://es.revddit.com/* https://www.reveddit.com/:splat 301!
+https://zh.revddit.com/* https://www.reveddit.com/:splat 301!
+https://de.revddit.com/* https://www.reveddit.com/:splat 301!
+https://ko.revddit.com/* https://www.reveddit.com/:splat 301!
+https://no.revddit.com/* https://www.reveddit.com/:splat 301!
+https://us.revddit.com/* https://www.reveddit.com/:splat 301!
+https://en.revddit.com/* https://www.reveddit.com/:splat 301!
+https://nl.revddit.com/* https://www.reveddit.com/:splat 301!
+https://fi.revddit.com/* https://www.reveddit.com/:splat 301!
 
 /*    /index.html   200

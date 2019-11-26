@@ -33,7 +33,7 @@ export class About extends React.Component {
   }
   render() {
     const props = this.props
-    document.title = 'About revddit'
+    document.title = 'About reveddit'
     if (props.global.state.statusImage !== undefined) {
       props.global.clearStatus()
     }
@@ -183,11 +183,11 @@ export class About extends React.Component {
                 </ul>
               <p>
                 You can also use this bookmarklet
-                <a className='bookmarklet' href="javascript:window.fetch('https://www.reddit.com/api/me.json').then(response => response.json()).then(response => { let name = response.data.name; if (name) {window.location.href = `http://revddit.com/user/${response.data.name}`} else {window.location.href = 'https://www.reddit.com/login'}})">
-                  revddit-user
+                <a className='bookmarklet' href="javascript:window.fetch('https://www.reddit.com/api/me.json').then(response => response.json()).then(response => { let name = response.data.name; if (name) {window.location.href = `http://reveddit.com/user/${response.data.name}`} else {window.location.href = 'https://www.reddit.com/login'}})">
+                  reveddit-user
                 </a>
                 to go from reddit to your revddit user page, or the <a href="https://www.reddit.com/r/revddit/comments/clwnxg/revddit_linker_a_desktop_browser_extension_for/">revddit linker extension </a>
-                to go from any reddit page to its re<span className='v'>v</span>ddit version.
+                to go from any reddit page to its re<span className='v'>ve</span>ddit version.
               </p>
             </div>
           </div>
