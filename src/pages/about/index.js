@@ -105,15 +105,17 @@ export class About extends React.Component {
             <div className='section half'>
               <h2 className='about'>News</h2>
               <ul className='news'>
+                <li><a href={`${reddit}/e1wsqy/`}>revddit.com -> www.reveddit.com</a>
+                  <ul><li><Time created_utc='1574768321'/></li></ul></li>
                 <li><a href={`${reddit}/db5hfm/`}>tip: /y and /v aliases for /user and /r</a>
                   <ul><li><Time created_utc='1569812523'/></li></ul></li>
-                <li><a href={`${reddit}/d9g5z3/`}>revddit language fix extension</a>
+                <li><a href={`${reddit}/d9g5z3/`}>reveddit language fix extension</a>
                   <ul><li><Time created_utc='1569481854'/></li></ul></li>
-                <li><a href={`${reddit}/r/shortcuts/comments/ct64s6/is_it_possible_to_modify_a_copied_link/exkas2j/?context=3`}>revddit shortcut for iOS</a>
+                <li><a href={`${reddit}/r/shortcuts/comments/ct64s6/is_it_possible_to_modify_a_copied_link/exkas2j/?context=3`}>reveddit shortcut for iOS</a>
                   <ul><li><Time created_utc='1566381957'/></li></ul></li>
-                <li><a href={`${reddit}/cmcw3y/`}>revddit quarantined extension</a>
+                <li><a href={`${reddit}/cmcw3y/`}>reveddit quarantined extension</a>
                   <ul><li><Time created_utc='1565021148'/></li></ul></li>
-                <li><a href={`${reddit}/clwnxg/`}>revddit linker extension</a>
+                <li><a href={`${reddit}/clwnxg/`}>reveddit linker extension</a>
                   <ul><li><Time created_utc='1564927561'/></li></ul></li>
                 <li><a href={`${reddit}/9n9l45/`}>site launch</a>
                   <ul><li><Time created_utc='1539261445'/></li></ul></li>
@@ -122,25 +124,25 @@ export class About extends React.Component {
             <div className='section half'>
               <h2 className='about'>Extra tools</h2>
               <ul>
-                <li>revddit quarantined - enables viewing quarantined content via re<span className="v red">v</span>ddit
+                <li>reveddit quarantined - enables viewing quarantined content via re<span className="v red">v</span>ddit
                   <ul>
                     <li><a href="https://chrome.google.com/webstore/detail/revddit-quarantined/cmfgeilnphkjendelakiniceinhjonfh">Chrome</a></li>
                     <li><a href="https://addons.mozilla.org/en-US/firefox/addon/revddit-quarantined/">Firefox</a></li>
                   </ul>
                 </li>
-                <li>revddit linker - provides a button and context menu item to switch between reddit and re<span className="v red">v</span>ddit views
+                <li>reveddit linker - provides a button and context menu item to switch between reddit and re<span className="v red">ve</span>ddit views
                   <ul>
                     <li><a href="https://chrome.google.com/webstore/detail/revddit-linker/jgnigeenijnjlahckhfomimnjadmkmah">Chrome</a></li>
                     <li><a href="https://addons.mozilla.org/en-US/firefox/addon/revddit-linker/">Firefox</a></li>
                   </ul>
                 </li>
-                <li>revddit language fix - an extension for viewing re<span className="v red">v</span>ddit.com when your browser's preferred language is not English
+                <li>reveddit language fix - an extension for viewing re<span className="v red">ve</span>ddit when your browser's preferred language is not English
                   <ul>
                     <li><a href="https://chrome.google.com/webstore/detail/revddit-language-fix/fcpgnheagjkmelppbpnbpfimmmjicknj">Chrome</a></li>
                     <li><a href="https://addons.mozilla.org/en-US/firefox/addon/revddit-language-fix/">Firefox</a></li>
                   </ul>
                 </li>
-                <li><a href="https://www.icloud.com/shortcuts/62bc7570613c42cb8b851fad264136df">revddit shortcut</a> - iOS shortcut</li>
+                <li><a href="https://www.icloud.com/shortcuts/62bc7570613c42cb8b851fad264136df">reveddit shortcut</a> - iOS shortcut</li>
               </ul>
             </div>
           </div>
@@ -148,7 +150,7 @@ export class About extends React.Component {
             <div className='section half'>
               <h2 className='about'>Feedback</h2>
               <ul>
-                <li><a href='https://www.reddit.com/r/revddit/'>/r/revddit</a></li>
+                <li><a href='https://www.reddit.com/r/revddit/'>/r/reveddit</a></li>
                 <li><a href='https://github.com/revddit/revddit'>github.com/revddit/revddit</a></li>
               </ul>
             </div>
@@ -186,7 +188,7 @@ export class About extends React.Component {
                 <a className='bookmarklet' href="javascript:window.fetch('https://www.reddit.com/api/me.json').then(response => response.json()).then(response => { let name = response.data.name; if (name) {window.location.href = `http://reveddit.com/user/${response.data.name}`} else {window.location.href = 'https://www.reddit.com/login'}})">
                   reveddit-user
                 </a>
-                to go from reddit to your revddit user page, or the <a href="https://www.reddit.com/r/revddit/comments/clwnxg/revddit_linker_a_desktop_browser_extension_for/">revddit linker extension </a>
+                to go from reddit to your reveddit user page, or the <a href="https://www.reddit.com/r/revddit/comments/clwnxg/revddit_linker_a_desktop_browser_extension_for/">reveddit linker extension </a>
                 to go from any reddit page to its re<span className='v'>ve</span>ddit version.
               </p>
             </div>
