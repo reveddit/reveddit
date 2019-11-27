@@ -123,6 +123,7 @@ export class About extends React.Component {
             </div>
             <div className='section half'>
               <h2 className='about'>Extra tools</h2>
+              <p>View content removed from your reddit account with the following tools.</p>
               <ul>
                 <li>reveddit quarantined - enables viewing quarantined content via re(ve)ddit
                   <ul>
