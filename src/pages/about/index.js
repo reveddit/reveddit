@@ -123,27 +123,15 @@ export class About extends React.Component {
             </div>
             <div className='section half'>
               <h2 className='about'>Extra tools</h2>
-              <p>View content removed from your reddit account with the following tools.</p>
+              <p>View content removed from your reddit account with the following reveddit tools.</p>
               <ul>
-                <li>reveddit quarantined - enables viewing quarantined content via re(ve)ddit
-                  <ul>
-                    <li><a href="https://chrome.google.com/webstore/detail/revddit-quarantined/cmfgeilnphkjendelakiniceinhjonfh">Chrome</a></li>
-                    <li><a href="https://addons.mozilla.org/en-US/firefox/addon/reveddit-quarantined/">Firefox</a></li>
-                  </ul>
-                </li>
-                <li>reveddit linker - provides a button and context menu item to switch between reddit and re(ve)ddit views
-                  <ul>
-                    <li><a href="https://chrome.google.com/webstore/detail/revddit-linker/jgnigeenijnjlahckhfomimnjadmkmah">Chrome</a></li>
-                    <li><a href="https://addons.mozilla.org/en-US/firefox/addon/reveddit-linker/">Firefox</a></li>
-                  </ul>
-                </li>
-                <li>reveddit language fix - an extension for viewing re(ve)ddit when your browser's preferred language is not English
-                  <ul>
-                    <li><a href="https://chrome.google.com/webstore/detail/revddit-language-fix/fcpgnheagjkmelppbpnbpfimmmjicknj">Chrome</a></li>
-                    <li><a href="https://addons.mozilla.org/en-US/firefox/addon/reveddit-language-fix/">Firefox</a></li>
-                  </ul>
-                </li>
-                <li><a href="https://www.icloud.com/shortcuts/62bc7570613c42cb8b851fad264136df">reveddit shortcut</a> - iOS shortcut</li>
+                <li><a href="https://chrome.google.com/webstore/detail/revddit-quarantined/cmfgeilnphkjendelakiniceinhjonfh">quarantined - Chrome</a></li>
+                <li><a href="https://addons.mozilla.org/en-US/firefox/addon/reveddit-quarantined/">quarantined - Firefox</a></li>
+                <li><a href="https://chrome.google.com/webstore/detail/revddit-linker/jgnigeenijnjlahckhfomimnjadmkmah">linker - Chrome</a></li>
+                <li><a href="https://addons.mozilla.org/en-US/firefox/addon/reveddit-linker/">linker - Firefox</a></li>
+                <li><a href="https://chrome.google.com/webstore/detail/revddit-language-fix/fcpgnheagjkmelppbpnbpfimmmjicknj">language fix - Chrome</a></li>
+                <li><a href="https://addons.mozilla.org/en-US/firefox/addon/reveddit-language-fix/">language fix - Firefox</a></li>
+                <li><a href="https://www.icloud.com/shortcuts/62bc7570613c42cb8b851fad264136df">iOS shortcut</a></li>
               </ul>
             </div>
           </div>
