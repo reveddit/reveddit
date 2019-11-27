@@ -70,7 +70,7 @@ export class About extends React.Component {
             <h2 className='about'>About</h2>
             <BlankUser/>
             <div className='note quarantine'>
-              <div>To view <span className='quarantined'>quarantined</span> content, install the <a href="https://chrome.google.com/webstore/detail/revddit-quarantined/cmfgeilnphkjendelakiniceinhjonfh">Chrome</a> or <a href="https://addons.mozilla.org/en-US/firefox/addon/revddit-quarantined/">Firefox</a> extension.</div>
+              <div>To view <span className='quarantined'>quarantined</span> content, install the <a href="https://chrome.google.com/webstore/detail/revddit-quarantined/cmfgeilnphkjendelakiniceinhjonfh">Chrome</a> or <a href="https://addons.mozilla.org/en-US/firefox/addon/reveddit-quarantined/">Firefox</a> extension.</div>
             </div>
           </div>
           <div className='section'>
@@ -124,22 +124,22 @@ export class About extends React.Component {
             <div className='section half'>
               <h2 className='about'>Extra tools</h2>
               <ul>
-                <li>reveddit quarantined - enables viewing quarantined content via re<span className="v red">v</span>ddit
+                <li>reveddit quarantined - enables viewing quarantined content via re(ve)ddit
                   <ul>
                     <li><a href="https://chrome.google.com/webstore/detail/revddit-quarantined/cmfgeilnphkjendelakiniceinhjonfh">Chrome</a></li>
-                    <li><a href="https://addons.mozilla.org/en-US/firefox/addon/revddit-quarantined/">Firefox</a></li>
+                    <li><a href="https://addons.mozilla.org/en-US/firefox/addon/reveddit-quarantined/">Firefox</a></li>
                   </ul>
                 </li>
-                <li>reveddit linker - provides a button and context menu item to switch between reddit and re<span className="v red">ve</span>ddit views
+                <li>reveddit linker - provides a button and context menu item to switch between reddit and re(ve)ddit views
                   <ul>
                     <li><a href="https://chrome.google.com/webstore/detail/revddit-linker/jgnigeenijnjlahckhfomimnjadmkmah">Chrome</a></li>
-                    <li><a href="https://addons.mozilla.org/en-US/firefox/addon/revddit-linker/">Firefox</a></li>
+                    <li><a href="https://addons.mozilla.org/en-US/firefox/addon/reveddit-linker/">Firefox</a></li>
                   </ul>
                 </li>
-                <li>reveddit language fix - an extension for viewing re<span className="v red">ve</span>ddit when your browser's preferred language is not English
+                <li>reveddit language fix - an extension for viewing re(ve)ddit when your browser's preferred language is not English
                   <ul>
                     <li><a href="https://chrome.google.com/webstore/detail/revddit-language-fix/fcpgnheagjkmelppbpnbpfimmmjicknj">Chrome</a></li>
-                    <li><a href="https://addons.mozilla.org/en-US/firefox/addon/revddit-language-fix/">Firefox</a></li>
+                    <li><a href="https://addons.mozilla.org/en-US/firefox/addon/reveddit-language-fix/">Firefox</a></li>
                   </ul>
                 </li>
                 <li><a href="https://www.icloud.com/shortcuts/62bc7570613c42cb8b851fad264136df">reveddit shortcut</a> - iOS shortcut</li>
@@ -168,12 +168,12 @@ export class About extends React.Component {
           <div className='sections'>
             <div className='section half'>
               <h2 className='about'>Donate</h2>
-              <p>re<span className="v red">v</span>ddit is free and ad-free. You can support work like this with a <a className="pointer" onClick={this.props.openDonateModal}>donation</a>, feedback, or code fixes.</p>
+              <p>re(ve)ddit is free and ad-free. You can support work like this with a <a className="pointer" onClick={this.props.openDonateModal}>donation</a>, feedback, or code fixes.</p>
               <p>Thank you!</p>
             </div>
             <div className='section half'>
               <h2 className='about'>Site usage</h2>
-              <p>Insert a <span className='v'>v</span> in the URL of any reddit page.</p>
+              <p>Insert a <span className='v'>ve</span> in the URL of any reddit page.</p>
                 <ul>
                   <li><a href='/user/redditor_3975/'>user/redditor_3975</a></li>
                   <li><a href='/r/all/'>r/all</a></li>
@@ -183,14 +183,6 @@ export class About extends React.Component {
                   <li><a href='/domain/cnn.com+foxnews.com'>domain/cnn.com+foxnews.com</a></li>
                   <li><a href='/r/news+worldnews/'>r/news+worldnews/</a></li>
                 </ul>
-              <p>
-                You can also use this bookmarklet
-                <a className='bookmarklet' href="javascript:window.fetch('https://www.reddit.com/api/me.json').then(response => response.json()).then(response => { let name = response.data.name; if (name) {window.location.href = `http://reveddit.com/user/${response.data.name}`} else {window.location.href = 'https://www.reddit.com/login'}})">
-                  reveddit-user
-                </a>
-                to go from reddit to your reveddit user page, or the <a href="https://www.reddit.com/r/revddit/comments/clwnxg/revddit_linker_a_desktop_browser_extension_for/">reveddit linker extension </a>
-                to go from any reddit page to its re<span className='v'>ve</span>ddit version.
-              </p>
             </div>
           </div>
           <div className='sections'>

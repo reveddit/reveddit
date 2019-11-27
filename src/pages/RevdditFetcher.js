@@ -74,11 +74,11 @@ const getPageTitle = (page_type, string) => {
       break
     }
     case 'info': {
-      return 'by ID revddit info'
+      return 'by ID reveddit info'
       break
     }
     case 'search': {
-      return 'search revddit'
+      return 'search reveddit'
       break
     }
   }
@@ -180,7 +180,7 @@ export const withFetch = (WrappedComponent) =>
             modalContent =
               <>
                 <p>Error: unable to connect to reddit</p>
-                <p>To view this site with Firefox, add an exception for revddit by clicking the shield icon next to the URL:</p>
+                <p>To view this site with Firefox, add an exception for reveddit by clicking the shield icon next to the URL:</p>
                 <img src="https://i.imgur.com/b1ShxoM.png"/>
                 <p>This is necessary because Firefox blocks websites from querying data from a list of other websites, and reddit is on <a href="https://github.com/disconnectme/disconnect-tracking-protection/blob/master/services.json">that list</a>. The list breaks thousands of websites, many of which are documented in links found <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1101005">here</a>.</p>
                 <p>If this does not resolve the issue, there may be a conflicting extension blocking connections.</p>
@@ -193,7 +193,7 @@ export const withFetch = (WrappedComponent) =>
                   <ul>
                     <li>conflicting extensions that block connections</li>
                     <li>temporary network outage</li>
-                    <li>the page contains <span className='quarantined'>quarantined</span> content that requires a <a href="https://chrome.google.com/webstore/detail/revddit-quarantined/cmfgeilnphkjendelakiniceinhjonfh">Chrome</a> or <a href="https://addons.mozilla.org/en-US/firefox/addon/revddit-quarantined/">Firefox</a> extension to view accurately.</li>
+                    <li>the page contains <span className='quarantined'>quarantined</span> content that requires a <a href="https://chrome.google.com/webstore/detail/revddit-quarantined/cmfgeilnphkjendelakiniceinhjonfh">Chrome</a> or <a href="https://addons.mozilla.org/en-US/firefox/addon/reveddit-quarantined/">Firefox</a> extension to view accurately.</li>
                   </ul>
                 </p>
               </>
@@ -210,10 +210,10 @@ export const withFetch = (WrappedComponent) =>
         put(hasSeenLanguageModal_text, true)
         this.props.openGenericModal(
           <>
-            <p>Hi, when your browser's preferred language is not English, you may need the "revddit language fix" extension to view results accurately:</p>
+            <p>Hi, when your browser's preferred language is not English, you may need the "reveddit language fix" extension to view results accurately:</p>
             <ul>
               <li><a href="https://chrome.google.com/webstore/detail/revddit-language-fix/fcpgnheagjkmelppbpnbpfimmmjicknj">Chrome</a></li>
-              <li><a href="https://addons.mozilla.org/en-US/firefox/addon/revddit-language-fix/">Firefox</a> (mobile too)</li>
+              <li><a href="https://addons.mozilla.org/en-US/firefox/addon/reveddit-language-fix/">Firefox</a> (mobile too)</li>
             </ul>
             <p>Please see details <a href="https://redd.it/d4wtes">here</a>. This pop-up appears once per session while the extension is not installed.</p>
           </>
