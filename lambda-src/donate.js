@@ -3,8 +3,8 @@ import '@babel/polyfill'
 require("dotenv").config();
 
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-const SUCCESS_URL = 'https://revddit.com/about?status=donate-success'
-const CANCEL_URL = 'https://revddit.com/about?status=donate-cancel'
+const SUCCESS_URL = 'https://www.reveddit.com/about?status=donate-success'
+const CANCEL_URL = 'https://www.reveddit.com/about?status=donate-cancel'
 
 const statusCode = 200;
 const headers = {
@@ -48,7 +48,7 @@ exports.handler = async function(event) {
         payment_method_types: ['card'],
         line_items: [{
           name: 'Donation',
-          description: 'revddit.com (not tax deductible)',
+          description: 'www.reveddit.com (not tax deductible)',
           amount: data.amount * 100,
           currency: 'usd',
           quantity: 1
