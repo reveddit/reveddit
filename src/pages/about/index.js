@@ -24,7 +24,8 @@ export class About extends React.Component {
         'eg3ueep', 'eg3bgki', 'eg33rjm', 'eg33ki6', 'eg30s12', 'eg300eo', 'eg2zjb9',
         'eg2xgjc', 'eg2x1kt', 'eg2vm27', 'eg2vamc', 'eg2ugkf', 'eg2ub8f', 'eg2t4zp',
         'eg2s3gf', 'eg2pxd8', 'eg2pa9c', 'eg2oymq', 'eg2nqjz', 'eg2ksrf', 'eg2jrvb',
-        'eg2hdg2', 'eg2giv2', 'esloe21', 'f2a8nug', 'f2ap7p3', 'f3uj76k', 'f3ul663'
+        'eg2hdg2', 'eg2giv2', 'esloe21', 'f2a8nug', 'f2ap7p3', 'f3uj76k', 'f3ul663',
+        'f8wrtrj', 'f93p3zu'
       ].sort(() => 0.5 - Math.random()))
     .then( comments => {
       const unedited = comments.filter(c => ! itemIsRemovedOrDeleted(c) && (! c.edited || c.edited < 1560668305))
@@ -70,7 +71,7 @@ export class About extends React.Component {
             <h2 className='about'>About</h2>
             <BlankUser/>
             <div className='note quarantine'>
-              <div>To view <span className='quarantined'>quarantined</span> content, install the <a href="https://chrome.google.com/webstore/detail/revddit-quarantined/cmfgeilnphkjendelakiniceinhjonfh">Chrome</a> or <a href="https://addons.mozilla.org/en-US/firefox/addon/reveddit-quarantined/">Firefox</a> extension.</div>
+              <div>To view <span className='quarantined'>quarantined</span> content, install the <a href="https://chrome.google.com/webstore/detail/reveddit-quarantined/cmfgeilnphkjendelakiniceinhjonfh">Chrome</a> or <a href="https://addons.mozilla.org/en-US/firefox/addon/reveddit-quarantined/">Firefox</a> extension.</div>
             </div>
           </div>
           <div className='section'>
@@ -125,11 +126,11 @@ export class About extends React.Component {
               <h2 className='about'>Extra tools</h2>
               <p>View content removed from your reddit account with the following reveddit tools.</p>
               <ul>
-                <li><a href="https://chrome.google.com/webstore/detail/revddit-quarantined/cmfgeilnphkjendelakiniceinhjonfh">quarantined - Chrome</a></li>
+                <li><a href="https://chrome.google.com/webstore/detail/reveddit-quarantined/cmfgeilnphkjendelakiniceinhjonfh">quarantined - Chrome</a></li>
                 <li><a href="https://addons.mozilla.org/en-US/firefox/addon/reveddit-quarantined/">quarantined - Firefox</a></li>
-                <li><a href="https://chrome.google.com/webstore/detail/revddit-linker/jgnigeenijnjlahckhfomimnjadmkmah">linker - Chrome</a></li>
+                <li><a href="https://chrome.google.com/webstore/detail/reveddit-linker/jgnigeenijnjlahckhfomimnjadmkmah">linker - Chrome</a></li>
                 <li><a href="https://addons.mozilla.org/en-US/firefox/addon/reveddit-linker/">linker - Firefox</a></li>
-                <li><a href="https://chrome.google.com/webstore/detail/revddit-language-fix/fcpgnheagjkmelppbpnbpfimmmjicknj">language fix - Chrome</a></li>
+                <li><a href="https://chrome.google.com/webstore/detail/reveddit-language-fix/fcpgnheagjkmelppbpnbpfimmmjicknj">language fix - Chrome</a></li>
                 <li><a href="https://addons.mozilla.org/en-US/firefox/addon/reveddit-language-fix/">language fix - Firefox</a></li>
                 <li><a href="https://www.icloud.com/shortcuts/62bc7570613c42cb8b851fad264136df">iOS shortcut</a></li>
               </ul>
@@ -139,8 +140,8 @@ export class About extends React.Component {
             <div className='section half'>
               <h2 className='about'>Feedback</h2>
               <ul>
-                <li><a href='https://www.reddit.com/r/revddit/'>/r/reveddit</a></li>
-                <li><a href='https://github.com/revddit/revddit'>github.com/revddit/revddit</a></li>
+                <li><a href='https://www.reddit.com/r/reveddit/'>/r/reveddit</a></li>
+                <li><a href='https://github.com/revdedit/reveddit'>github.com/reveddit/reveddit</a></li>
               </ul>
             </div>
             <div className='section half'>

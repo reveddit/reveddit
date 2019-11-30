@@ -86,7 +86,7 @@ class User extends React.Component {
             </div>
             {selections}
             <div className='note quarantine'>
-              <p>To view <span className='quarantined'>quarantined</span> content, install the <a href="https://chrome.google.com/webstore/detail/revddit-quarantined/cmfgeilnphkjendelakiniceinhjonfh">Chrome</a> or <a href="https://addons.mozilla.org/en-US/firefox/addon/reveddit-quarantined/">Firefox</a> extension.</p>
+              <p>To view <span className='quarantined'>quarantined</span> content, install the <a href="https://chrome.google.com/webstore/detail/reveddit-quarantined/cmfgeilnphkjendelakiniceinhjonfh">Chrome</a> or <a href="https://addons.mozilla.org/en-US/firefox/addon/reveddit-quarantined/">Firefox</a> extension.</p>
             </div>
             { removedCommentIDs.length > 0 &&
               <div className='notice-with-link'>
