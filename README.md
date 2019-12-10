@@ -40,6 +40,14 @@ npm run build-sass
 yarn run build-sass
 ```
 
-# Extra
+# Aggregated content
 
 [ragger](https://github.com/reveddit/ragger) generates the data used in the upvote removal graph on subreddit pages.
+
+# Contributions
+
+Code-contributions are welcome. Feel free to submit a PR, or if it is a significant change, open an issue to discuss it first.
+
+# Discussion
+
+Use [r/reveddit](https://www.reddit.com/r/reveddit/) for general questions or discussion. Bug reports can be made here on Github or in that subreddit.
