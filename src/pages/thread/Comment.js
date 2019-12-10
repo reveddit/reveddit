@@ -107,15 +107,19 @@ class Comment extends React.Component {
                       () => {jumpToHash(window.location.hash)}
                       )}}>permalink</Link>
                     {parent_link &&
-                      <Link to={parent_link} onClick={
-                        (e) => {context_update(0, props,
-                          () => {jumpToHash(window.location.hash)}
-                          )}}>parent</Link>
+                      <>
+                        <Link to={parent_link} onClick={
+                          (e) => {context_update(0, props,
+                            () => {jumpToHash(window.location.hash)}
+                            )}}>parent
+                        </Link>
+                        <Link to={contextLink}
+                              onClick={(e) => {context_update(contextDefault, props,
+                              () => {jumpToHash(window.location.hash)}
+                            )}}>context
+                        </Link>
+                      </>
                     }
-                    <Link to={contextLink}
-                          onClick={(e) => {context_update(contextDefault, props,
-                          () => {jumpToHash(window.location.hash)}
-                        )}}>context</Link>
                   </React.Fragment>
                 }
                 </div>

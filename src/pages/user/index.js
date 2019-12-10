@@ -31,7 +31,7 @@ class User extends React.Component {
 
     let linkToRestOfComments = ''
     if (! queryParams.get('after') && ! queryParams.get('limit') && queryParams.get('show')) {
-      linkToRestOfComments = window.location.pathname + '?' + (new SimpleURLSearchParams(window.location.search)).delete('show')
+      linkToRestOfComments = window.location.pathname + (new SimpleURLSearchParams(window.location.search)).delete('show')
       selectedItems = queryParams.get('show').split(',')
     }
     if (! gs.loading) {
