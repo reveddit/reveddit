@@ -130,7 +130,7 @@ class Comment extends React.Component {
                       { directlink && <a href={directlink}>directlink</a>}
                       <a href={props.permalink+`?context=3#${props.name}`}>context</a>
                       {props.link_permalink &&
-                        <a href={props.link_permalink}>full comments
+                        <a href={props.link_permalink.replace(/^https:\/\/[^/]*/,'')}>full comments
                           {'num_comments' in props && `(${props.num_comments})`}</a>
                       }
                       <a href={mods_link} target="_blank">message mods</a>
