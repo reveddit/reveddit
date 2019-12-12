@@ -5,6 +5,7 @@ import Comment from 'pages/common/Comment'
 import Time from 'pages/common/Time'
 import { getComments } from 'api/reddit'
 import { itemIsRemovedOrDeleted, SimpleURLSearchParams } from 'utils'
+import Highlight from 'pages/common/Highlight'
 
 const reddit = 'https://www.reddit.com'
 
@@ -70,9 +71,7 @@ export class About extends React.Component {
             }
             <h2 className='about'>About</h2>
             <BlankUser/>
-            <div className='note quarantine'>
-              <div>To view <span className='quarantined'>quarantined</span> content, install the <a href="https://chrome.google.com/webstore/detail/reveddit-quarantined/cmfgeilnphkjendelakiniceinhjonfh">Chrome</a> or <a href="https://addons.mozilla.org/en-US/firefox/addon/reveddit-quarantined/">Firefox</a> extension.</div>
-            </div>
+            <Highlight/>
           </div>
           <div className='section'>
             <h2 className='about'>What people say</h2>
@@ -158,7 +157,7 @@ export class About extends React.Component {
           <div className='sections'>
             <div className='section half'>
               <h2 className='about'>Donate</h2>
-              <p>re(ve)ddit is free and ad-free. You can support work like this with a <a className="pointer" onClick={this.props.openDonateModal}>donation</a>, feedback, or code fixes.</p>
+              <p>re(ve)ddit is free and ad-free. You can support work like this with a <a className="pointer" onClick={() => this.props.openGenericModal({hash:'donate'})}>donation</a>, feedback, or code fixes.</p>
               <p>Thank you!</p>
             </div>
             <div className='section half'>

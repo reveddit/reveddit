@@ -1,23 +1,12 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { connect } from 'state'
+import 'js-detect-incognito-private-browsing'
+import { get, put } from 'utils'
 
 const getEntityName = (params) => {
   const { user, subreddit = '', userSubreddit = '', domain = ''} = params
   return (user || subreddit || userSubreddit || domain).toLowerCase()
-}
-
-const opposites = {
-  'r': {
-    'path_type': 'user',
-    'item_type': 'username',
-    'display': '/user/'
-  },
-  'user': {
-    'path_type': 'r',
-    'item_type': 'subreddit',
-    'display': '/r/'
-  }
 }
 
 class Header extends React.Component {
@@ -27,6 +16,14 @@ class Header extends React.Component {
   componentDidMount() {
     const entity_name = getEntityName(this.props.match.params)
     this.setState({entity_name})
+    const bmd = window.BrowsingModeDetector()
+    const hasVisitedSite = 'hasVisitedSite'
+    bmd.do((isIncognito, bmdI) => {
+      if (! isIncognito && ! get('hasNotifierExtension', false) && ! get(hasVisitedSite, false)) {
+        this.welcome()
+      }
+      put(hasVisitedSite, true)
+    })
   }
   componentDidUpdate(prevProps) {
     const entity_name = getEntityName(this.props.match.params)
@@ -50,11 +47,11 @@ class Header extends React.Component {
 
     return (
       <form {...form_attributes} onSubmit={(e) => this.handleSubmit(e, value)}>
-        <a className='subheading' href={display}>{display}</a>
+        <span className='subheading'>{display}</span>
         <input type='text' {...text_input_actions}
         name={path_type} placeholder={item_type}/>
         {path_suffix &&
-          <a className='subheading' href='#'>{`/${path_suffix}/`}</a>
+          <span className='subheading'>{`/${path_suffix}/`}</span>
         }
         <input type='submit' id='button' value='go' />
       </form>
@@ -85,6 +82,9 @@ class Header extends React.Component {
   }
   handleNameChange = (e) => {
     this.setState({entity_name: e.target.value})
+  }
+  welcome = () => {
+    this.props.openGenericModal({hash: 'welcome'})
   }
   render() {
     const props = this.props
@@ -119,19 +119,14 @@ class Header extends React.Component {
       <React.Fragment>
         <header>
           <div id='header'>
-            <div id='title_and_forms'>
-              <h1>
-                <Link to='/about'>re<span style={{color: 'white'}}>ve</span>ddit</Link>
-              </h1>
+            <div id='site-name'>re<span style={{color: 'white'}}>ve</span>ddit</div>
+            <div id='nav'>
+              <Link to="/about">about</Link>
+              <span> | </span>
+              <a href="#welcome" onClick={this.welcome}>welcome</a>
             </div>
-
             {value &&
               <div id='subheading'>
-                {path_type in opposites &&
-                  this.getForm('', opposites[path_type].display,
-                                   opposites[path_type].path_type,
-                                   opposites[path_type].item_type, '', true)
-                }
                 {this.getForm(value, display, path_type, item_type, path_suffix, false)}
               </div>
             }

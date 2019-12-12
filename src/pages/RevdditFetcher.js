@@ -159,7 +159,6 @@ export const withFetch = (WrappedComponent) =>
         }
         setTimeout(this.maybeShowSubscribeUserModal, 3000)
       }
-
       setTimeout(this.maybeShowLanguageModal, 3000)
       this.props.global.setStateFromQueryParams(
                       page_type,
@@ -174,10 +173,10 @@ export const withFetch = (WrappedComponent) =>
         })
         .catch(error => {
           console.error(error)
-          let modalContent = undefined
+          let content = undefined
           var isFirefox = typeof InstallTrigger !== 'undefined';
           if (navigator.doNotTrack == "1" && isFirefox) {
-            modalContent =
+            content =
               <>
                 <p>Error: unable to connect to reddit</p>
                 <p>To view this site with Firefox, add an exception for reveddit by clicking the shield icon next to the URL:</p>
@@ -186,7 +185,7 @@ export const withFetch = (WrappedComponent) =>
                 <p>If this does not resolve the issue, there may be a conflicting extension blocking connections.</p>
               </>
           } else {
-            modalContent =
+            content =
               <>
                 <p>Error: unable to connect to either reddit or pushshift</p>
                 <p>Possible causes:
@@ -198,7 +197,7 @@ export const withFetch = (WrappedComponent) =>
                 </p>
               </>
           }
-          this.props.openGenericModal(modalContent)
+          this.props.openGenericModal({content})
           this.props.global.setError('')
         })
       })
@@ -208,7 +207,7 @@ export const withFetch = (WrappedComponent) =>
       const hasSeenLanguageModal = get(hasSeenLanguageModal_text, false)
       if (! window.navigator.language.match(/^en\b/) && ! hasSeenLanguageModal) {
         put(hasSeenLanguageModal_text, true)
-        this.props.openGenericModal(
+        this.props.openGenericModal({content:
           <>
             <p>Hi, when your browser's preferred language is not English, you may need the "reveddit language fix" extension to view results accurately:</p>
             <ul>
@@ -217,7 +216,7 @@ export const withFetch = (WrappedComponent) =>
             </ul>
             <p>Please see details <a href="https://redd.it/d4wtes">here</a>. This pop-up appears once per session while the extension is not installed.</p>
           </>
-        )
+        })
       }
     }
     maybeShowSubscribeUserModal = () => {
@@ -226,13 +225,13 @@ export const withFetch = (WrappedComponent) =>
       const hasSeenSubscribeUserModal = get(hasSeenSubscribeUserModal_text, false)
       if (extensionSaysNoSubscriptions && ! hasSeenSubscribeUserModal) {
         put(hasSeenSubscribeUserModal_text, true)
-        this.props.openGenericModal(
+        this.props.openGenericModal({content:
           <>
             <p>To receive alerts when content from this user is removed, click 'subscribe' on the extension icon.</p>
             <img src="https://i.imgur.com/7NRg0sQ.png"/>
             <p>This pop-up appears once per session on user pages while there are no subscriptions.</p>
           </>
-        )
+        })
       }
     }
 

@@ -5,6 +5,7 @@ import { withFetch } from 'pages/RevdditFetcher'
 import { connect, localSort_types } from 'state'
 import { byScore, byDate, byNumComments, byControversiality } from 'data_processing/posts'
 import { reversible, getUrlWithTimestamp, copyLink } from 'utils'
+import Highlight from 'pages/common/Highlight'
 
 
 class SubredditPosts extends React.Component {
@@ -40,9 +41,7 @@ class SubredditPosts extends React.Component {
             <Link to={'/user'}>view my removed comments</Link>
           </div>
         }
-        <div className='note quarantine'>
-          <p>To view <span className='quarantined'>quarantined</span> content, install the <a href="https://chrome.google.com/webstore/detail/reveddit-quarantined/cmfgeilnphkjendelakiniceinhjonfh">Chrome</a> or <a href="https://addons.mozilla.org/en-US/firefox/addon/reveddit-quarantined/">Firefox</a> extension.</p>
-        </div>
+        <Highlight/>
         {
           noItemsFound ?
           <p>No posts found</p> :

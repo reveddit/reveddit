@@ -5,6 +5,8 @@ import Modal from 'react-modal'
 import { connect } from 'state'
 import Header from 'pages/common/Header'
 import Donate from 'pages/common/donate'
+import Welcome from 'pages/common/Welcome'
+import { ModalProvider } from 'contexts/modal'
 
 Modal.setAppElement('#app')
 
@@ -23,34 +25,51 @@ const customStyles = {
   }
 }
 
+const getContentForHash = (hash) => {
+  switch (hash) {
+    case 'welcome':
+      return <Welcome/>
+    case 'donate':
+      return <Donate/>
+  }
+  return undefined
+}
+
+const clearHashFromURL = () => {
+  const url = window.location.pathname + window.location.search
+  history.replaceState({}, '', url)
+}
+
+const setHashInURL = (hash) => {
+  const url = window.location.pathname + window.location.search + `#${hash}`
+  history.replaceState({[hash]: true}, hash, url)
+}
 
 class DefaultLayout extends React.Component {
   state = {
-    donateModalIsOpen: false,
     genericModalIsOpen: false,
-    content: ''
+    content: '',
+    hash: ''
   }
   componentDidMount() {
-    document.getElementById('donate-ribbon').onclick = this.openDonateModal
-    if (window.location.hash === '#donate') {
-      this.openDonateModal()
+    document.getElementById('donate-ribbon').onclick = () => this.openGenericModal({hash: 'donate'})
+    const hash = window.location.hash.replace('#', '')
+    const content = getContentForHash(hash)
+    if (content) {
+      this.openGenericModal({content, hash})
     }
   }
-  openDonateModal = () => {
-    const url = window.location.pathname + window.location.search + '#donate'
-    history.replaceState({'donate': true}, 'donate', url)
-    this.setState({donateModalIsOpen: true});
-  }
-  closeDonateModal = () => {
-    const url = window.location.pathname + window.location.search
-    history.replaceState({}, '', url)
-    this.setState({donateModalIsOpen: false});
-  }
-  openGenericModal = (content) => {
-    this.setState({genericModalIsOpen: true, content});
+  openGenericModal = ({content, hash = ''}) => {
+    if (hash) {
+      setHashInURL(hash)
+    }
+    this.setState({genericModalIsOpen: true, content, hash});
   }
   closeGenericModal = () => {
-    this.setState({genericModalIsOpen: false});
+    if (this.state.hash) {
+      clearHashFromURL()
+    }
+    this.setState({genericModalIsOpen: false, hash: '', content: ''});
   }
 
   render() {
@@ -59,25 +78,22 @@ class DefaultLayout extends React.Component {
       <Route {...rest} render={matchProps => {
         return (
           <React.Fragment>
-            <Header {...matchProps} {...rest}/>
+            <Header {...matchProps} {...rest} openGenericModal={this.openGenericModal}/>
             <div className='main'>
-              <Modal
-                isOpen={this.state.donateModalIsOpen}
-                onRequestClose={this.closeDonateModal}
-                style={customStyles}
-              >
-                <Donate/>
-              </Modal>
-              <Modal
-                isOpen={this.state.genericModalIsOpen}
+              <Modal isOpen={this.state.genericModalIsOpen}
                 onRequestClose={this.closeGenericModal}
-                style={customStyles}
-              >
+                style={customStyles}>
                 <div id='genericModal'>
-                  {this.state.content}
+                  {this.state.hash ?
+                    getContentForHash(this.state.hash)
+                    :
+                    this.state.content
+                  }
                 </div>
               </Modal>
-              <Component {...matchProps} {...rest} openDonateModal={this.openDonateModal} openGenericModal={this.openGenericModal}/>
+              <ModalProvider value={{openModal: this.openGenericModal}}>
+                <Component {...matchProps} {...rest} openGenericModal={this.openGenericModal}/>
+              </ModalProvider>
             </div>
           </React.Fragment>
         )

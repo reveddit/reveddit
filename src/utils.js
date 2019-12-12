@@ -4,6 +4,13 @@ import scrollToElement from 'scroll-to-element'
 
 const markdown = SnuOwnd.getParser()
 
+export const ext_urls = {
+  rt: {
+    c: 'https://chrome.google.com/webstore/detail/reveddit-real-time/hickjbodophomfmdfhhnmdfbfoamcjje',
+    f: 'https://addons.mozilla.org/en-US/firefox/addon/reveddit-real-time/'
+  }
+}
+
 // Flatten arrays one level
 export const flatten = arr => arr.reduce(
   (accumulator, value) => accumulator.concat(value),

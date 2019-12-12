@@ -9,6 +9,7 @@ import ResultsSummary from 'pages/common/ResultsSummary'
 import { REMOVAL_META, NOT_REMOVED, USER_REMOVED } from 'pages/common/RemovedBy'
 import { withFetch } from 'pages/RevdditFetcher'
 import { reversible, getUrlWithTimestamp, copyLink } from 'utils'
+import Highlight from 'pages/common/Highlight'
 
 const byScore = (a, b) => {
   return (b.score - a.score)
@@ -64,9 +65,7 @@ class SubredditComments extends React.Component {
             <Link to={'/user'}>view my removed comments</Link>
           </div>
         }
-        <div className='note quarantine'>
-          <p>To view <span className='quarantined'>quarantined</span> content, install the <a href="https://chrome.google.com/webstore/detail/reveddit-quarantined/cmfgeilnphkjendelakiniceinhjonfh">Chrome</a> or <a href="https://addons.mozilla.org/en-US/firefox/addon/reveddit-quarantined/">Firefox</a> extension.</p>
-        </div>
+        <Highlight/>
         {
           noItemsFound ?
           <p>No comments found</p> :

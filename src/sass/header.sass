@@ -1,13 +1,17 @@
-header 
+header
   background-color: $red///*#19171c;/*#181818*/
   display: flex
   justify-content: space-between
   align-items: center
   padding: 10px
+  color: white
 
-  .subheading, label, #subheading input
+  #nav *
     font-weight: bold
   #subheading
+    margin-top: 5px
+    *
+      font-weight: bold
     .user input[type="text"]
       width: 118px
     input[type="text"]
@@ -24,7 +28,7 @@ header
     margin-bottom: 3px
     a
       opacity: .7
-    
+
   label
     font-size: 16px
 
@@ -35,26 +39,11 @@ header
       margin: 0
       a
         transition: color 0.3s
-      a:hover
-        text-decoration: none
-        color: #ff8b88
-    #title_and_forms
-      display: flex
-      flex-wrap: wrap
-      form.topForm
-        margin-bottom: 5px
-      form
-        display: flex
-        justify-content: flex-end
-        align-items: flex-end
-        input[type="text"]
-          margin: 0 5px
-          width: 100px
-      #forms
-        margin-left: 15px
-        margin-bottom: 5px
-   
-  #status 
+  #site-name
+    font-size: 1.5em
+    font-weight: bold
+    margin: 0
+  #status
     display: flex
     justify-content: space-between
     align-items: center
@@ -63,7 +52,7 @@ header
       color: #fff
       margin: 0 20px 0 0
 
-    #status-image 
+    #status-image
       height: 64px
       width: 64px
       border-radius: 32px
@@ -89,4 +78,3 @@ body .github-fork-ribbon.left-bottom:after
   color: $red
   border-color: $red
   text-shadow: 0 -0.08em rgba($red, .5)
-

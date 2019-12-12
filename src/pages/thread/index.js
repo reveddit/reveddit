@@ -8,6 +8,7 @@ import CommentSection from './CommentSection'
 import Selections from 'pages/common/selections'
 import { withFetch } from 'pages/RevdditFetcher'
 import { SimpleURLSearchParams, jumpToHash } from 'utils'
+import Highlight from 'pages/common/Highlight'
 
 class Thread extends React.Component {
   componentDidUpdate() {
@@ -45,6 +46,7 @@ class Thread extends React.Component {
         {
           <React.Fragment>
             {selections}
+            <Highlight/>
             {! hasVisitedUserPage &&
               <div className='notice-with-link userpage-note'>
                 <div>{"Check if you have any removed comments."}</div>

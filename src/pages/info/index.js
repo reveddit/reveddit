@@ -5,7 +5,7 @@ import Comment from 'pages/common/Comment'
 import { withFetch } from 'pages/RevdditFetcher'
 import { reversible } from 'utils'
 import {byScore, byDate, byNumComments, byControversiality} from 'data_processing/info'
-
+import Highlight from 'pages/common/Highlight'
 
 export class Info extends React.Component {
 
@@ -27,9 +27,7 @@ export class Info extends React.Component {
     return (
       <div className='infopage'>
         {selections}
-        <div className='note quarantine'>
-          <p>To view <span className='quarantined'>quarantined</span> content, install the <a href="https://chrome.google.com/webstore/detail/reveddit-quarantined/cmfgeilnphkjendelakiniceinhjonfh">Chrome</a> or <a href="https://addons.mozilla.org/en-US/firefox/addon/reveddit-quarantined/">Firefox</a> extension.</p>
-        </div>
+        <Highlight/>
         {
           noItemsFound ?
           <p>No items found</p> :

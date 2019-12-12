@@ -11,6 +11,7 @@ import Time from 'pages/common/Time'
 import { withFetch } from 'pages/RevdditFetcher'
 import { getQueryParams } from 'data_processing/user'
 import { SimpleURLSearchParams } from 'utils'
+import Highlight from 'pages/common/Highlight'
 
 class User extends React.Component {
   render () {
@@ -85,9 +86,7 @@ class User extends React.Component {
               {loadAllLink}
             </div>
             {selections}
-            <div className='note quarantine'>
-              <p>To view <span className='quarantined'>quarantined</span> content, install the <a href="https://chrome.google.com/webstore/detail/reveddit-quarantined/cmfgeilnphkjendelakiniceinhjonfh">Chrome</a> or <a href="https://addons.mozilla.org/en-US/firefox/addon/reveddit-quarantined/">Firefox</a> extension.</p>
-            </div>
+            <Highlight/>
             { removedCommentIDs.length > 0 &&
               <div className='notice-with-link'>
                 <div>Some comments have been removed. To view this on reddit, open the below link in an incognito window or while logged out.</div>
