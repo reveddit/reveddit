@@ -85,8 +85,29 @@ select
   font-weight: bold
   border-radius: 5px
 
+.big
+  padding: 10px
+  font-size: 14px
+
 .red
   background: $red
+  color: white
+
+.button.red:hover
+  background-color: $lightred
+
+a.white
+  color: white
+  &:hover
+    text-decoration: none
 
 .note.highlight
   margin-bottom: 7px
+
+.space-around
+  display: flex
+  justify-content: space-around
+
+@media only screen and (max-width: 700px)
+  .desktop-only
+    display: none

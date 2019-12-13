@@ -17,6 +17,12 @@ export class About extends React.Component {
   changeView = (index) => {
     this.setState({singleDisplayIndex: index})
   }
+  welcome = () => {
+    this.props.openGenericModal({hash:'welcome'})
+  }
+  donate = () => {
+    this.props.openGenericModal({hash:'donate'})
+  }
   componentDidMount() {
     getComments(
       [
@@ -105,6 +111,8 @@ export class About extends React.Component {
             <div className='section half'>
               <h2 className='about'>News</h2>
               <ul className='news'>
+                <li><a href="/about#welcome" onClick={this.welcome}>real-time notifier extension</a>
+                  <ul><li><Time created_utc='1576163308'/></li></ul></li>
                 <li><a href={`${reddit}/e1wsqy/`}>revddit.com -> www.reveddit.com</a>
                   <ul><li><Time created_utc='1574768321'/></li></ul></li>
                 <li><a href={`${reddit}/db5hfm/`}>tip: /y and /v aliases for /user and /r</a>
@@ -125,6 +133,7 @@ export class About extends React.Component {
               <h2 className='about'>Extra tools</h2>
               <p>View content removed from your reddit account with the following reveddit tools.</p>
               <ul>
+                <li><a href="/about#welcome" onClick={this.welcome}>real-time</a></li>
                 <li><a href="https://chrome.google.com/webstore/detail/reveddit-quarantined/cmfgeilnphkjendelakiniceinhjonfh">quarantined - Chrome</a></li>
                 <li><a href="https://addons.mozilla.org/en-US/firefox/addon/reveddit-quarantined/">quarantined - Firefox</a></li>
                 <li><a href="https://chrome.google.com/webstore/detail/reveddit-linker/jgnigeenijnjlahckhfomimnjadmkmah">linker - Chrome</a></li>
@@ -157,7 +166,7 @@ export class About extends React.Component {
           <div className='sections'>
             <div className='section half'>
               <h2 className='about'>Donate</h2>
-              <p>re(ve)ddit is free and ad-free. You can support work like this with a <a className="pointer" onClick={() => this.props.openGenericModal({hash:'donate'})}>donation</a>, feedback, or code fixes.</p>
+              <p>re(ve)ddit is free and ad-free. You can support work like this with a <a className="pointer" onClick={this.donate}>donation</a>, feedback, or code fixes.</p>
               <p>Thank you!</p>
             </div>
             <div className='section half'>

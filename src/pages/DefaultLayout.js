@@ -83,7 +83,7 @@ class DefaultLayout extends React.Component {
               <Modal isOpen={this.state.genericModalIsOpen}
                 onRequestClose={this.closeGenericModal}
                 style={customStyles}>
-                <div id='genericModal'>
+                <div id='genericModal' className={this.state.hash}>
                   {this.state.hash ?
                     getContentForHash(this.state.hash)
                     :
