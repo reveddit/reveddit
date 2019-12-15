@@ -173,16 +173,16 @@ export const withFetch = (WrappedComponent) =>
         })
         .catch(error => {
           console.error(error)
+          document.querySelector('#donate-ribbon').style.display = 'none'
           let content = undefined
           var isFirefox = typeof InstallTrigger !== 'undefined';
           if (navigator.doNotTrack == "1" && isFirefox) {
             content =
               <>
                 <p>Error: unable to connect to reddit</p>
-                <p>To view this site with Firefox, add an exception for reveddit by clicking the shield icon next to the URL:</p>
-                <img src="https://i.imgur.com/b1ShxoM.png"/>
-                <p>This is necessary because Firefox blocks websites from querying data from a list of other websites, and reddit is on <a href="https://github.com/disconnectme/disconnect-tracking-protection/blob/master/services.json">that list</a>. The list breaks thousands of websites, many of which are documented in links found <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1101005">here</a>.</p>
-                <p>If this does not resolve the issue, there may be a conflicting extension blocking connections.</p>
+                <p>Tracking Protection on Firefox prevents this site from accessing reddit's API. <b>To fix this</b>, add an exception by clicking the shield icon next to the URL:</p>
+                <img src="/images/etp.png"/>
+                <p>If this does not resolve the issue, there may be a conflicting extension blocking connections to reddit from other websites.</p>
               </>
           } else {
             content =

@@ -32,8 +32,8 @@ export const queryPosts = (params) => {
   return queryItems(params, postURL, post_fields, 't3_')
 }
 
-const queryItems = ({q, author, subreddit, n = 500, before, after, domain, url}, apiURL, fields, prefix) => {
-  const queryParams = {size: n, fields: fields.join(',')}
+const queryItems = ({q, author, subreddit, n = 500, sort='desc', before, after, domain, url}, apiURL, fields, prefix) => {
+  const queryParams = {size: n, sort, fields: fields.join(',')}
   if (q) queryParams.q = q
   if (author) queryParams.author = author
   if (subreddit) queryParams.subreddit = subreddit

@@ -53,7 +53,7 @@ class Header extends React.Component {
         {path_suffix &&
           <span className='subheading'>{`/${path_suffix}/`}</span>
         }
-        <input type='submit' id='button' value='go' />
+        <input className='desktop-only' type='submit' id='button' value='go' />
       </form>
     )
   }
