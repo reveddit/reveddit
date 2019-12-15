@@ -117,12 +117,8 @@ export class About extends React.Component {
                   <ul><li><Time created_utc='1574768321'/></li></ul></li>
                 <li><a href={`${reddit}/db5hfm/`}>tip: /y and /v aliases for /user and /r</a>
                   <ul><li><Time created_utc='1569812523'/></li></ul></li>
-                <li><a href={`${reddit}/d9g5z3/`}>reveddit language fix extension</a>
-                  <ul><li><Time created_utc='1569481854'/></li></ul></li>
                 <li><a href={`${reddit}/r/shortcuts/comments/ct64s6/is_it_possible_to_modify_a_copied_link/exkas2j/?context=3`}>reveddit shortcut for iOS</a>
                   <ul><li><Time created_utc='1566381957'/></li></ul></li>
-                <li><a href={`${reddit}/cmcw3y/`}>reveddit quarantined extension</a>
-                  <ul><li><Time created_utc='1565021148'/></li></ul></li>
                 <li><a href={`${reddit}/clwnxg/`}>reveddit linker extension</a>
                   <ul><li><Time created_utc='1564927561'/></li></ul></li>
                 <li><a href={`${reddit}/9n9l45/`}>site launch</a>
@@ -130,18 +126,17 @@ export class About extends React.Component {
               </ul>
             </div>
             <div className='section half'>
-              <h2 className='about'>Extra tools</h2>
-              <p>View content removed from your reddit account with the following reveddit tools.</p>
-              <ul>
-                <li><a href="/about#welcome" onClick={this.welcome}>real-time</a></li>
-                <li><a href="https://chrome.google.com/webstore/detail/reveddit-quarantined/cmfgeilnphkjendelakiniceinhjonfh">quarantined - Chrome</a></li>
-                <li><a href="https://addons.mozilla.org/en-US/firefox/addon/reveddit-quarantined/">quarantined - Firefox</a></li>
-                <li><a href="https://chrome.google.com/webstore/detail/reveddit-linker/jgnigeenijnjlahckhfomimnjadmkmah">linker - Chrome</a></li>
-                <li><a href="https://addons.mozilla.org/en-US/firefox/addon/reveddit-linker/">linker - Firefox</a></li>
-                <li><a href="https://chrome.google.com/webstore/detail/reveddit-language-fix/fcpgnheagjkmelppbpnbpfimmmjicknj">language fix - Chrome</a></li>
-                <li><a href="https://addons.mozilla.org/en-US/firefox/addon/reveddit-language-fix/">language fix - Firefox</a></li>
-                <li><a href="https://www.icloud.com/shortcuts/62bc7570613c42cb8b851fad264136df">iOS shortcut</a></li>
-              </ul>
+              <h2 className='about'>Site usage</h2>
+              <p>Insert <span className='v'>ve</span> into the URL of any reddit page.</p>
+                <ul>
+                  <li><a href='/user/redditor_3975/'>user/redditor_3975</a></li>
+                  <li><a href='/r/all/'>r/all</a></li>
+                  <li><a href='/r/cant_say_goodbye/'>r/cant_say_goodbye</a></li>
+                  <li><a href='/r/cant_say_goodbye/comments'>r/.../comments</a></li>
+                  <li><a href='/r/cant_say_goodbye/comments/9ffoqz/comments_mentioning_goodbye_are_removed/'>r/.../comments/9ffoqz/</a></li>
+                  <li><a href='/domain/cnn.com+foxnews.com'>domain/cnn.com+foxnews.com</a></li>
+                  <li><a href='/r/news+worldnews/'>r/news+worldnews/</a></li>
+                </ul>
             </div>
           </div>
           <div className='sections'>
@@ -169,21 +164,6 @@ export class About extends React.Component {
               <p>re(ve)ddit is free and ad-free. You can support work like this with a <a className="pointer" onClick={this.donate}>donation</a>, feedback, or code fixes.</p>
               <p>Thank you!</p>
             </div>
-            <div className='section half'>
-              <h2 className='about'>Site usage</h2>
-              <p>Insert a <span className='v'>ve</span> in the URL of any reddit page.</p>
-                <ul>
-                  <li><a href='/user/redditor_3975/'>user/redditor_3975</a></li>
-                  <li><a href='/r/all/'>r/all</a></li>
-                  <li><a href='/r/cant_say_goodbye/'>r/cant_say_goodbye</a></li>
-                  <li><a href='/r/cant_say_goodbye/comments'>r/.../comments</a></li>
-                  <li><a href='/r/cant_say_goodbye/comments/9ffoqz/comments_mentioning_goodbye_are_removed/'>r/.../comments/9ffoqz/</a></li>
-                  <li><a href='/domain/cnn.com+foxnews.com'>domain/cnn.com+foxnews.com</a></li>
-                  <li><a href='/r/news+worldnews/'>r/news+worldnews/</a></li>
-                </ul>
-            </div>
-          </div>
-          <div className='sections'>
             <div className='section half'>
               <h2 className='about'>Credo</h2>
               <p>Secretly removing content is within reddit's free speech rights, and so is revealing said removals.</p>

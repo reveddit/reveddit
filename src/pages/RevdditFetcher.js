@@ -10,7 +10,7 @@ import { itemIsOneOfSelectedRemovedBy, itemIsOneOfSelectedTags } from 'data_proc
 import Selections from 'pages/common/selections'
 import { removedFilter_types, getExtraGlobalStateVars } from 'state'
 import { NOT_REMOVED } from 'pages/common/RemovedBy'
-import { SimpleURLSearchParams, jumpToHash, get, put } from 'utils'
+import { SimpleURLSearchParams, jumpToHash, get, put, ext_urls } from 'utils'
 
 const getCategorySettings = (page_type, subreddit) => {
   const category_settings = {
@@ -192,7 +192,7 @@ export const withFetch = (WrappedComponent) =>
                   <ul>
                     <li>conflicting extensions that block connections</li>
                     <li>temporary network outage</li>
-                    <li>the page contains <span className='quarantined'>quarantined</span> content that requires a <a href="https://chrome.google.com/webstore/detail/reveddit-quarantined/cmfgeilnphkjendelakiniceinhjonfh">Chrome</a> or <a href="https://addons.mozilla.org/en-US/firefox/addon/reveddit-quarantined/">Firefox</a> extension to view accurately.</li>
+                    <li>the page contains <span className='quarantined'>quarantined</span> content that requires a <a href={ext_urls.rt.c}>Chrome</a> or <a href={ext_urls.rt.f}>Firefox</a> extension to view accurately.</li>
                   </ul>
                 </p>
               </>
@@ -209,10 +209,10 @@ export const withFetch = (WrappedComponent) =>
         put(hasSeenLanguageModal_text, true)
         this.props.openGenericModal({content:
           <>
-            <p>Hi, when your browser's preferred language is not English, you may need the "reveddit language fix" extension to view results accurately:</p>
+            <p>Hi, when your browser's preferred language is not English, you may need the reveddit extension to view results accurately:</p>
             <ul>
-              <li><a href="https://chrome.google.com/webstore/detail/reveddit-language-fix/fcpgnheagjkmelppbpnbpfimmmjicknj">Chrome</a></li>
-              <li><a href="https://addons.mozilla.org/en-US/firefox/addon/reveddit-language-fix/">Firefox</a> (mobile too)</li>
+              <li><a href={ext_urls.rt.c}>Chrome</a></li>
+              <li><a href={ext_urls.rt.f}>Firefox</a> (mobile too)</li>
             </ul>
             <p>Please see details <a href="https://redd.it/d4wtes">here</a>. This pop-up appears once per session while the extension is not installed.</p>
           </>
