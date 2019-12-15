@@ -149,7 +149,7 @@ export class About extends React.Component {
               <h2 className='about'>Feedback</h2>
               <ul>
                 <li><a href='https://www.reddit.com/r/reveddit/'>/r/reveddit</a></li>
-                <li><a href='https://github.com/revdedit/reveddit'>github.com/reveddit/reveddit</a></li>
+                <li><a href='https://github.com/reveddit/reveddit'>github.com/reveddit/reveddit</a></li>
               </ul>
             </div>
             <div className='section half'>
