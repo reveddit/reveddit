@@ -1,6 +1,7 @@
 import { getItems } from 'api/reddit'
 import {
-  getPostsBySubredditOrDomain as pushshiftGetPosts
+  getPostsBySubredditOrDomain as pushshiftGetPostsBySubredditOrDomain,
+  queryPosts as pushshiftQueryPosts
 } from 'api/pushshift'
 import { itemIsRemovedOrDeleted, postIsDeleted, display_post } from 'utils'
 import { REMOVAL_META, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
@@ -87,10 +88,25 @@ export const getRevdditPostsByDomain = (domain, global, history) => {
   if (window.location.pathname.match(/^\/r\/([^/]*)\/.+/g)) {
     history.replace(`/r/${domain}/`+window.location.search)
   }
-  return pushshiftGetPosts({domain, n, before, before_id})
+  return pushshiftGetPostsBySubredditOrDomain({domain, n, before, before_id})
   .then(retrieveRedditPosts_and_combineWithPushshiftPosts)
   .then(show_posts => {
     global.setSuccess({items:show_posts})
     return show_posts
+  })
+}
+
+export const getRevdditDuplicatePosts = (threadID, global, history) => {
+  global.setLoading('')
+  return getItems(['t3_'+threadID])
+  .then(redditPosts => {
+    const drivingPost = redditPosts[0]
+    const url = drivingPost.url
+    return pushshiftQueryPosts({url})
+    .then(retrieveRedditPosts_and_combineWithPushshiftPosts)
+    .then(items => {
+      global.setSuccess({items})
+      return items
+    })
   })
 }

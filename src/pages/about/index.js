@@ -136,6 +136,7 @@ export class About extends React.Component {
                   <li><a href='/r/cant_say_goodbye/comments/9ffoqz/comments_mentioning_goodbye_are_removed/'>r/.../comments/9ffoqz/</a></li>
                   <li><a href='/domain/cnn.com+foxnews.com'>domain/cnn.com+foxnews.com</a></li>
                   <li><a href='/r/news+worldnews/'>r/news+worldnews/</a></li>
+                  <li><a href='/r/worldnews/duplicates/eb2hjw'>duplicates</a></li>
                 </ul>
             </div>
           </div>

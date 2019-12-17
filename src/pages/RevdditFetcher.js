@@ -2,7 +2,7 @@ import React from 'react'
 import scrollToElement from 'scroll-to-element'
 import { getRevdditCommentsBySubreddit } from 'data_processing/comments'
 import { getRevdditPostsBySubreddit } from 'data_processing/subreddit_posts'
-import { getRevdditPostsByDomain } from 'data_processing/posts'
+import { getRevdditPostsByDomain, getRevdditDuplicatePosts } from 'data_processing/posts'
 import { getRevdditUserItems, getQueryParams } from 'data_processing/user'
 import { getRevdditThreadItems } from 'data_processing/thread'
 import { getRevdditItems, getRevdditSearch } from 'data_processing/info'
@@ -33,6 +33,9 @@ const getCategorySettings = (page_type, subreddit) => {
     'domain_posts': {category: 'subreddit',
                      category_title: 'Subreddit',
                      category_unique_field: 'subreddit'},
+    'duplicate_posts': {category: 'subreddit',
+                     category_title: 'Subreddit',
+                     category_unique_field: 'subreddit'},
     'user': {category: 'subreddit',
              category_title: 'Subreddit',
              category_unique_field: 'subreddit'},
@@ -44,7 +47,7 @@ const getCategorySettings = (page_type, subreddit) => {
                category_unique_field: 'subreddit'}
   }
   if (page_type in category_settings) {
-    if (subreddit) {
+    if (subreddit && ! ['duplicate_posts'].includes(page_type)) {
       let sub_type = subreddit.toLowerCase() === 'all' ? 'all' : 'other'
       return category_settings[page_type][sub_type]
     } else {
@@ -67,6 +70,10 @@ const getPageTitle = (page_type, string) => {
     }
     case 'domain_posts': {
       return `/domain/${string}`
+      break
+    }
+    case 'duplicate_posts': {
+      return `/duplicates/${string}`
       break
     }
     case 'user': {
@@ -97,6 +104,10 @@ const getLoadDataFunctionAndParam = (page_type, subreddit, user, kind, threadID,
     }
     case 'domain_posts': {
       return [getRevdditPostsByDomain, [domain]]
+      break
+    }
+    case 'duplicate_posts': {
+      return [getRevdditDuplicatePosts, [threadID]]
       break
     }
     case 'thread': {
@@ -144,7 +155,7 @@ export const withFetch = (WrappedComponent) =>
         subreddit = 'u_'+userSubreddit
       }
       const { page_type } = this.props
-      const page_title = getPageTitle(page_type, subreddit || user)
+      const page_title = getPageTitle(page_type, subreddit || user || domain)
       if (page_title) {
         document.title = page_title
       }

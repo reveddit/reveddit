@@ -1,5 +1,5 @@
 import {
-  getPostsBySubredditOrDomain as pushshiftGetPosts
+  getPostsBySubredditOrDomain as pushshiftGetPostsBySubredditOrDomain
 } from 'api/pushshift'
 import { getRemovedPostIDs } from 'api/removeddit'
 import { getItems } from 'api/reddit'
@@ -30,7 +30,7 @@ export const getRevdditPostsBySubreddit = (subreddit, global, history) => {
     })
     .catch(global.setError)
   } else {
-    return pushshiftGetPosts({subreddit, n, before, before_id})
+    return pushshiftGetPostsBySubredditOrDomain({subreddit, n, before, before_id})
     .then(retrieveRedditPosts_and_combineWithPushshiftPosts)
     .then(show_posts => {
       global.setSuccess({items:show_posts})
