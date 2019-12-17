@@ -3,7 +3,7 @@ import { connect, localSort_types } from 'state'
 import Post from 'pages/common/Post'
 import Comment from 'pages/common/Comment'
 import { withFetch } from 'pages/RevdditFetcher'
-import { reversible } from 'utils'
+import { reversible, copyLink } from 'utils'
 import {byScore, byDate, byNumComments, byControversiality} from 'data_processing/info'
 import Highlight from 'pages/common/Highlight'
 
@@ -23,9 +23,14 @@ export class Info extends React.Component {
     } else if (localSort === localSort_types.num_comments) {
       items_sorted.sort( reversible(byNumComments, localSortReverse) )
     }
+    const ids = items_sorted.map(o => o.name)
+    const shareLink = '/info?id='+ids.join(',')
 
     return (
       <div className='infopage'>
+        <div className="revddit-sharing">
+          <a href={shareLink} onClick={copyLink}>copy sharelink</a>
+        </div>
         {selections}
         <Highlight/>
         {
