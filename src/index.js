@@ -29,7 +29,7 @@ class App extends React.Component {
         <Provider>
           <BrowserRouter basename={__dirname}>
             <Switch>
-              <Redirect exact from='/' to='/about' />
+              <Redirect exact from='/' to='/about#welcome' />
               <Redirect from='/u/*' to='/user/*' />
               <Redirect from='/u/' to='/user/' />
               <Route path="/user/:user/posts/" component={({ location }) => (
