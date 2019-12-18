@@ -6,7 +6,7 @@ const markdown = SnuOwnd.getParser()
 
 export const ext_urls = {
   rt: {
-    c: 'https://chrome.google.com/webstore/detail/reveddit-real-time/hickjbodophomfmdfhhnmdfbfoamcjje',
+    c: 'https://github.com/reveddit/real-time-extension/blob/master/INSTALL.md#installing-from-source',
     f: 'https://addons.mozilla.org/en-US/firefox/addon/reveddit-real-time/'
   }
 }
