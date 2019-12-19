@@ -28,13 +28,15 @@ export class Info extends React.Component {
     }
 
     const ids = items_sorted.map(o => o.name)
-    const shareLink = '/info?id='+ids.join(',')
+    const shareLink = page_type === 'search' ? (
+      <div className="revddit-sharing">
+        <a href={'/info?id='+ids.join(',')} onClick={copyLink}>copy sharelink</a>
+      </div>
+    ) : ''
 
     return (
       <div className='infopage'>
-        <div className="revddit-sharing">
-          <a href={shareLink} onClick={copyLink}>copy sharelink</a>
-        </div>
+        {shareLink}
         {selections}
         <Highlight/>
         {
