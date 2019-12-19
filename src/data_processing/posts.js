@@ -24,6 +24,10 @@ export const byControversiality = (a, b) => {
   return (b.stickied - a.stickied) || (a.score - b.score)
       || (b.num_comments - a.num_comments)
 }
+export const byNumCrossposts = (a, b) => {
+  return (b.num_crossposts - a.num_crossposts) || (b.num_comments - a.num_comments)
+      || (b.created_utc - a.created_utc)
+}
 
 export const retrieveRedditPosts_and_combineWithPushshiftPosts = (pushshiftPosts) => {
   const ids = pushshiftPosts.map(post => post.name)
@@ -47,6 +51,9 @@ export const combinePushshiftAndRedditPosts = (pushshiftPosts, redditPosts, incl
     post.selftext = ''
     const ps_item = pushshiftPosts_lookup[post.id]
     const retrievalLatency = ps_item.retrieved_on-ps_item.created_utc
+    if (post.crosspost_parent_list) {
+      post.num_crossposts += post.crosspost_parent_list.reduce((total,x) => total+x.num_crossposts,0)
+    }
     if (itemIsRemovedOrDeleted(post)) {
       if (postIsDeleted(post)) {
         if (post.num_comments > 0 || includePostsWithZeroComments) {

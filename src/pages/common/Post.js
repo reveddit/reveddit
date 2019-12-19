@@ -104,8 +104,8 @@ class Post extends React.Component {
             {props.quarantine && <span className="quarantined">quarantined</span>}
             { directlink && <a href={directlink}>directlink</a>}
             <a href={props.permalink}>{props.num_comments} comments</a>
-            <a href={`${current_page}#${props.name}`}>hashlink</a>
             <a href={`https://www.reddit.com${props.permalink}`}>reddit</a>
+              <a href={`/r/${props.subreddit}/duplicates/${props.id}`}>crossposts{props.num_crossposts ? ` (${props.num_crossposts}+)`:''}</a>
             <a href={mods_link} target="_blank">message mods</a>
           </div>
         </div>

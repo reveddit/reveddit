@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import Post from 'pages/common/Post'
 import { withFetch } from 'pages/RevdditFetcher'
 import { connect, localSort_types } from 'state'
-import { byScore, byDate, byNumComments, byControversiality } from 'data_processing/posts'
+import { byScore, byDate, byNumComments, byControversiality, byNumCrossposts } from 'data_processing/posts'
 import { reversible, getUrlWithTimestamp, copyLink } from 'utils'
 import Highlight from 'pages/common/Highlight'
 
@@ -25,6 +25,8 @@ class SubredditPosts extends React.Component {
       items_sorted.sort( reversible(byScore, localSortReverse) )
     } else if (localSort === localSort_types.controversiality) {
       items_sorted.sort( reversible(byControversiality, localSortReverse) )
+    } else if (localSort === localSort_types.num_crossposts) {
+      items_sorted.sort( reversible(byNumCrossposts, localSortReverse) )
     }
 
 

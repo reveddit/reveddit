@@ -5,6 +5,7 @@ import Comment from 'pages/common/Comment'
 import { withFetch } from 'pages/RevdditFetcher'
 import { reversible, copyLink } from 'utils'
 import {byScore, byDate, byNumComments, byControversiality} from 'data_processing/info'
+import { byNumCrossposts } from 'data_processing/posts'
 import Highlight from 'pages/common/Highlight'
 
 export class Info extends React.Component {
@@ -22,7 +23,10 @@ export class Info extends React.Component {
       items_sorted.sort( reversible(byControversiality, localSortReverse) )
     } else if (localSort === localSort_types.num_comments) {
       items_sorted.sort( reversible(byNumComments, localSortReverse) )
+    } else if (localSort === localSort_types.num_crossposts) {
+      items_sorted.sort( reversible(byNumCrossposts, localSortReverse) )
     }
+
     const ids = items_sorted.map(o => o.name)
     const shareLink = '/info?id='+ids.join(',')
 

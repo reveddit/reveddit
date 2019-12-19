@@ -73,7 +73,8 @@ export const localSort_types = {
   controversiality: 'controversiality',
   controversiality1: 'controversiality1',
   controversiality2: 'controversiality2',
-  comment_length: 'comment_length'
+  comment_length: 'comment_length',
+  num_crossposts: 'num_crossposts'
 }
 // These defaults are for the URL
 export const filter_pageType_defaults = {
@@ -82,7 +83,8 @@ export const filter_pageType_defaults = {
     thread: removedFilter_types.all,
     subreddit_posts: removedFilter_types.removed,
     subreddit_comments: removedFilter_types.removed,
-    domain_posts: removedFilter_types.removed
+    domain_posts: removedFilter_types.removed,
+    duplicate_posts: removedFilter_types.all
   },
   removedByFilter: '', // this is different than the state initialization value
   tagsFilter: '',
@@ -91,7 +93,8 @@ export const filter_pageType_defaults = {
     thread: localSort_types.score,
     subreddit_posts: localSort_types.date,
     subreddit_comments: localSort_types.date,
-    domain_posts: localSort_types.date
+    domain_posts: localSort_types.date,
+    duplicate_posts: localSort_types.num_comments
   },
   localSortReverse: false,
   showContext: true,

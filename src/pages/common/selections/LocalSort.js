@@ -39,13 +39,15 @@ class LocalSort extends React.Component {
           :
             this.makeLabel('controversiality', 'controversiality')
           }
-          {['thread', 'subreddit_posts', 'domain_posts', 'info', 'search'].includes(this.props.page_type) &&
+          {['thread', 'subreddit_posts', 'domain_posts', 'info', 'search', 'duplicate_posts'].includes(this.props.page_type) &&
             this.makeLabel('num_comments', 'number of comments')}
           {['thread', 'subreddit_comments'].includes(this.props.page_type) &&
             this.makeLabel('comment_length', 'comment length')}
 
           {this.makeLabel('score', 'score')}
           {this.makeLabel('date', 'date')}
+          {['subreddit_posts', 'domain_posts', 'info', 'search', 'duplicate_posts'].includes(this.props.page_type) &&
+            this.makeLabel('num_crossposts', 'number of crossposts')}
           <label id='reverseSort'>
             <input type='checkbox'
               checked={localSortReverse}
