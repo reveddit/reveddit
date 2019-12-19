@@ -1,6 +1,8 @@
 https://revddit.netlify.com/* https://www.reveddit.com/:splat 301!
 
+https://revddit.com/user/* after=:after limit=:limit sort=:sort show=:show removal_status=:removal_status https://www.reveddit.com/user/:splat?after=:after&limit=:limit&sort=:sort&show=:show&removal_status=:removal_status 301!
 https://revddit.com/* all=:all https://www.reveddit.com/:splat?all=:all 301!
+
 https://revddit.com/* https://www.reveddit.com/:splat 301!
 https://www.revddit.com/* https://www.reveddit.com/:splat 301!
 
