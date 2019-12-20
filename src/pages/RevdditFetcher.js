@@ -184,31 +184,33 @@ export const withFetch = (WrappedComponent) =>
         })
         .catch(error => {
           console.error(error)
-          document.querySelector('#donate-ribbon').style.display = 'none'
-          let content = undefined
-          var isFirefox = typeof InstallTrigger !== 'undefined';
-          if (navigator.doNotTrack == "1" && isFirefox) {
-            content =
-              <>
-                <p>Error: unable to connect to reddit</p>
-                <p>Tracking Protection on Firefox prevents this site from accessing reddit's API. <b>To fix this</b>, add an exception by clicking the shield icon next to the URL:</p>
-                <img src="/images/etp.png"/>
-                <p>If this does not resolve the issue, there may be a conflicting extension blocking connections to reddit from other websites.</p>
-              </>
-          } else {
-            content =
-              <>
-                <p>Error: unable to connect to either reddit or pushshift</p>
-                <p>Possible causes:
-                  <ul>
-                    <li>conflicting extensions that block connections</li>
-                    <li>temporary network outage</li>
-                    <li>the page contains <span className='quarantined'>quarantined</span> content that requires a <a href={ext_urls.rt.c}>Chrome</a> or <a href={ext_urls.rt.f}>Firefox</a> extension to view accurately.</li>
-                  </ul>
-                </p>
-              </>
+          if (this.props.global.state.items.length === 0) {
+            document.querySelector('#donate-ribbon').style.display = 'none'
+            let content = undefined
+            var isFirefox = typeof InstallTrigger !== 'undefined';
+            if (navigator.doNotTrack == "1" && isFirefox) {
+              content =
+                <>
+                  <p>Error: unable to connect to reddit</p>
+                  <p>Tracking Protection on Firefox prevents this site from accessing reddit's API. <b>To fix this</b>, add an exception by clicking the shield icon next to the URL:</p>
+                  <img src="/images/etp.png"/>
+                  <p>If this does not resolve the issue, there may be a conflicting extension blocking connections to reddit from other websites.</p>
+                </>
+            } else {
+              content =
+                <>
+                  <p>Error: unable to connect to either reddit or pushshift</p>
+                  <div>Possible causes:
+                    <ul>
+                      <li>conflicting extensions that block connections</li>
+                      <li>temporary network outage</li>
+                      <li>the page contains <span className='quarantined'>quarantined</span> content that requires a <a href={ext_urls.rt.c}>Chrome</a> or <a href={ext_urls.rt.f}>Firefox</a> extension to view accurately.</li>
+                    </ul>
+                  </div>
+                </>
+            }
+            this.props.openGenericModal({content})
           }
-          this.props.openGenericModal({content})
           this.props.global.setError('')
         })
       })
