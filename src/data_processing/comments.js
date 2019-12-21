@@ -46,13 +46,29 @@ export const combinePushshiftAndRedditComments = (pushshiftComments, redditComme
     if (redditComment !== undefined) {
       ps_comment.permalink = redditComment.permalink
       ps_comment.link_permalink = redditComment.permalink.split('/').slice(0,6).join('/')+'/'
-      ps_comment.link_title = redditComment.permalink.split('/')[5].replace(/_/g, ' ')
+      if (redditComment.link_title) {
+        ps_comment.link_title = redditComment.link_title
+      } else {
+        ps_comment.link_title = redditComment.permalink.split('/')[5].replace(/_/g, ' ')
+      }
       ps_comment.score = redditComment.score
       ps_comment.controversiality = redditComment.controversiality
       ps_comment.stickied = redditComment.stickied
       ps_comment.distinguished = redditComment.distinguished
       ps_comment.locked = redditComment.locked
       ps_comment.replies = []
+      if (redditComment.url) {
+        ps_comment.url = redditComment.url
+      }
+      if (typeof(redditComment.num_comments) !== 'undefined') {
+        ps_comment.num_comments = redditComment.num_comments
+      }
+      if ('quarantine' in redditComment) {
+        ps_comment.quarantine = redditComment.quarantine
+      }
+      if ('is_op' in redditComment) {
+        ps_comment.is_op = redditComment.is_op
+      }
       if (! commentIsRemoved(redditComment)) {
         if (commentIsRemoved(ps_comment)) {
           ps_comment.removedby = AUTOMOD_REMOVED_MOD_APPROVED
@@ -86,7 +102,7 @@ export const combinePushshiftAndRedditComments = (pushshiftComments, redditComme
 }
 
 // Faster, but missing quarantine field in submissions data
-export const getFullTitlesFromPushshift = pushshiftComments => {
+export const getPostDataForCommentsFromPushshift = pushshiftComments => {
   const link_ids_set = {}
   pushshiftComments.forEach(ps_comment => {
     link_ids_set[ps_comment.link_id.slice(3)] = true
@@ -99,47 +115,53 @@ export const getFullTitlesFromPushshift = pushshiftComments => {
   .catch(() => { console.error('Unable to retrieve full titles from Pushshift') })
 }
 
-export const getFullTitles = pushshiftComments => {
-  const link_ids_set = {}
-  pushshiftComments.forEach(ps_comment => {
-    link_ids_set[ps_comment.link_id] = true
-  })
-  const link_ids = Object.keys(link_ids_set)
-  return getItems(link_ids)
+export const getPostDataForComments = ({comments = undefined, link_ids_set = undefined}) => {
+  if (! link_ids_set) {
+    link_ids_set = {}
+    comments.forEach(comment => {
+      link_ids_set[comment.link_id] = true
+    })
+  }
+  return getItems(Object.keys(link_ids_set))
   .then(posts => {
     return Object.assign(...posts.map(post => ({[post.name]: post})))
   })
   .catch(() => { console.error('Unable to retrieve full titles from reddit') })
 }
 
+//any fields copied/created here should be copied in combinePushshiftAndRedditComments
+//so that the comments on /info pages have their post-data carried over
+export const applyPostDataToComment = ({postData, comment}) => {
+  const postData_thisComment = postData[comment.link_id]
+  comment.link_title = postData_thisComment.title
+  if (postData_thisComment.url) {
+    comment.url = postData_thisComment.url
+  }
+  if (typeof(postData_thisComment.num_comments) !== 'undefined') {
+    comment.num_comments = postData_thisComment.num_comments
+  }
+  if ('quarantine' in postData_thisComment) {
+    comment.quarantine = postData_thisComment.quarantine
+  }
+  if ('author' in postData_thisComment && postData_thisComment.author === comment.author) {
+    comment.is_op = true
+  }
+}
 
 export const getRevdditComments = (pushshiftComments) => {
-  const fullTitlePromise = getFullTitles(pushshiftComments)
+  const postDataPromise = getPostDataForComments({comments: pushshiftComments})
   const combinePromise = retrieveRedditComments_and_combineWithPushshiftComments(pushshiftComments)
-  return Promise.all([fullTitlePromise, combinePromise])
+  return Promise.all([postDataPromise, combinePromise])
   .then(values => {
     const show_comments = []
-    const full_titles = values[0]
+    const postData = values[0]
     const combinedComments = values[1]
     combinedComments.forEach(comment => {
-      if (full_titles && comment.link_id in full_titles) {
-        const full_post_data = full_titles[comment.link_id]
-        if ( ! (full_post_data.whitelist_status === 'promo_adult_nsfw' &&
+      if (postData && comment.link_id in postData) {
+        const postData_thisComment = postData[comment.link_id]
+        if ( ! (postData_thisComment.whitelist_status === 'promo_adult_nsfw' &&
                (comment.removed || comment.deleted))) {
-          comment.link_title = full_post_data.title
-          if (full_post_data.url) {
-            comment.url = full_post_data.url
-          }
-          if (typeof(full_post_data.num_comments) !== 'undefined') {
-            comment.num_comments = full_post_data.num_comments
-          }
-          if ('quarantine' in full_post_data) {
-            comment.quarantine = full_post_data.quarantine
-          }
-          if ('author' in full_post_data && full_post_data.author === comment.author) {
-            comment.is_op = true
-          }
-
+          applyPostDataToComment({postData, comment})
           show_comments.push(comment)
         }
       } else {

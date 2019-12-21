@@ -11,7 +11,9 @@ import {
   queryComments as pushshiftQueryComments,
   queryPosts as pushshiftQueryPosts
 } from 'api/pushshift'
-import { combinePushshiftAndRedditComments, getRevdditComments } from 'data_processing/comments'
+import { combinePushshiftAndRedditComments, getRevdditComments,
+         getPostDataForComments, applyPostDataToComment
+} from 'data_processing/comments'
 import { combinePushshiftAndRedditPosts, getRevdditPosts } from 'data_processing/posts'
 
 export const byScore = (a, b) => {
@@ -58,11 +60,13 @@ export const getRevdditItems = (global, history) => {
   .then(redditItems => {
     const redditComments = []
     const redditPosts = []
+    const link_ids_set = {}
     redditItems.forEach(item => {
       item.link_title = item.permalink.split('/')[5].replace(/_/g, ' ')
       item.link_permalink = item.permalink.split('/').slice(0,6).join('/')+'/'
       if (isCommentID(item.name)) {
         redditComments.push(item)
+        link_ids_set[item.link_id] = true
         if (commentIsRemoved(item)) {
           item.removed = true
         } else if (commentIsDeleted(item)) {
@@ -81,15 +85,26 @@ export const getRevdditItems = (global, history) => {
       }
     })
     global.setState({items: redditItems})
-    return Promise.all(pushshift_promises)
+    return getPostDataForComments({link_ids_set})
+    .then(postData => {
+      redditComments.forEach(comment => {
+        if (postData && comment.link_id in postData) {
+          applyPostDataToComment({postData, comment})
+        }
+      })
+      global.setState({items: redditItems})
+    })
     .then(result => {
+      return Promise.all(pushshift_promises)
+      .then(result => {
 
-      const pushshiftComments = result[0]
-      const pushshiftPosts = result[1]
+        const pushshiftComments = result[0]
+        const pushshiftPosts = result[1]
 
-      const combinedComments = combinePushshiftAndRedditComments(pushshiftComments, redditComments)
-      const combinedPosts = combinePushshiftAndRedditPosts(pushshiftPosts, redditPosts, true)
-      global.setSuccess({items: combinedComments.concat(combinedPosts)})
+        const combinedComments = combinePushshiftAndRedditComments(pushshiftComments, redditComments)
+        const combinedPosts = combinePushshiftAndRedditPosts(pushshiftPosts, redditPosts, true)
+        global.setSuccess({items: combinedComments.concat(combinedPosts)})
+      })
     })
   })
 }
