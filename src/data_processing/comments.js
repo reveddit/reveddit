@@ -143,7 +143,8 @@ export const applyPostDataToComment = ({postData, comment}) => {
   if ('quarantine' in postData_thisComment) {
     comment.quarantine = postData_thisComment.quarantine
   }
-  if ('author' in postData_thisComment && postData_thisComment.author === comment.author) {
+  if ('author' in postData_thisComment && postData_thisComment.author === comment.author
+      && comment.author !== '[deleted]') {
     comment.is_op = true
   }
 }

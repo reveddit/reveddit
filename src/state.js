@@ -173,7 +173,8 @@ class GlobalState extends Container {
     const stateVar = extraGlobalStateVars
     for (const [param, urlParamKey] of Object.entries(urlParamKeys)) {
       const paramValue = queryParams.get(urlParamKey)
-      this.setValuesForParam(param, paramValue, stateVar, page_type)
+      const paramValue_decoded = paramValue === null ? paramValue : decodeURIComponent(paramValue)
+      this.setValuesForParam(param, paramValue_decoded, stateVar, page_type)
     }
     return this.setState(stateVar, callback)
   }
