@@ -34,6 +34,7 @@ class Selections extends React.Component {
                 className='collapseToggle'>
                 {this.getShowFiltersText()}</a>
         </div>
+        <div style={{clear:'both'}}></div>
         {showFilters &&
           <div className='selections'>
             {(() => {

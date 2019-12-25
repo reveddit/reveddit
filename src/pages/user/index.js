@@ -10,7 +10,7 @@ import { connect, removedFilter_types } from 'state'
 import Time from 'pages/common/Time'
 import { withFetch } from 'pages/RevdditFetcher'
 import { getQueryParams } from 'data_processing/user'
-import { SimpleURLSearchParams } from 'utils'
+import { SimpleURLSearchParams, copyLink } from 'utils'
 import Highlight from 'pages/common/Highlight'
 
 class User extends React.Component {
@@ -76,16 +76,19 @@ class User extends React.Component {
         }
       }
     })
-
+    const shareLink = window.location.pathname.replace(/^\/user/,'/y')+window.location.search+window.location.hash
 
     return (
       <>
         <div className='userpage'>
           <div className='top'>
-            <div className='subreddit-box'>
-              {loadAllLink}
+            <div className='top-selections'>
+              <div id="buttons-right">
+                <div><a href={shareLink} onClick={copyLink}>copy sharelink</a></div>
+                <div>{loadAllLink}</div>
+              </div>
+              {selections}
             </div>
-            {selections}
             <Highlight/>
             { removedCommentIDs.length > 0 &&
               <div className='notice-with-link'>
