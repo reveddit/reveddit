@@ -108,7 +108,10 @@ export const getRevdditDuplicatePosts = (threadID, global, history) => {
   return getItems(['t3_'+threadID])
   .then(redditPosts => {
     const drivingPost = redditPosts[0]
-    const url = drivingPost.url.replace(/^https?:\/\/[^/]*.reddit.com/,'')
+    let url = drivingPost.url.replace(/^https?:\/\/[^/]*.reddit.com/,'')
+    if (url.match(/^\/r\//)) {
+      url = url.split('/').slice(0,5).join('/')
+    }
     return pushshiftQueryPosts({url})
     .then(retrieveRedditPosts_and_combineWithPushshiftPosts)
     .then(items => {
