@@ -20,7 +20,8 @@ class Header extends React.Component {
     const hasVisitedSite = 'hasVisitedSite'
     bmd.do((isIncognito, bmdI) => {
       if (! isIncognito && ! get('hasNotifierExtension', false) && ! get(hasVisitedSite, false)
-          && document.cookie.replace(/(?:(?:^|.*;\s*)hasVisitedSite\s*\=\s*([^;]*).*$)|^.*$/, "$1") !== "true") {
+          && document.cookie.replace(/(?:(?:^|.*;\s*)hasVisitedSite\s*\=\s*([^;]*).*$)|^.*$/, "$1") !== "true"
+          && ! document.referrer.match(/^https?:\/\/archive/)) {
         this.welcome()
       }
       put(hasVisitedSite, true)
