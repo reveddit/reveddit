@@ -19,10 +19,12 @@ class Header extends React.Component {
     const bmd = window.BrowsingModeDetector()
     const hasVisitedSite = 'hasVisitedSite'
     bmd.do((isIncognito, bmdI) => {
-      if (! isIncognito && ! get('hasNotifierExtension', false) && ! get(hasVisitedSite, false)) {
+      if (! isIncognito && ! get('hasNotifierExtension', false) && ! get(hasVisitedSite, false)
+          && document.cookie.replace(/(?:(?:^|.*;\s*)hasVisitedSite\s*\=\s*([^;]*).*$)|^.*$/, "$1") !== "true") {
         this.welcome()
       }
       put(hasVisitedSite, true)
+      document.cookie = `${hasVisitedSite}=true; expires=Fri, 31 Dec 2036 23:59:59 GMT; path=/;`;
     })
   }
   componentDidUpdate(prevProps) {
