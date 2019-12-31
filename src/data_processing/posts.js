@@ -29,11 +29,11 @@ export const byNumCrossposts = (a, b) => {
       || (b.created_utc - a.created_utc)
 }
 
-export const retrieveRedditPosts_and_combineWithPushshiftPosts = (pushshiftPosts) => {
+export const retrieveRedditPosts_and_combineWithPushshiftPosts = (pushshiftPosts, includePostsWithZeroComments = false) => {
   const ids = pushshiftPosts.map(post => post.name)
   return getItems(ids)
   .then(redditPosts => {
-    return combinePushshiftAndRedditPosts(pushshiftPosts, redditPosts)
+    return combinePushshiftAndRedditPosts(pushshiftPosts, redditPosts, includePostsWithZeroComments)
   })
 }
 
@@ -114,7 +114,7 @@ export const getRevdditDuplicatePosts = (threadID, global, history) => {
       url = redditlikeDomainStripped.split('/').slice(0,5).join('/')
     }
     return pushshiftQueryPosts({url})
-    .then(retrieveRedditPosts_and_combineWithPushshiftPosts)
+    .then((pushshiftPosts) => retrieveRedditPosts_and_combineWithPushshiftPosts(pushshiftPosts, true))
     .then(items => {
       global.setSuccess({items})
       return items
