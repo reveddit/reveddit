@@ -113,6 +113,7 @@ export const getRevdditSearch = (global, history) => {
   const {q, author, subreddit, n, before, after, domain, or_domain, content, url} = global.state
   global.setLoading('')
   const promises = []
+  const notAuthors = author.split(',').filter(x => x.match(/^!/)).reduce((map, obj) => (map[obj.substr(1)] = 1, map), {});
   let include_comments = false
   if ((content === 'comments' || content === 'all') && ! url) {
     include_comments = true
@@ -150,9 +151,18 @@ export const getRevdditSearch = (global, history) => {
     return Promise.all(nextPromises)
   })
   .then(results => {
-    const items = []
+    let items = []
     results.forEach(result => {
       items.push(...result)
+      if (Object.keys(notAuthors).length) {
+        const newItems = []
+        items.forEach(item => {
+          if (! notAuthors[item.author]) {
+            newItems.push(item)
+          }
+        })
+        items = newItems
+      }
     })
     global.setSuccess({items})
   })
