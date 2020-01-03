@@ -3,7 +3,9 @@ import {
   getPostsBySubredditOrDomain as pushshiftGetPostsBySubredditOrDomain,
   queryPosts as pushshiftQueryPosts
 } from 'api/pushshift'
-import { itemIsRemovedOrDeleted, postIsDeleted, display_post } from 'utils'
+import { itemIsRemovedOrDeleted, postIsDeleted, display_post,
+         getUniqueItems
+} from 'utils'
 import { REMOVAL_META, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
          MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED, USER_REMOVED,
          AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
@@ -110,10 +112,24 @@ export const getRevdditDuplicatePosts = (threadID, global, history) => {
     const drivingPost = redditPosts[0]
     let url = drivingPost.url
     let redditlikeDomainStripped = drivingPost.url.replace(/^https?:\/\/[^/]*(reddit\.com|removeddit\.com|ceddit\.com|unreddit\.com|snew\.github\.io|snew\.notabug\.io|politicbot\.github\.io|r\.go1dfish\.me|reve?ddit\.com)/,'')
+    const isNonRedditDomain = ! redditlikeDomainStripped.match(/^\//)
+    let isRedditPostURL = false
     if (redditlikeDomainStripped.match(/^\/r\/[^/]*\/comments\/[a-z0-9]/i)) {
+      isRedditPostURL = true
       url = redditlikeDomainStripped.split('/').slice(0,5).join('/')
     }
-    return pushshiftQueryPosts({url})
+    const promises = [pushshiftQueryPosts({url})]
+    if (isNonRedditDomain || isRedditPostURL) {
+      promises.push(pushshiftQueryPosts({selftext:'"'+url+'"'}))
+    }
+    return Promise.all(promises)
+    .then(results => {
+      if (results.length === 1) {
+        return results[0]
+      } else {
+        return getUniqueItems(results[0], results[1])
+      }
+    })
     .then((pushshiftPosts) => retrieveRedditPosts_and_combineWithPushshiftPosts(pushshiftPosts, true))
     .then(items => {
       global.setSuccess({items})
