@@ -70,6 +70,7 @@ class App extends React.Component {
               <DefaultLayout path='/r/:subreddit/duplicates/:threadID' page_type='duplicate_posts' component={Info} />
               <DefaultLayout path='/r/:subreddit' page_type='subreddit_posts' component={SubredditPosts} />
               <DefaultLayout path='/r/' page_type='blank_subreddit' component={BlankSubreddit} />
+              <DefaultLayout path='/comments/' page_type='blank_subreddit_comments' component={BlankSubreddit} is_comments_page={true} />
               <DefaultLayout path='/domain/all' component={NotFound} />
               <DefaultLayout path='/domain/:domain' page_type='domain_posts' component={SubredditPosts} />
               <DefaultLayout path='/user/:userSubreddit/comments/:threadID/:urlTitle/:commentID' page_type='thread' component={Thread} />

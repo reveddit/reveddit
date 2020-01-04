@@ -32,27 +32,28 @@ export class BlankUser extends React.Component {
   }
 }
 
-export class BlankSubreddit extends React.Component {
-  handleSubmitSub = (e) => {
+export const BlankSubreddit = ({is_comments_page = false}) => {
+  const handleSubmitSub = (e) => {
     e.preventDefault()
     const data = new FormData(e.target)
     const val = data.get('subreddit').trim().toLowerCase()
     if (val !== '') {
-      window.location.href = `/r/${val}?localSort=num_comments`
+      if (is_comments_page) {
+        window.location.href = `/r/${val}/comments?removedby=automod-rem-mod-app,mod`
+      } else {
+        window.location.href = `/r/${val}?localSort=num_comments`
+      }
     }
   }
-  render() {
-    return (
-      <div className='blank_page'>
-        <div className='non-item text'>
-          Enter a subreddit to view removed content:
-        </div>
-        <form onSubmit={this.handleSubmitSub}>
-          <input type='text' name='subreddit' placeholder='subreddit' autoFocus='autoFocus'/>
-          <input type='submit' id='button_s' value='go' />
-        </form>
+  return (
+    <div className='blank_page'>
+      <div className='non-item text'>
+        Enter a subreddit to view removed content:
       </div>
-    )
-  }
-
+      <form onSubmit={handleSubmitSub}>
+        <input type='text' name='subreddit' placeholder='subreddit' autoFocus='autoFocus'/>
+        <input type='submit' id='button_s' value='go' />
+      </form>
+    </div>
+  )
 }
