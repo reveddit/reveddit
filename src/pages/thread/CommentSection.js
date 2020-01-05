@@ -42,7 +42,11 @@ const showNotRemoved = comment => comment.removedby === NOT_REMOVED && ! comment
 
 class CommentSection extends React.Component {
   state = {
-    commentTree: []
+    fullCommentTree: []
+  }
+  componentDidMount() {
+    const fullCommentTree = this.unflatten()
+    this.setState({fullCommentTree})
   }
 
   arrayToLookup (commentList) {
@@ -96,25 +100,23 @@ class CommentSection extends React.Component {
 
   filterCommentTree (comments, filterFunction) {
     if (comments.length === 0) {
-      return false
+      return [false, []]
     }
 
     let hasOkComment = false
-
-    // Reverse for loop since we are removing stuff
     for (let i = comments.length - 1; i >= 0; i--) {
       const comment = comments[i]
-      const isRepliesOk = this.filterCommentTree(comment.replies, filterFunction)
+      const [isRepliesOk, newReplies] = this.filterCommentTree(comment.replies, filterFunction)
+      comment.replies = newReplies
       const isCommentOk = filterFunction(comment)
-
       if (!isRepliesOk && !isCommentOk) {
-        comments.splice(i, 1)
+        comments = comments.slice(0,i).concat(comments.slice(i+1))
       } else {
         hasOkComment = true
       }
     }
 
-    return hasOkComment
+    return [hasOkComment, comments]
   }
 
   itemIsOneOfSelectedRemovedBy_local = (item) => {
@@ -133,32 +135,23 @@ class CommentSection extends React.Component {
     const removedByFilterIsUnset = this.props.global.removedByFilterIsUnset()
     const tagsFilterIsUnset = this.props.global.tagsFilterIsUnset()
 
-    let commentTree = []
+    const {fullCommentTree} = this.state
+    let commentTree = fullCommentTree
     if (showContext) {
-      //issue: clicking any filter is inefficient b/c it rebuilds the whole tree each time
-      // fix: 1. move unflatten() to componentDidMount() and save result to local state
-      //      2. rewrite filterCommentTree to return copies of objects rather than splicing
-      // why: unflatten() is called every time a filter is changed b/c
-      //      filterCommentTree() below will splice the comment.replies lists, and after splicing,
-      //      they don't "come back", e.g. clicking "show removed" then "show all" would lose comments
-      //      if only fix #1 is applied
-      commentTree = this.unflatten()
       if (removedFilter === removedFilter_types.removed) {
-        this.filterCommentTree(commentTree, showRemovedAndDeleted)
+        [, commentTree] = this.filterCommentTree(commentTree, showRemovedAndDeleted)
       } else if (removedFilter === removedFilter_types.not_removed) {
-        this.filterCommentTree(commentTree, showNotRemoved)
+        [, commentTree] = this.filterCommentTree(commentTree, showNotRemoved)
       }
       if (! removedByFilterIsUnset) {
-        this.filterCommentTree(commentTree, this.itemIsOneOfSelectedRemovedBy_local)
+        [, commentTree] = this.filterCommentTree(commentTree, this.itemIsOneOfSelectedRemovedBy_local)
       }
       if (! tagsFilterIsUnset) {
-        this.filterCommentTree(commentTree, this.itemIsOneOfSelectedTags_local)
+        [, commentTree] = this.filterCommentTree(commentTree, this.itemIsOneOfSelectedTags_local)
       }
     } else {
       commentTree = this.props.visibleItemsWithoutCategoryFilter
     }
-
-
 
     if (localSort === localSort_types.date) {
       this.sortCommentTree( commentTree, reversible(byDate, localSortReverse) )
