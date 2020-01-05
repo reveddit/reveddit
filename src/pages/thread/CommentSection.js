@@ -6,6 +6,7 @@ import { showRemovedAndDeleted } from 'utils'
 import { NOT_REMOVED, REMOVAL_META, USER_REMOVED } from 'pages/common/RemovedBy'
 import { itemIsOneOfSelectedRemovedBy, itemIsOneOfSelectedTags } from 'data_processing/filters'
 import { reversible } from 'utils'
+import { cloneDeep } from 'lodash'
 
 const byScore = (a, b) => {
   return (b.stickied - a.stickied) || (b.score - a.score)
@@ -100,23 +101,25 @@ class CommentSection extends React.Component {
 
   filterCommentTree (comments, filterFunction) {
     if (comments.length === 0) {
-      return [false, []]
+      return false
     }
 
     let hasOkComment = false
+
+    // Reverse for loop since we are removing stuff
     for (let i = comments.length - 1; i >= 0; i--) {
       const comment = comments[i]
-      const [isRepliesOk, newReplies] = this.filterCommentTree(comment.replies, filterFunction)
-      comment.replies = newReplies
+      const isRepliesOk = this.filterCommentTree(comment.replies, filterFunction)
       const isCommentOk = filterFunction(comment)
+
       if (!isRepliesOk && !isCommentOk) {
-        comments = comments.slice(0,i).concat(comments.slice(i+1))
+        comments.splice(i, 1)
       } else {
         hasOkComment = true
       }
     }
 
-    return [hasOkComment, comments]
+    return hasOkComment
   }
 
   itemIsOneOfSelectedRemovedBy_local = (item) => {
@@ -136,18 +139,18 @@ class CommentSection extends React.Component {
     const tagsFilterIsUnset = this.props.global.tagsFilterIsUnset()
 
     const {fullCommentTree} = this.state
-    let commentTree = fullCommentTree
+    let commentTree = cloneDeep(fullCommentTree)
     if (showContext) {
       if (removedFilter === removedFilter_types.removed) {
-        [, commentTree] = this.filterCommentTree(commentTree, showRemovedAndDeleted)
+        this.filterCommentTree(commentTree, showRemovedAndDeleted)
       } else if (removedFilter === removedFilter_types.not_removed) {
-        [, commentTree] = this.filterCommentTree(commentTree, showNotRemoved)
+        this.filterCommentTree(commentTree, showNotRemoved)
       }
       if (! removedByFilterIsUnset) {
-        [, commentTree] = this.filterCommentTree(commentTree, this.itemIsOneOfSelectedRemovedBy_local)
+        this.filterCommentTree(commentTree, this.itemIsOneOfSelectedRemovedBy_local)
       }
       if (! tagsFilterIsUnset) {
-        [, commentTree] = this.filterCommentTree(commentTree, this.itemIsOneOfSelectedTags_local)
+        this.filterCommentTree(commentTree, this.itemIsOneOfSelectedTags_local)
       }
     } else {
       commentTree = this.props.visibleItemsWithoutCategoryFilter
