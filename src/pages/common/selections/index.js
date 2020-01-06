@@ -36,7 +36,7 @@ class Selections extends React.Component {
       queryParams.delete(paramKey)
     }
     let to = `${window.location.pathname}${queryParams.toString()}`
-    this.props.history.replace(to)
+    window.history.replaceState(null,null,to)
     this.setState({showFilters})
   }
   getShowFiltersText() {
@@ -140,4 +140,4 @@ class Selections extends React.Component {
   }
 }
 
-export default withRouter(connect(Selections))
+export default Selections
