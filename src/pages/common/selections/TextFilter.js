@@ -28,7 +28,7 @@ class TextFilter extends React.Component {
       <div className={`textFilter selection filter ${textValue.trim().length !== 0 ? 'set': ''}`}>
         <div className='title'>{title}</div>
           <input type='text'
-            name='keywords' value={textValue} placeholder='keywords' autoFocus='autoFocus'
+            name='keywords' value={decodeURIComponent(textValue)} placeholder='keywords' autoFocus='autoFocus'
             onChange={(e) => this.changeLocalFast_DelayedGlobalStateUpdate(e)}
           />
       </div>
