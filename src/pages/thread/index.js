@@ -26,8 +26,8 @@ class Thread extends React.Component {
     const linkToRestOfComments = `/r/${subreddit}/comments/${threadID}/${urlTitle}`
     const isSingleComment = (commentID !== undefined)
     const removedFiltersAreUnset = this.props.global.removedFiltersAreUnset()
-
-    let root = `t3_${id}`
+    const postID = `t3_${id}`
+    let root = postID
 
     if (isSingleComment) {
       root = `t1_${commentID}`
@@ -69,8 +69,8 @@ class Thread extends React.Component {
                 }
                 <CommentSection
                   root={root}
+                  postID={postID}
                   comments={items}
-                  isSingleComment={isSingleComment}
                   visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
                   page_type={this.props.page_type}
                   focusCommentID={commentID}
