@@ -10,15 +10,37 @@ import TextFilter from 'pages/common/selections/TextFilter'
 import TagsFilter from 'pages/common/selections/TagsFilter'
 import UpvoteRemovalRateHistory from 'pages/common/selections/UpvoteRemovalRateHistory'
 import ResultsSummary from 'pages/common/ResultsSummary'
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router'
+import { SimpleURLSearchParams } from 'utils'
+
+const paramKey = 'showFilters'
 
 class Selections extends React.Component {
+  state = {
+    showFilters: false
+  }
+
+  componentDidMount () {
+    const queryParams = new SimpleURLSearchParams(window.location.search)
+    if (queryParams.get(paramKey) === 'true') {
+      this.setState({showFilters: true})
+    }
+  }
 
   toggleShowFilters = () => {
-    this.props.global.selection_update('showFilters', ! this.props.global.state.showFilters, this.props)
+    const showFilters = ! this.state.showFilters
+    const queryParams = new SimpleURLSearchParams(window.location.search)
+    if (showFilters) {
+      queryParams.set(paramKey, true)
+    } else {
+      queryParams.delete(paramKey)
+    }
+    let to = `${window.location.pathname}${queryParams.toString()}`
+    this.props.history.replace(to)
+    this.setState({showFilters})
   }
   getShowFiltersText() {
-    if (this.props.global.state.showFilters) {
+    if (this.state.showFilters) {
       return '[–] hide filters'
     } else {
       return '[+] show filters'
@@ -27,7 +49,7 @@ class Selections extends React.Component {
   render () {
     const { subreddit, page_type, visibleItemsWithoutCategoryFilter, num_items, num_showing,
             category_type, category_title, category_unique_field } = this.props
-    const showFilters = this.props.global.state.showFilters
+    const { showFilters } = this.state
     return (
       <React.Fragment>
         <div className='toggleFilters'><a onClick={this.toggleShowFilters}
