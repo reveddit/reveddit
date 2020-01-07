@@ -11,9 +11,9 @@ import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
          MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED,
          AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
 
-export const getRevdditThreadItems = (threadID, global, history) => {
+export const getRevdditThreadItems = (threadID, global) => {
   global.setLoading('')
-  const promises = [getRevdditThreadPost(threadID, global, history),
+  const promises = [getRevdditThreadPost(threadID, global),
                     getRevdditThreadComments(threadID, global)]
   return Promise.all(promises)
   .then(result => {
@@ -28,7 +28,7 @@ export const getRevdditThreadItems = (threadID, global, history) => {
   })
 }
 
-export const getRevdditThreadPost = (threadID, global, history) => {
+export const getRevdditThreadPost = (threadID, global) => {
   const reddit_promise = getItems(['t3_'+threadID])
   const pushshift_promise = getPushshiftPost(threadID)
   return Promise.all([reddit_promise, pushshift_promise])
@@ -37,7 +37,7 @@ export const getRevdditThreadPost = (threadID, global, history) => {
     const ps_post = values[1]
     document.title = post.title
     if ((window.location.pathname.match(/\//g) || []).length < 6) {
-      history.replace(post.permalink+window.location.search)
+      window.history.replaceState(null,null,post.permalink+window.location.search)
     }
     const retrievalLatency = ps_post.retrieved_on-ps_post.created_utc
     if (itemIsRemovedOrDeleted(post)) {

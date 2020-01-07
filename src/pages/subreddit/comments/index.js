@@ -1,6 +1,5 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { withRouter } from 'react-router'
 import { connect, localSort_types } from 'state'
 import Time from 'pages/common/Time'
 import Comment from 'pages/common/Comment'

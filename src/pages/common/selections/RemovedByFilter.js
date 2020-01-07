@@ -1,6 +1,5 @@
 import React from 'react'
 import { connect } from 'state'
-import { withRouter } from 'react-router';
 import { REMOVAL_META, USER_REMOVED, USER_REMOVED_META } from 'pages/common/RemovedBy'
 
 
@@ -25,7 +24,7 @@ class RemovedByFilter extends React.Component {
                     <input id={type} type='checkbox'
                       checked={removedByFilter[type] !== undefined}
                       value={type}
-                      onChange={(e) => updateStateAndURL(e.target, this.props)}
+                      onChange={(e) => updateStateAndURL(e.target, page_type)}
                     />
                     <span>{removal_meta[type].filter_text}</span>
                   </label>
@@ -38,4 +37,4 @@ class RemovedByFilter extends React.Component {
   }
 }
 
-export default withRouter(connect(RemovedByFilter))
+export default connect(RemovedByFilter)

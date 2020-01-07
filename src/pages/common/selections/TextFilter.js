@@ -1,6 +1,5 @@
 import React from 'react'
 import { connect } from 'state'
-import { withRouter } from 'react-router'
 import { SimpleURLSearchParams } from 'utils'
 import { debounce } from 'lodash'
 
@@ -18,7 +17,7 @@ class TextFilter extends React.Component {
 
   changeLocalFast_DelayedGlobalStateUpdate = (e) => {
     this.setState({localKeywords: e.target.value})
-    this.updateStateAndURL('keywords', e.target.value, this.props)
+    this.updateStateAndURL('keywords', e.target.value, this.props.page_type)
   }
 
   render() {
@@ -36,4 +35,4 @@ class TextFilter extends React.Component {
   }
 }
 
-export default withRouter(connect(TextFilter))
+export default connect(TextFilter)

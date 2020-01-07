@@ -103,7 +103,7 @@ function setRemovedBy(items_removedBy_undefined, ps_items_autoremoved) {
   return removed_meta
 }
 
-export const getRevdditUserItems = (user, kind, qp, global, history) => {
+export const getRevdditUserItems = (user, kind, qp, global) => {
   global.setLoading('')
   const gs = global.state
   return getItems(user, kind, global, qp.sort, qp.before, qp.after || gs.userNext, qp.limit, qp.loadAll)

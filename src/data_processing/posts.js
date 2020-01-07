@@ -91,11 +91,11 @@ export const combinePushshiftAndRedditPosts = (pushshiftPosts, redditPosts, incl
   return show_posts
 }
 
-export const getRevdditPostsByDomain = (domain, global, history) => {
+export const getRevdditPostsByDomain = (domain, global) => {
   const {n, before, before_id} = global.state
   global.setLoading('')
   if (window.location.pathname.match(/^\/r\/([^/]*)\/.+/g)) {
-    history.replace(`/r/${domain}/`+window.location.search)
+    window.history.replaceState(null,null,`/r/${domain}/`+window.location.search)
   }
   return pushshiftGetPostsBySubredditOrDomain({domain, n, before, before_id})
   .then(retrieveRedditPosts_and_combineWithPushshiftPosts)
@@ -105,7 +105,7 @@ export const getRevdditPostsByDomain = (domain, global, history) => {
   })
 }
 
-export const getRevdditDuplicatePosts = (threadID, global, history) => {
+export const getRevdditDuplicatePosts = (threadID, global) => {
   global.setLoading('')
   return getItems(['t3_'+threadID])
   .then(redditPosts => {

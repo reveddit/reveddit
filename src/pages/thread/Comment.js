@@ -4,7 +4,6 @@ import { prettyScore, parse, isRemoved, replaceAmpGTLT, jumpToHash, SimpleURLSea
 import Time from 'pages/common/Time'
 import RemovedBy from 'pages/common/RemovedBy'
 import { connect } from 'state'
-import { withRouter } from 'react-router'
 
 const contextDefault = 3
 
@@ -132,8 +131,6 @@ class Comment extends React.Component {
                         {...comment}
                         depth={props.depth + 1}
                         global={props.global}
-                        location={props.location}
-                        history={props.history}
                         page_type={props.page_type}
                         focusCommentID={props.focusCommentID}
                       />
@@ -149,4 +146,4 @@ class Comment extends React.Component {
   }
 }
 
-export default withRouter(connect(Comment))
+export default connect(Comment)

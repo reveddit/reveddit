@@ -1,6 +1,5 @@
 import React from 'react'
 import { Subscribe, Container } from 'unstated'
-import { withRouter } from 'react-router';
 import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED,
          UNKNOWN_REMOVED, NOT_REMOVED } from 'pages/common/RemovedBy'
 import { SimpleURLSearchParams, get, put } from 'utils'
@@ -222,16 +221,16 @@ class GlobalState extends Container {
       }
     }
   }
-  context_update = (context, props, callback = () => {}) => {
+  context_update = (context, page_type, callback = () => {}) => {
     const queryParams = new SimpleURLSearchParams(window.location.search)
     queryParams.set('context', context)
-    this.adjust_qparams_for_selection(props.page_type, queryParams, 'showContext', true)
-    return this.setStateFromQueryParams(props.page_type, queryParams, {}, callback)
+    this.adjust_qparams_for_selection(page_type, queryParams, 'showContext', true)
+    return this.setStateFromQueryParams(page_type, queryParams, {}, callback)
   }
-  selection_update = (selection, value, props, callback = () => {}) => {
+  selection_update = (selection, value, page_type, callback = () => {}) => {
     const queryParams = new SimpleURLSearchParams(window.location.search)
-    this.adjust_qparams_for_selection(props.page_type, queryParams, selection, value)
-    return this.updateURLandState(queryParams, props, callback)
+    this.adjust_qparams_for_selection(page_type, queryParams, selection, value)
+    return this.updateURLandState(queryParams, page_type, callback)
   }
   adjust_qparams_for_selection = (page_type, queryParams, selection, value) => {
     if (value === filter_pageType_defaults[selection] ||
@@ -242,10 +241,10 @@ class GlobalState extends Container {
     }
     return queryParams
   }
-  updateURLandState = (queryParams, props, callback = () => {}) => {
+  updateURLandState = (queryParams, page_type, callback = () => {}) => {
     let to = `${window.location.pathname}${queryParams.toString()}`
-    props.history.replace(to)
-    return this.setStateFromQueryParams(props.page_type, queryParams, {}, callback)
+    window.history.replaceState(null,null,to)
+    return this.setStateFromQueryParams(page_type, queryParams, {}, callback)
   }
   upvoteRemovalRateHistory_update = (before, before_id, n, content_type, queryParams, baseURL) => {
     queryParams.set(urlParamKeys.before, before)
@@ -256,19 +255,19 @@ class GlobalState extends Container {
     queryParams.set(urlParamKeys.removedByFilter, [MOD_OR_AUTOMOD_REMOVED, AUTOMOD_REMOVED, UNKNOWN_REMOVED].join(','))
     window.location.href = `${baseURL}${queryParams.toString()}`
   }
-  categoryFilter_update = (type, value, props) => {
-    this.selection_update('categoryFilter_'+type, value, props)
+  categoryFilter_update = (type, value, page_type) => {
+    this.selection_update('categoryFilter_'+type, value, page_type)
   }
-  removedFilter_update = (value, props) => {
+  removedFilter_update = (value, page_type) => {
     const queryParams = new SimpleURLSearchParams(window.location.search)
     if (value !== removedFilter_types.removed) {
       queryParams.delete(urlParamKeys.removedByFilter)
     }
 
-    this.adjust_qparams_for_selection(props.page_type, queryParams, 'removedFilter', value)
-    return this.updateURLandState(queryParams, props)
+    this.adjust_qparams_for_selection(page_type, queryParams, 'removedFilter', value)
+    return this.updateURLandState(queryParams, page_type)
   }
-  removedByFilter_update = (target, props) => {
+  removedByFilter_update = (target, page_type) => {
     const queryParams = new SimpleURLSearchParams(window.location.search)
     const removedby_settings = getMultiFilterSettings(queryParams.get(urlParamKeys.removedByFilter) || '')
     if (target.checked) {
@@ -278,10 +277,10 @@ class GlobalState extends Container {
     }
     const value = Object.keys(removedby_settings).join()
 
-    this.adjust_qparams_for_selection(props.page_type, queryParams, 'removedByFilter', value)
-    return this.updateURLandState(queryParams, props)
+    this.adjust_qparams_for_selection(page_type, queryParams, 'removedByFilter', value)
+    return this.updateURLandState(queryParams, page_type)
   }
-  tagsFilter_update = (target, props) => {
+  tagsFilter_update = (target, page_type) => {
     const queryParams = new SimpleURLSearchParams(window.location.search)
     const settings = getMultiFilterSettings(queryParams.get(urlParamKeys.tagsFilter) || '')
     if (target.checked) {
@@ -291,8 +290,8 @@ class GlobalState extends Container {
     }
     const value = Object.keys(settings).join()
 
-    this.adjust_qparams_for_selection(props.page_type, queryParams, 'tagsFilter', value)
-    return this.updateURLandState(queryParams, props)
+    this.adjust_qparams_for_selection(page_type, queryParams, 'tagsFilter', value)
+    return this.updateURLandState(queryParams, page_type)
   }
 
 

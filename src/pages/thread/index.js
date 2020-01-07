@@ -1,6 +1,5 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { withRouter } from 'react-router'
 import scrollToElement from 'scroll-to-element'
 import { connect, localSort_types } from 'state'
 import Post from 'pages/common/Post'

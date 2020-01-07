@@ -178,9 +178,9 @@ export const withFetch = (WrappedComponent) =>
       .then(result => {
 
         const [loadDataFunction, params] = getLoadDataFunctionAndParam(page_type, subreddit, user, kind, threadID, domain, queryParams)
-        loadDataFunction(...params, this.props.global, this.props.history)
+        loadDataFunction(...params, this.props.global)
         .then(items => {
-          jumpToHash(this.props.history.location.hash)
+          jumpToHash(window.location.hash)
         })
         .catch(error => {
           console.error(error)

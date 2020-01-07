@@ -1,5 +1,4 @@
 import React from 'react'
-import { withRouter } from 'react-router'
 import { Link } from 'react-router-dom'
 import Post from 'pages/common/Post'
 import Comment from 'pages/common/Comment'

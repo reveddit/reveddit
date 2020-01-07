@@ -42,7 +42,7 @@ export const byControversiality = (a, b) => {
   }
 }
 
-export const getRevdditItems = (global, history) => {
+export const getRevdditItems = (global) => {
   const gs = global.state
   global.setLoading('')
   const ids = decodeURI(gs.id).replace(/ /g,'').split(',')
@@ -109,7 +109,7 @@ export const getRevdditItems = (global, history) => {
   })
 }
 
-export const getRevdditSearch = (global, history) => {
+export const getRevdditSearch = (global) => {
   const {q, author, subreddit, n, before, after, domain, or_domain, content, url} = global.state
   global.setLoading('')
   const promises = []

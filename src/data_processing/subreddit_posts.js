@@ -6,11 +6,11 @@ import { getItems } from 'api/reddit'
 import { postIsDeleted } from 'utils'
 import { retrieveRedditPosts_and_combineWithPushshiftPosts } from 'data_processing/posts'
 
-export const getRevdditPostsBySubreddit = (subreddit, global, history) => {
+export const getRevdditPostsBySubreddit = (subreddit, global) => {
   const {n, before, before_id, frontPage} = global.state
   // /r/sub/new , /r/sub/controversial etc. are not implemented, so redirect
   if (window.location.pathname.match(/^\/r\/([^/]*)\/.+/g)) {
-    history.replace(`/r/${subreddit}/`+window.location.search)
+    window.history.replaceState(null,null,`/r/${subreddit}/`+window.location.search)
   }
   global.setLoading('')
   if (subreddit === 'all' || frontPage) {

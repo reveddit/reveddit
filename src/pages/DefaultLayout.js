@@ -1,5 +1,4 @@
 import React from 'react'
-import { withRouter } from 'react-router';
 import { Route } from 'react-router-dom'
 import Modal from 'react-modal'
 import { connect } from 'state'

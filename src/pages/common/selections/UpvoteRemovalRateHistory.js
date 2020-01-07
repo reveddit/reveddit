@@ -1,5 +1,4 @@
 import React from 'react'
-import { withRouter } from 'react-router'
 import { connect } from 'state'
 import { Query } from 'react-apollo'
 import gql from 'graphql-tag'
@@ -168,7 +167,7 @@ class UpvoteRemovalRateHistory extends React.Component {
   }
 
   componentDidMount() {
-    const queryParams = new SimpleURLSearchParams(this.props.location.search)
+    const queryParams = new SimpleURLSearchParams(window.location.search)
     const stateUpdate = {}
     Object.keys(componentParams).forEach(param => {
       let paramVal = queryParams.get(param)
@@ -181,17 +180,17 @@ class UpvoteRemovalRateHistory extends React.Component {
 
   updateStateAndURL = (paramKey, value, defaultValue) => {
     this.setState({[paramKey]: value})
-    const queryParams = new SimpleURLSearchParams(this.props.location.search)
+    const queryParams = new SimpleURLSearchParams(window.location.search)
     if (value !== defaultValue) {
       queryParams.set(paramKey, value)
     } else {
       queryParams.delete(paramKey)
     }
-    let to = `${this.props.location.pathname}${queryParams.toString()}`
-    this.props.history.replace(to)
+    let to = `${window.location.pathname}${queryParams.toString()}`
+    window.history.replaceState(null,null,to)
   }
   goToGraphURL = (last_created_utc, last_id, total_items) => {
-    const subreddit = (this.props.match.params.subreddit || '').toLowerCase()
+    const {subreddit} = this.props
     const queryParams = new SimpleURLSearchParams()
     // constructing new queryParams, excluding any selections outside this component.
     //  also excluding component param if value is the default
@@ -214,8 +213,7 @@ class UpvoteRemovalRateHistory extends React.Component {
   }
 
   render() {
-    const subreddit = (this.props.match.params.subreddit || '').toLowerCase()
-    const {page_type} = this.props
+    const {page_type, subreddit} = this.props
     const {clicked} = this.state
     let {hovered} = this.state
     let preview = ''
@@ -378,4 +376,4 @@ class UpvoteRemovalRateHistory extends React.Component {
   }
 }
 
-export default withRouter(connect(UpvoteRemovalRateHistory))
+export default connect(UpvoteRemovalRateHistory)

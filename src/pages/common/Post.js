@@ -1,5 +1,4 @@
 import React from 'react'
-import { withRouter } from 'react-router'
 import { prettyScore, parse, redditThumbnails, isDeleted } from 'utils'
 import Time from 'pages/common/Time'
 import RemovedBy from 'pages/common/RemovedBy'
@@ -18,7 +17,6 @@ class Post extends React.Component {
       return <div />
     }
 
-    const current_page = `${this.props.location.pathname}${this.props.location.search}`
     const reddit = 'https://www.reddit.com'
     const mods_message_body = '\n\n\n'+reddit+props.permalink;
     const mods_link = reddit+'/message/compose?to=/r/'+props.subreddit+'&message='+encodeURI(mods_message_body);
@@ -114,4 +112,4 @@ class Post extends React.Component {
     )
   }
 }
-export default withRouter(Post)
+export default Post

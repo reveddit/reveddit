@@ -1,5 +1,4 @@
 import React from 'react'
-import { withRouter } from 'react-router';
 import { connect } from 'state'
 
 class CategoryFilter extends React.Component {
@@ -9,7 +8,7 @@ class CategoryFilter extends React.Component {
     const category_counts = {}
     const category_unique_to_displayValue = {}
 
-    const { type, title } = this.props
+    const { type, title, page_type } = this.props
     let unique_field = type
     if (this.props.unique_field) {
       unique_field = this.props.unique_field
@@ -42,7 +41,7 @@ class CategoryFilter extends React.Component {
       <div className={`categoryFilter selection filter ${categoryFilter !== 'all'? 'set': ''}`}>
         <div className='title'>{title}</div>
         <select value={categoryFilter}
-          onChange={(e) => updateStateAndURL(type, e.target.value, this.props )}>
+          onChange={(e) => updateStateAndURL(type, e.target.value, page_type )}>
           <option key='all' value='all'>all</option>
           {
             category_ordered.map(category => {
@@ -63,4 +62,4 @@ class CategoryFilter extends React.Component {
   }
 }
 
-export default withRouter(connect(CategoryFilter))
+export default connect(CategoryFilter)

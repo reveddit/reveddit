@@ -1,6 +1,5 @@
 import React from 'react'
 import { connect, removedFilter_types, removedFilter_text } from 'state'
-import { withRouter } from 'react-router';
 import { REMOVAL_META, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED } from 'pages/common/RemovedBy'
 
 class RemovedFilter extends React.Component {
@@ -21,7 +20,7 @@ class RemovedFilter extends React.Component {
               <label key={type}>
                 <input name='removedFilter_types' type='radio' value={removedFilter_types[type]}
                   checked={this.isChecked(removedFilter_types[type])}
-                  onChange={(e) => updateStateAndURL(e.target.value, this.props)}/>
+                  onChange={(e) => updateStateAndURL(e.target.value, page_type)}/>
                 <span>{removedFilter_text[type]}</span>
               </label>
             )}
@@ -30,4 +29,4 @@ class RemovedFilter extends React.Component {
   }
 }
 
-export default withRouter(connect(RemovedFilter))
+export default connect(RemovedFilter)

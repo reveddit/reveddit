@@ -1,5 +1,4 @@
 import React from 'react'
-import { withRouter } from 'react-router';
 import Comment from './Comment'
 import {connect, localSort_types, removedFilter_types, removedFilter_text} from 'state'
 import { showRemovedAndDeleted } from 'utils'
@@ -194,4 +193,4 @@ class CommentSection extends React.Component {
   }
 }
 
-export default withRouter(connect(CommentSection))
+export default connect(CommentSection)

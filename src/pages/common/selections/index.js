@@ -10,7 +10,6 @@ import TextFilter from 'pages/common/selections/TextFilter'
 import TagsFilter from 'pages/common/selections/TagsFilter'
 import UpvoteRemovalRateHistory from 'pages/common/selections/UpvoteRemovalRateHistory'
 import ResultsSummary from 'pages/common/ResultsSummary'
-import { withRouter } from 'react-router'
 import { SimpleURLSearchParams } from 'utils'
 
 const paramKey = 'showFilters'
@@ -50,6 +49,10 @@ class Selections extends React.Component {
     const { subreddit, page_type, visibleItemsWithoutCategoryFilter, num_items, num_showing,
             category_type, category_title, category_unique_field } = this.props
     const { showFilters } = this.state
+    const upvoteRemovalRateHistory = <UpvoteRemovalRateHistory subreddit={subreddit} page_type={page_type}/>
+    const categoryFilter = <CategoryFilter page_type={page_type}
+      visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
+      type={category_type} title={category_title} unique_field={category_unique_field}/>
     return (
       <React.Fragment>
         <div className='toggleFilters'><a onClick={this.toggleShowFilters}
@@ -75,11 +78,9 @@ class Selections extends React.Component {
                       <RemovedFilter page_type={page_type} />
                       <RemovedByFilter page_type={page_type}/>
                       <TagsFilter page_type={page_type}/>
-                      <CategoryFilter page_type={page_type}
-                        visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
-                        type={category_type} title={category_title} unique_field={category_unique_field}/>
+                      {categoryFilter}
                       {subreddit !== 'all' && page_type === 'subreddit_posts' &&
-                        <UpvoteRemovalRateHistory page_type={page_type}/>
+                        upvoteRemovalRateHistory
                       }
                       <TextFilter page_type={page_type} />
                     </React.Fragment>)
@@ -91,11 +92,9 @@ class Selections extends React.Component {
                       <RemovedFilter page_type={page_type} />
                       <RemovedByFilter page_type={page_type} />
                       <TagsFilter page_type={page_type}/>
-                      <CategoryFilter page_type={page_type}
-                        visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
-                        type={category_type} title={category_title} unique_field={category_unique_field}/>
+                      {categoryFilter}
                       {subreddit !== 'all' &&
-                        <UpvoteRemovalRateHistory page_type={page_type}/>
+                        upvoteRemovalRateHistory
                       }
                       <TextFilter page_type={page_type} />
                     </React.Fragment>)
@@ -107,9 +106,7 @@ class Selections extends React.Component {
                       <RemovedFilter page_type={page_type} />
                       <RemovedByFilter page_type={page_type}/>
                       <TagsFilter page_type={page_type}/>
-                      <CategoryFilter page_type={page_type}
-                        visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
-                        type={category_type} title={category_title} unique_field={category_unique_field}/>
+                      {categoryFilter}
                       <TextFilter page_type={page_type} />
                     </React.Fragment>)
                 case 'thread':
@@ -120,7 +117,7 @@ class Selections extends React.Component {
                       <RemovedByFilter page_type={page_type} />
                       <TagsFilter page_type={page_type}/>
                       {subreddit !== 'all' &&
-                        <UpvoteRemovalRateHistory page_type={page_type}/>
+                        upvoteRemovalRateHistory
                       }
                     </React.Fragment>)
                 default: return ''

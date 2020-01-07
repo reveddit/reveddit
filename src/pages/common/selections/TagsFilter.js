@@ -1,6 +1,5 @@
 import React from 'react'
 import { connect } from 'state'
-import { withRouter } from 'react-router';
 
 export const IS_OP = 'is_op'
 export const MOD = 'mod'
@@ -47,7 +46,7 @@ class TagsFilter extends React.Component {
                     <input id={type} type='checkbox'
                       checked={tagsFilter[type] !== undefined}
                       value={type}
-                      onChange={(e) => updateStateAndURL(e.target, this.props)}
+                      onChange={(e) => updateStateAndURL(e.target, page_type)}
                     />
                     <span>{TAG_META[type].text}</span>
                   </label>
@@ -60,4 +59,4 @@ class TagsFilter extends React.Component {
   }
 }
 
-export default withRouter(connect(TagsFilter))
+export default connect(TagsFilter)

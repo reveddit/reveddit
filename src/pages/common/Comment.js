@@ -1,5 +1,4 @@
 import React from 'react'
-import { withRouter } from 'react-router'
 import { prettyScore, parse, isRemoved, replaceAmpGTLT } from 'utils'
 import Time from 'pages/common/Time'
 import RemovedBy from 'pages/common/RemovedBy'
@@ -61,7 +60,6 @@ class Comment extends React.Component {
 
     const mods_message_body = '\n\n\n'+reddit+props.permalink;
     const mods_link = reddit+'/message/compose?to=/r/'+props.subreddit+'&message='+encodeURI(mods_message_body);
-    const current_page = `${this.props.location.pathname}${this.props.location.search}`
 
     return (
       <div id={props.name} className={classNames.join(' ')} data-fullname={props.name} data-created_utc={props.created_utc}>
@@ -145,4 +143,4 @@ class Comment extends React.Component {
   }
 }
 
-export default withRouter(connect(Comment))
+export default connect(Comment)
