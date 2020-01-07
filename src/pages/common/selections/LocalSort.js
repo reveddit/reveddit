@@ -15,7 +15,7 @@ class LocalSort extends React.Component {
       <label>
         <input type='radio' value={localSort_types[value]}
           checked={this.isChecked(localSort_types[value])}
-          onChange={(e) => updateStateAndURL('localSort', e.target.value, page_type )}/>
+          onChange={(e) => updateStateAndURL('localSort', e.target.value, this.props.page_type )}/>
         <span>{text}</span>
       </label>
     )
