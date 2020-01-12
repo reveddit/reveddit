@@ -7,6 +7,7 @@ export const UNKNOWN_REMOVED = 'unknown'
 export const NOT_REMOVED = 'none'
 export const USER_REMOVED = 'user'
 export const LOCKED = 'locked'
+export const COLLAPSED = 'collapsed'
 export const AUTOMOD_LATENCY_THRESHOLD = 15
 
 export const REMOVAL_META = {
@@ -26,6 +27,10 @@ export const REMOVAL_META = {
                                          label: 'locked',
                                           desc: 'locked'}
                             }
+
+export const COLLAPSED_META = {filter_text: 'collapsed',
+                                     label: 'collapsed',
+                                      desc: 'Comment has a positive score and is collapsed in the thread'}
 
 export const USER_REMOVED_META = {filter_text: 'user',
                                         label: 'user',

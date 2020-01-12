@@ -1,6 +1,8 @@
 import React from 'react'
 import { connect } from 'state'
-import { REMOVAL_META, USER_REMOVED, USER_REMOVED_META } from 'pages/common/RemovedBy'
+import { REMOVAL_META, USER_REMOVED, USER_REMOVED_META,
+         COLLAPSED, COLLAPSED_META
+} from 'pages/common/RemovedBy'
 
 
 class RemovedByFilter extends React.Component {
@@ -11,6 +13,9 @@ class RemovedByFilter extends React.Component {
     let removal_meta = REMOVAL_META
     if (page_type !== 'user') {
       removal_meta[USER_REMOVED] = USER_REMOVED_META
+    }
+    if (['thread', 'user', 'subreddit_comments', 'info', 'search'].includes(page_type)) {
+      removal_meta[COLLAPSED] = COLLAPSED_META
     }
     const updateStateAndURL = this.props.global.removedByFilter_update
     return (

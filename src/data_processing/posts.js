@@ -44,10 +44,21 @@ export const getRevdditPosts = (pushshiftPosts) => {
 }
 
 export const combinePushshiftAndRedditPosts = (pushshiftPosts, redditPosts, includePostsWithZeroComments = false) => {
+  const redditPosts_lookup = {}
+  redditPosts.forEach(post => {
+    redditPosts_lookup[post.id] = post
+  })
   const pushshiftPosts_lookup = {}
+  const missingPosts = []
   pushshiftPosts.forEach(post => {
     pushshiftPosts_lookup[post.id] = post
+    if (! redditPosts_lookup[post.id]) {
+      missingPosts.push(post.id)
+    }
   })
+  if (missingPosts.length) {
+    console.log('missing posts: '+missingPosts.join(' '))
+  }
   const show_posts = []
   redditPosts.forEach(post => {
     post.selftext = ''

@@ -1,10 +1,13 @@
-import { REMOVAL_META, USER_REMOVED, LOCKED } from 'pages/common/RemovedBy'
+import { REMOVAL_META, USER_REMOVED, LOCKED, COLLAPSED } from 'pages/common/RemovedBy'
 import { TAG_META, QUARANTINE, MOD, ADMIN } from 'pages/common/selections/TagsFilter'
 
 export const itemIsOneOfSelectedRemovedBy = (item, gs) => {
+  console.log(item)
   if (gs.removedByFilter[USER_REMOVED] && item.deleted) {
     return true
   } else if (gs.removedByFilter[LOCKED] && item.locked) {
+    return true
+  } else if (gs.removedByFilter[COLLAPSED] && item.collapsed && item.score > 0) {
     return true
   } else {
     const filters = Object.keys(gs.removedByFilter)

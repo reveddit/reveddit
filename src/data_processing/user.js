@@ -176,6 +176,7 @@ function getItems (user, kind, global, sort, before = '', after = '', limit, loa
         if (itemIsRemovedOrDeleted(item, false)) {
           userPage_item_lookup[item.name].removed = true
         }
+        userPage_item_lookup[item.name].collapsed = item.collapsed
       })
       global.setState({items, num_pages, userNext: userPageData.after})
       if (userPageData.after && loadAll) {
