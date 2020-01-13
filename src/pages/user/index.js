@@ -51,7 +51,7 @@ class User extends React.Component {
          show={qp_with_defaults.show}
          loadAll={false}/></div>
     } else if (gs.userIssueDescription) {
-      error = <div className='non-item text'>{user} {gs.userIssueDescription}</div>
+      error = <div className='non-item text' dangerouslySetInnerHTML={{ __html: user +' '+ gs.userIssueDescription }}></div>
     }
     if (gs.items.length) {
       pagesLoaded = <React.Fragment>
