@@ -118,16 +118,27 @@ export const getRevdditDuplicatePosts = (threadID, global) => {
       isRedditPostURL = true
       url = redditlikeDomainStripped.split('/').slice(0,5).join('/')
     }
-    const promises = [pushshiftQueryPosts({url})]
+    const promises = []
+    let urls_string = url
+    const selftext_urls = []
+    if (! isRedditPostURL) {
+      urls_string += '|' + drivingPost.permalink
+      selftext_urls.push(drivingPost.permalink)
+    }
+    promises.push(pushshiftQueryPosts({url: urls_string}))
     if (isNonRedditDomain || isRedditPostURL) {
-      promises.push(pushshiftQueryPosts({selftext:'"'+url+'"'}))
+      selftext_urls.push(url)
+    }
+    if (selftext_urls.length) {
+      const selftext_urls_string = selftext_urls.map(u => '"'+u+'"').join('|')
+      promises.push(pushshiftQueryPosts({selftext: selftext_urls_string}))
     }
     return Promise.all(promises)
     .then(results => {
       if (results.length === 1) {
         return results[0]
       } else {
-        return getUniqueItems(results[0], results[1])
+        return getUniqueItems(results)
       }
     })
     .then((pushshiftPosts) => retrieveRedditPosts_and_combineWithPushshiftPosts(pushshiftPosts, true))

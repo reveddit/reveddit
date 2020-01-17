@@ -304,9 +304,12 @@ const reduceItems = (obj, val) => {
   return obj
 }
 
-export const getUniqueItems = (arr1, arr2) => {
-  const map1 = arr1.reduce(reduceItems, {})
-  return Object.values(arr2.reduce(reduceItems, map1))
+export const getUniqueItems = (arrayOfArrays) => {
+  let map = {}
+  arrayOfArrays.forEach(array => {
+    map = array.reduce(reduceItems, map)
+  })
+  return Object.values(map)
 }
 
 export const sleeper = (ms) => {

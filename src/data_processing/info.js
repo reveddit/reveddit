@@ -134,7 +134,7 @@ export const getRevdditSearch = (global) => {
     } else if (content === 'posts') {
       let posts = results[0]
       if (or_domain) {
-        posts = getUniqueItems(results[0], results[1])
+        posts = getUniqueItems([results[0], results[1]])
       }
       nextPromises.push(getRevdditPosts(posts))
     } else if (content === 'all') {
@@ -144,7 +144,7 @@ export const getRevdditSearch = (global) => {
         nextPromises.push(getRevdditComments(results[0]))
       }
       if (or_domain) {
-        posts = getUniqueItems(results[1], results[2])
+        posts = getUniqueItems([results[1], results[2]])
       }
       nextPromises.push(getRevdditPosts(posts))
     }
