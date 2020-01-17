@@ -105,33 +105,57 @@ export const getRevdditPostsByDomain = (domain, global) => {
   })
 }
 
+const getRedditUrlMeta = (url) => {
+  const redditlikeDomainStripped = url.replace(/^https?:\/\/[^/]*(reddit\.com|removeddit\.com|ceddit\.com|unreddit\.com|snew\.github\.io|snew\.notabug\.io|politicbot\.github\.io|r\.go1dfish\.me|reve?ddit\.com)/,'')
+  const isRedditDomain = redditlikeDomainStripped.match(/^\//)
+  const isRedditPostURL = redditlikeDomainStripped.match(/^\/r\/[^/]*\/comments\/[a-z0-9]/i)
+  const parts = redditlikeDomainStripped.split('/')
+  const normalizedPostURL = parts.slice(0,5).join('/')
+  const postURL_ID = parts[4]
+  return {isRedditDomain, isRedditPostURL, normalizedPostURL, postURL_ID}
+}
+
+//const getPost
+
 export const getRevdditDuplicatePosts = (threadID, global) => {
   global.setLoading('')
   return getItems(['t3_'+threadID])
-  .then(redditPosts => {
+  .then(async redditPosts => {
     const drivingPost = redditPosts[0]
     let url = drivingPost.url
-    let redditlikeDomainStripped = drivingPost.url.replace(/^https?:\/\/[^/]*(reddit\.com|removeddit\.com|ceddit\.com|unreddit\.com|snew\.github\.io|snew\.notabug\.io|politicbot\.github\.io|r\.go1dfish\.me|reve?ddit\.com)/,'')
-    const isNonRedditDomain = ! redditlikeDomainStripped.match(/^\//)
-    let isRedditPostURL = false
-    if (redditlikeDomainStripped.match(/^\/r\/[^/]*\/comments\/[a-z0-9]/i)) {
-      isRedditPostURL = true
-      url = redditlikeDomainStripped.split('/').slice(0,5).join('/')
+    const {isRedditDomain, isRedditPostURL, normalizedPostURL, postURL_ID} = getRedditUrlMeta(drivingPost.url)
+    const urls = []
+    if (isRedditPostURL) {
+      url = normalizedPostURL
+      const drivingPost_url_post = await getItems(['t3_'+postURL_ID])
+      if (drivingPost_url_post.length) {
+        const drivingPost_url_post_url = drivingPost_url_post[0].url
+        const {isRedditPostURL: isRedditPostURL_2, normalizedPostURL: normalizedPostURL_2} = getRedditUrlMeta(drivingPost_url_post_url)
+        if (isRedditPostURL_2) {
+          urls.push(normalizedPostURL_2)
+        } else {
+          urls.push(drivingPost_url_post_url)
+        }
+      }
     }
     const promises = []
-    let urls_string = url
+    urls.push(url)
     const selftext_urls = []
     if (! isRedditPostURL) {
-      urls_string += '|' + drivingPost.permalink
+      urls.push(drivingPost.permalink)
       selftext_urls.push(drivingPost.permalink)
     }
-    promises.push(pushshiftQueryPosts({url: urls_string}))
-    if (isNonRedditDomain || isRedditPostURL) {
+    promises.push(pushshiftQueryPosts({url: urls.join('|')}))
+    if (! isRedditDomain || isRedditPostURL) {
       selftext_urls.push(url)
     }
     if (selftext_urls.length) {
-      const selftext_urls_string = selftext_urls.map(u => '"'+u+'"').join('|')
-      promises.push(pushshiftQueryPosts({selftext: selftext_urls_string}))
+      promises.push(
+        pushshiftQueryPosts(
+          {selftext:
+            selftext_urls.map(u => '"'+u+'"').join('|')
+          }
+        ))
     }
     return Promise.all(promises)
     .then(results => {
