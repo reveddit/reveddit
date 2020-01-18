@@ -24,15 +24,15 @@ const update_retrieved_field = (item) => {
   }
 }
 
-export const queryComments = (params) => {
-  return queryItems(params, commentURL, comment_fields, 't1_')
+export const queryComments = (params, fields=comment_fields) => {
+  return queryItems(params, commentURL, fields, 't1_')
 }
 
 export const queryPosts = (params) => {
   return queryItems(params, postURL, post_fields, 't3_')
 }
 
-const queryItems = ({q, author, subreddit, n = 500, sort='desc', before, after, domain, url, selftext}, apiURL, fields, prefix) => {
+const queryItems = ({q, author, subreddit, n = 500, sort='desc', before, after, domain, url, selftext, parent_id}, apiURL, fields, prefix) => {
   const queryParams = {size: n, sort, fields: fields.join(',')}
   if (q) queryParams.q = q
   if (author) queryParams.author = author
@@ -41,6 +41,7 @@ const queryItems = ({q, author, subreddit, n = 500, sort='desc', before, after, 
   if (before) queryParams.before = before
   if (domain) queryParams.domain = domain
   if (selftext) queryParams.selftext = selftext
+  if (parent_id) queryParams.parent_id = parent_id
   if (url) queryParams.url = encodeURIComponent(url)
 
   return window.fetch(apiURL+getQueryString(queryParams))

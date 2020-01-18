@@ -27,9 +27,19 @@ export const byControversiality = (a, b) => {
       || (b.num_comments - a.num_comments)
 }
 export const byNumCrossposts = (a, b) => {
-  return (b.num_crossposts - a.num_crossposts) || (b.num_comments - a.num_comments)
-      || (b.created_utc - a.created_utc)
+  if ('num_crossposts' in a && 'num_crossposts' in b) {
+    return (b.num_crossposts - a.num_crossposts) || (b.num_comments - a.num_comments)
+        || (b.created_utc - a.created_utc)
+  } if ('num_crossposts' in a) {
+    return -1
+  } else if ('num_crossposts' in b) {
+    return 1
+  } else {
+    return (b.created_utc - a.created_utc)
+  }
 }
+
+
 
 export const retrieveRedditPosts_and_combineWithPushshiftPosts = (pushshiftPosts, includePostsWithZeroComments = false) => {
   const ids = pushshiftPosts.map(post => post.name)

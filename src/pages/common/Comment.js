@@ -122,7 +122,7 @@ class Comment extends React.Component {
                   <React.Fragment>
                     {props.quarantine && <span className="quarantined">quarantined</span>}
                     { directlink && <a href={directlink}>directlink</a>}
-                    <a href={props.permalink+`?context=3#${props.name}`}>context</a>
+                    <a href={props.permalink+`?context=3#${props.name}`}>context{props.num_replies && `(${props.num_replies})`}</a>
                     {props.link_permalink &&
                       <a href={props.link_permalink.replace(/^https:\/\/[^/]*/,'')}>full comments
                         {'num_comments' in props && `(${props.num_comments})`}</a>
