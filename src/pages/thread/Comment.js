@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { prettyScore, parse, isRemoved, replaceAmpGTLT, jumpToHash, SimpleURLSearchParams } from 'utils'
 import Time from 'pages/common/Time'
 import RemovedBy from 'pages/common/RemovedBy'
+import CommentBody from 'pages/common/CommentBody'
 import { connect } from 'state'
 
 const contextDefault = 3
@@ -32,13 +33,8 @@ class Comment extends React.Component {
       even_odd = props.depth % 2 === 0 ? 'comment-even' : 'comment-odd'
     }
 
-    let innerHTML = ''
     let author = props.author
-    if (! props.deleted) {
-        innerHTML = (isRemoved(props.body) && props.removed) ?
-          '<p>[removed too quickly to be archived]</p>' :
-          parse(props.body.replace(/&amp;/g, '&').replace(/&gt;/g, '>').replace(/&lt;/g, '<'))
-    } else {
+    if (props.deleted) {
       author = '[deleted]'
     }
 
@@ -98,8 +94,8 @@ class Comment extends React.Component {
         {
           this.state.displayBody ?
             <div className='comment-body-and-links'>
-              <div className='comment-body' dangerouslySetInnerHTML={{ __html: innerHTML }} />
-                <div className='comment-links'>
+              <CommentBody {...props} />
+              <div className='comment-links'>
                 { ! props.deleted &&
                   <React.Fragment>
                     <Link to={permalink} onClick={(e) => {context_update(0, props,
@@ -121,7 +117,7 @@ class Comment extends React.Component {
                     }
                   </React.Fragment>
                 }
-                </div>
+              </div>
               <div>
                 {
                   showContext && 'replies' in props &&

@@ -3,6 +3,7 @@ import { prettyScore, parse, isRemoved, replaceAmpGTLT } from 'utils'
 import Time from 'pages/common/Time'
 import RemovedBy from 'pages/common/RemovedBy'
 import { NOT_REMOVED } from 'pages/common/RemovedBy'
+import CommentBody from 'pages/common/CommentBody'
 import { connect } from 'state'
 
 class Comment extends React.Component {
@@ -38,13 +39,8 @@ class Comment extends React.Component {
     props.quarantine && classNames.push('quarantine')
     props.locked && classNames.push('locked')
 
-    let innerHTML = ''
     let author = props.author
-    if (! props.deleted) {
-        innerHTML = (isRemoved(props.body) && props.removed) ?
-          '<p>[removed too quickly to be archived]</p>' :
-          parse(replaceAmpGTLT(props.body))
-    } else {
+    if (props.deleted) {
       author = '[deleted]'
     }
 
@@ -120,21 +116,21 @@ class Comment extends React.Component {
         {
           this.state.displayBody ?
             <div className='comment-body-and-links'>
-              <div className='comment-body' dangerouslySetInnerHTML={{ __html: innerHTML }} />
-                  <div className='comment-links'>
-                  { ! props.deleted &&
-                    <React.Fragment>
-                      {props.quarantine && <span className="quarantined">quarantined</span>}
-                      { directlink && <a href={directlink}>directlink</a>}
-                      <a href={props.permalink+`?context=3#${props.name}`}>context</a>
-                      {props.link_permalink &&
-                        <a href={props.link_permalink.replace(/^https:\/\/[^/]*/,'')}>full comments
-                          {'num_comments' in props && `(${props.num_comments})`}</a>
-                      }
-                      <a href={mods_link} target="_blank">message mods</a>
-                    </React.Fragment>
-                  }
-                  </div>
+              <CommentBody {...props}/>
+              <div className='comment-links'>
+                { ! props.deleted &&
+                  <React.Fragment>
+                    {props.quarantine && <span className="quarantined">quarantined</span>}
+                    { directlink && <a href={directlink}>directlink</a>}
+                    <a href={props.permalink+`?context=3#${props.name}`}>context</a>
+                    {props.link_permalink &&
+                      <a href={props.link_permalink.replace(/^https:\/\/[^/]*/,'')}>full comments
+                        {'num_comments' in props && `(${props.num_comments})`}</a>
+                    }
+                    <a href={mods_link} target="_blank">message mods</a>
+                  </React.Fragment>
+                }
+              </div>
             </div>
           : ''
         }
