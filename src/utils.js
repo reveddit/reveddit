@@ -80,9 +80,11 @@ export const postIsDeleted = post => {
   return false
 }
 
-export const display_post = (list, post, ps_item) => {
-  if (! ('whitelist_status' in post && post.whitelist_status == "promo_adult_nsfw") &&
-      ! ('thumbnail' in ps_item && ps_item.thumbnail == 'nsfw')) {
+export const display_post = (list, post, ps_item, isInfoPage=false) => {
+  if ( isInfoPage ||
+        (! ('whitelist_status' in post && post.whitelist_status == "promo_adult_nsfw") &&
+          ( ! ps_item ||
+            ! ('thumbnail' in ps_item && ps_item.thumbnail == 'nsfw')))) {
     list.push(post)
   }
 }

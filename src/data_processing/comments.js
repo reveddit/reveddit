@@ -19,8 +19,9 @@ export const retrieveRedditComments_and_combineWithPushshiftComments = pushshift
   })
 }
 
-export const combinePushshiftAndRedditComments = (pushshiftComments, redditComments) => {
+export const combinePushshiftAndRedditComments = (pushshiftComments, redditComments, requirePushshiftData=true) => {
   const ids = pushshiftComments.map(comment => comment.id)
+  const combinedComments = {}
   const pushshiftCommentLookup = {}
   pushshiftComments.forEach(comment => {
     pushshiftCommentLookup[comment.id] = comment
@@ -29,15 +30,19 @@ export const combinePushshiftAndRedditComments = (pushshiftComments, redditComme
   const redditCommentLookup = {}
   redditComments.forEach(comment => {
     redditCommentLookup[comment.id] = comment
+    if (! requirePushshiftData) {
+      combinedComments[comment.id] = comment
+    }
     const ps_comment = pushshiftCommentLookup[comment.id]
-    if (commentIsRemoved(comment)) {
-      ps_comment.removed = true
-    } else if (commentIsDeleted(comment)) {
-      ps_comment.deleted = true
+    if (ps_comment) {
+      if (commentIsRemoved(comment)) {
+        ps_comment.removed = true
+      } else if (commentIsDeleted(comment)) {
+        ps_comment.deleted = true
+      }
     }
 
   })
-  const combinedComments = []
   // Replace pushshift data with reddit and mark removedby
   pushshiftComments.forEach(ps_comment => {
     const retrievalLatency = ps_comment.retrieved_on-ps_comment.created_utc
@@ -88,7 +93,7 @@ export const combinePushshiftAndRedditComments = (pushshiftComments, redditComme
           ps_comment.removedby = MOD_OR_AUTOMOD_REMOVED
         }
       }
-      combinedComments.push(ps_comment)
+      combinedComments[ps_comment.id] = ps_comment
     } else {
       // known issue: r/all/comments?before=1538269380 will show some comments whose redditComment has no data
       //              looks like spam that was removed
@@ -97,8 +102,7 @@ export const combinePushshiftAndRedditComments = (pushshiftComments, redditComme
   })
   console.log(`Pushshift: ${pushshiftComments.length} comments`)
   console.log(`Reddit: ${redditComments.length} comments`)
-  return combinedComments
-
+  return Object.values(combinedComments)
 }
 
 // Faster, but missing quarantine field in submissions data

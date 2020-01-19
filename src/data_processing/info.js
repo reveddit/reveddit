@@ -112,8 +112,8 @@ export const getRevdditItems = (global) => {
         const pushshiftComments = result[0]
         const pushshiftPosts = result[1]
 
-        const combinedComments = combinePushshiftAndRedditComments(pushshiftComments, redditComments)
-        const combinedPosts = combinePushshiftAndRedditPosts(pushshiftPosts, redditPosts, true)
+        const combinedComments = combinePushshiftAndRedditComments(pushshiftComments, redditComments, false)
+        const combinedPosts = combinePushshiftAndRedditPosts(pushshiftPosts, redditPosts, true, true)
         global.setSuccess({items: combinedComments.concat(combinedPosts)})
       })
     })

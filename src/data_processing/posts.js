@@ -53,7 +53,7 @@ export const getRevdditPosts = (pushshiftPosts) => {
   return retrieveRedditPosts_and_combineWithPushshiftPosts(pushshiftPosts)
 }
 
-export const combinePushshiftAndRedditPosts = (pushshiftPosts, redditPosts, includePostsWithZeroComments = false) => {
+export const combinePushshiftAndRedditPosts = (pushshiftPosts, redditPosts, includePostsWithZeroComments = false, isInfoPage = false) => {
   const pushshiftPosts_lookup = {}
   pushshiftPosts.forEach(post => {
     pushshiftPosts_lookup[post.id] = post
@@ -62,7 +62,10 @@ export const combinePushshiftAndRedditPosts = (pushshiftPosts, redditPosts, incl
   redditPosts.forEach(post => {
     post.selftext = ''
     const ps_item = pushshiftPosts_lookup[post.id]
-    const retrievalLatency = ps_item.retrieved_on-ps_item.created_utc
+    let retrievalLatency = undefined
+    if (ps_item) {
+      retrievalLatency = ps_item.retrieved_on-ps_item.created_utc
+    }
     if (post.crosspost_parent_list) {
       post.num_crossposts += post.crosspost_parent_list.reduce((total,x) => total+x.num_crossposts,0)
     }
@@ -70,14 +73,14 @@ export const combinePushshiftAndRedditPosts = (pushshiftPosts, redditPosts, incl
       if (postIsDeleted(post)) {
         if (post.num_comments > 0 || includePostsWithZeroComments) {
           post.deleted = true
-          display_post(show_posts, post, ps_item)
+          display_post(show_posts, post, ps_item, isInfoPage)
         } else {
           // not showing deleted posts with 0 comments
         }
       } else {
         post.removed = true
-        if ('is_robot_indexable' in ps_item && ! ps_item.is_robot_indexable) {
-          if (retrievalLatency <= AUTOMOD_LATENCY_THRESHOLD) {
+        if (ps_item && 'is_robot_indexable' in ps_item && ! ps_item.is_robot_indexable) {
+          if (retrievalLatency !== undefined && retrievalLatency <= AUTOMOD_LATENCY_THRESHOLD) {
             post.removedby = AUTOMOD_REMOVED
           } else {
             post.removedby = UNKNOWN_REMOVED
@@ -85,11 +88,11 @@ export const combinePushshiftAndRedditPosts = (pushshiftPosts, redditPosts, incl
         } else {
           post.removedby = MOD_OR_AUTOMOD_REMOVED
         }
-        display_post(show_posts, post, ps_item)
+        display_post(show_posts, post, ps_item, isInfoPage)
       }
     } else {
       // not-removed posts
-      if ('is_robot_indexable' in ps_item && ! ps_item.is_robot_indexable) {
+      if (ps_item && 'is_robot_indexable' in ps_item && ! ps_item.is_robot_indexable) {
         post.removedby = AUTOMOD_REMOVED_MOD_APPROVED
         //show_posts.push(post)
       } else {
