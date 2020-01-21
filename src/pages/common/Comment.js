@@ -115,7 +115,7 @@ class Comment extends React.Component {
         <span className='space' />
         <Time created_utc={props.created_utc}/>
         {props.locked && <span className='lockedTag'>locked</span>}
-        <RemovedBy removedby={props.removedby} />
+        <RemovedBy {...props} />
         </div>
         {
           this.state.displayBody ?

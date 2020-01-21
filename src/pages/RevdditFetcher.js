@@ -9,8 +9,8 @@ import { getRevdditItems, getRevdditSearch } from 'data_processing/info'
 import { itemIsOneOfSelectedRemovedBy, itemIsOneOfSelectedTags } from 'data_processing/filters'
 import Selections from 'pages/common/selections'
 import { removedFilter_types, getExtraGlobalStateVars } from 'state'
-import { NOT_REMOVED } from 'pages/common/RemovedBy'
-import { SimpleURLSearchParams, jumpToHash, get, put, ext_urls } from 'utils'
+import { NOT_REMOVED, COLLAPSED } from 'pages/common/RemovedBy'
+import { SimpleURLSearchParams, jumpToHash, get, put, ext_urls, itemIsCollapsed } from 'utils'
 
 const getCategorySettings = (page_type, subreddit) => {
   const category_settings = {
@@ -135,6 +135,7 @@ const getLoadDataFunctionAndParam = (page_type, subreddit, user, kind, threadID,
 const OVERVIEW = 'overview', SUBMITTED = 'submitted', BLANK='', COMMENTS='comments'
 const acceptable_kinds = [OVERVIEW, COMMENTS, SUBMITTED, BLANK]
 const acceptable_sorts = ['new', 'top', 'controversial', 'hot']
+const MAX_COLLAPSED_VISIBLE = 2
 
 export const withFetch = (WrappedComponent) =>
   class extends React.Component {
@@ -142,7 +143,8 @@ export const withFetch = (WrappedComponent) =>
       items: [],
       threadPost: {},
       num_pages: 0,
-      loading: true
+      loading: true,
+      showAllCollapsed: false
     }
     componentDidMount() {
       let subreddit = (this.props.match.params.subreddit || '').toLowerCase()
@@ -249,15 +251,30 @@ export const withFetch = (WrappedComponent) =>
     }
 
     getViewableItems(items, category, category_unique_field) {
-      let category_state = this.props.global.state['categoryFilter_'+category]
+      const gs = this.props.global.state
+      const category_state = gs['categoryFilter_'+category]
+      const {page_type} = this.props
       const showAllCategories = category_state === 'all'
-      return items.filter(item => {
+      let numCollapsed = 0
+      let numCollapsedNotShown = 0
+      const viewableItems = items.filter(item => {
         let itemIsOneOfSelectedCategory = false
         if (category_state === item[category_unique_field]) {
           itemIsOneOfSelectedCategory = true
         }
+        if (itemIsCollapsed(item) &&
+            ['user','subreddit_comments'].includes(page_type) &&
+            ! this.state.showAllCollapsed &&
+            ! gs.removedByFilter[COLLAPSED]) {
+          numCollapsed += 1
+          if (numCollapsed > MAX_COLLAPSED_VISIBLE) {
+            numCollapsedNotShown += 1
+            return false
+          }
+        }
         return (showAllCategories || itemIsOneOfSelectedCategory)
       })
+      return {viewableItems, numCollapsedNotShown}
     }
 
 
@@ -271,10 +288,10 @@ export const withFetch = (WrappedComponent) =>
         if (
           (gs.removedFilter === removedFilter_types.all ||
             (gs.removedFilter === removedFilter_types.not_removed &&
-              (! item.deleted && ! item.removed && item.removedby === NOT_REMOVED) ) ||
+              (! item.deleted && ! item.removed && item.removedby === NOT_REMOVED && ! itemIsCollapsed(item)) ) ||
             (
               gs.removedFilter === removedFilter_types.removed &&
-                (item.deleted || item.removed || item.locked ||
+                (item.deleted || item.removed || item.locked || itemIsCollapsed(item) ||
                 (item.removedby && item.removedby !== NOT_REMOVED))
             )
           ) &&
@@ -317,23 +334,32 @@ export const withFetch = (WrappedComponent) =>
       const { items, showContext } = this.props.global.state
 
       let visibleItemsWithoutCategoryFilter = []
-      let viewableItems = []
       visibleItemsWithoutCategoryFilter = this.getVisibleItemsWithoutCategoryFilter()
       const {category, category_title, category_unique_field} = getCategorySettings(page_type, subreddit)
-      viewableItems = this.getViewableItems(visibleItemsWithoutCategoryFilter, category, category_unique_field)
+      const {viewableItems, numCollapsedNotShown} = this.getViewableItems(visibleItemsWithoutCategoryFilter, category, category_unique_field)
       const selections =
-      <Selections subreddit={subreddit}
-                  page_type={page_type}
-                  visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
-                  num_showing={viewableItems.length}
-                  num_items={items.length}
-                  category_type={category} category_title={category_title}
-                  category_unique_field={category_unique_field}/>
-
+        <Selections subreddit={subreddit}
+                    page_type={page_type}
+                    visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
+                    num_showing={viewableItems.length}
+                    num_items={items.length}
+                    category_type={category} category_title={category_title}
+                    category_unique_field={category_unique_field}/>
+      let numCollapsedNotShownMsg = ''
+      if (numCollapsedNotShown) {
+          numCollapsedNotShownMsg =
+            <div className='notice-with-link center' onClick={() => this.setState({showAllCollapsed: true})}>
+              show {numCollapsedNotShown} collapsed items
+            </div>
+      }
       return (
         <React.Fragment>
-          <WrappedComponent {...this.props} {...this.state} selections={selections}
-            viewableItems={viewableItems} visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}/>
+          <WrappedComponent {...this.props} {...this.state}
+            selections={selections}
+            viewableItems={viewableItems}
+            numCollapsedNotShownMsg={numCollapsedNotShownMsg}
+            visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
+          />
         </React.Fragment>
       )
     }

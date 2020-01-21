@@ -15,7 +15,7 @@ class RemovedFilter extends React.Component {
     const updateStateAndURL = this.props.global.removedFilter_update
     return (
         <div className={`removalStatusFilter selection filter ${removedFilter !== removedFilter_types.all ? 'set': ''}`}>
-          <div className='title'>Removal Status</div>
+          <div className='title'>Status</div>
             {Object.keys(removedFilter_types).map(type =>
               <label key={type}>
                 <input name='removedFilter_types' type='radio' value={removedFilter_types[type]}

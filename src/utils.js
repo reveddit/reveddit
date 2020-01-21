@@ -145,7 +145,7 @@ export const oldSort = (commentA, commentB) => {
 // Filter comments
 export const showRemoved = comment => comment.removed === true
 export const showDeleted = comment => comment.deleted === true
-export const showRemovedAndDeleted = comment => comment.removed === true || comment.deleted === true || comment.removedby === AUTOMOD_REMOVED_MOD_APPROVED
+export const showRemovedAndDeleted = comment => comment.removed === true || comment.deleted === true || comment.removedby === AUTOMOD_REMOVED_MOD_APPROVED || itemIsCollapsed(comment)
 
 export const getPrettyTimeLength = (seconds) => {
   const thresholds = [[60, 'second', 'seconds'], [60, 'minute', 'minutes'], [24, 'hour', 'hours'], [7, 'day', 'days'],
@@ -317,4 +317,8 @@ export const sleeper = (ms) => {
 
 export const promiseDelay = (ms) => {
   return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+export const itemIsCollapsed = (item) => {
+  return item.collapsed && item.score > 0 && ! item.removed && ! item.deleted
 }

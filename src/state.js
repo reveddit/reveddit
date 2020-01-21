@@ -61,8 +61,8 @@ export const removedFilter_types = {
 }
 export const removedFilter_text = {
   all: 'all',
-  removed: 'removed',
-  not_removed: 'not removed',
+  removed: 'actioned',
+  not_removed: 'not actioned',
 }
 export const localSort_types = {
   score: 'score',

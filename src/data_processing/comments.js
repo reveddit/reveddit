@@ -56,6 +56,7 @@ export const combinePushshiftAndRedditComments = (pushshiftComments, redditComme
       ps_comment.stickied = redditComment.stickied
       ps_comment.distinguished = redditComment.distinguished
       ps_comment.locked = redditComment.locked
+      ps_comment.collapsed = redditComment.collapsed
       ps_comment.replies = []
       if (redditComment.url) {
         ps_comment.url = redditComment.url

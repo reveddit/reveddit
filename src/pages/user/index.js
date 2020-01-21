@@ -12,10 +12,11 @@ import { getQueryParams } from 'data_processing/user'
 import { SimpleURLSearchParams, copyLink } from 'utils'
 import Highlight from 'pages/common/Highlight'
 
+
 class User extends React.Component {
   render () {
     const { user, kind = ''} = this.props.match.params
-    const { page_type, viewableItems, selections } = this.props
+    const { page_type, viewableItems, selections, numCollapsedNotShownMsg } = this.props
     const qp_with_defaults = getQueryParams()
     const queryParams = new SimpleURLSearchParams(window.location.search)
     const gs = this.props.global.state
@@ -89,6 +90,7 @@ class User extends React.Component {
               {selections}
             </div>
             <Highlight/>
+            {numCollapsedNotShownMsg}
             { removedCommentIDs.length > 0 &&
               <div className='notice-with-link'>
                 <div>Some comments have been removed. To view this on reddit, open the below link in an incognito window or while logged out.</div>
