@@ -118,17 +118,18 @@ export const getRevdditPostsByDomain = (domain, global) => {
   })
 }
 
+const getMinimalPostPath = (path) => {
+  return path.split('/').slice(0,5).join('/')
+}
+
 const getRedditUrlMeta = (url) => {
   const redditlikeDomainStripped = url.replace(/^https?:\/\/[^/]*(reddit\.com|removeddit\.com|ceddit\.com|unreddit\.com|snew\.github\.io|snew\.notabug\.io|politicbot\.github\.io|r\.go1dfish\.me|reve?ddit\.com)/,'')
   const isRedditDomain = redditlikeDomainStripped.match(/^\//)
   const isRedditPostURL = redditlikeDomainStripped.match(/^\/r\/[^/]*\/comments\/[a-z0-9]/i)
-  const parts = redditlikeDomainStripped.split('/')
-  const normalizedPostURL = parts.slice(0,5).join('/')
-  const postURL_ID = parts[4]
+  const normalizedPostURL = getMinimalPostPath(redditlikeDomainStripped)
+  const postURL_ID = redditlikeDomainStripped.split('/')[4]
   return {isRedditDomain, isRedditPostURL, normalizedPostURL, postURL_ID}
 }
-
-//const getPost
 
 export const getRevdditDuplicatePosts = (threadID, global) => {
   global.setLoading('')
@@ -155,8 +156,9 @@ export const getRevdditDuplicatePosts = (threadID, global) => {
     urls.push(url)
     const selftext_urls = []
     if (! isRedditPostURL) {
-      urls.push(drivingPost.permalink)
-      selftext_urls.push(drivingPost.permalink)
+      const minimalPostPath = getMinimalPostPath(drivingPost.permalink)
+      urls.push(minimalPostPath)
+      selftext_urls.push(minimalPostPath)
     }
     promises.push(pushshiftQueryPosts({url: urls.join('|')}))
     if (! isRedditDomain || isRedditPostURL) {
