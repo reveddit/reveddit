@@ -33,15 +33,19 @@ export const queryPosts = (params) => {
 }
 
 const queryItems = ({q, author, subreddit, n = 500, sort='desc', before, after, domain, url, selftext, parent_id}, apiURL, fields, prefix) => {
-  const queryParams = {size: n, sort, fields: fields.join(',')}
-  if (q) queryParams.q = q
-  if (author) queryParams.author = author
-  if (subreddit) queryParams.subreddit = subreddit
-  if (after) queryParams.after = after
-  if (before) queryParams.before = before
-  if (domain) queryParams.domain = domain
-  if (selftext) queryParams.selftext = selftext
-  if (parent_id) queryParams.parent_id = parent_id
+  const queryParams = {
+    size: n,
+    sort,
+    fields: fields.join(','),
+    ...(q && {q}),
+    ...(author && {author}),
+    ...(subreddit && {subreddit}),
+    ...(after && {after}),
+    ...(before && {before}),
+    ...(domain && {domain}),
+    ...(selftext && {selftext}),
+    ...(parent_id && {parent_id})
+  }
   if (url) queryParams.url = encodeURIComponent(url)
 
   return window.fetch(apiURL+getQueryString(queryParams))
