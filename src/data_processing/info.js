@@ -33,6 +33,17 @@ export const byNumComments = (a, b) => {
     return (b.score - a.score)
   }
 }
+export const byNumReplies = (a, b) => {
+  if ('num_replies' in a && 'num_replies' in b) {
+    return (b.num_replies - a.num_replies) || (b.created_utc - a.created_utc)
+  } if ('num_replies' in a) {
+    return -1
+  } else if ('num_replies' in b) {
+    return 1
+  } else {
+    return (b.created_utc - a.created_utc)
+  }
+}
 
 export const byControversiality = (a, b) => {
   if ('num_comments' in a) {
@@ -101,8 +112,8 @@ export const getRevdditItems = (global) => {
         const pushshiftComments = result[0]
         const pushshiftPosts = result[1]
 
-        const combinedComments = combinePushshiftAndRedditComments(pushshiftComments, redditComments)
-        const combinedPosts = combinePushshiftAndRedditPosts(pushshiftPosts, redditPosts, true)
+        const combinedComments = combinePushshiftAndRedditComments(pushshiftComments, redditComments, false)
+        const combinedPosts = combinePushshiftAndRedditPosts(pushshiftPosts, redditPosts, true, true)
         global.setSuccess({items: combinedComments.concat(combinedPosts)})
       })
     })
@@ -125,7 +136,7 @@ export const getRevdditSearch = (global) => {
       promises.push(pushshiftQueryPosts({domain: or_domain, author, subreddit, n, before, after}))
     }
   }
-
+  let commentChildrenPromise = undefined
   return Promise.all(promises)
   .then(results => {
     const nextPromises = []
@@ -134,7 +145,7 @@ export const getRevdditSearch = (global) => {
     } else if (content === 'posts') {
       let posts = results[0]
       if (or_domain) {
-        posts = getUniqueItems(results[0], results[1])
+        posts = getUniqueItems([results[0], results[1]])
       }
       nextPromises.push(getRevdditPosts(posts))
     } else if (content === 'all') {
@@ -144,26 +155,45 @@ export const getRevdditSearch = (global) => {
         nextPromises.push(getRevdditComments(results[0]))
       }
       if (or_domain) {
-        posts = getUniqueItems(results[1], results[2])
+        posts = getUniqueItems([results[1], results[2]])
       }
       nextPromises.push(getRevdditPosts(posts))
     }
+    if (include_comments) {
+      const commentIDs = results[0].map(x => x.name)
+      commentChildrenPromise = pushshiftQueryComments({parent_id: commentIDs.join(',')}, ['parent_id'])
+    }
     return Promise.all(nextPromises)
   })
-  .then(results => {
+  .then(async results => {
+    let childCounts = {}
+    if (commentChildrenPromise) {
+      const commentChildren = await commentChildrenPromise
+      childCounts = commentChildren.reduce((acc, comment) => {
+        acc[comment.parent_id] = (acc[comment.parent_id] || 0) + 1
+        return acc
+      }, {})
+    }
     let items = []
     results.forEach(result => {
       items.push(...result)
-      if (Object.keys(notAuthors).length) {
-        const newItems = []
-        items.forEach(item => {
-          if (! notAuthors[item.author]) {
-            newItems.push(item)
-          }
-        })
-        items = newItems
-      }
     })
+    if (Object.keys(notAuthors).length || commentChildrenPromise) {
+      const newItems = []
+      items.forEach(item => {
+        if (commentChildrenPromise) {
+          if (isPostID(item.name)) {
+            item.num_replies = item.num_comments
+          } else if (item.name in childCounts) {
+            item.num_replies = childCounts[item.name]
+          }
+        }
+        if (! notAuthors[item.author]) {
+          newItems.push(item)
+        }
+      })
+      items = newItems
+    }
     global.setSuccess({items})
   })
 }

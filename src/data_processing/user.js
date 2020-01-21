@@ -30,6 +30,9 @@ export const getQueryParams = () => {
   return result
 }
 
+const reddit = 'https://www.reddit.com'
+const verify = 'Verify the url and reload this page to double check. '
+const deleted_shadowbanned_notexist = 'may be deleted, shadowbanned, or may not exist. '
 
 function lookupAndSetRemovedBy(global) {
   const comment_names = []
@@ -129,13 +132,16 @@ function getItems (user, kind, global, sort, before = '', after = '', limit, loa
           } else {
             return userPageHTML(user)
             .then(html_result => {
+              const status = `You can also check account status at <a href="${reddit}/user/${user}">/u/${user}</a> or <a href="${reddit}/r/ShadowBan">/r/ShadowBan</a>.`
               if ('error' in html_result) {
                 console.error(html_result.error)
-                global.setError(Error(''), {userIssueDescription: 'may be deleted or shadowbanned, or, may not exist. Verify the url and reload this page to double check.'})
+                global.setError(Error(''), {userIssueDescription: deleted_shadowbanned_notexist+verify+status})
               } else if (html_result.html.match(/has deleted their account/)) {
                 global.setError(Error(''), {userIssueDescription: 'has deleted their account'})
+              } else if (html_result.html.match(/must be 18/)) {
+                global.setError(Error(''), {userIssueDescription: deleted_shadowbanned_notexist+verify+status})
               } else {
-                global.setError(Error(''), {userIssueDescription: 'may be shadowbanned or may not exist. Verify the url and reload this page to double check. You can also check account status at r/ShadowBan.'})
+                global.setError(Error(''), {userIssueDescription: 'may be shadowbanned or may not exist. '+verify+status})
               }
               return null
             })

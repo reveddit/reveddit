@@ -27,8 +27,16 @@ export const byControversiality = (a, b) => {
       || (b.num_comments - a.num_comments)
 }
 export const byNumCrossposts = (a, b) => {
-  return (b.num_crossposts - a.num_crossposts) || (b.num_comments - a.num_comments)
-      || (b.created_utc - a.created_utc)
+  if ('num_crossposts' in a && 'num_crossposts' in b) {
+    return (b.num_crossposts - a.num_crossposts) || (b.num_comments - a.num_comments)
+        || (b.created_utc - a.created_utc)
+  } if ('num_crossposts' in a) {
+    return -1
+  } else if ('num_crossposts' in b) {
+    return 1
+  } else {
+    return (b.created_utc - a.created_utc)
+  }
 }
 
 export const retrieveRedditPosts_and_combineWithPushshiftPosts = (pushshiftPosts, includePostsWithZeroComments = false) => {
@@ -43,7 +51,7 @@ export const getRevdditPosts = (pushshiftPosts) => {
   return retrieveRedditPosts_and_combineWithPushshiftPosts(pushshiftPosts)
 }
 
-export const combinePushshiftAndRedditPosts = (pushshiftPosts, redditPosts, includePostsWithZeroComments = false) => {
+export const combinePushshiftAndRedditPosts = (pushshiftPosts, redditPosts, includePostsWithZeroComments = false, isInfoPage = false) => {
   const redditPosts_lookup = {}
   redditPosts.forEach(post => {
     redditPosts_lookup[post.id] = post
@@ -63,7 +71,10 @@ export const combinePushshiftAndRedditPosts = (pushshiftPosts, redditPosts, incl
   redditPosts.forEach(post => {
     post.selftext = ''
     const ps_item = pushshiftPosts_lookup[post.id]
-    const retrievalLatency = ps_item.retrieved_on-ps_item.created_utc
+    let retrievalLatency = undefined
+    if (ps_item) {
+      retrievalLatency = ps_item.retrieved_on-ps_item.created_utc
+    }
     if (post.crosspost_parent_list) {
       post.num_crossposts += post.crosspost_parent_list.reduce((total,x) => total+x.num_crossposts,0)
     }
@@ -71,14 +82,14 @@ export const combinePushshiftAndRedditPosts = (pushshiftPosts, redditPosts, incl
       if (postIsDeleted(post)) {
         if (post.num_comments > 0 || includePostsWithZeroComments) {
           post.deleted = true
-          display_post(show_posts, post, ps_item)
+          display_post(show_posts, post, ps_item, isInfoPage)
         } else {
           // not showing deleted posts with 0 comments
         }
       } else {
         post.removed = true
-        if ('is_robot_indexable' in ps_item && ! ps_item.is_robot_indexable) {
-          if (retrievalLatency <= AUTOMOD_LATENCY_THRESHOLD) {
+        if (ps_item && 'is_robot_indexable' in ps_item && ! ps_item.is_robot_indexable) {
+          if (retrievalLatency !== undefined && retrievalLatency <= AUTOMOD_LATENCY_THRESHOLD) {
             post.removedby = AUTOMOD_REMOVED
           } else {
             post.removedby = UNKNOWN_REMOVED
@@ -86,11 +97,11 @@ export const combinePushshiftAndRedditPosts = (pushshiftPosts, redditPosts, incl
         } else {
           post.removedby = MOD_OR_AUTOMOD_REMOVED
         }
-        display_post(show_posts, post, ps_item)
+        display_post(show_posts, post, ps_item, isInfoPage)
       }
     } else {
       // not-removed posts
-      if ('is_robot_indexable' in ps_item && ! ps_item.is_robot_indexable) {
+      if (ps_item && 'is_robot_indexable' in ps_item && ! ps_item.is_robot_indexable) {
         post.removedby = AUTOMOD_REMOVED_MOD_APPROVED
         //show_posts.push(post)
       } else {
@@ -116,29 +127,66 @@ export const getRevdditPostsByDomain = (domain, global) => {
   })
 }
 
+const getMinimalPostPath = (path) => {
+  return path.split('/').slice(0,5).join('/')
+}
+
+const getRedditUrlMeta = (url) => {
+  const redditlikeDomainStripped = url.replace(/^https?:\/\/[^/]*(reddit\.com|removeddit\.com|ceddit\.com|unreddit\.com|snew\.github\.io|snew\.notabug\.io|politicbot\.github\.io|r\.go1dfish\.me|reve?ddit\.com)/,'')
+  const isRedditDomain = redditlikeDomainStripped.match(/^\//)
+  const isRedditPostURL = redditlikeDomainStripped.match(/^\/r\/[^/]*\/comments\/[a-z0-9]/i)
+  const normalizedPostURL = getMinimalPostPath(redditlikeDomainStripped)
+  const postURL_ID = redditlikeDomainStripped.split('/')[4]
+  return {isRedditDomain, isRedditPostURL, normalizedPostURL, postURL_ID}
+}
+
 export const getRevdditDuplicatePosts = (threadID, global) => {
   global.setLoading('')
   return getItems(['t3_'+threadID])
-  .then(redditPosts => {
+  .then(async redditPosts => {
     const drivingPost = redditPosts[0]
     let url = drivingPost.url
-    let redditlikeDomainStripped = drivingPost.url.replace(/^https?:\/\/[^/]*(reddit\.com|removeddit\.com|ceddit\.com|unreddit\.com|snew\.github\.io|snew\.notabug\.io|politicbot\.github\.io|r\.go1dfish\.me|reve?ddit\.com)/,'')
-    const isNonRedditDomain = ! redditlikeDomainStripped.match(/^\//)
-    let isRedditPostURL = false
-    if (redditlikeDomainStripped.match(/^\/r\/[^/]*\/comments\/[a-z0-9]/i)) {
-      isRedditPostURL = true
-      url = redditlikeDomainStripped.split('/').slice(0,5).join('/')
+    const {isRedditDomain, isRedditPostURL, normalizedPostURL, postURL_ID} = getRedditUrlMeta(drivingPost.url)
+    const urls = []
+    if (isRedditPostURL) {
+      url = normalizedPostURL
+      const drivingPost_url_post = await getItems(['t3_'+postURL_ID])
+      if (drivingPost_url_post.length) {
+        const drivingPost_url_post_url = drivingPost_url_post[0].url
+        const {isRedditPostURL: isRedditPostURL_2, normalizedPostURL: normalizedPostURL_2} = getRedditUrlMeta(drivingPost_url_post_url)
+        if (isRedditPostURL_2) {
+          urls.push(normalizedPostURL_2)
+        } else {
+          urls.push(drivingPost_url_post_url)
+        }
+      }
     }
-    const promises = [pushshiftQueryPosts({url})]
-    if (isNonRedditDomain || isRedditPostURL) {
-      promises.push(pushshiftQueryPosts({selftext:'"'+url+'"'}))
+    const promises = []
+    urls.push(url)
+    const selftext_urls = []
+    if (! isRedditPostURL) {
+      const minimalPostPath = getMinimalPostPath(drivingPost.permalink)
+      urls.push(minimalPostPath)
+      selftext_urls.push(minimalPostPath)
+    }
+    promises.push(pushshiftQueryPosts({url: urls.join('|')}))
+    if (! isRedditDomain || isRedditPostURL) {
+      selftext_urls.push(url)
+    }
+    if (selftext_urls.length) {
+      promises.push(
+        pushshiftQueryPosts(
+          {selftext:
+            selftext_urls.map(u => '"'+u+'"').join('|')
+          }
+        ))
     }
     return Promise.all(promises)
     .then(results => {
       if (results.length === 1) {
         return results[0]
       } else {
-        return getUniqueItems(results[0], results[1])
+        return getUniqueItems(results)
       }
     })
     .then((pushshiftPosts) => retrieveRedditPosts_and_combineWithPushshiftPosts(pushshiftPosts, true))
