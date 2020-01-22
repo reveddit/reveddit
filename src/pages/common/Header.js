@@ -1,8 +1,9 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, Redirect } from 'react-router-dom'
 import { connect } from 'state'
 import 'js-detect-incognito-private-browsing'
 import { get, put } from 'utils'
+import { Shuffle } from 'pages/common/svg'
 
 const getEntityName = (params) => {
   const { user, subreddit = '', userSubreddit = '', domain = ''} = params
@@ -11,7 +12,8 @@ const getEntityName = (params) => {
 
 class Header extends React.Component {
   state = {
-    entity_name: ''
+    entity_name: '',
+    random: false
   }
   componentDidMount() {
     const entity_name = getEntityName(this.props.match.params)
@@ -32,7 +34,7 @@ class Header extends React.Component {
       this.setState({entity_name})
     }
   }
-  getForm(value, display, path_type, item_type, path_suffix, opposite=false) {
+  getForm = (value, display, path_type, item_type, path_suffix, opposite=false) => {
     let text_input_actions = {}
     let form_attributes = { className: `opposite ${path_type}` }
     if (! opposite) {
@@ -53,7 +55,16 @@ class Header extends React.Component {
         {path_suffix &&
           <span className='subheading'>{`/${path_suffix}/`}</span>
         }
-        <input className='desktop-only' type='submit' id='button' value='go' />
+        <input type='submit' id='button' value='go' />
+        {path_type === 'user' &&
+          <button title="Look up a random redditor" id='button_shuffle'
+            onClick={(e) => {
+              e.preventDefault()
+              this.setState({random:true})
+            }}>
+            <Shuffle wh='15'/>
+          </button>
+        }
       </form>
     )
   }
@@ -87,13 +98,16 @@ class Header extends React.Component {
     this.props.openGenericModal({hash: 'welcome'})
   }
   render() {
+    if (this.state.random) {
+      return <Redirect to='/random'/>
+    }
     const props = this.props
     const { page_type } = props
     let { user, subreddit = '', userSubreddit = '', domain = ''} = props.match.params
     if (userSubreddit) {
       subreddit = 'u_'+userSubreddit
     }
-    let path_type = '', value = '', path_suffix = '', item_type = ''
+    let path_type = '', value = '', path_suffix = '', item_type = '', display = ''
     if (['subreddit_posts','thread'].includes(page_type)) {
       path_type = 'r'
       value = subreddit
@@ -105,6 +119,7 @@ class Header extends React.Component {
       item_type = 'subreddit'
     } else if (user) {
       path_type = 'user'
+      display = 'u/'
       value = user
       item_type = 'username'
     } else if (domain) {
@@ -113,7 +128,9 @@ class Header extends React.Component {
       item_type = 'domain'
     }
     value = value.toLowerCase()
-    let display = `/${path_type}/`
+    if (! display) {
+      display = `${path_type}/`
+    }
 
     return (
       <React.Fragment>

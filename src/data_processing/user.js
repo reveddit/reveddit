@@ -21,7 +21,7 @@ export const getQueryParams = () => {
 
   if (queryParams.has('all')) { result.loadAll = true }
 
-  ['sort', 'before', 'after', 'limit', 'searchPage_after', 'show'].forEach(p => {
+  ['sort', 'before', 'after', 'limit', 'searchPage_after', 'show', 't'].forEach(p => {
     if (queryParams.has(p)) {
       result[p] = queryParams.get(p)
     }
@@ -109,7 +109,7 @@ function setRemovedBy(items_removedBy_undefined, ps_items_autoremoved) {
 export const getRevdditUserItems = (user, kind, qp, global) => {
   global.setLoading('')
   const gs = global.state
-  return getItems(user, kind, global, qp.sort, qp.before, qp.after || gs.userNext, qp.limit, qp.loadAll)
+  return getItems(user, kind, global, qp.sort, qp.before, qp.after || gs.userNext, qp.t, qp.limit, qp.loadAll)
   .then(result => {
     return lookupAndSetRemovedBy(global)
     .then( tempres => {
@@ -119,9 +119,9 @@ export const getRevdditUserItems = (user, kind, qp, global) => {
   })
 }
 
-function getItems (user, kind, global, sort, before = '', after = '', limit, loadAll = false) {
+function getItems (user, kind, global, sort, before = '', after = '', time, limit, loadAll = false) {
   const gs = global.state
-  return queryUserPage(user, kind, sort, before, after, limit)
+  return queryUserPage(user, kind, sort, before, after, time, limit)
   .then(userPageData => {
     if ('error' in userPageData) {
       if (userPageData.error == 404) {
@@ -186,7 +186,7 @@ function getItems (user, kind, global, sort, before = '', after = '', limit, loa
       })
       global.setState({items, num_pages, userNext: userPageData.after})
       if (userPageData.after && loadAll) {
-        return getItems(user, kind, global, sort, '', userPageData.after, limit, loadAll)
+        return getItems(user, kind, global, sort, '', userPageData.after, time, limit, loadAll)
       }
       return userPageData.after
     })

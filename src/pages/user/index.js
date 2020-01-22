@@ -59,7 +59,7 @@ class User extends React.Component {
                       <div id='pagesloaded' className='non-item text' data-pagesloaded={gs.num_pages}>loaded pages {`${gs.num_pages}/${totalPages}`}</div>
                     </React.Fragment>
     } else if (! gs.loading) {
-      status = <p>No comments or posts are available for this user</p>
+      status = <p>No comments or posts are available for this user.</p>
     }
 
     const shownItems = []

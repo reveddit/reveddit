@@ -15,6 +15,7 @@ import Thread from 'pages/thread'
 import User from 'pages/user'
 import { BlankUser, BlankSubreddit } from 'pages/blank'
 import NotFound from 'pages/404'
+import Random from 'pages/about/random'
 
 const apolloClient = new ApolloClient({
   uri: "https://api.revddit.com/v1/graphql"
@@ -63,6 +64,7 @@ class App extends React.Component {
               <DefaultLayout path='/about' component={About} />
               <DefaultLayout path='/info' page_type='info' component={Info} />
               <DefaultLayout path='/search' page_type='search' component={Info} />
+              <DefaultLayout path='/random' component={Random} />
               <DefaultLayout path='/r/:subreddit/comments/:threadID/:urlTitle/:commentID' page_type='thread' component={Thread} />
               <DefaultLayout path='/r/:subreddit/comments/:threadID/:urlTitle' page_type='thread' component={Thread} />
               <DefaultLayout path='/r/:subreddit/comments/:threadID' page_type='thread' component={Thread} />

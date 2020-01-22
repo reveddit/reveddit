@@ -327,3 +327,7 @@ export const promiseDelay = (ms) => {
 export const itemIsCollapsed = (item) => {
   return item.collapsed && item.score > 0 && ! item.removed && ! item.deleted
 }
+
+export const getRandomInt = (max) => {
+  return Math.floor(Math.random() * Math.floor(max));
+}

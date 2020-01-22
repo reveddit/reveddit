@@ -1,10 +1,13 @@
-import { chunk, flatten, fetchWithTimeout, promiseDelay } from 'utils'
+import { chunk, flatten, fetchWithTimeout, promiseDelay, getRandomInt } from 'utils'
 import { getAuth } from './auth'
 
 const oauth_reddit = 'https://oauth.reddit.com/'
 const numRequestsBeforeWait = 10
 const waitInterval = numRequestsBeforeWait*500
 const maxNumItems = 100
+const commentSortOptions = ['confidence', 'new', 'controversial', 'old', 'qa']
+const MIN_COMMENT_KARMA = 1000
+
 
 const errorHandler = (e) => {
   throw new Error(`Could not connect to Reddit: ${e}`)
@@ -33,14 +36,16 @@ export const getItems = async (ids) => {
   .catch(errorHandler)
 }
 
-export const queryUserPage = (user, kind, sort, before, after, limit = 100) => {
-  var params = {sort: sort, limit: limit, raw_json:1}
-  if (after) {
-    params.after = after
+export const queryUserPage = (user, kind, sort, before, after, t, limit = 100) => {
+  var params = {
+    sort: sort,
+    limit,
+    ...(t && {t}),
+    ...(after && {after}),
+    ...(before && {before}),
+    raw_json:1
   }
-  if (before) {
-    params.before = before
-  }
+
   const url = oauth_reddit + `user/${user}/${kind}.json` + '?'+Object.keys(params).map(k => `${k}=${params[k]}`).join('&')
   return getAuth()
     .then(auth => window.fetch(url, auth))
@@ -131,4 +136,72 @@ export const querySearchPageByUser = (user, sort, after = '') => {
       return {posts: results.data.children.map(post => post.data),
               after: results.data.after} })
     .catch(errorHandler)
+}
+
+export const randomRedditor = async () => {
+  const auth = await getAuth()
+  return searchPostsByNumComments(auth)
+    .then(posts => posts[getRandomInt(posts.length)].data)
+    .then(post => selectRandomCommenter(auth, post, commentSortOptions[getRandomInt(commentSortOptions.length)]))
+}
+
+export const searchPostsByNumComments = async (auth = null) => {
+  const url = oauth_reddit + 'search.json?' + 'q=nsfw%3Ano&sort=comments&t=day&limit=100'
+  if (! auth) {
+    auth = await getAuth()
+  }
+  return window.fetch(url, auth)
+  .then(response => response.json())
+  .then(result => result.data.children)
+}
+
+
+export const selectRandomCommenter = async (auth, post, sort = 'new') => {
+  const url = oauth_reddit + `/r/${post.subreddit}/comments/${post.id}.json?sort=${sort}&limit=200`
+  if (! auth) {
+    auth = await getAuth()
+  }
+  return window.fetch(url, auth)
+  .then(response => response.json())
+  .then(result => result[1].data.children)
+  .then(traverseComments_collectAuthors)
+  .then(authors => getAuthorInfo(auth, Object.keys(authors)))
+  .then(authorInfo => {
+    const author_keys = Object.keys(authorInfo).sort(() => Math.random() - 0.5);
+    let maxKarma = 0
+    let maxKarmaAuthor = ''
+    for (let i = 0; i < author_keys.length; i++) {
+      const author = authorInfo[author_keys[i]]
+      if (author.comment_karma >= MIN_COMMENT_KARMA) {
+        return author.name
+      } else if (author.comment_karma > maxKarma) {
+        maxKarma = author.comment_karma
+        maxKarmaAuthor = author.name
+      }
+    }
+    return maxKarmaAuthor
+  })
+
+}
+
+const traverseComments_collectAuthors = (comments, authors = {}) => {
+  comments.forEach(child => {
+    const c = child.data
+    if (c && c.author_fullname) {
+      authors[c.author_fullname] = c.author
+    }
+    if (c.replies && typeof c.replies === 'object' && c.replies.kind === 'Listing' && c.replies.data.children) {
+      traverseComments_collectAuthors(c.replies.data.children, authors)
+    }
+  })
+  return authors
+}
+
+export const getAuthorInfo = async (auth, ids) => {
+  const url = oauth_reddit + `api/user_data_by_account_ids.json?ids=${ids.join(',')}`
+  if (! auth) {
+    auth = await getAuth()
+  }
+  return window.fetch(url, auth)
+  .then(result => result.json())
 }

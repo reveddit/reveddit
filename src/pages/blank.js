@@ -1,8 +1,22 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, Redirect } from 'react-router-dom'
 import { SimpleURLSearchParams } from 'utils'
+import { Shuffle } from 'pages/common/svg'
+import { randomRedditor } from 'api/reddit'
+
+const handleRandomUser = () => {
+  randomRedditor()
+  .then(author => {
+    if (author) {
+      window.location.href = `/user/${author}?sort=top&all=true&t=year`
+    }
+  })
+}
 
 export class BlankUser extends React.Component {
+  state = {
+    random: false
+  }
   handleSubmitUser = (e) => {
     e.preventDefault()
     const data = new FormData(e.target)
@@ -12,20 +26,32 @@ export class BlankUser extends React.Component {
     const val = data.get('username').trim().toLowerCase()
     if (val !== '') {
       window.location.href = `/user/${val}${queryParams.toString()}`
+    } else {
+      this.setState({random: true})
     }
   }
 
-  render () {
-    const text = this.props.text || "Enter a reddit username to view removed content:"
 
+  render () {
+    const text = this.props.text || "Enter a reddit username to view removed content (blank for random):"
+    if (this.state.random) {
+      return <Redirect to='/random'/>
+    }
     return (
       <div className='blank_page'>
         <div className='non-item text'>
           {text}
         </div>
-        <form onSubmit={this.handleSubmitUser}>
+        <form id='user-form' onSubmit={this.handleSubmitUser}>
           <input type='text' name='username' placeholder='username' autoFocus='autoFocus'/>
           <input type='submit' id='button_u' value='go' />
+          <button title="Look up a random redditor" id='button_shuffle'
+            onClick={(e) => {
+              e.preventDefault()
+              this.setState({random:true})
+            }}>
+            <Shuffle/>
+          </button>
         </form>
       </div>
     )
