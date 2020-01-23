@@ -111,6 +111,8 @@ export class About extends React.Component {
             <div className='section half'>
               <h2 className='about'>News</h2>
               <ul className='news'>
+                <li><a href={`${reddit}/estw67/`}>random user, collapsed comments, xposts</a>
+                  <ul><li><Time created_utc='1579789966'/></li></ul></li>
                 <li><a href="/about#welcome" onClick={this.welcome}>real-time notifier extension</a>
                   <ul><li><Time created_utc='1576163308'/></li></ul></li>
                 <li><a href={`${reddit}/e1wsqy/`}>revddit.com -> www.reveddit.com</a>
