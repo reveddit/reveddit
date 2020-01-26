@@ -131,8 +131,8 @@ const getMinimalPostPath = (path) => {
   return path.split('/').slice(0,5).join('/')
 }
 
-const getYoutubeURLs = (id) => {
-  return [`https://youtu.be/${id}`,`https://www.youtube.com/watch?v=${id}`]
+const getYoutubeURL = (id) => {
+  return `((youtu.be|www.youtube.com|youtube.com|m.youtube.com) ${id})`
 }
 
 const getUrlMeta = (url) => {
@@ -140,7 +140,7 @@ const getUrlMeta = (url) => {
   const isRedditDomain = redditlikeDomainStripped.match(/^\//)
   const isRedditPostURL = redditlikeDomainStripped.match(/^\/r\/[^/]*\/comments\/[a-z0-9]/i)
   let normalizedPostURLs = [url]
-  const isYoutubeURL = url.match(/^https?:\/\/(?:www\.)?(youtube\.com|youtu\.be)(\/.+)/i)
+  const isYoutubeURL = url.match(/^https?:\/\/(?:www\.|m\.)?(youtube\.com|youtu\.be)(\/.+)/i)
   if (isRedditPostURL) {
     normalizedPostURLs = [getMinimalPostPath(redditlikeDomainStripped)]
   } else if (isYoutubeURL && isYoutubeURL[2]) {
@@ -148,10 +148,10 @@ const getUrlMeta = (url) => {
       const params = new SimpleURLSearchParams(isYoutubeURL[2].split('?')[1])
       const v = params.get('v')
       if (v) {
-        normalizedPostURLs = getYoutubeURLs(v)
+        normalizedPostURLs = [getYoutubeURL(v)]
       }
     } else {
-      normalizedPostURLs = getYoutubeURLs(isYoutubeURL[2].split('?')[0])
+      normalizedPostURLs = [getYoutubeURL(isYoutubeURL[2].split('?')[0])]
     }
   }
   const postURL_ID = redditlikeDomainStripped.split('/')[4]
@@ -196,7 +196,13 @@ export const getRevdditDuplicatePosts = (threadID, global) => {
       promises.push(
         pushshiftQueryPosts(
           {selftext:
-            selftext_urls.map(u => '"'+u+'"').join('|')
+            selftext_urls.map(u => {
+              if (u.match(/^\(/)) {
+                return u
+              } else {
+                return '"'+u+'"'
+              }
+            }).join('|')
           }
         ))
     }
