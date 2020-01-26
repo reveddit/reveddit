@@ -160,33 +160,37 @@ const getUrlMeta = (url) => {
 
 export const getRevdditDuplicatePosts = (threadID, global) => {
   global.setLoading('')
-  return getItems(['t3_'+threadID])
-  .then(async redditPosts => {
-    const drivingPost = redditPosts[0]
-    const {isRedditDomain, isRedditPostURL, normalizedPostURLs, postURL_ID} = getUrlMeta(drivingPost.url)
-    const urls = [...normalizedPostURLs]
-    if (isRedditPostURL) {
-      const drivingPost_url_post = await getItems(['t3_'+postURL_ID])
-      if (drivingPost_url_post.length) {
-        const drivingPost_url_post_url = drivingPost_url_post[0].url
-        const {isRedditPostURL: isRedditPostURL_2, normalizedPostURLs: normalizedPostURLs_2} = getUrlMeta(drivingPost_url_post_url)
-        if (isRedditPostURLs_2) {
-          urls.push(...normalizedPostURLs_2)
-        } else {
-          urls.push(drivingPost_url_post_url)
+  return getItems(threadID.split('+').map(id => 't3_'+id))
+  .then(redditPosts => {
+    const promises = []
+    const urls = []
+    const selftext_urls = []
+    redditPosts.forEach(async drivingPost => {
+      const {isRedditDomain, isRedditPostURL, normalizedPostURLs, postURL_ID} = getUrlMeta(drivingPost.url)
+      urls.push(...normalizedPostURLs)
+      if (isRedditPostURL) {
+        const drivingPost_url_post = await getItems(['t3_'+postURL_ID])
+        if (drivingPost_url_post.length) {
+          const drivingPost_url_post_url = drivingPost_url_post[0].url
+          const {isRedditPostURL: isRedditPostURL_2, normalizedPostURLs: normalizedPostURLs_2} = getUrlMeta(drivingPost_url_post_url)
+          if (isRedditPostURLs_2) {
+            urls.push(...normalizedPostURLs_2)
+          } else {
+            urls.push(drivingPost_url_post_url)
+          }
         }
       }
-    }
-    const promises = []
-    const selftext_urls = []
-    if (! isRedditPostURL) {
-      const minimalPostPath = getMinimalPostPath(drivingPost.permalink)
-      urls.push(minimalPostPath)
-      selftext_urls.push(minimalPostPath)
-    }
-    promises.push(pushshiftQueryPosts({url: urls.join('|')}))
-    if (! isRedditDomain || isRedditPostURL) {
-      selftext_urls.push(...normalizedPostURLs)
+      if (! isRedditPostURL) {
+        const minimalPostPath = getMinimalPostPath(drivingPost.permalink)
+        urls.push(minimalPostPath)
+        selftext_urls.push(minimalPostPath)
+      }
+      if (! isRedditDomain || isRedditPostURL) {
+        selftext_urls.push(...normalizedPostURLs)
+      }
+    })
+    if (urls.length) {
+      promises.push(pushshiftQueryPosts({url: urls.join('|')}))
     }
     if (selftext_urls.length) {
       promises.push(
