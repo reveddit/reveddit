@@ -43,9 +43,9 @@ const queryItems = ({q, author, subreddit, n = 500, sort='desc', before, after, 
     ...(after && {after}),
     ...(before && {before}),
     ...(domain && {domain}),
-    ...(selftext && {selftext}),
     ...(parent_id && {parent_id})
   }
+  if (selftext) queryParams.selftext = encodeURIComponent(selftext)
   if (url) queryParams.url = encodeURIComponent(url)
 
   return window.fetch(apiURL+getQueryString(queryParams))

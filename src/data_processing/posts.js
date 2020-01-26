@@ -4,7 +4,7 @@ import {
   queryPosts as pushshiftQueryPosts
 } from 'api/pushshift'
 import { itemIsRemovedOrDeleted, postIsDeleted, display_post,
-         getUniqueItems
+         getUniqueItems, SimpleURLSearchParams
 } from 'utils'
 import { REMOVAL_META, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
          MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED, USER_REMOVED,
@@ -131,13 +131,31 @@ const getMinimalPostPath = (path) => {
   return path.split('/').slice(0,5).join('/')
 }
 
-const getRedditUrlMeta = (url) => {
-  const redditlikeDomainStripped = url.replace(/^https?:\/\/[^/]*(reddit\.com|removeddit\.com|ceddit\.com|unreddit\.com|snew\.github\.io|snew\.notabug\.io|politicbot\.github\.io|r\.go1dfish\.me|reve?ddit\.com)/,'')
+const getYoutubeURLs = (id) => {
+  return [`https://youtu.be/${id}`,`https://www.youtube.com/watch?v=${id}`]
+}
+
+const getUrlMeta = (url) => {
+  const redditlikeDomainStripped = url.replace(/^https?:\/\/[^/]*(reddit\.com|removeddit\.com|ceddit\.com|unreddit\.com|snew\.github\.io|snew\.notabug\.io|politicbot\.github\.io|r\.go1dfish\.me|reve?ddit\.com)/i,'')
   const isRedditDomain = redditlikeDomainStripped.match(/^\//)
   const isRedditPostURL = redditlikeDomainStripped.match(/^\/r\/[^/]*\/comments\/[a-z0-9]/i)
-  const normalizedPostURL = getMinimalPostPath(redditlikeDomainStripped)
+  let normalizedPostURLs = [url]
+  const isYoutubeURL = url.match(/^https?:\/\/(?:www\.)?(youtube\.com|youtu\.be)(\/.+)/i)
+  if (isRedditPostURL) {
+    normalizedPostURLs = [getMinimalPostPath(redditlikeDomainStripped)]
+  } else if (isYoutubeURL && isYoutubeURL[2]) {
+    if (isYoutubeURL[1] === 'youtube.com') {
+      const params = new SimpleURLSearchParams(isYoutubeURL[2].split('?')[1])
+      const v = params.get('v')
+      if (v) {
+        normalizedPostURLs = getYoutubeURLs(v)
+      }
+    } else {
+      normalizedPostURLs = getYoutubeURLs(isYoutubeURL[2].split('?')[0])
+    }
+  }
   const postURL_ID = redditlikeDomainStripped.split('/')[4]
-  return {isRedditDomain, isRedditPostURL, normalizedPostURL, postURL_ID}
+  return {isRedditDomain, isRedditPostURL, normalizedPostURLs, postURL_ID}
 }
 
 export const getRevdditDuplicatePosts = (threadID, global) => {
@@ -145,24 +163,21 @@ export const getRevdditDuplicatePosts = (threadID, global) => {
   return getItems(['t3_'+threadID])
   .then(async redditPosts => {
     const drivingPost = redditPosts[0]
-    let url = drivingPost.url
-    const {isRedditDomain, isRedditPostURL, normalizedPostURL, postURL_ID} = getRedditUrlMeta(drivingPost.url)
-    const urls = []
+    const {isRedditDomain, isRedditPostURL, normalizedPostURLs, postURL_ID} = getUrlMeta(drivingPost.url)
+    const urls = [...normalizedPostURLs]
     if (isRedditPostURL) {
-      url = normalizedPostURL
       const drivingPost_url_post = await getItems(['t3_'+postURL_ID])
       if (drivingPost_url_post.length) {
         const drivingPost_url_post_url = drivingPost_url_post[0].url
-        const {isRedditPostURL: isRedditPostURL_2, normalizedPostURL: normalizedPostURL_2} = getRedditUrlMeta(drivingPost_url_post_url)
-        if (isRedditPostURL_2) {
-          urls.push(normalizedPostURL_2)
+        const {isRedditPostURL: isRedditPostURL_2, normalizedPostURLs: normalizedPostURLs_2} = getUrlMeta(drivingPost_url_post_url)
+        if (isRedditPostURLs_2) {
+          urls.push(...normalizedPostURLs_2)
         } else {
           urls.push(drivingPost_url_post_url)
         }
       }
     }
     const promises = []
-    urls.push(url)
     const selftext_urls = []
     if (! isRedditPostURL) {
       const minimalPostPath = getMinimalPostPath(drivingPost.permalink)
@@ -171,7 +186,7 @@ export const getRevdditDuplicatePosts = (threadID, global) => {
     }
     promises.push(pushshiftQueryPosts({url: urls.join('|')}))
     if (! isRedditDomain || isRedditPostURL) {
-      selftext_urls.push(url)
+      selftext_urls.push(...normalizedPostURLs)
     }
     if (selftext_urls.length) {
       promises.push(
