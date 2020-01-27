@@ -8,6 +8,9 @@ const maxNumItems = 100
 const commentSortOptions = ['confidence', 'new', 'controversial', 'old', 'qa']
 const MIN_COMMENT_KARMA = 1000
 
+const paramString = (params) => {
+  return Object.keys(params).map(k => `${k}=${params[k]}`).join('&')
+}
 
 const errorHandler = (e) => {
   throw new Error(`Could not connect to Reddit: ${e}`)
@@ -46,7 +49,7 @@ export const queryUserPage = (user, kind, sort, before, after, t, limit = 100) =
     raw_json:1
   }
 
-  const url = oauth_reddit + `user/${user}/${kind}.json` + '?'+Object.keys(params).map(k => `${k}=${params[k]}`).join('&')
+  const url = oauth_reddit + `user/${user}/${kind}.json` + '?'+paramString(params)
   return getAuth()
     .then(auth => window.fetch(url, auth))
     .then(response => response.json())
@@ -70,7 +73,7 @@ export const queryUserPage = (user, kind, sort, before, after, t, limit = 100) =
 
 export const usernameAvailable = (user) => {
   var params = {user: user, raw_json:1}
-  const url = oauth_reddit + 'api/username_available' + '?'+Object.keys(params).map(k => `${k}=${params[k]}`).join('&')
+  const url = oauth_reddit + 'api/username_available' + '?'+paramString(params)
   return getAuth()
     .then(auth => window.fetch(url, auth))
     .then(response => response.json())
@@ -91,7 +94,7 @@ export const userPageHTML = (user) => {
 
 const queryByID = (ids, auth) => {
   var params = {id: ids.join(), raw_json:1}
-  const url = oauth_reddit + 'api/info' + '?'+Object.keys(params).map(k => `${k}=${params[k]}`).join('&')
+  const url = oauth_reddit + 'api/info' + '?'+paramString(params)
   return window.fetch(url, auth)
   .then(response => response.json())
   .then(results => results.data.children)
@@ -113,11 +116,17 @@ export const querySubredditPageUntil = (sub, encompass_created_utc, after = '') 
     })
 }
 
-export const querySubredditPage = (subreddit, sort, after = '') => {
-  var params = {after: after, limit: 100, raw_json:1}
-  const url = oauth_reddit + `r/${subreddit}/${sort}.json` + '?'+Object.keys(params).map(k => `${k}=${params[k]}`).join('&')
-  return getAuth()
-    .then(auth => window.fetch(url, auth))
+export const querySubredditPage = async (subreddit, sort, after = '', t = '', auth = null) => {
+  var params = {
+    ...(after && {after}),
+    ...(t && {t}),
+    limit: 100,
+    raw_json:1}
+  const url = oauth_reddit + `r/${subreddit}/${sort}.json` + '?'+paramString(params)
+  if (! auth) {
+    auth = await getAuth()
+  }
+  return window.fetch(url, auth)
     .then(response => response.json())
     .then(results => {
       return {posts: results.data.children.map(post => post.data),
@@ -128,7 +137,7 @@ export const querySubredditPage = (subreddit, sort, after = '') => {
 
 export const querySearchPageByUser = (user, sort, after = '') => {
   var params = {q:`author:${user}`, sort:sort, after:after, limit:100, t:'all', include_over_18:'on'}
-  const url = oauth_reddit + 'search.json' + '?'+Object.keys(params).map(k => `${k}=${params[k]}`).join('&')
+  const url = oauth_reddit + 'search.json' + '?'+paramString(params)
   return getAuth()
     .then(auth => window.fetch(url, auth))
     .then(response => response.json())
@@ -140,9 +149,13 @@ export const querySearchPageByUser = (user, sort, after = '') => {
 
 export const randomRedditor = async () => {
   const auth = await getAuth()
-  return searchPostsByNumComments(auth)
-    .then(posts => posts[getRandomInt(posts.length)].data)
+  return get_rAll_posts(auth)
+    .then(data => data.posts[getRandomInt(data.posts.length)])
     .then(post => selectRandomCommenter(auth, post, commentSortOptions[getRandomInt(commentSortOptions.length)]))
+}
+
+export const get_rAll_posts = async (auth = null) => {
+  return querySubredditPage('all', 'top', '', 'day', auth)
 }
 
 export const searchPostsByNumComments = async (auth = null) => {
@@ -157,7 +170,7 @@ export const searchPostsByNumComments = async (auth = null) => {
 
 
 export const selectRandomCommenter = async (auth, post, sort = 'new') => {
-  const url = oauth_reddit + `/r/${post.subreddit}/comments/${post.id}.json?sort=${sort}&limit=200`
+  const url = oauth_reddit + `r/${post.subreddit}/comments/${post.id}.json?sort=${sort}&limit=200`
   if (! auth) {
     auth = await getAuth()
   }
