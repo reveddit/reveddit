@@ -158,17 +158,6 @@ export const get_rAll_posts = async (auth = null) => {
   return querySubredditPage('all', 'top', '', 'day', auth)
 }
 
-export const searchPostsByNumComments = async (auth = null) => {
-  const url = oauth_reddit + 'search.json?' + 'q=nsfw%3Ano&sort=comments&t=day&limit=100'
-  if (! auth) {
-    auth = await getAuth()
-  }
-  return window.fetch(url, auth)
-  .then(response => response.json())
-  .then(result => result.data.children)
-}
-
-
 export const selectRandomCommenter = async (auth, post, sort = 'new') => {
   const url = oauth_reddit + `r/${post.subreddit}/comments/${post.id}.json?sort=${sort}&limit=200`
   if (! auth) {
