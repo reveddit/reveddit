@@ -1,6 +1,6 @@
 import React from 'react'
 import { connect } from 'state'
-import { BlankUser, BlankSubreddit } from 'pages/blank'
+import { BlankUser } from 'pages/blank'
 import Comment from 'pages/common/Comment'
 import Time from 'pages/common/Time'
 import { getComments } from 'api/reddit'

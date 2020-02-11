@@ -26,6 +26,7 @@
     "@babel/polyfill": "^7.4.4",
     "@babel/runtime": "^7.4.5",
     "apollo-boost": "^0.4.7",
+    "bowser": "^2.9.0",
     "github-fork-ribbon-css": "^0.2.3",
     "graphql": "^14.2.1",
     "js-detect-incognito-private-browsing": "https://github.com/Maykonn/js-detect-incognito-private-browsing-paywall#v2.5.1",

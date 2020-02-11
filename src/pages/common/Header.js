@@ -18,14 +18,17 @@ class Header extends React.Component {
   componentDidMount() {
     const entity_name = getEntityName(this.props.match.params)
     this.setState({entity_name})
+
     const bmd = window.BrowsingModeDetector()
     const hasVisitedSite = 'hasVisitedSite'
-    bmd.do((isIncognito, bmdI) => {
-      if (! isIncognito && ! get('hasNotifierExtension', false) && ! get(hasVisitedSite, false)) {
-        this.welcome()
-      }
-      put(hasVisitedSite, true)
-    })
+    setTimeout(() => {
+      bmd.do((isIncognito, bmdI) => {
+        if (! isIncognito && ! get('hasNotifierExtension', false) && ! get(hasVisitedSite, false)) {
+          this.welcome()
+        }
+        put(hasVisitedSite, true)
+      })
+    }, 1000)
   }
   componentDidUpdate(prevProps) {
     const entity_name = getEntityName(this.props.match.params)
@@ -138,7 +141,7 @@ class Header extends React.Component {
           <div id='header'>
             <div id='site-name'>re<span style={{color: 'white'}}>ve</span>ddit</div>
             <div id='nav'>
-              <Link to="/about">about</Link>
+              <Link to="/about/">about</Link>
               <span> | </span>
               <a href="#welcome" onClick={this.welcome}>welcome</a>
             </div>

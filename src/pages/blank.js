@@ -2,16 +2,6 @@ import React from 'react'
 import { Link, Redirect } from 'react-router-dom'
 import { SimpleURLSearchParams } from 'utils'
 import { Shuffle } from 'pages/common/svg'
-import { randomRedditor } from 'api/reddit'
-
-const handleRandomUser = () => {
-  randomRedditor()
-  .then(author => {
-    if (author) {
-      window.location.href = `/user/${author}?sort=top&all=true&t=year`
-    }
-  })
-}
 
 export class BlankUser extends React.Component {
   state = {
@@ -25,7 +15,7 @@ export class BlankUser extends React.Component {
 
     const val = data.get('username').trim().toLowerCase()
     if (val !== '') {
-      window.location.href = `/user/${val}${queryParams.toString()}`
+      window.location.href = `/user/${val}/${queryParams.toString()}`
     } else {
       this.setState({random: true})
     }
@@ -39,7 +29,7 @@ export class BlankUser extends React.Component {
     }
     return (
       <div className='blank_page'>
-        <div className='non-item text'>
+        <div className='text'>
           {text}
         </div>
         <form id='user-form' onSubmit={this.handleSubmitUser}>
@@ -65,15 +55,15 @@ export const BlankSubreddit = ({is_comments_page = false}) => {
     const val = data.get('subreddit').trim().toLowerCase()
     if (val !== '') {
       if (is_comments_page) {
-        window.location.href = `/r/${val}/comments?removedby=automod-rem-mod-app,mod`
+        window.location.href = `/r/${val}/comments/?removedby=automod-rem-mod-app,mod`
       } else {
-        window.location.href = `/r/${val}?localSort=num_comments`
+        window.location.href = `/r/${val}/?localSort=num_comments`
       }
     }
   }
   return (
     <div className='blank_page'>
-      <div className='non-item text'>
+      <div className='text'>
         Enter a subreddit to view removed content:
       </div>
       <form onSubmit={handleSubmitSub}>

@@ -61,7 +61,7 @@ class SubredditComments extends React.Component {
         {! hasVisitedUserPage &&
           <div className='notice-with-link userpage-note'>
             <div>{"Check if you have any removed comments."}</div>
-            <Link to={'/user'}>view my removed comments</Link>
+            <Link to={'/user/'}>view my removed comments</Link>
           </div>
         }
         <Highlight/>

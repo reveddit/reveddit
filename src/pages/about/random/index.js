@@ -8,7 +8,7 @@ export const Random = (props) => {
     randomRedditor()
     .then(author => {
       if (author) {
-        window.location.href = `/user/${author}?all=true&sort=top&t=year`
+        window.location.href = `/user/${author}/?all=true&sort=top&t=year`
       }
     })
   }, [])
