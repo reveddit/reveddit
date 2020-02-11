@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import Post from 'pages/common/Post'
 import Comment from 'pages/common/Comment'
 import LoadLink from './LoadLink'
+import Notice from 'pages/common/Notice'
 import Selections from 'pages/common/selections'
 import scrollToElement from 'scroll-to-element'
 import { connect, removedFilter_types } from 'state'
@@ -92,28 +93,24 @@ class User extends React.Component {
             <Highlight/>
             {numCollapsedNotShownMsg}
             { removedCommentIDs.length > 0 &&
-              <div className='notice-with-link'>
-                <div>Some comments have been removed. To view this on reddit, open the below link in an incognito window or while logged out.</div>
-                <a href={'https://www.reddit.com/api/info?id='+removedCommentIDs.join(',')} target="_blank">view removed comments on reddit</a>
-              </div>
+              <Notice message="Some comments have been removed. To view this on reddit, open the below link in an incognito window or while logged out."
+                htmlLink={<a href={'https://www.reddit.com/api/info?id='+removedCommentIDs.join(',')} target="_blank">view removed comments on reddit</a>}
+              />
             }
             {! gs.hasVisitedUserPage_sortTop &&
-              <div className='notice-with-link'>
-                <div>Sorting by top may show more results.</div>
-                <a href={'?sort=top&all=true'}>sort by top</a>
-              </div>
+              <Notice message="Sorting by top may show more results."
+                htmlLink={<a href={'?sort=top&all=true'}>sort by top</a>}
+              />
             }
             {gs.hasVisitedUserPage_sortTop && ! gs.hasVisitedSubredditPage &&
-              <div className='notice-with-link'>
-                <div>{"Subreddit pages work too."}</div>
-                <Link to={'/r/'}>view a subreddit</Link>
-              </div>
+              <Notice message="Subreddit pages work too."
+                htmlLink={<Link to={'/r/'}>view a subreddit</Link>}
+              />
             }
             {selectedItems &&
-              <div className='notice-with-link'>
-                <div>{"showing selected items."}</div>
-                <Link to={linkToRestOfComments}>view all items</Link>
-              </div>
+              <Notice message="showing selected items."
+                htmlLink={<Link to={linkToRestOfComments}>view all items</Link>}
+              />
             }
             {
               shownItems

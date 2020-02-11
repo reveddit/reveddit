@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import scrollToElement from 'scroll-to-element'
 import { connect, localSort_types } from 'state'
 import Post from 'pages/common/Post'
+import Notice from 'pages/common/Notice'
 import CommentSection from './CommentSection'
 import Selections from 'pages/common/selections'
 import { withFetch } from 'pages/RevdditFetcher'
@@ -22,7 +23,7 @@ class Thread extends React.Component {
     const { id, author } = post
     const { subreddit, threadID, urlTitle = '', commentID } = this.props.match.params
     const { selections, visibleItemsWithoutCategoryFilter } = this.props
-    const linkToRestOfComments = `/r/${subreddit}/comments/${threadID}/${urlTitle}`
+    const linkToRestOfComments = `/r/${subreddit}/comments/${threadID}/${urlTitle}/`
     const isSingleComment = (commentID !== undefined)
     const removedFiltersAreUnset = this.props.global.removedFiltersAreUnset()
     const postID = `t3_${id}`
@@ -38,6 +39,7 @@ class Thread extends React.Component {
         }
       }
     }
+    const viewAllComments = <Link to={linkToRestOfComments} onClick={this.props.global.resetRemovedFilters}>view all comments</Link>
 
     return (
       <React.Fragment>
@@ -55,16 +57,10 @@ class Thread extends React.Component {
             {(!loading && (commentID || id)) &&
               <React.Fragment>
                 {isSingleComment &&
-                  <div className='notice-with-link'>
-                    <div>{"you are viewing a single comment's thread."}</div>
-                    <Link to={linkToRestOfComments} onClick={this.props.global.resetRemovedFilters}>view all comments</Link>
-                  </div>
+                  <Notice message="you are viewing a single comment's thread." htmlLink={viewAllComments}/>
                 }
                 {! isSingleComment && ! removedFiltersAreUnset &&
-                  <div className='notice-with-link'>
-                    <div>{"some comments may be hidden by selected filters."}</div>
-                    <Link to={linkToRestOfComments} onClick={this.props.global.resetRemovedFilters}>view all comments</Link>
-                  </div>
+                  <Notice message="some comments may be hidden by selected filters." htmlLink={viewAllComments}/>
                 }
                 <CommentSection
                   root={root}
