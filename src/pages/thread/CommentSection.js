@@ -185,10 +185,10 @@ class CommentSection extends React.Component {
       status = (<p>No {removedFilter_text[removedFilter]} comments found</p>)
     }
     return (
-      <>
+      <div className='threadComments'>
         {comments_render}
         {status}
-      </>
+      </div>
     )
   }
 }
