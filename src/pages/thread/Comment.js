@@ -87,7 +87,7 @@ class Comment extends React.Component {
           <span className='space' />
           <span className='comment-score'>{prettyScore(props.score)} point{(props.score !== 1) && 's'}</span>
           <span className='space' />
-          <Time created_utc={props.created_utc}/>
+          <Time {...props}/>
           {props.locked && <span className='lockedTag'>locked</span>}
           <RemovedBy {...props} />
         </div>
