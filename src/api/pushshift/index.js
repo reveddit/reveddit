@@ -117,23 +117,27 @@ export const getCommentsBySubreddit = async function({subreddit: subreddits_str,
 }
 
 // this expects short IDs in base36, without the t1_ prefix
-export const getCommentsByID = async (ids) => {
+export const getCommentsByID = async (ids, field='ids', fields=comment_fields) => {
   const results = []
   let i = 0
   for (const ids_chunk of chunk(ids, maxNumItems)) {
     if (i > 0) {
       await promiseDelay(waitInterval)
     }
-    const result = await getCommentsByID_chunk(ids_chunk)
+    const result = await getCommentsByID_chunk(ids_chunk, field, fields)
     results.push(result)
     i += 1
   }
   return flatten(results)
 }
 
-export const getCommentsByID_chunk = (ids) => {
-  const params = 'ids='+ids.join(',')+`&fields=${comment_fields.join(',')}`
-  return window.fetch(commentURL+'?'+params)
+export const getCommentsByID_chunk = (ids, field='ids', fields=comment_fields) => {
+  const queryParams = {
+    fields: fields.join(','),
+    size: maxNumItems,
+    [field]: ids.join(',')
+  }
+  return window.fetch(commentURL+getQueryString(queryParams))
     .then(response => response.json())
     .then(data => {
       data.data.forEach(item => {
