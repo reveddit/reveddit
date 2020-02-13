@@ -19,6 +19,10 @@ export const retrieveRedditComments_and_combineWithPushshiftComments = pushshift
   })
 }
 
+const copy_fields = ['permalink', 'score', 'controversiality', 'stickied',
+                     'distinguished', 'locked', 'collapsed', 'edited',
+                     'subreddit_subscribers']
+
 export const combinePushshiftAndRedditComments = (pushshiftComments, redditComments, requirePushshiftData=true) => {
   const ids = pushshiftComments.map(comment => comment.id)
   const combinedComments = {}
@@ -56,13 +60,9 @@ export const combinePushshiftAndRedditComments = (pushshiftComments, redditComme
       } else {
         ps_comment.link_title = redditComment.permalink.split('/')[5].replace(/_/g, ' ')
       }
-      ps_comment.score = redditComment.score
-      ps_comment.controversiality = redditComment.controversiality
-      ps_comment.stickied = redditComment.stickied
-      ps_comment.distinguished = redditComment.distinguished
-      ps_comment.locked = redditComment.locked
-      ps_comment.collapsed = redditComment.collapsed
-      ps_comment.edited = redditComment.edited
+      copy_fields.forEach(field => {
+        ps_comment[field] = redditComment[field]
+      })
       ps_comment.replies = []
       if (redditComment.url) {
         ps_comment.url = redditComment.url
@@ -148,6 +148,9 @@ export const applyPostDataToComment = ({postData, comment}) => {
   }
   if ('quarantine' in postData_thisComment) {
     comment.quarantine = postData_thisComment.quarantine
+  }
+  if ('subreddit_subscribers' in postData_thisComment) {
+    comment.subreddit_subscribers = postData_thisComment.subreddit_subscribers
   }
   if ('author' in postData_thisComment && postData_thisComment.author === comment.author
       && comment.author !== '[deleted]') {

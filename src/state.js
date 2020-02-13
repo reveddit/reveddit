@@ -73,7 +73,8 @@ export const localSort_types = {
   controversiality2: 'controversiality2',
   comment_length: 'comment_length',
   num_crossposts: 'num_crossposts',
-  num_replies: 'num_replies'
+  num_replies: 'num_replies',
+  subreddit_subscribers: 'subreddit_subscribers'
 }
 // These defaults are for the URL
 export const filter_pageType_defaults = {

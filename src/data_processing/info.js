@@ -45,6 +45,17 @@ export const byNumReplies = (a, b) => {
   }
 }
 
+export const bySubredditSubscribers = (a, b) => {
+  if ('subreddit_subscribers' in a && 'subreddit_subscribers' in b) {
+    return (b.subreddit_subscribers - a.subreddit_subscribers) || (b.score - a.score)
+  } if ('subreddit_subscribers' in a) {
+    return -1
+  } else if ('subreddit_subscribers' in b) {
+    return 1
+  } else {
+    return (b.score - a.score)
+  }
+}
 export const byControversiality = (a, b) => {
   if ('num_comments' in a) {
     return  (a.score - b.score) || (b.num_comments - a.num_comments)
