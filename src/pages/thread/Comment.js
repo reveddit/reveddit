@@ -24,6 +24,7 @@ class Comment extends React.Component {
   }
   render() {
     let props = this.props
+    const {contextAncestors, focusCommentID} = this.props
     const showContext = this.props.global.state.showContext
     const updateStateAndURL = this.props.global.selection_update
     const context_update = this.props.global.context_update
@@ -59,6 +60,13 @@ class Comment extends React.Component {
     let submitter = ''
     if (! props.deleted && author !== '[deleted]' && props.is_op) {
       submitter = ' submitter '
+    }
+    if (Object.keys(contextAncestors).length &&
+        props.id != focusCommentID &&
+        ! contextAncestors['t1_'+props.id] &&
+        ! props.ancestors['t1_'+focusCommentID]
+        ) {
+      return <></>
     }
     return (
       <div id={name} className={`comment
@@ -128,7 +136,8 @@ class Comment extends React.Component {
                         depth={props.depth + 1}
                         global={props.global}
                         page_type={props.page_type}
-                        focusCommentID={props.focusCommentID}
+                        focusCommentID={focusCommentID}
+                        contextAncestors={contextAncestors}
                       />
                     ))
                 }

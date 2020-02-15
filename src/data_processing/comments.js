@@ -53,7 +53,6 @@ export const combinePushshiftAndRedditComments = (pushshiftComments, redditComme
     const redditComment = redditCommentLookup[ps_comment.id]
     ps_comment.name = 't1_'+ps_comment.id // name needed for info page render
     if (redditComment !== undefined) {
-      ps_comment.permalink = redditComment.permalink
       ps_comment.link_permalink = redditComment.permalink.split('/').slice(0,6).join('/')+'/'
       if (redditComment.link_title) {
         ps_comment.link_title = redditComment.link_title
