@@ -68,49 +68,55 @@ export const combinePushshiftAndRedditPosts = (pushshiftPosts, redditPosts, incl
     console.log('missing posts: '+missingPosts.join(' '))
   }
   const show_posts = []
-  redditPosts.forEach(post => {
+  redditPosts.forEach(reddit_post => {
+    const ps_post = pushshiftPosts_lookup[reddit_post.id]
+    const post = combineRedditAndPushshiftPost(reddit_post, ps_post)
     post.selftext = ''
-    const ps_item = pushshiftPosts_lookup[post.id]
-    let retrievalLatency = undefined
-    if (ps_item) {
-      retrievalLatency = ps_item.retrieved_on-ps_item.created_utc
-    }
-    if (post.crosspost_parent_list) {
-      post.num_crossposts += post.crosspost_parent_list.reduce((total,x) => total+x.num_crossposts,0)
-    }
-    if (itemIsRemovedOrDeleted(post)) {
-      if (postIsDeleted(post)) {
-        if (post.num_comments > 0 || includePostsWithZeroComments) {
-          post.deleted = true
-          display_post(show_posts, post, ps_item, isInfoPage)
-        } else {
-          // not showing deleted posts with 0 comments
-        }
-      } else {
-        post.removed = true
-        if (ps_item && 'is_robot_indexable' in ps_item && ! ps_item.is_robot_indexable) {
-          if (retrievalLatency !== undefined && retrievalLatency <= AUTOMOD_LATENCY_THRESHOLD) {
-            post.removedby = AUTOMOD_REMOVED
-          } else {
-            post.removedby = UNKNOWN_REMOVED
-          }
-        } else {
-          post.removedby = MOD_OR_AUTOMOD_REMOVED
-        }
-        display_post(show_posts, post, ps_item, isInfoPage)
+    if (post.deleted || post.removed) {
+      if (  (    post.num_comments > 0
+              || includePostsWithZeroComments)
+            || post.removed) {
+        display_post(show_posts, post, ps_post, isInfoPage)
       }
     } else {
-      // not-removed posts
-      if (ps_item && 'is_robot_indexable' in ps_item && ! ps_item.is_robot_indexable) {
-        post.removedby = AUTOMOD_REMOVED_MOD_APPROVED
-        //show_posts.push(post)
-      } else {
-        post.removedby = NOT_REMOVED
-      }
       show_posts.push(post)
     }
   })
   return show_posts
+}
+
+export const combineRedditAndPushshiftPost = (post, ps_post) => {
+  let retrievalLatency = undefined
+  if (ps_post) {
+    retrievalLatency = ps_post.retrieved_on-ps_post.created_utc
+  }
+  if (post.crosspost_parent_list) {
+    post.num_crossposts += post.crosspost_parent_list.reduce((total,x) => total+x.num_crossposts,0)
+  }
+  if (itemIsRemovedOrDeleted(post)) {
+    if (postIsDeleted(post)) {
+      post.deleted = true
+      post.selftext = ''
+    } else {
+      post.removed = true
+      if (ps_post && 'is_robot_indexable' in ps_post && ! ps_post.is_robot_indexable) {
+        if (retrievalLatency !== undefined && retrievalLatency <= AUTOMOD_LATENCY_THRESHOLD) {
+          post.removedby = AUTOMOD_REMOVED
+        } else {
+          post.removedby = UNKNOWN_REMOVED
+        }
+      } else {
+        post.removedby = MOD_OR_AUTOMOD_REMOVED
+      }
+    }
+  } else {
+    if (ps_post && 'is_robot_indexable' in ps_post && ! ps_post.is_robot_indexable) {
+      post.removedby = AUTOMOD_REMOVED_MOD_APPROVED
+    } else {
+      post.removedby = NOT_REMOVED
+    }
+  }
+  return post
 }
 
 export const getRevdditPostsByDomain = (domain, global) => {

@@ -1,4 +1,5 @@
 import { retrieveRedditComments_and_combineWithPushshiftComments } from 'data_processing/comments'
+import { combineRedditAndPushshiftPost } from 'data_processing/posts'
 import {
   getPost as getPushshiftPost,
   getCommentsByThread as getPushshiftCommentsByThread
@@ -33,39 +34,15 @@ export const getRevdditThreadPost = (threadID, global) => {
   const pushshift_promise = getPushshiftPost(threadID)
   return Promise.all([reddit_promise, pushshift_promise])
   .then(values => {
-    const post = values[0][0]
+    const reddit_post = values[0][0]
     const ps_post = values[1]
-    document.title = post.title
+    document.title = reddit_post.title
     if ((window.location.pathname.match(/\//g) || []).length < 6) {
-      window.history.replaceState(null,null,post.permalink+window.location.search)
+      window.history.replaceState(null,null,reddit_post.permalink+window.location.search)
     }
-    const retrievalLatency = ps_post.retrieved_on-ps_post.created_utc
-    if (itemIsRemovedOrDeleted(post)) {
-      if (postIsDeleted(post)) {
-        post.deleted = true
-        post.selftext = ''
-      } else {
-        post.removed = true
-        if (post.is_self) {
-          post.selftext = ps_post.selftext
-        }
-        if ('is_robot_indexable' in ps_post && ! ps_post.is_robot_indexable) {
-          if (retrievalLatency <= AUTOMOD_LATENCY_THRESHOLD) {
-            post.removedby = AUTOMOD_REMOVED
-          } else {
-            post.removedby = UNKNOWN_REMOVED
-          }
-        } else {
-          post.removedby = MOD_OR_AUTOMOD_REMOVED
-        }
-      }
-    } else {
-      // not-removed posts
-      if ('is_robot_indexable' in ps_post && ! ps_post.is_robot_indexable) {
-        post.removedby = AUTOMOD_REMOVED_MOD_APPROVED
-      } else {
-        post.removedby = NOT_REMOVED
-      }
+    const post = combineRedditAndPushshiftPost(reddit_post, ps_post)
+    if (post.removed && post.is_self) {
+      post.selftext = ps_post.selftext
     }
     global.setState({threadPost: post})
     return post
