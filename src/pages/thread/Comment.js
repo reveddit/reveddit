@@ -10,7 +10,9 @@ const contextDefault = 3
 
 class Comment extends React.Component {
   state = {
-    displayBody: ! this.props.stickied
+    displayBody: ! this.props.stickied ||
+                 this.props.contextAncestors['t1_'+this.props.id] ||
+                 this.props.id == this.props.focusCommentID
   }
   toggleDisplayBody() {
     this.setState({displayBody: ! this.state.displayBody})
