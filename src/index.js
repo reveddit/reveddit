@@ -12,6 +12,7 @@ import Info from 'pages/info'
 import SubredditPosts from 'pages/subreddit'
 import SubredditComments from 'pages/subreddit/comments'
 import Thread from 'pages/thread'
+import ThreadRedirect from 'pages/thread/redirect'
 import User from 'pages/user'
 import { BlankUser, BlankSubreddit } from 'pages/blank'
 import NotFound from 'pages/404'
@@ -89,7 +90,7 @@ class App extends React.Component {
                     <DefaultLayout path='/user/:user/:kind' page_type='user' component={User} />
                     <DefaultLayout path='/user/:user' page_type='user' component={User} />
                     <DefaultLayout path='/user/' page_type='blank_user' component={BlankUser} />
-                    <DefaultLayout path='/:threadID' page_type='thread' component={Thread} />
+                    <DefaultLayout path='/:threadID' page_type='thread' component={ThreadRedirect} />
                     <DefaultLayout component={NotFound} />
                   </Switch>
                 )
