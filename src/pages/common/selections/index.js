@@ -10,6 +10,7 @@ import TextFilter from 'pages/common/selections/TextFilter'
 import TagsFilter from 'pages/common/selections/TagsFilter'
 import UpvoteRemovalRateHistory from 'pages/common/selections/UpvoteRemovalRateHistory'
 import ResultsSummary from 'pages/common/ResultsSummary'
+import Selfposts from 'pages/common/selections/Selfposts'
 import { SimpleURLSearchParams } from 'utils'
 
 const paramKey = 'showFilters'
@@ -73,6 +74,9 @@ class Selections extends React.Component {
                     <React.Fragment>
                       {page_type === 'subreddit_posts' &&
                         <Content page_type={page_type}/>
+                      }
+                      {page_type === 'domain_posts' &&
+                        <Selfposts page_type={page_type}/>
                       }
                       <LocalSort page_type={page_type}/>
                       <RemovedFilter page_type={page_type} />

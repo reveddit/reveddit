@@ -105,6 +105,8 @@ export const combineRedditAndPushshiftPost = (post, ps_post) => {
         } else {
           post.removedby = UNKNOWN_REMOVED
         }
+      } else if (! ps_post || ! ('is_robot_indexable' in ps_post)) {
+        post.removedby = UNKNOWN_REMOVED
       } else {
         post.removedby = MOD_OR_AUTOMOD_REMOVED
       }
@@ -119,13 +121,41 @@ export const combineRedditAndPushshiftPost = (post, ps_post) => {
   return post
 }
 
+const reduceDomain = (map, e) => {
+  map[e] = 1
+  const base = e.replace(/^www\./i,'')
+  map[base] = 1
+  if (base.split('.').length-1 == 1) {
+    map['www.'+base] = 1
+  }
+  if (base in youtube_aliases) {
+    Object.keys(youtube_aliases).forEach(alias => {
+      map[alias] = 1
+    })
+  }
+  return map
+}
+
 export const getRevdditPostsByDomain = (domain, global) => {
-  const {n, before, before_id} = global.state
+  const {n, before, before_id, selfposts} = global.state
   global.setLoading('')
   if (window.location.pathname.match(/^\/r\/([^/]*)\/.+/g)) {
     window.history.replaceState(null,null,`/r/${domain}/`+window.location.search)
   }
-  return pushshiftGetPostsBySubredditOrDomain({domain, n, before, before_id})
+  const domains = Object.keys(domain.split('+').reduce(reduceDomain, {}))
+  const promises = [pushshiftGetPostsBySubredditOrDomain({domain:domains.join('+'), n, before, before_id})]
+  const addQuery = selfposts && domains.length
+  if (addQuery) {
+    promises.push(pushshiftQueryPosts({selftext:domains.join('|')}))
+  }
+  return Promise.all(promises)
+  .then(results => {
+    if (addQuery) {
+      return results[0].concat(results[1])
+    } else {
+      return results[0]
+    }
+  })
   .then(retrieveRedditPosts_and_combineWithPushshiftPosts)
   .then(show_posts => {
     global.setSuccess({items:show_posts})
@@ -137,8 +167,12 @@ const getMinimalPostPath = (path) => {
   return path.split('/').slice(0,5).join('/')
 }
 
+const youtube_aliases = {
+  'youtu.be':1,'www.youtu.be':1,'www.youtube.com':1,'youtube.com':1,'m.youtube.com':1
+}
+
 const getYoutubeURL = (id) => {
-  return `((youtu.be|www.youtube.com|youtube.com|m.youtube.com) ${id})`
+  return `((${Object.keys(youtube_aliases).join('|')}) ${id})`
 }
 
 const getUrlMeta = (url) => {

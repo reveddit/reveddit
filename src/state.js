@@ -51,7 +51,8 @@ export const urlParamKeys = {
   q: 'q', author: 'author', subreddit: 's_subreddit', after: 'after', domain: 's_domain', or_domain: 's_or_domain',
   content: 'content',
   tagsFilter: 'tags',
-  url: 'url'
+  url: 'url',
+  selfposts: 'selfposts'
 }
 
 export const removedFilter_types = {
@@ -109,7 +110,8 @@ export const filter_pageType_defaults = {
   context: '',
   frontPage: false,
   q: '', author: '', subreddit: '', after: '', domain: '', or_domain: '',
-  content: 'all', url: ''
+  content: 'all', url: '',
+  selfposts: true
 }
 
 const maxN = 60000
@@ -123,6 +125,20 @@ const getMultiFilterSettings = (stringValue) => {
     }
   })
   return settings
+}
+export const create_qparams_and_adjust = (page_type, selection, value) => {
+  const queryParams = new SimpleURLSearchParams(window.location.search)
+  adjust_qparams_for_selection(page_type, queryParams, selection, value)
+  return queryParams
+}
+const adjust_qparams_for_selection = (page_type, queryParams, selection, value) => {
+  if (value === filter_pageType_defaults[selection] ||
+      value === filter_pageType_defaults[selection][page_type]) {
+    queryParams.delete(urlParamKeys[selection])
+  } else {
+    queryParams.set(urlParamKeys[selection], value)
+  }
+  return queryParams
 }
 
 class GlobalState extends Container {
@@ -139,6 +155,7 @@ class GlobalState extends Container {
         keywords: '',
         items: [],
         threadPost: {},
+        redditThreadPost: {},
         num_pages: 0,
         userNext: null,
         selection_defaults: {},
@@ -160,7 +177,8 @@ class GlobalState extends Container {
         context: '',
         frontPage: false,
         q: '', author: '', subreddit: '', after: '', domain: '', or_domain: '',
-        content: 'all', url: ''
+        content: 'all', url: '',
+        selfposts: true
       }
   }
 
@@ -226,22 +244,12 @@ class GlobalState extends Container {
   context_update = (context, page_type, callback = () => {}) => {
     const queryParams = new SimpleURLSearchParams(window.location.search)
     queryParams.set('context', context)
-    this.adjust_qparams_for_selection(page_type, queryParams, 'showContext', true)
+    adjust_qparams_for_selection(page_type, queryParams, 'showContext', true)
     return this.setStateFromQueryParams(page_type, queryParams, {}, callback)
   }
   selection_update = (selection, value, page_type, callback = () => {}) => {
-    const queryParams = new SimpleURLSearchParams(window.location.search)
-    this.adjust_qparams_for_selection(page_type, queryParams, selection, value)
+    const queryParams = create_qparams_and_adjust(page_type, selection, value)
     return this.updateURLandState(queryParams, page_type, callback)
-  }
-  adjust_qparams_for_selection = (page_type, queryParams, selection, value) => {
-    if (value === filter_pageType_defaults[selection] ||
-        value === filter_pageType_defaults[selection][page_type]) {
-      queryParams.delete(urlParamKeys[selection])
-    } else {
-      queryParams.set(urlParamKeys[selection], value)
-    }
-    return queryParams
   }
   updateURLandState = (queryParams, page_type, callback = () => {}) => {
     let to = `${window.location.pathname}${queryParams.toString()}`
@@ -266,7 +274,7 @@ class GlobalState extends Container {
       queryParams.delete(urlParamKeys.removedByFilter)
     }
 
-    this.adjust_qparams_for_selection(page_type, queryParams, 'removedFilter', value)
+    adjust_qparams_for_selection(page_type, queryParams, 'removedFilter', value)
     return this.updateURLandState(queryParams, page_type)
   }
   removedByFilter_update = (target, page_type) => {
@@ -279,7 +287,7 @@ class GlobalState extends Container {
     }
     const value = Object.keys(removedby_settings).join()
 
-    this.adjust_qparams_for_selection(page_type, queryParams, 'removedByFilter', value)
+    adjust_qparams_for_selection(page_type, queryParams, 'removedByFilter', value)
     return this.updateURLandState(queryParams, page_type)
   }
   tagsFilter_update = (target, page_type) => {
@@ -292,7 +300,7 @@ class GlobalState extends Container {
     }
     const value = Object.keys(settings).join()
 
-    this.adjust_qparams_for_selection(page_type, queryParams, 'tagsFilter', value)
+    adjust_qparams_for_selection(page_type, queryParams, 'tagsFilter', value)
     return this.updateURLandState(queryParams, page_type)
   }
 
