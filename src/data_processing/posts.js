@@ -123,16 +123,18 @@ export const combineRedditAndPushshiftPost = (post, ps_post) => {
 }
 
 const reduceDomain = (map, e) => {
-  map[e] = 1
-  const base = e.replace(/^www\./i,'')
-  map[base] = 1
-  if (base.split('.').length-1 == 1) {
-    map['www.'+base] = 1
-  }
-  if (base in youtube_aliases) {
-    Object.keys(youtube_aliases).forEach(alias => {
-      map[alias] = 1
-    })
+  if (e.split('.').length > 1) {
+    map[e] = 1
+    const base = e.replace(/^www\./i,'')
+    map[base] = 1
+    if (base.split('.').length-1 == 1) {
+      map['www.'+base] = 1
+    }
+    if (base in youtube_aliases) {
+      Object.keys(youtube_aliases).forEach(alias => {
+        map[alias] = 1
+      })
+    }
   }
   return map
 }
@@ -144,24 +146,28 @@ export const getRevdditPostsByDomain = (domain, global) => {
     window.history.replaceState(null,null,`/r/${domain}/`+window.location.search)
   }
   const domains = Object.keys(domain.split('+').reduce(reduceDomain, {}))
-  const promises = [pushshiftGetPostsBySubredditOrDomain({domain:domains.join('+'), n, before, before_id})]
-  const addQuery = selfposts && domains.length
-  if (addQuery) {
-    promises.push(pushshiftQueryPosts({selftext:domains.join('|')}))
-  }
-  return Promise.all(promises)
-  .then(results => {
+  if (domains.length) {
+    const promises = [pushshiftGetPostsBySubredditOrDomain({domain:domains.join('+'), n, before, before_id})]
+    const addQuery = selfposts && domains.length
     if (addQuery) {
-      return results[0].concat(results[1])
-    } else {
-      return results[0]
+      promises.push(pushshiftQueryPosts({selftext:domains.join('|')}))
     }
-  })
-  .then(retrieveRedditPosts_and_combineWithPushshiftPosts)
-  .then(show_posts => {
-    global.setSuccess({items:show_posts})
-    return show_posts
-  })
+    return Promise.all(promises)
+    .then(results => {
+      if (addQuery) {
+        return results[0].concat(results[1])
+      } else {
+        return results[0]
+      }
+    })
+    .then(retrieveRedditPosts_and_combineWithPushshiftPosts)
+    .then(show_posts => {
+      global.setSuccess({items:show_posts})
+      return show_posts
+    })
+  } else {
+    global.setError('')
+  }
 }
 
 const getMinimalPostPath = (path) => {
