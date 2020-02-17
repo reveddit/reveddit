@@ -97,6 +97,7 @@ export const combineRedditAndPushshiftPost = (post, ps_post) => {
     if (postIsDeleted(post)) {
       post.deleted = true
       post.selftext = ''
+      post.removedby = USER_REMOVED
     } else {
       post.removed = true
       if (ps_post && 'is_robot_indexable' in ps_post && ! ps_post.is_robot_indexable) {
