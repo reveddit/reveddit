@@ -54,6 +54,10 @@ class Post extends React.Component {
     if (directlink) {
       directlink += `limit=1&sort=${props.sort}&show=${props.name}&removal_status=all`
     }
+    let domain = props.domain
+    if (! domain.match(/^self\.[^.]+$/)) {
+      domain = <a href={`/domain/${props.domain}/`}>{props.domain}</a>
+    }
 
     return (
       <div id={props.name} className={`post thread
@@ -77,7 +81,7 @@ class Post extends React.Component {
             props.link_flair_text &&
             <span className='link-flair'>{props.link_flair_text}</span>
           }
-          <span className='domain'>({props.domain})</span>
+          <span className='domain'>({domain})</span>
           <div className='thread-info'>
             submitted <Time {...props}/> by&nbsp;
             <a className={`author ${props.distinguished ? 'distinguished '+props.distinguished : ''}`}
