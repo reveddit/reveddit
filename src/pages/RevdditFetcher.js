@@ -10,7 +10,8 @@ import { itemIsOneOfSelectedRemovedBy, itemIsOneOfSelectedTags } from 'data_proc
 import Selections from 'pages/common/selections'
 import { removedFilter_types, getExtraGlobalStateVars } from 'state'
 import { NOT_REMOVED, COLLAPSED } from 'pages/common/RemovedBy'
-import { SimpleURLSearchParams, jumpToHash, get, put, ext_urls, itemIsCollapsed } from 'utils'
+import { SimpleURLSearchParams, jumpToHash, get, put, ext_urls,
+         itemIsActioned, itemIsCollapsed } from 'utils'
 
 const getCategorySettings = (page_type, subreddit) => {
   const category_settings = {
@@ -287,12 +288,13 @@ export const withFetch = (WrappedComponent) =>
       gs.items.forEach(item => {
         if (
           (gs.removedFilter === removedFilter_types.all ||
-            (gs.removedFilter === removedFilter_types.not_removed &&
-              (! item.deleted && ! item.removed && item.removedby === NOT_REMOVED && ! itemIsCollapsed(item)) ) ||
+            (
+              gs.removedFilter === removedFilter_types.not_removed &&
+              ! itemIsActioned(item)
+            ) ||
             (
               gs.removedFilter === removedFilter_types.removed &&
-                (item.deleted || item.removed || item.locked || itemIsCollapsed(item) ||
-                (item.removedby && item.removedby !== NOT_REMOVED))
+              itemIsActioned(item)
             )
           ) &&
           ( (removedByFilterIsUnset || itemIsOneOfSelectedRemovedBy(item, gs)) &&

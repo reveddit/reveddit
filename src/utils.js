@@ -144,11 +144,6 @@ export const oldSort = (commentA, commentB) => {
   return 0
 }
 
-// Filter comments
-export const showRemoved = comment => comment.removed === true
-export const showDeleted = comment => comment.deleted === true
-export const showRemovedAndDeleted = comment => comment.removed === true || comment.deleted === true || comment.removedby === AUTOMOD_REMOVED_MOD_APPROVED || itemIsCollapsed(comment)
-
 export const getPrettyTimeLength = (seconds) => {
   const thresholds = [[60, 'second', 'seconds'], [60, 'minute', 'minutes'], [24, 'hour', 'hours'], [7, 'day', 'days'],
                    [365/12/7, 'week', 'weeks'], [12, 'month', 'months'], [10, 'year', 'years'],
@@ -324,8 +319,18 @@ export const promiseDelay = (ms) => {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
 
+export const itemIsActioned = item =>
+  item.removed || item.deleted || item.removedby === AUTOMOD_REMOVED_MOD_APPROVED ||
+  itemIsCollapsed(item) || item.locked
+
 export const itemIsCollapsed = (item) => {
   return item.collapsed && item.score > 0 && ! item.removed && ! item.deleted
+}
+
+export const not = (f) => {
+  return function () {
+    return ! f.apply(this, arguments)
+  }
 }
 
 export const getRandomInt = (max) => {

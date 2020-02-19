@@ -1,10 +1,9 @@
 import React from 'react'
 import Comment from './Comment'
 import {connect, localSort_types, removedFilter_types, removedFilter_text} from 'state'
-import { showRemovedAndDeleted } from 'utils'
-import { NOT_REMOVED, REMOVAL_META, USER_REMOVED } from 'pages/common/RemovedBy'
+import { NOT_REMOVED, REMOVAL_META, USER_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED } from 'pages/common/RemovedBy'
 import { itemIsOneOfSelectedRemovedBy, itemIsOneOfSelectedTags } from 'data_processing/filters'
-import { reversible } from 'utils'
+import { reversible, itemIsActioned, not } from 'utils'
 import { cloneDeep } from 'lodash'
 
 const byScore = (a, b) => {
@@ -37,8 +36,6 @@ const byControversiality2 = (a, b) => {
   return (b.stickied - a.stickied) || (b.controversiality - a.controversiality)
       || (b.replies.length - a.replies.length) || (a_score_abs - b_score_abs)
 }
-
-const showNotRemoved = comment => comment.removedby === NOT_REMOVED && ! comment.deleted
 
 class CommentSection extends React.Component {
 
@@ -106,9 +103,9 @@ class CommentSection extends React.Component {
     let commentTree = cloneDeep(commentTreeSubset)
     if (showContext) {
       if (removedFilter === removedFilter_types.removed) {
-        this.filterCommentTree(commentTree, showRemovedAndDeleted)
+        this.filterCommentTree(commentTree, itemIsActioned)
       } else if (removedFilter === removedFilter_types.not_removed) {
-        this.filterCommentTree(commentTree, showNotRemoved)
+        this.filterCommentTree(commentTree, not(itemIsActioned))
       }
       if (! removedByFilterIsUnset) {
         this.filterCommentTree(commentTree, this.itemIsOneOfSelectedRemovedBy_local)
