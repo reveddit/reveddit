@@ -3,7 +3,7 @@ import { isCommentID, isPostID, getUniqueItems,
          itemIsRemovedOrDeleted, postIsDeleted
 } from 'utils'
 import {
-  getItems as getRedditItemsByID
+  getItems as getRedditItems
 } from 'api/reddit'
 import {
   getPostsByID as getPushshiftPosts,
@@ -75,19 +75,20 @@ export const getRevdditItems = (global) => {
   })
 
   // query PS twice, reddit in chunks, all at the same time
-  const reddit_promise = getRedditItemsByID(ids)
+  const reddit_promise = getRedditItems(ids)
   const pushshift_promises = [getPushshiftComments(commentIDs),
                               getPushshiftPosts(postIDs)]
   return reddit_promise
   .then(redditItems => {
-    const redditComments = []
+    const redditComments = {}
     const redditPosts = []
     const link_ids_set = {}
-    redditItems.forEach(item => {
+    const redditItemsArray = Object.values(redditItems)
+    redditItemsArray.forEach(item => {
       item.link_title = item.permalink.split('/')[5].replace(/_/g, ' ')
       item.link_permalink = item.permalink.split('/').slice(0,6).join('/')+'/'
       if (isCommentID(item.name)) {
-        redditComments.push(item)
+        redditComments[item.id] = item
         link_ids_set[item.link_id] = true
         if (commentIsRemoved(item)) {
           item.removed = true
@@ -106,26 +107,24 @@ export const getRevdditItems = (global) => {
         }
       }
     })
-    global.setState({items: redditItems})
+    global.setState({items: redditItemsArray})
     return getPostDataForComments({link_ids_set})
     .then(postData => {
-      redditComments.forEach(comment => {
+      Object.values(redditComments).forEach(comment => {
         if (postData && comment.link_id in postData) {
           applyPostDataToComment({postData, comment})
         }
       })
-      global.setState({items: redditItems})
+      global.setState({items: redditItemsArray})
     })
     .then(result => {
       return Promise.all(pushshift_promises)
       .then(result => {
-
         const pushshiftComments = result[0]
         const pushshiftPosts = result[1]
-
         const combinedComments = combinePushshiftAndRedditComments(pushshiftComments, redditComments, false)
         const combinedPosts = combinePushshiftAndRedditPosts(pushshiftPosts, redditPosts, true, true)
-        global.setSuccess({items: combinedComments.concat(combinedPosts)})
+        global.setSuccess({items: Object.values(combinedComments).concat(combinedPosts)})
       })
     })
   })
@@ -172,7 +171,7 @@ export const getRevdditSearch = (global) => {
     }
     if (include_comments) {
       const commentIDs = results[0].map(x => x.id)
-      commentChildrenPromise = getPushshiftComments(commentIDs, 'parent_id', ['parent_id'])
+      commentChildrenPromise = getPushshiftComments(commentIDs, 'parent_id', ['parent_id', 'id'])
     }
     return Promise.all(nextPromises)
   })
@@ -180,7 +179,7 @@ export const getRevdditSearch = (global) => {
     let childCounts = {}
     if (commentChildrenPromise) {
       const commentChildren = await commentChildrenPromise
-      childCounts = commentChildren.reduce((acc, comment) => {
+      childCounts = Object.values(commentChildren).reduce((acc, comment) => {
         acc[comment.parent_id] = (acc[comment.parent_id] || 0) + 1
         return acc
       }, {})

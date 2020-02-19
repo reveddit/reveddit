@@ -178,7 +178,9 @@ class GlobalState extends Container {
         frontPage: false,
         q: '', author: '', subreddit: '', after: '', domain: '', or_domain: '',
         content: 'all', url: '',
-        selfposts: true
+        selfposts: true,
+        itemsLookup: {},
+        commentTree: []
       }
   }
 

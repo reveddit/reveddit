@@ -1,4 +1,4 @@
-import { getItems } from 'api/reddit'
+import { getPosts as getRedditPosts } from 'api/reddit'
 import {
   getPostsBySubredditOrDomain as pushshiftGetPostsBySubredditOrDomain,
   queryPosts as pushshiftQueryPosts
@@ -40,10 +40,9 @@ export const byNumCrossposts = (a, b) => {
 }
 
 export const retrieveRedditPosts_and_combineWithPushshiftPosts = (pushshiftPosts, includePostsWithZeroComments = false) => {
-  const ids = pushshiftPosts.map(post => post.name)
-  return getItems(ids)
+  return getRedditPosts({objects: pushshiftPosts})
   .then(redditPosts => {
-    return combinePushshiftAndRedditPosts(pushshiftPosts, redditPosts, includePostsWithZeroComments)
+    return combinePushshiftAndRedditPosts(pushshiftPosts, Object.values(redditPosts), includePostsWithZeroComments)
   })
 }
 
@@ -207,16 +206,16 @@ const getUrlMeta = (url) => {
 
 export const getRevdditDuplicatePosts = (threadID, global) => {
   global.setLoading('')
-  return getItems(threadID.split('+').map(id => 't3_'+id))
+  return getRedditPosts({ids: threadID.split('+')})
   .then(redditPosts => {
     const promises = []
     const urls = []
     const selftext_urls = []
-    redditPosts.forEach(async drivingPost => {
+    Object.values(redditPosts).forEach(async drivingPost => {
       const {isRedditDomain, isRedditPostURL, normalizedPostURLs, postURL_ID} = getUrlMeta(drivingPost.url)
       urls.push(...normalizedPostURLs)
       if (isRedditPostURL) {
-        const drivingPost_url_post = await getItems(['t3_'+postURL_ID])
+        const drivingPost_url_post = Object.values(await getRedditPosts({ids: postURL_ID}))
         if (drivingPost_url_post.length) {
           const drivingPost_url_post_url = drivingPost_url_post[0].url
           const {isRedditPostURL: isRedditPostURL_2, normalizedPostURLs: normalizedPostURLs_2} = getUrlMeta(drivingPost_url_post_url)

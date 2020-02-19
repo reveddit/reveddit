@@ -2,7 +2,7 @@ import {
   getPostsBySubredditOrDomain as pushshiftGetPostsBySubredditOrDomain
 } from 'api/pushshift'
 import { getRemovedPostIDs } from 'api/removeddit'
-import { getItems } from 'api/reddit'
+import { getPosts as getRedditPosts } from 'api/reddit'
 import { postIsDeleted } from 'utils'
 import { retrieveRedditPosts_and_combineWithPushshiftPosts } from 'data_processing/posts'
 
@@ -15,9 +15,10 @@ export const getRevdditPostsBySubreddit = (subreddit, global) => {
   global.setLoading('')
   if (subreddit === 'all' || frontPage) {
     return getRemovedPostIDs(subreddit)
-    .then(postIDs => getItems(postIDs.map(id => 't3_'+id)))
+    .then(ids => getRedditPosts({ids}))
     .then(posts => {
-      posts.forEach(post => {
+      const posts_array = Object.values(posts)
+      posts_array.forEach(post => {
         post.selftext = ''
         if (postIsDeleted(post)) {
           post.deleted = true
@@ -25,7 +26,7 @@ export const getRevdditPostsBySubreddit = (subreddit, global) => {
           post.removed = true
         }
       })
-      global.setSuccess({items: posts})
+      global.setSuccess({items: posts_array})
       return posts
     })
     .catch(global.setError)

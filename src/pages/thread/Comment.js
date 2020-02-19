@@ -11,7 +11,7 @@ const contextDefault = 3
 class Comment extends React.Component {
   state = {
     displayBody: ! this.props.stickied ||
-                 this.props.contextAncestors['t1_'+this.props.id] ||
+                 this.props.contextAncestors[this.props.id] ||
                  this.props.id == this.props.focusCommentID
   }
   toggleDisplayBody() {
@@ -65,8 +65,8 @@ class Comment extends React.Component {
     }
     if (Object.keys(contextAncestors).length &&
         props.id != focusCommentID &&
-        ! contextAncestors['t1_'+props.id] &&
-        ! props.ancestors['t1_'+focusCommentID]
+        ! contextAncestors[props.id] &&
+        ! props.ancestors[focusCommentID]
         ) {
       return <></>
     }

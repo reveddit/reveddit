@@ -16,27 +16,67 @@ const errorHandler = (e) => {
   throw new Error(`Could not connect to Reddit: ${e}`)
 }
 
-export const getComments = commentIDs => {
-  const full_ids = commentIDs.map(id => `t1_${id}`)
-  return getItems(full_ids)
+export const getComments = ({objects = undefined, ids = []}) => {
+  const full_ids = getFullIDsForObjects(objects, ids, 't1_')
+  return getItems(full_ids, 'id')
 }
 
-export const getItems = async (ids) => {
+export const getPosts = ({objects = undefined, ids = []}) => {
+  const full_ids = getFullIDsForObjects(objects, ids, 't3_')
+  return getItems(full_ids, 'id')
+}
+
+const getFullIDsForObjects = (objects, ids, prefix) => {
+  let full_ids = []
+  if (typeof(objects) === 'object') {
+    if (Array.isArray(objects)) {
+      full_ids = objects.map(o => prefix+o.id)
+    } else {
+      full_ids = Object.values(objects).map(o => prefix+o.id)
+    }
+  } else {
+    full_ids = ids.map(id => prefix+id)
+  }
+  return full_ids
+}
+
+export const mapRedditObj = (map, obj, key = 'name') => (map[obj.data[key]] = obj.data, map)
+
+export const getItems = async (ids, key = 'name') => {
+  const results = {}
   return getAuth()
   .then(async (auth) => {
-    const results = []
+    const promises = []
     let i = 0
     for (const ids_chunk of chunk(ids, maxNumItems)) {
       if (i > 0 && i % numRequestsBeforeWait === 0) {
         await promiseDelay(waitInterval)
       }
-      const result = queryByID(ids_chunk, auth)
-      results.push(result)
+      promises.push(queryByID(ids_chunk, auth, key, results))
       i += 1
     }
-    return Promise.all(results).then(flatten)
+    return Promise.all(promises).then(res => results)
   })
   .catch(errorHandler)
+}
+
+export const getPostWithComments = (threadID, sort = 'old', limit=500) => {
+  const params = {
+    limit,
+    sort,
+    threaded: false,
+    showmore: false
+  }
+  const url = oauth_reddit + `comments/${threadID}.json`+'?'+paramString(params)
+  return getAuth()
+    .then(auth => window.fetch(url, auth))
+    .then(response => response.json())
+    .then(results => {
+      return {
+        post: results[0].data.children[0].data,
+        comments: results[1].data.children.reduce((map, obj) => mapRedditObj(map, obj, 'id'), {})
+      }
+    })
 }
 
 export const queryUserPage = (user, kind, sort, before, after, t, limit = 100) => {
@@ -92,13 +132,12 @@ export const userPageHTML = (user) => {
     })
 }
 
-const queryByID = (ids, auth) => {
+const queryByID = (ids, auth, key = 'name', results = {}) => {
   var params = {id: ids.join(), raw_json:1}
   const url = oauth_reddit + 'api/info' + '?'+paramString(params)
   return window.fetch(url, auth)
   .then(response => response.json())
-  .then(results => results.data.children)
-  .then(data => data.map(thing => thing.data))
+  .then(json => json.data.children.reduce((map, obj) => mapRedditObj(map, obj, key), results))
   .catch(errorHandler)
 }
 

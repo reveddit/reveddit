@@ -8,7 +8,8 @@ const comment_fields_for_autoremoved = ['id', 'retrieved_on' ,'created_utc' ,'au
 
 const post_fields = ['id', 'retrieved_on', 'created_utc', 'is_robot_indexable', 'retrieved_utc']
 
-const post_fields_for_comment_data = ['id', 'title', 'whitelist_status', 'url', 'num_comments', 'quarantine']
+const post_fields_for_comment_data = ['id', 'title', 'whitelist_status', 'url', 'author',
+                                      'num_comments', 'quarantine', 'subreddit_subscribers']
 
 const postURL = 'https://api.pushshift.io/reddit/submission/search/'
 const commentURL = 'https://api.pushshift.io/reddit/comment/search/'
@@ -117,21 +118,21 @@ export const getCommentsBySubreddit = async function({subreddit: subreddits_str,
 }
 
 // this expects short IDs in base36, without the t1_ prefix
+// fields must include 'id'
 export const getCommentsByID = async (ids, field='ids', fields=comment_fields) => {
-  const results = []
+  const results = {}
   let i = 0
   for (const ids_chunk of chunk(ids, maxNumItems)) {
     if (i > 0) {
       await promiseDelay(waitInterval)
     }
-    const result = await getCommentsByID_chunk(ids_chunk, field, fields)
-    results.push(result)
+    await getCommentsByID_chunk(ids_chunk, field, fields, results)
     i += 1
   }
-  return flatten(results)
+  return results
 }
 
-export const getCommentsByID_chunk = (ids, field='ids', fields=comment_fields) => {
+export const getCommentsByID_chunk = (ids, field='ids', fields=comment_fields, results={}) => {
   const queryParams = {
     fields: fields.join(','),
     size: maxNumItems,
@@ -142,14 +143,18 @@ export const getCommentsByID_chunk = (ids, field='ids', fields=comment_fields) =
     .then(data => {
       data.data.forEach(item => {
         update_retrieved_field(item)
+        results[item.id] = item
       })
-      return data.data
+      return results
     })
 }
 
 export const getPostsByIDForCommentData = (ids) => {
   const fields = post_fields_for_comment_data
-  return getPostsByID(ids, fields)
+  return getPostsByID(ids.map(id => id.slice(3)), fields)
+  .then(posts => {
+    return posts.reduce((map, obj) => (map[obj.name] = obj, map), {})
+  })
 }
 
 // If before_id is set, response begins with that ID
@@ -290,13 +295,14 @@ export const getCommentsByThread = (threadID) => {
   return window.fetch(commentURL+'?'+params)
     .then(response => response.json())
     .then(data => {
-      return data.data.map(comment => {
+      return data.data.reduce((map, comment) => {
         update_retrieved_field(comment)
         // Missing parent id === direct reply to thread
         if ((! ('parent_id' in comment)) || ! comment.parent_id) {
           comment.parent_id = 't3_'+threadID
         }
-        return comment
-      })
+        map[comment.id] = comment
+        return map
+      }, {})
     })
 }

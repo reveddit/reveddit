@@ -41,48 +41,6 @@ const byControversiality2 = (a, b) => {
 const showNotRemoved = comment => comment.removedby === NOT_REMOVED && ! comment.deleted
 
 class CommentSection extends React.Component {
-  state = {
-    fullCommentTree: [],
-    commentLookup: {}
-  }
-  componentDidMount() {
-    const [fullCommentTree, commentLookup] = this.unflatten()
-    this.setState({fullCommentTree, commentLookup})
-  }
-
-  arrayToLookup (commentList) {
-    const lookup = {}
-    commentList.forEach(comment => {
-      comment.replies = []
-      comment.ancestors = {}
-      lookup['t1_'+comment.id] = comment
-    })
-    return lookup
-  }
-
-  unflatten () {
-    const { postID } = this.props
-    const lookup = this.arrayToLookup(this.props.global.state.items)
-    const commentTree = []
-    Object.keys(lookup)
-      .sort((a,b) => lookup[a].created_utc - lookup[b].created_utc) // sort so ancestors are tracked properly
-      .forEach(commentID => {
-        const comment = lookup[commentID]
-
-        const parentID = comment.parent_id
-        if (parentID === postID) {
-          commentTree.push(comment)
-        } else if (lookup[parentID] === undefined) {
-          console.error('MISSING PARENT ID:', parentID, 'for comment', comment)
-        } else if (lookup[parentID]) {
-          comment.ancestors = cloneDeep(lookup[parentID].ancestors)
-          comment.ancestors[parentID] = true
-          lookup[parentID].replies.push(comment)
-        }
-      })
-
-    return [commentTree, lookup]
-  }
 
   sortCommentTree (comments, sortFunction) {
     const {localSortReverse} = this.props.global.state
@@ -129,21 +87,21 @@ class CommentSection extends React.Component {
 
   render() {
     const props = this.props
-    const { focusCommentID, root, postID } = this.props
-    const comments = this.props.global.state.items
-    const { removedFilter, removedByFilter, localSort, localSortReverse, showContext, context } = props.global.state
+    const { focusCommentID, root } = this.props
+    const { removedFilter, removedByFilter, localSort,
+            localSortReverse, showContext, context,
+            itemsLookup: commentsLookup, commentTree: fullCommentTree } = props.global.state
     const removedByFilterIsUnset = this.props.global.removedByFilterIsUnset()
     const tagsFilterIsUnset = this.props.global.tagsFilterIsUnset()
 
-    const {fullCommentTree, commentLookup} = this.state
     let commentTreeSubset = fullCommentTree
 
-    if (commentLookup[root] !== undefined) {
-      commentTreeSubset = [commentLookup[root]]
+    if (commentsLookup[root]) {
+      commentTreeSubset = [commentsLookup[root]]
     }
     let contextAncestors = {}
-    if (context && focusCommentID && commentLookup['t1_'+focusCommentID]) {
-      contextAncestors = commentLookup['t1_'+focusCommentID].ancestors
+    if (context && focusCommentID && commentsLookup[focusCommentID]) {
+      contextAncestors = commentsLookup[focusCommentID].ancestors
     }
     let commentTree = cloneDeep(commentTreeSubset)
     if (showContext) {
@@ -161,6 +119,7 @@ class CommentSection extends React.Component {
     } else {
       commentTree = this.props.visibleItemsWithoutCategoryFilter
     }
+
     if (localSort === localSort_types.date) {
       this.sortCommentTree( commentTree, reversible(byDate, localSortReverse) )
     } else if (localSort === localSort_types.num_comments) {

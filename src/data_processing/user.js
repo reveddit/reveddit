@@ -178,7 +178,7 @@ function getItems (user, kind, global, sort, before = '', after = '', time, limi
 
     return getRedditItemsByID(ids)
     .then(redditInfoItems => {
-      redditInfoItems.forEach(item => {
+      Object.values(redditInfoItems).forEach(item => {
         if (itemIsRemovedOrDeleted(item, false)) {
           userPage_item_lookup[item.name].removed = true
         }
