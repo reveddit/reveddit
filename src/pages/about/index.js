@@ -25,7 +25,7 @@ export class About extends React.Component {
   }
   componentDidMount() {
     getComments(
-      [
+      {ids: [
         'eq7b6sh', 'eq96jfe', 'eqhix9c', 'eq3x4jv', 'eqrjqha', 'eqxphke', 'eq73d6e',
         'eg5kla2', 'eg58nc9', 'eg4u1rr', 'eg4tkcu', 'eg4szw5', 'eg4mxqb', 'eg4cech',
         'eg3ueep', 'eg3bgki', 'eg33rjm', 'eg33ki6', 'eg30s12', 'eg300eo', 'eg2zjb9',
@@ -33,9 +33,9 @@ export class About extends React.Component {
         'eg2s3gf', 'eg2pxd8', 'eg2pa9c', 'eg2oymq', 'eg2nqjz', 'eg2ksrf', 'eg2jrvb',
         'eg2hdg2', 'eg2giv2', 'esloe21', 'f2a8nug', 'f2ap7p3', 'f3uj76k', 'f3ul663',
         'f8wrtrj', 'f93p3zu', 'ff1nzne'
-      ].sort(() => 0.5 - Math.random()))
+      ].sort(() => 0.5 - Math.random())})
     .then( comments => {
-      const unedited = comments.filter(c => ! itemIsRemovedOrDeleted(c) && (! c.edited || c.edited < 1560668305))
+      const unedited = Object.values(comments).filter(c => ! itemIsRemovedOrDeleted(c) && (! c.edited || c.edited < 1560668305))
       this.setState({comments: unedited})
     })
   }
@@ -136,7 +136,7 @@ export class About extends React.Component {
                   <li><a href='/r/cant_say_goodbye/'>r/cant_say_goodbye</a></li>
                   <li><a href='/r/cant_say_goodbye/comments'>r/.../comments</a></li>
                   <li><a href='/r/cant_say_goodbye/comments/9ffoqz/comments_mentioning_goodbye_are_removed/'>r/.../comments/9ffoqz/</a></li>
-                  <li><a href='/domain/cnn.com+foxnews.com'>domain/cnn.com+foxnews.com</a></li>
+                  <li><a href='/domain/cnn.com+edition.cnn.com'>domain/cnn.com+edition.cnn.com</a></li>
                   <li><a href='/r/news+worldnews/'>r/news+worldnews/</a></li>
                   <li><a href='/r/worldnews/duplicates/eb2hjw'>crossposts+</a></li>
                 </ul>
