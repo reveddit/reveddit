@@ -244,8 +244,7 @@ class GlobalState extends Container {
     }
   }
   context_update = (context, page_type, callback = () => {}) => {
-    const queryParams = new SimpleURLSearchParams(window.location.search)
-    queryParams.set('context', context)
+    const queryParams = create_qparams_and_adjust(page_type, 'context', context)
     adjust_qparams_for_selection(page_type, queryParams, 'showContext', true)
     return this.setStateFromQueryParams(page_type, queryParams, {}, callback)
   }

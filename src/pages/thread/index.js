@@ -18,7 +18,8 @@ class Thread extends React.Component {
   }
 
   render () {
-    const { itemsLookup:comments, loading, threadPost, hasVisitedUserPage, context, redditThreadPost } = this.props.global.state
+    const { itemsLookup:comments, loading, threadPost, hasVisitedUserPage,
+            context, redditThreadPost, showContext } = this.props.global.state
     let post = redditThreadPost
     if ('id' in threadPost) {
       post = threadPost
@@ -29,6 +30,7 @@ class Thread extends React.Component {
     const linkToRestOfComments = `/r/${subreddit}/comments/${threadID}/${urlTitle}/`
     const isSingleComment = (commentID !== undefined)
     const removedFiltersAreUnset = this.props.global.removedFiltersAreUnset()
+    const updateStateAndURL = this.props.global.selection_update
     let root = undefined
 
     if (isSingleComment) {
@@ -40,6 +42,7 @@ class Thread extends React.Component {
         }
       }
     }
+    const viewContext = <a className="pointer" onClick={() => updateStateAndURL('showContext', true, page_type)}>show context</a>
     const viewAllComments = <Link to={linkToRestOfComments} onClick={this.props.global.resetRemovedFilters}>view all comments</Link>
 
     return (
@@ -62,6 +65,9 @@ class Thread extends React.Component {
                 }
                 {! isSingleComment && ! removedFiltersAreUnset &&
                   <Notice message="some comments may be hidden by selected filters." htmlLink={viewAllComments}/>
+                }
+                {! showContext &&
+                  <Notice message="context is flattened." htmlLink={viewContext}/>
                 }
                 <CommentSection
                   root={root}

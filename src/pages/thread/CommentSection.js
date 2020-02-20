@@ -37,6 +37,14 @@ const byControversiality2 = (a, b) => {
       || (b.replies.length - a.replies.length) || (a_score_abs - b_score_abs)
 }
 
+const flattenTree = (commentTree) => {
+  const comments = []
+  commentTree.forEach(comment =>
+    comments.push(comment, ...flattenTree(comment.replies))
+  )
+  return comments
+}
+
 class CommentSection extends React.Component {
 
   sortCommentTree (comments, sortFunction) {
@@ -100,8 +108,9 @@ class CommentSection extends React.Component {
     if (context && focusCommentID && commentsLookup[focusCommentID]) {
       contextAncestors = commentsLookup[focusCommentID].ancestors
     }
-    let commentTree = cloneDeep(commentTreeSubset)
+    let commentTree
     if (showContext) {
+      commentTree = cloneDeep(commentTreeSubset)
       if (removedFilter === removedFilter_types.removed) {
         this.filterCommentTree(commentTree, itemIsActioned)
       } else if (removedFilter === removedFilter_types.not_removed) {
@@ -113,8 +122,10 @@ class CommentSection extends React.Component {
       if (! tagsFilterIsUnset) {
         this.filterCommentTree(commentTree, this.itemIsOneOfSelectedTags_local)
       }
-    } else {
+    } else if (! focusCommentID || ! commentsLookup[focusCommentID]) {
       commentTree = this.props.visibleItemsWithoutCategoryFilter
+    } else {
+      commentTree = flattenTree(commentTreeSubset)
     }
 
     if (localSort === localSort_types.date) {
