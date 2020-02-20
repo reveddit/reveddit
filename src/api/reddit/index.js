@@ -16,14 +16,14 @@ const errorHandler = (e) => {
   throw new Error(`Could not connect to Reddit: ${e}`)
 }
 
-export const getComments = ({objects = undefined, ids = []}) => {
+export const getComments = ({objects = undefined, ids = [], auth = null}) => {
   const full_ids = getFullIDsForObjects(objects, ids, 't1_')
-  return getItems(full_ids, 'id')
+  return getItems(full_ids, 'id', auth)
 }
 
-export const getPosts = ({objects = undefined, ids = []}) => {
+export const getPosts = ({objects = undefined, ids = [], auth = null}) => {
   const full_ids = getFullIDsForObjects(objects, ids, 't3_')
-  return getItems(full_ids, 'id')
+  return getItems(full_ids, 'id', auth)
 }
 
 const getFullIDsForObjects = (objects, ids, prefix) => {
@@ -42,8 +42,11 @@ const getFullIDsForObjects = (objects, ids, prefix) => {
 
 export const mapRedditObj = (map, obj, key = 'name') => (map[obj.data[key]] = obj.data, map)
 
-export const getItems = async (ids, key = 'name') => {
+export const getItems = async (ids, key = 'name', auth = null) => {
   const results = {}
+  if (! auth) {
+    auth = await getAuth()
+  }
   return getAuth()
   .then(async (auth) => {
     const promises = []

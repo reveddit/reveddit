@@ -1,4 +1,5 @@
 import { getPosts as getRedditPosts } from 'api/reddit'
+import { getAuth } from 'api/reddit/auth'
 import {
   getPostsBySubredditOrDomain as pushshiftGetPostsBySubredditOrDomain,
   queryPosts as pushshiftQueryPosts
@@ -204,29 +205,21 @@ const getUrlMeta = (url) => {
   return {isRedditDomain, isRedditPostURL, normalizedPostURLs, postURL_ID}
 }
 
-export const getRevdditDuplicatePosts = (threadID, global) => {
+export const getRevdditDuplicatePosts = async (threadID, global) => {
   global.setLoading('')
-  return getRedditPosts({ids: threadID.split('+')})
-  .then(redditPosts => {
+  const auth = await getAuth()
+  return getRedditPosts({ids: threadID.split('+'), auth})
+  .then(async redditPosts => {
     const promises = []
     const urls = []
     const selftext_urls = []
-    Object.values(redditPosts).forEach(async drivingPost => {
+    const secondary_lookup_ids_set = {}
+    Object.values(redditPosts).forEach(drivingPost => {
       const {isRedditDomain, isRedditPostURL, normalizedPostURLs, postURL_ID} = getUrlMeta(drivingPost.url)
       urls.push(...normalizedPostURLs)
       if (isRedditPostURL) {
-        const drivingPost_url_post = Object.values(await getRedditPosts({ids: postURL_ID}))
-        if (drivingPost_url_post.length) {
-          const drivingPost_url_post_url = drivingPost_url_post[0].url
-          const {isRedditPostURL: isRedditPostURL_2, normalizedPostURLs: normalizedPostURLs_2} = getUrlMeta(drivingPost_url_post_url)
-          if (isRedditPostURLs_2) {
-            urls.push(...normalizedPostURLs_2)
-          } else {
-            urls.push(drivingPost_url_post_url)
-          }
-        }
-      }
-      if (! isRedditPostURL) {
+        secondary_lookup_ids_set[postURL_ID] = true
+      } else {
         const minimalPostPath = getMinimalPostPath(drivingPost.permalink)
         urls.push(minimalPostPath)
         selftext_urls.push(minimalPostPath)
@@ -235,6 +228,17 @@ export const getRevdditDuplicatePosts = (threadID, global) => {
         selftext_urls.push(...normalizedPostURLs)
       }
     })
+    const secondary_lookup_ids = Object.keys(secondary_lookup_ids_set)
+    if (secondary_lookup_ids.length) {
+      Object.values(await getRedditPosts({ids: secondary_lookup_ids, auth})).forEach(secondary_post => {
+        const {isRedditPostURL: isRedditPostURL_2, normalizedPostURLs: normalizedPostURLs_2} = getUrlMeta(secondary_post.url)
+        if (isRedditPostURL_2) {
+          urls.push(...normalizedPostURLs_2)
+        } else {
+          urls.push(secondary_post.url)
+        }
+      })
+    }
     if (urls.length) {
       promises.push(pushshiftQueryPosts({url: urls.join('|')}))
     }
