@@ -71,23 +71,25 @@ export const combinePushshiftAndRedditComments = (pushshiftComments, redditComme
       if (typeof(redditComment.num_comments) !== 'undefined') {
         ps_comment.num_comments = redditComment.num_comments
       }
-      if (! commentIsRemoved(redditComment)) {
-        if (commentIsRemoved(ps_comment)) {
-          ps_comment.removedby = AUTOMOD_REMOVED_MOD_APPROVED
-        } else {
-          ps_comment.removedby = NOT_REMOVED
-        }
-        ps_comment.author = redditComment.author
-        ps_comment.body = redditComment.body
-      } else {
-        if (commentIsRemoved(ps_comment)) {
-          if (retrievalLatency <= AUTOMOD_LATENCY_THRESHOLD) {
-            ps_comment.removedby = AUTOMOD_REMOVED
+      if (! redditComment.deleted) {
+        if (! commentIsRemoved(redditComment)) {
+          if (commentIsRemoved(ps_comment)) {
+            ps_comment.removedby = AUTOMOD_REMOVED_MOD_APPROVED
           } else {
-            ps_comment.removedby = UNKNOWN_REMOVED
+            ps_comment.removedby = NOT_REMOVED
           }
+          ps_comment.author = redditComment.author
+          ps_comment.body = redditComment.body
         } else {
-          ps_comment.removedby = MOD_OR_AUTOMOD_REMOVED
+          if (commentIsRemoved(ps_comment)) {
+            if (retrievalLatency <= AUTOMOD_LATENCY_THRESHOLD) {
+              ps_comment.removedby = AUTOMOD_REMOVED
+            } else {
+              ps_comment.removedby = UNKNOWN_REMOVED
+            }
+          } else {
+            ps_comment.removedby = MOD_OR_AUTOMOD_REMOVED
+          }
         }
       }
       combinedComments[ps_comment.id] = ps_comment
