@@ -31,21 +31,26 @@ const initializeComment = (comment, post) => {
   comment.ancestors = {}
 }
 
+const markRemoved = (redditComment, commentToMark) => {
+  if (commentIsRemoved(redditComment)) {
+    commentToMark.removed = true
+  } else if (commentIsDeleted(redditComment)) {
+    commentToMark.deleted = true
+  }
+}
+
 export const combinePushshiftAndRedditComments = (pushshiftComments, redditComments, requirePushshiftData=true, post=undefined) => {
   const combinedComments = {}
 
   Object.values(redditComments).forEach(comment => {
     if (! requirePushshiftData) {
-      initializeComment(comment)
+      initializeComment(comment, post)
       combinedComments[comment.id] = comment
+      markRemoved(comment, comment)
     }
     const ps_comment = pushshiftComments[comment.id]
     if (ps_comment) {
-      if (commentIsRemoved(comment)) {
-        ps_comment.removed = true
-      } else if (commentIsDeleted(comment)) {
-        ps_comment.deleted = true
-      }
+      markRemoved(comment, ps_comment)
     }
   })
   // Replace pushshift data with reddit and mark removedby
@@ -54,7 +59,7 @@ export const combinePushshiftAndRedditComments = (pushshiftComments, redditComme
     const redditComment = redditComments[ps_comment.id]
     ps_comment.name = 't1_'+ps_comment.id // name needed for info page render
     if (redditComment !== undefined) {
-      initializeComment(ps_comment)
+      initializeComment(ps_comment, post)
       ps_comment.link_permalink = redditComment.permalink.split('/').slice(0,6).join('/')+'/'
       copy_fields.forEach(field => {
         ps_comment[field] = redditComment[field]

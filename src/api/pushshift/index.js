@@ -26,14 +26,15 @@ const update_retrieved_field = (item) => {
 }
 
 export const queryComments = (params, fields=comment_fields) => {
-  return queryItems(params, commentURL, fields, 't1_')
+  return queryItems(params, commentURL, fields, 't1_', 'id')
 }
 
 export const queryPosts = (params) => {
-  return queryItems(params, postURL, post_fields, 't3_')
+  return queryItems(params, postURL, post_fields, 't3_', null)
 }
 
-const queryItems = ({q, author, subreddit, n = 500, sort='desc', before, after, domain, url, selftext, parent_id}, apiURL, fields, prefix) => {
+const queryItems = ({q, author, subreddit, n = 500, sort='desc', before, after, domain, url, selftext, parent_id}, apiURL, fields, prefix, key = 'name') => {
+  const results = {}
   const queryParams = {
     size: n,
     sort,
@@ -55,8 +56,13 @@ const queryItems = ({q, author, subreddit, n = 500, sort='desc', before, after, 
       data.data.forEach(item => {
         update_retrieved_field(item)
         item.name = prefix+item.id
+        results[item[key]] = item
       })
-      return data.data
+      if (key) {
+        return results
+      } else {
+        return data.data
+      }
     })
 }
 

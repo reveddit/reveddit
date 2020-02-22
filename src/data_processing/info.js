@@ -170,7 +170,7 @@ export const getRevdditSearch = (global) => {
       nextPromises.push(getRevdditPosts(posts))
     }
     if (include_comments) {
-      const commentIDs = results[0].map(x => x.id)
+      const commentIDs = Object.keys(results[0])
       commentChildrenPromise = getPushshiftComments(commentIDs, 'parent_id', ['parent_id', 'id'])
     }
     return Promise.all(nextPromises)
