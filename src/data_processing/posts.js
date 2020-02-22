@@ -7,7 +7,7 @@ import {
   queryPosts as pushshiftQueryPosts
 } from 'api/pushshift'
 import { itemIsRemovedOrDeleted, postIsDeleted, display_post,
-         getUniqueItems, SimpleURLSearchParams
+         getUniqueItems, SimpleURLSearchParams, parse, replaceAmpGTLT
 } from 'utils'
 import { REMOVAL_META, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
          MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED, USER_REMOVED,
@@ -247,7 +247,8 @@ const getUrlMeta = (url) => {
 export const getRevdditDuplicatePosts = async (threadID, global) => {
   global.setLoading('')
   const auth = await getAuth()
-  return getRedditPosts({ids: threadID.split('+'), auth})
+  const drivingPosts_ids = threadID.split('+')
+  return getRedditPosts({ids: drivingPosts_ids, auth})
   .then(async redditPosts => {
     const pushshift_promises = [], reddit_promises = []
     const pushshift_urls = []
@@ -257,12 +258,24 @@ export const getRevdditDuplicatePosts = async (threadID, global) => {
     const reddit_search_url = [] // /search?url=
     const secondary_lookup_ids_set = {}
     Object.values(redditPosts).forEach(drivingPost => {
-      const meta = getUrlMeta(drivingPost.url)
+      let firstLink = ''
+      let meta
+      if (drivingPost.selftext) {
+        const matches = parse(drivingPost.selftext).match(/<a href="([^"]+)">/)
+        if (matches && matches.length > 1) {
+          firstLink = replaceAmpGTLT(matches[1])
+        }
+      }
+      if (firstLink) {
+        meta = getUrlMeta(firstLink)
+      } else {
+        meta = getUrlMeta(drivingPost.url)
+      }
       pushshift_urls.push(...meta.pushshift_urls)
       reddit_info_url.push(...meta.reddit_info_url)
       reddit_search_selftext.push(...meta.reddit_search_selftext)
       reddit_search_url.push(...meta.reddit_search_url)
-      if (meta.isRedditPostURL) {
+      if (meta.isRedditPostURL && ! drivingPosts_ids.includes(meta.postURL_ID)) {
         secondary_lookup_ids_set[meta.postURL_ID] = true
       } else {
         const minimalPostPath = getMinimalPostPath(drivingPost.permalink)
