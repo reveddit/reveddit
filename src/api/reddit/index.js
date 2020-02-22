@@ -26,6 +26,22 @@ export const getPosts = ({objects = undefined, ids = [], auth = null}) => {
   return getItems(full_ids, 'id', auth)
 }
 
+export const getPostsForURLs = async (urls, auth = null) => {
+  const results = {}
+  if (! auth) {
+    auth = await getAuth()
+  }
+  return groupRequests(getPostsByURL, urls, [auth, results], 1)
+  .then(res => results)
+  .catch(errorHandler)
+}
+
+export const getPostsByURL = (urlParam, auth = null, results) => {
+  const params = {url: encodeURIComponent(urlParam), raw_json:1, limit:100}
+  const url = oauth_reddit + 'api/info' + '?'+paramString(params)
+  return query(url, auth, 'id', results)
+}
+
 const getFullIDsForObjects = (objects, ids, prefix) => {
   let full_ids = []
   if (typeof(objects) === 'object') {
@@ -47,20 +63,25 @@ export const getItems = async (ids, key = 'name', auth = null) => {
   if (! auth) {
     auth = await getAuth()
   }
-  return getAuth()
-  .then(async (auth) => {
-    const promises = []
-    let i = 0
-    for (const ids_chunk of chunk(ids, maxNumItems)) {
-      if (i > 0 && i % numRequestsBeforeWait === 0) {
-        await promiseDelay(waitInterval)
-      }
-      promises.push(queryByID(ids_chunk, auth, key, results))
-      i += 1
-    }
-    return Promise.all(promises).then(res => results)
-  })
+  return groupRequests(queryByID, ids, [auth, key, results], maxNumItems)
+  .then(res => results)
   .catch(errorHandler)
+}
+
+const groupRequests = async (func, items, params, localMaxNumItems) => {
+  const promises = []
+  let i = 0
+  for (let items_chunk of chunk(items, localMaxNumItems)) {
+    if (i > 0 && i % numRequestsBeforeWait === 0) {
+      await promiseDelay(waitInterval)
+    }
+    if (localMaxNumItems == 1) {
+      items_chunk = items_chunk[0]
+    }
+    promises.push(func(items_chunk, ...params))
+    i += 1
+  }
+  return Promise.all(promises)
 }
 
 export const getPostWithComments = (threadID, sort = 'old', limit=500) => {
@@ -138,6 +159,10 @@ export const userPageHTML = (user) => {
 const queryByID = (ids, auth, key = 'name', results = {}) => {
   var params = {id: ids.join(), raw_json:1}
   const url = oauth_reddit + 'api/info' + '?'+paramString(params)
+  return query(url, auth, key, results)
+}
+
+const query = async (url, auth, key, results = {}) => {
   return window.fetch(url, auth)
   .then(response => response.json())
   .then(json => json.data.children.reduce((map, obj) => mapRedditObj(map, obj, key), results))
@@ -177,15 +202,22 @@ export const querySubredditPage = async (subreddit, sort, after = '', t = '', au
 }
 
 
-export const querySearchPageByUser = (user, sort, after = '') => {
-  var params = {q:`author:${user}`, sort:sort, after:after, limit:100, t:'all', include_over_18:'on'}
+
+export const querySearch = ({selftexts = [], urls = []}) => {
+  var params = {q:'', sort:'new', limit:100, t:'all'}
+  if (selftexts.length) {
+    params.q += encodeURIComponent(selftexts.map(x => `selftext:"${x}"`).join(' OR '))
+  }
+  if (urls.length) {
+    params.q += encodeURIComponent(urls.map(x => `url:"${x}"`).join(' OR '))
+  }
   const url = oauth_reddit + 'search.json' + '?'+paramString(params)
   return getAuth()
     .then(auth => window.fetch(url, auth))
     .then(response => response.json())
-    .then(results => {
-      return {posts: results.data.children.map(post => post.data),
-              after: results.data.after} })
+    .then(json =>
+      json.data.children.reduce((map, obj) => mapRedditObj(map, obj, 'id'), {})
+    )
     .catch(errorHandler)
 }
 

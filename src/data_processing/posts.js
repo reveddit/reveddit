@@ -1,4 +1,6 @@
-import { getPosts as getRedditPosts } from 'api/reddit'
+import { getPosts as getRedditPosts,
+         getPostsForURLs as getRedditPostsForURLs,
+         querySearch as queryRedditSearch } from 'api/reddit'
 import { getAuth } from 'api/reddit/auth'
 import {
   getPostsBySubredditOrDomain as pushshiftGetPostsBySubredditOrDomain,
@@ -40,9 +42,18 @@ export const byNumCrossposts = (a, b) => {
   }
 }
 
-export const retrieveRedditPosts_and_combineWithPushshiftPosts = (pushshiftPosts, includePostsWithZeroComments = false) => {
-  return getRedditPosts({objects: pushshiftPosts})
+export const retrieveRedditPosts_and_combineWithPushshiftPosts = (pushshiftPosts, includePostsWithZeroComments = false, existingRedditPosts = {}) => {
+  const ids = []
+  pushshiftPosts.forEach(post => {
+    if (!(post.id in existingRedditPosts)) {
+      ids.push(post.id)
+    }
+  })
+  return getRedditPosts({ids})
   .then(redditPosts => {
+    Object.values(existingRedditPosts).forEach(post => {
+      redditPosts[post.id] = post
+    })
     return combinePushshiftAndRedditPosts(pushshiftPosts, Object.values(redditPosts), includePostsWithZeroComments)
   })
 }
@@ -170,39 +181,67 @@ export const getRevdditPostsByDomain = (domain, global) => {
   }
 }
 
-const getMinimalPostPath = (path) => {
-  return path.split('/').slice(0,5).join('/')
+const getMinimalPostPath = (path, shortest=false) => {
+  let start = 0
+  if (shortest) {
+    start = 3
+  }
+  return path.split('/').slice(start, 5).join('/')
 }
+
+const youtube_suffix = '/watch?v='
 
 const youtube_aliases = {
-  'youtu.be':1,'www.youtu.be':1,'www.youtube.com':1,'youtube.com':1,'m.youtube.com':1
+  'youtu.be':'/',
+  'www.youtube.com':youtube_suffix,
+  'youtube.com':youtube_suffix,
+  'm.youtube.com':youtube_suffix
 }
 
-const getYoutubeURL = (id) => {
+const getYoutubeURL_pushshift = (id) => {
   return `((${Object.keys(youtube_aliases).join('|')}) ${id})`
 }
 
+const getYoutubeURLs = (id) => {
+  return Object.keys(youtube_aliases).map(x => 'https://'+x+youtube_aliases[x]+id)
+}
+const noHTTP = (u) => {
+  return u.replace(/^https?:\/\//,'')
+}
+
 const getUrlMeta = (url) => {
-  const redditlikeDomainStripped = url.replace(/^https?:\/\/[^/]*(reddit\.com|removeddit\.com|ceddit\.com|unreddit\.com|snew\.github\.io|snew\.notabug\.io|politicbot\.github\.io|r\.go1dfish\.me|reve?ddit\.com)/i,'')
+  const url_nohttp = noHTTP(url)
+  const redditlikeDomainStripped = url_nohttp.replace(/^[^/]*(reddit\.com|removeddit\.com|ceddit\.com|unreddit\.com|snew\.github\.io|snew\.notabug\.io|politicbot\.github\.io|r\.go1dfish\.me|reve?ddit\.com)/i,'')
   const isRedditDomain = redditlikeDomainStripped.match(/^\//)
   const isRedditPostURL = redditlikeDomainStripped.match(/^\/r\/[^/]*\/comments\/[a-z0-9]/i)
-  let normalizedPostURLs = [url]
-  const isYoutubeURL = url.match(/^https?:\/\/(?:www\.|m\.)?(youtube\.com|youtu\.be)(\/.+)/i)
+  let pushshift_urls = [url_nohttp]
+  let reddit_info_url = [url]
+  let reddit_search_selftext = [url_nohttp]
+  let reddit_search_url = []
+  const isYoutubeURL = url.match(/^https?:\/\/(?:www\.|m\.)?(youtube\.com|youtu\.be)\/(.+)/i)
   if (isRedditPostURL) {
-    normalizedPostURLs = [getMinimalPostPath(redditlikeDomainStripped)]
+    const minPostPath = getMinimalPostPath(redditlikeDomainStripped)
+    pushshift_urls = [minPostPath]
+    reddit_search_selftext = [getMinimalPostPath(redditlikeDomainStripped, true)]
+    reddit_search_url = [minPostPath]
   } else if (isYoutubeURL && isYoutubeURL[2]) {
+    let id = ''
     if (isYoutubeURL[1] === 'youtube.com') {
       const params = new SimpleURLSearchParams(isYoutubeURL[2].split('?')[1])
-      const v = params.get('v')
-      if (v) {
-        normalizedPostURLs = [getYoutubeURL(v)]
-      }
+      id = params.get('v')
     } else {
-      normalizedPostURLs = [getYoutubeURL(isYoutubeURL[2].split('?')[0])]
+      id = isYoutubeURL[2].split('?')[0]
+    }
+    if (id) {
+      pushshift_urls = [getYoutubeURL_pushshift(id)]
+      const full_yt_urls = getYoutubeURLs(id)
+      reddit_info_url.push(...full_yt_urls)
+      reddit_search_selftext.push(...full_yt_urls)
     }
   }
   const postURL_ID = redditlikeDomainStripped.split('/')[4]
-  return {isRedditDomain, isRedditPostURL, normalizedPostURLs, postURL_ID}
+  return {isRedditDomain, isRedditPostURL, pushshift_urls, postURL_ID,
+          reddit_info_url, reddit_search_selftext, reddit_search_url}
 }
 
 export const getRevdditDuplicatePosts = async (threadID, global) => {
@@ -210,43 +249,65 @@ export const getRevdditDuplicatePosts = async (threadID, global) => {
   const auth = await getAuth()
   return getRedditPosts({ids: threadID.split('+'), auth})
   .then(async redditPosts => {
-    const promises = []
-    const urls = []
-    const selftext_urls = []
+    const pushshift_promises = [], reddit_promises = []
+    const pushshift_urls = []
+    const pushshift_selftext_urls = []
+    const reddit_info_url = [] // api/info?url=
+    const reddit_search_selftext = [] // /search?q=selftext:
+    const reddit_search_url = [] // /search?url=
     const secondary_lookup_ids_set = {}
     Object.values(redditPosts).forEach(drivingPost => {
-      const {isRedditDomain, isRedditPostURL, normalizedPostURLs, postURL_ID} = getUrlMeta(drivingPost.url)
-      urls.push(...normalizedPostURLs)
-      if (isRedditPostURL) {
-        secondary_lookup_ids_set[postURL_ID] = true
+      const meta = getUrlMeta(drivingPost.url)
+      pushshift_urls.push(...meta.pushshift_urls)
+      reddit_info_url.push(...meta.reddit_info_url)
+      reddit_search_selftext.push(...meta.reddit_search_selftext)
+      reddit_search_url.push(...meta.reddit_search_url)
+      if (meta.isRedditPostURL) {
+        secondary_lookup_ids_set[meta.postURL_ID] = true
       } else {
         const minimalPostPath = getMinimalPostPath(drivingPost.permalink)
-        urls.push(minimalPostPath)
-        selftext_urls.push(minimalPostPath)
+        pushshift_urls.push(minimalPostPath)
+        pushshift_selftext_urls.push(minimalPostPath)
+        reddit_search_selftext.push(getMinimalPostPath(drivingPost.permalink, true))
+        reddit_search_url.push(minimalPostPath)
       }
-      if (! isRedditDomain || isRedditPostURL) {
-        selftext_urls.push(...normalizedPostURLs)
+      if (! meta.isRedditDomain || meta.isRedditPostURL) {
+        pushshift_selftext_urls.push(...meta.pushshift_urls)
       }
     })
     const secondary_lookup_ids = Object.keys(secondary_lookup_ids_set)
     if (secondary_lookup_ids.length) {
       Object.values(await getRedditPosts({ids: secondary_lookup_ids, auth})).forEach(secondary_post => {
-        const {isRedditPostURL: isRedditPostURL_2, normalizedPostURLs: normalizedPostURLs_2} = getUrlMeta(secondary_post.url)
-        if (isRedditPostURL_2) {
-          urls.push(...normalizedPostURLs_2)
+        const meta = getUrlMeta(secondary_post.url)
+        if (meta.isRedditPostURL) {
+          pushshift_urls.push(...meta.pushshift_urls)
+          reddit_info_url.push(...meta.reddit_info_url)
+          reddit_search_selftext.push(...meta.reddit_search_selftext)
+          reddit_search_url.push(...meta.reddit_search_url)
         } else {
-          urls.push(secondary_post.url)
+          pushshift_urls.push(secondary_post.url)
+          reddit_info_url.push(secondary_post.url)
+          reddit_search_selftext.push(secondary_post.url)
         }
       })
     }
-    if (urls.length) {
-      promises.push(pushshiftQueryPosts({url: urls.join('|')}))
+    if (reddit_info_url.length) {
+      reddit_promises.push(getRedditPostsForURLs(reddit_info_url))
     }
-    if (selftext_urls.length) {
-      promises.push(
+    if (reddit_search_selftext.length) {
+      reddit_promises.push(queryRedditSearch({selftexts: reddit_search_selftext}))
+    }
+    if (reddit_search_url.length) {
+      reddit_promises.push(queryRedditSearch({urls: reddit_search_url}))
+    }
+    if (pushshift_urls.length) {
+      pushshift_promises.push(pushshiftQueryPosts({url: pushshift_urls.join('|')}))
+    }
+    if (pushshift_selftext_urls.length) {
+      pushshift_promises.push(
         pushshiftQueryPosts(
           {selftext:
-            selftext_urls.map(u => {
+            pushshift_selftext_urls.map(u => {
               if (u.match(/^\(/)) {
                 return u
               } else {
@@ -256,15 +317,27 @@ export const getRevdditDuplicatePosts = async (threadID, global) => {
           }
         ))
     }
-    return Promise.all(promises)
-    .then(results => {
-      if (results.length === 1) {
-        return results[0]
-      } else {
-        return getUniqueItems(results)
-      }
+    return Promise.all(reddit_promises).then(reddit_results => {
+      const redditPosts = {}
+      reddit_results.forEach(posts => {
+        Object.values(posts).forEach(post => {
+          redditPosts[post.id] = post
+        })
+      })
+      const items = combinePushshiftAndRedditPosts([], Object.values(redditPosts), true)
+      global.setState({items})
+      return Promise.all(pushshift_promises)
+      .then(pushshift_results => {
+        if (pushshift_results.length === 1) {
+          return pushshift_results[0]
+        } else {
+          return getUniqueItems(pushshift_results)
+        }
+      })
+      .then((pushshiftPosts) => {
+        return retrieveRedditPosts_and_combineWithPushshiftPosts(pushshiftPosts, true, redditPosts)
+      })
     })
-    .then((pushshiftPosts) => retrieveRedditPosts_and_combineWithPushshiftPosts(pushshiftPosts, true))
     .then(items => {
       global.setSuccess({items})
       return items
