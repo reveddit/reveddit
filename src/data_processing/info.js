@@ -2,6 +2,7 @@ import { isCommentID, isPostID, getUniqueItems,
          commentIsDeleted, commentIsRemoved,
          itemIsRemovedOrDeleted, postIsDeleted
 } from 'utils'
+import { getPostsByURL } from './posts'
 import {
   getItems as getRedditItems
 } from 'api/reddit'
@@ -67,6 +68,10 @@ export const byControversiality = (a, b) => {
 export const getRevdditItems = (global) => {
   const gs = global.state
   global.setLoading('')
+  if (gs.url && gs.url.split('.').length > 1) {
+    const url = decodeURI(gs.url)
+    return getPostsByURL(global, url)
+  }
   const ids = decodeURI(gs.id).replace(/ /g,'').split(',')
   const postIDs = [], commentIDs = []
   ids.forEach(id => {

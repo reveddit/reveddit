@@ -244,18 +244,23 @@ const getUrlMeta = (url) => {
           reddit_info_url, reddit_search_selftext, reddit_search_url}
 }
 
+class SearchInput {
+  constructor(meta = {}) {
+    this.pushshift_urls = [...meta.pushshift_urls || []]
+    this.pushshift_selftext_urls = [...meta.pushshift_urls || []] // using same value as pushshift_urls is intentional
+    this.reddit_info_url = [...meta.reddit_info_url || []] // api/info?url=
+    this.reddit_search_selftext = [...meta.reddit_search_selftext || []] // /search?q=selftext:
+    this.reddit_search_url = [...meta.reddit_search_url || []] // /search?url=
+  }
+}
+
 export const getRevdditDuplicatePosts = async (threadID, global) => {
   global.setLoading('')
   const auth = await getAuth()
   const drivingPosts_ids = threadID.split('+')
   return getRedditPosts({ids: drivingPosts_ids, auth})
   .then(async redditPosts => {
-    const pushshift_promises = [], reddit_promises = []
-    const pushshift_urls = []
-    const pushshift_selftext_urls = []
-    const reddit_info_url = [] // api/info?url=
-    const reddit_search_selftext = [] // /search?q=selftext:
-    const reddit_search_url = [] // /search?url=
+    const searchInput = new SearchInput()
     const secondary_lookup_ids_set = {}
     Object.values(redditPosts).forEach(drivingPost => {
       let firstLink = ''
@@ -271,21 +276,23 @@ export const getRevdditDuplicatePosts = async (threadID, global) => {
       } else {
         meta = getUrlMeta(drivingPost.url)
       }
-      pushshift_urls.push(...meta.pushshift_urls)
-      reddit_info_url.push(...meta.reddit_info_url)
-      reddit_search_selftext.push(...meta.reddit_search_selftext)
-      reddit_search_url.push(...meta.reddit_search_url)
-      if (meta.isRedditPostURL && ! drivingPosts_ids.includes(meta.postURL_ID)) {
-        secondary_lookup_ids_set[meta.postURL_ID] = true
+      searchInput.pushshift_urls.push(...meta.pushshift_urls)
+      searchInput.reddit_info_url.push(...meta.reddit_info_url)
+      searchInput.reddit_search_selftext.push(...meta.reddit_search_selftext)
+      searchInput.reddit_search_url.push(...meta.reddit_search_url)
+      if (meta.isRedditPostURL) {
+        if (! drivingPosts_ids.includes(meta.postURL_ID)) {
+          secondary_lookup_ids_set[meta.postURL_ID] = true
+        }
       } else {
         const minimalPostPath = getMinimalPostPath(drivingPost.permalink)
-        pushshift_urls.push(minimalPostPath)
-        pushshift_selftext_urls.push(minimalPostPath)
-        reddit_search_selftext.push(getMinimalPostPath(drivingPost.permalink, true))
-        reddit_search_url.push(minimalPostPath)
+        searchInput.pushshift_urls.push(minimalPostPath)
+        searchInput.pushshift_selftext_urls.push(minimalPostPath)
+        searchInput.reddit_search_selftext.push(getMinimalPostPath(drivingPost.permalink, true))
+        searchInput.reddit_search_url.push(minimalPostPath)
       }
       if (! meta.isRedditDomain || meta.isRedditPostURL) {
-        pushshift_selftext_urls.push(...meta.pushshift_urls)
+        searchInput.pushshift_selftext_urls.push(...meta.pushshift_urls)
       }
     })
     const secondary_lookup_ids = Object.keys(secondary_lookup_ids_set)
@@ -293,67 +300,85 @@ export const getRevdditDuplicatePosts = async (threadID, global) => {
       Object.values(await getRedditPosts({ids: secondary_lookup_ids, auth})).forEach(secondary_post => {
         const meta = getUrlMeta(secondary_post.url)
         if (meta.isRedditPostURL) {
-          pushshift_urls.push(...meta.pushshift_urls)
-          reddit_info_url.push(...meta.reddit_info_url)
-          reddit_search_selftext.push(...meta.reddit_search_selftext)
-          reddit_search_url.push(...meta.reddit_search_url)
+          searchInput.pushshift_urls.push(...meta.pushshift_urls)
+          searchInput.reddit_info_url.push(...meta.reddit_info_url)
+          searchInput.reddit_search_selftext.push(...meta.reddit_search_selftext)
+          searchInput.reddit_search_url.push(...meta.reddit_search_url)
         } else {
-          pushshift_urls.push(secondary_post.url)
-          reddit_info_url.push(secondary_post.url)
-          reddit_search_selftext.push(secondary_post.url)
+          searchInput.pushshift_urls.push(secondary_post.url)
+          searchInput.reddit_info_url.push(secondary_post.url)
+          searchInput.reddit_search_selftext.push(secondary_post.url)
         }
       })
     }
-    if (reddit_info_url.length) {
-      reddit_promises.push(getRedditPostsForURLs(reddit_info_url))
-    }
-    if (reddit_search_selftext.length) {
-      reddit_promises.push(queryRedditSearch({selftexts: reddit_search_selftext}))
-    }
-    if (reddit_search_url.length) {
-      reddit_promises.push(queryRedditSearch({urls: reddit_search_url}))
-    }
-    if (pushshift_urls.length) {
-      pushshift_promises.push(pushshiftQueryPosts({url: pushshift_urls.join('|')}))
-    }
-    if (pushshift_selftext_urls.length) {
-      pushshift_promises.push(
-        pushshiftQueryPosts(
-          {selftext:
-            pushshift_selftext_urls.map(u => {
-              if (u.match(/^\(/)) {
-                return u
-              } else {
-                return '"'+u+'"'
-              }
-            }).join('|')
-          }
-        ))
-    }
-    return Promise.all(reddit_promises).then(reddit_results => {
-      const redditPosts = {}
-      reddit_results.forEach(posts => {
-        Object.values(posts).forEach(post => {
-          redditPosts[post.id] = post
-        })
-      })
-      const items = combinePushshiftAndRedditPosts([], Object.values(redditPosts), true)
-      global.setState({items})
-      return Promise.all(pushshift_promises)
-      .then(pushshift_results => {
-        if (pushshift_results.length === 1) {
-          return pushshift_results[0]
-        } else {
-          return getUniqueItems(pushshift_results)
+    return searchRedditAndPushshiftPosts(global, searchInput)
+  })
+}
+
+export const getPostsByURL = (global, url) => {
+  const meta = getUrlMeta(url)
+  if (meta.isRedditPostURL) {
+    return getRevdditDuplicatePosts(meta.postURL_ID, global)
+  } else {
+    const searchInput = new SearchInput(meta)
+    return searchRedditAndPushshiftPosts(global, searchInput)
+  }
+}
+
+const searchRedditAndPushshiftPosts = (global, searchInput) => {
+  const pushshift_promises = [], reddit_promises = []
+  const {reddit_info_url, reddit_search_selftext, reddit_search_url,
+  pushshift_urls, pushshift_selftext_urls} = searchInput
+
+  if (reddit_info_url.length) {
+    reddit_promises.push(getRedditPostsForURLs(reddit_info_url))
+  }
+  if (reddit_search_selftext.length) {
+    reddit_promises.push(queryRedditSearch({selftexts: reddit_search_selftext}))
+  }
+  if (reddit_search_url.length) {
+    reddit_promises.push(queryRedditSearch({urls: reddit_search_url}))
+  }
+  if (pushshift_urls.length) {
+    pushshift_promises.push(pushshiftQueryPosts({url: pushshift_urls.join('|')}))
+  }
+  if (pushshift_selftext_urls.length) {
+    pushshift_promises.push(
+      pushshiftQueryPosts(
+        {selftext:
+          pushshift_selftext_urls.map(u => {
+            if (u.match(/^\(/)) {
+              return u
+            } else {
+              return '"'+u+'"'
+            }
+          }).join('|')
         }
-      })
-      .then((pushshiftPosts) => {
-        return retrieveRedditPosts_and_combineWithPushshiftPosts(pushshiftPosts, true, redditPosts)
+      ))
+  }
+  return Promise.all(reddit_promises).then(reddit_results => {
+    const redditPosts = {}
+    reddit_results.forEach(posts => {
+      Object.values(posts).forEach(post => {
+        redditPosts[post.id] = post
       })
     })
-    .then(items => {
-      global.setSuccess({items})
-      return items
+    const items = combinePushshiftAndRedditPosts([], Object.values(redditPosts), true)
+    global.setState({items})
+    return Promise.all(pushshift_promises)
+    .then(pushshift_results => {
+      if (pushshift_results.length === 1) {
+        return pushshift_results[0]
+      } else {
+        return getUniqueItems(pushshift_results)
+      }
     })
+    .then((pushshiftPosts) => {
+      return retrieveRedditPosts_and_combineWithPushshiftPosts(pushshiftPosts, true, redditPosts)
+    })
+  })
+  .then(items => {
+    global.setSuccess({items})
+    return items
   })
 }

@@ -188,6 +188,9 @@ class GlobalState extends Container {
     if (! page_type) {
       console.error('page_type is undefined')
     }
+    if (page_type === 'info' && queryParams.get('url')) {
+      page_type = 'duplicate_posts'
+    }
     const stateVar = extraGlobalStateVars
     for (const [param, urlParamKey] of Object.entries(urlParamKeys)) {
       const paramValue = queryParams.get(urlParamKey)
