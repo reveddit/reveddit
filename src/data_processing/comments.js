@@ -20,7 +20,7 @@ export const retrieveRedditComments_and_combineWithPushshiftComments = pushshift
 
 const copy_fields = ['permalink', 'score', 'controversiality', 'stickied',
                      'distinguished', 'locked', 'collapsed', 'edited',
-                     'subreddit_subscribers', 'quarantine', 'is_op', 'url',
+                     'subreddit_subscribers', 'quarantine', 'url',
                      'link_title']
 
 const initializeComment = (comment, post) => {
@@ -41,7 +41,6 @@ const markRemoved = (redditComment, commentToMark) => {
 
 export const combinePushshiftAndRedditComments = (pushshiftComments, redditComments, requirePushshiftData=true, post=undefined) => {
   const combinedComments = {}
-
   Object.values(redditComments).forEach(comment => {
     if (! requirePushshiftData) {
       initializeComment(comment, post)
