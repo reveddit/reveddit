@@ -2,7 +2,8 @@ import { toBase10, toBase36, chunk, flatten, getQueryString, promiseDelay } from
 
 const comment_fields = [
   'id', 'author', 'body', 'created_utc', 'parent_id', 'score',
-  'subreddit', 'link_id', 'author_flair_text', 'retrieved_on', 'retrieved_utc' ]
+  'subreddit', 'link_id', 'author_flair_text', 'retrieved_on', 'retrieved_utc',
+  'distinguished', 'stickied' ]
 
 const comment_fields_for_autoremoved = ['id', 'retrieved_on' ,'created_utc' ,'author', 'retrieved_utc']
 

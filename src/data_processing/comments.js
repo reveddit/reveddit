@@ -18,10 +18,12 @@ export const retrieveRedditComments_and_combineWithPushshiftComments = pushshift
   })
 }
 
-const copy_fields = ['permalink', 'score', 'controversiality', 'stickied',
-                     'distinguished', 'locked', 'collapsed', 'edited',
+const copy_fields = ['permalink', 'score', 'controversiality',
+                     'locked', 'collapsed', 'edited',
                      'subreddit_subscribers', 'quarantine', 'url',
                      'link_title']
+
+const copy_if_value_fields = ['distinguished', 'stickied']
 
 const initializeComment = (comment, post) => {
   if (post && post.author === comment.author) {
@@ -62,6 +64,11 @@ export const combinePushshiftAndRedditComments = (pushshiftComments, redditComme
       ps_comment.link_permalink = redditComment.permalink.split('/').slice(0,6).join('/')+'/'
       copy_fields.forEach(field => {
         ps_comment[field] = redditComment[field]
+      })
+      copy_if_value_fields.forEach(field => {
+        if (redditComment[field]) {
+          ps_comment[field] = redditComment[field]
+        }
       })
       if (! redditComment.link_title) {
         ps_comment.link_title = redditComment.permalink.split('/')[5].replace(/_/g, ' ')
