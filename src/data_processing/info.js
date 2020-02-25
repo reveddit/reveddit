@@ -115,23 +115,31 @@ export const getRevdditItems = (global) => {
     global.setState({items: redditItemsArray})
     return getPostDataForComments({link_ids_set})
     .then(postData => {
-      Object.values(redditComments).forEach(comment => {
-        if (postData && comment.link_id in postData) {
-          applyPostDataToComment({postData, comment})
-        }
-      })
-      global.setState({items: redditItemsArray})
-    })
-    .then(result => {
-      return Promise.all(pushshift_promises)
+      setPostDataForComments(Object.values(redditComments), postData)
+      return global.setState({items: redditItemsArray})
       .then(result => {
-        const pushshiftComments = result[0]
-        const pushshiftPosts = result[1]
-        const combinedComments = combinePushshiftAndRedditComments(pushshiftComments, redditComments, false)
-        const combinedPosts = combinePushshiftAndRedditPosts(pushshiftPosts, redditPosts, true, true)
-        global.setSuccess({items: Object.values(combinedComments).concat(combinedPosts)})
+        return Promise.all(pushshift_promises)
+        .then(result => {
+          const pushshiftComments = result[0]
+          const pushshiftPosts = result[1]
+          const combinedComments = combinePushshiftAndRedditComments(pushshiftComments, redditComments, false)
+          // have to set post data 2x, after reddit data retrieval and after pushshift retrieval,
+          // b/c a reddit comment may have author=[deleted] and setting is_op for a
+          // removed comment depends on author info from pushshift
+          setPostDataForComments(Object.values(combinedComments), postData)
+          const combinedPosts = combinePushshiftAndRedditPosts(pushshiftPosts, redditPosts, true, true)
+          global.setSuccess({items: Object.values(combinedComments).concat(combinedPosts)})
+        })
       })
     })
+  })
+}
+
+const setPostDataForComments = (comments, postData) => {
+  comments.forEach(comment => {
+    if (postData && comment.link_id in postData) {
+      applyPostDataToComment({postData, comment})
+    }
   })
 }
 

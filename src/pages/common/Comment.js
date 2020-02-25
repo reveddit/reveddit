@@ -90,6 +90,9 @@ class Comment extends React.Component {
               </a>
             </React.Fragment>
           }
+          {props.post_removed_label &&
+            <span className='removedby'>[post {props.post_removed_label}]</span>
+          }
         </div>
         <div className='comment-head subhead'>
         <a

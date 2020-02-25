@@ -6,7 +6,7 @@ import {
   getPostsByIDForCommentData as getPushshiftPostsForCommentData,
   getCommentsBySubreddit as getPushshiftCommentsBySubreddit
 } from 'api/pushshift'
-import { commentIsDeleted, commentIsRemoved } from 'utils'
+import { commentIsDeleted, commentIsRemoved, postIsDeleted } from 'utils'
 import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED,
          UNKNOWN_REMOVED, NOT_REMOVED,
          AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
@@ -145,8 +145,6 @@ export const getPostDataForComments = ({comments = undefined, link_ids_set = und
   .catch(() => { console.error(`Unable to retrieve full titles from ${source}`) })
 }
 
-//any fields copied/created here should be copied in combinePushshiftAndRedditComments
-//so that the comments on /info pages have their post-data carried over
 export const applyPostDataToComment = ({postData, comment}) => {
   const postData_thisComment = postData[comment.link_id]
   comment.link_title = postData_thisComment.title
@@ -162,6 +160,13 @@ export const applyPostDataToComment = ({postData, comment}) => {
   if ('author' in postData_thisComment && postData_thisComment.author === comment.author
       && comment.author !== '[deleted]') {
     comment.is_op = true
+  }
+  if (! postData_thisComment.is_robot_indexable) {
+    if (postIsDeleted(postData_thisComment)) {
+      comment.post_removed_label = 'deleted'
+    } else {
+      comment.post_removed_label = 'removed'
+    }
   }
 }
 
