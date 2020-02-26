@@ -297,9 +297,15 @@ export const getAutoremovedItems = names => {
 }
 
 
-export const getCommentsByThread = (threadID) => {
-  const params = `link_id=${threadID}&fields=${comment_fields.join(',')}&sort=asc&limit=30000`
-  return window.fetch(commentURL+'?'+params)
+export const getCommentsByThread = (link_id, after='') => {
+  const queryParams = {
+    link_id,
+    limit: 30000,
+    sort: 'asc',
+    fields: comment_fields.join(','),
+    ...(after && {after})
+  }
+  return window.fetch(commentURL+getQueryString(queryParams))
     .then(response => response.json())
     .then(data => {
       return data.data.reduce((map, comment) => {

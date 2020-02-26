@@ -93,7 +93,7 @@ const getPageTitle = (page_type, string) => {
   return null
 
 }
-const getLoadDataFunctionAndParam = (page_type, subreddit, user, kind, threadID, domain, queryParams) => {
+const getLoadDataFunctionAndParam = (page_type, subreddit, user, kind, threadID, commentID, context, domain, queryParams) => {
   switch(page_type) {
     case 'subreddit_posts': {
       return [getRevdditPostsBySubreddit, [subreddit]]
@@ -112,7 +112,7 @@ const getLoadDataFunctionAndParam = (page_type, subreddit, user, kind, threadID,
       break
     }
     case 'thread': {
-      return [getRevdditThreadItems, [threadID]]
+      return [getRevdditThreadItems, [threadID, commentID, context]]
       break
     }
     case 'user': {
@@ -151,7 +151,7 @@ export const withFetch = (WrappedComponent) =>
       let subreddit = (this.props.match.params.subreddit || '').toLowerCase()
       const domain = (this.props.match.params.domain || '').toLowerCase()
       const user = (this.props.match.params.user || '' ).toLowerCase()
-      const { threadID, kind = '' } = this.props.match.params
+      const { threadID, commentID, kind = '' } = this.props.match.params
       const { userSubreddit } = (this.props.match.params.userSubreddit || '').toLowerCase()
       const queryParams = getQueryParams()
       if (userSubreddit) {
@@ -179,8 +179,9 @@ export const withFetch = (WrappedComponent) =>
                       new SimpleURLSearchParams(this.props.location.search),
                       getExtraGlobalStateVars(page_type, queryParams.sort))
       .then(result => {
-
-        const [loadDataFunction, params] = getLoadDataFunctionAndParam(page_type, subreddit, user, kind, threadID, domain, queryParams)
+        const {context} = this.props.global.state
+        const [loadDataFunction, params] = getLoadDataFunctionAndParam(
+          page_type, subreddit, user, kind, threadID, commentID, context, domain, queryParams)
         loadDataFunction(...params, this.props.global)
         .then(items => {
           jumpToHash(window.location.hash)

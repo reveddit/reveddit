@@ -84,21 +84,25 @@ const groupRequests = async (func, items, params, localMaxNumItems) => {
   return Promise.all(promises)
 }
 
-export const getPostWithComments = (threadID, sort = 'old', limit=500) => {
+export const getPostWithComments = ({threadID, commentID: comment, context = 0, sort = 'old', limit=500}) => {
   const params = {
     limit,
     sort,
     threaded: false,
-    showmore: false
+    showmore: false,
+    ...(comment && {comment}),
+    ...(context && {context})
   }
   const url = oauth_reddit + `comments/${threadID}.json`+'?'+paramString(params)
   return getAuth()
     .then(auth => window.fetch(url, auth))
     .then(response => response.json())
     .then(results => {
+      const comments = results[1].data.children
       return {
         post: results[0].data.children[0].data,
-        comments: results[1].data.children.reduce((map, obj) => mapRedditObj(map, obj, 'id'), {})
+        comments: comments.reduce((map, obj) => mapRedditObj(map, obj, 'id'), {}),
+        firstComment: comments.length ? comments[0].data : {}
       }
     })
 }

@@ -18,12 +18,9 @@ class Thread extends React.Component {
   }
 
   render () {
-    const { itemsLookup:comments, loading, threadPost, hasVisitedUserPage,
-            context, redditThreadPost, showContext } = this.props.global.state
-    let post = redditThreadPost
-    if ('id' in threadPost) {
-      post = threadPost
-    }
+    const { itemsLookup:comments, loading, threadPost: post, hasVisitedUserPage,
+            context, showContext, initialFocusCommentID } = this.props.global.state
+
     const { id, author } = post
     const { subreddit, threadID, urlTitle = '', commentID } = this.props.match.params
     const { selections, visibleItemsWithoutCategoryFilter, page_type } = this.props
@@ -32,10 +29,11 @@ class Thread extends React.Component {
     const removedFiltersAreUnset = this.props.global.removedFiltersAreUnset()
     const updateStateAndURL = this.props.global.selection_update
     let root = undefined
+    const numComments = Object.keys(comments).length
 
     if (isSingleComment) {
       root = commentID
-      if (parseInt(context) && Object.keys(comments).length) {
+      if (parseInt(context) && numComments) {
         var i
         for (i = 0; i < context && (root in comments) && comments[root].parent_id.substr(0, 2) !== 't3'; i++) {
           root = comments[root].parent_id.substr(3)
@@ -43,13 +41,17 @@ class Thread extends React.Component {
       }
     }
     const viewContext = <a className="pointer" onClick={() => updateStateAndURL('showContext', true, page_type)}>show context</a>
-    const viewAllComments = <Link to={linkToRestOfComments} onClick={this.props.global.resetRemovedFilters}>view all comments</Link>
+    let viewAllComments = <Link to={linkToRestOfComments} onClick={this.props.global.resetRemovedFilters}>view all comments</Link>
+    const resetFilters = <a className="pointer" onClick={this.props.global.resetRemovedFilters}>reset filters</a>
+    if (initialFocusCommentID) {
+      viewAllComments = <a href={linkToRestOfComments}>view all comments</a>
+    }
 
     return (
-      <React.Fragment>
+      <>
         <Post {...post} />
         {
-          <React.Fragment>
+          <>
             {selections}
             <Highlight/>
             {! hasVisitedUserPage &&
@@ -58,13 +60,13 @@ class Thread extends React.Component {
                 <Link to={'/user/'}>view my removed comments</Link>
               </div>
             }
-            {(!loading && (commentID || id)) &&
-              <React.Fragment>
+            {(numComments !== 0 && (commentID || id)) &&
+              <>
                 {isSingleComment &&
                   <Notice message="you are viewing a single comment's thread." htmlLink={viewAllComments}/>
                 }
-                {! isSingleComment && ! removedFiltersAreUnset &&
-                  <Notice message="some comments may be hidden by selected filters." htmlLink={viewAllComments}/>
+                {! removedFiltersAreUnset &&
+                  <Notice message="some comments may be hidden by selected filters." htmlLink={resetFilters}/>
                 }
                 {! showContext &&
                   <Notice message="context is flattened." htmlLink={viewContext}/>
@@ -75,11 +77,11 @@ class Thread extends React.Component {
                   page_type={page_type}
                   focusCommentID={commentID}
                 />
-              </React.Fragment>
+              </>
             }
-          </React.Fragment>
+          </>
         }
-      </React.Fragment>
+      </>
     )
   }
 }

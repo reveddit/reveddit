@@ -155,7 +155,6 @@ class GlobalState extends Container {
         keywords: '',
         items: [],
         threadPost: {},
-        redditThreadPost: {},
         num_pages: 0,
         userNext: null,
         selection_defaults: {},
@@ -180,7 +179,8 @@ class GlobalState extends Container {
         content: 'all', url: '',
         selfposts: true,
         itemsLookup: {},
-        commentTree: []
+        commentTree: [],
+        initialFocusCommentID: ''
       }
   }
 
