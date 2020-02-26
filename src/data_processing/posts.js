@@ -199,7 +199,7 @@ const youtube_aliases = {
 }
 
 const getYoutubeURL_pushshift = (id) => {
-  return `((${Object.keys(youtube_aliases).join('|')}) ${id})`
+  return `((${Object.keys(youtube_aliases).join('|')}) "${id}")`
 }
 
 const getYoutubeURLs = (id) => {
