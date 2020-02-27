@@ -1,12 +1,15 @@
 import React from 'react'
 import { parse, commentIsRemoved, replaceAmpGTLT, getPrettyTimeLength } from 'utils'
+import { connect } from 'state'
 
-export default (props) => {
+const CommentBody = (props) => {
   let innerHTML = ''
   if (! props.deleted) {
     if (commentIsRemoved(props) && props.removed) {
       let removedMessage = 'too quickly to be archived'
-      if (props.retrieved_on) {
+      if (props.global.state.loading) {
+        removedMessage = 'content loading...'
+      } else if (props.retrieved_on) {
         removedMessage = 'within '+getPrettyTimeLength(props.retrieved_on-props.created_utc)
       }
       innerHTML = `<p>[removed ${removedMessage}]</p>`
@@ -19,3 +22,5 @@ export default (props) => {
     <div className='comment-body' dangerouslySetInnerHTML={{ __html: innerHTML }} />
   )
 }
+
+export default connect(CommentBody)
