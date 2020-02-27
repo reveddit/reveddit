@@ -11,12 +11,6 @@ import { SimpleURLSearchParams, jumpToHash } from 'utils'
 import Highlight from 'pages/common/Highlight'
 
 class Thread extends React.Component {
-  componentDidUpdate() {
-    if (window.location.hash) {
-      jumpToHash(window.location.hash)
-    }
-  }
-
   render () {
     const { itemsLookup:comments, loading, threadPost: post, hasVisitedUserPage,
             context, showContext, initialFocusCommentID } = this.props.global.state

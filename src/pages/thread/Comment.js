@@ -17,13 +17,6 @@ class Comment extends React.Component {
   toggleDisplayBody() {
     this.setState({displayBody: ! this.state.displayBody})
   }
-  getExpandIcon() {
-    if (this.state.displayBody) {
-      return '[–]'
-    } else {
-      return '[+]'
-    }
-  }
   render() {
     let props = this.props
     const {contextAncestors, focusCommentID} = this.props
@@ -70,6 +63,11 @@ class Comment extends React.Component {
         ) {
       return <></>
     }
+    let expandIcon = '[+]', hidden = 'hidden'
+    if (this.state.displayBody) {
+      expandIcon = '[–]'
+      hidden = ''
+    }
     return (
       <div id={name} className={`comment
             ${props.removed ? 'removed':''}
@@ -79,7 +77,7 @@ class Comment extends React.Component {
             ${props.id === props.focusCommentID ? 'focus':''}
       `}>
         <div className='comment-head'>
-          <a onClick={() => this.toggleDisplayBody()} className='collapseToggle'>{this.getExpandIcon()}</a>
+          <a onClick={() => this.toggleDisplayBody()} className={`collapseToggle ${hidden}`}>{expandIcon}</a>
           <span className='space' />
           <a
             href={author !== '[deleted]' ? `/user/${author}` : undefined}
