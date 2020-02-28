@@ -23,14 +23,14 @@ export const getRevdditThreadItems = (threadID, commentID, context, global) => {
     pushshift_comments_promise = getPushshiftCommentsByThread(threadID)
   }
   const reddit_pwc_promise = getRedditPostWithComments({threadID, commentID, context, sort: 'old', limit: numCommentsWithPost})
-  .then(({post: reddit_post, comments: redditComments_old, firstComment}) => {
+  .then(({post: reddit_post, comments: redditComments, moreComments, firstComment}) => {
     document.title = reddit_post.title
     if ((window.location.pathname.match(/\//g) || []).length < 6) {
       window.history.replaceState(null,null,reddit_post.permalink+window.location.search+window.location.hash)
     }
     const post_without_pushshift_data = combineRedditAndPushshiftPost(reddit_post, undefined)
 
-    let reddit_comments_promise = Promise.resolve(redditComments_old)
+    let reddit_comments_promise = Promise.resolve({redditComments, moreComments})
     let root_commentID
     if (commentID) {
       pushshift_comments_promise = getPushshiftCommentsByThread(threadID, firstComment.created_utc - 1)
@@ -38,7 +38,7 @@ export const getRevdditThreadItems = (threadID, commentID, context, global) => {
         root_commentID = firstComment.id
       }
     }
-    const combinedComments = combinePushshiftAndRedditComments({}, redditComments_old, false, post_without_pushshift_data)
+    const combinedComments = combinePushshiftAndRedditComments({}, redditComments, false, post_without_pushshift_data)
     const commentTree = createCommentTree(threadID, root_commentID, combinedComments)
     return global.setState({threadPost: post_without_pushshift_data,
                             items: Object.values(combinedComments),
@@ -53,13 +53,14 @@ export const getRevdditThreadItems = (threadID, commentID, context, global) => {
       // Needs more testing, setting numCommentsWithPost=500 seemed slower than 100
       if (reddit_post.num_comments > numCommentsWithPost+100) {
         reddit_comments_promise = getRedditPostWithComments({threadID, commentID, context, sort:'new', limit: numCommentsWithPost})
-        .then(({comments: redditComments_new}) => {
+        .then(({comments: redditComments_new, moreComments: moreComments_new}) => {
           Object.keys(redditComments_new).forEach(id => {
-            if (! redditComments_old[id]) {
-              redditComments_old[id] = redditComments_new[id]
+            if (! redditComments[id]) {
+              redditComments[id] = redditComments_new[id]
             }
           })
-          return redditComments_old
+          Object.assign(moreComments, moreComments_new)
+          return {redditComments, moreComments}
         })
       }
       return {reddit_post, root_commentID, reddit_comments_promise, pushshift_comments_promise}
@@ -81,9 +82,10 @@ export const getRevdditThreadItems = (threadID, commentID, context, global) => {
 
   const combined_comments_promise = reddit_pwc_promise
   .then(({reddit_post, root_commentID, reddit_comments_promise}) => {
-    return reddit_comments_promise.then(redditComments => {
+    return reddit_comments_promise.then(({redditComments, moreComments}) => {
       return pushshift_comments_promise.then(pushshiftComments => {
         const remainingRedditIDs = []
+        const origRedditComments = {...redditComments}
         Object.keys(pushshiftComments).forEach(ps_id => {
           if (! (ps_id in redditComments)) {
             remainingRedditIDs.push(ps_id)
@@ -109,6 +111,11 @@ export const getRevdditThreadItems = (threadID, commentID, context, global) => {
             //      and do a reddit query for these. Possibly query twice if the result has items whose parent IDs
             //      are not in combinedComments after adding the result of the first query
             const commentTree = createCommentTree(threadID, root_commentID, combinedComments)
+            const missing = []
+            markTreeMeta(missing, origRedditComments, moreComments, commentTree, reddit_post.num_comments, root_commentID)
+            if (missing.length) {
+              console.log('missing', missing.join(','))
+            }
             return {combinedComments, commentTree}
           })
         })
@@ -122,6 +129,23 @@ export const getRevdditThreadItems = (threadID, commentID, context, global) => {
     global.setSuccess({items: Object.values(combinedComments),
                        itemsLookup: combinedComments,
                        commentTree})
+  })
+}
+
+const maxDepth = 9
+const markTreeMeta = (missing, origRedditComments, moreComments, comments, post_numComments, root_commentID, depth = 0) => {
+  comments.forEach(comment => {
+    comment.depth = depth
+    if (! origRedditComments[comment.id]
+        && (origRedditComments[comment.parent_id.substr(3)] || (! root_commentID && comment.parent_id.slice(0,2) === 't3'))
+        && ! moreComments[comment.parent_id]
+        && depth <= maxDepth && ! comment.removed && ! comment.deleted) {
+      missing.push(comment.name)
+      comment.missing_in_thread = true
+    }
+    if (depth < maxDepth) {
+      markTreeMeta(missing, origRedditComments, moreComments, comment.replies, post_numComments, root_commentID, depth+1)
+    }
   })
 }
 

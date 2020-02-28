@@ -1,7 +1,7 @@
 import React from 'react'
 import { connect } from 'state'
 import { REMOVAL_META, USER_REMOVED, USER_REMOVED_META,
-         COLLAPSED, COLLAPSED_META
+         COLLAPSED, COLLAPSED_META, MISSING_IN_THREAD, MISSING_IN_THREAD_META
 } from 'pages/common/RemovedBy'
 
 
@@ -16,6 +16,9 @@ class RemovedByFilter extends React.Component {
     }
     if (['thread', 'user', 'subreddit_comments', 'info', 'search'].includes(page_type)) {
       removal_meta[COLLAPSED] = COLLAPSED_META
+    }
+    if (page_type === 'thread') {
+      removal_meta[MISSING_IN_THREAD] = MISSING_IN_THREAD_META
     }
     const updateStateAndURL = this.props.global.removedByFilter_update
     return (

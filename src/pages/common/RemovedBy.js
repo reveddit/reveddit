@@ -9,6 +9,7 @@ export const NOT_REMOVED = 'none'
 export const USER_REMOVED = 'user'
 export const LOCKED = 'locked'
 export const COLLAPSED = 'collapsed'
+export const MISSING_IN_THREAD = 'missing'
 export const AUTOMOD_LATENCY_THRESHOLD = 15
 
 export const REMOVAL_META = {
@@ -33,6 +34,10 @@ export const COLLAPSED_META = {filter_text: 'collapsed',
                                      label: 'collapsed',
                                       desc: 'Comment has a positive score and is collapsed in the thread'}
 
+export const MISSING_IN_THREAD_META = {filter_text: 'missing',
+                                             label: 'missing in thread',
+                                              desc: 'Comment does not appear on the reddit thread unless directly linked'}
+
 export const USER_REMOVED_META = {filter_text: 'user deleted',
                                         label: '[deleted] by user',
                                          desc: 'user deleted'}
@@ -46,6 +51,8 @@ export default (props) => {
     meta = USER_REMOVED_META
   } else if (itemIsCollapsed(props)) {
     meta = COLLAPSED_META
+  } else if (props.missing_in_thread) {
+    meta = MISSING_IN_THREAD_META
   }
   if (meta) {
     title = meta.desc

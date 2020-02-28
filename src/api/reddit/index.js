@@ -89,7 +89,7 @@ export const getPostWithComments = ({threadID, commentID: comment, context = 0, 
     limit,
     sort,
     threaded: false,
-    showmore: false,
+    showmore: true,
     ...(comment && {comment}),
     ...(context && {context})
   }
@@ -98,11 +98,20 @@ export const getPostWithComments = ({threadID, commentID: comment, context = 0, 
     .then(auth => window.fetch(url, auth))
     .then(response => response.json())
     .then(results => {
-      const comments = results[1].data.children
+      const items = results[1].data.children
+      const comments = {}, moreComments = {}
+      items.forEach(item => {
+        const itemData = item.data
+        if (item.kind === 't1') {
+          comments[itemData.id] = itemData
+        } else if (item.kind === 'more') {
+          moreComments[itemData.parent_id] = true
+        }
+      })
       return {
         post: results[0].data.children[0].data,
-        comments: comments.reduce((map, obj) => mapRedditObj(map, obj, 'id'), {}),
-        firstComment: comments.length ? comments[0].data : {}
+        comments, moreComments,
+        firstComment: items.length ? items[0].data : {}
       }
     })
 }
