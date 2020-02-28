@@ -157,7 +157,6 @@ class GlobalState extends Container {
         threadPost: {},
         num_pages: 0,
         userNext: null,
-        selection_defaults: {},
         removedFilter: removedFilter_types.all,
         removedByFilter: {},
         tagsFilter: {},
@@ -315,22 +314,18 @@ class GlobalState extends Container {
   tagsFilterIsUnset () {
     return Object.keys(this.state.tagsFilter).length === 0
   }
-  removedFiltersAreUnset() {
+  threadFiltersAreUnset() {
     return (this.removedByFilterIsUnset() &&
-            this.state.removedFilter === removedFilter_types.all)
+            this.state.removedFilter === removedFilter_types.all &&
+            this.tagsFilterIsUnset()
+           )
   }
-  resetRemovedFilters = () => {
-    this.setState({
-        removedFilter: removedFilter_types.all,
-      removedByFilter: {}
-    })
-  }
-
-  setRemovedFilterAndDefault (value, defaultValue) {
-    let selection_defaults = this.state.selection_defaults
-    selection_defaults.removedFilter = defaultValue
-    this.setState({removedFilter: value,
-                   selection_defaults: selection_defaults})
+  resetThreadFilters = (page_type) => {
+    const queryParams = new SimpleURLSearchParams(window.location.search)
+    adjust_qparams_for_selection(page_type, queryParams, 'removedFilter', removedFilter_types.all)
+    adjust_qparams_for_selection(page_type, queryParams, 'tagsFilter', '')
+    adjust_qparams_for_selection(page_type, queryParams, 'removedByFilter', '')
+    return this.updateURLandState(queryParams, page_type)
   }
 
   setSuccess = (other = {}) => {

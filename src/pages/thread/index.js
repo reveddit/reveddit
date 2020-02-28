@@ -20,7 +20,7 @@ class Thread extends React.Component {
     const { selections, visibleItemsWithoutCategoryFilter, page_type } = this.props
     const linkToRestOfComments = `/r/${subreddit}/comments/${threadID}/${urlTitle}/`
     const isSingleComment = (commentID !== undefined)
-    const removedFiltersAreUnset = this.props.global.removedFiltersAreUnset()
+    const threadFiltersAreUnset = this.props.global.threadFiltersAreUnset()
     const updateStateAndURL = this.props.global.selection_update
     let root = undefined
     const numComments = Object.keys(comments).length
@@ -34,9 +34,10 @@ class Thread extends React.Component {
         }
       }
     }
+    const resetThreadFilters = () => this.props.global.resetThreadFilters(page_type)
     const viewContext = <a className="pointer" onClick={() => updateStateAndURL('showContext', true, page_type)}>show context</a>
-    let viewAllComments = <Link to={linkToRestOfComments} onClick={this.props.global.resetRemovedFilters}>view all comments</Link>
-    const resetFilters = <a className="pointer" onClick={this.props.global.resetRemovedFilters}>reset filters</a>
+    let viewAllComments = <Link to={linkToRestOfComments} onClick={resetThreadFilters}>view all comments</Link>
+    const resetFilters = <a className="pointer" onClick={resetThreadFilters}>reset filters</a>
     if (initialFocusCommentID) {
       viewAllComments = <a href={linkToRestOfComments}>view all comments</a>
     }
@@ -59,7 +60,7 @@ class Thread extends React.Component {
                 {isSingleComment &&
                   <Notice message="you are viewing a single comment's thread." htmlLink={viewAllComments}/>
                 }
-                {! removedFiltersAreUnset &&
+                {! threadFiltersAreUnset &&
                   <Notice message="some comments may be hidden by selected filters." htmlLink={resetFilters}/>
                 }
                 {! showContext &&
