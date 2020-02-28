@@ -110,30 +110,6 @@ export const combinePushshiftAndRedditComments = (pushshiftComments, redditComme
   return combinedComments
 }
 
-export const createCommentTree = (postID, root_commentID, comments) => {
-    const commentTree = []
-    Object.keys(comments)
-      .sort((a,b) => comments[a].created_utc - comments[b].created_utc) // sort so ancestors are tracked properly
-      .forEach(commentID => {
-        const comment = comments[commentID]
-        const parentID = comment.parent_id
-        const parentID_short = parentID.substr(3)
-        if ((! root_commentID && parentID === 't3_'+postID) ||
-             commentID === root_commentID) {
-          commentTree.push(comment)
-        } else if (comments[parentID_short] === undefined && ! root_commentID) {
-          // don't show error if root_commentID is defined b/c in that case
-          // the pushshift query may return results that can't be shown
-          console.error('MISSING PARENT ID:', parentID, 'for comment', comment)
-        } else if (comments[parentID_short]) {
-          comment.ancestors = {...comments[parentID_short].ancestors}
-          comment.ancestors[parentID_short] = true
-          comments[parentID_short].replies.push(comment)
-        }
-      })
-    return commentTree
-}
-
 // Using Pushshift may be faster, but it is missing the quarantine field in submissions data
 export const getPostDataForComments = ({comments = undefined, link_ids_set = undefined, source = 'reddit'}) => {
   if (! link_ids_set) {

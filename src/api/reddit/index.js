@@ -2,8 +2,8 @@ import { chunk, flatten, fetchWithTimeout, promiseDelay, getRandomInt } from 'ut
 import { getAuth } from './auth'
 
 const oauth_reddit = 'https://oauth.reddit.com/'
-const numRequestsBeforeWait = 10
-const waitInterval = numRequestsBeforeWait*500
+const numRequestsBeforeWait = 100
+const waitInterval = 5000
 const maxNumItems = 100
 const commentSortOptions = ['confidence', 'new', 'controversial', 'old', 'qa']
 const MIN_COMMENT_KARMA = 1000

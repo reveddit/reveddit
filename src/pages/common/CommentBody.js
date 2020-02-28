@@ -7,10 +7,10 @@ const CommentBody = (props) => {
   if (! props.deleted) {
     if (commentIsRemoved(props) && props.removed) {
       let removedMessage = 'too quickly to be archived'
-      if (props.global.state.loading) {
+      if (props.retrieved_on) {
+        removedMessage = 'before archival, within '+getPrettyTimeLength(props.retrieved_on-props.created_utc)
+      } else if (props.global.state.loading) {
         removedMessage = 'content loading...'
-      } else if (props.retrieved_on) {
-        removedMessage = 'within '+getPrettyTimeLength(props.retrieved_on-props.created_utc)
       }
       innerHTML = `<p>[removed ${removedMessage}]</p>`
     } else {

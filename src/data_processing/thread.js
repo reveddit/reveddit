@@ -1,5 +1,5 @@
 import { retrieveRedditComments_and_combineWithPushshiftComments,
-         combinePushshiftAndRedditComments, createCommentTree } from 'data_processing/comments'
+         combinePushshiftAndRedditComments } from 'data_processing/comments'
 import { combineRedditAndPushshiftPost } from 'data_processing/posts'
 import {
   getPost as getPushshiftPost,
@@ -9,12 +9,12 @@ import {
   getComments as getRedditComments,
   getPostWithComments as getRedditPostWithComments
 } from 'api/reddit'
-import { itemIsRemovedOrDeleted, postIsDeleted } from 'utils'
+import { itemIsRemovedOrDeleted, postIsDeleted, jumpToHash } from 'utils'
 import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
          MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED,
          AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
 
-const numCommentsWithPost = 100
+const numCommentsWithPost = 500
 
 export const getRevdditThreadItems = (threadID, commentID, context, global) => {
   global.setLoading('')
@@ -46,6 +46,7 @@ export const getRevdditThreadItems = (threadID, commentID, context, global) => {
                             commentTree,
                             initialFocusCommentID: commentID})
     .then(res => {
+      jumpToHash(window.location.hash)
       // Add 100 to threshhold b/c if post.num_comments <= numCommentsWithPost, first call could return
       // numCommentsWithPost and second call (sort by 'new') might return 50.
       // In that case you still need to call api/info, getting 100 items per request.
@@ -92,16 +93,24 @@ export const getRevdditThreadItems = (threadID, commentID, context, global) => {
         if (remainingRedditIDs.length) {
           reddit_remaining_comments_promise = getRedditComments(({ids: remainingRedditIDs}))
         }
-        return reddit_remaining_comments_promise.then(remainingRedditComments => {
-          Object.values(remainingRedditComments).forEach(comment => {
-            redditComments[comment.id] = comment
+        const early_combinedComments = combinePushshiftAndRedditComments(pushshiftComments, redditComments, false, reddit_post)
+        const early_commentTree = createCommentTree(threadID, root_commentID, early_combinedComments)
+
+        return global.setState({items: Object.values(early_combinedComments),
+                         itemsLookup: early_combinedComments,
+                         commentTree: early_commentTree})
+        .then(result => {
+          return reddit_remaining_comments_promise.then(remainingRedditComments => {
+            Object.values(remainingRedditComments).forEach(comment => {
+              redditComments[comment.id] = comment
+            })
+            const combinedComments = combinePushshiftAndRedditComments(pushshiftComments, redditComments, false, reddit_post)
+            //todo: check if pushshiftComments has any parent_ids that are not in combinedComments
+            //      and do a reddit query for these. Possibly query twice if the result has items whose parent IDs
+            //      are not in combinedComments after adding the result of the first query
+            const commentTree = createCommentTree(threadID, root_commentID, combinedComments)
+            return {combinedComments, commentTree}
           })
-          const combinedComments = combinePushshiftAndRedditComments(pushshiftComments, redditComments, false, reddit_post)
-          //todo: check if pushshiftComments has any parent_ids that are not in combinedComments
-          //      and do a reddit query for these. Possibly query twice if the result has items whose parent IDs
-          //      are not in combinedComments after adding the result of the first query
-          const commentTree = createCommentTree(threadID, root_commentID, combinedComments)
-          return {combinedComments, commentTree}
         })
       })
     })
@@ -114,4 +123,28 @@ export const getRevdditThreadItems = (threadID, commentID, context, global) => {
                        itemsLookup: combinedComments,
                        commentTree})
   })
+}
+
+const createCommentTree = (postID, root_commentID, comments) => {
+    const commentTree = []
+    Object.keys(comments)
+      .sort((a,b) => comments[a].created_utc - comments[b].created_utc) // sort so ancestors are tracked properly
+      .forEach(commentID => {
+        const comment = comments[commentID]
+        const parentID = comment.parent_id
+        const parentID_short = parentID.substr(3)
+        if ((! root_commentID && parentID === 't3_'+postID) ||
+             commentID === root_commentID) {
+          commentTree.push(comment)
+        } else if (comments[parentID_short] === undefined && ! root_commentID) {
+          // don't show error if root_commentID is defined b/c in that case
+          // the pushshift query may return results that can't be shown
+          console.error('MISSING PARENT ID:', parentID, 'for comment', comment)
+        } else if (comments[parentID_short]) {
+          comment.ancestors = {...comments[parentID_short].ancestors}
+          comment.ancestors[parentID_short] = true
+          comments[parentID_short].replies.push(comment)
+        }
+      })
+    return commentTree
 }
