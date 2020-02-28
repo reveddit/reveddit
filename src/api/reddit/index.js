@@ -224,14 +224,18 @@ export const querySearch = ({selftexts = [], urls = []}) => {
   if (urls.length) {
     params.q += encodeURIComponent(urls.map(x => `url:"${x}"`).join(' OR '))
   }
-  const url = oauth_reddit + 'search.json' + '?'+paramString(params)
+  const url = oauth_reddit + 'search/.json' + '?'+paramString(params)
   return getAuth()
-    .then(auth => window.fetch(url, auth))
-    .then(response => response.json())
-    .then(json =>
-      json.data.children.reduce((map, obj) => mapRedditObj(map, obj, 'id'), {})
-    )
-    .catch(errorHandler)
+  .then(auth => window.fetch(url, auth))
+  .then(response => response.json())
+  .then(json =>
+    json.data.children.reduce((map, obj) => mapRedditObj(map, obj, 'id'), {})
+  )
+  .catch(() => {
+    console.error('reddit.com/search failed')
+    return {}
+  })
+
 }
 
 export const randomRedditor = async () => {
