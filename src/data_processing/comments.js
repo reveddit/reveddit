@@ -59,8 +59,10 @@ export const combinePushshiftAndRedditComments = (pushshiftComments, redditComme
     const retrievalLatency = ps_comment.retrieved_on-ps_comment.created_utc
     const redditComment = redditComments[ps_comment.id]
     ps_comment.name = 't1_'+ps_comment.id // name needed for info page render
-    if (redditComment !== undefined) {
-      initializeComment(ps_comment, post)
+    initializeComment(ps_comment, post)
+    if (ps_comment.processed) {
+      combinedComments[ps_comment.id] = ps_comment
+    } else if (redditComment !== undefined) {
       ps_comment.link_permalink = redditComment.permalink.split('/').slice(0,6).join('/')+'/'
       copy_fields.forEach(field => {
         ps_comment[field] = redditComment[field]
@@ -98,6 +100,7 @@ export const combinePushshiftAndRedditComments = (pushshiftComments, redditComme
           }
         }
       }
+      ps_comment.processed = true
       combinedComments[ps_comment.id] = ps_comment
     } else {
       // known issue: r/all/comments?before=1538269380 will show some comments whose redditComment has no data
