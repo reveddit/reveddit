@@ -182,7 +182,7 @@ export const withFetch = (WrappedComponent) =>
         const {context} = this.props.global.state
         const [loadDataFunction, params] = getLoadDataFunctionAndParam(
           page_type, subreddit, user, kind, threadID, commentID, context, domain, queryParams)
-        loadDataFunction(...params, this.props.global)
+        loadDataFunction(...params, this.props.global, this.props.history)
         .then(items => {
 
           if (commentID) {

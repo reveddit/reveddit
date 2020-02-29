@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, withRouter } from 'react-router-dom'
 import scrollToElement from 'scroll-to-element'
 import { connect, localSort_types } from 'state'
 import Post from 'pages/common/Post'
@@ -66,6 +66,9 @@ class Thread extends React.Component {
                 {! showContext &&
                   <Notice message="context is flattened." htmlLink={viewContext}/>
                 }
+                {loading &&
+                  <div className='non-item'><img className='spin' src='/images/spin.gif'/></div>
+                }
                 <CommentSection
                   root={root}
                   visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
@@ -81,4 +84,4 @@ class Thread extends React.Component {
   }
 }
 
-export default connect(withFetch(Thread))
+export default connect(withFetch(withRouter(Thread)))

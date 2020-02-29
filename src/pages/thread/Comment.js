@@ -5,6 +5,7 @@ import Time from 'pages/common/Time'
 import RemovedBy from 'pages/common/RemovedBy'
 import CommentBody from 'pages/common/CommentBody'
 import { connect } from 'state'
+import { insertParent } from 'data_processing/thread'
 
 const contextDefault = 3
 
@@ -106,21 +107,23 @@ class Comment extends React.Component {
               <div className='comment-links'>
                 { ! props.deleted &&
                   <React.Fragment>
-                    <Link to={permalink} onClick={(e) => {context_update(0, props,
-                      () => {jumpToHash(window.location.hash)}
-                      )}}>permalink</Link>
+                    <Link to={permalink} onClick={(e) => {
+                      context_update(0, props)
+                      .then(jumpToHash(window.location.hash))
+                    }}>permalink</Link>
                     {parent_link &&
                       <>
-                        <Link to={parent_link} onClick={
-                          (e) => {context_update(0, props,
-                            () => {jumpToHash(window.location.hash)}
-                            )}}>parent
-                        </Link>
-                        <Link to={contextLink}
-                              onClick={(e) => {context_update(contextDefault, props,
-                              () => {jumpToHash(window.location.hash)}
-                            )}}>context
-                        </Link>
+                        <Link to={parent_link} onClick={(e) => {
+                          context_update(0, props)
+                          .then(() => insertParent(props.id, props.global))
+                          .then(() => jumpToHash(window.location.hash))
+                        }}>parent</Link>
+                        <Link to={contextLink} onClick={(e) => {
+                          context_update(contextDefault, props)
+                          .then(() => insertParent(props.id, props.global))
+                          .then(() => insertParent(props.parent_id.substr(3), props.global))
+                          .then(() => jumpToHash(window.location.hash))
+                        }}>context</Link>
                       </>
                     }
                   </React.Fragment>
