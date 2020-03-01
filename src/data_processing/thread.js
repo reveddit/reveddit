@@ -25,7 +25,7 @@ export const getRevdditThreadItems = (threadID, commentID, context, global, hist
   }
 
   const reddit_pwc_promise = getRedditPostWithComments({threadID, commentID, context, sort: 'old', limit: numCommentsWithPost})
-  .then(({post: reddit_post, comments: redditComments, moreComments, firstComment}) => {
+  .then(({post: reddit_post, comments: redditComments, moreComments, oldestComment}) => {
     document.title = reddit_post.title
     const resetPath = () => {
       history.replace(reddit_post.permalink+window.location.search+window.location.hash)
@@ -38,21 +38,21 @@ export const getRevdditThreadItems = (threadID, commentID, context, global, hist
     // comments/article lookup may return no comments if a comment is removed,
     // so, need to query the root comment separately so that pushshift comments
     // lookup can make use of its created_utc
-    let first_comment_promise = Promise.resolve(firstComment)
-    if (! Object.keys(firstComment).length && commentID) {
-      first_comment_promise = getRedditComments({ids: [commentID]})
-      .then(firstComments => {
-        firstComment = firstComments[commentID] || {}
-        Object.assign(redditComments, firstComments)
-        return firstComment
+    let oldest_comment_promise = Promise.resolve(oldestComment)
+    if (! Object.keys(oldestComment).length && commentID) {
+      oldest_comment_promise = getRedditComments({ids: [commentID]})
+      .then(oldestComments => {
+        oldestComment = oldestComments[commentID] || {}
+        Object.assign(redditComments, oldestComments)
+        return oldestComment
       })
     }
-    return first_comment_promise.then(firstComment => {
+    return oldest_comment_promise.then(oldestComment => {
       let reddit_comments_promise = Promise.resolve({redditComments, moreComments})
       let root_commentID
       if (commentID) {
-        root_commentID = firstComment.id
-        pushshift_comments_promise = getPushshiftCommentsByThread(threadID, firstComment.created_utc - 1)
+        root_commentID = oldestComment.id
+        pushshift_comments_promise = getPushshiftCommentsByThread(threadID, oldestComment.created_utc - 1)
       }
       const combinedComments = combinePushshiftAndRedditComments({}, redditComments, false, post_without_pushshift_data)
       const commentTree = createCommentTree(threadID, root_commentID, combinedComments)
@@ -158,8 +158,8 @@ export const insertParent = (child_id, global) => {
   let promise = Promise.resolve()
   let { items, itemsLookup, commentTree, threadPost } = global.state
   const child = itemsLookup[child_id]
-  const [kind, parent_id] = child.parent_id.split('_')
-  if (! itemsLookup[parent_id] && kind === 't1') {
+  const [parent_kind, parent_id] = child.parent_id.split('_')
+  if (! itemsLookup[parent_id] && parent_kind === 't1') {
     promise = global.setLoading('')
     .then(() => getRedditComments({ids: [parent_id]}))
     .then(redditComments => {

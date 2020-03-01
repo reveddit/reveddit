@@ -100,18 +100,21 @@ export const getPostWithComments = ({threadID, commentID: comment, context = 0, 
     .then(results => {
       const items = results[1].data.children
       const comments = {}, moreComments = {}
+      let oldestComment = {}
       items.forEach(item => {
         const itemData = item.data
         if (item.kind === 't1') {
           comments[itemData.id] = itemData
+          if (! oldestComment.created_utc || itemData.created_utc < oldestComment.created_utc) {
+            oldestComment = itemData
+          }
         } else if (item.kind === 'more') {
           moreComments[itemData.parent_id] = true
         }
       })
       return {
         post: results[0].data.children[0].data,
-        comments, moreComments,
-        firstComment: items.length ? items[0].data : {}
+        comments, moreComments, oldestComment
       }
     })
 }

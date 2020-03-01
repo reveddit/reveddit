@@ -184,17 +184,17 @@ export const withFetch = (WrappedComponent) =>
           page_type, subreddit, user, kind, threadID, commentID, context, domain, queryParams)
         loadDataFunction(...params, this.props.global, this.props.history)
         .then(items => {
-
-          if (commentID) {
-            const focusComment = this.props.global.state.itemsLookup[commentID]
-            if (focusComment) {
-              document.querySelectorAll('.threadComments .collapseToggle.hidden').forEach(toggle => {
-                const comment = toggle.closest('.comment')
-                if (comment && comment.id.substr(3) in focusComment.ancestors) {
-                  toggle.click()
-                }
-              })
-            }
+          const {commentTree} = this.props.global.state
+          const focusComment = this.props.global.state.itemsLookup[commentID]
+          if ((commentID && focusComment) || commentTree.length === 1) {
+            document.querySelectorAll('.threadComments .collapseToggle.hidden').forEach(toggle => {
+              const comment = toggle.closest('.comment')
+              if (comment
+                  && (commentTree.length === 1
+                   || comment.id.substr(3) in focusComment.ancestors)) {
+                toggle.click()
+              }
+            })
           }
           window.scrollY === 0 && jumpToHash(window.location.hash)
         })

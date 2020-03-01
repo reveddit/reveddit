@@ -121,6 +121,7 @@ class Comment extends React.Component {
                         <Link to={contextLink} onClick={(e) => {
                           context_update(contextDefault, props)
                           .then(() => insertParent(props.id, props.global))
+                          // parent_id will never be t3_ b/c context link is not rendered for topmost comments
                           .then(() => insertParent(props.parent_id.substr(3), props.global))
                           .then(() => jumpToHash(window.location.hash))
                         }}>context</Link>
