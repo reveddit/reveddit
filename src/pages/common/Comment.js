@@ -53,6 +53,14 @@ class Comment extends React.Component {
     if (directlink) {
       directlink += `limit=1&sort=${props.sort}&show=${props.name}&removal_status=all`
     }
+    let post_parent_removed = []
+    if (props.parent_removed_label) {
+      post_parent_removed.push('parent '+props.parent_removed_label)
+    }
+    if (props.post_removed_label) {
+      post_parent_removed.push('thread '+props.post_removed_label)
+    }
+
 
     const mods_message_body = '\n\n\n'+reddit+props.permalink;
     const mods_link = reddit+'/message/compose?to=/r/'+props.subreddit+'&message='+encodeURI(mods_message_body);
@@ -90,8 +98,8 @@ class Comment extends React.Component {
               </a>
             </React.Fragment>
           }
-          {props.post_removed_label &&
-            <span className='removedby'>[post {props.post_removed_label}]</span>
+          {post_parent_removed.length !== 0 &&
+            <span className='removedby'>[{post_parent_removed.join(', ')}]</span>
           }
         </div>
         <div className='comment-head subhead'>

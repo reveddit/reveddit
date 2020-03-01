@@ -13,7 +13,7 @@ import {
   queryPosts as pushshiftQueryPosts
 } from 'api/pushshift'
 import { combinePushshiftAndRedditComments, getRevdditComments,
-         getPostDataForComments, applyPostDataToComment
+         getPostDataForComments, applyPostAndParentDataToComment
 } from 'data_processing/comments'
 import { combinePushshiftAndRedditPosts, getRevdditPosts } from 'data_processing/posts'
 
@@ -115,7 +115,7 @@ export const getRevdditItems = (global) => {
     global.setState({items: redditItemsArray})
     return getPostDataForComments({link_ids_set})
     .then(postData => {
-      setPostDataForComments(Object.values(redditComments), postData)
+      setPostAndParentDataForComments(Object.values(redditComments), postData)
       return global.setState({items: redditItemsArray})
       .then(result => {
         return Promise.all(pushshift_promises)
@@ -126,7 +126,7 @@ export const getRevdditItems = (global) => {
           // have to set post data 2x, after reddit data retrieval and after pushshift retrieval,
           // b/c a reddit comment may have author=[deleted] and setting is_op for a
           // removed comment depends on author info from pushshift
-          setPostDataForComments(Object.values(combinedComments), postData)
+          setPostAndParentDataForComments(Object.values(combinedComments), postData)
           const combinedPosts = combinePushshiftAndRedditPosts(pushshiftPosts, redditPosts, true, true)
           global.setSuccess({items: Object.values(combinedComments).concat(combinedPosts)})
         })
@@ -135,10 +135,10 @@ export const getRevdditItems = (global) => {
   })
 }
 
-const setPostDataForComments = (comments, postData) => {
+export const setPostAndParentDataForComments = (comments, postData) => {
   comments.forEach(comment => {
     if (postData && comment.link_id in postData) {
-      applyPostDataToComment({postData, comment})
+      applyPostAndParentDataToComment(postData, comment)
     }
   })
 }

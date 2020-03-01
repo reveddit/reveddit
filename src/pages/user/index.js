@@ -17,7 +17,7 @@ import Highlight from 'pages/common/Highlight'
 class User extends React.Component {
   render () {
     const { user, kind = ''} = this.props.match.params
-    const { page_type, viewableItems, selections, numCollapsedNotShownMsg } = this.props
+    const { page_type, viewableItems, selections, notShownMsg } = this.props
     const qp_with_defaults = getQueryParams()
     const queryParams = new SimpleURLSearchParams(window.location.search)
     const gs = this.props.global.state
@@ -91,7 +91,7 @@ class User extends React.Component {
               {selections}
             </div>
             <Highlight/>
-            {numCollapsedNotShownMsg}
+            {notShownMsg}
             { removedCommentIDs.length > 0 &&
               <Notice message="Some comments have been removed. To view this on reddit, open the below link in an incognito window or while logged out."
                 htmlLink={<a href={'https://www.reddit.com/api/info?id='+removedCommentIDs.join(',')} target="_blank">view removed comments on reddit</a>}

@@ -179,7 +179,8 @@ class GlobalState extends Container {
         selfposts: true,
         itemsLookup: {},
         commentTree: [],
-        initialFocusCommentID: ''
+        initialFocusCommentID: '',
+        commentParentsAndPosts: {}
       }
   }
 

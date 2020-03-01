@@ -321,7 +321,7 @@ export const promiseDelay = (ms) => {
 
 export const itemIsActioned = item =>
   item.removed || item.deleted || item.removedby === AUTOMOD_REMOVED_MOD_APPROVED ||
-  itemIsCollapsed(item) || item.locked
+  itemIsCollapsed(item) || item.locked || commentIsOrphaned(item)
 
 export const itemIsCollapsed = (item) => {
   return item.collapsed && item.score > 0 && ! item.removed && ! item.deleted
@@ -331,6 +331,10 @@ export const not = (f) => {
   return function () {
     return ! f.apply(this, arguments)
   }
+}
+
+export const commentIsOrphaned = (comment) => {
+  return comment.parent_removed_label || comment.post_removed_label
 }
 
 export const getRandomInt = (max) => {

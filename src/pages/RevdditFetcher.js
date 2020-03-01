@@ -9,9 +9,9 @@ import { getRevdditItems, getRevdditSearch } from 'data_processing/info'
 import { itemIsOneOfSelectedRemovedBy, itemIsOneOfSelectedTags } from 'data_processing/filters'
 import Selections from 'pages/common/selections'
 import { removedFilter_types, getExtraGlobalStateVars } from 'state'
-import { NOT_REMOVED, COLLAPSED } from 'pages/common/RemovedBy'
+import { NOT_REMOVED, COLLAPSED, ORPHANED } from 'pages/common/RemovedBy'
 import { SimpleURLSearchParams, jumpToHash, get, put, ext_urls,
-         itemIsActioned, itemIsCollapsed } from 'utils'
+         itemIsActioned, itemIsCollapsed, commentIsOrphaned } from 'utils'
 
 const getCategorySettings = (page_type, subreddit) => {
   const category_settings = {
@@ -137,6 +137,7 @@ const OVERVIEW = 'overview', SUBMITTED = 'submitted', BLANK='', COMMENTS='commen
 const acceptable_kinds = [OVERVIEW, COMMENTS, SUBMITTED, BLANK]
 const acceptable_sorts = ['new', 'top', 'controversial', 'hot']
 const MAX_COLLAPSED_VISIBLE = 2
+const MAX_ORPHANED_VISIBLE = 2
 
 export const withFetch = (WrappedComponent) =>
   class extends React.Component {
@@ -145,7 +146,8 @@ export const withFetch = (WrappedComponent) =>
       threadPost: {},
       num_pages: 0,
       loading: true,
-      showAllCollapsed: false
+      showAllCollapsed: false,
+      showAllOrphaned: false
     }
     componentDidMount() {
       let subreddit = (this.props.match.params.subreddit || '').toLowerCase()
@@ -269,26 +271,50 @@ export const withFetch = (WrappedComponent) =>
       const category_state = gs['categoryFilter_'+category]
       const {page_type} = this.props
       const showAllCategories = category_state === 'all'
-      let numCollapsed = 0
-      let numCollapsedNotShown = 0
+      let numCollapsed = 0, numCollapsedNotShown = 0,
+           numOrphaned = 0,  numOrphanedNotShown = 0
       const viewableItems = items.filter(item => {
         let itemIsOneOfSelectedCategory = false
         if (category_state === item[category_unique_field]) {
           itemIsOneOfSelectedCategory = true
         }
-        if (itemIsCollapsed(item) &&
-            ['user','subreddit_comments'].includes(page_type) &&
-            ! this.state.showAllCollapsed &&
-            ! gs.removedByFilter[COLLAPSED]) {
-          numCollapsed += 1
-          if (numCollapsed > MAX_COLLAPSED_VISIBLE) {
-            numCollapsedNotShown += 1
+        if (['user','subreddit_comments'].includes(page_type) &&
+            gs.removedFilter === removedFilter_types.removed &&
+            this.props.global.removedByFilterIsUnset() &&
+            this.props.global.tagsFilterIsUnset()) {
+          let hideItem = false
+          const collapsed = itemIsCollapsed(item)
+          const orphaned = commentIsOrphaned(item)
+          if (collapsed) {
+            numCollapsed += 1
+            if (! this.state.showAllCollapsed &&
+              ! (orphaned && this.state.showAllOrphaned) &&
+              ! gs.removedByFilter[COLLAPSED]) {
+              if (numCollapsed > MAX_COLLAPSED_VISIBLE) {
+                numCollapsedNotShown += 1
+                hideItem = true
+              }
+            }
+          }
+          if (orphaned) {
+            numOrphaned += 1
+            if (! item.deleted && ! item.removed &&
+              ! this.state.showAllOrphaned &&
+              ! (collapsed && this.state.showAllCollapsed) &&
+              ! gs.removedByFilter[ORPHANED]) {
+              if (numOrphaned > MAX_ORPHANED_VISIBLE) {
+                numOrphanedNotShown += 1
+                hideItem = true
+              }
+            }
+          }
+          if (hideItem) {
             return false
           }
         }
         return (showAllCategories || itemIsOneOfSelectedCategory)
       })
-      return {viewableItems, numCollapsedNotShown}
+      return {viewableItems, numCollapsedNotShown, numOrphanedNotShown}
     }
 
 
@@ -351,7 +377,7 @@ export const withFetch = (WrappedComponent) =>
       let visibleItemsWithoutCategoryFilter = []
       visibleItemsWithoutCategoryFilter = this.getVisibleItemsWithoutCategoryFilter()
       const {category, category_title, category_unique_field} = getCategorySettings(page_type, subreddit)
-      const {viewableItems, numCollapsedNotShown} = this.getViewableItems(visibleItemsWithoutCategoryFilter, category, category_unique_field)
+      const {viewableItems, numCollapsedNotShown, numOrphanedNotShown} = this.getViewableItems(visibleItemsWithoutCategoryFilter, category, category_unique_field)
       const selections =
         <Selections subreddit={subreddit}
                     page_type={page_type}
@@ -364,15 +390,23 @@ export const withFetch = (WrappedComponent) =>
       if (numCollapsedNotShown) {
           numCollapsedNotShownMsg =
             <div className='notice-with-link center' onClick={() => this.setState({showAllCollapsed: true})}>
-              show {numCollapsedNotShown} collapsed items
+              show {numCollapsedNotShown} collapsed comments
             </div>
       }
+      let numOrphanedNotShownMsg = ''
+      if (numOrphanedNotShown) {
+          numOrphanedNotShownMsg =
+            <div className='notice-with-link center' onClick={() => this.setState({showAllOrphaned: true})}>
+              show {numOrphanedNotShown} comments whose parent or thread was removed
+            </div>
+      }
+      const notShownMsg = <>{numOrphanedNotShownMsg}{numCollapsedNotShownMsg}</>
       return (
         <React.Fragment>
           <WrappedComponent {...this.props} {...this.state}
             selections={selections}
             viewableItems={viewableItems}
-            numCollapsedNotShownMsg={numCollapsedNotShownMsg}
+            notShownMsg={notShownMsg}
             visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
           />
         </React.Fragment>

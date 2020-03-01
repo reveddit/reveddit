@@ -126,27 +126,35 @@ export const getPostDataForComments = ({comments = undefined, link_ids_set = und
   .catch(() => { console.error(`Unable to retrieve full titles from ${source}`) })
 }
 
-export const applyPostDataToComment = ({postData, comment}) => {
-  const postData_thisComment = postData[comment.link_id]
-  comment.link_title = postData_thisComment.title
-  if (postData_thisComment.url) {
-    comment.url = postData_thisComment.url
+export const applyPostAndParentDataToComment = (postData, comment) => {
+  const post = postData[comment.link_id]
+  comment.link_title = post.title
+  if (post.url) {
+    comment.url = post.url
   }
-  if (typeof(postData_thisComment.num_comments) !== 'undefined') {
-    comment.num_comments = postData_thisComment.num_comments
+  if (typeof(post.num_comments) !== 'undefined') {
+    comment.num_comments = post.num_comments
   }
   ['quarantine', 'subreddit_subscribers'].forEach(field => {
-    comment[field] = postData_thisComment[field]
+    comment[field] = post[field]
   })
-  if ('author' in postData_thisComment && postData_thisComment.author === comment.author
+  if ('author' in post && post.author === comment.author
       && comment.author !== '[deleted]') {
     comment.is_op = true
   }
-  if (! postData_thisComment.is_robot_indexable) {
-    if (postIsDeleted(postData_thisComment)) {
+  if (! post.is_robot_indexable) {
+    if (postIsDeleted(post)) {
       comment.post_removed_label = 'deleted'
     } else {
       comment.post_removed_label = 'removed'
+    }
+  }
+  const parent = postData[comment.parent_id]
+  if (comment.parent_id.slice(0,2) === 't1' && parent) {
+    if (commentIsRemoved(parent)) {
+      comment.parent_removed_label = 'removed'
+    } else if (commentIsDeleted(parent)) {
+      comment.parent_removed_label = 'deleted'
     }
   }
 }
@@ -161,10 +169,10 @@ export const getRevdditComments = (pushshiftComments) => {
     const combinedComments = values[1]
     Object.values(combinedComments).forEach(comment => {
       if (postData && comment.link_id in postData) {
-        const postData_thisComment = postData[comment.link_id]
-        if ( ! (postData_thisComment.whitelist_status === 'promo_adult_nsfw' &&
+        const post_thisComment = postData[comment.link_id]
+        if ( ! (post_thisComment.whitelist_status === 'promo_adult_nsfw' &&
                (comment.removed || comment.deleted))) {
-          applyPostDataToComment({postData, comment})
+          applyPostAndParentDataToComment(postData, comment)
           show_comments.push(comment)
         }
       } else {

@@ -10,6 +10,7 @@ export const USER_REMOVED = 'user'
 export const LOCKED = 'locked'
 export const COLLAPSED = 'collapsed'
 export const MISSING_IN_THREAD = 'missing'
+export const ORPHANED = 'orphaned'
 export const AUTOMOD_LATENCY_THRESHOLD = 15
 
 export const REMOVAL_META = {
@@ -37,6 +38,10 @@ export const COLLAPSED_META = {filter_text: 'collapsed',
 export const MISSING_IN_THREAD_META = {filter_text: 'missing',
                                              label: 'missing in thread',
                                               desc: 'Comment does not appear on the reddit thread unless directly linked'}
+
+export const ORPHANED_META = {filter_text: 'comment parent or thread removed',
+                                     desc: 'The thread or the parent of the comment was removed'}
+
 
 export const USER_REMOVED_META = {filter_text: 'user deleted',
                                         label: '[deleted] by user',
