@@ -325,6 +325,17 @@ export const getPostsByURL = (global, url) => {
   }
 }
 
+const getPushshiftURLString = (urls) => {
+  return urls.map(u => {
+    if (u.match(/^\(/)) {
+      return u
+    } else {
+      return '"'+u+'"'
+    }
+  }).join('|')
+}
+
+
 const searchRedditAndPushshiftPosts = (global, searchInput) => {
   const pushshift_promises = [], reddit_promises = []
   const {reddit_info_url, reddit_search_selftext, reddit_search_url,
@@ -340,20 +351,14 @@ const searchRedditAndPushshiftPosts = (global, searchInput) => {
     reddit_promises.push(queryRedditSearch({urls: reddit_search_url}))
   }
   if (pushshift_urls.length) {
-    pushshift_promises.push(pushshiftQueryPosts({url: pushshift_urls.join('|')}))
+    pushshift_promises.push(
+      pushshiftQueryPosts({url: getPushshiftURLString(pushshift_urls)}
+    ))
   }
   if (pushshift_selftext_urls.length) {
     pushshift_promises.push(
       pushshiftQueryPosts(
-        {selftext:
-          pushshift_selftext_urls.map(u => {
-            if (u.match(/^\(/)) {
-              return u
-            } else {
-              return '"'+u+'"'
-            }
-          }).join('|')
-        }
+        {selftext: getPushshiftURLString(pushshift_selftext_urls)}
       ))
   }
   return Promise.all(reddit_promises).then(reddit_results => {
