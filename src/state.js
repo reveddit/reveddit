@@ -52,7 +52,8 @@ export const urlParamKeys = {
   content: 'content',
   tagsFilter: 'tags',
   url: 'url',
-  selfposts: 'selfposts'
+  selfposts: 'selfposts',
+  limitCommentDepth: 'limitCommentDepth'
 }
 
 export const removedFilter_types = {
@@ -111,7 +112,8 @@ export const filter_pageType_defaults = {
   frontPage: false,
   q: '', author: '', subreddit: '', after: '', domain: '', or_domain: '',
   content: 'all', url: '',
-  selfposts: true
+  selfposts: true,
+  limitCommentDepth: true
 }
 
 const maxN = 60000
@@ -126,8 +128,11 @@ const getMultiFilterSettings = (stringValue) => {
   })
   return settings
 }
+
+const create_qparams = () => new SimpleURLSearchParams(window.location.search)
+
 export const create_qparams_and_adjust = (page_type, selection, value) => {
-  const queryParams = new SimpleURLSearchParams(window.location.search)
+  const queryParams = create_qparams()
   adjust_qparams_for_selection(page_type, queryParams, selection, value)
   return queryParams
 }
@@ -180,8 +185,13 @@ class GlobalState extends Container {
         itemsLookup: {},
         commentTree: [],
         initialFocusCommentID: '',
-        commentParentsAndPosts: {}
+        commentParentsAndPosts: {},
+        limitCommentDepth: true
       }
+  }
+
+  setStateFromCurrentURL = (page_type) => {
+    return this.setStateFromQueryParams(page_type, create_qparams())
   }
 
   setStateFromQueryParams(page_type, queryParams, extraGlobalStateVars = {}, callback = () => {}) {
@@ -273,7 +283,7 @@ class GlobalState extends Container {
     this.selection_update('categoryFilter_'+type, value, page_type)
   }
   removedFilter_update = (value, page_type) => {
-    const queryParams = new SimpleURLSearchParams(window.location.search)
+    const queryParams = create_qparams()
     if (value !== removedFilter_types.removed) {
       queryParams.delete(urlParamKeys.removedByFilter)
     }
@@ -282,7 +292,7 @@ class GlobalState extends Container {
     return this.updateURLandState(queryParams, page_type)
   }
   removedByFilter_update = (target, page_type) => {
-    const queryParams = new SimpleURLSearchParams(window.location.search)
+    const queryParams = create_qparams()
     const removedby_settings = getMultiFilterSettings(queryParams.get(urlParamKeys.removedByFilter) || '')
     if (target.checked) {
       removedby_settings[target.value] = true
@@ -295,7 +305,7 @@ class GlobalState extends Container {
     return this.updateURLandState(queryParams, page_type)
   }
   tagsFilter_update = (target, page_type) => {
-    const queryParams = new SimpleURLSearchParams(window.location.search)
+    const queryParams = create_qparams()
     const settings = getMultiFilterSettings(queryParams.get(urlParamKeys.tagsFilter) || '')
     if (target.checked) {
       settings[target.value] = true
@@ -322,7 +332,7 @@ class GlobalState extends Container {
            )
   }
   resetThreadFilters = (page_type) => {
-    const queryParams = new SimpleURLSearchParams(window.location.search)
+    const queryParams = create_qparams()
     adjust_qparams_for_selection(page_type, queryParams, 'removedFilter', removedFilter_types.all)
     adjust_qparams_for_selection(page_type, queryParams, 'tagsFilter', '')
     adjust_qparams_for_selection(page_type, queryParams, 'removedByFilter', '')

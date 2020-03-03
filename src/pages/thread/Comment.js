@@ -8,7 +8,7 @@ import { connect } from 'state'
 import { insertParent } from 'data_processing/thread'
 
 const contextDefault = 3
-
+const MAX_COMMENT_DEPTH = 9
 class Comment extends React.Component {
   state = {
     displayBody: ! this.props.stickied ||
@@ -21,7 +21,7 @@ class Comment extends React.Component {
   render() {
     let props = this.props
     const {contextAncestors, focusCommentID} = this.props
-    const showContext = this.props.global.state.showContext
+    const {showContext, limitCommentDepth} = this.props.global.state
     const updateStateAndURL = this.props.global.selection_update
     const context_update = this.props.global.context_update
 
@@ -35,22 +35,24 @@ class Comment extends React.Component {
       author = '[deleted]'
     }
 
-    let permalink_nohash = `/r/${props.subreddit}/comments/${props.link_id}/_/${props.id}/`
-    if (props.permalink) {
-      permalink_nohash = props.permalink
-    }
-    const search_nocontext = new SimpleURLSearchParams(window.location.search).delete('context').toString()
-    permalink_nohash += search_nocontext
-    let connectingChar = '?'
-    const contextParam = `context=${contextDefault}#${props.name}`
-    if (search_nocontext) {
-      connectingChar = '&'
-    }
-    const contextLink = permalink_nohash+connectingChar+contextParam
+    let permalink_nohash = props.permalink ? props.permalink
+      : `/r/${props.subreddit}/comments/${props.link_id}/_/${props.id}/`
+
+    const searchParams = new SimpleURLSearchParams(window.location.search).delete('context')
+    const searchParams_nocontext = searchParams.toString()
+    permalink_nohash += searchParams_nocontext
+    const contextLink = permalink_nohash+searchParams.set('context', contextDefault).toString()+`#${props.name}`
     const permalink = permalink_nohash+`#${props.name}`
+    const getPermalink = (text) => {
+      return <Link to={permalink} onClick={(e) => {
+        context_update(0, props)
+        .then(() => jumpToHash(window.location.hash))
+      }}>{text}</Link>
+    }
     let parent_link = undefined
     if ('parent_id' in props && props.parent_id.substr(0,2) === 't1') {
-      parent_link = permalink_nohash.split('/').slice(0,6).join('/')+'/'+props.parent_id.substr(3)+'/'+search_nocontext+'#'+props.parent_id
+      parent_link = permalink_nohash.split('/').slice(0,6).join('/')+'/'+
+                    props.parent_id.substr(3)+'/'+searchParams_nocontext+'#'+props.parent_id
     }
     const name = `t1_${props.id}`
     let submitter = ''
@@ -69,6 +71,23 @@ class Comment extends React.Component {
       expandIcon = '[–]'
       hidden = ''
     }
+    let replies = ''
+    if (showContext && 'replies' in props) {
+      replies = (! limitCommentDepth || props.depth < MAX_COMMENT_DEPTH) ?
+        props.replies.map(comment => (
+          <Comment
+            key={comment.id}
+            {...comment}
+            depth={props.depth + 1}
+            global={props.global}
+            page_type={props.page_type}
+            focusCommentID={focusCommentID}
+            contextAncestors={contextAncestors}
+          />
+        ))
+        : getPermalink('continue this thread⟶')
+    }
+
     return (
       <div id={name} className={`comment
             ${props.removed ? 'removed':''}
@@ -107,10 +126,7 @@ class Comment extends React.Component {
               <div className='comment-links'>
                 { ! props.deleted &&
                   <React.Fragment>
-                    <Link to={permalink} onClick={(e) => {
-                      context_update(0, props)
-                      .then(jumpToHash(window.location.hash))
-                    }}>permalink</Link>
+                    {getPermalink('permalink')}
                     {parent_link &&
                       <>
                         <Link to={parent_link} onClick={(e) => {
@@ -131,20 +147,7 @@ class Comment extends React.Component {
                 }
               </div>
               <div>
-                {
-                  showContext && 'replies' in props &&
-                    props.replies.map(comment => (
-                      <Comment
-                        key={comment.id}
-                        {...comment}
-                        depth={props.depth + 1}
-                        global={props.global}
-                        page_type={props.page_type}
-                        focusCommentID={focusCommentID}
-                        contextAncestors={contextAncestors}
-                      />
-                    ))
-                }
+                { replies }
               </div>
             </div>
 

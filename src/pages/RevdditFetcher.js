@@ -149,6 +149,12 @@ export const withFetch = (WrappedComponent) =>
       showAllCollapsed: false,
       showAllOrphaned: false
     }
+    componentDidUpdate() {
+      window.onpopstate  = () => {
+        // back/forward button was pressed
+        this.props.global.setStateFromCurrentURL(this.props.page_type)
+      }
+    }
     componentDidMount() {
       let subreddit = (this.props.match.params.subreddit || '').toLowerCase()
       const domain = (this.props.match.params.domain || '').toLowerCase()

@@ -23,9 +23,18 @@ class LocalSort extends React.Component {
 
   render() {
     const {page_type, global} = this.props
-    const localSortReverse = global.state.localSortReverse
-    const showContext = global.state.showContext
+    const {localSortReverse, showContext, limitCommentDepth} = global.state
     const updateStateAndURL = global.selection_update
+
+    const makeCheckbox = (name, id, text, value) => {
+      return <label id={id}>
+        <input type='checkbox'
+          checked={value}
+          onChange={(e) => updateStateAndURL(name, e.target.checked, page_type)}
+        />
+        <span>{text}</span>
+      </label>
+    }
 
     return (
         <div className={`localSort selection`}>
@@ -59,13 +68,10 @@ class LocalSort extends React.Component {
             <span>reverse</span>
           </label>
           { ['thread'].includes(page_type) &&
-            <label id='context'>
-              <input type='checkbox'
-                checked={showContext}
-                onChange={(e) => updateStateAndURL('showContext', e.target.checked, page_type)}
-              />
-              <span>context</span>
-            </label>
+            <>
+              {makeCheckbox('showContext', 'context', 'context', showContext)}
+              {makeCheckbox('limitCommentDepth', 'limitCommentDepth', 'limit comment depth', limitCommentDepth)}
+            </>
           }
         </div>
     )

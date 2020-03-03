@@ -216,6 +216,7 @@ export class SimpleURLSearchParams {
   }
   set(param, value) {
     this.params[param] = value
+    return this
   }
   delete(param) {
     delete this.params[param]
