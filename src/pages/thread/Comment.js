@@ -8,7 +8,7 @@ import { connect } from 'state'
 import { insertParent } from 'data_processing/thread'
 
 const contextDefault = 3
-const MAX_COMMENT_DEPTH = 9
+
 class Comment extends React.Component {
   state = {
     displayBody: ! this.props.stickied ||
@@ -24,7 +24,7 @@ class Comment extends React.Component {
     const {showContext, limitCommentDepth} = this.props.global.state
     const updateStateAndURL = this.props.global.selection_update
     const context_update = this.props.global.context_update
-
+    const MAX_COMMENT_DEPTH = Math.round(window.screen.availWidth / 100)
     let even_odd = ''
     if (!props.removed && !props.deleted) {
       even_odd = props.depth % 2 === 0 ? 'comment-even' : 'comment-odd'
