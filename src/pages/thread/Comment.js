@@ -72,7 +72,7 @@ class Comment extends React.Component {
       hidden = ''
     }
     let replies = ''
-    if (showContext && 'replies' in props) {
+    if (showContext && 'replies' in props && props.replies.length > 0) {
       replies = (! limitCommentDepth || props.depth < MAX_COMMENT_DEPTH) ?
         props.replies.map(comment => (
           <Comment
