@@ -26,6 +26,26 @@ export const getPosts = ({objects = undefined, ids = [], auth = null}) => {
   return getItems(full_ids, 'id', auth)
 }
 
+export const getModerators = (subreddit) => {
+  const url = oauth_reddit + `r/${subreddit}/about/moderators/.json`
+  return getAuth()
+  .then(auth => window.fetch(url, auth))
+  .then(response => response.json())
+  .then(results => {
+    return results.data.children.reduce((map, obj) => (map[obj.name] = true, map), {})
+  })
+}
+
+export const getModeratedSubreddits = (user) => {
+  const url = oauth_reddit + `user/${user}/moderated_subreddits/.json`
+  return getAuth()
+  .then(auth => window.fetch(url, auth))
+  .then(response => response.json())
+  .then(results => {
+    return results.data.reduce((map, obj) => (map[obj.sr.toLowerCase()] = true, map), {['u_'+user]: true})
+  })
+}
+
 export const getPostsForURLs = async (urls, auth = null) => {
   const results = {}
   if (! auth) {

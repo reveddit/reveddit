@@ -25,10 +25,13 @@ export const itemIsOneOfSelectedRemovedBy = (item, gs) => {
 }
 
 export const itemIsOneOfSelectedTags = (item, gs) => {
+  const {moderators, moderated_subreddits} = gs
   const setTags = Object.keys(gs.tagsFilter)
   for (let i = 0; i < setTags.length; i++) {
     const type = setTags[i]
     if (TAG_META[type].values.includes(item[TAG_META[type].field])) {
+      return true
+    } else if (type === MOD && (moderators[item.author] || moderated_subreddits[item.subreddit.toLowerCase()])) {
       return true
     }
   }

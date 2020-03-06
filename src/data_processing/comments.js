@@ -1,6 +1,7 @@
 import {
   getComments as getRedditComments,
-  getItems as getRedditItems
+  getItems as getRedditItems,
+  getModerators
 } from 'api/reddit'
 import {
   getPostsByIDForCommentData as getPushshiftPostsForCommentData,
@@ -190,9 +191,12 @@ export const getRevdditCommentsBySubreddit = (subreddit, global) => {
   if (subreddit === 'all') {
     subreddit = ''
   }
+  const moderators_promise = getModerators(subreddit)
   return getPushshiftCommentsBySubreddit({subreddit, n, before, before_id})
   .then(getRevdditComments)
   .then(show_comments => {
-    global.setSuccess({items: show_comments})
+    moderators_promise.then(moderators => {
+      global.setSuccess({items: show_comments, moderators})
+    })
   })
 }

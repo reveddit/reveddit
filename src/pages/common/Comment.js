@@ -23,6 +23,7 @@ class Comment extends React.Component {
 
   render() {
     const props = this.props
+    const { moderators, moderated_subreddits } = props.global.state
     let classNames = ['comment', 'user']
     const reddit = 'https://www.reddit.com'
     let submitter = ''
@@ -105,7 +106,10 @@ class Comment extends React.Component {
         <div className='comment-head subhead'>
         <a
           href={`/user/${author}`}
-          className={`author ${submitter} ${props.distinguished ? 'distinguished '+props.distinguished : ''}`}
+          className={`author ${submitter}`+
+            (props.distinguished ? 'distinguished '+props.distinguished+' ' : '')+
+            (moderators[props.author] || moderated_subreddits[props.subreddit.toLowerCase()] ? 'is_moderator ' : '')
+          }
         >
           {author}
           {props.deleted && ' (by user)'}

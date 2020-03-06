@@ -8,7 +8,8 @@ import {
 } from 'api/pushshift'
 import {
   getComments as getRedditComments,
-  getPostWithComments as getRedditPostWithComments
+  getPostWithComments as getRedditPostWithComments,
+  getModerators
 } from 'api/reddit'
 import { itemIsRemovedOrDeleted, postIsDeleted, jumpToHash } from 'utils'
 import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
@@ -26,6 +27,7 @@ export const getRevdditThreadItems = (threadID, commentID, context, global, hist
 
   const reddit_pwc_promise = getRedditPostWithComments({threadID, commentID, context, sort: 'old', limit: numCommentsWithPost})
   .then(({post: reddit_post, comments: redditComments, moreComments, oldestComment}) => {
+    const moderators_promise = getModerators(reddit_post.subreddit)
     document.title = reddit_post.title
     const resetPath = () => {
       history.replace(reddit_post.permalink+window.location.search+window.location.hash)
@@ -79,7 +81,7 @@ export const getRevdditThreadItems = (threadID, commentID, context, global, hist
             return {redditComments, moreComments}
           })
         }
-        return {reddit_post, root_commentID, reddit_comments_promise, pushshift_comments_promise, resetPath}
+        return {reddit_post, root_commentID, reddit_comments_promise, pushshift_comments_promise, resetPath, moderators_promise}
       })
     })
   })
@@ -98,7 +100,7 @@ export const getRevdditThreadItems = (threadID, commentID, context, global, hist
   })
 
   const combined_comments_promise = reddit_pwc_promise
-  .then(({reddit_post, root_commentID, reddit_comments_promise, resetPath}) => {
+  .then(({reddit_post, root_commentID, reddit_comments_promise, resetPath, moderators_promise}) => {
     return reddit_comments_promise.then(({redditComments, moreComments}) => {
       return pushshift_comments_promise.then(pushshiftComments => {
         if (! pushshiftComments[commentID] && ! redditComments[commentID]) {
@@ -125,20 +127,22 @@ export const getRevdditThreadItems = (threadID, commentID, context, global, hist
                          commentTree: early_commentTree})
         .then(() => {
           return reddit_remaining_comments_promise.then(remainingRedditComments => {
-            Object.values(remainingRedditComments).forEach(comment => {
-              redditComments[comment.id] = comment
+            return moderators_promise.then(moderators => {
+              Object.values(remainingRedditComments).forEach(comment => {
+                redditComments[comment.id] = comment
+              })
+              const combinedComments = combinePushshiftAndRedditComments(pushshiftComments, redditComments, false, reddit_post)
+              //todo: check if pushshiftComments has any parent_ids that are not in combinedComments
+              //      and do a reddit query for these. Possibly query twice if the result has items whose parent IDs
+              //      are not in combinedComments after adding the result of the first query
+              const commentTree = createCommentTree(threadID, root_commentID, combinedComments)
+              const missing = []
+              markTreeMeta(missing, origRedditComments, moreComments, commentTree, reddit_post.num_comments, root_commentID, commentID)
+              if (missing.length) {
+                console.log('missing', missing.join(','))
+              }
+              return {combinedComments, commentTree, moderators}
             })
-            const combinedComments = combinePushshiftAndRedditComments(pushshiftComments, redditComments, false, reddit_post)
-            //todo: check if pushshiftComments has any parent_ids that are not in combinedComments
-            //      and do a reddit query for these. Possibly query twice if the result has items whose parent IDs
-            //      are not in combinedComments after adding the result of the first query
-            const commentTree = createCommentTree(threadID, root_commentID, combinedComments)
-            const missing = []
-            markTreeMeta(missing, origRedditComments, moreComments, commentTree, reddit_post.num_comments, root_commentID, commentID)
-            if (missing.length) {
-              console.log('missing', missing.join(','))
-            }
-            return {combinedComments, commentTree}
           })
         })
       })
@@ -147,10 +151,10 @@ export const getRevdditThreadItems = (threadID, commentID, context, global, hist
   return Promise.all([pushshift_post_promise,
                       combined_comments_promise])
   .then(result => {
-    const {combinedComments, commentTree} = result[1]
+    const {combinedComments, commentTree, moderators} = result[1]
     global.setSuccess({items: Object.values(combinedComments),
                        itemsLookup: combinedComments,
-                       commentTree})
+                       commentTree, moderators})
   })
 }
 

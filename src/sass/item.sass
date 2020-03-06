@@ -20,16 +20,25 @@
     padding: 0 2px
     font-size: 10px
 
-  .author.distinguished
-    border-radius: 3px
-    color: white
-    font-weight: 700
-    padding: 1px 2px
-    &.moderator
-      background-color: $moderator
-    &.admin,&.special
-      background-color: $admin
-      border: 1px solid white
+  .author
+    &.distinguished
+      border-radius: 3px
+      color: white
+      font-weight: 700
+      padding: 1px 2px
+      &.moderator
+        background-color: $moderator
+      &.admin,&.special
+        background-color: $admin
+        border: 1px solid white
+    &.is_moderator:not(.moderator)
+      border-style: solid
+      border-color: $moderator
+      border-radius: 3px
+      padding: 2px
+      &:not(.submitter)
+        color: $moderator
+        border-width: 1px
   .lockedTag
     color: black
     background: $quarantined

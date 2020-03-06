@@ -186,7 +186,9 @@ class GlobalState extends Container {
         commentTree: [],
         initialFocusCommentID: '',
         commentParentsAndPosts: {},
-        limitCommentDepth: true
+        limitCommentDepth: true,
+        moderators: {},
+        moderated_subreddits: {}
       }
   }
 

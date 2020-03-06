@@ -2,7 +2,8 @@ import {
   queryUserPage,
   getItems as getRedditItemsByID,
   usernameAvailable,
-  userPageHTML
+  userPageHTML,
+  getModeratedSubreddits
 } from 'api/reddit'
 import {
   getAutoremovedItems
@@ -109,6 +110,7 @@ function setRemovedBy(items_removedBy_undefined, ps_items_autoremoved) {
 export const getRevdditUserItems = (user, kind, qp, global) => {
   global.setLoading('')
   const gs = global.state
+  getModeratedSubreddits(user).then(moderated_subreddits => global.setState({moderated_subreddits}))
   return getItems(user, kind, global, qp.sort, qp.before, qp.after || gs.userNext, qp.t, qp.limit, qp.loadAll)
   .then(result => {
     return lookupAndSetRemovedBy(global)
