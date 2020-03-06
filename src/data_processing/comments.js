@@ -1,7 +1,7 @@
 import {
   getComments as getRedditComments,
   getItems as getRedditItems,
-  getModerators
+  getModerators, getSubredditAbout
 } from 'api/reddit'
 import {
   getPostsByIDForCommentData as getPushshiftPostsForCommentData,
@@ -127,7 +127,7 @@ export const getPostDataForComments = ({comments = undefined, link_ids_set = und
   .catch(() => { console.error(`Unable to retrieve full titles from ${source}`) })
 }
 
-export const applyPostAndParentDataToComment = (postData, comment) => {
+export const applyPostAndParentDataToComment = (postData, comment, applyPostLabels = true) => {
   const post = postData[comment.link_id]
   comment.link_title = post.title
   if (post.url) {
@@ -143,37 +143,40 @@ export const applyPostAndParentDataToComment = (postData, comment) => {
       && comment.author !== '[deleted]') {
     comment.is_op = true
   }
-  if (! post.is_robot_indexable) {
-    if (postIsDeleted(post)) {
-      comment.post_removed_label = 'deleted'
-    } else {
-      comment.post_removed_label = 'removed'
+  if (! post.over_18 && ! comment.over_18 && applyPostLabels) {
+    if (! post.is_robot_indexable) {
+      if (postIsDeleted(post)) {
+        comment.post_removed_label = 'deleted'
+      } else {
+        comment.post_removed_label = 'removed'
+      }
     }
-  }
-  const parent = postData[comment.parent_id]
-  if (comment.parent_id.slice(0,2) === 't1' && parent) {
-    if (commentIsRemoved(parent)) {
-      comment.parent_removed_label = 'removed'
-    } else if (commentIsDeleted(parent)) {
-      comment.parent_removed_label = 'deleted'
+    const parent = postData[comment.parent_id]
+    if (comment.parent_id.slice(0,2) === 't1' && parent) {
+      if (commentIsRemoved(parent)) {
+        comment.parent_removed_label = 'removed'
+      } else if (commentIsDeleted(parent)) {
+        comment.parent_removed_label = 'deleted'
+      }
     }
   }
 }
 
-export const getRevdditComments = (pushshiftComments) => {
+export const getRevdditComments = ({pushshiftComments, subreddit_about_promise = Promise.resolve({})}) => {
   const postDataPromise = getPostDataForComments({comments: pushshiftComments})
   const combinePromise = retrieveRedditComments_and_combineWithPushshiftComments(pushshiftComments)
-  return Promise.all([postDataPromise, combinePromise])
+  return Promise.all([postDataPromise, combinePromise, subreddit_about_promise])
   .then(values => {
     const show_comments = []
     const postData = values[0]
     const combinedComments = values[1]
+    const subredditAbout = values[2] || {}
     Object.values(combinedComments).forEach(comment => {
       if (postData && comment.link_id in postData) {
         const post_thisComment = postData[comment.link_id]
         if ( ! (post_thisComment.whitelist_status === 'promo_adult_nsfw' &&
                (comment.removed || comment.deleted))) {
-          applyPostAndParentDataToComment(postData, comment)
+          applyPostAndParentDataToComment(postData, comment, ! subredditAbout.over18)
           show_comments.push(comment)
         }
       } else {
@@ -192,8 +195,9 @@ export const getRevdditCommentsBySubreddit = (subreddit, global) => {
     subreddit = ''
   }
   const moderators_promise = getModerators(subreddit)
+  const subreddit_about_promise = getSubredditAbout(subreddit)
   return getPushshiftCommentsBySubreddit({subreddit, n, before, before_id})
-  .then(getRevdditComments)
+  .then(pushshiftComments => getRevdditComments({pushshiftComments, subreddit_about_promise}))
   .then(show_comments => {
     moderators_promise.then(moderators => {
       global.setSuccess({items: show_comments, moderators})

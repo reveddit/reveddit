@@ -42,7 +42,9 @@ export const byNumCrossposts = (a, b) => {
   }
 }
 
-export const retrieveRedditPosts_and_combineWithPushshiftPosts = (pushshiftPosts, includePostsWithZeroComments = false, existingRedditPosts = {}) => {
+export const retrieveRedditPosts_and_combineWithPushshiftPosts = (
+  {pushshiftPosts, includePostsWithZeroComments = false, existingRedditPosts = {},
+   subreddit_about_promise = Promise.resolve({})}) => {
   const ids = []
   pushshiftPosts.forEach(post => {
     if (!(post.id in existingRedditPosts)) {
@@ -54,15 +56,19 @@ export const retrieveRedditPosts_and_combineWithPushshiftPosts = (pushshiftPosts
     Object.values(existingRedditPosts).forEach(post => {
       redditPosts[post.id] = post
     })
-    return combinePushshiftAndRedditPosts(pushshiftPosts, Object.values(redditPosts), includePostsWithZeroComments)
+    return combinePushshiftAndRedditPosts({pushshiftPosts, redditPosts: Object.values(redditPosts),
+      includePostsWithZeroComments, subreddit_about_promise})
   })
 }
 
 export const getRevdditPosts = (pushshiftPosts) => {
-  return retrieveRedditPosts_and_combineWithPushshiftPosts(pushshiftPosts)
+  return retrieveRedditPosts_and_combineWithPushshiftPosts({pushshiftPosts})
 }
 
-export const combinePushshiftAndRedditPosts = (pushshiftPosts, redditPosts, includePostsWithZeroComments = false, isInfoPage = false) => {
+export const combinePushshiftAndRedditPosts = async (
+  {pushshiftPosts, redditPosts, includePostsWithZeroComments = false, isInfoPage = false,
+  subreddit_about_promise = Promise.resolve({})}) => {
+  const subredditAbout = await subreddit_about_promise || {}
   const redditPosts_lookup = {}
   redditPosts.forEach(post => {
     redditPosts_lookup[post.id] = post
@@ -85,8 +91,9 @@ export const combinePushshiftAndRedditPosts = (pushshiftPosts, redditPosts, incl
     post.selftext = ''
     if (post.deleted || post.removed) {
       if (  (    post.num_comments > 0
-              || includePostsWithZeroComments)
-            || post.removed) {
+              || includePostsWithZeroComments
+              || post.removed)
+            && ! subredditAbout.over18) {
         display_post(show_posts, post, ps_post, isInfoPage)
       }
     } else {
@@ -171,7 +178,7 @@ export const getRevdditPostsByDomain = (domain, global) => {
         return results[0]
       }
     })
-    .then(retrieveRedditPosts_and_combineWithPushshiftPosts)
+    .then(pushshiftPosts => retrieveRedditPosts_and_combineWithPushshiftPosts({pushshiftPosts}))
     .then(show_posts => {
       global.setSuccess({items:show_posts})
       return show_posts
@@ -368,7 +375,10 @@ const searchRedditAndPushshiftPosts = (global, searchInput) => {
         redditPosts[post.id] = post
       })
     })
-    const items = combinePushshiftAndRedditPosts([], Object.values(redditPosts), true)
+    const items = combinePushshiftAndRedditPosts({
+      pushshiftPosts: [],
+      redditPosts: Object.values(redditPosts),
+      includePostsWithZeroComments: true})
     global.setState({items})
     return Promise.all(pushshift_promises)
     .then(pushshift_results => {
@@ -379,7 +389,8 @@ const searchRedditAndPushshiftPosts = (global, searchInput) => {
       }
     })
     .then((pushshiftPosts) => {
-      return retrieveRedditPosts_and_combineWithPushshiftPosts(pushshiftPosts, true, redditPosts)
+      return retrieveRedditPosts_and_combineWithPushshiftPosts(
+        {pushshiftPosts, includePostsWithZeroComments: true, existingRedditPosts:redditPosts})
     })
   })
   .then(items => {

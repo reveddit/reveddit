@@ -7,7 +7,7 @@ const comment_fields = [
 
 const comment_fields_for_autoremoved = ['id', 'retrieved_on' ,'created_utc' ,'author', 'retrieved_utc']
 
-const post_fields = ['id', 'retrieved_on', 'created_utc', 'is_robot_indexable', 'retrieved_utc']
+const post_fields = ['id', 'retrieved_on', 'created_utc', 'is_robot_indexable', 'retrieved_utc', 'thumbnail']
 
 const post_fields_for_comment_data = ['id', 'title', 'whitelist_status', 'url', 'author',
                                       'num_comments', 'quarantine', 'subreddit_subscribers']

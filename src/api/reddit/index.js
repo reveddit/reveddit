@@ -46,6 +46,14 @@ export const getModeratedSubreddits = (user) => {
   })
 }
 
+export const getSubredditAbout = (subreddit) => {
+  const url = oauth_reddit + `r/${subreddit}/about/.json`
+  return getAuth()
+  .then(auth => window.fetch(url, auth))
+  .then(response => response.json())
+  .then(results => results.data)
+}
+
 export const getPostsForURLs = async (urls, auth = null) => {
   const results = {}
   if (! auth) {
