@@ -123,8 +123,9 @@ export const getRevdditThreadItems = (threadID, commentID, context, global, hist
         const early_commentTree = createCommentTree(threadID, root_commentID, early_combinedComments)
 
         return global.setState({items: Object.values(early_combinedComments),
-                         itemsLookup: early_combinedComments,
-                         commentTree: early_commentTree})
+                          itemsLookup: early_combinedComments,
+                          commentTree: early_commentTree,
+                initialFocusCommentID: commentID})
         .then(() => {
           return reddit_remaining_comments_promise.then(remainingRedditComments => {
             return moderators_promise.then(moderators => {

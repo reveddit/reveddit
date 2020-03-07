@@ -7,10 +7,17 @@ import { connect } from 'state'
 
 class Post extends React.Component {
   state = {
-    displayFullSelftext: false
+    displayFullSelftext: true
   }
   displayFullSelftext() {
     this.setState({displayFullSelftext: true})
+  }
+  componentDidUpdate() {
+    if (this.props.global.state.initialFocusCommentID && this.state.displayFullSelftext) {
+      this.setState({displayFullSelftext: false})
+    } else if (! this.props.global.state.initialFocusCommentID && ! this.state.displayFullSelftext) {
+      this.setState({displayFullSelftext: true})
+    }
   }
   render() {
     const props = this.props
