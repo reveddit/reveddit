@@ -375,18 +375,20 @@ const searchRedditAndPushshiftPosts = (global, searchInput) => {
         redditPosts[post.id] = post
       })
     })
-    const items = combinePushshiftAndRedditPosts({
+    return combinePushshiftAndRedditPosts({
       pushshiftPosts: [],
       redditPosts: Object.values(redditPosts),
       includePostsWithZeroComments: true})
-    global.setState({items})
-    return Promise.all(pushshift_promises)
-    .then(pushshift_results => {
-      if (pushshift_results.length === 1) {
-        return pushshift_results[0]
-      } else {
-        return getUniqueItems(pushshift_results)
-      }
+    .then(items => {
+      global.setState({items})
+      return Promise.all(pushshift_promises)
+      .then(pushshift_results => {
+        if (pushshift_results.length === 1) {
+          return pushshift_results[0]
+        } else {
+          return getUniqueItems(pushshift_results)
+        }
+      })
     })
     .then((pushshiftPosts) => {
       return retrieveRedditPosts_and_combineWithPushshiftPosts(

@@ -127,12 +127,14 @@ export const getRevdditItems = (global) => {
           // b/c a reddit comment may have author=[deleted] and setting is_op for a
           // removed comment depends on author info from pushshift
           setPostAndParentDataForComments(Object.values(combinedComments), postData)
-          const combinedPosts = combinePushshiftAndRedditPosts({
+          combinePushshiftAndRedditPosts({
             pushshiftPosts,
             redditPosts,
             includePostsWithZeroComments: true,
             isInfoPage: true})
-          global.setSuccess({items: Object.values(combinedComments).concat(combinedPosts)})
+          .then(combinedPosts => {
+            global.setSuccess({items: Object.values(combinedComments).concat(combinedPosts)})
+          })
         })
       })
     })
