@@ -188,7 +188,8 @@ class GlobalState extends Container {
         commentParentsAndPosts: {},
         limitCommentDepth: true,
         moderators: {},
-        moderated_subreddits: {}
+        moderated_subreddits: {},
+        authors: {}
       }
   }
 

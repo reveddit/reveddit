@@ -5,6 +5,7 @@ import { connect } from 'state'
 import Header from 'pages/common/Header'
 import Donate from 'pages/common/donate'
 import Welcome from 'pages/common/Welcome'
+import Settings from 'pages/common/Settings'
 import { ModalProvider } from 'contexts/modal'
 
 Modal.setAppElement('#app')
@@ -30,6 +31,8 @@ const getContentForHash = (hash) => {
       return <Welcome/>
     case 'donate':
       return <Donate/>
+    case 'settings':
+      return <Settings/>
   }
   return undefined
 }

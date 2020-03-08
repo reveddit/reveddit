@@ -100,6 +100,9 @@ class Header extends React.Component {
   welcome = () => {
     this.props.openGenericModal({hash: 'welcome'})
   }
+  settings = () => {
+    this.props.openGenericModal({hash: 'settings'})
+  }
   render() {
     if (this.state.random) {
       return <Redirect to='/random'/>
@@ -141,6 +144,8 @@ class Header extends React.Component {
           <div id='header'>
             <div id='site-name'>re<span style={{color: 'white'}}>ve</span>ddit</div>
             <div id='nav'>
+              <a href="#settings" onClick={this.settings}>⚙</a>
+              <span> | </span>
               <Link to="/about/">about</Link>
               <span> | </span>
               <a href="#welcome" onClick={this.welcome}>welcome</a>

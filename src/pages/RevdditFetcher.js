@@ -8,10 +8,12 @@ import { getRevdditThreadItems } from 'data_processing/thread'
 import { getRevdditItems, getRevdditSearch } from 'data_processing/info'
 import { itemIsOneOfSelectedRemovedBy, itemIsOneOfSelectedTags } from 'data_processing/filters'
 import Selections from 'pages/common/selections'
+import { showAccountInfo_global } from 'pages/common/Settings'
 import { removedFilter_types, getExtraGlobalStateVars } from 'state'
 import { NOT_REMOVED, COLLAPSED, ORPHANED } from 'pages/common/RemovedBy'
 import { SimpleURLSearchParams, jumpToHash, get, put, ext_urls,
          itemIsActioned, itemIsCollapsed, commentIsOrphaned } from 'utils'
+import { getAuthorInfoByName } from 'api/reddit'
 
 const getCategorySettings = (page_type, subreddit) => {
   const category_settings = {
@@ -191,8 +193,8 @@ export const withFetch = (WrappedComponent) =>
         const [loadDataFunction, params] = getLoadDataFunctionAndParam(
           page_type, subreddit, user, kind, threadID, commentID, context, domain, queryParams)
         loadDataFunction(...params, this.props.global, this.props.history)
-        .then(items => {
-          const {commentTree} = this.props.global.state
+        .then(() => {
+          const {commentTree, items, threadPost} = this.props.global.state
           const focusComment = this.props.global.state.itemsLookup[commentID]
           if ((commentID && focusComment) || commentTree.length === 1) {
             document.querySelectorAll('.threadComments .collapseToggle.hidden').forEach(toggle => {
@@ -205,6 +207,14 @@ export const withFetch = (WrappedComponent) =>
             })
           }
           window.scrollY === 0 && jumpToHash(window.location.hash)
+          if (showAccountInfo_global && (items.length || threadPost)) {
+            const uniqueAuthors = items.reduce((map, obj) => (map[obj.author_fullname] = true, map), {[threadPost.author_fullname]:true})
+            delete uniqueAuthors[undefined]
+            getAuthorInfoByName(Object.keys(uniqueAuthors))
+            .then(authors => {
+              this.props.global.setState({authors})
+            })
+          }
         })
         .catch(error => {
           console.error(error)

@@ -42,7 +42,7 @@ export const getModeratedSubreddits = (user) => {
   .then(auth => window.fetch(url, auth))
   .then(response => response.json())
   .then(results => {
-    return results.data.reduce((map, obj) => (map[obj.sr.toLowerCase()] = true, map), {['u_'+user]: true})
+    return (results.data || []).reduce((map, obj) => (map[obj.sr.toLowerCase()] = true, map), {['u_'+user]: true})
   })
 }
 
@@ -289,7 +289,7 @@ export const selectRandomCommenter = async (auth, post, sort = 'new') => {
   .then(response => response.json())
   .then(result => result[1].data.children)
   .then(traverseComments_collectAuthors)
-  .then(authors => getAuthorInfo(auth, Object.keys(authors)))
+  .then(authors => getAuthorInfo(Object.keys(authors)))
   .then(authorInfo => {
     const author_keys = Object.keys(authorInfo).sort(() => Math.random() - 0.5);
     let maxKarma = 0
@@ -321,11 +321,23 @@ const traverseComments_collectAuthors = (comments, authors = {}) => {
   return authors
 }
 
-export const getAuthorInfo = async (auth, ids) => {
+export const getAuthorInfo = (ids, results = {}) => {
   const url = oauth_reddit + `api/user_data_by_account_ids.json?ids=${ids.join(',')}`
-  if (! auth) {
-    auth = await getAuth()
-  }
-  return window.fetch(url, auth)
+
+  return getAuth()
+  .then(auth => window.fetch(url, auth))
   .then(result => result.json())
+  .then(data => {
+    Object.assign(results, data)
+    return data
+  })
+}
+
+export const getAuthorInfoByName = (ids) => {
+  const results = {}
+  return groupRequests(getAuthorInfo, ids, [results], 500)
+  .then(() => {
+    return Object.values(results).reduce((map, obj) => (map[obj.name] = obj, map), {})
+  })
+  .catch(errorHandler)
 }

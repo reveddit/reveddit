@@ -4,7 +4,9 @@ import Time from 'pages/common/Time'
 import RemovedBy from 'pages/common/RemovedBy'
 import { NOT_REMOVED } from 'pages/common/RemovedBy'
 import CommentBody from 'pages/common/CommentBody'
+import Author from 'pages/common/Author'
 import { connect } from 'state'
+
 
 class Comment extends React.Component {
   state = {
@@ -39,11 +41,6 @@ class Comment extends React.Component {
     }
     props.quarantine && classNames.push('quarantine')
     props.locked && classNames.push('locked')
-
-    let author = props.author
-    if (props.deleted) {
-      author = '[deleted]'
-    }
 
     let directlink = ''
     if (props.prev) {
@@ -104,16 +101,7 @@ class Comment extends React.Component {
           }
         </div>
         <div className='comment-head subhead'>
-        <a
-          href={`/user/${author}`}
-          className={`author ${submitter}`+
-            (props.distinguished ? 'distinguished '+props.distinguished+' ' : '')+
-            (moderators[props.author] || moderated_subreddits[props.subreddit.toLowerCase()] ? 'is_moderator ' : '')
-          }
-        >
-          {author}
-          {props.deleted && ' (by user)'}
-        </a>
+        <Author {...props}/>
         <span className='space' />
         {
           props.author_flair_text &&

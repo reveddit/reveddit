@@ -2,6 +2,7 @@ import React from 'react'
 import { prettyScore, parse, redditThumbnails, isDeleted } from 'utils'
 import Time from 'pages/common/Time'
 import RemovedBy from 'pages/common/RemovedBy'
+import Author from 'pages/common/Author'
 import { NOT_REMOVED } from 'pages/common/RemovedBy'
 import { connect } from 'state'
 
@@ -31,8 +32,6 @@ class Post extends React.Component {
     const mods_link = reddit+'/message/compose?to=/r/'+props.subreddit+'&message='+encodeURI(mods_message_body);
 
     let url = props.url.replace('https://www.reddit.com', '')
-
-    const userLink = isDeleted(props.author) ? undefined : `/user/${props.author}`
 
     let thumbnail
     const thumbnailWidth = props.thumbnail_width ? props.thumbnail_width * 0.5 : 70
@@ -93,11 +92,7 @@ class Post extends React.Component {
           <span className='domain'>({domain})</span>
           <div className='thread-info'>
             submitted <Time {...props}/> by&nbsp;
-            <a className={'author '+
-              (props.distinguished ? 'distinguished '+props.distinguished+' ' : '')+
-              (moderators[props.author] || moderated_subreddits[props.subreddit.toLowerCase()] ? 'is_moderator ' : '')
-            }
-              href={userLink}>{props.author}</a>
+            <Author {...props}/>
             &nbsp;to <a className='subreddit-link' href={`/r/${props.subreddit}`}>/r/{props.subreddit}</a>
             {props.locked && <span className='lockedTag'>locked</span>}
             &nbsp;<RemovedBy removedby={props.removedby} />

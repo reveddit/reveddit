@@ -22,7 +22,7 @@ export const retrieveRedditComments_and_combineWithPushshiftComments = pushshift
 const copy_fields = ['permalink', 'score', 'controversiality',
                      'locked', 'collapsed', 'edited',
                      'subreddit_subscribers', 'quarantine', 'url',
-                     'link_title']
+                     'link_title', 'author_fullname']
 
 const copy_if_value_fields = ['distinguished', 'stickied']
 

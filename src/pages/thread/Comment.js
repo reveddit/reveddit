@@ -4,6 +4,7 @@ import { prettyScore, parse, isRemoved, replaceAmpGTLT, jumpToHash, SimpleURLSea
 import Time from 'pages/common/Time'
 import RemovedBy from 'pages/common/RemovedBy'
 import CommentBody from 'pages/common/CommentBody'
+import Author from 'pages/common/Author'
 import { connect } from 'state'
 import { insertParent } from 'data_processing/thread'
 
@@ -58,10 +59,6 @@ class Comment extends React.Component {
                     props.parent_id.substr(3)+'/'+searchParams_nocontext+'#'+props.parent_id
     }
     const name = `t1_${props.id}`
-    let submitter = ''
-    if (! props.deleted && author !== '[deleted]' && props.is_op) {
-      submitter = ' submitter '
-    }
     if (Object.keys(contextAncestors).length &&
         props.id != focusCommentID &&
         ! contextAncestors[props.id] &&
@@ -102,16 +99,7 @@ class Comment extends React.Component {
         <div className='comment-head'>
           <a onClick={() => this.toggleDisplayBody()} className={`collapseToggle ${hidden}`}>{expandIcon}</a>
           <span className='space' />
-          <a
-            href={author !== '[deleted]' ? `/user/${author}` : undefined}
-            className={`author ${submitter}`+
-              (props.distinguished ? 'distinguished '+props.distinguished+' ' : '')+
-              (moderators[props.author] ? 'is_moderator ' : '')
-            }
-          >
-            {author}
-            {props.deleted && ' (by user)'}
-          </a>
+          <Author {...props}/>
           <span className='space' />
           {author !== '[deleted]' && props.author_flair_text ?
             <span className='flair'>{replaceAmpGTLT(props.author_flair_text)}</span>

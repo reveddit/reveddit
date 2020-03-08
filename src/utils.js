@@ -1,6 +1,7 @@
 import SnuOwnd from 'snuownd'
 import { AUTOMOD_REMOVED_MOD_APPROVED } from 'pages/common/RemovedBy'
 import scrollToElement from 'scroll-to-element'
+import {useRef, useEffect} from 'react'
 
 const markdown = SnuOwnd.getParser()
 
@@ -341,4 +342,12 @@ export const commentIsOrphaned = (comment) => {
 
 export const getRandomInt = (max) => {
   return Math.floor(Math.random() * Math.floor(max));
+}
+
+export const usePrevious = (value) => {
+  const ref = useRef();
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
 }
