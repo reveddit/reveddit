@@ -35,9 +35,9 @@ export default () => {
                   || showAccountInfo !== prev_showAccountInfo)
   return (
     <>
-      <div className='header'>Global</div>
+      <div className='header'>Everywhere</div>
       {renderSetting(showAccountInfo, update_showAccountInfo, 'Show account age/karma')}
-      <div className='header'>Threads</div>
+      <div className='header'>In threads</div>
       {renderSetting(showRelDates, update_showRelDates, 'Show relative dates')}
       <div style={{textAlign:'center',color:'red',marginTop:'15px'}}>
         { changes ?
