@@ -1,5 +1,5 @@
 import React from 'react'
-import { prettyScore, parse, redditThumbnails, isDeleted } from 'utils'
+import { prettyScore, parse, redditThumbnails, isDeleted, replaceAmpGTLT } from 'utils'
 import Time from 'pages/common/Time'
 import RemovedBy from 'pages/common/RemovedBy'
 import Author from 'pages/common/Author'
@@ -84,7 +84,7 @@ class Post extends React.Component {
         </div>
         {thumbnail}
         <div className='thread-content'>
-          <a className='thread-title' href={url}>{props.title}</a>
+          <a className='thread-title' href={url}>{replaceAmpGTLT(props.title)}</a>
           {
             props.link_flair_text &&
             <span className='link-flair'>{props.link_flair_text}</span>
