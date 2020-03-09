@@ -153,7 +153,7 @@ export const getRevdditThreadItems = (threadID, commentID, context, global, hist
                       combined_comments_promise])
   .then(result => {
     const {combinedComments, commentTree, moderators} = result[1]
-    global.setSuccess({items: Object.values(combinedComments),
+    return global.setSuccess({items: Object.values(combinedComments),
                        itemsLookup: combinedComments,
                        commentTree, moderators})
   })

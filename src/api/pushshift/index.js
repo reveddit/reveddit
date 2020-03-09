@@ -1,7 +1,7 @@
 import { toBase10, toBase36, chunk, flatten, getQueryString, promiseDelay } from 'utils'
 
 const comment_fields = [
-  'id', 'author', 'body', 'created_utc', 'parent_id', 'score',
+  'id', 'author', 'author_fullname', 'body', 'created_utc', 'parent_id', 'score',
   'subreddit', 'link_id', 'author_flair_text', 'retrieved_on', 'retrieved_utc',
   'distinguished', 'stickied' ]
 
