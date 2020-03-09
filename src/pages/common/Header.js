@@ -97,9 +97,6 @@ class Header extends React.Component {
   handleNameChange = (e) => {
     this.setState({entity_name: e.target.value})
   }
-  welcome = () => {
-    this.props.openGenericModal({hash: 'welcome'})
-  }
   settings = () => {
     this.props.openGenericModal({hash: 'settings'})
   }
@@ -148,7 +145,7 @@ class Header extends React.Component {
               <span> | </span>
               <Link to="/about/">about</Link>
               <span> | </span>
-              <a href="#welcome" onClick={this.welcome}>welcome</a>
+              <Link to="/add-ons/">add-ons</Link>
             </div>
             {value &&
               <div id='subheading'>

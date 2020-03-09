@@ -8,6 +8,7 @@ import ApolloClient from 'apollo-boost'
 
 import DefaultLayout from 'pages/DefaultLayout'
 import About from 'pages/about'
+import AddOns from 'pages/about/AddOns'
 import Info from 'pages/info'
 import SubredditPosts from 'pages/subreddit'
 import SubredditComments from 'pages/subreddit/comments'
@@ -71,6 +72,7 @@ class App extends React.Component {
                           }} /> )}
                     />
                     <DefaultLayout path='/about' component={About} />
+                    <DefaultLayout path='/add-ons' component={AddOns} />
                     <DefaultLayout path='/info' page_type='info' component={Info} />
                     <DefaultLayout path='/search' page_type='search' component={Info} />
                     <DefaultLayout path='/random' component={Random} />

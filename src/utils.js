@@ -4,11 +4,25 @@ import scrollToElement from 'scroll-to-element'
 import {useRef, useEffect} from 'react'
 
 const markdown = SnuOwnd.getParser()
+const chrome_base = 'https://chrome.google.com/webstore/detail/'
+const ff_base = 'https://addons.mozilla.org/en-US/firefox/addon/'
 
 export const ext_urls = {
   rt: {
-    c: 'https://chrome.google.com/webstore/detail/reveddit-real-time/ickfhlplfbipnfahjbeongebnmojbnhm',
-    f: 'https://addons.mozilla.org/en-US/firefox/addon/reveddit-real-time/'
+    c: chrome_base+'reveddit-real-time/ickfhlplfbipnfahjbeongebnmojbnhm',
+    f: ff_base+'reveddit-real-time/'
+  },
+  linker: {
+    c: chrome_base+'revddit-linker/jgnigeenijnjlahckhfomimnjadmkmah',
+    f: ff_base+'reveddit-linker/'
+  },
+  language: {
+    c: chrome_base+'revddit-language-fix/fcpgnheagjkmelppbpnbpfimmmjicknj',
+    f: ff_base+'reveddit-language-fix/'
+  },
+  q: {
+    c: chrome_base+'revddit-quarantined/cmfgeilnphkjendelakiniceinhjonfh',
+    f: ff_base+'reveddit-quarantined/'
   }
 }
 
