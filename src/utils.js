@@ -351,3 +351,9 @@ export const usePrevious = (value) => {
   });
   return ref.current;
 }
+
+export const useFocus = () => {
+    const ref = useRef(null)
+    const setFocus = () => {ref.current &&  ref.current.focus()}
+    return [ref, setFocus]
+}
