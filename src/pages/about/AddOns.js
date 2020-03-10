@@ -9,7 +9,7 @@ const meta = {
   },
   'firefox': {
     img: imgur+'dvof8rG.png',
-    att: 'c'
+    att: 'f'
   }
 }
 
