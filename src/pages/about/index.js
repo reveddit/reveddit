@@ -8,6 +8,7 @@ import { getCommentsByID as getPushshiftComments } from 'api/pushshift'
 import { itemIsRemovedOrDeleted, SimpleURLSearchParams } from 'utils'
 import { combinePushshiftAndRedditComments } from 'data_processing/comments'
 import Highlight from 'pages/common/Highlight'
+import { Link } from 'react-router-dom'
 
 const reddit = 'https://www.reddit.com'
 
@@ -39,9 +40,6 @@ export class About extends React.Component {
   }
   changeView = (index) => {
     this.setState({singleDisplayIndex: index})
-  }
-  welcome = () => {
-    this.props.openGenericModal({hash:'welcome'})
   }
   donate = () => {
     this.props.openGenericModal({hash:'donate'})
@@ -132,7 +130,7 @@ export class About extends React.Component {
               <ul className='news'>
                 <li><a href={`${reddit}/estw67/`}>random user, collapsed comments, xposts</a>
                   <ul><li><Time created_utc='1579789966'/></li></ul></li>
-                <li><a href="/about#welcome" onClick={this.welcome}>real-time notifier extension</a>
+                <li><Link to="/add-ons/">real-time notifier extension</Link>
                   <ul><li><Time created_utc='1576163308'/></li></ul></li>
                 <li><a href={`${reddit}/e1wsqy/`}>revddit.com -> www.reveddit.com</a>
                   <ul><li><Time created_utc='1574768321'/></li></ul></li>
