@@ -1,7 +1,7 @@
 import React from 'react'
 import { connect } from 'state'
 import { SimpleURLSearchParams } from 'utils'
-import { debounce } from 'lodash'
+import debounce from 'lodash/debounce'
 
 class TextFilter extends React.Component {
 

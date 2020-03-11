@@ -1,7 +1,9 @@
-require("dotenv").config();
+require("dotenv").config()
 
 const path = require('path')
-const webpack = require('webpack');
+const webpack = require('webpack')
+const LodashModuleReplacementPlugin = require('lodash-webpack-plugin')
+
 
 module.exports = (env, argv) => ({
   entry: [
@@ -15,13 +17,18 @@ module.exports = (env, argv) => ({
       disableDotRule: true
     }
   },
-  devtool: argv.mode !== 'production' ? 'cheap-module-eval-source-map' : false,
+  devtool: 'source-map',
+  output: {sourceMapFilename: '[file].map'},
   module: {
     rules: [
       {
+        loader: 'babel-loader',
         test: /\.js$/,
         exclude: /node_modules/,
-        use: 'babel-loader'
+        options: {
+          plugins: ['lodash'],
+          presets: [['@babel/env', { 'targets': { 'node': 12 } }]]
+        }
       }
     ]
   },
@@ -32,6 +39,9 @@ module.exports = (env, argv) => ({
     new webpack.DefinePlugin({
       LAMBDA_ENDPOINT: JSON.stringify(process.env.LAMBDA_ENDPOINT),
       STRIPE_PUBLISHABLE_KEY: JSON.stringify(process.env.STRIPE_PUBLISHABLE_KEY)
+    }),
+    new LodashModuleReplacementPlugin({
+      'cloning': true
     })
   ]
 })

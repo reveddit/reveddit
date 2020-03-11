@@ -4,7 +4,7 @@ import {connect, localSort_types, removedFilter_types, removedFilter_text} from 
 import { NOT_REMOVED, REMOVAL_META, USER_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED } from 'pages/common/RemovedBy'
 import { itemIsOneOfSelectedRemovedBy, itemIsOneOfSelectedTags } from 'data_processing/filters'
 import { reversible, itemIsActioned, not } from 'utils'
-import { cloneDeep } from 'lodash'
+import cloneDeep from 'lodash/cloneDeep'
 
 const byScore = (a, b) => {
   return (b.stickied - a.stickied) || (b.score - a.score)

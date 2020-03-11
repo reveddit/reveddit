@@ -6,6 +6,7 @@ node_modules/
 
 # Generated files
 dist/main.js
+dist/main.js.map
 dist/main.css
 lambda/
 
