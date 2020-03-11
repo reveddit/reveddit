@@ -16,6 +16,7 @@ const postURL = 'https://api.pushshift.io/reddit/submission/search/'
 const commentURL = 'https://api.pushshift.io/reddit/comment/search/'
 
 const maxNumItems = 1000
+const maxNumCommentsByID = 900
 const waitInterval = 400
 
 // retrieved_on will become retrieved_utc
@@ -129,7 +130,7 @@ export const getCommentsBySubreddit = async function({subreddit: subreddits_str,
 export const getCommentsByID = async (ids, field='ids', fields=comment_fields) => {
   const results = {}
   let i = 0
-  for (const ids_chunk of chunk(ids, maxNumItems)) {
+  for (const ids_chunk of chunk(ids, maxNumCommentsByID)) {
     if (i > 0) {
       await promiseDelay(waitInterval)
     }
@@ -142,7 +143,7 @@ export const getCommentsByID = async (ids, field='ids', fields=comment_fields) =
 export const getCommentsByID_chunk = (ids, field='ids', fields=comment_fields, results={}) => {
   const queryParams = {
     fields: fields.join(','),
-    size: maxNumItems,
+    size: ids.length,
     [field]: ids.join(',')
   }
   return window.fetch(commentURL+getQueryString(queryParams))
