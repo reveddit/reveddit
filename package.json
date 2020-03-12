@@ -61,6 +61,7 @@
     "node-sass": "^4.12.0",
     "scroll-to-element": "^2.0.2",
     "standard": "^11.0.1",
+    "terser-webpack-plugin": "^2.3.5",
     "webpack": "^4.16.0",
     "webpack-cli": "^3.0.8",
     "webpack-dev-server": "^3.2.1"

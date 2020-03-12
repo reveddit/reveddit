@@ -3,7 +3,7 @@ require("dotenv").config()
 const path = require('path')
 const webpack = require('webpack')
 const LodashModuleReplacementPlugin = require('lodash-webpack-plugin')
-
+const TerserPlugin = require('terser-webpack-plugin')
 
 module.exports = (env, argv) => ({
   entry: [
@@ -41,5 +41,19 @@ module.exports = (env, argv) => ({
       STRIPE_PUBLISHABLE_KEY: JSON.stringify(process.env.STRIPE_PUBLISHABLE_KEY)
     }),
     new LodashModuleReplacementPlugin
-  ]
+  ],
+  optimization: {
+    minimize: true,
+    minimizer: [
+      new TerserPlugin({
+        terserOptions: {
+          output: {
+            comments: false,
+          },
+        },
+        extractComments: false,
+        sourceMap: true
+      })
+    ]
+  }
 })
