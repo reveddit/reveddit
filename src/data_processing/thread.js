@@ -215,12 +215,13 @@ const markTreeMeta = (missing, origRedditComments, moreComments, comments, post_
   })
 }
 
-const createCommentTree = (postID, root_commentID, comments) => {
+export const createCommentTree = (postID, root_commentID, comments) => {
     const commentTree = []
     Object.keys(comments)
       .sort((a,b) => comments[a].created_utc - comments[b].created_utc) // sort so ancestors are tracked properly
       .forEach(commentID => {
         const comment = comments[commentID]
+        comment.replies = [], comment.ancestors = {}
         const parentID = comment.parent_id
         const parentID_short = parentID.substr(3)
         if ((! root_commentID && parentID === 't3_'+postID) ||

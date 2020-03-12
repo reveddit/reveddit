@@ -40,8 +40,6 @@ module.exports = (env, argv) => ({
       LAMBDA_ENDPOINT: JSON.stringify(process.env.LAMBDA_ENDPOINT),
       STRIPE_PUBLISHABLE_KEY: JSON.stringify(process.env.STRIPE_PUBLISHABLE_KEY)
     }),
-    new LodashModuleReplacementPlugin({
-      'cloning': true
-    })
+    new LodashModuleReplacementPlugin
   ]
 })

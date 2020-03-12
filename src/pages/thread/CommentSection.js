@@ -3,8 +3,8 @@ import Comment from './Comment'
 import {connect, localSort_types, removedFilter_types, removedFilter_text} from 'state'
 import { NOT_REMOVED, REMOVAL_META, USER_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED } from 'pages/common/RemovedBy'
 import { itemIsOneOfSelectedRemovedBy, itemIsOneOfSelectedTags } from 'data_processing/filters'
+import { createCommentTree } from 'data_processing/thread'
 import { reversible, itemIsActioned, not } from 'utils'
-import cloneDeep from 'lodash/cloneDeep'
 
 const byScore = (a, b) => {
   return (b.stickied - a.stickied) || (b.score - a.score)
@@ -95,7 +95,7 @@ class CommentSection extends React.Component {
     const { focusCommentID, root } = this.props
     const { removedFilter, removedByFilter, localSort,
             localSortReverse, showContext, context,
-            itemsLookup: commentsLookup, commentTree: fullCommentTree } = props.global.state
+            itemsLookup: commentsLookup, commentTree: fullCommentTree, threadPost } = props.global.state
     const removedByFilterIsUnset = this.props.global.removedByFilterIsUnset()
     const tagsFilterIsUnset = this.props.global.tagsFilterIsUnset()
 
@@ -110,22 +110,17 @@ class CommentSection extends React.Component {
     }
     let commentTree
     if (showContext) {
-      commentTree = commentTreeSubset
-      if (removedFilter !== removedFilter_types.all ||
-          ! removedByFilterIsUnset ||
-          ! tagsFilterIsUnset) {
-        commentTree = cloneDeep(commentTreeSubset)
-        if (removedFilter === removedFilter_types.removed) {
-          this.filterCommentTree(commentTree, itemIsActioned)
-        } else if (removedFilter === removedFilter_types.not_removed) {
-          this.filterCommentTree(commentTree, not(itemIsActioned))
-        }
-        if (! removedByFilterIsUnset) {
-          this.filterCommentTree(commentTree, this.itemIsOneOfSelectedRemovedBy_local)
-        }
-        if (! tagsFilterIsUnset) {
-          this.filterCommentTree(commentTree, this.itemIsOneOfSelectedTags_local)
-        }
+      commentTree = createCommentTree(threadPost.id, root, commentsLookup)
+      if (removedFilter === removedFilter_types.removed) {
+        this.filterCommentTree(commentTree, itemIsActioned)
+      } else if (removedFilter === removedFilter_types.not_removed) {
+        this.filterCommentTree(commentTree, not(itemIsActioned))
+      }
+      if (! removedByFilterIsUnset) {
+        this.filterCommentTree(commentTree, this.itemIsOneOfSelectedRemovedBy_local)
+      }
+      if (! tagsFilterIsUnset) {
+        this.filterCommentTree(commentTree, this.itemIsOneOfSelectedTags_local)
       }
     } else if (! focusCommentID || ! commentsLookup[focusCommentID]) {
       commentTree = this.props.visibleItemsWithoutCategoryFilter
