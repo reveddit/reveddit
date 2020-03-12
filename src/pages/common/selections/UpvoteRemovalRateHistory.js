@@ -146,6 +146,18 @@ const componentParams = {[numGraphPointsParamKey]: numGraphPointsDefault,
                          [sortByParamKey]: sortByDefault,
                          [contentTypeParamKey]: contentTypeDefault}
 
+const commonFields = [
+  'created_utc',
+  'id_of_max_pos_removed_item',
+  'last_created_utc',
+  'last_id',
+  'rate',
+  'score',
+  'subreddit',
+  'title',
+  'total_items'
+]
+
 class UpvoteRemovalRateHistory extends React.Component {
   state = {
     hovered: null,
@@ -231,28 +243,12 @@ class UpvoteRemovalRateHistory extends React.Component {
             ${commentFunction}(args: {subreddit: "${subreddit}"},
                                limit: ${this.state[numGraphPointsParamKey]}) {
               body
-              created_utc
-              id_of_max_pos_removed_item
-              last_created_utc
-              last_id
-              rate
-              score
-              subreddit
-              title
-              total_items
+              ${commonFields.join('\n')}
             }
             ${postFunction}(args: {subreddit: "${subreddit}"},
                            limit: ${this.state[numGraphPointsParamKey]}) {
-              created_utc
-              id_of_max_pos_removed_item
-              last_created_utc
-              last_id
-              rate
-              score
-              subreddit
-              title
+              ${commonFields.join('\n')}
               num_comments
-              total_items
             }
           }
       `}
