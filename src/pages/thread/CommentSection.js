@@ -110,17 +110,22 @@ class CommentSection extends React.Component {
     }
     let commentTree
     if (showContext) {
-      commentTree = cloneDeep(commentTreeSubset)
-      if (removedFilter === removedFilter_types.removed) {
-        this.filterCommentTree(commentTree, itemIsActioned)
-      } else if (removedFilter === removedFilter_types.not_removed) {
-        this.filterCommentTree(commentTree, not(itemIsActioned))
-      }
-      if (! removedByFilterIsUnset) {
-        this.filterCommentTree(commentTree, this.itemIsOneOfSelectedRemovedBy_local)
-      }
-      if (! tagsFilterIsUnset) {
-        this.filterCommentTree(commentTree, this.itemIsOneOfSelectedTags_local)
+      commentTree = commentTreeSubset
+      if (removedFilter !== removedFilter_types.all ||
+          ! removedByFilterIsUnset ||
+          ! tagsFilterIsUnset) {
+        commentTree = cloneDeep(commentTreeSubset)
+        if (removedFilter === removedFilter_types.removed) {
+          this.filterCommentTree(commentTree, itemIsActioned)
+        } else if (removedFilter === removedFilter_types.not_removed) {
+          this.filterCommentTree(commentTree, not(itemIsActioned))
+        }
+        if (! removedByFilterIsUnset) {
+          this.filterCommentTree(commentTree, this.itemIsOneOfSelectedRemovedBy_local)
+        }
+        if (! tagsFilterIsUnset) {
+          this.filterCommentTree(commentTree, this.itemIsOneOfSelectedTags_local)
+        }
       }
     } else if (! focusCommentID || ! commentsLookup[focusCommentID]) {
       commentTree = this.props.visibleItemsWithoutCategoryFilter
