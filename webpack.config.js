@@ -4,6 +4,33 @@ const path = require('path')
 const webpack = require('webpack')
 const LodashModuleReplacementPlugin = require('lodash-webpack-plugin')
 const TerserPlugin = require('terser-webpack-plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const HtmlWebpackTagsPlugin = require('html-webpack-tags-plugin')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
+const { v4: uuid } = require('uuid')
+
+const injectScript = (scriptPath, omitPath) => {
+  const hash = uuid()
+
+  return [
+    new HtmlWebpackTagsPlugin({
+      tags: [scriptPath],
+      useHash: true,
+      addHash: assetPath => {
+        const parts = assetPath.split('.')
+        parts[parts.length - 1] = `${hash}.${parts[parts.length - 1]}`
+        return parts.join('.').replace(omitPath, '')
+      }
+    }),
+    new CopyWebpackPlugin([
+      {
+        from: scriptPath,
+        to: `[name].${hash}.[ext]`
+      }
+    ])
+  ]
+}
+
 
 module.exports = (env, argv) => ({
   entry: [
@@ -18,7 +45,7 @@ module.exports = (env, argv) => ({
     }
   },
   devtool: 'source-map',
-  output: {sourceMapFilename: '[file].map'},
+  output: {sourceMapFilename: '[file].map', publicPath: '/', filename: '[name].[hash].js'},
   module: {
     rules: [
       {
@@ -40,7 +67,11 @@ module.exports = (env, argv) => ({
       LAMBDA_ENDPOINT: JSON.stringify(process.env.LAMBDA_ENDPOINT),
       STRIPE_PUBLISHABLE_KEY: JSON.stringify(process.env.STRIPE_PUBLISHABLE_KEY)
     }),
-    new LodashModuleReplacementPlugin
+    new LodashModuleReplacementPlugin,
+    new HtmlWebpackPlugin({
+      template: path.resolve(__dirname, 'src/index.html')
+    }),
+    ...injectScript('dist/main.css', 'dist/')
   ],
   optimization: {
     minimize: true,

@@ -53,9 +53,12 @@
     "babel-loader": "^8.0.6",
     "babel-plugin-lodash": "^3.3.4",
     "concurrently": "^4.1.1",
+    "copy-webpack-plugin": "^5.1.1",
     "d3": "^5.9.2",
     "dotenv": "^8.0.0",
     "history": "^4.7.2",
+    "html-webpack-plugin": "^3.2.0",
+    "html-webpack-tags-plugin": "^2.0.17",
     "lodash-webpack-plugin": "^0.11.5",
     "netlify-lambda": "^1.4.13",
     "node-sass": "^4.12.0",
@@ -69,9 +72,10 @@
   "scripts": {
     "start-all": "concurrently \"yarn start\" \"yarn lambda-serve\"",
     "start": "yarn build-sass; webpack-dev-server --mode development",
-    "build": "yarn build-sass; webpack --mode production && yarn lambda-build",
+    "build": "yarn clean && yarn build-sass; webpack --mode production && yarn lambda-build",
     "build-sass": "node-sass --style compressed src/sass/index.sass dist/main.css",
     "lambda-serve": "netlify-lambda serve lambda-src",
-    "lambda-build": "netlify-lambda build lambda-src"
+    "lambda-build": "netlify-lambda build lambda-src",
+    "clean": "rimraf dist/*.css dist/*.js dist/*.js.map"
   }
 }

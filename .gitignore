@@ -5,9 +5,10 @@
 node_modules/
 
 # Generated files
-dist/main.js
-dist/main.js.map
-dist/main.css
+dist/index.html
+dist/main*js
+dist/main*js.map
+dist/main*css
 lambda/
 
 # Log files
