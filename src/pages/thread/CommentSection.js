@@ -5,6 +5,9 @@ import { NOT_REMOVED, REMOVAL_META, USER_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED }
 import { itemIsOneOfSelectedRemovedBy, itemIsOneOfSelectedTags } from 'data_processing/filters'
 import { createCommentTree } from 'data_processing/thread'
 import { reversible, itemIsActioned, not } from 'utils'
+import { getMaxCommentDepth } from 'pages/thread/Comment'
+
+const MAX_COMMENTS_TO_SHOW = 200
 
 const byScore = (a, b) => {
   return (b.stickied - a.stickied) || (b.score - a.score)
@@ -45,8 +48,24 @@ const flattenTree = (commentTree) => {
   return comments
 }
 
-class CommentSection extends React.Component {
 
+
+class CommentSection extends React.Component {
+  state = {
+    showAllComments: false
+  }
+  setShowAllComments = () => {
+    this.setState({showAllComments: true})
+  }
+  countReplies = (comment, maxDepth) => {
+    let sum = comment.replies.length
+    if (! this.props.global.state.limitCommentDepth || comment.depth < maxDepth-1) {
+      comment.replies.forEach(c => {
+        sum += this.countReplies(c, maxDepth)
+      })
+    }
+    return sum
+  }
   sortCommentTree (comments, sortFunction) {
     const {localSortReverse} = this.props.global.state
 
@@ -95,7 +114,8 @@ class CommentSection extends React.Component {
     const { focusCommentID, root } = this.props
     const { removedFilter, removedByFilter, localSort,
             localSortReverse, showContext, context,
-            itemsLookup: commentsLookup, commentTree: fullCommentTree, threadPost } = props.global.state
+            itemsLookup: commentsLookup, commentTree: fullCommentTree,
+            threadPost, limitCommentDepth } = props.global.state
     const removedByFilterIsUnset = this.props.global.removedByFilterIsUnset()
     const tagsFilterIsUnset = this.props.global.tagsFilterIsUnset()
 
@@ -143,19 +163,26 @@ class CommentSection extends React.Component {
     }
     let comments_render = []
     let status = ''
+    let numCommentsShown = 0
     if (commentTree.length) {
-      comments_render = commentTree.map(comment => {
+      for (var i = 0; i < commentTree.length; i++) {
+        if (limitCommentDepth && numCommentsShown >= MAX_COMMENTS_TO_SHOW && ! this.state.showAllComments) {
+          comments_render.push(<a key="load-more" className='pointer' onClick={this.setShowAllComments}>load more comments</a>)
+          break
+        }
+        const comment = commentTree[i]
+        numCommentsShown += this.countReplies(comment, getMaxCommentDepth())+1
         // any attributes added below must also be added to thread/Comment.js
         // in prop.replies.map(...)
-        return <Comment
+        comments_render.push(<Comment
           key={comment.id}
           {...comment}
           depth={0}
           page_type={props.page_type}
           focusCommentID={props.focusCommentID}
           contextAncestors={contextAncestors}
-        />
-      })
+        />)
+      }
     } else if (removedFilter !== removedFilter_types.all) {
       status = (<p>No {removedFilter_text[removedFilter]} comments found</p>)
     }
