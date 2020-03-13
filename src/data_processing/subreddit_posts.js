@@ -15,7 +15,7 @@ export const getRevdditPostsBySubreddit = (subreddit, global) => {
     window.history.replaceState(null,null,`/r/${subreddit}/`+window.location.search)
   }
   global.setLoading('')
-  if (subreddit === 'all' || frontPage) {
+  if (subreddit === 'all') {
     return getRemovedPostIDs(subreddit)
     .then(ids => getRedditPosts({ids}))
     .then(posts => {
@@ -33,6 +33,9 @@ export const getRevdditPostsBySubreddit = (subreddit, global) => {
     })
     .catch(global.setError)
   } else {
+    if (frontPage) {
+      global.selection_update('frontPage', false, '')
+    }
     const moderators_promise = getModerators(subreddit)
     const subreddit_about_promise = getSubredditAbout(subreddit)
     return pushshiftGetPostsBySubredditOrDomain({subreddit, n, before, before_id})

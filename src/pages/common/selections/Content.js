@@ -47,7 +47,9 @@ class Content extends React.Component {
           {['subreddit_posts', 'subreddit_comments'].includes(this.props.page_type) &&
             <React.Fragment>
               {this.getLink('', 'posts')}
-              {this.getLink('', r_all)}
+              {
+                //this.getLink('', r_all)
+              }
               {this.getLink('comments', 'comments')}
             </React.Fragment>
           }
