@@ -30,7 +30,10 @@ class Thread extends React.Component {
       if (parseInt(context) && numComments) {
         var i
         for (i = 0; i < context && (root in comments) && comments[root].parent_id.substr(0, 2) !== 't3'; i++) {
-          root = comments[root].parent_id.substr(3)
+          const parent_id = comments[root].parent_id.substr(3)
+          if (comments[parent_id]) {
+            root = comments[root].parent_id.substr(3)
+          }
         }
       }
     }

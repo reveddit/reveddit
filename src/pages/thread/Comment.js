@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, withRouter } from 'react-router-dom'
 import { prettyScore, parse, isRemoved, replaceAmpGTLT, jumpToHash, SimpleURLSearchParams } from 'utils'
 import Time from 'pages/common/Time'
 import RemovedBy from 'pages/common/RemovedBy'
@@ -89,6 +89,7 @@ class Comment extends React.Component {
             {...comment}
             depth={props.depth + 1}
             global={props.global}
+            history={props.history}
             page_type={props.page_type}
             focusCommentID={focusCommentID}
             contextAncestors={contextAncestors}
@@ -129,19 +130,23 @@ class Comment extends React.Component {
                   <React.Fragment>
                     {getPermalink('permalink')}
                     {parent_link &&
+                      // using <a> instead of <Link> for parent & context links b/c
+                      // <Link> causes comments to disappear momentarily when inserting a parent
                       <>
-                        <Link to={parent_link} onClick={(e) => {
-                          context_update(0, props)
-                          .then(() => insertParent(props.id, props.global))
+                        <a href={parent_link} onClick={(e) => {
+                          e.preventDefault()
+                          insertParent(props.id, props.global)
+                          .then(() => context_update(0, props, parent_link))
                           .then(() => jumpToHash(window.location.hash))
-                        }}>parent</Link>
-                        <Link to={contextLink} onClick={(e) => {
-                          context_update(contextDefault, props)
-                          .then(() => insertParent(props.id, props.global))
+                        }}>parent</a>
+                        <a href={contextLink} onClick={(e) => {
+                          e.preventDefault()
+                          insertParent(props.id, props.global)
                           // parent_id will never be t3_ b/c context link is not rendered for topmost comments
                           .then(() => insertParent(props.parent_id.substr(3), props.global))
+                          .then(() => context_update(contextDefault, props, contextLink))
                           .then(() => jumpToHash(window.location.hash))
-                        }}>context</Link>
+                        }}>context</a>
                       </>
                     }
                   </React.Fragment>
@@ -159,4 +164,4 @@ class Comment extends React.Component {
   }
 }
 
-export default connect(Comment)
+export default withRouter(connect(Comment))

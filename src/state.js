@@ -259,17 +259,21 @@ class GlobalState extends Container {
       }
     }
   }
-  context_update = (context, page_type, callback = () => {}) => {
-    const queryParams = create_qparams_and_adjust(page_type, 'context', context)
-    adjust_qparams_for_selection(page_type, queryParams, 'showContext', true)
-    return this.setStateFromQueryParams(page_type, queryParams, {}, callback)
+  context_update = (context, props, url = '') => {
+    const queryParams = create_qparams_and_adjust(props.page_type, 'context', context)
+    adjust_qparams_for_selection(props.page_type, queryParams, 'showContext', true)
+    const to = url ? url : `${window.location.pathname}${queryParams.toString()}`
+    if (url) {
+      props.history.push(to)
+    }
+    return this.setStateFromQueryParams(props.page_type, queryParams, {})
   }
   selection_update = (selection, value, page_type, callback = () => {}) => {
     const queryParams = create_qparams_and_adjust(page_type, selection, value)
     return this.updateURLandState(queryParams, page_type, callback)
   }
   updateURLandState = (queryParams, page_type, callback = () => {}) => {
-    let to = `${window.location.pathname}${queryParams.toString()}`
+    const to = `${window.location.pathname}${queryParams.toString()}`
     window.history.replaceState(null,null,to)
     return this.setStateFromQueryParams(page_type, queryParams, {}, callback)
   }
