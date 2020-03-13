@@ -15,6 +15,9 @@ class Header extends React.Component {
     entity_name: '',
     random: false
   }
+  welcome = () => {
+    this.props.openGenericModal({hash: 'welcome'})
+  }
   componentDidMount() {
     const entity_name = getEntityName(this.props.match.params)
     this.setState({entity_name})
@@ -139,11 +142,11 @@ class Header extends React.Component {
       <React.Fragment>
         <header>
           <div id='header'>
-            <div id='site-name'>re<span style={{color: 'white'}}>ve</span>ddit</div>
+            <div id='site-name'><Link to="/about/">re<span style={{color: 'white'}}>ve</span>ddit</Link></div>
             <div id='nav'>
               <a href="#settings" onClick={this.settings}>⚙</a>
               <span> | </span>
-              <Link to="/about/">about</Link>
+              <Link to="/about/">search</Link>
               <span> | </span>
               <Link to="/add-ons/">add-ons</Link>
             </div>

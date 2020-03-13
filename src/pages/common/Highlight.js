@@ -1,11 +1,9 @@
 import React from 'react'
 import {ext_urls} from 'utils'
-import ModalContext from 'contexts/modal'
-
+import { Link }from 'react-router-dom'
 
 export default () => {
-  const {openModal} = React.useContext(ModalContext)
-  const extension_link = <a className='pointer' onClick={() => openModal({'hash': 'welcome'})}>reveddit extension</a>
+  const extension_link = <Link to='/add-ons/'>reveddit extension</Link>
   if (! window.navigator.language.match(/^en\b/)) {
     return (
       <div className='note highlight real-time'>
