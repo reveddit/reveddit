@@ -9,9 +9,9 @@ const HtmlWebpackTagsPlugin = require('html-webpack-tags-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const { v4: uuid } = require('uuid')
 
-const injectScript = (scriptPath, omitPath) => {
-  const hash = uuid()
+const hash = uuid()
 
+const injectScript = (scriptPath, omitPath) => {
   return [
     new HtmlWebpackTagsPlugin({
       tags: [scriptPath],
@@ -44,8 +44,8 @@ module.exports = (env, argv) => ({
       disableDotRule: true
     }
   },
-  devtool: 'source-map',
-  output: {sourceMapFilename: '[file].map', publicPath: '/', filename: '[name].[hash].js'},
+  devtool: argv.mode === 'production' ? 'source-map' : 'cheap-module-eval-source-map',
+  output: {sourceMapFilename: '[file].map', publicPath: '/', filename: `[name].${hash}.js`},
   module: {
     rules: [
       {
