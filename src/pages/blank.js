@@ -7,6 +7,7 @@ export const BlankUser = () => {
   const [random, setRandom] = useState(false)
   const [input, setInput] = useState('')
   const [inputRef, setInputFocus] = useFocus()
+
   if (random) {
     return <Redirect to='/random'/>
   }
@@ -49,13 +50,14 @@ export const BlankUser = () => {
       }
     }
   }
+
   return (
     <div className='blank_page'>
       <div className='text'>
         Enter a reddit username to view removed content (blank for random), or enter a link, subreddit <a className='pointer' onClick={() => {setInput('r/'); setInputFocus()}}>(r/)</a> or domain:
       </div>
       <form id='user-form' onSubmit={handleSubmitUser}>
-        <input ref={inputRef} id='search' type='text' name='username' placeholder='user, r/sub or link' autoFocus='autoFocus'
+        <input ref={inputRef} id='search' type='text' name='username' placeholder='user, r/sub or url' autoFocus='autoFocus'
           value={input} onChange={(e) => setInput(e.target.value)}/>
         <input type='submit' id='button_u' value='go' />
         <button title="Look up a random redditor" id='button_shuffle'
@@ -66,6 +68,9 @@ export const BlankUser = () => {
           <Shuffle/>
         </button>
       </form>
+      <div className='text'>
+        Reveddit does not display user-deleted content.
+      </div>
     </div>
   )
 
