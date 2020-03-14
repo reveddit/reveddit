@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Suspense, lazy } from 'react'
 import {connect} from 'state'
 import RemovedFilter from 'pages/common/selections/RemovedFilter'
 import RemovedByFilter from 'pages/common/selections/RemovedByFilter'
@@ -8,10 +8,15 @@ import RedditSort from 'pages/common/selections/RedditSort'
 import Content from 'pages/common/selections/Content'
 import TextFilter from 'pages/common/selections/TextFilter'
 import TagsFilter from 'pages/common/selections/TagsFilter'
-import UpvoteRemovalRateHistory from 'pages/common/selections/UpvoteRemovalRateHistory'
 import ResultsSummary from 'pages/common/ResultsSummary'
 import Selfposts from 'pages/common/selections/Selfposts'
 import { SimpleURLSearchParams } from 'utils'
+import ErrorBoundary from 'components/ErrorBoundary'
+
+import { ApolloProvider } from 'react-apollo'
+import ApolloClient from 'apollo-boost'
+
+const UpvoteRemovalRateHistory = lazy(() => import('pages/common/selections/UpvoteRemovalRateHistory'))
 
 const paramKey = 'showFilters'
 
@@ -50,7 +55,20 @@ class Selections extends React.Component {
     const { subreddit, page_type, visibleItemsWithoutCategoryFilter, num_items, num_showing,
             category_type, category_title, category_unique_field } = this.props
     const { showFilters } = this.state
-    const upvoteRemovalRateHistory = <UpvoteRemovalRateHistory subreddit={subreddit} page_type={page_type}/>
+    let upvoteRemovalRateHistory = ''
+    if (['subreddit_posts', 'subreddit_comments', 'thread'].includes(page_type)) {
+      const apolloClient = new ApolloClient({
+        uri: "https://api.revddit.com/v1/graphql"
+      })
+      upvoteRemovalRateHistory = (
+        <ErrorBoundary>
+          <Suspense fallback={<div>Loading...</div>}>
+            <ApolloProvider client={apolloClient}>
+              <UpvoteRemovalRateHistory subreddit={subreddit} page_type={page_type}/>
+            </ApolloProvider>
+          </Suspense>
+        </ErrorBoundary> )
+    }
     const categoryFilter = <CategoryFilter page_type={page_type}
       visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
       type={category_type} title={category_title} unique_field={category_unique_field}/>

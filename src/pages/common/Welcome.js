@@ -1,7 +1,7 @@
 import React from 'react'
 import {ext_urls} from 'utils'
 import Bowser from 'bowser'
-import { BlankUser } from 'pages/blank'
+import BlankUser from 'components/BlankUser'
 
 
 const chromelike = ['chrome', 'chromium', 'opera', 'edge', 'vivaldi']

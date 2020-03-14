@@ -53,7 +53,7 @@ module.exports = (env, argv) => ({
         test: /\.js$/,
         exclude: /node_modules/,
         options: {
-          plugins: ['lodash'],
+          plugins: ['@babel/plugin-syntax-dynamic-import', 'lodash'],
           presets: [['@babel/env', { 'targets': { 'node': 12 } }]]
         }
       }
