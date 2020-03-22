@@ -10,3 +10,19 @@
     cache-control = '''
     public,
     max-age=604800'''
+
+[[headers]]
+  for = "/*.js"
+
+  [headers.values]
+    cache-control = '''
+    public,
+    max-age=604800'''
+
+[[headers]]
+  for = "/*.css"
+
+  [headers.values]
+    cache-control = '''
+    public,
+    max-age=604800'''
