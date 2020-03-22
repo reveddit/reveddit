@@ -3,6 +3,7 @@ import { Subscribe, Container } from 'unstated'
 import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED,
          UNKNOWN_REMOVED, NOT_REMOVED } from 'pages/common/RemovedBy'
 import { SimpleURLSearchParams, get, put } from 'utils'
+import { limitCommentDepth_global } from 'pages/common/Settings'
 
 export const getExtraGlobalStateVars = (page_type, sort) => {
   let hasVisitedUserPage = false
@@ -113,7 +114,7 @@ export const filter_pageType_defaults = {
   q: '', author: '', subreddit: '', after: '', domain: '', or_domain: '',
   content: 'all', url: '',
   selfposts: true,
-  limitCommentDepth: true
+  limitCommentDepth: limitCommentDepth_global
 }
 
 const maxN = 60000
