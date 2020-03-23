@@ -239,19 +239,20 @@ class UpvoteRemovalRateHistory extends React.Component {
     return (
       <Query
         query={gql`
-          {
-            ${commentFunction}(args: {subreddit: "${subreddit}"},
-                               limit: ${this.state[numGraphPointsParamKey]}) {
+          query($subreddit:String!, $limit:Int!){
+            ${commentFunction}(args: {subreddit: $subreddit},
+                               limit: $limit) {
               body
               ${commonFields.join('\n')}
             }
-            ${postFunction}(args: {subreddit: "${subreddit}"},
-                           limit: ${this.state[numGraphPointsParamKey]}) {
+            ${postFunction}(args: {subreddit: $subreddit},
+                           limit: $limit) {
               ${commonFields.join('\n')}
               num_comments
             }
           }
       `}
+      variables={{subreddit, limit: this.state[numGraphPointsParamKey]}}
       >
         {({ loading, error, data }) => {
           if (loading) return <p>Loading...</p>;

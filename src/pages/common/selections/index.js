@@ -14,11 +14,35 @@ import { SimpleURLSearchParams } from 'utils'
 import ErrorBoundary from 'components/ErrorBoundary'
 
 import { ApolloProvider } from 'react-apollo'
-import ApolloClient from 'apollo-boost'
+import { ApolloClient } from 'apollo-client'
+import { InMemoryCache } from 'apollo-cache-inmemory'
+import { HttpLink } from 'apollo-link-http'
 
 const UpvoteRemovalRateHistory = lazy(() => import('pages/common/selections/UpvoteRemovalRateHistory'))
 
 const paramKey = 'showFilters'
+
+// disable preflight request, which can't be cached by cloudflare, by using customFetch
+const customFetch = (uri, options) => {
+  const fetchOptions = {
+    credentials: 'same-origin',
+    method: "GET",
+    headers: {
+      accept: '*/*'
+    },
+    signal: options.signal
+  }
+  return fetch(decodeURI(uri), fetchOptions)
+}
+
+const apolloClient = new ApolloClient({
+  cache: new InMemoryCache(),
+  link: new HttpLink({
+    uri: 'https://api.revddit.com/graphql-get/',
+    fetch: customFetch,
+    useGETForQueries: true
+  }),
+})
 
 class Selections extends React.Component {
   state = {
@@ -57,9 +81,6 @@ class Selections extends React.Component {
     const { showFilters } = this.state
     let upvoteRemovalRateHistory = ''
     if (['subreddit_posts', 'subreddit_comments', 'thread'].includes(page_type)) {
-      const apolloClient = new ApolloClient({
-        uri: "https://api.revddit.com/v1/graphql"
-      })
       upvoteRemovalRateHistory = (
         <ErrorBoundary>
           <Suspense fallback={<div>Loading...</div>}>
