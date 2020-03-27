@@ -9,7 +9,7 @@ import {
 import { itemIsRemovedOrDeleted, postIsDeleted, display_post,
          getUniqueItems, SimpleURLSearchParams, parse, replaceAmpGTLT
 } from 'utils'
-import { REMOVAL_META, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
+import { REMOVAL_META, ANTI_EVIL_REMOVED, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
          MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED, USER_REMOVED,
          AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
 
@@ -118,7 +118,9 @@ export const combineRedditAndPushshiftPost = (post, ps_post) => {
       post.removedby = USER_REMOVED
     } else {
       post.removed = true
-      if (ps_post && 'is_robot_indexable' in ps_post && ! ps_post.is_robot_indexable) {
+      if (post.removed_by_category === 'anti_evil_ops') {
+        post.removedby = ANTI_EVIL_REMOVED
+      } else if (ps_post && 'is_robot_indexable' in ps_post && ! ps_post.is_robot_indexable) {
         if (retrievalLatency !== undefined && retrievalLatency <= AUTOMOD_LATENCY_THRESHOLD) {
           post.removedby = AUTOMOD_REMOVED
         } else {

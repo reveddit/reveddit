@@ -1,6 +1,7 @@
 import React from 'react'
 import {itemIsCollapsed} from 'utils'
 
+export const ANTI_EVIL_REMOVED = 'anti_evil_ops'
 export const AUTOMOD_REMOVED = 'automod'
 export const AUTOMOD_REMOVED_MOD_APPROVED = 'automod-rem-mod-app'
 export const MOD_OR_AUTOMOD_REMOVED = 'mod'
@@ -14,8 +15,11 @@ export const ORPHANED = 'orphaned'
 export const AUTOMOD_LATENCY_THRESHOLD = 15
 
 export const REMOVAL_META = {
-        [MOD_OR_AUTOMOD_REMOVED]: {filter_text: 'mod removed (or maybe automod)',
-                                         label: '[removed] by mod (or maybe automod)',
+                 [ANTI_EVIL_REMOVED]: {filter_text: 'reddit anti-evil ops removed',
+                                         label: '[removed] by reddit anti-evil ops',
+                                          desc: 'removed by an admin'},
+        [MOD_OR_AUTOMOD_REMOVED]: {filter_text: 'likely mod removed (maybe automod)',
+                                         label: '[removed] likely by mod (maybe automod)',
                                           desc: '90% chance this was removed by a moderator, 10% chance removed by automod'},
                [AUTOMOD_REMOVED]: {filter_text: 'automod removed',
                                          label: '[removed] by automod',
@@ -23,7 +27,7 @@ export const REMOVAL_META = {
   [AUTOMOD_REMOVED_MOD_APPROVED]: {filter_text: 'automod removed, manually approved',
                                          label: '[approved] automod removed, manually approved',
                                           desc: 'This content was initially auto-removed by automoderator and later manually approved by a moderator.'},
-               [UNKNOWN_REMOVED]: {filter_text: 'unknown removed',
+               [UNKNOWN_REMOVED]: {filter_text: 'unknown if mod or automod removed',
                                          label: '[removed] by unknown',
                                           desc: 'Cannot say with certainty whether this was removed by a mod or by automod.'},
                         [LOCKED]: {filter_text: 'locked',
