@@ -16,6 +16,8 @@ const CommentBody = (props) => {
     } else {
       innerHTML = parse(replaceAmpGTLT(props.body))
     }
+  } else {
+    innerHTML = '<p>[deleted by user]</p>'
   }
 
   return (
