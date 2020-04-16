@@ -45,8 +45,7 @@ module.exports = (env, argv) => ({
     }
   },
   devtool: argv.mode === 'production' ? 'source-map' : 'cheap-module-eval-source-map',
-  output: {sourceMapFilename: '[file].map', publicPath: '/', filename: `[name].js`},
-//  output: {sourceMapFilename: '[file].map', publicPath: '/', filename: `[name].${hash}.js`},
+  output: {sourceMapFilename: '[file].map', publicPath: '/', filename: `[name].${hash}.js`},
   module: {
     rules: [
       {
@@ -72,8 +71,8 @@ module.exports = (env, argv) => ({
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, 'src/index.html')
     }),
-    new HtmlWebpackTagsPlugin({ tags: ['main.css'], append: true })
-    //...injectScript('dist/main.css', 'dist/')
+    new HtmlWebpackTagsPlugin({ tags: ['main.css'], append: true }),
+    ...injectScript('dist/main.css', 'dist/')
   ],
   optimization: {
     minimize: true,
