@@ -97,8 +97,8 @@ function setRemovedBy(items_removedBy_undefined, ps_items_autoremoved) {
         removed_meta[name] = AUTOMOD_REMOVED_MOD_APPROVED
       }
     } else if (item.removed) {
-      item.removedby = MOD_OR_AUTOMOD_REMOVED
-      removed_meta[name] = MOD_OR_AUTOMOD_REMOVED
+      item.removedby = UNKNOWN_REMOVED
+      removed_meta[name] = UNKNOWN_REMOVED
     } else {
       item.removedby = NOT_REMOVED
       removed_meta[name] = NOT_REMOVED

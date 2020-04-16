@@ -34,9 +34,12 @@ const initializeComment = (comment, post) => {
   comment.ancestors = {}
 }
 
-const markRemoved = (redditComment, commentToMark) => {
+const markRemoved = (redditComment, commentToMark, is_reddit = false) => {
   if (commentIsRemoved(redditComment)) {
     commentToMark.removed = true
+    if (is_reddit) {
+      commentToMark.removedby = UNKNOWN_REMOVED
+    }
   } else if (commentIsDeleted(redditComment)) {
     commentToMark.deleted = true
   }
@@ -48,7 +51,7 @@ export const combinePushshiftAndRedditComments = (pushshiftComments, redditComme
     if (! requirePushshiftData) {
       initializeComment(comment, post)
       combinedComments[comment.id] = comment
-      markRemoved(comment, comment)
+      markRemoved(comment, comment, true)
     }
     const ps_comment = pushshiftComments[comment.id]
     if (ps_comment) {

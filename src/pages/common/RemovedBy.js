@@ -28,7 +28,7 @@ export const REMOVAL_META = {
                                          label: '[approved] automod removed, manually approved',
                                           desc: 'This content was initially auto-removed by automoderator and later manually approved by a moderator.'},
                [UNKNOWN_REMOVED]: {filter_text: 'unknown if mod or automod removed',
-                                         label: '[removed] by unknown',
+                                         label: '[removed] unknown if by mod or automod',
                                           desc: 'Cannot say with certainty whether this was removed by a mod or by automod.'},
                         [LOCKED]: {filter_text: 'locked',
                                          label: 'locked',
