@@ -51,11 +51,10 @@ class Comment extends React.Component {
     let permalink_nohash = props.permalink ? props.permalink
       : `/r/${props.subreddit}/comments/${props.link_id}/_/${props.id}/`
 
-    const searchParams = new SimpleURLSearchParams(window.location.search).delete('context')
+    const searchParams = new SimpleURLSearchParams(window.location.search).delete('context').delete('showFilters')
     const searchParams_nocontext = searchParams.toString()
-    permalink_nohash += searchParams_nocontext
     const contextLink = permalink_nohash+searchParams.set('context', contextDefault).toString()+`#${props.name}`
-    const permalink = permalink_nohash+`#${props.name}`
+    const permalink = permalink_nohash+searchParams_nocontext+`#${props.name}`
     const getPermalink = (text) => {
       return <Link to={permalink} onClick={(e) => {
         context_update(0, props)
