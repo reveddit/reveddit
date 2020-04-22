@@ -1,4 +1,4 @@
-import { chunk, flatten, fetchWithTimeout, promiseDelay, getRandomInt } from 'utils'
+import { chunk, flatten, fetchWithTimeout, promiseDelay, getRandomInt, paramString } from 'utils'
 import { getAuth } from './auth'
 
 const oauth_reddit = 'https://oauth.reddit.com/'
@@ -8,9 +8,6 @@ const maxNumItems = 100
 const commentSortOptions = ['confidence', 'new', 'controversial', 'old', 'qa']
 const MIN_COMMENT_KARMA = 1000
 
-const paramString = (params) => {
-  return Object.keys(params).map(k => `${k}=${params[k]}`).join('&')
-}
 
 const errorHandler = (e) => {
   throw new Error(`Could not connect to Reddit: ${e}`)

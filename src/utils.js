@@ -371,3 +371,7 @@ export const useFocus = () => {
     const setFocus = () => {ref.current &&  ref.current.focus()}
     return [ref, setFocus]
 }
+
+export const paramString = (params) => {
+  return Object.keys(params).map(k => `${k}=${params[k]}`).join('&')
+}
