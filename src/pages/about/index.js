@@ -19,14 +19,14 @@ const say = [
   'eg2xgjc', 'eg2x1kt', 'eg2vm27', 'eg2vamc', 'eg2ugkf', 'eg2ub8f', 'eg2t4zp',
   'eg2s3gf', 'eg2pxd8', 'eg2pa9c', 'eg2oymq', 'eg2nqjz', 'eg2ksrf', 'eg2jrvb',
   'eg2hdg2', 'eg2giv2', 'esloe21', 'f2a8nug', 'f2ap7p3', 'f3uj76k', 'f3ul663',
-  'f8wrtrj', 'f93p3zu', 'ff1nzne', 'fim3oud', 'fiv7ew1'
+  'f8wrtrj', 'f93p3zu', 'ff1nzne', 'fim3oud', 'fiv7ew1', 'fnw0gxd'
 ]
 
 const filterDeletedComments = (comments) => {
   const result = []
   Object.entries(comments).forEach(([id, c]) => {
     c.link_title = ''
-    if (! itemIsRemovedOrDeleted(c) && (! c.edited || c.edited < 1582618835)) {
+    if (! itemIsRemovedOrDeleted(c) && (! c.edited || c.edited < 1587526971)) {
       result.push(c)
     }
   })
