@@ -4,7 +4,8 @@ import { getPosts as getRedditPosts,
 import { getAuth } from 'api/reddit/auth'
 import {
   getPostsBySubredditOrDomain as pushshiftGetPostsBySubredditOrDomain,
-  queryPosts as pushshiftQueryPosts
+  queryPosts as pushshiftQueryPosts,
+  getPost as getPushshiftPost
 } from 'api/pushshift'
 import { itemIsRemovedOrDeleted, postIsDeleted, display_post,
          getUniqueItems, SimpleURLSearchParams, parse, replaceAmpGTLT
@@ -267,15 +268,23 @@ export const getRevdditDuplicatePosts = async (threadID, global) => {
   global.setLoading('')
   const auth = await getAuth()
   const drivingPosts_ids = threadID.split('+')
-  return getRedditPosts({ids: drivingPosts_ids, auth})
+  return await getRedditPosts({ids: drivingPosts_ids, auth})
   .then(async redditPosts => {
     const searchInput = new SearchInput()
     const secondary_lookup_ids_set = {}
-    Object.values(redditPosts).forEach(drivingPost => {
+    for (const drivingPost of Object.values(redditPosts)) {
       let firstLink = ''
       let meta
       if (drivingPost.selftext) {
-        const matches = parse(drivingPost.selftext).match(/<a href="([^"]+)">/)
+        let selftext = drivingPost.selftext
+        if (drivingPost.is_robot_indexable === false) {
+          const ps_drivingPost = await getPushshiftPost(drivingPost.id)
+          .catch(() => {}) // this ps query may fail while later ps/reddit queries succeed
+          if (ps_drivingPost) {
+            selftext = ps_drivingPost.selftext
+          }
+        }
+        const matches = parse(selftext).match(/<a href="([^"]+)">/)
         if (matches && matches.length > 1) {
           firstLink = replaceAmpGTLT(matches[1])
         }
@@ -303,7 +312,7 @@ export const getRevdditDuplicatePosts = async (threadID, global) => {
       if (! meta.isRedditDomain || meta.isRedditPostURL) {
         searchInput.pushshift_selftext_urls.push(...meta.pushshift_urls)
       }
-    })
+    }
     const secondary_lookup_ids = Object.keys(secondary_lookup_ids_set)
     if (secondary_lookup_ids.length) {
       Object.values(await getRedditPosts({ids: secondary_lookup_ids, auth})).forEach(secondary_post => {
