@@ -321,7 +321,9 @@ const reduceItems = (obj, val) => {
 export const getUniqueItems = (arrayOfArrays) => {
   let map = {}
   arrayOfArrays.forEach(array => {
-    map = array.reduce(reduceItems, map)
+    if (array) {
+      map = array.reduce(reduceItems, map)
+    }
   })
   return Object.values(map)
 }

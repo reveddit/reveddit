@@ -370,14 +370,16 @@ const searchRedditAndPushshiftPosts = (global, searchInput) => {
   }
   if (pushshift_urls.length) {
     pushshift_promises.push(
-      pushshiftQueryPosts({url: getPushshiftURLString(pushshift_urls)}
-    ))
+      pushshiftQueryPosts({url: getPushshiftURLString(pushshift_urls)})
+      .catch(() => {}) // ignore intermittent ps errors
+    )
   }
   if (pushshift_selftext_urls.length) {
     pushshift_promises.push(
       pushshiftQueryPosts(
-        {selftext: getPushshiftURLString(pushshift_selftext_urls)}
-      ))
+        {selftext: getPushshiftURLString(pushshift_selftext_urls)})
+      .catch(() => {}) // ignore intermittent ps errors
+    )
   }
   return Promise.all(reddit_promises).then(reddit_results => {
     const redditPosts = {}
