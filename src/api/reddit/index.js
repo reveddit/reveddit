@@ -2,6 +2,9 @@ import { chunk, flatten, fetchWithTimeout, promiseDelay, getRandomInt, paramStri
 import { getAuth } from './auth'
 
 const oauth_reddit = 'https://oauth.reddit.com/'
+const revddit_q = 'https://api.revddit.com/q/'
+const u_publicmodlogs_feed = '7e9b27126097f51ae6c9cd5b049af34891da6ba6'
+const coronavirus_logs = 'http://logs.mod.rcoronavirus.org/.json'
 const numRequestsBeforeWait = 100
 const waitInterval = 5000
 const maxNumItems = 100
@@ -186,7 +189,7 @@ export const usernameAvailable = (user) => {
 }
 
 export const userPageHTML = (user) => {
-  const url = `https://api.revddit.com/q/old.reddit.com/user/${user}`
+  const url = revddit_q+`old.reddit.com/user/${user}`
   return fetchWithTimeout(url, {}, 3000)
     .then(response => response.text())
     .then(html => {
@@ -337,4 +340,42 @@ export const getAuthorInfoByName = (ids) => {
     return Object.values(results).reduce((map, obj) => (map[obj.name] = obj, map), {})
   })
   .catch(errorHandler)
+}
+
+export const getModlogsComments = (subreddit, link_id = '') => {
+  let logLocation = `https://www.reddit.com/r/${subreddit}/about/log/.json?limit=500&feed=${u_publicmodlogs_feed}&user=publicmodlogs`
+  if (subreddit.toLowerCase() === 'coronavirus') {
+    logLocation = coronavirus_logs + "?limit=200"
+  }
+  const baseUrl = revddit_q + logLocation
+  const promises = [
+    getJson(baseUrl+"&type=removecomment")
+  ]
+  return Promise.all(promises)
+  .then(results => {
+    const comments = {}
+    for (const listing of results) {
+      if (listing && listing.data) {
+        for (const comment of listing.data.children) {
+          let data = comment
+          if (comment.data) {
+            data = comment.data
+          }
+          data.target_permalink = data.target_permalink.replace(/^https?:\/\/[^/]*/,'')
+          data.link_id = 't3_'+data.target_permalink.split('/')[4]
+          if (link_id && data.link_id !== 't3_'+link_id) {
+            continue
+          }
+          data.cid = data.target_fullname.slice(3)
+          comments[data.cid] = data
+        }
+      }
+    }
+    return comments
+  })
+}
+
+export const getJson = (url) => {
+  return window.fetch(url)
+  .then(response => response.json())
 }

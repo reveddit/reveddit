@@ -52,7 +52,7 @@ export const USER_REMOVED_META = {filter_text: 'user deleted',
                                          desc: 'user deleted'}
 
 export default (props) => {
-  let displayTag = '', title = '', text = '', meta = undefined
+  let displayTag = '', title = '', text = '', details = '', meta = undefined
   const {removedby} = props
   if (removedby && removedby !== NOT_REMOVED && removedby !== USER_REMOVED) {
     meta = REMOVAL_META[removedby]
@@ -63,9 +63,13 @@ export default (props) => {
   } else if (props.missing_in_thread) {
     meta = MISSING_IN_THREAD_META
   }
+  const modlog = props.modlog
+  if (modlog && modlog.details && modlog.details !== 'remove') {
+    details = ' | ' + modlog.details
+  }
   if (meta) {
     title = meta.desc
-    displayTag = <span title={title} data-removedby={removedby} className='removedby'>{meta.label}</span>
+    displayTag = <span title={title} data-removedby={removedby} className='removedby'>{meta.label+details}</span>
   }
   return displayTag
 }
