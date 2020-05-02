@@ -1,5 +1,4 @@
-import { retrieveRedditComments_and_combineWithPushshiftComments,
-         combinePushshiftAndRedditComments, copyModlogCommentsToArchiveComments } from 'data_processing/comments'
+import { combinePushshiftAndRedditComments, copyModlogCommentsToArchiveComments } from 'data_processing/comments'
 import { combineRedditAndPushshiftPost } from 'data_processing/posts'
 import {
   getPost as getPushshiftPost,
@@ -107,29 +106,23 @@ export const getRevdditThreadItems = (threadID, commentID, context, global, hist
     return reddit_comments_promise.then(({redditComments, moreComments}) => {
       return pushshift_comments_promise.then(pushshiftComments => {
         return modlogs_comments_promise.then(modlogsComments => {
+          copyModlogCommentsToArchiveComments(modlogsComments, pushshiftComments)
           if (! pushshiftComments[commentID] && ! redditComments[commentID]) {
             commentID = undefined
             root_commentID = undefined
             resetPath()
           }
           const origRedditComments = {...redditComments}
-          const getRemainingKeys = (list_of_maps_to_add, existing_map) => {
-            const remainingKeys = {}
-            for (const map of list_of_maps_to_add) {
-              for (const id of Object.keys(map)) {
-                if (! (id in existing_map)) {
-                  remainingKeys[id] = true
-                }
-              }
+          const remainingRedditIDs = []
+          Object.keys(pushshiftComments).forEach(id => {
+            if (! (id in redditComments)) {
+              remainingRedditIDs.push(id)
             }
-            return Object.keys(remainingKeys)
-          }
-          const remainingRedditIDs = getRemainingKeys([pushshiftComments, modlogsComments], redditComments)
+          })
           let reddit_remaining_comments_promise = Promise.resolve([])
           if (remainingRedditIDs.length) {
             reddit_remaining_comments_promise = getRedditComments({ids: remainingRedditIDs})
           }
-          copyModlogCommentsToArchiveComments(modlogsComments, pushshiftComments)
           const early_combinedComments = combinePushshiftAndRedditComments(pushshiftComments, redditComments, false, reddit_post)
           const early_commentTree = createCommentTree(threadID, root_commentID, early_combinedComments)
 

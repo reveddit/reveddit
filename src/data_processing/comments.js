@@ -23,7 +23,10 @@ export const retrieveRedditComments_and_combineWithPushshiftComments = pushshift
 const copy_fields = ['permalink', 'score', 'controversiality',
                      'locked', 'collapsed', 'edited',
                      'subreddit_subscribers', 'quarantine', 'url',
-                     'link_title']
+                     'link_title',
+                     // below fields added for modlog comments that may not appear in pushshift yet
+                     // and were added to the pushshiftComments object
+                     'subreddit', 'created_utc', 'parent_id']
 
 const copy_if_value_fields = ['distinguished', 'stickied', 'author_fullname']
 
@@ -46,7 +49,7 @@ const markRemoved = (redditComment, commentToMark, is_reddit = false) => {
   }
 }
 
-export const combinePushshiftAndRedditComments = (pushshiftComments, redditComments, requirePushshiftData=true, post=undefined) => {
+export const combinePushshiftAndRedditComments = (pushshiftComments, redditComments, requirePushshiftData=false, post=undefined) => {
   const combinedComments = {}
   Object.values(redditComments).forEach(comment => {
     if (! requirePushshiftData) {
@@ -90,6 +93,10 @@ export const combinePushshiftAndRedditComments = (pushshiftComments, redditComme
           ( (modlog.created_utc - redditComment.created_utc) <= AUTOMOD_LATENCY_THRESHOLD
             || ['automoderator', 'bot'].includes(modlog.mod.toLowerCase())
           )
+        if (modlog) {
+          ps_comment.author = modlog.author
+          ps_comment.body = modlog.body
+        }
         if (! commentIsRemoved(redditComment)) {
           if (commentIsRemoved(ps_comment) || modlog_says_bot_removed) {
             ps_comment.removedby = AUTOMOD_REMOVED_MOD_APPROVED
@@ -100,10 +107,6 @@ export const combinePushshiftAndRedditComments = (pushshiftComments, redditComme
           ps_comment.body = redditComment.body
         } else {
           if (commentIsRemoved(ps_comment)) {
-            if (modlog) {
-              ps_comment.author = modlog.author
-              ps_comment.body = modlog.body
-            }
             if ( retrievalLatency <= AUTOMOD_LATENCY_THRESHOLD || modlog_says_bot_removed) {
               ps_comment.removedby = AUTOMOD_REMOVED
             } else {
@@ -204,11 +207,13 @@ export const getRevdditComments = ({pushshiftComments, subreddit_about_promise =
 
 export const copyModlogCommentsToArchiveComments = (modlogsComments, archiveComments) => {
   for (const ml_comment of Object.values(modlogsComments)) {
-    const archive_comment = archiveComments[ml_comment.cid]
+    const id = ml_comment.cid
+    const link_id = ml_comment.link_id
+    const archive_comment = archiveComments[id]
     const modlog = {
       author: ml_comment.target_author,
       body: ml_comment.target_body,
-      link_id: ml_comment.link_id,
+      link_id,
       created_utc: ml_comment.created_utc,
       mod: ml_comment.mod,
       details: ml_comment.details
@@ -216,7 +221,7 @@ export const copyModlogCommentsToArchiveComments = (modlogsComments, archiveComm
     if (archive_comment) {
       archive_comment.modlog = modlog
     } else {
-      archiveComments[ml_comment.cid] = {modlog}
+      archiveComments[id] = {id, link_id, modlog}
     }
   }
 }
