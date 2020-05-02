@@ -10,7 +10,7 @@ class ResultsSummary extends React.Component {
     let oldest_time = Infinity
     let youngest_time = -Infinity
     items.forEach(item => {
-      if (item.created_utc < oldest_time) {
+      if (item.created_utc < oldest_time && ! item.modlog) {
         oldest_time = item.created_utc
       }
       if (item.created_utc > youngest_time) {
