@@ -342,15 +342,20 @@ export const getAuthorInfoByName = (ids) => {
   .catch(errorHandler)
 }
 
-export const getModlogsComments = (subreddit, link_id = '') => {
-  let logLocation = `https://www.reddit.com/r/${subreddit}/about/log/.json?limit=500&feed=${u_publicmodlogs_feed}&user=publicmodlogs`
+export const getModlogsComments = async (subreddit, link_id = '') => {
+  const remove = "&type=removecomment"
+  const spam = "&type=spamcomment"
+  let auth = {}
+  const urls = []
   if (subreddit.toLowerCase() === 'coronavirus') {
-    logLocation = coronavirus_logs + "?limit=200"
+    urls.push(revddit_q + coronavirus_logs + "?limit=200" + remove)
+  } else {
+    const baseUrl = oauth_reddit + `r/${subreddit}/about/log/.json?feed=${u_publicmodlogs_feed}&user=publicmodlogs`
+    auth = await getAuth()
+    urls.push(baseUrl + remove + "&limit=500")
+    urls.push(baseUrl + spam + "&limit=50")
   }
-  const baseUrl = revddit_q + logLocation
-  const promises = [
-    getJson(baseUrl+"&type=removecomment")
-  ]
+  const promises = urls.map(u => getJson(u, auth))
   return Promise.all(promises)
   .then(results => {
     const comments = {}
@@ -375,7 +380,10 @@ export const getModlogsComments = (subreddit, link_id = '') => {
   })
 }
 
-export const getJson = (url) => {
-  return window.fetch(url)
+export const getJson = (url, options) => {
+  return window.fetch(url, options)
   .then(response => response.json())
+  .catch(error => {
+    return {}
+  })
 }
