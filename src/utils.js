@@ -67,21 +67,39 @@ export const isPostID = id => {
   return id.slice(0,2) === 't3'
 }
 
+const DELETED = '[deleted]'
+const REMOVED = '[removed]'
+
+const removeBackslash = (str) => {
+  return str.replace(/\\/g,'')
+}
+
+const removeBackslashEquals = (str, constant) => {
+  return removeBackslash(str) === constant
+}
+
+const bodyRemoved = (comment) => {
+  return removeBackslashEquals(comment.body, REMOVED)
+}
+
+const authorDeleted = (item) => {
+  return removeBackslashEquals(item.author, DELETED)
+}
 
 export const commentIsDeleted = comment => {
-  return comment.body.replace(/\\/g,'') === '[deleted]' && comment.author.replace(/\\/g,'') === '[deleted]'
+  return removeBackslashEquals(comment.body, DELETED) && authorDeleted(comment)
 }
 
 export const commentIsRemoved = comment => {
-  return comment.body.replace(/\\/g,'') === '[removed]' && comment.author.replace(/\\/g,'') === '[deleted]'
+  return bodyRemoved(comment) && authorDeleted(comment)
 }
 
 export const itemIsRemovedOrDeleted = (item, checkCommentBody=true) => {
   if (item.name.slice(0,2) === 't1') {
     if (checkCommentBody) {
-      return item.body.replace(/\\/g,'') === '[removed]' && item.author.replace(/\\/g,'') === '[deleted]'
+      return bodyRemoved(item) && authorDeleted(item)
     } else {
-      return item.author.replace(/\\/g,'').match(/^\[/)
+      return removeBackslash(item.author).match(/^\[/)
     }
   } else if (item.name.slice(0,2) === 't3') {
     return ! item.is_robot_indexable
@@ -89,10 +107,11 @@ export const itemIsRemovedOrDeleted = (item, checkCommentBody=true) => {
 }
 
 export const postIsDeleted = post => {
-  if (itemIsRemovedOrDeleted(post)) {
-    return post.author.replace(/\\/g,'') === '[deleted]'
-  }
-  return false
+  return itemIsRemovedOrDeleted(post) && authorDeleted(post)
+}
+
+export const postIsRemoved = post => {
+  return itemIsRemovedOrDeleted(post) && ! authorDeleted(post)
 }
 
 export const display_post = (list, post, ps_item, isInfoPage=false) => {
