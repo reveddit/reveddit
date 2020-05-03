@@ -342,7 +342,7 @@ export const getAuthorInfoByName = (ids) => {
   .catch(errorHandler)
 }
 
-export const getModlogsComments = async (subreddit, link_id = '') => {
+export const getModlogsComments = async (subreddit, link_id) => {
   const remove = "&type=removecomment"
   const spam = "&type=spamcomment"
   let auth = {}
@@ -357,27 +357,43 @@ export const getModlogsComments = async (subreddit, link_id = '') => {
   }
   const promises = urls.map(u => getJson(u, auth))
   return Promise.all(promises)
-  .then(results => {
-    const comments = {}
-    for (const listing of results) {
-      if (listing && listing.data) {
-        for (const comment of listing.data.children) {
-          let data = comment
-          if (comment.data) {
-            data = comment.data
-          }
-          data.target_permalink = data.target_permalink.replace(/^https?:\/\/[^/]*/,'')
-          data.link_id = 't3_'+data.target_permalink.split('/')[4]
-          if (link_id && data.link_id !== 't3_'+link_id) {
-            continue
-          }
-          data.cid = data.target_fullname.slice(3)
-          comments[data.cid] = data
+  .then(listings => postProcessModlogsListings(listings, link_id))
+}
+
+export const postProcessModlogsListings = (listings, link_id = '') => {
+  const items = {}
+  for (const listing of listings) {
+    if (listing && listing.data) {
+      for (const item of listing.data.children) {
+        let data = item // coronavirus log items have no 'data' item
+        if (item.data) {
+          data = item.data
         }
+        data.target_permalink = data.target_permalink.replace(/^https?:\/\/[^/]*/,'')
+        data.link_id = 't3_'+data.target_permalink.split('/')[4]
+        if (link_id && data.link_id !== 't3_'+link_id) {
+          continue
+        }
+        data.id = data.target_fullname.slice(3)
+        items[data.id] = data
       }
     }
-    return comments
-  })
+  }
+  return items
+}
+
+export const getModlogsPosts = async (subreddit) => {
+  const remove = "&type=removelink"
+  const spam = "&type=spamlink"
+  const auth = await getAuth()
+  const baseUrl = oauth_reddit + `r/${subreddit}/about/log/.json?feed=${u_publicmodlogs_feed}&user=publicmodlogs`
+  const urls = [
+    baseUrl + remove + "&limit=500",
+    baseUrl + spam + "&limit=50"
+  ]
+  const promises = urls.map(u => getJson(u, auth))
+  return Promise.all(promises)
+  .then(postProcessModlogsListings)
 }
 
 export const getJson = (url, options) => {

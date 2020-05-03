@@ -89,10 +89,7 @@ export const combinePushshiftAndRedditComments = (pushshiftComments, redditComme
       }
       if (! redditComment.deleted) {
         const modlog = ps_comment.modlog
-        const modlog_says_bot_removed = modlog &&
-          ( (modlog.created_utc - redditComment.created_utc) <= AUTOMOD_LATENCY_THRESHOLD
-            || ['automoderator', 'bot'].includes(modlog.mod.toLowerCase())
-          )
+        const modlog_says_bot_removed = modlogSaysBotRemoved(modlog, redditComment)
         if (modlog) {
           ps_comment.author = modlog.author
           ps_comment.body = modlog.body
@@ -205,23 +202,23 @@ export const getRevdditComments = ({pushshiftComments, subreddit_about_promise =
   })
 }
 
-export const copyModlogCommentsToArchiveComments = (modlogsComments, archiveComments) => {
-  for (const ml_comment of Object.values(modlogsComments)) {
-    const id = ml_comment.cid
-    const link_id = ml_comment.link_id
-    const archive_comment = archiveComments[id]
+export const copyModlogItemsToArchiveItems = (modlogsItems, archiveItems) => {
+  for (const ml_item of Object.values(modlogsItems)) {
+    const id = ml_item.id
+    const link_id = ml_item.link_id
+    const archive_item = archiveItems[id]
     const modlog = {
-      author: ml_comment.target_author,
-      body: ml_comment.target_body,
+      author: ml_item.target_author,
+      body: ml_item.target_body,
       link_id,
-      created_utc: ml_comment.created_utc,
-      mod: ml_comment.mod,
-      details: ml_comment.details
+      created_utc: ml_item.created_utc,
+      mod: ml_item.mod,
+      details: ml_item.details
     }
-    if (archive_comment) {
-      archive_comment.modlog = modlog
+    if (archive_item) {
+      archive_item.modlog = modlog
     } else {
-      archiveComments[id] = {id, link_id, modlog}
+      archiveItems[id] = {id, link_id, modlog}
     }
   }
 }
@@ -237,9 +234,10 @@ export const getRevdditCommentsBySubreddit = (subreddit, global) => {
   const subreddit_about_promise = getSubredditAbout(subreddit)
   const modlogs_comments_promise = getModlogsComments(subreddit)
   return getPushshiftCommentsBySubreddit({subreddit, n, before, before_id})
+  .catch(error => {return {}}) // if ps is down, can still return modlog results
   .then(pushshiftComments => {
     return modlogs_comments_promise.then(modlogsComments => {
-      copyModlogCommentsToArchiveComments(modlogsComments, pushshiftComments)
+      copyModlogItemsToArchiveItems(modlogsComments, pushshiftComments)
       return pushshiftComments
     })
   })
@@ -249,4 +247,10 @@ export const getRevdditCommentsBySubreddit = (subreddit, global) => {
       global.setSuccess({items: show_comments, moderators})
     })
   })
+}
+
+export const modlogSaysBotRemoved = (modlog, item) => {
+  return modlog &&
+    ((modlog.created_utc - item.created_utc) <= AUTOMOD_LATENCY_THRESHOLD
+    || ['automoderator', 'bot'].includes(modlog.mod.toLowerCase()))
 }

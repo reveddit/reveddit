@@ -1,4 +1,4 @@
-import { combinePushshiftAndRedditComments, copyModlogCommentsToArchiveComments } from 'data_processing/comments'
+import { combinePushshiftAndRedditComments, copyModlogItemsToArchiveItems } from 'data_processing/comments'
 import { combineRedditAndPushshiftPost } from 'data_processing/posts'
 import {
   getPost as getPushshiftPost,
@@ -8,9 +8,9 @@ import {
 import {
   getComments as getRedditComments,
   getPostWithComments as getRedditPostWithComments,
-  getModerators, getModlogsComments
+  getModerators, getModlogsComments, getModlogsPosts
 } from 'api/reddit'
-import { itemIsRemovedOrDeleted, postIsDeleted, jumpToHash } from 'utils'
+import { itemIsRemovedOrDeleted, postIsDeleted, postIsRemoved, jumpToHash } from 'utils'
 import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
          MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED,
          AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
@@ -28,6 +28,10 @@ export const getRevdditThreadItems = (threadID, commentID, context, global, hist
   .then(({post: reddit_post, comments: redditComments, moreComments, oldestComment}) => {
     const moderators_promise = getModerators(reddit_post.subreddit)
     const modlogs_comments_promise = getModlogsComments(reddit_post.subreddit, reddit_post.id)
+    let modlogs_posts_promise = Promise.resolve({})
+    if (postIsRemoved(reddit_post) && reddit_post.is_self) {
+      modlogs_posts_promise = getModlogsPosts(reddit_post.subreddit)
+    }
     document.title = reddit_post.title
     const resetPath = () => {
       history.replace(reddit_post.permalink+window.location.search+window.location.hash)
@@ -82,21 +86,32 @@ export const getRevdditThreadItems = (threadID, commentID, context, global, hist
           })
         }
         return {reddit_post, root_commentID, reddit_comments_promise, pushshift_comments_promise, resetPath,
-                moderators_promise, modlogs_comments_promise}
+                moderators_promise, modlogs_comments_promise, modlogs_posts_promise}
       })
     })
   })
 
   const pushshift_post_promise = getPushshiftPost(threadID)
 
-  reddit_pwc_promise.then(({reddit_post}) => {
-    return pushshift_post_promise.then(ps_post => {
-      const combined_post = combineRedditAndPushshiftPost(reddit_post, ps_post)
-      if (combined_post.removed && combined_post.is_self) {
-        combined_post.selftext = ps_post.selftext
-      }
-      global.setState({threadPost: combined_post})
-      return combined_post
+  reddit_pwc_promise.then(({reddit_post, modlogs_posts_promise}) => {
+    return modlogs_posts_promise.then(modlogsPosts => {
+      return pushshift_post_promise.then(ps_post => {
+        const combined_post = combineRedditAndPushshiftPost(reddit_post, ps_post)
+        let modlog
+        if (combined_post.id in modlogsPosts) {
+          modlog = modlogsPosts[combined_post.id]
+          combined_post.modlog = modlog
+        }
+        if (combined_post.removed && combined_post.is_self) {
+          if (modlog) {
+            combined_post.selftext = modlog.target_body
+          } else {
+            combined_post.selftext = ps_post.selftext
+          }
+        }
+        global.setState({threadPost: combined_post})
+        return combined_post
+      })
     })
   })
 
@@ -106,7 +121,7 @@ export const getRevdditThreadItems = (threadID, commentID, context, global, hist
     return reddit_comments_promise.then(({redditComments, moreComments}) => {
       return pushshift_comments_promise.then(pushshiftComments => {
         return modlogs_comments_promise.then(modlogsComments => {
-          copyModlogCommentsToArchiveComments(modlogsComments, pushshiftComments)
+          copyModlogItemsToArchiveItems(modlogsComments, pushshiftComments)
           if (! pushshiftComments[commentID] && ! redditComments[commentID]) {
             commentID = undefined
             root_commentID = undefined

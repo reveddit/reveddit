@@ -195,6 +195,9 @@ export const withFetch = (WrappedComponent) =>
         loadDataFunction(...params, this.props.global, this.props.history)
         .then(() => {
           const {commentTree, items, threadPost} = this.props.global.state
+          if (items.length === 0 && ['subreddit_posts', 'subreddit_comments'].includes(page_type)) {
+            throw "no results"
+          }
           const focusComment = this.props.global.state.itemsLookup[commentID]
           if ((commentID && focusComment) || commentTree.length === 1) {
             document.querySelectorAll('.threadComments .collapseToggle.hidden').forEach(toggle => {

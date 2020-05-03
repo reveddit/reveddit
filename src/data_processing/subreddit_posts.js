@@ -3,7 +3,7 @@ import {
 } from 'api/pushshift'
 import { getRemovedPostIDs } from 'api/removeddit'
 import { getPosts as getRedditPosts,
-         getModerators, getSubredditAbout
+         getModerators, getSubredditAbout, getModlogsPosts
 } from 'api/reddit'
 import { postIsDeleted } from 'utils'
 import { retrieveRedditPosts_and_combineWithPushshiftPosts } from 'data_processing/posts'
@@ -38,8 +38,14 @@ export const getRevdditPostsBySubreddit = (subreddit, global) => {
     }
     const moderators_promise = getModerators(subreddit)
     const subreddit_about_promise = getSubredditAbout(subreddit)
+    const modlogs_posts_promise = getModlogsPosts(subreddit)
     return pushshiftGetPostsBySubredditOrDomain({subreddit, n, before, before_id})
-    .then(pushshiftPosts => retrieveRedditPosts_and_combineWithPushshiftPosts({pushshiftPosts, subreddit_about_promise}))
+    .catch(error => {return []}) // if ps is down, can still return modlog results
+    .then(pushshiftPosts => {
+      return modlogs_posts_promise.then(modlogsPosts => {
+        return retrieveRedditPosts_and_combineWithPushshiftPosts({pushshiftPosts, subreddit_about_promise, modlogsPosts})
+      })
+    })
     .then(show_posts => {
       return moderators_promise.then(moderators => {
         global.setSuccess({items:show_posts, moderators})

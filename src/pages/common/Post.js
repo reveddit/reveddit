@@ -95,7 +95,7 @@ class Post extends React.Component {
             <Author {...props}/>
             &nbsp;to <a className='subreddit-link' href={`/r/${props.subreddit}`}>/r/{props.subreddit}</a>
             {props.locked && <span className='lockedTag'>locked</span>}
-            &nbsp;<RemovedBy removedby={props.removedby} />
+            &nbsp;<RemovedBy {...props} />
           </div>
           {props.selftext &&
             <div className='thread-selftext user-text'>

@@ -10,6 +10,7 @@ import {
 import { itemIsRemovedOrDeleted, postIsDeleted, display_post,
          getUniqueItems, SimpleURLSearchParams, parse, replaceAmpGTLT
 } from 'utils'
+import { copyModlogItemsToArchiveItems, modlogSaysBotRemoved } from 'data_processing/comments'
 import { REMOVAL_META, ANTI_EVIL_REMOVED, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
          MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED, USER_REMOVED,
          AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
@@ -45,8 +46,15 @@ export const byNumCrossposts = (a, b) => {
 
 export const retrieveRedditPosts_and_combineWithPushshiftPosts = (
   {pushshiftPosts, includePostsWithZeroComments = false, existingRedditPosts = {},
-   subreddit_about_promise = Promise.resolve({})}) => {
+   subreddit_about_promise = Promise.resolve({}), modlogsPosts = undefined
+  }) => {
   const ids = []
+  // temp fix until posts are stored as hash instead of array
+  if (modlogsPosts) {
+    const pushshiftPosts_obj = pushshiftPosts.reduce((map, obj) => (map[obj.id] = obj, map), {})
+    copyModlogItemsToArchiveItems(modlogsPosts, pushshiftPosts_obj)
+    pushshiftPosts = Object.values(pushshiftPosts_obj)
+  }
   pushshiftPosts.forEach(post => {
     if (!(post.id in existingRedditPosts)) {
       ids.push(post.id)
@@ -106,9 +114,17 @@ export const combinePushshiftAndRedditPosts = async (
 
 export const combineRedditAndPushshiftPost = (post, ps_post) => {
   let retrievalLatency = undefined
+  let modlog
   if (ps_post) {
-    retrievalLatency = ps_post.retrieved_on-ps_post.created_utc
+    if (ps_post.retrieved_on) {
+      retrievalLatency = ps_post.retrieved_on-ps_post.created_utc
+    }
+    if (ps_post.modlog) {
+      modlog = ps_post.modlog
+      post.modlog = modlog
+    }
   }
+  const modlog_says_bot_removed = modlogSaysBotRemoved(modlog, post)
   if (post.crosspost_parent_list) {
     post.num_crossposts += post.crosspost_parent_list.reduce((total,x) => total+x.num_crossposts,0)
   }
@@ -121,6 +137,8 @@ export const combineRedditAndPushshiftPost = (post, ps_post) => {
       post.removed = true
       if (post.removed_by_category === 'anti_evil_ops') {
         post.removedby = ANTI_EVIL_REMOVED
+      } else if (modlog_says_bot_removed) {
+        post.removedby = AUTOMOD_REMOVED
       } else if (ps_post && 'is_robot_indexable' in ps_post && ! ps_post.is_robot_indexable) {
         if (retrievalLatency !== undefined && retrievalLatency <= AUTOMOD_LATENCY_THRESHOLD) {
           post.removedby = AUTOMOD_REMOVED
@@ -134,7 +152,8 @@ export const combineRedditAndPushshiftPost = (post, ps_post) => {
       }
     }
   } else {
-    if (ps_post && 'is_robot_indexable' in ps_post && ! ps_post.is_robot_indexable) {
+    if ( (ps_post && 'is_robot_indexable' in ps_post && ! ps_post.is_robot_indexable)
+         || modlog_says_bot_removed) {
       post.removedby = AUTOMOD_REMOVED_MOD_APPROVED
     } else {
       post.removedby = NOT_REMOVED
