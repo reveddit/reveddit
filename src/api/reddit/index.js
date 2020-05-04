@@ -347,8 +347,9 @@ export const getModlogsComments = async (subreddit, link_id) => {
   const spam = "&type=spamcomment"
   let auth = {}
   const urls = []
-  if (subreddit.toLowerCase() === 'coronavirus') {
-    urls.push(revddit_q + coronavirus_logs + "?limit=200" + remove)
+  const subreddit_lower = subreddit.toLowerCase()
+  if (['coronavirus','covid19'].includes(subreddit_lower)) {
+    urls.push(coronavirus_logs + "?limit=200" + `&subreddit=${subreddit}` + remove)
   } else {
     const baseUrl = oauth_reddit + `r/${subreddit}/about/log/.json?feed=${u_publicmodlogs_feed}&user=publicmodlogs`
     auth = await getAuth()
