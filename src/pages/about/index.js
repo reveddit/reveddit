@@ -33,16 +33,60 @@ const filterDeletedComments = (comments) => {
   return result
 }
 
+const NewsItem = ({href, to, title, created_utc}) => {
+  const link = href ? <a href={href}>{title}</a> : <Link to={to}>{title}</Link>
+  return <li>{link}
+    <ul><li><Time created_utc={created_utc}/></li></ul></li>
+}
+
+const news = [
+  {href:`${reddit}/gdaj40/`,
+   title:'added public mod logs + other updates',
+   created_utc:'1588594602'},
+  {href:`${reddit}/estw67/`,
+   title:'random user, collapsed comments, xposts',
+   created_utc:'1579789966'},
+  {to:'/add-ons/',
+   title:'real-time notifier extension',
+   created_utc:'1576163308'},
+  {href:`${reddit}/e1wsqy/`,
+   title:'revddit.com -> www.reveddit.com',
+   created_utc:'1574768321'},
+  {href:`${reddit}/db5hfm/`,
+   title:'tip: /y and /v aliases for /user and /r',
+   created_utc:'1569812523'},
+  {href:`${reddit}/r/shortcuts/comments/ct64s6/is_it_possible_to_modify_a_copied_link/exkas2j/?context:3`,
+   title:'reveddit shortcut for iOS',
+   created_utc:'1566381957'},
+  {href:`${reddit}/clwnxg/`,
+   title:'reveddit linker extension',
+   created_utc:'1564927561'},
+  {href:`${reddit}/9n9l45/`,
+   title:'site launch',
+   created_utc:'1539261445'},
+]
+
 export class About extends React.Component {
   state = {
     comments: [],
-    singleDisplayIndex: 0
+    singleDisplayIndex: 0,
+    showAllNews: false
   }
   changeView = (index) => {
     this.setState({singleDisplayIndex: index})
   }
   donate = () => {
     this.props.openGenericModal({hash:'donate'})
+  }
+  showNews = () => {
+    return <>
+      {this.state.showAllNews ? news.map(n => <NewsItem key={n.created_utc} {...n}/>) :
+        <>
+          {news.map(n => <NewsItem key={n.created_utc} {...n}/>).slice(0,5)}
+          <li><a className='collapseToggle' onClick={() => this.setState({showAllNews:true})}>[+] show all</a></li>
+        </>
+      }
+    </>
   }
   componentDidMount() {
     const ps = getPushshiftComments(say)
@@ -128,20 +172,7 @@ export class About extends React.Component {
             <div className='section half'>
               <h2 className='about'>News</h2>
               <ul className='news'>
-                <li><a href={`${reddit}/estw67/`}>random user, collapsed comments, xposts</a>
-                  <ul><li><Time created_utc='1579789966'/></li></ul></li>
-                <li><Link to="/add-ons/">real-time notifier extension</Link>
-                  <ul><li><Time created_utc='1576163308'/></li></ul></li>
-                <li><a href={`${reddit}/e1wsqy/`}>revddit.com -> www.reveddit.com</a>
-                  <ul><li><Time created_utc='1574768321'/></li></ul></li>
-                <li><a href={`${reddit}/db5hfm/`}>tip: /y and /v aliases for /user and /r</a>
-                  <ul><li><Time created_utc='1569812523'/></li></ul></li>
-                <li><a href={`${reddit}/r/shortcuts/comments/ct64s6/is_it_possible_to_modify_a_copied_link/exkas2j/?context=3`}>reveddit shortcut for iOS</a>
-                  <ul><li><Time created_utc='1566381957'/></li></ul></li>
-                <li><a href={`${reddit}/clwnxg/`}>reveddit linker extension</a>
-                  <ul><li><Time created_utc='1564927561'/></li></ul></li>
-                <li><a href={`${reddit}/9n9l45/`}>site launch</a>
-                  <ul><li><Time created_utc='1539261445'/></li></ul></li>
+                {this.showNews()}
               </ul>
             </div>
             <div className='section half'>
