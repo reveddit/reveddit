@@ -34,6 +34,7 @@ export const getModerators = (subreddit) => {
   .then(results => {
     return results.data.children.reduce((map, obj) => (map[obj.name] = true, map), {})
   })
+  .catch(error => {return {}}) // this fails for some subreddits e.g. r/GoogleAnalytics, don't know why
 }
 
 export const getModeratedSubreddits = (user) => {
@@ -52,6 +53,7 @@ export const getSubredditAbout = (subreddit) => {
   .then(auth => window.fetch(url, auth))
   .then(response => response.json())
   .then(results => results.data)
+  .catch(error => {return {}}) // this fails for some subreddits e.g. r/GoogleAnalytics, don't know why
 }
 
 export const getPostsForURLs = async (urls, auth = null) => {
