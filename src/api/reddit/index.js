@@ -4,7 +4,7 @@ import { getAuth } from './auth'
 const oauth_reddit = 'https://oauth.reddit.com/'
 const revddit_q = 'https://api.revddit.com/q/'
 const u_publicmodlogs_feed = '7e9b27126097f51ae6c9cd5b049af34891da6ba6'
-const coronavirus_logs = 'http://logs.mod.rcoronavirus.org/.json'
+const coronavirus_logs = 'https://logs.mod.rcoronavirus.org/.json'
 const numRequestsBeforeWait = 100
 const waitInterval = 5000
 const maxNumItems = 100
@@ -351,7 +351,7 @@ export const getModlogsComments = async (subreddit, link_id) => {
   const urls = []
   const subreddit_lower = subreddit.toLowerCase()
   if (['coronavirus','covid19'].includes(subreddit_lower)) {
-    urls.push(revddit_q + coronavirus_logs + "?limit=200" + `&subreddit=${subreddit}` + remove)
+    urls.push(coronavirus_logs + "?limit=200" + `&subreddit=${subreddit}` + remove)
   } else {
     const baseUrl = oauth_reddit + `r/${subreddit}/about/log/.json?feed=${u_publicmodlogs_feed}&user=publicmodlogs`
     auth = await getAuth()
