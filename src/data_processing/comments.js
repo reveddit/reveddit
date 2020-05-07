@@ -243,8 +243,8 @@ export const getRevdditCommentsBySubreddit = (subreddit, global) => {
   })
   .then(pushshiftComments => getRevdditComments({pushshiftComments, subreddit_about_promise}))
   .then(show_comments => {
-    moderators_promise.then(moderators => {
-      global.setSuccess({items: show_comments, moderators})
+    return moderators_promise.then(moderators => {
+      return global.setSuccess({items: show_comments, moderators})
     })
   })
 }
