@@ -15,39 +15,31 @@ import { SimpleURLSearchParams, jumpToHash, get, put, ext_urls,
          itemIsActioned, itemIsCollapsed, commentIsOrphaned } from 'utils'
 import { getAuthorInfoByName } from 'api/reddit'
 
+const CAT_SUBREDDIT = {category: 'subreddit',
+                       category_title: 'Subreddit',
+                       category_unique_field: 'subreddit'}
+
+const CAT_POST_TITLE = {category: 'link_title',
+                        category_title: 'Post Title',
+                        category_unique_field: 'link_id'}
+
 const getCategorySettings = (page_type, subreddit) => {
   const category_settings = {
     'subreddit_comments': {
-      'other': {category: 'link_title',
-                category_title: 'Post Title',
-                category_unique_field: 'link_id'},
-      'all':   {category: 'subreddit',
-                category_title: 'Subreddit',
-                category_unique_field: 'subreddit'}
+      'other': CAT_POST_TITLE,
+      'all':   CAT_SUBREDDIT
     },
     'subreddit_posts': {
       'other': {category: 'domain',
                 category_title: 'Domain',
                 category_unique_field: 'domain'},
-      'all':   {category: 'subreddit',
-                category_title: 'Subreddit',
-                category_unique_field: 'subreddit'}
+      'all':   CAT_SUBREDDIT
     },
-    'domain_posts': {category: 'subreddit',
-                     category_title: 'Subreddit',
-                     category_unique_field: 'subreddit'},
-    'duplicate_posts': {category: 'subreddit',
-                     category_title: 'Subreddit',
-                     category_unique_field: 'subreddit'},
-    'user': {category: 'subreddit',
-             category_title: 'Subreddit',
-             category_unique_field: 'subreddit'},
-    'info': {category: 'subreddit',
-             category_title: 'Subreddit',
-             category_unique_field: 'subreddit'},
-    'search': {category: 'subreddit',
-               category_title: 'Subreddit',
-               category_unique_field: 'subreddit'}
+    'domain_posts': CAT_SUBREDDIT,
+    'duplicate_posts': CAT_SUBREDDIT,
+    'user': CAT_SUBREDDIT,
+    'info': CAT_SUBREDDIT,
+    'search': CAT_SUBREDDIT
   }
   if (page_type in category_settings) {
     if (subreddit && ! ['duplicate_posts'].includes(page_type)) {
@@ -358,8 +350,8 @@ export const withFetch = (WrappedComponent) =>
           ( (removedByFilterIsUnset || itemIsOneOfSelectedRemovedBy(item, gs)) &&
             (tagsFilterIsUnset || itemIsOneOfSelectedTags(item, gs)))
         ) {
-          const keywords = gs.keywords.replace(/\s\s+/g, ' ').trim().toLocaleLowerCase().split(' ')
-          let match = true
+          const keywords = gs.keywords.toString().replace(/\s\s+/g, ' ').trim().toLocaleLowerCase().split(' ')
+          let match = true, negWordMatch = false
           let titleField = ''
           if ('title' in item) {
             titleField = 'title'
@@ -367,14 +359,15 @@ export const withFetch = (WrappedComponent) =>
             titleField = 'link_title'
           }
           for (let i = 0; i < keywords.length; i++) {
-            const word = keywords[i]
+            const negateWord = keywords[i].startsWith('-') ? true : false
+            const word = keywords[i].replace(/^-/,'')
             let word_in_title = true
             if (titleField) {
               word_in_title = item[titleField].toLocaleLowerCase().includes(word)
             }
-            if (! (('body' in item && ( word_in_title || item.body.toLocaleLowerCase().includes(word))) ||
-                  (word_in_title)
-            )) {
+            const word_in_item = (('body' in item && ( word_in_title || item.body.toLocaleLowerCase().includes(word)))
+                                  || word_in_title)
+            if ((! negateWord && ! word_in_item) || (negateWord && word_in_item)) {
               match = false
               break
             }
