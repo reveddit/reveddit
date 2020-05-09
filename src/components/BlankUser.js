@@ -3,6 +3,7 @@ import { Link, Redirect } from 'react-router-dom'
 import { SimpleURLSearchParams, useFocus } from 'utils'
 import { Shuffle } from 'pages/common/svg'
 
+
 export default () => {
   const [random, setRandom] = useState(false)
   const [input, setInput] = useState('')
@@ -18,13 +19,15 @@ export default () => {
     queryParams.set('all', 'true')
 
     const val = data.get('username').trim()
+    // remove amp from user-entered URLs
+    const val_noamp = val.replace(/^(https?:\/\/)www.google.com\/amp(\/[^.]*)*\/(amp\.)?/i,"$1")
     let url = '/'
     if (val === '') {
       setRandom(true)
     } else {
       const sub = val.match(/^\/?r\/([^/]+)(\/c[^/]*)?(\/[^/]+)?/)
-      const domain = val.match(/^(?:https?:\/\/)?([^./]+\.[^/]+)\/*$/i)
-      const link = val.match(/^(?:https?:\/\/)?([^./]+\.[^/]+)\/(.+)/i)
+      const domain = val.match(/^(?:https?:\/\/)?([^./ ]+\.[^/ ]+)\/*$/i)
+      const link = val_noamp.match(/^(?:https?:\/\/)?([^./]+\.[^/]+)\/(.+)/i)
       if (sub) {
         url += `r/${sub[1]}/`
         if (sub[3]) {
@@ -40,10 +43,12 @@ export default () => {
         if (link[1].match(/reddit\.com$/)) {
           url += link[2]
         } else {
-          url += `info/?url=`+encodeURIComponent(val)
+          url += `info/?url=`+encodeURIComponent(val_noamp)
         }
       } else if (! val.match(/[./]/)) {
         url += `user/${val.toLowerCase()}/${queryParams.toString()}`
+      } else {
+        // invalid entry
       }
       if (url !== '/') {
         window.location.href = url

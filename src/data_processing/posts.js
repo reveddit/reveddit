@@ -235,7 +235,7 @@ const getYoutubeURLs = (id) => {
   return Object.keys(youtube_aliases).map(x => 'https://'+x+youtube_aliases[x]+id)
 }
 const noHTTP = (u) => {
-  return u.replace(/^https?:\/\//,'')
+  return u.replace(/^https?:\/\//i,'')
 }
 
 const getUrlMeta = (url) => {
