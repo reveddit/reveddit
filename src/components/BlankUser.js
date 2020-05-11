@@ -26,8 +26,8 @@ export default () => {
       setRandom(true)
     } else {
       const sub = val.match(/^\/?r\/([^/]+)(\/c[^/]*)?(\/[^/]+)?/)
-      const domain = val.match(/^(?:https?:\/\/)?([^./ ]+\.[^/ ]+)\/*$/i)
-      const link = val_noamp.match(/^(?:https?:\/\/)?([^./]+\.[^/]+)\/(.+)/i)
+      const domain = val.match(/^(?!https?:\/\/)([^./ ]+\.[^/ ]+)\/*$/i)
+      const link = val_noamp.match(/^(?:https?:\/\/)?([^./]+\.[^/]+)/i)
       if (sub) {
         url += `r/${sub[1]}/`
         if (sub[3]) {
