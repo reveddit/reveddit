@@ -139,6 +139,8 @@ export const getPostWithComments = ({threadID, commentID: comment, context = 0, 
             oldestComment = itemData
           }
         } else if (item.kind === 'more') {
+          // NOTE: This object is also used to make "continue this thread" links, per reddit.com/54qknz
+          //       Those instances have itemData.count == 0
           moreComments[itemData.parent_id] = true
         }
       })
