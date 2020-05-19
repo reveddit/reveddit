@@ -10,7 +10,7 @@ class TextFilter extends React.Component {
   componentDidMount() {
     const param = new SimpleURLSearchParams(window.location.search).get('keywords') || ''
     if (param.trim().length) {
-      this.setState({localKeywords: param})
+      this.setState({localKeywords: decodeURIComponent(param)})
     }
     this.updateStateAndURL = debounce(this.props.global.selection_update, 500)
   }
@@ -27,7 +27,7 @@ class TextFilter extends React.Component {
       <div className={`textFilter selection filter ${textValue.trim().length !== 0 ? 'set': ''}`}>
         <div className='title'>{title}</div>
           <input type='text'
-            name='keywords' value={decodeURIComponent(textValue)} placeholder='keywords'
+            name='keywords' value={textValue} placeholder='keywords'
             onChange={(e) => this.changeLocalFast_DelayedGlobalStateUpdate(e)}
           />
       </div>

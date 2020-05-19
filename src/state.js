@@ -270,7 +270,7 @@ class GlobalState extends Container {
     return this.setStateFromQueryParams(props.page_type, queryParams, {})
   }
   selection_update = (selection, value, page_type, callback = () => {}) => {
-    const queryParams = create_qparams_and_adjust(page_type, selection, value)
+    const queryParams = create_qparams_and_adjust(page_type, selection, encodeURIComponent(value))
     return this.updateURLandState(queryParams, page_type, callback)
   }
   updateURLandState = (queryParams, page_type, callback = () => {}) => {
