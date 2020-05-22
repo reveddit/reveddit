@@ -2,7 +2,7 @@ import { chunk, flatten, fetchWithTimeout, promiseDelay, getRandomInt, paramStri
 import { getAuth } from './auth'
 
 const oauth_reddit = 'https://oauth.reddit.com/'
-const revddit_q = 'https://api.revddit.com/q/'
+const revddit_q = REVEDDIT_CORS_ANWHERE_HOST + 'q/'
 const u_publicmodlogs_feed = '7e9b27126097f51ae6c9cd5b049af34891da6ba6'
 const coronavirus_logs = 'https://logs.mod.rcoronavirus.org/.json'
 const numRequestsBeforeWait = 100

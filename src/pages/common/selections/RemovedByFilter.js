@@ -21,10 +21,10 @@ class RemovedByFilter extends React.Component {
     if (['thread', 'subreddit_comments'].includes(page_type)) {
       delete removal_meta[ANTI_EVIL_REMOVED]
     }
-    if (page_type === 'thread') {
+    if (['thread', 'missing_comments'].includes(page_type)) {
       removal_meta[MISSING_IN_THREAD] = MISSING_IN_THREAD_META
     }
-    if (['user', 'subreddit_comments', 'info', 'search'].includes(page_type)) {
+    if (['user', 'subreddit_comments', 'info', 'search', 'missing_comments'].includes(page_type)) {
       removal_meta[ORPHANED] = ORPHANED_META
     }
     const updateStateAndURL = this.props.global.removedByFilter_update

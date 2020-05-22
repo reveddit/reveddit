@@ -1,6 +1,7 @@
 import React from 'react'
 import scrollToElement from 'scroll-to-element'
 import { getRevdditCommentsBySubreddit } from 'data_processing/comments'
+import { getRevdditMissingComments } from 'data_processing/missing_comments'
 import { getRevdditPostsBySubreddit } from 'data_processing/subreddit_posts'
 import { getRevdditPostsByDomain, getRevdditDuplicatePosts } from 'data_processing/posts'
 import { getRevdditUserItems, getQueryParams } from 'data_processing/user'
@@ -26,6 +27,10 @@ const CAT_POST_TITLE = {category: 'link_title',
 const getCategorySettings = (page_type, subreddit) => {
   const category_settings = {
     'subreddit_comments': {
+      'other': CAT_POST_TITLE,
+      'all':   CAT_SUBREDDIT
+    },
+    'missing_comments': {
       'other': CAT_POST_TITLE,
       'all':   CAT_SUBREDDIT
     },
@@ -63,6 +68,10 @@ const getPageTitle = (page_type, string) => {
       return `/r/${string}/comments`
       break
     }
+    case 'missing_comments': {
+      return `/r/${string}: missing comments`
+      break
+    }
     case 'domain_posts': {
       return `/domain/${string}`
       break
@@ -95,6 +104,10 @@ const getLoadDataFunctionAndParam = (page_type, subreddit, user, kind, threadID,
     }
     case 'subreddit_comments': {
       return [getRevdditCommentsBySubreddit, [subreddit]]
+      break
+    }
+    case 'missing_comments': {
+      return [getRevdditMissingComments, [subreddit]]
       break
     }
     case 'domain_posts': {

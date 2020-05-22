@@ -58,10 +58,10 @@ export default (props) => {
     meta = REMOVAL_META[removedby]
   } else if (removedby === USER_REMOVED) {
     meta = USER_REMOVED_META
-  } else if (itemIsCollapsed(props)) {
-    meta = COLLAPSED_META
   } else if (props.missing_in_thread) {
     meta = MISSING_IN_THREAD_META
+  } else if (itemIsCollapsed(props)) {
+    meta = COLLAPSED_META
   }
   const modlog = props.modlog
   if (modlog && modlog.details && modlog.details !== 'remove') {

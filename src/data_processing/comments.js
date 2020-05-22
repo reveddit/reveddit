@@ -49,6 +49,10 @@ const markRemoved = (redditComment, commentToMark, is_reddit = false) => {
   }
 }
 
+export const set_link_permalink = (revedditComment, redditComment) => {
+  revedditComment.link_permalink = redditComment.permalink.split('/').slice(0,6).join('/')+'/'
+}
+
 export const combinePushshiftAndRedditComments = (pushshiftComments, redditComments, requirePushshiftData=false, post=undefined) => {
   const combinedComments = {}
   Object.values(redditComments).forEach(comment => {
@@ -71,7 +75,7 @@ export const combinePushshiftAndRedditComments = (pushshiftComments, redditComme
     if (ps_comment.processed) {
       combinedComments[ps_comment.id] = ps_comment
     } else if (redditComment !== undefined) {
-      ps_comment.link_permalink = redditComment.permalink.split('/').slice(0,6).join('/')+'/'
+      set_link_permalink(ps_comment, redditComment)
       copy_fields.forEach(field => {
         ps_comment[field] = redditComment[field]
       })

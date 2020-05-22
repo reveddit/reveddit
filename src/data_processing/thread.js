@@ -10,6 +10,9 @@ import {
   getPostWithComments as getRedditPostWithComments,
   getModerators, getModlogsComments, getModlogsPosts
 } from 'api/reddit'
+import {
+  submitMissingComments
+} from 'api/reveddit'
 import { itemIsRemovedOrDeleted, postIsDeleted, postIsRemoved, jumpToHash } from 'utils'
 import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
          MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED,
@@ -160,6 +163,7 @@ export const getRevdditThreadItems = (threadID, commentID, context, global, hist
                 markTreeMeta(missing, origRedditComments, moreComments, commentTree, reddit_post.num_comments, root_commentID, commentID)
                 if (missing.length) {
                   console.log('missing', missing.join(','))
+                  submitMissingComments(missing)
                 }
                 return {combinedComments, commentTree, moderators}
               })
@@ -226,7 +230,7 @@ const markTreeMeta = (missing, origRedditComments, moreComments, comments, post_
         && (! focusCommentID || comment.ancestors[focusCommentID])
         && ! moreComments[comment.parent_id]
         && depth <= maxDepth && ! comment.removed && ! comment.deleted) {
-      missing.push(comment.name)
+      missing.push(comment.id)
       comment.missing_in_thread = true
     }
     if (comment.replies.length && depth < maxDepth) {

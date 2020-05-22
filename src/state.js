@@ -77,7 +77,8 @@ export const localSort_types = {
   comment_length: 'comment_length',
   num_crossposts: 'num_crossposts',
   num_replies: 'num_replies',
-  subreddit_subscribers: 'subreddit_subscribers'
+  subreddit_subscribers: 'subreddit_subscribers',
+  date_observed: 'date_observed',
 }
 // These defaults are for the URL
 export const filter_pageType_defaults = {
@@ -97,7 +98,8 @@ export const filter_pageType_defaults = {
     subreddit_posts: localSort_types.date,
     subreddit_comments: localSort_types.date,
     domain_posts: localSort_types.date,
-    duplicate_posts: localSort_types.num_comments
+    duplicate_posts: localSort_types.num_comments,
+    missing_comments: localSort_types.date,
   },
   localSortReverse: false,
   showContext: true,

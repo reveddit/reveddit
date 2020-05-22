@@ -38,7 +38,7 @@ const customFetch = (uri, options) => {
 const apolloClient = new ApolloClient({
   cache: new InMemoryCache(),
   link: new HttpLink({
-    uri: 'https://api.revddit.com/graphql-get/',
+    uri: REVEDDIT_GRAPHQL_HOST + 'graphql-get/',
     fetch: customFetch,
     useGETForQueries: true
   }),
@@ -128,9 +128,12 @@ class Selections extends React.Component {
                       <TextFilter page_type={page_type} />
                     </React.Fragment>)
                 case 'subreddit_comments':
+                case 'missing_comments':
                   return (
                     <React.Fragment>
-                      <Content page_type={page_type}/>
+                      {page_type === 'subreddit_comments' &&
+                        <Content page_type={page_type}/>
+                      }
                       <LocalSort page_type={page_type} />
                       <RemovedFilter page_type={page_type} />
                       <RemovedByFilter page_type={page_type} />

@@ -72,6 +72,7 @@ class App extends React.Component {
                       <DefaultLayout path='/info' page_type='info' component={Info} />
                       <DefaultLayout path='/search' page_type='search' component={Info} />
                       <DefaultLayout path='/random' component={Random} />
+                      <DefaultLayout path='/r/:subreddit/missing-comments' page_type='missing_comments' component={SubredditComments} />
                       <DefaultLayout path='/r/:subreddit/comments/:threadID/:urlTitle/:commentID' page_type='thread' component={Thread} />
                       <DefaultLayout path='/r/:subreddit/comments/:threadID/:urlTitle' page_type='thread' component={Thread} />
                       <DefaultLayout path='/r/:subreddit/comments/:threadID' page_type='thread' component={Thread} />
