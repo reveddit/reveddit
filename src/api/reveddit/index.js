@@ -36,7 +36,7 @@ export const submitMissingComments = (ids) => {
     ids: ids.join(','),
     c: getCount()
   }
-  const url = REVEDDIT_MISSING_COMMENTS_HOST + 'missing-comments/post/?' + paramString()
+  const url = REVEDDIT_MISSING_COMMENTS_HOST + 'missing-comments/post/?' + paramString(params)
   return window.fetch(url)
   .then(response => response.json())
   .catch(errorHandler)
