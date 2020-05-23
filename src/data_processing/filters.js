@@ -16,7 +16,7 @@ export const itemIsOneOfSelectedRemovedBy = (item, gs) => {
     const filters = Object.keys(gs.removedByFilter)
     for (let i = 0; i < filters.length; i++) {
       const type = filters[i]
-      if (item.removedby && item.removedby === type) {
+      if ( (! item.removedby && item.removed ) || item.removedby === type) {
         return true
       }
     }
