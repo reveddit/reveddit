@@ -19,12 +19,18 @@ import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
          AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
 
 const numCommentsWithPost = 500
+let archiveError = false
+const ignoreArchiveErrors = () => {
+  archiveError = true
+  return {}
+}
 
 export const getRevdditThreadItems = (threadID, commentID, context, global, history) => {
   global.setLoading('')
   let pushshift_comments_promise
   if (! commentID) {
     pushshift_comments_promise = getPushshiftCommentsByThread(threadID)
+    .catch(ignoreArchiveErrors)
   }
 
   const reddit_pwc_promise = getRedditPostWithComments({threadID, commentID, context, sort: 'old', limit: numCommentsWithPost})
@@ -62,6 +68,7 @@ export const getRevdditThreadItems = (threadID, commentID, context, global, hist
       if (commentID) {
         root_commentID = oldestComment.id
         pushshift_comments_promise = getPushshiftCommentsByThread(threadID, oldestComment.created_utc - 1)
+        .catch(ignoreArchiveErrors)
       }
       const combinedComments = combinePushshiftAndRedditComments({}, redditComments, false, post_without_pushshift_data)
       const commentTree = createCommentTree(threadID, root_commentID, combinedComments)
@@ -95,6 +102,7 @@ export const getRevdditThreadItems = (threadID, commentID, context, global, hist
   })
 
   const pushshift_post_promise = getPushshiftPost(threadID)
+  .catch(ignoreArchiveErrors)
 
   reddit_pwc_promise.then(({reddit_post, modlogs_posts_promise}) => {
     return modlogs_posts_promise.then(modlogsPosts => {
@@ -177,9 +185,14 @@ export const getRevdditThreadItems = (threadID, commentID, context, global, hist
                       combined_comments_promise])
   .then(result => {
     const {combinedComments, commentTree, moderators} = result[1]
-    return global.setSuccess({items: Object.values(combinedComments),
-                       itemsLookup: combinedComments,
-                       commentTree, moderators})
+    const stateObj = {items: Object.values(combinedComments),
+                      itemsLookup: combinedComments,
+                      commentTree, moderators}
+    if (! archiveError) {
+      return global.setSuccess(stateObj)
+    } else {
+      return global.setError('', stateObj)
+    }
   })
 }
 
