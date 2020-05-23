@@ -139,7 +139,21 @@ export const create_qparams_and_adjust = (page_type, selection, value) => {
   adjust_qparams_for_selection(page_type, queryParams, selection, value)
   return queryParams
 }
+
+const parseType = (value) => {
+  if (value === 'false') {
+    return false
+  } else if (value === 'true') {
+    return true
+  } else if (/^\d+$/.test(value)) {
+    return parseInt(value)
+  } else {
+    return value
+  }
+}
+
 const adjust_qparams_for_selection = (page_type, queryParams, selection, value) => {
+  value = parseType(value)
   if (value === filter_pageType_defaults[selection] ||
       value === filter_pageType_defaults[selection][page_type]) {
     queryParams.delete(urlParamKeys[selection])
@@ -250,14 +264,7 @@ class GlobalState extends Container {
           break
         }
         default: {
-          if (value === 'false') {
-            value = false
-          } else if (value === 'true') {
-            value = true
-          } else if (/^\d+$/.test(value)) {
-            value = parseInt(value)
-          }
-          stateVar[param] = value
+          stateVar[param] = parseType(value)
         }
       }
     }
