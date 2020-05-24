@@ -129,6 +129,7 @@ class Comment extends React.Component {
                       <>
                         <a href={props.parent_context+'?removedby=missing'}>reveddit-parent</a>
                         <a href={reddit+props.parent_context}>reddit-parent</a>
+                        <a href={reddit+props.permalink+'?context=1'}>reddit-permalink</a>
                       </>
                       :
                         <a href={props.permalink+`?context=3#${props.name}`}>context{props.num_replies && `(${props.num_replies})`}</a>
@@ -137,7 +138,9 @@ class Comment extends React.Component {
                       <a href={props.link_permalink.replace(/^https:\/\/[^/]*/,'')}>full comments
                         {'num_comments' in props && `(${props.num_comments})`}</a>
                     }
-                    <a href={mods_link} target="_blank">message mods</a>
+                    { ! props.parent_context &&
+                      <a href={mods_link} target="_blank">message mods</a>
+                    }
                   </React.Fragment>
                 }
               </div>
