@@ -10,17 +10,20 @@ import {
 } from 'data_processing/comments'
 import { setPostAndParentDataForComments } from 'data_processing/info'
 
-
+const maxN = 100
 export const getRevdditMissingComments = (subreddit, global) => {
-  const {before, before_id} = global.state
+  const {page, n} = global.state
 
   global.setLoading('')
   if (subreddit === 'all') {
     subreddit = ''
   }
-
-  return getMissingComments({subreddit, limit:100, before_id: before_id})
-  .then(missingComments => {
+  let limit = n
+  if (n && n > maxN) {
+    limit = maxN
+  }
+  return getMissingComments({subreddit, limit, page})
+  .then(({comments: missingComments, meta: missingCommentsMeta}) => {
     const postDataPromise = getPostDataForComments({comments: missingComments})
     const redditCommentsPromise = getRedditComments({objects: missingComments})
     return Promise.all([postDataPromise, redditCommentsPromise])
@@ -37,7 +40,7 @@ export const getRevdditMissingComments = (subreddit, global) => {
         }
       }
       setPostAndParentDataForComments(combinedComments_array, postData)
-      return global.setSuccess({items: combinedComments_array})
+      return global.setSuccess({items: combinedComments_array, paginationMeta: missingCommentsMeta})
     })
   })
 }

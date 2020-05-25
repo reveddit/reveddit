@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { connect, localSort_types } from 'state'
+import { connect, localSort_types, create_qparams } from 'state'
 import Time from 'pages/common/Time'
 import Comment from 'pages/common/Comment'
 import Selections from 'pages/common/selections'
@@ -37,7 +37,8 @@ class SubredditComments extends React.Component {
   render () {
     const { subreddit } = this.props.match.params
     const { page_type, viewableItems, selections, notShownMsg } = this.props
-    const {items, loading, localSort, localSortReverse, hasVisitedUserPage} = this.props.global.state
+    const {items, loading, localSort, localSortReverse, hasVisitedUserPage,
+           paginationMeta} = this.props.global.state
     const noItemsFound = items.length === 0 && ! loading
 
     const items_sorted = viewableItems
@@ -56,7 +57,25 @@ class SubredditComments extends React.Component {
     } else if (localSort === localSort_types.comment_length) {
       items_sorted.sort( reversible(byCommentLength, localSortReverse) )
     }
-
+    let pagination = ''
+    const {page_number, num_pages} = paginationMeta || {}
+    if (paginationMeta && num_pages > 1) {
+      const hasPrev = page_number > 1, hasNext = page_number < num_pages
+      let prev = null, next = null
+      const qparams = create_qparams()
+      if (hasPrev) {
+        prev = qparams.set('page', page_number-1).toString()
+      }
+      if (hasNext) {
+        next = qparams.set('page', page_number+1).toString()
+      }
+      pagination = (
+        <div className='non-item pagination'>
+          <a href={prev} className={`prev ${! hasPrev && 'disabled'}`}>&lt;- previous</a>
+          <a href={next} className={`next ${! hasNext && 'disabled'}`}>next -&gt;</a>
+        </div>
+      )
+    }
     return (
       <React.Fragment>
         <div className="revddit-sharing">
@@ -82,6 +101,7 @@ class SubredditComments extends React.Component {
             />
           })
         }
+        {pagination}
       </React.Fragment>
     )
   }

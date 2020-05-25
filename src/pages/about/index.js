@@ -145,7 +145,7 @@ export class About extends React.Component {
             {this.state.comments.length ?
               singleDisplayComment ?
                 <React.Fragment>
-                  <div className='non-item'>
+                  <div className='non-item pagination'>
                     <a  {...prevAttr}
                        className={`collapseToggle prev ${hasPrev ? 'active':'disabled'}`}>&lt;- previous</a>
                     <a {...nextAttr}

@@ -54,7 +54,8 @@ export const urlParamKeys = {
   tagsFilter: 'tags',
   url: 'url',
   selfposts: 'selfposts',
-  limitCommentDepth: 'limitCommentDepth'
+  limitCommentDepth: 'limitCommentDepth',
+  page: 'page',
 }
 
 export const removedFilter_types = {
@@ -132,7 +133,7 @@ const getMultiFilterSettings = (stringValue) => {
   return settings
 }
 
-const create_qparams = () => new SimpleURLSearchParams(window.location.search)
+export const create_qparams = () => new SimpleURLSearchParams(window.location.search)
 
 export const create_qparams_and_adjust = (page_type, selection, value) => {
   const queryParams = create_qparams()

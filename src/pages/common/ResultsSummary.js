@@ -6,7 +6,7 @@ import { connect } from 'state'
 class ResultsSummary extends React.Component {
   render() {
     const {num_showing, page_type} = this.props
-    const {before, before_id, items} = this.props.global.state
+    const {before, before_id, items, paginationMeta} = this.props.global.state
     let oldest_time = Infinity
     let youngest_time = -Infinity
     items.forEach(item => {
@@ -43,13 +43,19 @@ class ResultsSummary extends React.Component {
                     since <Time created_utc={oldest_time} pretty={oldest_pretty} />
                   </div>
     }
-
+    let pagination = ''
+    if (paginationMeta && paginationMeta.num_pages > 1) {
+      pagination = (
+        <div className='non-item text'>page {paginationMeta.page_number} of {paginationMeta.num_pages}</div>
+      )
+    }
     const posts_page_title = 'user-deleted posts that have no comments are not shown'
     // WARNING: a class name & attribute are used by the revddit extension:
     // #numItemsLoaded, data-numitemsloaded
     return (
       <React.Fragment>
         {timeFrame}
+        {pagination}
         <div id='numItemsLoaded' data-numitemsloaded={items.length} title={page_type === 'subreddit_posts' ? posts_page_title : ''}
              className='non-item text'>{num_showing.toLocaleString()+' of '}
              {items.length.toLocaleString()}</div>

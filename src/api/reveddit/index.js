@@ -18,11 +18,11 @@ const getCount = () => {
   return count_within_period
 }
 
-export const getMissingComments = ({subreddit, limit=100, before_id}) => {
+export const getMissingComments = ({subreddit, limit=100, page=1}) => {
   const params = {
     ...(subreddit && {subreddit}),
     limit,
-    ...(before_id && {before_id}),
+    ...(page && {page}),
     c: getCount()
   }
   const url = REVEDDIT_MISSING_COMMENTS_HOST + 'missing-comments/get/?' + paramString(params)
