@@ -7,6 +7,18 @@
   font-size: 14px
   word-break: break-word
   //overflow-wrap: break-word
+  position: relative
+  .collapseToggle
+    position: absolute
+    padding: 3px 3px 0px 3px
+    height: calc(100% - 3px)
+    left: 0px
+    top: 0px
+    background-color: rgba(255, 255, 0, 0.05)
+    border-radius: 2px
+    &:hover
+      background-color: rgba(140,179,217, .5)
+      text-decoration: none
 
   &.focus > .comment-body-and-links > .comment-body
     background-color: #333
