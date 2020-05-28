@@ -45,8 +45,10 @@ class ResultsSummary extends React.Component {
     }
     let pagination = ''
     if (paginationMeta && paginationMeta.num_pages > 1) {
+      const total = paginationMeta.total_count
+      const total_text = total > items.length ? ` (${total})` : ''
       pagination = (
-        <div className='non-item text'>page {paginationMeta.page_number} of {paginationMeta.num_pages}</div>
+        <div className='non-item text'>page {paginationMeta.page_number} of {paginationMeta.num_pages}{total_text}</div>
       )
     }
     const posts_page_title = 'user-deleted posts that have no comments are not shown'
