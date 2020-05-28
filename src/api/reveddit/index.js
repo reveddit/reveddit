@@ -1,4 +1,5 @@
 import { paramString } from 'utils'
+import { mapRedditObj } from 'api/reddit'
 
 const errorHandler = (e) => {
   throw new Error(`Could not connect to Reveddit: ${e}`)
@@ -25,10 +26,7 @@ export const getMissingComments = ({subreddit, limit=100, page=1}) => {
     ...(page && {page}),
     c: getCount()
   }
-  const url = REVEDDIT_MISSING_COMMENTS_HOST + 'missing-comments/get/?' + paramString(params)
-  return window.fetch(url)
-  .then(response => response.json())
-  .catch(errorHandler)
+  return flaskQuery('missing-comments/get/?', params)
 }
 
 export const submitMissingComments = (ids) => {
@@ -36,7 +34,18 @@ export const submitMissingComments = (ids) => {
     ids: ids.join(','),
     c: getCount()
   }
-  const url = REVEDDIT_MISSING_COMMENTS_HOST + 'missing-comments/post/?' + paramString(params)
+  return flaskQuery('missing-comments/post/?', params)
+}
+
+export const getWhatPeopleSay = () => {
+  const params = {
+    c: getCount()
+  }
+  return flaskQuery('what-people-say/?', params)
+}
+
+export const flaskQuery = (path, params = {}) => {
+  const url = REVEDDIT_FLASK_HOST + path + paramString(params)
   return window.fetch(url)
   .then(response => response.json())
   .catch(errorHandler)
