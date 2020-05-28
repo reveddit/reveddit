@@ -236,13 +236,15 @@ export const insertParent = (child_id, global) => {
 
 const maxDepth = 9
 const markTreeMeta = (missing, origRedditComments, moreComments, comments, post_numComments, root_commentID, focusCommentID, depth = 0) => {
+  const now = Math.floor((new Date).getTime()/1000)
   comments.forEach(comment => {
     comment.depth = depth
     if (! origRedditComments[comment.id]
         && (origRedditComments[comment.parent_id.substr(3)] || (! root_commentID && comment.parent_id.slice(0,2) === 't3'))
         && (! focusCommentID || comment.ancestors[focusCommentID])
         && ! moreComments[comment.parent_id]
-        && depth <= maxDepth && ! comment.removed && ! comment.deleted) {
+        && depth <= maxDepth && ! comment.removed && ! comment.deleted
+        && (now - comment.created_utc) > 120) {
       missing.push(comment.id)
       comment.missing_in_thread = true
     }
