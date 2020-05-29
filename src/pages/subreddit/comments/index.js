@@ -64,7 +64,9 @@ class SubredditComments extends React.Component {
       let prev = null, next = null
       const qparams = create_qparams()
       if (hasPrev) {
-        prev = qparams.set('page', page_number-1).toString()
+        prev =  page_number > 2 ?
+          qparams.set('page', page_number-1).toString() :
+          window.location.pathname+qparams.delete('page').toString()
       }
       if (hasNext) {
         next = qparams.set('page', page_number+1).toString()
