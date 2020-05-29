@@ -43,12 +43,14 @@ class ResultsSummary extends React.Component {
                     since <Time created_utc={oldest_time} pretty={oldest_pretty} />
                   </div>
     }
-    let pagination = ''
+    let pagination = '', total_text = ''
     if (paginationMeta && paginationMeta.num_pages > 1) {
       const total = paginationMeta.total_count
-      const total_text = total > items.length ? ` (${total})` : ''
+      if (total > items.length) {
+        total_text = ` (${total.toLocaleString()})`
+      }
       pagination = (
-        <div className='non-item text'>page {paginationMeta.page_number} of {paginationMeta.num_pages}{total_text}</div>
+        <div className='non-item text'>page {paginationMeta.page_number} of {paginationMeta.num_pages}</div>
       )
     }
     const posts_page_title = 'user-deleted posts that have no comments are not shown'
@@ -60,7 +62,7 @@ class ResultsSummary extends React.Component {
         {pagination}
         <div id='numItemsLoaded' data-numitemsloaded={items.length} title={page_type === 'subreddit_posts' ? posts_page_title : ''}
              className='non-item text'>{num_showing.toLocaleString()+' of '}
-             {items.length.toLocaleString()}</div>
+             {items.length.toLocaleString()}{total_text}</div>
       </React.Fragment>
     )
   }
