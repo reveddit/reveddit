@@ -15,6 +15,7 @@ import { NOT_REMOVED, COLLAPSED, ORPHANED } from 'pages/common/RemovedBy'
 import { SimpleURLSearchParams, jumpToHash, get, put, ext_urls,
          itemIsActioned, itemIsCollapsed, commentIsOrphaned } from 'utils'
 import { getAuthorInfoByName } from 'api/reddit'
+import {meta} from 'pages/about/AddOns'
 
 const CAT_SUBREDDIT = {category: 'subreddit',
                        category_title: 'Subreddit',
@@ -283,7 +284,7 @@ export const withFetch = (WrappedComponent) =>
         this.props.openGenericModal({content:
           <>
             <p>To receive alerts when content from this user is removed, click 'subscribe' on the extension icon.</p>
-            <img src="https://i.imgur.com/7NRg0sQ.png"/>
+            <img src={meta.subscribe.img}/>
             <p>This pop-up appears once per session on user pages while there are no subscriptions.</p>
           </>
         })

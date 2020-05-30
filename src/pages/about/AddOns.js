@@ -1,15 +1,17 @@
 import React from 'react'
 import {ext_urls} from 'utils'
 
-const imgur = 'https://i.imgur.com/'
-const meta = {
+export const meta = {
   'chrome': {
-    img: imgur+'B0i5sn3.png',
+    img: '/images/chrome-store.png',
     att: 'c'
   },
   'firefox': {
-    img: imgur+'dvof8rG.png',
+    img: '/images/firefox-addon.png',
     att: 'f'
+  },
+  'subscribe': {
+    img: '/images/ext-subscribe.png',
   }
 }
 

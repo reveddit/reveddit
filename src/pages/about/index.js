@@ -86,7 +86,9 @@ export class About extends React.Component {
       const combined = combinePushshiftAndRedditComments(pushshift.comments, reddit.comments, false)
       setPostAndParentDataForComments(Object.values(combined), reddit.parents_and_posts)
       this.setState({comments: filterDeletedComments(combined)})
-      this.props.global.setState({moderators})
+      if (moderators) {
+        this.props.global.setState({moderators})
+      }
     })
   }
   render() {
