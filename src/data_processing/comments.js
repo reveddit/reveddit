@@ -234,6 +234,7 @@ export const getRevdditCommentsBySubreddit = (subreddit, global) => {
   if (subreddit === 'all') {
     subreddit = ''
   }
+  const subreddit_lc = subreddit.toLowerCase()
   const moderators_promise = getModerators(subreddit)
   const subreddit_about_promise = getSubredditAbout(subreddit)
   const modlogs_comments_promise = getModlogsComments(subreddit)
@@ -248,7 +249,7 @@ export const getRevdditCommentsBySubreddit = (subreddit, global) => {
   .then(pushshiftComments => getRevdditComments({pushshiftComments, subreddit_about_promise}))
   .then(show_comments => {
     return moderators_promise.then(moderators => {
-      return global.setSuccess({items: show_comments, moderators})
+      return global.setSuccess({items: show_comments, moderators: {[subreddit_lc]: moderators}})
     })
   })
 }

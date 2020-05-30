@@ -25,7 +25,6 @@ class Comment extends React.Component {
 
   render() {
     const props = this.props
-    const { moderators, moderated_subreddits } = props.global.state
     let classNames = ['comment', 'user']
     const reddit = 'https://www.reddit.com'
     let submitter = ''

@@ -7,6 +7,7 @@ const now = Math.floor(new Date()/1000)
 
 const Author = ({author, is_op, deleted, distinguished, subreddit, name, global}) => {
   const {moderators, moderated_subreddits, authors} = global.state
+  const subreddit_lc = subreddit.toLowerCase()
   let link = `/user/${author}/`
   if (deleted || author === '[deleted]') {
     author = '[deleted]'
@@ -27,7 +28,7 @@ const Author = ({author, is_op, deleted, distinguished, subreddit, name, global}
       className={'author '+
         (is_op ? 'submitter ' : '')+
         (distinguished ? 'distinguished '+distinguished+' ' : '')+
-        (moderators[author] || moderated_subreddits[subreddit.toLowerCase()] ? 'is_moderator ' : '')
+        ((moderators[subreddit_lc] || {})[author] || moderated_subreddits[subreddit_lc] ? 'is_moderator ' : '')
       }
     >
       {author+age}

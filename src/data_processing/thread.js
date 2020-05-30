@@ -173,7 +173,7 @@ export const getRevdditThreadItems = (threadID, commentID, context, global, hist
                   console.log('missing', missing.join(','))
                   submitMissingComments(missing)
                 }
-                return {combinedComments, commentTree, moderators}
+                return {combinedComments, commentTree, moderators, subreddit_lc: reddit_post.subreddit.toLowerCase()}
               })
             })
           })
@@ -184,10 +184,10 @@ export const getRevdditThreadItems = (threadID, commentID, context, global, hist
   return Promise.all([pushshift_post_promise,
                       combined_comments_promise])
   .then(result => {
-    const {combinedComments, commentTree, moderators} = result[1]
+    const {combinedComments, commentTree, moderators, subreddit_lc} = result[1]
     const stateObj = {items: Object.values(combinedComments),
                       itemsLookup: combinedComments,
-                      commentTree, moderators}
+                      commentTree, moderators: {[subreddit_lc]: moderators}}
     if (! archiveError) {
       return global.setSuccess(stateObj)
     } else {

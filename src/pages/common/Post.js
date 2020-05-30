@@ -26,7 +26,6 @@ class Post extends React.Component {
     if (!props.title) {
       return <div />
     }
-    const { moderators, moderated_subreddits } = props.global.state
     const reddit = 'https://www.reddit.com'
     const mods_message_body = '\n\n\n'+reddit+props.permalink;
     const mods_link = reddit+'/message/compose?to=/r/'+props.subreddit+'&message='+encodeURI(mods_message_body);

@@ -36,6 +36,7 @@ export const getRevdditPostsBySubreddit = (subreddit, global) => {
     if (frontPage) {
       global.selection_update('frontPage', false, '')
     }
+    const subreddit_lc = subreddit.toLowerCase()
     const moderators_promise = getModerators(subreddit)
     const subreddit_about_promise = getSubredditAbout(subreddit)
     const modlogs_posts_promise = getModlogsPosts(subreddit)
@@ -48,7 +49,7 @@ export const getRevdditPostsBySubreddit = (subreddit, global) => {
     })
     .then(show_posts => {
       return moderators_promise.then(moderators => {
-        global.setSuccess({items:show_posts, moderators})
+        global.setSuccess({items:show_posts, moderators: {[subreddit_lc]: moderators}})
         return show_posts
       })
     })

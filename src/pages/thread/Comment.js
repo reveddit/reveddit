@@ -34,7 +34,7 @@ class Comment extends React.Component {
   render() {
     let props = this.props
     const {contextAncestors, focusCommentID} = this.props
-    const {showContext, limitCommentDepth, moderators} = this.props.global.state
+    const {showContext, limitCommentDepth} = this.props.global.state
     const updateStateAndURL = this.props.global.selection_update
     const context_update = this.props.global.context_update
     const maxCommentDepth = getMaxCommentDepth()
