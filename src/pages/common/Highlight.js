@@ -13,7 +13,7 @@ export default () => {
   } else {
     return (
       <div className='note highlight real-time desktop-only'>
-        The free {extension_link} is required to receive <span className='red bubble'>alerts</span> and view <span className='quarantined'>quarantined</span> content.
+        The free {extension_link} can <span className='red bubble'>alert</span> you when your content is removed.
       </div>
     )
   }
