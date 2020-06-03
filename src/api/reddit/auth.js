@@ -36,7 +36,8 @@ export const getAuth = () => {
   return getToken()
     .then(token => ({
       headers: {
-        Authorization: `bearer ${token}`
+        Authorization: `bearer ${token}`,
+        'Accept-Language': 'en',
       }
     }))
 }

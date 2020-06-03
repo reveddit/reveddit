@@ -194,7 +194,7 @@ export const usernameAvailable = (user) => {
 
 export const userPageHTML = (user) => {
   const url = revddit_q+`old.reddit.com/user/${user}`
-  return fetchWithTimeout(url, {}, 3000)
+  return fetchWithTimeout(url, {'Accept-Language': 'en'}, 3000)
     .then(response => response.text())
     .then(html => {
       return {html: html}
