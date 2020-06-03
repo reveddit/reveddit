@@ -23,7 +23,7 @@ const getToken = () => {
     body: `grant_type=${encodeURIComponent('https://oauth.reddit.com/grants/installed_client')}&device_id=DO_NOT_TRACK_THIS_DEVICE`
   }
 
-  return window.fetch('https://wred.reveddit.com/api/v1/access_token', tokenInit)
+  return window.fetch('https://www.reddit.com/api/v1/access_token', tokenInit)
     .then(response => response.json())
     .then(response => {
       token = response.access_token

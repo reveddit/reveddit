@@ -1,8 +1,7 @@
 import { chunk, flatten, fetchWithTimeout, promiseDelay, getRandomInt, paramString } from 'utils'
 import { getAuth } from './auth'
 
-const oauth_reddit = 'https://ored.reveddit.com/'
-const old_reddit = 'https://owred.reveddit.com/'
+const oauth_reddit = 'https://oauth.reddit.com/'
 const revddit_q = REVEDDIT_CORS_ANWHERE_HOST + 'q/'
 const u_publicmodlogs_feed = '7e9b27126097f51ae6c9cd5b049af34891da6ba6'
 const coronavirus_logs = 'https://logs.mod.rcoronavirus.org/.json'
@@ -194,7 +193,7 @@ export const usernameAvailable = (user) => {
 }
 
 export const userPageHTML = (user) => {
-  const url = old_reddit+`user/${user}`
+  const url = revddit_q+`old.reddit.com/user/${user}`
   return fetchWithTimeout(url, {}, 3000)
     .then(response => response.text())
     .then(html => {
