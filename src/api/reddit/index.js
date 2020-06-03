@@ -2,6 +2,7 @@ import { chunk, flatten, fetchWithTimeout, promiseDelay, getRandomInt, paramStri
 import { getAuth } from './auth'
 
 const oauth_reddit = 'https://oauth.reddit.com/'
+export const oauth_reddit_rev = 'https://ored.reveddit.com/'
 const revddit_q = REVEDDIT_CORS_ANWHERE_HOST + 'q/'
 const u_publicmodlogs_feed = '7e9b27126097f51ae6c9cd5b049af34891da6ba6'
 const coronavirus_logs = 'https://logs.mod.rcoronavirus.org/.json'
@@ -88,12 +89,12 @@ const getFullIDsForObjects = (objects, ids, prefix) => {
 
 export const mapRedditObj = (map, obj, key = 'name') => (map[obj.data[key]] = obj.data, map)
 
-export const getItems = async (ids, key = 'name', auth = null) => {
+export const getItems = async (ids, key = 'name', auth = null, host = oauth_reddit) => {
   const results = {}
   if (! auth) {
     auth = await getAuth()
   }
-  return groupRequests(queryByID, ids, [auth, key, results], maxNumItems)
+  return groupRequests(queryByID, ids, [auth, key, results, host], maxNumItems)
   .then(res => results)
   .catch(errorHandler)
 }
@@ -151,7 +152,7 @@ export const getPostWithComments = ({threadID, commentID: comment, context = 0, 
     })
 }
 
-export const queryUserPage = (user, kind, sort, before, after, t, limit = 100) => {
+export const queryUserPage = (user, kind, sort, before, after, t, limit = 100, host = oauth_reddit) => {
   var params = {
     sort: sort,
     limit,
@@ -161,7 +162,7 @@ export const queryUserPage = (user, kind, sort, before, after, t, limit = 100) =
     raw_json:1
   }
 
-  const url = oauth_reddit + `user/${user}/${kind}.json` + '?'+paramString(params)
+  const url = host + `user/${user}/${kind}.json` + '?'+paramString(params)
   return getAuth()
     .then(auth => window.fetch(url, auth))
     .then(response => response.json())
@@ -204,9 +205,9 @@ export const userPageHTML = (user) => {
     })
 }
 
-const queryByID = (ids, auth, key = 'name', results = {}) => {
+const queryByID = (ids, auth, key = 'name', results = {}, host = oauth_reddit) => {
   var params = {id: ids.join(), raw_json:1}
-  const url = oauth_reddit + 'api/info' + '?'+paramString(params)
+  const url = host + 'api/info' + '?'+paramString(params)
   return query(url, auth, key, results)
 }
 

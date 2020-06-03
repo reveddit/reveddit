@@ -3,8 +3,10 @@ import {
   getItems as getRedditItemsByID,
   usernameAvailable,
   userPageHTML,
-  getModeratedSubreddits
+  getModeratedSubreddits,
+  oauth_reddit_rev,
 } from 'api/reddit'
+import { getAuth } from 'api/reddit/auth'
 import {
   getAutoremovedItems
 } from 'api/pushshift'
@@ -124,7 +126,7 @@ export const getRevdditUserItems = (user, kind, qp, global) => {
 function getItems (user, kind, global, sort, before = '', after = '', time, limit, loadAll = false) {
   const gs = global.state
   const {commentParentsAndPosts} = gs
-  return queryUserPage(user, kind, sort, before, after, time, limit)
+  return queryUserPage(user, kind, sort, before, after, time, limit, oauth_reddit_rev)
   .then(userPageData => {
     if ('error' in userPageData) {
       if (userPageData.error == 404) {
@@ -185,24 +187,29 @@ function getItems (user, kind, global, sort, before = '', after = '', time, limi
         item.next = array[index-1].name
       }
     })
-    const comment_parent_and_post_promise = getRedditItemsByID(Object.keys(comment_parent_and_post_ids))
-    return getRedditItemsByID(ids)
-    .then(redditInfoItems => {
-      Object.values(redditInfoItems).forEach(item => {
-        if (itemIsRemovedOrDeleted(item, false)) {
-          userPage_item_lookup[item.name].removed = true
-        }
-        userPage_item_lookup[item.name].collapsed = item.collapsed
-      })
-      return comment_parent_and_post_promise.then(commentParentsAndPosts_new => {
-        Object.assign(commentParentsAndPosts, commentParentsAndPosts_new)
-        setPostAndParentDataForComments(comments, commentParentsAndPosts)
-        return global.setState({items, num_pages, userNext: userPageData.after, commentParentsAndPosts})
-        .then(() => {
-          if (userPageData.after && loadAll) {
-            return getItems(user, kind, global, sort, '', userPageData.after, time, limit, loadAll)
+    getAuth()
+    .then(auth => {
+      const params = ['name', auth, oauth_reddit_rev]
+      const comment_parent_and_post_promise = getRedditItemsByID(
+        Object.keys(comment_parent_and_post_ids), ...params)
+      return getRedditItemsByID(ids, ...params)
+      .then(redditInfoItems => {
+        Object.values(redditInfoItems).forEach(item => {
+          if (itemIsRemovedOrDeleted(item, false)) {
+            userPage_item_lookup[item.name].removed = true
           }
-          return userPageData.after
+          userPage_item_lookup[item.name].collapsed = item.collapsed
+        })
+        return comment_parent_and_post_promise.then(commentParentsAndPosts_new => {
+          Object.assign(commentParentsAndPosts, commentParentsAndPosts_new)
+          setPostAndParentDataForComments(comments, commentParentsAndPosts)
+          return global.setState({items, num_pages, userNext: userPageData.after, commentParentsAndPosts})
+          .then(() => {
+            if (userPageData.after && loadAll) {
+              return getItems(user, kind, global, sort, '', userPageData.after, time, limit, loadAll)
+            }
+            return userPageData.after
+          })
         })
       })
     })
