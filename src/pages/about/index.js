@@ -18,7 +18,7 @@ const filterDeletedComments = (comments) => {
   const result = []
   Object.entries(comments).sort(() => 0.5 - Math.random()).forEach(([id, c]) => {
     c.link_title = ''
-    if (! itemIsRemovedOrDeleted(c) && (! c.edited || c.edited < 1587526971)) {
+    if (! itemIsRemovedOrDeleted(c)) {
       result.push(c)
     }
   })
