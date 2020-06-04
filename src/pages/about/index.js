@@ -16,7 +16,7 @@ const reddit = 'https://www.reddit.com'
 
 const filterDeletedComments = (comments) => {
   const result = []
-  Object.entries(comments).sort(() => 0.5 - Math.random()).forEach(([id, c]) => {
+  Object.values(comments).sort((a, b) => b.created_utc-a.created_utc).forEach((c) => {
     c.link_title = ''
     if (! itemIsRemovedOrDeleted(c)) {
       result.push(c)
