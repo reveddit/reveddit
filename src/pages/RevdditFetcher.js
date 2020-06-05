@@ -97,7 +97,11 @@ const getPageTitle = (page_type, string) => {
   return null
 
 }
-const getLoadDataFunctionAndParam = (page_type, subreddit, user, kind, threadID, commentID, context, domain, queryParams) => {
+const getLoadDataFunctionAndParam = (
+  {page_type, subreddit, user, kind, threadID, commentID, context, domain, queryParams,
+   add_user, user_kind, user_sort, user_time, before, after,
+  }
+) => {
   switch(page_type) {
     case 'subreddit_posts': {
       return [getRevdditPostsBySubreddit, [subreddit]]
@@ -120,7 +124,7 @@ const getLoadDataFunctionAndParam = (page_type, subreddit, user, kind, threadID,
       break
     }
     case 'thread': {
-      return [getRevdditThreadItems, [threadID, commentID, context]]
+      return [getRevdditThreadItems, [threadID, commentID, context, add_user, user_kind, user_sort, user_time, before, after]]
       break
     }
     case 'user': {
@@ -195,9 +199,10 @@ export const withFetch = (WrappedComponent) =>
                       new SimpleURLSearchParams(this.props.location.search),
                       getExtraGlobalStateVars(page_type, queryParams.sort))
       .then(result => {
-        const {context} = this.props.global.state
+        const {context, add_user, user_sort, user_kind, user_time, before, after} = this.props.global.state
         const [loadDataFunction, params] = getLoadDataFunctionAndParam(
-          page_type, subreddit, user, kind, threadID, commentID, context, domain, queryParams)
+          {page_type, subreddit, user, kind, threadID, commentID, context, domain, queryParams,
+          add_user, user_kind, user_sort, user_time, before, after})
         loadDataFunction(...params, this.props.global, this.props.history)
         .then(() => {
           const {commentTree, items, threadPost} = this.props.global.state

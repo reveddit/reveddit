@@ -25,6 +25,7 @@ class Comment extends React.Component {
 
   render() {
     const props = this.props
+    const {t, sort} = props.global.state
     let classNames = ['comment', 'user']
     const reddit = 'https://www.reddit.com'
     let submitter = ''
@@ -42,13 +43,18 @@ class Comment extends React.Component {
     props.locked && classNames.push('locked')
 
     let directlink = ''
+    let after_before = ''
+    let add_user = ''
     if (props.prev) {
-      directlink = `?after=${props.prev}&`
+      after_before = `after=${props.prev}&`
     } else if (props.next) {
-      directlink = `?before=${props.next}&`
+      after_before = `before=${props.next}&`
     }
-    if (directlink) {
-      directlink += `limit=1&sort=${props.sort}&show=${props.name}&removal_status=all`
+    if (after_before) {
+      directlink = '?'+after_before+`limit=1&sort=${props.sort}&show=${props.name}&removal_status=all`
+      if (props.removed) {
+        add_user = after_before + `add_user=${props.author}&user_time=${t || ''}&user_sort=${sort || ''}&user_kind=${props.kind}&`
+      }
     }
     let post_parent_removed = []
     if (props.parent_removed_label) {
@@ -131,7 +137,7 @@ class Comment extends React.Component {
                         <a href={reddit+props.permalink+'?context=1'}>reddit-permalink</a>
                       </>
                       :
-                        <a href={props.permalink+`?context=3#${props.name}`}>context{props.num_replies && `(${props.num_replies})`}</a>
+                        <a href={props.permalink+'?'+add_user+'context=3#'+props.name}>context{props.num_replies && `(${props.num_replies})`}</a>
                     }
                     {props.link_permalink &&
                       <a href={props.link_permalink.replace(/^https:\/\/[^/]*/,'')}>full comments

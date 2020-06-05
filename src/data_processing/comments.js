@@ -53,7 +53,7 @@ export const set_link_permalink = (revedditComment, redditComment) => {
   revedditComment.link_permalink = redditComment.permalink.split('/').slice(0,6).join('/')+'/'
 }
 
-export const combinePushshiftAndRedditComments = (pushshiftComments, redditComments, requirePushshiftData=false, post=undefined) => {
+export const combinePushshiftAndRedditComments = (pushshiftComments, redditComments, requirePushshiftData=false, post=undefined, user_comment) => {
   const combinedComments = {}
   Object.values(redditComments).forEach(comment => {
     if (! requirePushshiftData) {
@@ -128,6 +128,15 @@ export const combinePushshiftAndRedditComments = (pushshiftComments, redditComme
       //console.log(ps_comment.id)
     }
   })
+  if (user_comment && post && post.name === user_comment.link_id) {
+    const combined_comment = combinedComments[user_comment.id]
+    if (combined_comment) {
+      combined_comment.body = user_comment.body
+      combined_comment.author = user_comment.author
+    } else {
+      combinedComments[user_comment.id] = user_comment
+    }
+  }
   console.log(`Pushshift: ${Object.keys(pushshiftComments).length} comments`)
   console.log(`Reddit: ${Object.keys(redditComments).length} comments`)
   return combinedComments

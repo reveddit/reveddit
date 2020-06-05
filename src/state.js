@@ -56,6 +56,11 @@ export const urlParamKeys = {
   selfposts: 'selfposts',
   limitCommentDepth: 'limitCommentDepth',
   page: 'page',
+  add_user: 'add_user',
+  user_sort: 'user_sort',
+  user_kind: 'user_kind',
+  user_time: 'user_time',
+  t: 't', sort: 'sort'
 }
 
 export const removedFilter_types = {

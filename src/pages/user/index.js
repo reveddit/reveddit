@@ -70,7 +70,7 @@ class User extends React.Component {
         if (item.name.slice(0,2) === 't3') {
           shownItems.push(<Post key={item.name} {...item} sort={qp_with_defaults.sort} />)
         } else {
-          shownItems.push(<Comment key={item.name} {...item} sort={qp_with_defaults.sort}/>)
+          shownItems.push(<Comment key={item.name} {...item} sort={qp_with_defaults.sort} kind={kind}/>)
           if (item.removed) {
             removedCommentIDs.push(item.name)
           }

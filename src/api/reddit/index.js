@@ -161,6 +161,9 @@ export const queryUserPage = (user, kind, sort, before, after, t, limit = 100, h
     ...(before && {before}),
     raw_json:1
   }
+  if (! kind) {
+    kind = ''
+  }
 
   const url = host + `user/${user}/${kind}.json` + '?'+paramString(params)
   return getAuth()

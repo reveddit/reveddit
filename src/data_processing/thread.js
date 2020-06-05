@@ -8,8 +8,10 @@ import {
 import {
   getComments as getRedditComments,
   getPostWithComments as getRedditPostWithComments,
-  getModerators, getModlogsComments, getModlogsPosts
+  getModerators, getModlogsComments, getModlogsPosts,
+  queryUserPage,
 } from 'api/reddit'
+import { getAuth } from 'api/reddit/auth'
 import {
   submitMissingComments
 } from 'api/reveddit'
@@ -25,12 +27,18 @@ const ignoreArchiveErrors = () => {
   return {}
 }
 
-export const getRevdditThreadItems = (threadID, commentID, context, global, history) => {
+export const getRevdditThreadItems = async (threadID, commentID, context, add_user, user_kind, user_sort, user_time, before, after,
+                                            global, history) => {
   global.setLoading('')
-  let pushshift_comments_promise
+  let pushshift_comments_promise = Promise.resolve({})
   if (! commentID) {
     pushshift_comments_promise = getPushshiftCommentsByThread(threadID)
     .catch(ignoreArchiveErrors)
+  }
+  await getAuth()
+  let add_user_promise = Promise.resolve({})
+  if (add_user) {
+    add_user_promise = queryUserPage(add_user, user_kind || 'overview', user_sort, before, after, user_time, 1)
   }
 
   const reddit_pwc_promise = getRedditPostWithComments({threadID, commentID, context, sort: 'old', limit: numCommentsWithPost})
@@ -158,11 +166,14 @@ export const getRevdditThreadItems = (threadID, commentID, context, global, hist
                   initialFocusCommentID: commentID})
           .then(() => {
             return reddit_remaining_comments_promise.then(remainingRedditComments => {
-              return moderators_promise.then(moderators => {
+              return moderators_promise.then(async (moderators) => {
                 Object.values(remainingRedditComments).forEach(comment => {
                   redditComments[comment.id] = comment
                 })
-                const combinedComments = combinePushshiftAndRedditComments(pushshiftComments, redditComments, false, reddit_post)
+                const user_comment = await add_user_promise.then(userPage => {
+                  return (userPage.items || [])[0] || {}
+                })
+                const combinedComments = combinePushshiftAndRedditComments(pushshiftComments, redditComments, false, reddit_post, user_comment)
                 //todo: check if pushshiftComments has any parent_ids that are not in combinedComments
                 //      and do a reddit query for these. Possibly query twice if the result has items whose parent IDs
                 //      are not in combinedComments after adding the result of the first query
