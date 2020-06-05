@@ -5,7 +5,7 @@ import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED,
 import { SimpleURLSearchParams, get, put } from 'utils'
 import { limitCommentDepth_global } from 'pages/common/Settings'
 
-export const getExtraGlobalStateVars = (page_type, sort) => {
+export const getExtraGlobalStateVars = (page_type, sort, add_user) => {
   let hasVisitedUserPage = false
   if (get('hasVisitedUserPage', null)) {
     hasVisitedUserPage = true
@@ -29,7 +29,15 @@ export const getExtraGlobalStateVars = (page_type, sort) => {
     hasVisitedSubredditPage = true
     put('hasVisitedSubredditPage', true)
   }
-  return {hasVisitedUserPage, hasVisitedUserPage_sortTop, hasVisitedSubredditPage}
+
+  let hasClickedRemovedUserCommentContext = false
+  if (get('hasClickedRemovedUserCommentContext', null)) {
+    hasClickedRemovedUserCommentContext = true
+  } else if (add_user) {
+    hasClickedRemovedUserCommentContext = true
+    put('hasClickedRemovedUserCommentContext', true)
+  }
+  return {hasVisitedUserPage, hasVisitedUserPage_sortTop, hasVisitedSubredditPage, hasClickedRemovedUserCommentContext}
 }
 
 

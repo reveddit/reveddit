@@ -107,6 +107,11 @@ class User extends React.Component {
                 htmlLink={<Link to={'/r/'}>view a subreddit</Link>}
               />
             }
+            {gs.hasVisitedUserPage_sortTop && gs.hasVisitedSubredditPage && ! gs.hasClickedRemovedUserCommentContext &&
+              <Notice message={
+                <div><span class="quarantined">Tip</span> The context links of removed comments now show the comment in context even if the comment was not archived.</div>
+              }/>
+            }
             {selectedItems &&
               <Notice message="showing selected items."
                 htmlLink={<Link to={linkToRestOfComments}>view all items</Link>}

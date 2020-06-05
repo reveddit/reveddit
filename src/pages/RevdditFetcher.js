@@ -10,7 +10,7 @@ import { getRevdditItems, getRevdditSearch } from 'data_processing/info'
 import { itemIsOneOfSelectedRemovedBy, itemIsOneOfSelectedTags } from 'data_processing/filters'
 import Selections from 'pages/common/selections'
 import { showAccountInfo_global } from 'pages/common/Settings'
-import { removedFilter_types, getExtraGlobalStateVars } from 'state'
+import { removedFilter_types, getExtraGlobalStateVars, create_qparams } from 'state'
 import { NOT_REMOVED, COLLAPSED, ORPHANED } from 'pages/common/RemovedBy'
 import { SimpleURLSearchParams, jumpToHash, get, put, ext_urls,
          itemIsActioned, itemIsCollapsed, commentIsOrphaned } from 'utils'
@@ -174,6 +174,7 @@ export const withFetch = (WrappedComponent) =>
       const { threadID, commentID, kind = '' } = this.props.match.params
       const { userSubreddit } = (this.props.match.params.userSubreddit || '').toLowerCase()
       const queryParams = getQueryParams()
+      const allQueryParams = create_qparams()
       if (userSubreddit) {
         subreddit = 'u_'+userSubreddit
       }
@@ -193,11 +194,10 @@ export const withFetch = (WrappedComponent) =>
         }
         setTimeout(this.maybeShowSubscribeUserModal, 3000)
       }
-      setTimeout(this.maybeShowLanguageModal, 3000)
       this.props.global.setStateFromQueryParams(
                       page_type,
                       new SimpleURLSearchParams(this.props.location.search),
-                      getExtraGlobalStateVars(page_type, queryParams.sort))
+                      getExtraGlobalStateVars(page_type, queryParams.sort, allQueryParams.get('add_user')))
       .then(result => {
         const {context, add_user, user_sort, user_kind, user_time, before, after} = this.props.global.state
         const [loadDataFunction, params] = getLoadDataFunctionAndParam(
@@ -262,23 +262,6 @@ export const withFetch = (WrappedComponent) =>
           this.props.global.setError('')
         })
       })
-    }
-    maybeShowLanguageModal = () => {
-      const hasSeenLanguageModal_text = 'hasSeenLanguageModal'
-      const hasSeenLanguageModal = get(hasSeenLanguageModal_text, false)
-      if (! window.navigator.language.match(/^en\b/) && ! hasSeenLanguageModal) {
-        put(hasSeenLanguageModal_text, true)
-        this.props.openGenericModal({content:
-          <>
-            <p>Hi, when your browser's preferred language is not English, you may need the reveddit extension to view results accurately:</p>
-            <ul>
-              <li><a href={ext_urls.rt.c}>Chrome</a></li>
-              <li><a href={ext_urls.rt.f}>Firefox</a> (mobile too)</li>
-            </ul>
-            <p>Please see details <a href="https://redd.it/d4wtes">here</a>. This pop-up appears once per session while the extension is not installed.</p>
-          </>
-        })
-      }
     }
     maybeShowSubscribeUserModal = () => {
       const hasSeenSubscribeUserModal_text = 'hasSeenSubscribeUserModal'
