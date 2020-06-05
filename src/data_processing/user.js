@@ -187,7 +187,7 @@ function getItems (user, kind, global, sort, before = '', after = '', time, limi
         item.next = array[index-1].name
       }
     })
-    getAuth()
+    return getAuth()
     .then(auth => {
       const params = ['name', auth, oauth_reddit_rev]
       const comment_parent_and_post_promise = getRedditItemsByID(
