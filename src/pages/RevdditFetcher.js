@@ -194,9 +194,10 @@ export const withFetch = (WrappedComponent) =>
         }
         setTimeout(this.maybeShowSubscribeUserModal, 3000)
       }
+      this.props.global.setQueryParamsFromSavedDefaults(page_type)
       this.props.global.setStateFromQueryParams(
                       page_type,
-                      new SimpleURLSearchParams(this.props.location.search),
+                      new SimpleURLSearchParams(window.location.search),
                       getExtraGlobalStateVars(page_type, queryParams.sort, allQueryParams.get('add_user')))
       .then(result => {
         const {context, add_user, user_sort, user_kind, user_time, before, after} = this.props.global.state

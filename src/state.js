@@ -5,6 +5,8 @@ import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED,
 import { SimpleURLSearchParams, get, put } from 'utils'
 import { limitCommentDepth_global } from 'pages/common/Settings'
 
+const defaultFilters_str = 'defaultFilters'
+
 export const getExtraGlobalStateVars = (page_type, sort, add_user) => {
   let hasVisitedUserPage = false
   if (get('hasVisitedUserPage', null)) {
@@ -177,6 +179,11 @@ const adjust_qparams_for_selection = (page_type, queryParams, selection, value) 
   return queryParams
 }
 
+const updateURL = (queryParams) => {
+  const to = `${window.location.pathname}${queryParams.toString()}`
+  window.history.replaceState(null,null,to)
+}
+
 class GlobalState extends Container {
   constructor(props) {
      super(props)
@@ -283,6 +290,36 @@ class GlobalState extends Container {
       }
     }
   }
+  saveDefaults = (page_type) => {
+    const filters = get(defaultFilters_str, {})
+    filters[page_type] = {
+      localSort: this.state.localSort,
+      localSortReverse: this.state.localSortReverse,
+      removedFilter: this.state.removedFilter,
+      removedByFilter: this.state.removedByFilter,
+      tagsFilter: this.state.tagsFilter,
+      showContext: this.state.showContext,
+    }
+    put(defaultFilters_str, filters)
+  }
+  resetDefaults = (page_type) => {
+    const filters = get(defaultFilters_str, {})
+    delete filters[page_type]
+    put(defaultFilters_str, filters)
+  }
+  setQueryParamsFromSavedDefaults = (page_type) => {
+    const filters = get(defaultFilters_str, {})
+    if (filters[page_type]) {
+      const queryParams = create_qparams()
+      for (let [selection, value] of Object.entries(filters[page_type])) {
+        if (typeof(value) === 'object') {
+          value = Object.keys(value).join()
+        }
+        adjust_qparams_for_selection(page_type, queryParams, selection, value)
+      }
+      updateURL(queryParams)
+    }
+  }
   context_update = (context, props, url = '') => {
     const queryParams = create_qparams_and_adjust(props.page_type, 'context', context)
     adjust_qparams_for_selection(props.page_type, queryParams, 'showContext', true)
@@ -297,8 +334,7 @@ class GlobalState extends Container {
     return this.updateURLandState(queryParams, page_type, callback)
   }
   updateURLandState = (queryParams, page_type, callback = () => {}) => {
-    const to = `${window.location.pathname}${queryParams.toString()}`
-    window.history.replaceState(null,null,to)
+    updateURL(queryParams)
     return this.setStateFromQueryParams(page_type, queryParams, {}, callback)
   }
   upvoteRemovalRateHistory_update = (before, before_id, n, content_type, queryParams, baseURL) => {

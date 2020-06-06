@@ -55,7 +55,6 @@ class Selections extends React.Component {
       this.setState({showFilters: true})
     }
   }
-
   toggleShowFilters = () => {
     const showFilters = ! this.state.showFilters
     const queryParams = new SimpleURLSearchParams(window.location.search)
@@ -98,6 +97,8 @@ class Selections extends React.Component {
         <div className='toggleFilters'><a onClick={this.toggleShowFilters}
                 className='collapseToggle'>
                 {this.getShowFiltersText()}</a>
+            {showFilters && <> | <a className='pointer' onClick={() => this.props.global.saveDefaults(page_type)}>save</a>
+            &nbsp;/ <a className='pointer' onClick={() => this.props.global.resetDefaults(page_type)}>reset</a></>}
         </div>
         <div style={{clear:'both'}}></div>
         {showFilters &&
@@ -183,4 +184,4 @@ class Selections extends React.Component {
   }
 }
 
-export default Selections
+export default connect(Selections)
