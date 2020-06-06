@@ -85,7 +85,6 @@ module.exports = (env, argv) => {
       new HtmlWebpackPlugin({
         template: path.resolve(__dirname, 'src/index.html')
       }),
-      new HtmlWebpackTagsPlugin({ tags: ['main.css'], append: true }),
       ...injectScript('dist/main.css', 'dist/')
     ],
     optimization: {
