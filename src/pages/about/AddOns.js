@@ -1,5 +1,5 @@
-import React from 'react'
-import {ext_urls} from 'utils'
+import React, {useEffect} from 'react'
+import {ext_urls, makeDonateVisible} from 'utils'
 
 export const meta = {
   'chrome': {
@@ -69,6 +69,9 @@ const linkWrap = (extension) => {
 }
 
 export default () => {
+  useEffect(() => {
+    makeDonateVisible()
+  }, [])
   return (
     <div id='main'>
       <div id='main-box'>

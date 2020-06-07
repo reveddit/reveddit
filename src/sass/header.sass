@@ -79,13 +79,13 @@ nav
   a.selected
     font-weight: bold
 
-body .github-fork-ribbon:before
-  background-color: #333
-
-body .github-fork-ribbon.right-bottom:before
-  background-color: white
-
-body .github-fork-ribbon.right-bottom:after
-  color: $red
-  border-color: $red
-  text-shadow: 0 -0.08em rgba($red, .5)
+body .github-fork-ribbon
+  visibility: hidden
+  &:before
+    background-color: #333
+  &.right-bottom:before
+    background-color: white
+  &.right-bottom:after
+    color: $red
+    border-color: $red
+    text-shadow: 0 -0.08em rgba($red, .5)

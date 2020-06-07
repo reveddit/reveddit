@@ -6,7 +6,7 @@ import Time from 'pages/common/Time'
 import { getComments } from 'api/reddit'
 import { getWhatPeopleSay } from 'api/reveddit'
 import { getCommentsByID as getPushshiftComments } from 'api/pushshift'
-import { itemIsRemovedOrDeleted, SimpleURLSearchParams } from 'utils'
+import { itemIsRemovedOrDeleted, SimpleURLSearchParams, makeDonateVisible } from 'utils'
 import { combinePushshiftAndRedditComments } from 'data_processing/comments'
 import { setPostAndParentDataForComments } from 'data_processing/info'
 import Highlight from 'pages/common/Highlight'
@@ -84,6 +84,7 @@ export class About extends React.Component {
     </>
   }
   componentDidMount() {
+    makeDonateVisible()
     getWhatPeopleSay()
     .then(({reddit, pushshift, moderators}) => {
       const combined = combinePushshiftAndRedditComments(pushshift.comments, reddit.comments, false)

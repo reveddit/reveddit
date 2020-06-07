@@ -26,6 +26,10 @@ export const ext_urls = {
   }
 }
 
+export const makeDonateVisible = () => {
+  document.getElementById('donate-ribbon').style.visibility = 'visible'
+}
+
 // Flatten arrays one level
 export const flatten = arr => arr.reduce(
   (accumulator, value) => accumulator.concat(value),
