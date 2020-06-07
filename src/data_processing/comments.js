@@ -133,6 +133,7 @@ export const combinePushshiftAndRedditComments = (pushshiftComments, redditComme
     if (combined_comment) {
       combined_comment.body = user_comment.body
       combined_comment.author = user_comment.author
+      combined_comment.author_fullname = user_comment.author_fullname
     } else {
       combinedComments[user_comment.id] = user_comment
     }
