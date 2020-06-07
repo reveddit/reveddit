@@ -184,6 +184,10 @@ class UpvoteRemovalRateHistory extends React.Component {
     Object.keys(componentParams).forEach(param => {
       let paramVal = queryParams.get(param)
       if (paramVal) {
+        const isNumber = /^\d+$/.test(paramVal)
+        if (isNumber) {
+          paramVal = parseInt(paramVal)
+        }
         stateUpdate[param] = paramVal
       }
     })
