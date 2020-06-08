@@ -40,9 +40,12 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
   if (add_user) {
     add_user_promise = queryUserPage(add_user, user_kind || 'overview', user_sort, before, after, user_time, 1)
   }
-
+  let root_comment_promise = Promise.resolve({})
+  if (commentID) {
+    root_comment_promise = getRedditComments({ids: [commentID]})
+  }
   const reddit_pwc_promise = getRedditPostWithComments({threadID, commentID, context, sort: 'old', limit: numCommentsWithPost})
-  .then(({post: reddit_post, comments: redditComments, moreComments, oldestComment}) => {
+  .then(async ({post: reddit_post, comments: redditComments, moreComments, oldestComment}) => {
     const moderators_promise = getModerators(reddit_post.subreddit)
     const modlogs_comments_promise = getModlogsComments(reddit_post.subreddit, reddit_post.id)
     let modlogs_posts_promise = Promise.resolve({})
@@ -70,141 +73,130 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
         return oldestComment
       })
     }
-    return oldest_comment_promise.then(oldestComment => {
-      let reddit_comments_promise = Promise.resolve({redditComments, moreComments})
-      let root_commentID
-      if (commentID) {
-        root_commentID = oldestComment.id
-        pushshift_comments_promise = getPushshiftCommentsByThread(threadID, oldestComment.created_utc - 1)
-        .catch(ignoreArchiveErrors)
-      }
-      const combinedComments = combinePushshiftAndRedditComments({}, redditComments, false, post_without_pushshift_data)
-      const commentTree = createCommentTree(threadID, root_commentID, combinedComments)
-      return global.setState({threadPost: post_without_pushshift_data,
-                              items: Object.values(combinedComments),
-                              itemsLookup: combinedComments,
-                              commentTree,
-                              initialFocusCommentID: commentID})
-      .then(() => {
-        jumpToHash(window.location.hash)
-        // Add 100 to threshhold b/c if post.num_comments <= numCommentsWithPost, first call could return
-        // numCommentsWithPost and second call (sort by 'new') might return 50.
-        // In that case you still need to call api/info, getting 100 items per request.
-        // Needs more testing, setting numCommentsWithPost=500 seemed slower than 100
-        if (reddit_post.num_comments > numCommentsWithPost+100 && ! commentID) {
-          reddit_comments_promise = getRedditPostWithComments({threadID, commentID, context, sort:'new', limit: numCommentsWithPost})
-          .then(({comments: redditComments_new, moreComments: moreComments_new}) => {
-            Object.keys(redditComments_new).forEach(id => {
-              if (! redditComments[id]) {
-                redditComments[id] = redditComments_new[id]
-              }
-            })
-            Object.assign(moreComments, moreComments_new)
-            return {redditComments, moreComments}
-          })
-        }
-        return {reddit_post, root_commentID, reddit_comments_promise, pushshift_comments_promise, resetPath,
-                moderators_promise, modlogs_comments_promise, modlogs_posts_promise}
+    oldestComment = await oldest_comment_promise
+    let reddit_comments_promise = Promise.resolve({redditComments, moreComments})
+    let root_commentID
+    if (commentID) {
+      root_commentID = oldestComment.id
+      pushshift_comments_promise = getPushshiftCommentsByThread(threadID, oldestComment.created_utc - 1)
+      .catch(ignoreArchiveErrors)
+    }
+    const combinedComments = combinePushshiftAndRedditComments({}, redditComments, false, post_without_pushshift_data)
+    const commentTree = createCommentTree(threadID, root_commentID, combinedComments)
+    await global.setState({threadPost: post_without_pushshift_data,
+                           items: Object.values(combinedComments),
+                           itemsLookup: combinedComments,
+                           commentTree,
+                           initialFocusCommentID: commentID})
+    jumpToHash(window.location.hash)
+    // Add 100 to threshhold b/c if post.num_comments <= numCommentsWithPost, first call could return
+    // numCommentsWithPost and second call (sort by 'new') might return 50.
+    // In that case you still need to call api/info, getting 100 items per request.
+    // Needs more testing, setting numCommentsWithPost=500 seemed slower than 100
+    if (reddit_post.num_comments > numCommentsWithPost+100 && ! commentID) {
+      reddit_comments_promise = getRedditPostWithComments({threadID, commentID, context, sort:'new', limit: numCommentsWithPost})
+      .then(({comments: redditComments_new, moreComments: moreComments_new}) => {
+        Object.keys(redditComments_new).forEach(id => {
+          if (! redditComments[id]) {
+            redditComments[id] = redditComments_new[id]
+          }
+        })
+        Object.assign(moreComments, moreComments_new)
+        return {redditComments, moreComments}
       })
-    })
+    }
+    return {reddit_post, root_commentID, reddit_comments_promise, pushshift_comments_promise, resetPath,
+            moderators_promise, modlogs_comments_promise, modlogs_posts_promise}
   })
 
   const pushshift_post_promise = getPushshiftPost(threadID)
   .catch(ignoreArchiveErrors)
 
-  reddit_pwc_promise.then(({reddit_post, modlogs_posts_promise}) => {
-    return modlogs_posts_promise.then(modlogsPosts => {
-      return pushshift_post_promise.then(ps_post => {
-        const combined_post = combineRedditAndPushshiftPost(reddit_post, ps_post)
-        let modlog
-        if (combined_post.id in modlogsPosts) {
-          modlog = modlogsPosts[combined_post.id]
-          combined_post.modlog = modlog
-        }
-        if (combined_post.removed && combined_post.is_self) {
-          if (modlog) {
-            combined_post.selftext = modlog.target_body
-          } else {
-            combined_post.selftext = ps_post.selftext
-          }
-        }
-        global.setState({threadPost: combined_post})
-        return combined_post
-      })
-    })
+  reddit_pwc_promise.then(async ({reddit_post, modlogs_posts_promise}) => {
+    const modlogsPosts = await modlogs_posts_promise
+    const ps_post = await pushshift_post_promise
+    const combined_post = combineRedditAndPushshiftPost(reddit_post, ps_post)
+    let modlog
+    if (combined_post.id in modlogsPosts) {
+      modlog = modlogsPosts[combined_post.id]
+      combined_post.modlog = modlog
+    }
+    if (combined_post.removed && combined_post.is_self) {
+      if (modlog) {
+        combined_post.selftext = modlog.target_body
+      } else {
+        combined_post.selftext = ps_post.selftext
+      }
+    }
+    global.setState({threadPost: combined_post})
+    return combined_post
   })
 
   const combined_comments_promise = reddit_pwc_promise
-  .then(({reddit_post, root_commentID, reddit_comments_promise, resetPath,
+  .then(async ({reddit_post, root_commentID, reddit_comments_promise, resetPath,
           moderators_promise, modlogs_comments_promise}) => {
-    return reddit_comments_promise.then(({redditComments, moreComments}) => {
-      return pushshift_comments_promise.then(pushshiftComments => {
-        return modlogs_comments_promise.then(modlogsComments => {
-          copyModlogItemsToArchiveItems(modlogsComments, pushshiftComments)
-          if (! pushshiftComments[commentID] && ! redditComments[commentID]) {
-            commentID = undefined
-            root_commentID = undefined
-            resetPath()
-          }
-          const origRedditComments = {...redditComments}
-          const remainingRedditIDs = []
-          Object.keys(pushshiftComments).forEach(id => {
-            if (! (id in redditComments)) {
-              remainingRedditIDs.push(id)
-            }
-          })
-          let reddit_remaining_comments_promise = Promise.resolve([])
-          if (remainingRedditIDs.length) {
-            reddit_remaining_comments_promise = getRedditComments({ids: remainingRedditIDs})
-          }
-          const early_combinedComments = combinePushshiftAndRedditComments(pushshiftComments, redditComments, false, reddit_post)
-          const early_commentTree = createCommentTree(threadID, root_commentID, early_combinedComments)
-
-          return global.setState({items: Object.values(early_combinedComments),
-                            itemsLookup: early_combinedComments,
-                            commentTree: early_commentTree,
-                  initialFocusCommentID: commentID})
-          .then(() => {
-            return reddit_remaining_comments_promise.then(remainingRedditComments => {
-              return moderators_promise.then(async (moderators) => {
-                Object.values(remainingRedditComments).forEach(comment => {
-                  redditComments[comment.id] = comment
-                })
-                const user_comment = await add_user_promise.then(userPage => {
-                  return (userPage.items || [])[0] || {}
-                })
-                const combinedComments = combinePushshiftAndRedditComments(pushshiftComments, redditComments, false, reddit_post, user_comment)
-                //todo: check if pushshiftComments has any parent_ids that are not in combinedComments
-                //      and do a reddit query for these. Possibly query twice if the result has items whose parent IDs
-                //      are not in combinedComments after adding the result of the first query
-                const commentTree = createCommentTree(threadID, root_commentID, combinedComments)
-                const missing = []
-                markTreeMeta(missing, origRedditComments, moreComments, commentTree, reddit_post.num_comments, root_commentID, commentID)
-                if (missing.length) {
-                  console.log('missing', missing.join(','))
-                  submitMissingComments(missing)
-                }
-                return {combinedComments, commentTree, moderators, subreddit_lc: reddit_post.subreddit.toLowerCase()}
-              })
-            })
-          })
-        })
-      })
-    })
-  })
-  return Promise.all([pushshift_post_promise,
-                      combined_comments_promise])
-  .then(result => {
-    const {combinedComments, commentTree, moderators, subreddit_lc} = result[1]
-    const stateObj = {items: Object.values(combinedComments),
-                      itemsLookup: combinedComments,
-                      commentTree, moderators: {[subreddit_lc]: moderators}}
-    if (! archiveError) {
-      return global.setSuccess(stateObj)
-    } else {
-      return global.setError('', stateObj)
+    const {redditComments, moreComments} = await reddit_comments_promise
+    const pushshiftComments = await pushshift_comments_promise
+    const modlogsComments = await modlogs_comments_promise
+    const rootComment = await root_comment_promise
+    if (rootComment && rootComment[commentID] && ! redditComments[commentID]) {
+      redditComments[commentID] = rootComment[commentID]
     }
+    copyModlogItemsToArchiveItems(modlogsComments, pushshiftComments)
+    if (! pushshiftComments[commentID] && ! redditComments[commentID]) {
+      commentID = undefined
+      root_commentID = undefined
+      resetPath()
+    }
+    const origRedditComments = {...redditComments}
+    const remainingRedditIDs = []
+    Object.keys(pushshiftComments).forEach(id => {
+      if (! (id in redditComments)) {
+        remainingRedditIDs.push(id)
+      }
+    })
+    let reddit_remaining_comments_promise = Promise.resolve([])
+    if (remainingRedditIDs.length) {
+      reddit_remaining_comments_promise = getRedditComments({ids: remainingRedditIDs})
+    }
+    const early_combinedComments = combinePushshiftAndRedditComments(pushshiftComments, redditComments, false, reddit_post)
+    const early_commentTree = createCommentTree(threadID, root_commentID, early_combinedComments)
+
+    await global.setState({items: Object.values(early_combinedComments),
+                      itemsLookup: early_combinedComments,
+                      commentTree: early_commentTree,
+            initialFocusCommentID: commentID})
+    const remainingRedditComments = await reddit_remaining_comments_promise
+    const moderators = await moderators_promise
+    Object.values(remainingRedditComments).forEach(comment => {
+      redditComments[comment.id] = comment
+    })
+    const user_comment = await add_user_promise.then(userPage => {
+      return (userPage.items || [])[0] || {}
+    })
+    const combinedComments = combinePushshiftAndRedditComments(pushshiftComments, redditComments, false, reddit_post, user_comment)
+    //todo: check if pushshiftComments has any parent_ids that are not in combinedComments
+    //      and do a reddit query for these. Possibly query twice if the result has items whose parent IDs
+    //      are not in combinedComments after adding the result of the first query
+    const commentTree = createCommentTree(threadID, root_commentID, combinedComments)
+    const missing = []
+    markTreeMeta(missing, origRedditComments, moreComments, commentTree, reddit_post.num_comments, root_commentID, commentID)
+    if (missing.length) {
+      console.log('missing', missing.join(','))
+      submitMissingComments(missing)
+    }
+    return {combinedComments, commentTree, moderators, subreddit_lc: reddit_post.subreddit.toLowerCase()}
   })
+  await pushshift_post_promise
+  const {combinedComments, commentTree, moderators, subreddit_lc} = await combined_comments_promise
+  const stateObj = {items: Object.values(combinedComments),
+                    itemsLookup: combinedComments,
+                    commentTree, moderators: {[subreddit_lc]: moderators}}
+  if (! archiveError) {
+    return global.setSuccess(stateObj)
+  } else {
+    return global.setError('', stateObj)
+  }
 }
 
 export const insertParent = (child_id, global) => {
