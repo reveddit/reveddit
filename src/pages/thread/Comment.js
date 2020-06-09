@@ -110,10 +110,6 @@ class Comment extends React.Component {
           <span className='space' />
           <Author {...props}/>
           <span className='space' />
-          {author !== '[deleted]' && props.author_flair_text ?
-            <span className='flair'>{replaceAmpGTLT(props.author_flair_text)}</span>
-          : ''}
-          <span className='space' />
           <span className='comment-score'>{prettyScore(props.score)} point{(props.score !== 1) && 's'}</span>
           <span className='space' />
           <Time {...props}/>

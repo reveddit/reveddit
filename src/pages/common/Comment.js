@@ -1,5 +1,5 @@
 import React from 'react'
-import { prettyScore, parse, isRemoved, replaceAmpGTLT } from 'utils'
+import { prettyScore, parse, isRemoved } from 'utils'
 import Time from 'pages/common/Time'
 import RemovedBy from 'pages/common/RemovedBy'
 import { NOT_REMOVED } from 'pages/common/RemovedBy'
@@ -108,13 +108,6 @@ class Comment extends React.Component {
         <div className='comment-head subhead'>
         <Author {...props}/>
         <span className='space' />
-        {
-          props.author_flair_text &&
-          <React.Fragment>
-            <span className='flair'>{replaceAmpGTLT(props.author_flair_text)}</span>
-            <span className='space' />
-          </React.Fragment>
-        }
         <span className='comment-score'>{prettyScore(props.score)} point{(props.score !== 1) && 's'}</span>
         <span className='space' />
         <Time {...props}/>
