@@ -126,7 +126,7 @@ export const getRevdditUserItems = (user, kind, qp, global) => {
 function getItems (user, kind, global, sort, before = '', after = '', time, limit, loadAll = false) {
   const gs = global.state
   const {commentParentsAndPosts} = gs
-  return queryUserPage(user, kind, sort, before, after, time, limit, oauth_reddit_rev)
+  return queryUserPage(user, kind, sort, before, after, time, limit)
   .then(userPageData => {
     if ('error' in userPageData) {
       if (userPageData.error == 404) {
@@ -189,7 +189,7 @@ function getItems (user, kind, global, sort, before = '', after = '', time, limi
     })
     return getAuth()
     .then(auth => {
-      const params = ['name', auth, oauth_reddit_rev]
+      const params = ['name', auth]
       const comment_parent_and_post_promise = getRedditItemsByID(
         Object.keys(comment_parent_and_post_ids), ...params)
       return getRedditItemsByID(ids, ...params)
