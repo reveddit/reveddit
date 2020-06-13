@@ -159,14 +159,6 @@ const commonFields = [
 ]
 
 class UpvoteRemovalRateHistory extends React.Component {
-  state = {
-    hovered: null,
-    clicked: null,
-    displayOptions: false,
-    [numGraphPointsParamKey]: numGraphPointsDefault,
-    [sortByParamKey]: sortByDefault,
-    [contentTypeParamKey]: contentTypeDefault
-  }
   toggleDisplayOptions = () => {
     this.setState({displayOptions: ! this.state.displayOptions})
   }
@@ -177,10 +169,17 @@ class UpvoteRemovalRateHistory extends React.Component {
       return '[+] options'
     }
   }
-
-  componentDidMount() {
+  constructor(props) {
+    super(props)
+    const state = {
+      hovered: null,
+      clicked: null,
+      displayOptions: false,
+      [numGraphPointsParamKey]: numGraphPointsDefault,
+      [sortByParamKey]: sortByDefault,
+      [contentTypeParamKey]: contentTypeDefault
+    }
     const queryParams = new SimpleURLSearchParams(window.location.search)
-    const stateUpdate = {}
     Object.keys(componentParams).forEach(param => {
       let paramVal = queryParams.get(param)
       if (paramVal) {
@@ -188,10 +187,10 @@ class UpvoteRemovalRateHistory extends React.Component {
         if (isNumber) {
           paramVal = parseInt(paramVal)
         }
-        stateUpdate[param] = paramVal
+        state[param] = paramVal
       }
     })
-    this.setState(stateUpdate)
+    this.state = state
   }
 
   updateStateAndURL = (paramKey, value, defaultValue) => {
