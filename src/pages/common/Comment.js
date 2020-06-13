@@ -1,5 +1,5 @@
 import React from 'react'
-import { prettyScore, parse, isRemoved } from 'utils'
+import { prettyScore, parse, isRemoved, paramString } from 'utils'
 import Time from 'pages/common/Time'
 import RemovedBy from 'pages/common/RemovedBy'
 import { NOT_REMOVED } from 'pages/common/RemovedBy'
@@ -53,7 +53,13 @@ class Comment extends React.Component {
     if (after_before) {
       directlink = '?'+after_before+`limit=1&sort=${props.sort}&show=${props.name}&removal_status=all`
       if (props.removed) {
-        add_user = after_before + `add_user=${props.author}&user_time=${t || ''}&user_sort=${sort || ''}&user_kind=${props.kind}&`
+        const params = {
+          add_user: props.author,
+          ...(t && {user_time: t}),
+          ...(sort && {user_sort: sort}),
+          ...(props.kind && {user_kind: props.kind})
+        }
+        add_user = '&' + after_before + paramString(params)
       }
     }
     let post_parent_removed = []
@@ -130,7 +136,7 @@ class Comment extends React.Component {
                         <a href={reddit+props.permalink+'?context=1'}>reddit-permalink</a>
                       </>
                       :
-                        <a href={props.permalink+'?'+add_user+'context=3#'+props.name}>context{props.num_replies && `(${props.num_replies})`}</a>
+                        <a href={props.permalink+'?context=3'+add_user+'#'+props.name}>context{props.num_replies && `(${props.num_replies})`}</a>
                     }
                     {props.link_permalink &&
                       <a href={props.link_permalink.replace(/^https:\/\/[^/]*/,'')}>full comments
