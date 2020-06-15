@@ -122,12 +122,6 @@ a.white
   div:first-child
     margin-bottom: 5px
 
-.notice-with-link.center
-  font-size: 18px
-  text-align: center
-  font-weight: bold
-  cursor: pointer
-
 .pagination
   a.prev
     margin-right: 40px
@@ -135,3 +129,22 @@ a.white
     user-select: none
   .disabled
     text-decoration: none
+
+.notice-with-link
+  background-color: $notebg
+  border-color: #2966a3
+  font-size: 13px
+  padding: 10px
+  color: rgb(204, 204, 204)
+  margin-bottom: 10px
+  &.center
+    font-size: 18px
+    text-align: center
+    font-weight: bold
+    cursor: pointer
+  .title
+    font-weight: bold
+
+.comment .notice-with-link
+  display: inline-block
+  margin-top: 10px

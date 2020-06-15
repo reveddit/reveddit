@@ -1,9 +1,20 @@
 import React from 'react'
-import { parse, commentIsRemoved, replaceAmpGTLT, getPrettyTimeLength } from 'utils'
+import { parse, commentIsRemoved, replaceAmpGTLT, getPrettyTimeLength,
+         commentIsOrphaned, get, put } from 'utils'
 import { connect } from 'state'
+import Notice from 'pages/common/Notice'
+
+const hideOrphanedNotice_var = 'hideOrphanedNotice'
+
+const dismiss = () => {
+  put(hideOrphanedNotice_var, true)
+  for (let el of document.querySelectorAll('.comment .notice-with-link')) {
+    el.style.display = 'none'
+  }
+}
 
 const CommentBody = (props) => {
-  let innerHTML = ''
+  let innerHTML = '', orphanedNote = ''
   if (! props.deleted) {
     if (commentIsRemoved(props) && props.removed) {
       let removedMessage = 'too quickly to be archived'
@@ -14,6 +25,11 @@ const CommentBody = (props) => {
       }
       innerHTML = `<p>[removed ${removedMessage}]</p>`
     } else {
+      if (! props.removed && commentIsOrphaned(props) && ! get(hideOrphanedNotice_var, false)) {
+        orphanedNote = <Notice title='orphaned comment'
+          message='This comment is not removed. It is less visible because the parent comment or link itself was removed.'
+          htmlLink={<a className="pointer" onClick={() => dismiss()}>dismiss this reveddit notice</a>} />
+      }
       innerHTML = parse(replaceAmpGTLT(props.body))
     }
   } else {
@@ -21,7 +37,10 @@ const CommentBody = (props) => {
   }
 
   return (
-    <div className='comment-body' dangerouslySetInnerHTML={{ __html: innerHTML }} />
+    <div className='comment-body'>
+      {orphanedNote}
+      <div dangerouslySetInnerHTML={{ __html: innerHTML }} />
+    </div>
   )
 }
 
