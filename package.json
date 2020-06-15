@@ -23,8 +23,8 @@
     "parser": "babel-eslint"
   },
   "dependencies": {
-    "@babel/polyfill": "^7.4.4",
-    "@babel/runtime": "^7.4.5",
+    "@babel/polyfill": "^7.10.1",
+    "@babel/runtime": "^7.10.2",
     "apollo-boost": "^0.4.7",
     "bowser": "^2.9.0",
     "github-fork-ribbon-css": "^0.2.3",
