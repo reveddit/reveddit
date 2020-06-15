@@ -43,7 +43,7 @@ export const MISSING_IN_THREAD_META = {filter_text: 'missing',
                                              label: 'missing in thread',
                                               desc: 'Comment does not appear on the reddit thread unless directly linked'}
 
-export const ORPHANED_META = {filter_text: 'comment parent or thread removed',
+export const ORPHANED_META = {filter_text: 'comment parent or link removed',
                                      desc: 'The thread or the parent of the comment was removed'}
 
 

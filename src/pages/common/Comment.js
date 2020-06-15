@@ -67,7 +67,7 @@ class Comment extends React.Component {
       post_parent_removed.push('parent '+props.parent_removed_label)
     }
     if (props.post_removed_label) {
-      post_parent_removed.push('thread '+props.post_removed_label)
+      post_parent_removed.push('link '+props.post_removed_label)
     }
 
 
