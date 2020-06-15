@@ -65,7 +65,7 @@ module.exports = (env, argv) => {
           exclude: /node_modules/,
           options: {
             plugins: ['@babel/plugin-syntax-dynamic-import', 'lodash'],
-            presets: [['@babel/env', { 'targets': { 'node': 12 } }]]
+            presets: [['@babel/env', { 'targets': { 'node': 12, 'browsers': 'last 2 versions, safari >= 7, ios_saf >= 9, chrome >= 52' } }]]
           }
         }
       ]
