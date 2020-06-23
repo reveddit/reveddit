@@ -27,10 +27,6 @@ const textContent = {
     title: 'Linker'+ext_txt,
     description: 'One click icon to jump between viewing content on reddit and reveddit.'
   },
-  'language': {
-    title: 'Language Fix'+ext_txt,
-    description: 'Allows reveddit.com to work properly when the browser/OS language is not set to english.'
-  },
   'q': {
     title: 'Quarantined'+ext_txt,
     description: 'Allows quarantined content to be viewed on reveddit.'
@@ -60,7 +56,7 @@ const linkWrap = (extension) => {
           {extensionLink('chrome', extension)}
           {extensionLink('firefox', extension)}
         </div>
-        {['q', 'language'].includes(extension) &&
+        {['q'].includes(extension) &&
           <p>{notNeeded}</p>
         }
       </div>
@@ -77,7 +73,6 @@ export default () => {
       <div id='main-box'>
         {linkWrap('rt')}
         {linkWrap('linker')}
-        {linkWrap('language')}
         {linkWrap('q')}
       </div>
     </div>

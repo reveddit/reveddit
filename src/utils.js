@@ -16,10 +16,6 @@ export const ext_urls = {
     c: chrome_base+'revddit-linker/jgnigeenijnjlahckhfomimnjadmkmah',
     f: ff_base+'reveddit-linker/'
   },
-  language: {
-    c: chrome_base+'revddit-language-fix/fcpgnheagjkmelppbpnbpfimmmjicknj',
-    f: ff_base+'reveddit-language-fix/'
-  },
   q: {
     c: chrome_base+'revddit-quarantined/cmfgeilnphkjendelakiniceinhjonfh',
     f: ff_base+'reveddit-quarantined/'
