@@ -128,7 +128,6 @@ class Comment extends React.Component {
                 { ! props.deleted &&
                   <React.Fragment>
                     {props.quarantine && <span className="quarantined">quarantined</span>}
-                    { directlink && <a href={directlink}>directlink</a>}
                     { props.parent_context ?
                       <>
                         <a href={props.parent_context+'?removedby=missing'}>reveddit-parent</a>
@@ -142,6 +141,7 @@ class Comment extends React.Component {
                       <a href={props.link_permalink.replace(/^https:\/\/[^/]*/,'')}>full comments
                         {'num_comments' in props && `(${props.num_comments})`}</a>
                     }
+                    { directlink && <a href={directlink}>directlink</a>}
                     { ! props.parent_context &&
                       <a href={mods_link} target="_blank">message mods</a>
                     }
