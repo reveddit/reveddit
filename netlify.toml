@@ -4,17 +4,6 @@
   functions = "lambda"
 
 [[headers]]
-  for = "/*"
-  [headers.values]
-    Content-Security-Policy = '''
-      default-src 'self';
-      frame-ancestors 'none';
-    '''
-    X-Content-Type-Options = "nosniff"
-    X-Frame-Options = "DENY"
-    X-XSS-Protection = "1; mode=block"
-
-[[headers]]
   for = "/images/*"
 
   [headers.values]
