@@ -4,20 +4,21 @@
   functions = "lambda"
 
 
-# created using CSP Generator extension (csper.io)
+# created in part using CSP Generator extension (csper.io)
+# hash obtained by console error or using https://report-uri.com/home/hash, delete only the <script></script> tags, keeping whitespace
 [[headers]]
   for = "/*"
   [headers.values]
     Content-Security-Policy = '''
       default-src 'self';
-      script-src 'self' 'sha256-dK06Ziaa0EW7eznMaLyuarFhVcusz+7eBUuwXo3gWD8=' https://js.stripe.com/v3/ https://www.google-analytics.com/analytics.js https://www.googletagmanager.com/gtag/js;
+      script-src 'self' 'strict-dynamic' 'sha256-dK06Ziaa0EW7eznMaLyuarFhVcusz+7eBUuwXo3gWD8=' https://js.stripe.com/v3/ https://www.google-analytics.com/analytics.js https://www.googletagmanager.com/gtag/js;
       style-src 'self';
       object-src 'none';
       base-uri 'self';
       connect-src 'self' https://api.pushshift.io https://api.revddit.com https://oauth.reddit.com https://ored.reveddit.com https://rviewit.com https://www.reddit.com;
       font-src 'self';
       frame-src 'self' https://js.stripe.com;
-      img-src 'self' data: https://www.redditstatic.com;
+      img-src 'self' data: https://www.google-analytics.com https://www.redditstatic.com;
       manifest-src 'self';
       media-src 'self';
       worker-src 'none';
