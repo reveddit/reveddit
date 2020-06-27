@@ -18,7 +18,7 @@
       connect-src 'self' https://api.pushshift.io https://api.revddit.com https://oauth.reddit.com https://ored.reveddit.com https://rviewit.com https://www.reddit.com;
       font-src 'self';
       frame-src 'self' https://js.stripe.com;
-      img-src 'self' data: https://www.google-analytics.com https://www.redditstatic.com;
+      img-src 'self' data: https:;
       manifest-src 'self';
       media-src 'self';
       worker-src 'none';
