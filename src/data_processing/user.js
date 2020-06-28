@@ -6,6 +6,7 @@ import {
   getModeratedSubreddits,
   oauth_reddit_rev,
 } from 'api/reddit'
+import { getMissingComments } from 'api/reveddit'
 import { getAuth } from 'api/reddit/auth'
 import {
   getAutoremovedItems
@@ -15,6 +16,7 @@ import { REMOVAL_META, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
          AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
 import { itemIsRemovedOrDeleted, isComment, isPost, SimpleURLSearchParams } from 'utils'
 import { setPostAndParentDataForComments } from 'data_processing/info'
+import { setMissingCommentMeta } from 'data_processing/missing_comments'
 
 export const getQueryParams = () => {
   const result = {
@@ -109,9 +111,17 @@ function setRemovedBy(items_removedBy_undefined, ps_items_autoremoved) {
   return removed_meta
 }
 
-export const getRevdditUserItems = (user, kind, qp, global) => {
+let missing_comments_promise = Promise.resolve({comments: {}})
+
+export const getRevdditUserItems = async (user, kind, qp, global) => {
   global.setLoading('')
   const gs = global.state
+  // only request missing comments once. this will always resolve immediately
+  await missing_comments_promise.then(({comments}) => {
+    if (Object.keys(comments).length === 0) {
+      missing_comments_promise = getMissingComments({limit: 200})
+    }
+  })
   getModeratedSubreddits(user).then(moderated_subreddits => global.setState({moderated_subreddits}))
   return getItems(user, kind, global, qp.sort, qp.before, qp.after || gs.userNext, qp.t, qp.limit, qp.loadAll)
   .then(result => {
@@ -127,7 +137,7 @@ function getItems (user, kind, global, sort, before = '', after = '', time, limi
   const gs = global.state
   const {commentParentsAndPosts} = gs
   return queryUserPage(user, kind, sort, before, after, time, limit, oauth_reddit_rev)
-  .then(userPageData => {
+  .then(async (userPageData) => {
     if ('error' in userPageData) {
       if (userPageData.error == 404) {
         return usernameAvailable(user)
@@ -156,6 +166,7 @@ function getItems (user, kind, global, sort, before = '', after = '', time, limi
         global.setError(Error(''), {userIssueDescription: 'suspended'})
       }
     }
+    const {comments: missingComments} = await missing_comments_promise
     const num_pages = gs.num_pages+1
     const userPage_item_lookup = {}
     const ids = [], comment_parent_and_post_ids = {}, comments = []
@@ -175,6 +186,9 @@ function getItems (user, kind, global, sort, before = '', after = '', time, limi
         }
         if (item.link_author === item.author) {
           item.is_op = true
+        }
+        if (item.id in missingComments) {
+          setMissingCommentMeta(item, missingComments)
         }
       }
       if (items.length > 0) {

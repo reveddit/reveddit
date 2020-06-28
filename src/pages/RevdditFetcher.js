@@ -13,7 +13,8 @@ import { showAccountInfo_global } from 'pages/common/Settings'
 import { removedFilter_types, getExtraGlobalStateVars, create_qparams } from 'state'
 import { NOT_REMOVED, COLLAPSED, ORPHANED } from 'pages/common/RemovedBy'
 import { SimpleURLSearchParams, jumpToHash, get, put, ext_urls,
-         itemIsActioned, itemIsCollapsed, commentIsOrphaned } from 'utils'
+         itemIsActioned, itemIsCollapsed, commentIsOrphaned,
+         commentIsMissingInThread } from 'utils'
 import { getAuthorInfoByName } from 'api/reddit'
 import {meta} from 'pages/about/AddOns'
 
@@ -295,7 +296,8 @@ export const withFetch = (WrappedComponent) =>
         if (['user','subreddit_comments'].includes(page_type) &&
             gs.removedFilter === removedFilter_types.removed &&
             this.props.global.removedByFilterIsUnset() &&
-            this.props.global.tagsFilterIsUnset()) {
+            this.props.global.tagsFilterIsUnset() &&
+            ! commentIsMissingInThread(item)) {
           let hideItem = false
           const collapsed = itemIsCollapsed(item)
           const orphaned = commentIsOrphaned(item)

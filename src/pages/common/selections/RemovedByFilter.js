@@ -21,7 +21,7 @@ class RemovedByFilter extends React.Component {
     if (['thread', 'subreddit_comments'].includes(page_type)) {
       delete removal_meta[ANTI_EVIL_REMOVED]
     }
-    if (['thread', 'missing_comments'].includes(page_type)) {
+    if (['thread', 'missing_comments', 'user'].includes(page_type)) {
       removal_meta[MISSING_IN_THREAD] = MISSING_IN_THREAD_META
     }
     if (['user', 'subreddit_comments', 'info', 'search', 'missing_comments'].includes(page_type)) {

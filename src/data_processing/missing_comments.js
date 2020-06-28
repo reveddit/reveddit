@@ -30,17 +30,21 @@ export const getRevdditMissingComments = (subreddit, global) => {
     .then(([postData, redditComments]) => {
       const combinedComments_array = Object.values(combinePushshiftAndRedditComments({}, redditComments, false))
       for (const c of combinedComments_array) {
-        c.missing_in_thread = true
-        c.observed_utc = missingComments[c.id].observed_utc
-        set_link_permalink(c, c)
-        if (c.parent_id.slice(0,2) === 't1') {
-          c.parent_context = c.link_permalink + c.parent_id.slice(3) + '/'
-        } else {
-          c.parent_context = c.link_permalink
-        }
+        setMissingCommentMeta(c, missingComments)
       }
       setPostAndParentDataForComments(combinedComments_array, postData)
       return global.setSuccess({items: combinedComments_array, paginationMeta: missingCommentsMeta})
     })
   })
+}
+
+export const setMissingCommentMeta = (c, missingComments) => {
+  c.missing_in_thread = true
+  c.observed_utc = missingComments[c.id].observed_utc
+  set_link_permalink(c, c)
+  if (c.parent_id.slice(0,2) === 't1') {
+    c.parent_context = c.link_permalink + c.parent_id.slice(3) + '/'
+  } else {
+    c.parent_context = c.link_permalink
+  }
 }

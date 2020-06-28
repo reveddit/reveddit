@@ -1,5 +1,5 @@
 import React from 'react'
-import {itemIsCollapsed} from 'utils'
+import {itemIsCollapsed, commentIsMissingInThread} from 'utils'
 
 export const ANTI_EVIL_REMOVED = 'anti_evil_ops'
 export const AUTOMOD_REMOVED = 'automod'
@@ -39,26 +39,25 @@ export const COLLAPSED_META = {filter_text: 'collapsed',
                                      label: 'collapsed',
                                       desc: 'Comment has a positive score and is collapsed in the thread'}
 
-export const MISSING_IN_THREAD_META = {filter_text: 'missing',
+export const MISSING_IN_THREAD_META = {filter_text: 'missing in thread',
                                              label: 'missing in thread',
                                               desc: 'Comment does not appear on the reddit thread unless directly linked'}
 
 export const ORPHANED_META = {filter_text: 'comment parent or link removed',
                                      desc: 'The thread or the parent of the comment was removed'}
 
-
 export const USER_REMOVED_META = {filter_text: 'user deleted',
                                         label: '[deleted] by user',
                                          desc: 'user deleted'}
 
-export default (props) => {
+const RemovedBy = (props) => {
   let displayTag = '', title = '', text = '', details = '', meta = undefined
   const {removedby} = props
   if (removedby && removedby !== NOT_REMOVED && removedby !== USER_REMOVED) {
     meta = REMOVAL_META[removedby]
   } else if (removedby === USER_REMOVED) {
     meta = USER_REMOVED_META
-  } else if (props.missing_in_thread) {
+  } else if (commentIsMissingInThread(props)) {
     meta = MISSING_IN_THREAD_META
   } else if (itemIsCollapsed(props)) {
     meta = COLLAPSED_META
@@ -73,3 +72,5 @@ export default (props) => {
   }
   return displayTag
 }
+
+export default RemovedBy

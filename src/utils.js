@@ -359,10 +359,14 @@ export const promiseDelay = (ms) => {
 
 export const itemIsActioned = item =>
   item.removed || item.deleted || item.removedby === AUTOMOD_REMOVED_MOD_APPROVED ||
-  itemIsCollapsed(item) || item.locked || commentIsOrphaned(item)
+  itemIsCollapsed(item) || item.locked || commentIsOrphaned(item) || commentIsMissingInThread(item)
 
 export const itemIsCollapsed = (item) => {
   return item.collapsed && item.score > 0 && ! item.removed && ! item.deleted
+}
+
+export const commentIsMissingInThread = (comment) => {
+  return comment.missing_in_thread
 }
 
 export const not = (f) => {
