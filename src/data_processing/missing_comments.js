@@ -25,7 +25,7 @@ export const getRevdditMissingComments = (subreddit, global) => {
   return getMissingComments({subreddit, limit, page})
   .then(({comments: missingComments, meta: missingCommentsMeta}) => {
     const postDataPromise = getPostDataForComments({comments: missingComments})
-    const redditCommentsPromise = getRedditComments({objects: missingComments})
+    const redditCommentsPromise = getRedditComments({ids: Object.keys(missingComments)})
     return Promise.all([postDataPromise, redditCommentsPromise])
     .then(([postData, redditComments]) => {
       const combinedComments_array = Object.values(combinePushshiftAndRedditComments({}, redditComments, false))
