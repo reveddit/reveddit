@@ -8,7 +8,7 @@ const notices = {
   'orphaned': 'hideOrphanedNotice',
   'missing': 'hideMissingInThreadNotice',
 }
-const dismissText = '✖'
+
 const dismiss = (noticeType) => {
   put(notices[noticeType], true)
   for (let el of document.querySelectorAll(`.comment .notice-with-link.${noticeType}`)) {

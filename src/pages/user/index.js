@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useContext} from 'react'
 import { Link } from 'react-router-dom'
 import Post from 'pages/common/Post'
 import Comment from 'pages/common/Comment'
@@ -12,6 +12,7 @@ import { withFetch } from 'pages/RevdditFetcher'
 import { getQueryParams } from 'data_processing/user'
 import { SimpleURLSearchParams, copyLink, get, put } from 'utils'
 import Highlight from 'pages/common/Highlight'
+import ModalContext from 'contexts/modal'
 
 const hidePinPostNotice_var = 'hidePinPostNotice'
 const pinPostLink = 'https://old.reddit.com/user/me/submit?title=See+which+comments+of+yours+have+been+removed&url=https%3A%2F%2Fwww.reveddit.com%2Fabout%2F'
@@ -23,6 +24,7 @@ const dismiss = () => {
 
 const User = ({match, global, page_type, viewableItems, selections, notShownMsg}) => {
   const { user, kind = ''} = match.params
+  const modal = React.useContext(ModalContext)
   const qp_with_defaults = getQueryParams()
   const queryParams = new SimpleURLSearchParams(window.location.search)
   const gs = global.state
@@ -95,8 +97,8 @@ const User = ({match, global, page_type, viewableItems, selections, notShownMsg}
       <div><span class="quarantined">Tip</span> The context links of removed comments now show the comment in context even if the comment was not archived.</div>
     }/>
   } else if (! get(hidePinPostNotice_var, false)) {
-    instructionalNotice = <Notice message='share reveddit.com on your reddit user page'
-      htmlLink={<a target='_blank' href={pinPostLink} className="pointer" onClick={() => dismiss()}>submit a post, then click 'pin to profile'</a>} />
+    instructionalNotice = <Notice title='share reveddit'
+      htmlLink={<div><a target='_blank' href={pinPostLink} className="pointer" onClick={() => dismiss()}>create a post</a>, then select <a className='pointer' onClick={() => modal.openModal({content: <img style={{marginTop: '20px'}}src='/images/pin-profile.png'/>})}>pin to profile</a></div>}/>
   }
 
   return (

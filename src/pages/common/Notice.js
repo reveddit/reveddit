@@ -1,11 +1,12 @@
 import React from 'react'
 
-export default ({message, htmlLink = '', title = '', className = '', dismissFn = undefined}) => {
+// &#xfe0e; is variation selector-15. allows color to work on iOS
+export default ({message = '', htmlLink = '', title = '', className = '', dismissFn = undefined}) => {
   return (
     <div className={'notice-with-link ' + className}>
       {dismissFn &&
         <div className='dismiss'>
-          <a className='pointer' onClick={dismissFn}>✖</a>
+          <a className='pointer' onClick={dismissFn}>✖&#xfe0e;</a>
         </div>
       }
       <div className='title'>{title}</div>

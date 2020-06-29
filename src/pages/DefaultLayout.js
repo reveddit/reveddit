@@ -86,7 +86,9 @@ class DefaultLayout extends React.Component {
                 onRequestClose={this.closeGenericModal}
                 style={customStyles}>
                 <div id='genericModal' className={this.state.hash}>
-                  <div className='modal-close pointer' onClick={this.closeGenericModal}>X</div>
+                  <div className='dismiss'>
+                    <a className='pointer' onClick={this.closeGenericModal}>✖&#xfe0e;</a>
+                  </div>
                   {this.state.hash ?
                     getContentForHash(this.state.hash)
                     :

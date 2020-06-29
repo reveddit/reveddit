@@ -137,6 +137,7 @@ a.white
   padding: 10px
   color: rgb(204, 204, 204)
   margin-bottom: 10px
+  position: relative
   &.center
     font-size: 18px
     text-align: center
@@ -154,16 +155,17 @@ a.white
   .body a:hover
     text-decoration: underline
 
-.notice-with-link
-  .dismiss
-    float: right
-    a
-      position: relative
-      text-decoration: none
-      &:after
-        content: ''
-        position: absolute
-        top: -10px
-        bottom: -10px
-        left: -10px
-        right: -10px
+.dismiss
+  position: absolute
+  right: 10px
+  a
+    position: relative
+    text-decoration: none
+    color: white
+    &:after
+      content: ''
+      position: absolute
+      top: -10px
+      bottom: -10px
+      left: -10px
+      right: -10px
