@@ -110,8 +110,8 @@ function setRemovedBy(items_removedBy_undefined, ps_items_autoremoved) {
   })
   return removed_meta
 }
-
-let missing_comments_promise = Promise.resolve({comments: {}})
+const blankMissingComments = {comments: {}}
+let missing_comments_promise = Promise.resolve(blankMissingComments)
 
 export const getRevdditUserItems = async (user, kind, qp, global) => {
   global.setLoading('')
@@ -120,6 +120,9 @@ export const getRevdditUserItems = async (user, kind, qp, global) => {
   await missing_comments_promise.then(({comments}) => {
     if (Object.keys(comments).length === 0) {
       missing_comments_promise = getMissingComments({limit: 200})
+      .catch(() => {
+        return blankMissingComments
+      })
     }
   })
   getModeratedSubreddits(user).then(moderated_subreddits => global.setState({moderated_subreddits}))
