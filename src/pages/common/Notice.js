@@ -9,7 +9,7 @@ export default ({message, htmlLink = '', title = '', className = '', dismissFn =
         </div>
       }
       <div className='title'>{title}</div>
-      <div style={title ? {'marginLeft':'10px'} : {}}>
+      <div className='body' style={title ? {'marginLeft':'10px'} : {}}>
         <div>{message}</div>
         {htmlLink}
       </div>

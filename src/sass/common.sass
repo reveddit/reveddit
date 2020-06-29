@@ -144,16 +144,22 @@ a.white
     cursor: pointer
   .title
     font-weight: bold
+  a
+    color: white
+    text-decoration: underline
 
 .comment .notice-with-link
   display: inline-block
   margin-top: 10px
+  .body a:hover
+    text-decoration: underline
 
 .notice-with-link
   .dismiss
     float: right
     a
       position: relative
+      text-decoration: none
       &:after
         content: ''
         position: absolute
