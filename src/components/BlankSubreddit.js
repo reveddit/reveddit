@@ -7,7 +7,7 @@ export default ({is_comments_page = false}) => {
     const val = data.get('subreddit').trim().toLowerCase()
     if (val !== '') {
       if (is_comments_page) {
-        window.location.href = `/r/${val}/comments/?removedby=automod-rem-mod-app,mod`
+        window.location.href = `/r/${val}/comments/?removedby=collapsed,locked,automod-rem-mod-app,mod`
       } else {
         window.location.href = `/r/${val}/?localSort=num_comments`
       }

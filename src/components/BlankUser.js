@@ -25,7 +25,7 @@ export default () => {
     if (val === '') {
       setRandom(true)
     } else {
-      const sub = val.match(/^\/?r\/([^/]+)(\/c[^/]*)?(\/[^/]+)?/)
+      const sub = val.match(/^\/?r\/([^/]+)(\/c[^/]*)?\/([^/]+)?/)
       const domain = val.match(/^(?!https?:\/\/)([^./ ]+\.[^/ ]+)\/*$/i)
       const link = val_noamp.match(/^(?:https?:\/\/)?([^./]+\.[^/]+)\/?(.+)/i)
       if (sub) {
@@ -33,7 +33,9 @@ export default () => {
         if (sub[3]) {
           url = val
         } else if (sub[2]) {
-          url += 'comments/'
+          url += 'comments/?removedby=collapsed,locked,automod-rem-mod-app,mod'
+        } else {
+          url += '?localSort=num_comments'
         }
       } else if (val.match(/^\//)) {
         url = val
