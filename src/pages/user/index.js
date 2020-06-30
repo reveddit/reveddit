@@ -84,13 +84,13 @@ const User = ({match, global, page_type, viewableItems, selections, notShownMsg}
   })
   const shareLink = window.location.pathname.replace(/^\/user/,'/y')+window.location.search+window.location.hash
 
-  if (! gs.hasVisitedUserPage_sortTop) {
+  if (! get(hidePinPostNotice_var, false)) {
+  instructionalNotice = <Notice title='share reveddit'
+    htmlLink={<div><a target='_blank' href={pinPostLink} className="pointer" onClick={() => dismiss()}>create a post</a>, then select <a className='pointer' onClick={() => modal.openModal({content: <img style={{marginTop: '20px'}}src='/images/pin-profile.png'/>})}>pin to profile</a></div>}/>
+  } else if (! gs.hasVisitedUserPage_sortTop) {
     instructionalNotice = <Notice message="Sorting by top may show more results."
       htmlLink={<a href={'?sort=top&all=true'}>sort by top</a>}
     />
-  }  else if (! get(hidePinPostNotice_var, false)) {
-    instructionalNotice = <Notice title='share reveddit'
-      htmlLink={<div><a target='_blank' href={pinPostLink} className="pointer" onClick={() => dismiss()}>create a post</a>, then select <a className='pointer' onClick={() => modal.openModal({content: <img style={{marginTop: '20px'}}src='/images/pin-profile.png'/>})}>pin to profile</a></div>}/>
   } else if (! gs.hasVisitedSubredditPage) {
     instructionalNotice = <Notice message="Subreddit pages work too."
       htmlLink={<Link to={'/r/'}>view a subreddit</Link>}
