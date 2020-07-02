@@ -25,13 +25,13 @@ export default () => {
     if (val === '') {
       setRandom(true)
     } else {
-      const sub = val.match(/^\/?r\/([^/]+)(\/c[^/]*)?\/([^/]+)?/)
+      const sub = val.match(/^\/?r\/([^/]+)(\/c[^/]*)?(\/[^/]+)?/)
       const domain = val.match(/^(?!https?:\/\/)([^./ ]+\.[^/ ]+)\/*$/i)
       const link = val_noamp.match(/^(?:https?:\/\/)?([^./]+\.[^/]+)\/?(.+)/i)
       if (sub) {
         url += `r/${sub[1]}/`
         if (sub[3]) {
-          url = val
+          url += sub[2]+sub[3]
         } else if (sub[2]) {
           url += 'comments/?removedby=collapsed,locked,automod-rem-mod-app,mod'
         } else {
