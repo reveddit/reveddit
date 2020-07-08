@@ -14,6 +14,9 @@ const DEFAULT_SECONDS_UNTIL_INCREMENT = 60
 const getCount = async (date, seconds_until_increment = DEFAULT_SECONDS_UNTIL_INCREMENT) => {
   if (! date) {
     const created_utc = await getDate()
+    if (! created_utc) {
+      return 99999
+    }
     date = new Date(created_utc * 1000)
   }
   const seconds_since_day_began = date.getHours()*60*60+date.getMinutes()*60+date.getSeconds()
