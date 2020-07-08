@@ -433,12 +433,12 @@ export const withFetch = (WrappedComponent) =>
       if (archiveTimes && ((now - archiveTimes.updated) < 60*15 || page_type === 'info') ) {
         let commentsMsg = '', submissionsMsg = ''
         if (page_type === 'info' ||
-              (now - archiveTimes.submission > normalArchiveDelay
+              (archiveTimes.updated - archiveTimes.submission > normalArchiveDelay
               && ['search', 'subreddit_posts', 'duplicate_posts', 'domain_posts'].includes(page_type))) {
           submissionsMsg = gridLabel('submissions', archiveTimes.submission)
         }
         if (page_type === 'info' ||
-              (now - archiveTimes.comment > normalArchiveDelay
+              (archiveTimes.updated - archiveTimes.comment > normalArchiveDelay
               && ['search', 'thread', 'subreddit_comments'].includes(page_type))) {
           commentsMsg = gridLabel('comments', archiveTimes.comment)
         }
