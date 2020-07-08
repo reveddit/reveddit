@@ -14,7 +14,7 @@ import { removedFilter_types, getExtraGlobalStateVars, create_qparams } from 'st
 import { NOT_REMOVED, COLLAPSED, ORPHANED } from 'pages/common/RemovedBy'
 import { SimpleURLSearchParams, jumpToHash, get, put, ext_urls,
          itemIsActioned, itemIsCollapsed, commentIsOrphaned,
-         commentIsMissingInThread, getPrettyDate } from 'utils'
+         commentIsMissingInThread, getPrettyDate, getPrettyTimeLength } from 'utils'
 import { getAuthorInfoByName } from 'api/reddit'
 import { getArchiveTimes } from 'api/reveddit'
 import {meta} from 'pages/about/AddOns'
@@ -435,12 +435,12 @@ export const withFetch = (WrappedComponent) =>
         if (page_type === 'info' ||
               (archiveTimes.updated - archiveTimes.submission > normalArchiveDelay
               && ['search', 'subreddit_posts', 'duplicate_posts', 'domain_posts'].includes(page_type))) {
-          submissionsMsg = gridLabel('submissions', archiveTimes.submission)
+          submissionsMsg = gridLabel('submissions', archiveTimes.submission, archiveTimes.updated)
         }
         if (page_type === 'info' ||
               (archiveTimes.updated - archiveTimes.comment > normalArchiveDelay
               && ['search', 'thread', 'subreddit_comments'].includes(page_type))) {
-          commentsMsg = gridLabel('comments', archiveTimes.comment)
+          commentsMsg = gridLabel('comments', archiveTimes.comment, archiveTimes.updated)
         }
         if (submissionsMsg || commentsMsg) {
           archiveDelayMsg =
@@ -462,8 +462,8 @@ export const withFetch = (WrappedComponent) =>
     }
   }
 
-  const gridLabel = (label, created_utc) => {
+  const gridLabel = (label, created_utc, updated) => {
     return <>
-      <div className='label'>{label}</div><Time noAgo={true} created_utc={created_utc}/>
+      <div className='label'>{label}</div><Time noAgo={true} created_utc={created_utc} pretty={getPrettyTimeLength(updated - created_utc)}/>
     </>
   }
