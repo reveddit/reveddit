@@ -135,7 +135,7 @@ a.white
   border-color: #2966a3
   font-size: 13px
   padding: 10px
-  color: rgb(204, 204, 204)
+  color: white
   margin-bottom: 10px
   position: relative
   &.center
@@ -145,8 +145,9 @@ a.white
     cursor: pointer
   .title
     font-weight: bold
-  a
+  a, .time
     color: white
+  a
     text-decoration: underline
 
 .comment .notice-with-link
@@ -169,3 +170,11 @@ a.white
       bottom: -10px
       left: -10px
       right: -10px
+
+.delay .container
+  display: inline-grid
+  grid-template-columns: auto auto
+  .label
+    text-align: right
+    text-decoration: underline
+    margin-right: 20px

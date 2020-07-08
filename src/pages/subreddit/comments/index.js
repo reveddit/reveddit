@@ -36,7 +36,7 @@ const byControversiality2 = (a, b) => {
 class SubredditComments extends React.Component {
   render () {
     const { subreddit } = this.props.match.params
-    const { page_type, viewableItems, selections, notShownMsg } = this.props
+    const { page_type, viewableItems, selections, notShownMsg, archiveDelayMsg } = this.props
     const {items, loading, localSort, localSortReverse, hasVisitedUserPage,
            paginationMeta} = this.props.global.state
     const noItemsFound = items.length === 0 && ! loading
@@ -91,6 +91,7 @@ class SubredditComments extends React.Component {
           </div>
         }
         <Highlight/>
+        {archiveDelayMsg}
         {notShownMsg}
         {
           noItemsFound ?

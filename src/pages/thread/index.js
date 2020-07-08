@@ -17,7 +17,7 @@ class Thread extends React.Component {
 
     const { id, author } = post
     const { subreddit, threadID, urlTitle = '', commentID } = this.props.match.params
-    const { selections, visibleItemsWithoutCategoryFilter, page_type } = this.props
+    const { selections, visibleItemsWithoutCategoryFilter, page_type, archiveDelayMsg } = this.props
     const linkToRestOfComments = `/r/${subreddit}/comments/${threadID}/${urlTitle}/`
     const isSingleComment = (commentID !== undefined)
     const threadFiltersAreUnset = this.props.global.threadFiltersAreUnset()
@@ -52,6 +52,7 @@ class Thread extends React.Component {
           <>
             {selections}
             <Highlight/>
+            {archiveDelayMsg}
             {! hasVisitedUserPage &&
               <div className='notice-with-link userpage-note'>
                 <div>{"Check if you have any removed comments."}</div>

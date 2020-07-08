@@ -12,7 +12,7 @@ import Highlight from 'pages/common/Highlight'
 export class Info extends React.Component {
 
   render() {
-    const { page_type, viewableItems, selections } = this.props
+    const { page_type, viewableItems, selections, archiveDelayMsg } = this.props
     const {items, loading, localSort, localSortReverse} = this.props.global.state
     const noItemsFound = items.length === 0 && ! loading
     const items_sorted = viewableItems
@@ -44,6 +44,7 @@ export class Info extends React.Component {
         {shareLink}
         {selections}
         <Highlight/>
+        {archiveDelayMsg}
         {
           noItemsFound ?
           <p>No items found</p> :

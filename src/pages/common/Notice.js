@@ -1,9 +1,9 @@
 import React from 'react'
 
 // &#xfe0e; is variation selector-15. allows color to work on iOS
-export default ({message = '', htmlLink = '', title = '', className = '', dismissFn = undefined}) => {
+export default ({message = '', htmlLink = '', title = '', className = '', dismissFn = undefined, tooltip = ''}) => {
   return (
-    <div className={'notice-with-link ' + className}>
+    <div className={'notice-with-link ' + className} title={tooltip ? tooltip : false}>
       {dismissFn &&
         <div className='dismiss'>
           <a className='pointer' onClick={dismissFn}>✖&#xfe0e;</a>

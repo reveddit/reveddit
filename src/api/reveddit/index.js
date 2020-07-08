@@ -9,9 +9,9 @@ const errorHandler = (e) => {
 const period_in_minutes = 150
 const period_in_seconds = period_in_minutes * 60
 // increment the count every `seconds_until_increment` seconds
-const seconds_until_increment = 60
+const DEFAULT_SECONDS_UNTIL_INCREMENT = 60
 
-const getCount = () => {
+const getCount = (seconds_until_increment = DEFAULT_SECONDS_UNTIL_INCREMENT) => {
   const d = new Date()
   const seconds_since_day_began = d.getHours()*60*60+d.getMinutes()*60+d.getSeconds()
   const seconds_since_beginning_of_current_period = seconds_since_day_began-Math.floor(seconds_since_day_began/(period_in_seconds))*period_in_seconds
@@ -42,6 +42,13 @@ export const getWhatPeopleSay = () => {
     c: getCount()
   }
   return flaskQuery('what-people-say/?', params)
+}
+
+export const getArchiveTimes = () => {
+  const params = {
+    c: getCount(120)
+  }
+  return flaskQuery('archive-times/?', params)
 }
 
 export const flaskQuery = (path, params = {}) => {

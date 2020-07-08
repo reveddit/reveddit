@@ -12,7 +12,7 @@ class SubredditPosts extends React.Component {
 
   render () {
     const { subreddit } = this.props.match.params
-    const { page_type, viewableItems, selections } = this.props
+    const { page_type, viewableItems, selections, archiveDelayMsg } = this.props
     const {items, loading, localSort, localSortReverse, hasVisitedUserPage} = this.props.global.state
     const noItemsFound = items.length === 0 && ! loading
 
@@ -44,6 +44,7 @@ class SubredditPosts extends React.Component {
           </div>
         }
         <Highlight/>
+        {archiveDelayMsg}
         {
           noItemsFound ?
           <p>No posts found</p> :

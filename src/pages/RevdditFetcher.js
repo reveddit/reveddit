@@ -14,9 +14,13 @@ import { removedFilter_types, getExtraGlobalStateVars, create_qparams } from 'st
 import { NOT_REMOVED, COLLAPSED, ORPHANED } from 'pages/common/RemovedBy'
 import { SimpleURLSearchParams, jumpToHash, get, put, ext_urls,
          itemIsActioned, itemIsCollapsed, commentIsOrphaned,
-         commentIsMissingInThread } from 'utils'
+         commentIsMissingInThread, getPrettyDate } from 'utils'
 import { getAuthorInfoByName } from 'api/reddit'
+import { getArchiveTimes } from 'api/reveddit'
 import {meta} from 'pages/about/AddOns'
+import Notice from 'pages/common/Notice'
+import Time from 'pages/common/Time'
+
 
 const CAT_SUBREDDIT = {category: 'subreddit',
                        category_title: 'Subreddit',
@@ -25,6 +29,9 @@ const CAT_SUBREDDIT = {category: 'subreddit',
 const CAT_POST_TITLE = {category: 'link_title',
                         category_title: 'Post Title',
                         category_unique_field: 'link_id'}
+
+const now = Math.floor(new Date()/1000)
+const normalArchiveDelay = 60
 
 const getCategorySettings = (page_type, subreddit) => {
   const category_settings = {
@@ -160,7 +167,8 @@ export const withFetch = (WrappedComponent) =>
       num_pages: 0,
       loading: true,
       showAllCollapsed: false,
-      showAllOrphaned: false
+      showAllOrphaned: false,
+      archiveTimes: null
     }
     componentDidUpdate() {
       window.onpopstate  = () => {
@@ -194,6 +202,8 @@ export const withFetch = (WrappedComponent) =>
           return
         }
         setTimeout(this.maybeShowSubscribeUserModal, 3000)
+      } else {
+        getArchiveTimes().then(archiveTimes => this.setState({archiveTimes}))
       }
       this.props.global.setQueryParamsFromSavedDefaults(page_type)
       this.props.global.setStateFromQueryParams(
@@ -390,6 +400,7 @@ export const withFetch = (WrappedComponent) =>
       const domain = (this.props.match.params.domain || '').toLowerCase()
       const { page_type } = this.props
       const { items, showContext } = this.props.global.state
+      const { archiveTimes } = this.state
 
       let visibleItemsWithoutCategoryFilter = []
       visibleItemsWithoutCategoryFilter = this.getVisibleItemsWithoutCategoryFilter()
@@ -418,15 +429,41 @@ export const withFetch = (WrappedComponent) =>
             </div>
       }
       const notShownMsg = <>{numOrphanedNotShownMsg}{numCollapsedNotShownMsg}</>
+      let archiveDelayMsg = ''
+      if (archiveTimes && ((now - archiveTimes.updated) < 60*15 || page_type === 'info') ) {
+        let commentsMsg = '', submissionsMsg = ''
+        if (page_type === 'info' ||
+              (now - archiveTimes.submission > normalArchiveDelay
+              && ['search', 'subreddit_posts', 'duplicate_posts', 'domain_posts'].includes(page_type))) {
+          submissionsMsg = gridLabel('submissions', archiveTimes.submission)
+        }
+        if (page_type === 'info' ||
+              (now - archiveTimes.comment > normalArchiveDelay
+              && ['search', 'thread', 'subreddit_comments'].includes(page_type))) {
+          commentsMsg = gridLabel('comments', archiveTimes.comment)
+        }
+        if (submissionsMsg || commentsMsg) {
+          archiveDelayMsg =
+            <Notice className='delay' title='archive delay' tooltip={getPrettyDate(archiveTimes.updated)}
+              message = {<div className='container'>{submissionsMsg}{commentsMsg}</div>} />
+        }
+      }
       return (
         <React.Fragment>
           <WrappedComponent {...this.props} {...this.state}
             selections={selections}
             viewableItems={viewableItems}
             notShownMsg={notShownMsg}
+            archiveDelayMsg={archiveDelayMsg}
             visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
           />
         </React.Fragment>
       )
     }
+  }
+
+  const gridLabel = (label, created_utc) => {
+    return <>
+      <div className='label'>{label}</div><Time noAgo={true} created_utc={created_utc}/>
+    </>
   }

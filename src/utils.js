@@ -211,9 +211,9 @@ export const getPrettyTimeLength = (seconds) => {
     time = time / divisor
   }
 }
-export const getPrettyDate = (createdUTC) => {
+export const getPrettyDate = (createdUTC, noAgo = false) => {
   const seconds = Math.floor((new Date).getTime()/1000)-createdUTC
-  return getPrettyTimeLength(seconds) + ' ago'
+  return getPrettyTimeLength(seconds) + (noAgo ? '' : ' ago')
 }
 
 export const getQueryString = (queryParams) => {
