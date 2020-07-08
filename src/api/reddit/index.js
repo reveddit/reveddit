@@ -91,6 +91,9 @@ export const mapRedditObj = (map, obj, key = 'name') => (map[obj.data[key]] = ob
 
 export const getItems = async (ids, key = 'name', auth = null, host = oauth_reddit) => {
   const results = {}
+  if (! ids.length) {
+    return results
+  }
   if (! auth) {
     auth = await getAuth()
   }

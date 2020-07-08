@@ -72,13 +72,12 @@ export const getRevdditItems = (global) => {
     const url = decodeURI(gs.url)
     return getPostsByURL(global, url)
   }
-  const ids = decodeURI(gs.id).replace(/ /g,'').split(',')
+  const ids = gs.id ? decodeURI(gs.id).replace(/ /g,'').split(',') : []
   const postIDs = [], commentIDs = []
   ids.forEach(id => {
     if (isCommentID(id)) commentIDs.push(id.slice(3))
     else if (isPostID(id)) postIDs.push(id.slice(3))
   })
-
   // query PS twice, reddit in chunks, all at the same time
   const reddit_promise = getRedditItems(ids)
   const pushshift_promises = [getPushshiftComments(commentIDs),
