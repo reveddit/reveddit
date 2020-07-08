@@ -176,7 +176,7 @@ export const withFetch = (WrappedComponent) =>
         this.props.global.setStateFromCurrentURL(this.props.page_type)
       }
     }
-    componentDidMount() {
+    async componentDidMount() {
       let subreddit = (this.props.match.params.subreddit || '').toLowerCase()
       const domain = (this.props.match.params.domain || '').toLowerCase()
       const user = (this.props.match.params.user || '' ).toLowerCase()
@@ -203,7 +203,8 @@ export const withFetch = (WrappedComponent) =>
         }
         setTimeout(this.maybeShowSubscribeUserModal, 3000)
       } else {
-        getArchiveTimes().then(archiveTimes => this.setState({archiveTimes}))
+        const archiveTimes = await getArchiveTimes()
+        this.setState({archiveTimes})
       }
       this.props.global.setQueryParamsFromSavedDefaults(page_type)
       this.props.global.setStateFromQueryParams(

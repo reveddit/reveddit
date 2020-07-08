@@ -415,3 +415,14 @@ export const getJson = (url, options) => {
     return {}
   })
 }
+
+export const getDate = async () => {
+  const auth = await getAuth()
+  return getJson(oauth_reddit+'r/all/comments.json?limit=1', auth)
+  .then(json => {
+    if (json.data) {
+      return json.data.children[0].data.created_utc
+    }
+    return null
+  })
+}

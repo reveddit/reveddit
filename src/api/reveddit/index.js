@@ -1,5 +1,5 @@
 import { paramString } from 'utils'
-import { mapRedditObj } from 'api/reddit'
+import { mapRedditObj, getDate } from 'api/reddit'
 
 const errorHandler = (e) => {
   throw new Error(`Could not connect to Reveddit: ${e}`)
@@ -11,42 +11,45 @@ const period_in_seconds = period_in_minutes * 60
 // increment the count every `seconds_until_increment` seconds
 const DEFAULT_SECONDS_UNTIL_INCREMENT = 60
 
-const getCount = (seconds_until_increment = DEFAULT_SECONDS_UNTIL_INCREMENT) => {
-  const d = new Date()
-  const seconds_since_day_began = d.getHours()*60*60+d.getMinutes()*60+d.getSeconds()
+const getCount = async (date, seconds_until_increment = DEFAULT_SECONDS_UNTIL_INCREMENT) => {
+  if (! date) {
+    const created_utc = await getDate()
+    date = new Date(created_utc * 1000)
+  }
+  const seconds_since_day_began = date.getHours()*60*60+date.getMinutes()*60+date.getSeconds()
   const seconds_since_beginning_of_current_period = seconds_since_day_began-Math.floor(seconds_since_day_began/(period_in_seconds))*period_in_seconds
   const count_within_period = Math.floor(seconds_since_beginning_of_current_period / seconds_until_increment)
   return count_within_period
 }
 
-export const getMissingComments = ({subreddit, limit=100, page=1}) => {
+export const getMissingComments = async ({subreddit, limit=100, page=1}) => {
   const params = {
     ...(subreddit && {subreddit}),
     limit,
     ...(page && {page}),
-    c: getCount()
+    c: await getCount(new Date())
   }
   return flaskQuery('missing-comments/get/?', params)
 }
 
-export const submitMissingComments = (ids) => {
+export const submitMissingComments = async (ids) => {
   const params = {
     ids: ids.join(','),
-    c: getCount()
+    c: await getCount(new Date())
   }
   return flaskQuery('missing-comments/post/?', params)
 }
 
-export const getWhatPeopleSay = () => {
+export const getWhatPeopleSay = async () => {
   const params = {
-    c: getCount()
+    c: await getCount(new Date())
   }
   return flaskQuery('what-people-say/?', params)
 }
 
-export const getArchiveTimes = () => {
+export const getArchiveTimes = async () => {
   const params = {
-    c: getCount(120)
+    c: await getCount(null, 120)
   }
   return flaskQuery('archive-times/?', params)
 }
