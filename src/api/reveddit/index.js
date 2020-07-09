@@ -6,7 +6,7 @@ const errorHandler = (e) => {
 }
 
 // cf cache is 2 hours, using 2.5 just in case
-const period_in_minutes = 150
+const period_in_minutes = 300
 const period_in_seconds = period_in_minutes * 60
 // increment the count every `seconds_until_increment` seconds
 const DEFAULT_SECONDS_UNTIL_INCREMENT = 60
