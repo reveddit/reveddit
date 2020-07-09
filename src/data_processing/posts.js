@@ -181,7 +181,6 @@ const reduceDomain = (map, e) => {
 
 export const getRevdditPostsByDomain = (domain, global) => {
   const {n, before, before_id, selfposts} = global.state
-  global.setLoading('')
   if (window.location.pathname.match(/^\/r\/([^/]*)\/.+/g)) {
     window.history.replaceState(null,null,`/r/${domain}/`+window.location.search)
   }
@@ -284,7 +283,6 @@ class SearchInput {
 }
 
 export const getRevdditDuplicatePosts = async (threadID, global) => {
-  global.setLoading('')
   const auth = await getAuth()
   const drivingPosts_ids = threadID.split('+')
   return await getRedditPosts({ids: drivingPosts_ids, auth})

@@ -14,7 +14,6 @@ export const getRevdditPostsBySubreddit = (subreddit, global) => {
   if (window.location.pathname.match(/^\/r\/([^/]*)\/.+/g)) {
     window.history.replaceState(null,null,`/r/${subreddit}/`+window.location.search)
   }
-  global.setLoading('')
   if (subreddit === 'all') {
     return getRemovedPostIDs(subreddit)
     .then(ids => getRedditPosts({ids}))

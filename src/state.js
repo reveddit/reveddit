@@ -39,9 +39,12 @@ export const getExtraGlobalStateVars = (page_type, sort, add_user) => {
     hasClickedRemovedUserCommentContext = true
     put('hasClickedRemovedUserCommentContext', true)
   }
-  return {hasVisitedUserPage, hasVisitedUserPage_sortTop, hasVisitedSubredditPage, hasClickedRemovedUserCommentContext}
+  return {hasVisitedUserPage, hasVisitedUserPage_sortTop,
+          hasVisitedSubredditPage, hasClickedRemovedUserCommentContext,
+          ...loadingVars}
 }
 
+const loadingVars = {statusText: '', statusImage: '/images/loading.gif', loading:true}
 
 export const urlParamKeys = {
   removedFilter: 'removal_status', // removedFilter should appear above removedByFilter
@@ -416,7 +419,7 @@ class GlobalState extends Container {
   setError = (error, other = {}) => {
     return this.setState({statusText: error.message, statusImage: '/images/error.png', loading:false, error: true, ...other})
   }
-  setLoading = (text) => this.setState({statusText: text, statusImage: '/images/loading.gif', loading:true})
+  setLoading = (text) => this.setState({...loadingVars, statusText: text})
   clearStatus = () => this.setState({statusText: '', statusImage: undefined, loading:false})
 }
 

@@ -16,6 +16,7 @@ import { SimpleURLSearchParams, jumpToHash, get, put, ext_urls,
          itemIsActioned, itemIsCollapsed, commentIsOrphaned,
          commentIsMissingInThread, getPrettyDate, getPrettyTimeLength } from 'utils'
 import { getAuthorInfoByName } from 'api/reddit'
+import { getAuth } from 'api/reddit/auth'
 import { getArchiveTimes } from 'api/reveddit'
 import {meta} from 'pages/about/AddOns'
 import Notice from 'pages/common/Notice'
@@ -176,7 +177,7 @@ export const withFetch = (WrappedComponent) =>
         this.props.global.setStateFromCurrentURL(this.props.page_type)
       }
     }
-    async componentDidMount() {
+    componentDidMount() {
       let subreddit = (this.props.match.params.subreddit || '').toLowerCase()
       const domain = (this.props.match.params.domain || '').toLowerCase()
       const user = (this.props.match.params.user || '' ).toLowerCase()
@@ -202,16 +203,17 @@ export const withFetch = (WrappedComponent) =>
           return
         }
         setTimeout(this.maybeShowSubscribeUserModal, 3000)
-      } else {
-        const archiveTimes = await getArchiveTimes()
-        this.setState({archiveTimes})
       }
       this.props.global.setQueryParamsFromSavedDefaults(page_type)
       this.props.global.setStateFromQueryParams(
                       page_type,
                       new SimpleURLSearchParams(window.location.search),
                       getExtraGlobalStateVars(page_type, queryParams.sort, allQueryParams.get('add_user')))
-      .then(result => {
+      .then(async result => {
+        await getAuth()
+        if (page_type !== 'user') {
+          getArchiveTimes().then(archiveTimes => this.setState({archiveTimes}))
+        }
         const {context, add_user, user_sort, user_kind, user_time, before, after} = this.props.global.state
         const [loadDataFunction, params] = getLoadDataFunctionAndParam(
           {page_type, subreddit, user, kind, threadID, commentID, context, domain, queryParams,

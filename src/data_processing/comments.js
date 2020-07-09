@@ -240,7 +240,6 @@ export const copyModlogItemsToArchiveItems = (modlogsItems, archiveItems) => {
 export const getRevdditCommentsBySubreddit = (subreddit, global) => {
   const {n, before, before_id} = global.state
 
-  global.setLoading('')
   if (subreddit === 'all') {
     subreddit = ''
   }

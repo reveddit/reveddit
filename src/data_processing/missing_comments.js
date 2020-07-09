@@ -14,7 +14,6 @@ const maxN = 100
 export const getRevdditMissingComments = (subreddit, global) => {
   const {page, n} = global.state
 
-  global.setLoading('')
   if (subreddit === 'all') {
     subreddit = ''
   }

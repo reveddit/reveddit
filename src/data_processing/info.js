@@ -67,7 +67,6 @@ export const byControversiality = (a, b) => {
 
 export const getRevdditItems = (global) => {
   const gs = global.state
-  global.setLoading('')
   if (gs.url && gs.url.split('.').length > 1) {
     const url = decodeURI(gs.url)
     return getPostsByURL(global, url)
@@ -150,7 +149,6 @@ export const setPostAndParentDataForComments = (comments, postData) => {
 
 export const getRevdditSearch = (global) => {
   const {q, author, subreddit, n, before, after, domain, or_domain, content, url} = global.state
-  global.setLoading('')
   const promises = []
   const notAuthors = author.split(',').filter(x => x.match(/^!/)).reduce((map, obj) => (map[obj.substr(1)] = 1, map), {});
   let include_comments = false

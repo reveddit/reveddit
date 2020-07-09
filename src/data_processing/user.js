@@ -114,7 +114,6 @@ const blankMissingComments = {comments: {}}
 let missing_comments_promise = Promise.resolve(blankMissingComments)
 
 export const getRevdditUserItems = async (user, kind, qp, global) => {
-  global.setLoading('')
   const gs = global.state
   // only request missing comments once. this will always resolve immediately
   await missing_comments_promise.then(({comments}) => {

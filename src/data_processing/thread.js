@@ -29,7 +29,6 @@ const ignoreArchiveErrors = () => {
 
 export const getRevdditThreadItems = async (threadID, commentID, context, add_user, user_kind, user_sort, user_time, before, after,
                                             global, history) => {
-  global.setLoading('')
   let pushshift_comments_promise = Promise.resolve({})
   if (! commentID) {
     pushshift_comments_promise = getPushshiftCommentsByThread(threadID)
