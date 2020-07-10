@@ -446,8 +446,9 @@ export const withFetch = (WrappedComponent) =>
           commentsMsg = gridLabel('comments', archiveTimes.comment, archiveTimes.updated)
         }
         if (submissionsMsg || commentsMsg) {
+          const updated = getPrettyDate(archiveTimes.updated)
           archiveDelayMsg =
-            <Notice className='delay' title='archive delay' tooltip={getPrettyDate(archiveTimes.updated)}
+            <Notice className='delay' title='archive delay' detail={'as of '+updated}
               message = {<div className='container'>{submissionsMsg}{commentsMsg}</div>} />
         }
       }
