@@ -209,73 +209,45 @@ export const withFetch = (WrappedComponent) =>
                       page_type,
                       new SimpleURLSearchParams(window.location.search),
                       getExtraGlobalStateVars(page_type, queryParams.sort, allQueryParams.get('add_user')))
-      .then(async result => {
-        await getAuth()
-        if (page_type !== 'user') {
-          getArchiveTimes().then(archiveTimes => this.setState({archiveTimes}))
-        }
-        const {context, add_user, user_sort, user_kind, user_time, before, after} = this.props.global.state
-        const [loadDataFunction, params] = getLoadDataFunctionAndParam(
-          {page_type, subreddit, user, kind, threadID, commentID, context, domain, queryParams,
-          add_user, user_kind, user_sort, user_time, before, after})
-        loadDataFunction(...params, this.props.global, this.props.history)
-        .then(() => {
-          const {commentTree, items, threadPost} = this.props.global.state
-          if (items.length === 0 && ['subreddit_posts', 'subreddit_comments'].includes(page_type)) {
-            throw "no results"
+      .then(result => {
+        getAuth().then(() => {
+          if (page_type !== 'user') {
+            getArchiveTimes().then(archiveTimes => this.setState({archiveTimes}))
           }
-          const focusComment = this.props.global.state.itemsLookup[commentID]
-          if ((commentID && focusComment) || commentTree.length === 1) {
-            document.querySelectorAll('.threadComments .collapseToggle.hidden').forEach(toggle => {
-              const comment = toggle.closest('.comment')
-              if (comment
-                  && (commentTree.length === 1
-                   || comment.id.substr(3) in focusComment.ancestors)) {
-                toggle.click()
-              }
-            })
-          }
-          window.scrollY === 0 && jumpToHash(window.location.hash)
-          if (showAccountInfo_global && (items.length || threadPost)) {
-            const uniqueAuthors = items.reduce((map, obj) => (map[obj.author_fullname] = true, map), {[threadPost.author_fullname]:true})
-            delete uniqueAuthors[undefined]
-            getAuthorInfoByName(Object.keys(uniqueAuthors))
-            .then(authors => {
-              this.props.global.setState({authors})
-            })
-          }
-        })
-        .catch(error => {
-          console.error(error)
-          if (this.props.global.state.items.length === 0) {
-            document.querySelector('#donate-ribbon').style.display = 'none'
-            let content = undefined
-            var isFirefox = typeof InstallTrigger !== 'undefined';
-            if (navigator.doNotTrack == "1" && isFirefox) {
-              content =
-                <>
-                  <p>Error: unable to connect to reddit</p>
-                  <p>Tracking Protection on Firefox prevents this site from accessing reddit's API. <b>To fix this</b>, add an exception by clicking the shield icon next to the URL:</p>
-                  <img src="/images/etp.png"/>
-                  <p>If this does not resolve the issue, there may be a conflicting extension blocking connections to reddit from other websites.</p>
-                </>
-            } else {
-              content =
-                <>
-                  <p>Error: unable to connect to either reddit or pushshift</p>
-                  <div>Possible causes:
-                    <ul>
-                      <li>conflicting extensions that block connections</li>
-                      <li>temporary network outage</li>
-                      <li>the page contains <span className='quarantined'>quarantined</span> content that requires a <a href={ext_urls.rt.c}>Chrome</a> or <a href={ext_urls.rt.f}>Firefox</a> extension to view accurately.</li>
-                    </ul>
-                  </div>
-                </>
+          const {context, add_user, user_sort, user_kind, user_time, before, after} = this.props.global.state
+          const [loadDataFunction, params] = getLoadDataFunctionAndParam(
+            {page_type, subreddit, user, kind, threadID, commentID, context, domain, queryParams,
+            add_user, user_kind, user_sort, user_time, before, after})
+          loadDataFunction(...params, this.props.global, this.props.history)
+          .then(() => {
+            const {commentTree, items, threadPost} = this.props.global.state
+            if (items.length === 0 && ['subreddit_posts', 'subreddit_comments'].includes(page_type)) {
+              throw "no results"
             }
-            this.props.openGenericModal({content})
-          }
-          this.props.global.setError('')
+            const focusComment = this.props.global.state.itemsLookup[commentID]
+            if ((commentID && focusComment) || commentTree.length === 1) {
+              document.querySelectorAll('.threadComments .collapseToggle.hidden').forEach(toggle => {
+                const comment = toggle.closest('.comment')
+                if (comment
+                    && (commentTree.length === 1
+                     || comment.id.substr(3) in focusComment.ancestors)) {
+                  toggle.click()
+                }
+              })
+            }
+            window.scrollY === 0 && jumpToHash(window.location.hash)
+            if (showAccountInfo_global && (items.length || threadPost)) {
+              const uniqueAuthors = items.reduce((map, obj) => (map[obj.author_fullname] = true, map), {[threadPost.author_fullname]:true})
+              delete uniqueAuthors[undefined]
+              getAuthorInfoByName(Object.keys(uniqueAuthors))
+              .then(authors => {
+                this.props.global.setState({authors})
+              })
+            }
+          })
+          .catch(this.handleError)
         })
+        .catch(this.handleError)
       })
     }
     maybeShowSubscribeUserModal = () => {
@@ -346,8 +318,6 @@ export const withFetch = (WrappedComponent) =>
       return {viewableItems, numCollapsedNotShown, numOrphanedNotShown}
     }
 
-
-
     getVisibleItemsWithoutCategoryFilter() {
       const removedByFilterIsUnset = this.props.global.removedByFilterIsUnset()
       const tagsFilterIsUnset = this.props.global.tagsFilterIsUnset()
@@ -396,6 +366,37 @@ export const withFetch = (WrappedComponent) =>
         }
       })
       return visibleItems
+    }
+    handleError = (error) => {
+      console.error(error)
+      if (this.props.global.state.items.length === 0) {
+        document.querySelector('#donate-ribbon').style.display = 'none'
+        let content = undefined
+        var isFirefox = typeof InstallTrigger !== 'undefined';
+        if (navigator.doNotTrack == "1" && isFirefox) {
+          content =
+            <>
+              <p>Error: unable to connect to reddit</p>
+              <p>Tracking Protection on Firefox prevents this site from accessing reddit's API. <b>To fix this</b>, add an exception by clicking the shield icon next to the URL:</p>
+              <img src="/images/etp.png"/>
+              <p>If this does not resolve the issue, there may be a conflicting extension blocking connections to reddit from other websites.</p>
+            </>
+        } else {
+          content =
+            <>
+              <p>Error: unable to connect to either reddit or pushshift</p>
+              <div>Possible causes:
+                <ul>
+                  <li>conflicting extensions that block connections</li>
+                  <li>temporary network outage</li>
+                  <li>the page contains <span className='quarantined'>quarantined</span> content that requires a <a href={ext_urls.rt.c}>Chrome</a> or <a href={ext_urls.rt.f}>Firefox</a> extension to view accurately.</li>
+                </ul>
+              </div>
+            </>
+        }
+        this.props.openGenericModal({content})
+      }
+      this.props.global.setError('')
     }
 
     render () {
@@ -466,8 +467,8 @@ export const withFetch = (WrappedComponent) =>
     }
   }
 
-  const gridLabel = (label, created_utc, updated) => {
-    return <>
-      <div className='label'>{label}</div><Time noAgo={true} created_utc={created_utc} pretty={getPrettyTimeLength(updated - created_utc)}/>
-    </>
-  }
+const gridLabel = (label, created_utc, updated) => {
+  return <>
+    <div className='label'>{label}</div><Time noAgo={true} created_utc={created_utc} pretty={getPrettyTimeLength(updated - created_utc)}/>
+  </>
+}
