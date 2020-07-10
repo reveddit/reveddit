@@ -12,17 +12,20 @@ const period_in_seconds = period_in_minutes * 60
 const DEFAULT_SECONDS_UNTIL_INCREMENT = 60
 
 const getCount = async (date, seconds_until_increment = DEFAULT_SECONDS_UNTIL_INCREMENT) => {
+  let add = 0
   if (! date) {
     const created_utc = await getDate()
     if (! created_utc) {
-      return 99999
+      add = 99999
+      date = new Date()
+    } else {
+      date = new Date(created_utc * 1000)
     }
-    date = new Date(created_utc * 1000)
   }
   const seconds_since_day_began = date.getHours()*60*60+date.getMinutes()*60+date.getSeconds()
   const seconds_since_beginning_of_current_period = seconds_since_day_began-Math.floor(seconds_since_day_began/(period_in_seconds))*period_in_seconds
   const count_within_period = Math.floor(seconds_since_beginning_of_current_period / seconds_until_increment)
-  return count_within_period
+  return count_within_period+add
 }
 
 export const getMissingComments = async ({subreddit, limit=100, page=1}) => {
