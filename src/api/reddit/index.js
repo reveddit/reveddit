@@ -418,9 +418,9 @@ export const getJson = (url, options) => {
 
 export const getDate = async () => {
   const auth = await getAuth()
-  return getJson(oauth_reddit+'r/all/comments.json?limit=1', auth)
+  return getJson(oauth_reddit+'r/all?limit=1', auth)
   .then(json => {
-    if (json.data) {
+    if (json?.data?.children?.length) {
       return json.data.children[0].data.created_utc
     }
     return null
