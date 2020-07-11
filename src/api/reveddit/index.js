@@ -25,7 +25,7 @@ const getCount = async (date, seconds_until_increment = DEFAULT_SECONDS_UNTIL_IN
   const seconds_since_day_began = date.getHours()*60*60+date.getMinutes()*60+date.getSeconds()
   const seconds_since_beginning_of_current_period = seconds_since_day_began-Math.floor(seconds_since_day_began/(period_in_seconds))*period_in_seconds
   const count_within_period = Math.floor(seconds_since_beginning_of_current_period / seconds_until_increment)
-  return count_within_period+add
+  return 'zv'+(count_within_period+add).toString(36)+'df'
 }
 
 export const getMissingComments = async ({subreddit, limit=100, page=1}) => {
