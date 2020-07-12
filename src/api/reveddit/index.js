@@ -10,6 +10,7 @@ const period_in_minutes = 300
 const period_in_seconds = period_in_minutes * 60
 // increment the count every `seconds_until_increment` seconds
 const DEFAULT_SECONDS_UNTIL_INCREMENT = 60
+const offset = (new Date()).getTimezoneOffset()*60*1000
 
 const getCount = async (date, seconds_until_increment = DEFAULT_SECONDS_UNTIL_INCREMENT) => {
   let add = 0
@@ -22,10 +23,12 @@ const getCount = async (date, seconds_until_increment = DEFAULT_SECONDS_UNTIL_IN
       date = new Date(created_utc * 1000)
     }
   }
+  //normalize hours across timezones
+  date.setTime(date.getTime()+offset)
   const seconds_since_day_began = date.getHours()*60*60+date.getMinutes()*60+date.getSeconds()
   const seconds_since_beginning_of_current_period = seconds_since_day_began-Math.floor(seconds_since_day_began/(period_in_seconds))*period_in_seconds
   const count_within_period = Math.floor(seconds_since_beginning_of_current_period / seconds_until_increment)
-  return 'zv'+(count_within_period+add).toString(36)+'df'
+  return 'mv'+(count_within_period+add).toString(36)+'df'
 }
 
 export const getMissingComments = async ({subreddit, limit=100, page=1}) => {
