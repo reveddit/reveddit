@@ -14,7 +14,7 @@ export class Info extends React.Component {
   render() {
     const { page_type, viewableItems, selections, archiveDelayMsg } = this.props
     const {items, loading, localSort, localSortReverse} = this.props.global.state
-    const noItemsFound = items.length === 0 && ! loading
+    const noItemsFound = items.length === 0 && ! loading && window.location.search !== ''
     const items_sorted = viewableItems
     if (localSort === localSort_types.date) {
       items_sorted.sort( reversible(byDate, localSortReverse) )

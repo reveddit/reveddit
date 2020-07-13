@@ -204,16 +204,20 @@ export const withFetch = (WrappedComponent) =>
         }
         setTimeout(this.maybeShowSubscribeUserModal, 3000)
       }
+      if (page_type !== 'user') {
+        getArchiveTimes().then(archiveTimes => this.setState({archiveTimes}))
+      }
+      const simpleURLSearchParams = new SimpleURLSearchParams(window.location.search)
       this.props.global.setQueryParamsFromSavedDefaults(page_type)
       this.props.global.setStateFromQueryParams(
                       page_type,
-                      new SimpleURLSearchParams(window.location.search),
+                      simpleURLSearchParams,
                       getExtraGlobalStateVars(page_type, queryParams.sort, allQueryParams.get('add_user')))
       .then(result => {
+        if (page_type === 'info' && simpleURLSearchParams.toString() === '') {
+          return this.props.global.setSuccess()
+        }
         getAuth().then(() => {
-          if (page_type !== 'user') {
-            getArchiveTimes().then(archiveTimes => this.setState({archiveTimes}))
-          }
           const {context, add_user, user_sort, user_kind, user_time, before, after} = this.props.global.state
           const [loadDataFunction, params] = getLoadDataFunctionAndParam(
             {page_type, subreddit, user, kind, threadID, commentID, context, domain, queryParams,
