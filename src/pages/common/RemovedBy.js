@@ -1,5 +1,6 @@
 import React from 'react'
-import {itemIsCollapsed, commentIsMissingInThread} from 'utils'
+import {itemIsCollapsed, commentIsMissingInThread,
+        isPost, getRemovedWithinText, postRemovedUnknownWithin} from 'utils'
 
 export const ANTI_EVIL_REMOVED = 'anti_evil_ops'
 export const AUTOMOD_REMOVED = 'automod'
@@ -51,10 +52,14 @@ export const USER_REMOVED_META = {filter_text: 'user deleted',
                                          desc: 'user deleted'}
 
 const RemovedBy = (props) => {
-  let displayTag = '', title = '', text = '', details = '', meta = undefined
+  let displayTag = '', title = '', text = '', details = '', meta = undefined, withinText = ''
   const {removedby} = props
   if (removedby && removedby !== NOT_REMOVED && removedby !== USER_REMOVED) {
     meta = REMOVAL_META[removedby]
+    if (removedby === UNKNOWN_REMOVED && isPost(props) &&
+        postRemovedUnknownWithin(props)) {
+      withinText = getRemovedWithinText(props)
+    }
   } else if (removedby === USER_REMOVED) {
     meta = USER_REMOVED_META
   } else if (commentIsMissingInThread(props)) {
@@ -68,7 +73,7 @@ const RemovedBy = (props) => {
   }
   if (meta) {
     title = meta.desc
-    displayTag = <span title={title} data-removedby={removedby} className='removedby'>{meta.label+details}</span>
+    displayTag = <span title={title} data-removedby={removedby} className='removedby'>{meta.label+withinText+details}</span>
   }
   return displayTag
 }

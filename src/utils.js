@@ -1,5 +1,5 @@
 import SnuOwnd from 'snuownd'
-import { AUTOMOD_REMOVED_MOD_APPROVED } from 'pages/common/RemovedBy'
+import { AUTOMOD_REMOVED_MOD_APPROVED, UNKNOWN_REMOVED } from 'pages/common/RemovedBy'
 import scrollToElement from 'scroll-to-element'
 import {useRef, useEffect} from 'react'
 
@@ -112,6 +112,10 @@ export const postIsDeleted = post => {
 
 export const postIsRemoved = post => {
   return itemIsRemovedOrDeleted(post) && ! authorDeleted(post)
+}
+
+export const postIsRemovedAndSelftextSaysRemoved = post => {
+  return itemIsRemovedOrDeleted(post) && removeBackslashEquals(post.selftext, REMOVED)
 }
 
 export const display_post = (list, post, ps_item, isInfoPage=false) => {
@@ -399,4 +403,25 @@ export const useFocus = () => {
 
 export const paramString = (params) => {
   return Object.keys(params).map(k => `${k}=${params[k]}`).join('&')
+}
+
+export const getRemovedMessage = (props) => {
+  let removedMessage = 'too quickly to be archived'
+  if (props.retrieved_on) {
+    removedMessage = 'before archival'+getRemovedWithinText(props)
+  } else if (props.global.state.loading) {
+    removedMessage = 'content loading...'
+  }
+  return `[removed ${removedMessage}]`
+}
+
+export const getRemovedWithinText = (props) => {
+  return props.retrieved_on ?
+    ', within '+getPrettyTimeLength(props.retrieved_on-props.created_utc)
+    : ''
+}
+
+export const postRemovedUnknownWithin = (post) => {
+  return post.removed && post.removedby === UNKNOWN_REMOVED &&
+    post.retrievalLatency < 300
 }

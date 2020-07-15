@@ -1,10 +1,13 @@
 import React from 'react'
-import { prettyScore, parse, redditThumbnails, isDeleted, replaceAmpGTLT } from 'utils'
+import { prettyScore, parse, redditThumbnails, replaceAmpGTLT,
+         postIsRemovedAndSelftextSaysRemoved, getRemovedMessage } from 'utils'
 import Time from 'pages/common/Time'
 import RemovedBy from 'pages/common/RemovedBy'
 import Author from 'pages/common/Author'
 import { NOT_REMOVED } from 'pages/common/RemovedBy'
 import { connect } from 'state'
+
+const max_selftext_length = 100
 
 class Post extends React.Component {
   state = {
@@ -45,12 +48,17 @@ class Post extends React.Component {
         </a>
       )
     }
-    let selftext_snippet = props.selftext
-    const max_length = 100
+    let selftext = props.selftext
+    let selftext_snippet = ''
     let snippet_is_set = false
-    if (props.selftext && props.selftext.length > max_length + 10) {
-      snippet_is_set = true
-      selftext_snippet = props.selftext.substring(0,max_length)+'...'
+    if (selftext) {
+      if (postIsRemovedAndSelftextSaysRemoved(props)) {
+        selftext = getRemovedMessage(props)
+        selftext_snippet = selftext
+      } else if (selftext.length > max_selftext_length + 10) {
+        snippet_is_set = true
+        selftext_snippet = selftext.substring(0,max_selftext_length)+'...'
+      }
     }
     let directlink = ''
     if (props.prev) {
@@ -94,11 +102,11 @@ class Post extends React.Component {
             <Author {...props}/>
             &nbsp;to <a className='subreddit-link' href={`/r/${props.subreddit}`}>/r/{props.subreddit}</a>
             {props.locked && <span className='lockedTag'>locked</span>}
-            &nbsp;<RemovedBy {...props} />
+            <div><RemovedBy {...props} /></div>
           </div>
-          {props.selftext &&
+          {selftext &&
             <div className='thread-selftext user-text'>
-              <div dangerouslySetInnerHTML={{ __html: this.state.displayFullSelftext ? parse(props.selftext) : parse(selftext_snippet) }}/>
+              <div dangerouslySetInnerHTML={{ __html: this.state.displayFullSelftext ? parse(selftext) : parse(selftext_snippet) }}/>
               {!this.state.displayFullSelftext && snippet_is_set &&
                 <p>
                   <a className='collapseToggle' onClick={() => this.displayFullSelftext()}>
@@ -110,7 +118,7 @@ class Post extends React.Component {
           }
           <div className='total-comments post-links'>
             {props.quarantine && <span className="quarantined">quarantined</span>}
-            <a href={props.permalink}>{props.num_comments} comments</a>
+            <a href={props.permalink}>{props.num_comments}&nbsp;comments</a>
             <a href={`https://www.reddit.com${props.permalink}`}>reddit</a>
               <a href={`/r/${props.subreddit}/duplicates/${props.id}`}>other-discussions{props.num_crossposts ? ` (${props.num_crossposts}+)`:''}</a>
             { directlink && <a href={directlink}>directlink</a>}

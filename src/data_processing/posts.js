@@ -118,6 +118,8 @@ export const combineRedditAndPushshiftPost = (post, ps_post) => {
   if (ps_post) {
     if (ps_post.retrieved_on) {
       retrievalLatency = ps_post.retrieved_on-ps_post.created_utc
+      post.retrieved_on = ps_post.retrieved_on
+      post.retrievalLatency = retrievalLatency
     }
     if (ps_post.modlog) {
       modlog = ps_post.modlog
@@ -148,6 +150,7 @@ export const combineRedditAndPushshiftPost = (post, ps_post) => {
       } else if (! ps_post || ! ('is_robot_indexable' in ps_post)) {
         post.removedby = UNKNOWN_REMOVED
       } else {
+        // at this point, ps_post.is_robot_indexable must be true
         post.removedby = MOD_OR_AUTOMOD_REMOVED
       }
     }

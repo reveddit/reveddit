@@ -1,6 +1,8 @@
-import { REMOVAL_META, USER_REMOVED, LOCKED, COLLAPSED, MISSING_IN_THREAD, ORPHANED } from 'pages/common/RemovedBy'
+import { REMOVAL_META, USER_REMOVED, LOCKED, COLLAPSED,
+         MISSING_IN_THREAD, ORPHANED, AUTOMOD_REMOVED } from 'pages/common/RemovedBy'
 import { TAG_META, QUARANTINE, MOD, ADMIN } from 'pages/common/selections/TagsFilter'
-import { itemIsCollapsed, commentIsOrphaned, commentIsMissingInThread } from 'utils'
+import { itemIsCollapsed, commentIsOrphaned, commentIsMissingInThread,
+         postRemovedUnknownWithin } from 'utils'
 export const itemIsOneOfSelectedRemovedBy = (item, gs) => {
   if (gs.removedByFilter[USER_REMOVED] && item.deleted) {
     return true
@@ -11,6 +13,8 @@ export const itemIsOneOfSelectedRemovedBy = (item, gs) => {
   } else if (gs.removedByFilter[MISSING_IN_THREAD] && commentIsMissingInThread(item)) {
     return true
   } else if (gs.removedByFilter[ORPHANED] && commentIsOrphaned(item)) {
+    return true
+  } else if (gs.removedByFilter[AUTOMOD_REMOVED] && postRemovedUnknownWithin(item)) {
     return true
   } else {
     const filters = Object.keys(gs.removedByFilter)
