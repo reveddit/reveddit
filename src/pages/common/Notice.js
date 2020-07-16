@@ -8,7 +8,7 @@ export default ({message = '', htmlLink = '', title = '', className = '',
     onClick = (e) => {e.currentTarget.querySelector('.detail').style.visibility = 'visible'}
   }
   return (
-    <div className={'notice-with-link ' + className} title={detail ? detail : false} onClick={onClick}>
+    <div className={'notice-with-link ' + className} title={detail ? detail : undefined} onClick={onClick}>
       {dismissFn &&
         <div className='dismiss'>
           <a className='pointer' onClick={dismissFn}>✖&#xfe0e;</a>
