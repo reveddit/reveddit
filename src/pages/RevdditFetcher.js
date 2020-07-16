@@ -7,7 +7,7 @@ import { getRevdditPostsByDomain, getRevdditDuplicatePosts } from 'data_processi
 import { getRevdditUserItems, getQueryParams } from 'data_processing/user'
 import { getRevdditThreadItems } from 'data_processing/thread'
 import { getRevdditItems, getRevdditSearch } from 'data_processing/info'
-import { itemIsOneOfSelectedRemovedBy, itemIsOneOfSelectedTags } from 'data_processing/filters'
+import { itemIsOneOfSelectedActions, itemIsOneOfSelectedTags, filterSelectedActions } from 'data_processing/filters'
 import Selections from 'pages/common/selections'
 import { showAccountInfo_global } from 'pages/common/Settings'
 import { removedFilter_types, getExtraGlobalStateVars, create_qparams } from 'state'
@@ -327,6 +327,7 @@ export const withFetch = (WrappedComponent) =>
       const tagsFilterIsUnset = this.props.global.tagsFilterIsUnset()
       const visibleItems = []
       const gs = this.props.global.state
+      const filteredActions = filterSelectedActions(Object.keys(gs.removedByFilter))
       gs.items.forEach(item => {
         if (
           (gs.removedFilter === removedFilter_types.all ||
@@ -339,7 +340,7 @@ export const withFetch = (WrappedComponent) =>
               itemIsActioned(item)
             )
           ) &&
-          ( (removedByFilterIsUnset || itemIsOneOfSelectedRemovedBy(item, gs)) &&
+          ( (removedByFilterIsUnset || itemIsOneOfSelectedActions(item, ...filteredActions)) &&
             (tagsFilterIsUnset || itemIsOneOfSelectedTags(item, gs)))
         ) {
           const keywords = gs.keywords.toString().replace(/\s\s+/g, ' ').trim().toLocaleLowerCase().split(' ')

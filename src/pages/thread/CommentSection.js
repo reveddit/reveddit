@@ -2,7 +2,7 @@ import React from 'react'
 import Comment from './Comment'
 import {connect, localSort_types, removedFilter_types, removedFilter_text} from 'state'
 import { NOT_REMOVED, REMOVAL_META, USER_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED } from 'pages/common/RemovedBy'
-import { itemIsOneOfSelectedRemovedBy, itemIsOneOfSelectedTags } from 'data_processing/filters'
+import { itemIsOneOfSelectedActions, itemIsOneOfSelectedTags, filterSelectedActions } from 'data_processing/filters'
 import { createCommentTree } from 'data_processing/thread'
 import { reversible, itemIsActioned, not } from 'utils'
 import { getMaxCommentDepth } from 'pages/thread/Comment'
@@ -101,10 +101,6 @@ class CommentSection extends React.Component {
     return hasOkComment
   }
 
-  itemIsOneOfSelectedRemovedBy_local = (item) => {
-    return itemIsOneOfSelectedRemovedBy(item, this.props.global.state)
-  }
-
   itemIsOneOfSelectedTags_local = (item) => {
     return itemIsOneOfSelectedTags(item, this.props.global.state)
   }
@@ -137,7 +133,10 @@ class CommentSection extends React.Component {
         this.filterCommentTree(commentTree, not(itemIsActioned))
       }
       if (! removedByFilterIsUnset) {
-        this.filterCommentTree(commentTree, this.itemIsOneOfSelectedRemovedBy_local)
+        const filteredActions = filterSelectedActions(Object.keys(this.props.global.state.removedByFilter))
+        this.filterCommentTree(commentTree, (item) => {
+          return itemIsOneOfSelectedActions(item, ...filteredActions)
+        })
       }
       if (! tagsFilterIsUnset) {
         this.filterCommentTree(commentTree, this.itemIsOneOfSelectedTags_local)

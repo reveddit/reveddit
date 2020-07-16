@@ -3,26 +3,49 @@ import { REMOVAL_META, USER_REMOVED, LOCKED, COLLAPSED,
 import { TAG_META, QUARANTINE, MOD, ADMIN } from 'pages/common/selections/TagsFilter'
 import { itemIsCollapsed, commentIsOrphaned, commentIsMissingInThread,
          postRemovedUnknownWithin } from 'utils'
-export const itemIsOneOfSelectedRemovedBy = (item, gs) => {
-  if (gs.removedByFilter[USER_REMOVED] && item.deleted) {
-    return true
-  } else if (gs.removedByFilter[LOCKED] && item.locked) {
-    return true
-  } else if (gs.removedByFilter[COLLAPSED] && itemIsCollapsed(item)) {
-    return true
-  } else if (gs.removedByFilter[MISSING_IN_THREAD] && commentIsMissingInThread(item)) {
-    return true
-  } else if (gs.removedByFilter[ORPHANED] && commentIsOrphaned(item)) {
-    return true
-  } else if (gs.removedByFilter[AUTOMOD_REMOVED] && postRemovedUnknownWithin(item)) {
-    return true
-  } else {
-    const filters = Object.keys(gs.removedByFilter)
-    for (let i = 0; i < filters.length; i++) {
-      const type = filters[i]
-      if ( (! item.removedby && item.removed ) || item.removedby === type) {
-        return true
-      }
+
+const otherActions = {
+  [USER_REMOVED]: true,
+  [LOCKED]: true,
+  [COLLAPSED]: true,
+  [MISSING_IN_THREAD]: true,
+  [ORPHANED]: true
+}
+
+const actions_that_are_other_and_removedBy = [AUTOMOD_REMOVED]
+
+export const filterSelectedActions = (selectedActions) => {
+  const selectedOtherActions = selectedActions.filter(a => a in otherActions).concat(actions_that_are_other_and_removedBy)
+  const selectedRemovedByActions = selectedActions.filter(a => ! (a in otherActions))
+  return [selectedOtherActions, selectedRemovedByActions]
+}
+
+export const itemIsOneOfSelectedActions = (item, selectedOtherActions, selectedRemovedByActions) => {
+  for (const action of selectedOtherActions) {
+    switch(action) {
+      case USER_REMOVED:
+        if (item.deleted) return true
+        break
+      case LOCKED:
+        if (item.locked) return true
+        break
+      case COLLAPSED:
+        if (itemIsCollapsed(item)) return true
+        break
+      case MISSING_IN_THREAD:
+        if (commentIsMissingInThread(item)) return true
+        break
+      case ORPHANED:
+        if (commentIsOrphaned(item)) return true
+        break
+      case AUTOMOD_REMOVED:
+        if (postRemovedUnknownWithin(item)) return true
+        break
+    }
+  }
+  for (const type of selectedRemovedByActions) {
+    if ( (! item.removedby && item.removed ) || item.removedby === type) {
+      return true
     }
   }
   return false
@@ -31,9 +54,7 @@ export const itemIsOneOfSelectedRemovedBy = (item, gs) => {
 export const itemIsOneOfSelectedTags = (item, gs) => {
   const {moderators, moderated_subreddits} = gs
   const subreddit_lc = item.subreddit.toLowerCase()
-  const setTags = Object.keys(gs.tagsFilter)
-  for (let i = 0; i < setTags.length; i++) {
-    const type = setTags[i]
+  for (const type of Object.keys(gs.tagsFilter)) {
     if (TAG_META[type].values.includes(item[TAG_META[type].field])) {
       return true
     } else if (type === MOD && ((moderators[subreddit_lc] || {})[item.author] || moderated_subreddits[subreddit_lc])) {
