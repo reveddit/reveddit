@@ -9,6 +9,7 @@ import { REMOVAL_META, NOT_REMOVED, USER_REMOVED } from 'pages/common/RemovedBy'
 import { withFetch } from 'pages/RevdditFetcher'
 import { reversible, getUrlWithTimestamp, copyLink } from 'utils'
 import Highlight from 'pages/common/Highlight'
+import {byNumComments} from 'data_processing/info'
 
 const byScore = (a, b) => {
   return (b.score - a.score)
@@ -56,6 +57,8 @@ class SubredditComments extends React.Component {
       items_sorted.sort( reversible(byControversiality2, localSortReverse) )
     } else if (localSort === localSort_types.comment_length) {
       items_sorted.sort( reversible(byCommentLength, localSortReverse) )
+    } else if (localSort === localSort_types.num_comments) {
+      items_sorted.sort( reversible(byNumComments, localSortReverse) )
     }
     let pagination = ''
     const {page_number, num_pages} = paginationMeta || {}

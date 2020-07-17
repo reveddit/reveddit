@@ -47,7 +47,8 @@ class LocalSort extends React.Component {
           :
             this.makeLabel('controversiality', 'controversiality')
           }
-          {['thread', 'subreddit_posts', 'domain_posts', 'info', 'search', 'duplicate_posts'].includes(page_type) &&
+          {['thread', 'subreddit_posts', 'domain_posts', 'info', 'search',
+            'duplicate_posts', 'subreddit_comments', 'missing_comments'].includes(page_type) &&
             this.makeLabel('num_comments', 'number of comments')}
           {['thread', 'subreddit_comments', 'missing_comments'].includes(page_type) &&
             this.makeLabel('comment_length', 'comment length')}
