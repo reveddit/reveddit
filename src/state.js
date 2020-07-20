@@ -125,7 +125,7 @@ export const filter_pageType_defaults = {
   categoryFilter_subreddit: 'all',
   categoryFilter_domain: 'all',
   categoryFilter_link_title: 'all',
-  n: 1000,
+  n: 500,
   before: '',
   before_id: '',
   keywords: '',
@@ -138,7 +138,8 @@ export const filter_pageType_defaults = {
   limitCommentDepth: limitCommentDepth_global
 }
 
-const maxN = 60000
+// pushshift max per call is now 100 (previously was 1000)
+const maxN = 2000
 
 
 const getMultiFilterSettings = (stringValue) => {

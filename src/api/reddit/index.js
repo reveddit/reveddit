@@ -6,6 +6,7 @@ export const oauth_reddit_rev = 'https://ored.reveddit.com/'
 const revddit_q = REVEDDIT_CORS_ANWHERE_HOST + 'q/'
 const u_publicmodlogs_feed = '7e9b27126097f51ae6c9cd5b049af34891da6ba6'
 const coronavirus_logs = 'https://logs.mod.rcoronavirus.org/.json'
+const coronavirus_subs = ['coronavirus','covid19']
 const numRequestsBeforeWait = 100
 const waitInterval = 5000
 const maxNumItems = 100
@@ -353,23 +354,33 @@ export const getAuthorInfoByName = (ids) => {
   .catch(errorHandler)
 }
 
-export const getModlogsComments = async (subreddit, link_id) => {
-  const remove = "&type=removecomment"
-  const spam = "&type=spamcomment"
+export const getModlogsItems = async (subreddit, itemType, postProcessArgs = []) => {
+  const remove = '&type=remove'+itemType
+  const spam = '&type=spam'+itemType
   let auth = {}
   const urls = []
   const subreddit_lower = subreddit.toLowerCase()
-  if (['coronavirus','covid19'].includes(subreddit_lower)) {
+  if (coronavirus_subs.includes(subreddit_lower)) {
     urls.push(coronavirus_logs + "?limit=200" + `&subreddit=${subreddit}` + remove)
   } else {
     const baseUrl = oauth_reddit + `r/${subreddit}/about/log/.json?feed=${u_publicmodlogs_feed}&user=publicmodlogs`
     auth = await getAuth()
-    urls.push(baseUrl + remove + "&limit=500")
-    urls.push(baseUrl + spam + "&limit=50")
+    urls.push(...[
+      baseUrl + remove + "&limit=500",
+      baseUrl + spam + "&limit=50"
+    ])
   }
   const promises = urls.map(u => getJson(u, auth))
   return Promise.all(promises)
-  .then(listings => postProcessModlogsListings(listings, link_id))
+  .then(listings => postProcessModlogsListings(listings, ...postProcessArgs))
+}
+
+export const getModlogsPosts = (subreddit) => {
+  return getModlogsItems(subreddit, 'link')
+}
+
+export const getModlogsComments = (subreddit, link_id) => {
+  return getModlogsItems(subreddit, 'comment', [link_id])
 }
 
 export const postProcessModlogsListings = (listings, link_id = '') => {
@@ -392,20 +403,6 @@ export const postProcessModlogsListings = (listings, link_id = '') => {
     }
   }
   return items
-}
-
-export const getModlogsPosts = async (subreddit) => {
-  const remove = "&type=removelink"
-  const spam = "&type=spamlink"
-  const auth = await getAuth()
-  const baseUrl = oauth_reddit + `r/${subreddit}/about/log/.json?feed=${u_publicmodlogs_feed}&user=publicmodlogs`
-  const urls = [
-    baseUrl + remove + "&limit=500",
-    baseUrl + spam + "&limit=50"
-  ]
-  const promises = urls.map(u => getJson(u, auth))
-  return Promise.all(promises)
-  .then(postProcessModlogsListings)
 }
 
 export const getJson = (url, options) => {

@@ -68,63 +68,6 @@ const queryItems = ({q, author, subreddit, n = 500, sort='desc', before, after, 
     })
 }
 
-// If before_id is set, response begins with that ID
-export const getCommentsBySubreddit = async function({subreddit: subreddits_str, n=maxNumItems, before='', before_id=''}) {
-  const data = {}
-  let queryParams = {}
-  let dataLength = 0
-  let foundStartingPoint = true
-  let maxCalls = 5, numCalls = 0
-  if (before_id) {
-    foundStartingPoint = false
-    before = parseInt(before)+1
-  }
-  queryParams['sort'] = 'desc'
-  queryParams['size'] = maxNumItems
-  if (subreddits_str) {
-    queryParams['subreddit'] = subreddits_str.toLowerCase().replace(/\+/g,',')
-  }
-  queryParams['fields'] = 'id,created_utc'
-  if (n > maxNumItems) {
-    maxCalls = Math.ceil(n/maxNumItems)+2
-  }
-
-  while (dataLength < n && numCalls < maxCalls) {
-    if (before) {
-      queryParams['before'] = before
-    }
-
-    let url = commentURL+getQueryString(queryParams)
-    if (numCalls > 0) {
-      await promiseDelay(waitInterval)
-    }
-    const items = await window.fetch(url)
-      .then(response => response.json())
-      .then(data => data.data)
-    before = items[items.length-1].created_utc+1
-    items.forEach(item => {
-      if (before_id && item.id === before_id) {
-        foundStartingPoint = true
-      }
-      if (foundStartingPoint) {
-        data[item.id] = item
-      }
-    })
-    if (before_id && ! foundStartingPoint) {
-      console.error('data displayed is an approximation, starting id not found in first set of results: '+before_id)
-      items.forEach(item => {
-        data[item.id] = item
-      })
-      break
-    }
-    dataLength = Object.keys(data).length
-
-    numCalls += 1
-  }
-  const ids = Object.keys(data).sort((a,b) => data[b].created_utc - data[a].created_utc).slice(0,n)
-  return getCommentsByID(ids)
-}
-
 // this expects short IDs in base36, without the t1_ prefix
 // fields must include 'id'
 export const getCommentsByID = async (ids, field='ids', fields=comment_fields) => {
@@ -165,67 +108,63 @@ export const getPostsByIDForCommentData = (ids) => {
   })
 }
 
-// If before_id is set, response begins with that ID
-export const getPostsBySubredditOrDomain = async function({subreddit:subreddits_str, domain:domains_str, n=maxNumItems, before='', before_id=''}) {
-  const data = {}
-  let queryParams = {}
-  let dataLength = 0
-  let foundStartingPoint = true
-  let maxCalls = 5, numCalls = 0
-  if (before_id) {
-    foundStartingPoint = false
-    before = parseInt(before)+1
+const postProcessPost = (item) => {
+  item.name = 't3_'+item.id
+  update_retrieved_field(item)
+}
+
+const sortCreatedDesc = (a,b) => b.created_utc - a.created_utc
+
+export const getPostsBySubredditOrDomain = function(args) {
+  return getItemsBySubredditOrDomain({
+    ...args,
+    ps_url: postURL,
+    fields: post_fields,
+  })
+  .then(items => {
+    items.forEach(postProcessPost)
+    return items.sort(sortCreatedDesc)
+  })
+}
+
+export const getCommentsBySubreddit = function(args) {
+  return getItemsBySubredditOrDomain({
+    ...args,
+    ps_url: commentURL,
+    fields: comment_fields,
+  })
+  .then(items => {
+    return getCommentsByID(items.map(item => item.id))
+    .then(commentsObj => {
+      return Object.values(commentsObj).sort(sortCreatedDesc)
+    })
+  })
+}
+
+export const getItemsBySubredditOrDomain = function(
+  {subreddit:subreddits_str, domain:domains_str, n=maxNumItems, before='',
+   ps_url, fields}
+) {
+  const queryParams = {
+    sort: 'desc',
+    size: n,
+    fields,
   }
-  queryParams['sort'] = 'desc'
-  queryParams['size'] = maxNumItems
+  if (before) {
+    queryParams['before'] = parseInt(before)+1
+  }
   if (subreddits_str) {
     queryParams['subreddit'] = subreddits_str.toLowerCase().replace(/\+/g,',')
   } else if (domains_str) {
     queryParams['domain'] = domains_str.toLowerCase().replace(/\+/g,',')
   }
-  queryParams['fields'] = post_fields
 
-  if (n > maxNumItems) {
-    maxCalls = Math.ceil(n/maxNumItems)+2
-  }
-  while (dataLength < n && numCalls < maxCalls) {
-    if (before) {
-      queryParams['before'] = before
-    }
-
-    let url = postURL+getQueryString(queryParams)
-    if (numCalls > 0) {
-      await promiseDelay(waitInterval)
-    }
-    const items = await window.fetch(url)
-      .then(response => response.json())
-      .then(data => data.data)
-    before = items[items.length-1].created_utc+1
-    items.forEach(item => {
-      if (before_id && item.id === before_id) {
-        foundStartingPoint = true
-      }
-      if (foundStartingPoint) {
-        item.name = 't3_'+item.id
-        update_retrieved_field(item)
-        data[item.id] = item
-      }
-    })
-    if (before_id && ! foundStartingPoint) {
-      console.error('data displayed is an approximation, starting id not found in first set of results: '+before_id)
-      items.forEach(item => {
-        item.name = 't3_'+item.id
-        update_retrieved_field(item)
-        data[item.id] = item
-      })
-      break
-    }
-    dataLength = Object.keys(data).length
-
-    numCalls += 1
-  }
-  return Object.values(data).sort((a,b) => b.created_utc - a.created_utc).slice(0,n)
+  const url = ps_url+getQueryString(queryParams)
+  return window.fetch(url)
+  .then(response => response.json())
+  .then(data => data.data)
 }
+
 
 export const getPostsByID = (ids, fields = post_fields) => {
   return Promise.all(chunk(ids, maxNumItems)

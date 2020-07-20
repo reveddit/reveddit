@@ -10,7 +10,7 @@ import {
 import { itemIsRemovedOrDeleted, postIsDeleted, display_post,
          getUniqueItems, SimpleURLSearchParams, parse, replaceAmpGTLT
 } from 'utils'
-import { copyModlogItemsToArchiveItems, modlogSaysBotRemoved } from 'data_processing/comments'
+import { modlogSaysBotRemoved } from 'data_processing/comments'
 import { REMOVAL_META, ANTI_EVIL_REMOVED, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
          MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED, USER_REMOVED,
          AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
@@ -45,15 +45,12 @@ export const byNumCrossposts = (a, b) => {
 }
 
 export const retrieveRedditPosts_and_combineWithPushshiftPosts = (
-  {pushshiftPosts, includePostsWithZeroComments = false, existingRedditPosts = {},
-   subreddit_about_promise = Promise.resolve({}), modlogsPosts = undefined
+  {pushshiftPosts, pushshiftPostsObj, includePostsWithZeroComments = false, existingRedditPosts = {},
+   subreddit_about_promise = Promise.resolve({})
   }) => {
   const ids = []
-  // temp fix until posts are stored as hash instead of array
-  if (modlogsPosts) {
-    const pushshiftPosts_obj = pushshiftPosts.reduce((map, obj) => (map[obj.id] = obj, map), {})
-    copyModlogItemsToArchiveItems(modlogsPosts, pushshiftPosts_obj)
-    pushshiftPosts = Object.values(pushshiftPosts_obj)
+  if (! pushshiftPosts) {
+    pushshiftPosts = Object.values(pushshiftPostsObj)
   }
   pushshiftPosts.forEach(post => {
     if (!(post.id in existingRedditPosts)) {

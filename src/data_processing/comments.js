@@ -6,12 +6,13 @@ import {
 } from 'api/reddit'
 import {
   getPostsByIDForCommentData as getPushshiftPostsForCommentData,
-  getCommentsBySubreddit as getPushshiftCommentsBySubreddit
+  getCommentsBySubreddit as pushshiftGetCommentsBySubreddit
 } from 'api/pushshift'
 import { commentIsDeleted, commentIsRemoved, postIsDeleted } from 'utils'
 import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED,
          UNKNOWN_REMOVED, NOT_REMOVED,
          AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
+import { combinedGetItemsBySubredditOrDomain } from 'data_processing/subreddit_posts'
 
 export const retrieveRedditComments_and_combineWithPushshiftComments = pushshiftComments => {
   return getRedditComments({objects: pushshiftComments})
@@ -237,6 +238,14 @@ export const copyModlogItemsToArchiveItems = (modlogsItems, archiveItems) => {
   }
 }
 
+export const combinedGetCommentsBySubreddit = (args) => {
+  return combinedGetItemsBySubredditOrDomain({...args,
+    pushshiftQueryFn: pushshiftGetCommentsBySubreddit,
+    postProcessCombine_Fn: getRevdditComments,
+    postProcessCombine_ItemsArgName: 'pushshiftComments',
+  })
+}
+
 export const getRevdditCommentsBySubreddit = (subreddit, global) => {
   const {n, before, before_id} = global.state
 
@@ -245,21 +254,16 @@ export const getRevdditCommentsBySubreddit = (subreddit, global) => {
   }
   const subreddit_lc = subreddit.toLowerCase()
   const moderators_promise = getModerators(subreddit)
-  const subreddit_about_promise = getSubredditAbout(subreddit)
-  const modlogs_comments_promise = getModlogsComments(subreddit)
-  return getPushshiftCommentsBySubreddit({subreddit, n, before, before_id})
-  .catch(error => {return {}}) // if ps is down, can still return modlog results
-  .then(pushshiftComments => {
-    return modlogs_comments_promise.then(modlogsComments => {
-      copyModlogItemsToArchiveItems(modlogsComments, pushshiftComments)
-      return pushshiftComments
-    })
+  .then(moderators => {
+    global.setState({moderators: {[subreddit_lc]: moderators}})
   })
-  .then(pushshiftComments => getRevdditComments({pushshiftComments, subreddit_about_promise}))
-  .then(show_comments => {
-    return moderators_promise.then(moderators => {
-      return global.setSuccess({items: show_comments, moderators: {[subreddit_lc]: moderators}})
-    })
+  const subreddit_about_promise = getSubredditAbout(subreddit)
+  const modlogs_promise = getModlogsComments(subreddit)
+
+  return combinedGetCommentsBySubreddit({subreddit, n, before, before_id, global,
+    subreddit_about_promise, modlogs_promise})
+  .then(() => {
+    global.setSuccess()
   })
 }
 
