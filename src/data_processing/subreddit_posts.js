@@ -64,7 +64,7 @@ const empty_obj_promise = Promise.resolve({})
 const empty_modlogs_promise = empty_obj_promise
 
 export const combinedGetItemsBySubredditOrDomain = (args) => {
-  const {subreddit, n, before, before_id, global,
+  const {subreddit, domain, n, before, before_id, global,
     numItemsQueried = 0,
     combinePromise = empty_arr_promise,
     subreddit_about_promise = empty_obj_promise,
@@ -73,7 +73,7 @@ export const combinedGetItemsBySubredditOrDomain = (args) => {
     postProcessCombine_Fn, postProcessCombine_Args,
     postProcessCombine_ItemsArgName,
   } = args
-  return pushshiftQueryFn({subreddit, n, before, before_id})
+  return pushshiftQueryFn({subreddit, domain, n, before, before_id})
   .catch(error => {return []}) // if ps is down, can still return modlog results
   .then(pushshiftItemsUnfiltered => {
     // make sure previous promise completes b/c it sets state
@@ -107,7 +107,9 @@ export const combinedGetItemsBySubredditOrDomain = (args) => {
         return postProcessCombine_Fn(
           {[postProcessCombine_ItemsArgName]: pushshiftItems, subreddit_about_promise})
         .then(combinedItems => {
-          return global.setState({items: items.concat(combinedItems), itemsLookup})
+          const allItems = items.concat(combinedItems)
+          return global.setState({items: allItems, itemsLookup})
+          .then(() => allItems)
         })
       })
     })

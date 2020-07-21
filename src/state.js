@@ -125,7 +125,9 @@ export const filter_pageType_defaults = {
   categoryFilter_subreddit: 'all',
   categoryFilter_domain: 'all',
   categoryFilter_link_title: 'all',
-  n: 500,
+  n: {
+    domain_posts: 200,
+  },
   before: '',
   before_id: '',
   keywords: '',
@@ -196,7 +198,7 @@ class GlobalState extends Container {
 
   getInitialState() {
     return {
-        n: 1000,
+        n: 500,
         before: '',
         before_id: '',
         keywords: '',

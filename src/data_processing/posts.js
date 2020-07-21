@@ -3,7 +3,6 @@ import { getPosts as getRedditPosts,
          querySearch as queryRedditSearch } from 'api/reddit'
 import { getAuth } from 'api/reddit/auth'
 import {
-  getPostsBySubredditOrDomain as pushshiftGetPostsBySubredditOrDomain,
   queryPosts as pushshiftQueryPosts,
   getPost as getPushshiftPost
 } from 'api/pushshift'
@@ -14,6 +13,7 @@ import { modlogSaysBotRemoved } from 'data_processing/comments'
 import { REMOVAL_META, ANTI_EVIL_REMOVED, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
          MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED, USER_REMOVED,
          AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
+import { combinedGetPostsBySubredditOrDomain } from 'data_processing/subreddit_posts'
 
 export const byScore = (a, b) => {
   return (b.stickied - a.stickied) || (b.score - a.score)
@@ -179,33 +179,30 @@ const reduceDomain = (map, e) => {
   return map
 }
 
-export const getRevdditPostsByDomain = (domain, global) => {
+export const getRevdditPostsByDomain = async (domain, global) => {
   const {n, before, before_id, selfposts} = global.state
   if (window.location.pathname.match(/^\/r\/([^/]*)\/.+/g)) {
     window.history.replaceState(null,null,`/r/${domain}/`+window.location.search)
   }
   const domains = Object.keys(domain.split('+').reduce(reduceDomain, {}))
   if (domains.length) {
-    const promises = [pushshiftGetPostsBySubredditOrDomain({domain:domains.join('+'), n, before, before_id})]
-    const addQuery = selfposts && domains.length
-    if (addQuery) {
-      promises.push(pushshiftQueryPosts({selftext:domains.join('|')}))
+    const linkpost_promise = combinedGetPostsBySubredditOrDomain({domain:domains.join('+'), n, before, before_id, global})
+    let selfpost_promise = Promise.resolve([])
+    if (selfposts && domains.length) {
+      selfpost_promise = pushshiftQueryPosts({selftext:domains.join('|'), n, before})
+        .then(pushshiftPosts => retrieveRedditPosts_and_combineWithPushshiftPosts({pushshiftPosts}))
     }
+    const promises = [ linkpost_promise, selfpost_promise ]
     return Promise.all(promises)
     .then(results => {
-      if (addQuery) {
-        return results[0].concat(results[1])
-      } else {
-        return results[0]
-      }
+      return results[0].concat(results[1])
     })
-    .then(pushshiftPosts => retrieveRedditPosts_and_combineWithPushshiftPosts({pushshiftPosts}))
-    .then(show_posts => {
-      global.setSuccess({items:show_posts})
-      return show_posts
+    .then(items => {
+      return global.setSuccess({items})
+      .then(() => items)
     })
   } else {
-    global.setError('')
+    return global.setError('')
   }
 }
 
