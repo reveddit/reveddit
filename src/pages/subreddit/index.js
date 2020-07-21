@@ -6,13 +6,16 @@ import { connect, localSort_types } from 'state'
 import { byScore, byDate, byNumComments, byControversiality, byNumCrossposts } from 'data_processing/posts'
 import { reversible, getUrlWithTimestamp, copyLink } from 'utils'
 import Highlight from 'pages/common/Highlight'
+import Pagination from 'components/Pagination'
 
 
 class SubredditPosts extends React.Component {
 
   render () {
     const { subreddit } = this.props.match.params
-    const { page_type, viewableItems, selections, archiveDelayMsg } = this.props
+    const { page_type, viewableItems, selections, archiveDelayMsg,
+            oldestTimestamp, newestTimestamp,
+          } = this.props
     const {items, loading, localSort, localSortReverse, hasVisitedUserPage} = this.props.global.state
     const noItemsFound = items.length === 0 && ! loading
 
@@ -29,7 +32,10 @@ class SubredditPosts extends React.Component {
       items_sorted.sort( reversible(byNumCrossposts, localSortReverse) )
     }
 
-
+    let pagination = ''
+    if (oldestTimestamp && newestTimestamp && subreddit !== 'all' && ! loading) {
+      pagination = <Pagination oldestTimestamp={oldestTimestamp} newestTimestamp={newestTimestamp}/>
+    }
 
     return (
       <React.Fragment>
@@ -52,6 +58,7 @@ class SubredditPosts extends React.Component {
             return <Post key={item.id} {...item} />
           })
         }
+        {pagination}
       </React.Fragment>
     )
   }

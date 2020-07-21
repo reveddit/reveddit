@@ -326,9 +326,19 @@ export const withFetch = (WrappedComponent) =>
       const removedByFilterIsUnset = this.props.global.removedByFilterIsUnset()
       const tagsFilterIsUnset = this.props.global.tagsFilterIsUnset()
       const visibleItems = []
+      let oldestTimestamp = 0, newestTimestamp = 0
       const gs = this.props.global.state
       const filteredActions = filterSelectedActions(Object.keys(gs.removedByFilter))
+      if (gs.items.length) {
+        oldestTimestamp = gs.items[0].created_utc
+        newestTimestamp = oldestTimestamp
+      }
       gs.items.forEach(item => {
+        if (item.created_utc > newestTimestamp) {
+          newestTimestamp = item.created_utc
+        } else if (item.created_utc < oldestTimestamp) {
+          oldestTimestamp = item.created_utc
+        }
         if (
           (gs.removedFilter === removedFilter_types.all ||
             (
@@ -370,7 +380,7 @@ export const withFetch = (WrappedComponent) =>
           }
         }
       })
-      return visibleItems
+      return {visibleItemsWithoutCategoryFilter: visibleItems, oldestTimestamp, newestTimestamp}
     }
     handleError = (error) => {
       console.error(error)
@@ -411,14 +421,14 @@ export const withFetch = (WrappedComponent) =>
       const { items, showContext } = this.props.global.state
       const { archiveTimes } = this.state
 
-      let visibleItemsWithoutCategoryFilter = []
-      visibleItemsWithoutCategoryFilter = this.getVisibleItemsWithoutCategoryFilter()
+      const visibleItemsWithoutCategoryFilter_meta = this.getVisibleItemsWithoutCategoryFilter()
+      const {visibleItemsWithoutCategoryFilter} = visibleItemsWithoutCategoryFilter_meta
       const {category, category_title, category_unique_field} = getCategorySettings(page_type, subreddit)
       const {viewableItems, numCollapsedNotShown, numOrphanedNotShown} = this.getViewableItems(visibleItemsWithoutCategoryFilter, category, category_unique_field)
       const selections =
         <Selections subreddit={subreddit}
                     page_type={page_type}
-                    visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
+                    {...visibleItemsWithoutCategoryFilter_meta}
                     num_showing={viewableItems.length}
                     num_items={items.length}
                     category_type={category} category_title={category_title}
@@ -465,7 +475,7 @@ export const withFetch = (WrappedComponent) =>
             viewableItems={viewableItems}
             notShownMsg={notShownMsg}
             archiveDelayMsg={archiveDelayMsg}
-            visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
+            {...visibleItemsWithoutCategoryFilter_meta}
           />
         </React.Fragment>
       )

@@ -198,7 +198,7 @@ class GlobalState extends Container {
 
   getInitialState() {
     return {
-        n: 500,
+        n: 300,
         before: '',
         before_id: '',
         keywords: '',

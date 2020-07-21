@@ -10,6 +10,7 @@ import { withFetch } from 'pages/RevdditFetcher'
 import { reversible, getUrlWithTimestamp, copyLink } from 'utils'
 import Highlight from 'pages/common/Highlight'
 import {byNumComments} from 'data_processing/info'
+import Pagination from 'components/Pagination'
 
 const byScore = (a, b) => {
   return (b.score - a.score)
@@ -37,13 +38,13 @@ const byControversiality2 = (a, b) => {
 class SubredditComments extends React.Component {
   render () {
     const { subreddit } = this.props.match.params
-    const { page_type, viewableItems, selections, notShownMsg, archiveDelayMsg } = this.props
+    const { page_type, viewableItems, selections, notShownMsg, archiveDelayMsg,
+            oldestTimestamp, newestTimestamp,
+          } = this.props
     const {items, loading, localSort, localSortReverse, hasVisitedUserPage,
            paginationMeta} = this.props.global.state
     const noItemsFound = items.length === 0 && ! loading
-
     const items_sorted = viewableItems
-
 
     if (localSort === localSort_types.date) {
       items_sorted.sort( reversible(byDate, localSortReverse) )
@@ -62,24 +63,23 @@ class SubredditComments extends React.Component {
     }
     let pagination = ''
     const {page_number, num_pages} = paginationMeta || {}
-    if (paginationMeta && num_pages > 1) {
-      const hasPrev = page_number > 1, hasNext = page_number < num_pages
-      let prev = null, next = null
-      const qparams = create_qparams()
-      if (hasPrev) {
-        prev =  page_number > 2 ?
-          qparams.set('page', page_number-1).toString() :
-          window.location.pathname+qparams.delete('page').toString()
+    if (paginationMeta) {
+      if (num_pages > 1) {
+        const hasPrev = page_number > 1, hasNext = page_number < num_pages
+        let prev = null, next = null
+        const qparams = create_qparams()
+        if (hasPrev) {
+          prev =  page_number > 2 ?
+            qparams.set('page', page_number-1).toString() :
+            window.location.pathname+qparams.delete('page').toString()
+        }
+        if (hasNext) {
+          next = qparams.set('page', page_number+1).toString()
+        }
+        pagination = <Pagination prev={prev} next={next}/>
       }
-      if (hasNext) {
-        next = qparams.set('page', page_number+1).toString()
-      }
-      pagination = (
-        <div className='non-item pagination'>
-          <a href={prev} className={`prev ${! hasPrev && 'disabled'}`}>&lt;- previous</a>
-          <a href={next} className={`next ${! hasNext && 'disabled'}`}>next -&gt;</a>
-        </div>
-      )
+    } else if (oldestTimestamp && newestTimestamp && subreddit !== 'all' && ! loading) {
+      pagination = <Pagination oldestTimestamp={oldestTimestamp} newestTimestamp={newestTimestamp}/>
     }
     return (
       <React.Fragment>
