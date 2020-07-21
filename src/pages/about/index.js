@@ -199,12 +199,12 @@ export class About extends React.Component {
             <div className='section half'>
               <h2 className='about'>Credits</h2>
               <p>
-                Created by
-                <a href='https://github.com/rhaksw/'> Rob Hawkins</a> using:</p>
-                  <ul>
-                    <li><a href='https://github.com/JubbeArt/removeddit'> Removeddit</a> by Jesper Wrang</li>
-                    <li><a href='https://www.reddit.com/r/pushshift/'>Pushshift</a> by Jason Baumgartner</li>
-                  </ul>
+                Created by <a href='https://github.com/rhaksw/'>Rob Hawkins</a> using:
+              </p>
+              <ul>
+                <li><a href='https://github.com/JubbeArt/removeddit'>Removeddit</a> by Jesper Wrang</li>
+                <li><a href='https://www.reddit.com/r/pushshift/'>Pushshift</a> by Jason Baumgartner</li>
+              </ul>
             </div>
           </div>
           <div className='sections'>
