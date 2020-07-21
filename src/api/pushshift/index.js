@@ -45,7 +45,7 @@ const queryItems = ({q, author, subreddit, n = 500, sort='desc', before, after, 
     ...(author && {author}),
     ...(subreddit && {subreddit}),
     ...(after && {after}),
-    ...(before && {before}),
+    ...(before && {before: parseInt(before)+1}),
     ...(domain && {domain}),
     ...(parent_id && {parent_id})
   }
