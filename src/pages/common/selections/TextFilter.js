@@ -21,11 +21,10 @@ class TextFilter extends React.Component {
   }
 
   render() {
-    const title = 'Word filter'
     const textValue = this.state.localKeywords
     return (
       <div className={`textFilter selection filter ${textValue.trim().length !== 0 ? 'set': ''}`}>
-        <div className='title'>{title}</div>
+        <div className='title nowrap'>Word filter</div>
           <input type='text'
             name='keywords' value={textValue} placeholder='keywords'
             onChange={(e) => this.changeLocalFast_DelayedGlobalStateUpdate(e)}

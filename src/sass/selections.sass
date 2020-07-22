@@ -1,9 +1,11 @@
+$selectionsMarginRight: -15px
+$selectionMarginTop: 10px
+$selectionMarginRight: 20px
 .selections
   color: #828282
-  padding-bottom: 10px
   display: flex
   flex-wrap: wrap
-  margin-top: -10px
+  margin: (-$selectionMarginTop) ($selectionsMarginRight) 10px 0
   a
     color: #828282
   .categoryFilter
@@ -11,13 +13,14 @@
     select
       width: 100%
   .selection
-    margin-top: 10px
-    padding-right: 35px
+    margin: $selectionMarginTop $selectionMarginRight 0 0
     label
       display: block
     .title
       font-weight: bold
       margin-bottom: 5px
+      &.nowrap
+        white-space: nowrap
   .filter-menu
     display: flex
   .filter

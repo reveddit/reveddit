@@ -4,6 +4,7 @@ import RemovedFilter from 'pages/common/selections/RemovedFilter'
 import RemovedByFilter from 'pages/common/selections/RemovedByFilter'
 import CategoryFilter from 'pages/common/selections/CategoryFilter'
 import LocalSort from 'pages/common/selections/LocalSort'
+import ItemsPerPage from 'pages/common/selections/ItemsPerPage'
 import RedditSort from 'pages/common/selections/RedditSort'
 import Content from 'pages/common/selections/Content'
 import TextFilter from 'pages/common/selections/TextFilter'
@@ -92,6 +93,7 @@ class Selections extends React.Component {
     const categoryFilter = <CategoryFilter page_type={page_type}
       visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
       type={category_type} title={category_title} unique_field={category_unique_field}/>
+    const textFilter = <TextFilter page_type={page_type} />
     return (
       <React.Fragment>
         <div className='toggleFilters'><a onClick={this.toggleShowFilters}
@@ -119,14 +121,19 @@ class Selections extends React.Component {
                         <Selfposts page_type={page_type}/>
                       }
                       <LocalSort page_type={page_type}/>
-                      <RemovedFilter page_type={page_type} />
+                      <div>
+                        <RemovedFilter page_type={page_type} />
+                        <ItemsPerPage/>
+                      </div>
                       <RemovedByFilter page_type={page_type}/>
                       <TagsFilter page_type={page_type}/>
-                      {categoryFilter}
+                      <div>
+                        {categoryFilter}
+                        {textFilter}
+                      </div>
                       {subreddit !== 'all' && page_type === 'subreddit_posts' &&
                         upvoteRemovalRateHistory
                       }
-                      <TextFilter page_type={page_type} />
                     </React.Fragment>)
                 case 'subreddit_comments':
                 case 'missing_comments':
@@ -135,15 +142,20 @@ class Selections extends React.Component {
                       {page_type === 'subreddit_comments' &&
                         <Content page_type={page_type}/>
                       }
-                      <LocalSort page_type={page_type} />
-                      <RemovedFilter page_type={page_type} />
+                      <LocalSort page_type={page_type}/>
+                      <div>
+                        <RemovedFilter page_type={page_type} />
+                        <ItemsPerPage/>
+                      </div>
                       <RemovedByFilter page_type={page_type} />
                       <TagsFilter page_type={page_type}/>
-                      {categoryFilter}
+                      <div>
+                        {categoryFilter}
+                        {textFilter}
+                      </div>
                       {subreddit !== 'all' &&
                         upvoteRemovalRateHistory
                       }
-                      <TextFilter page_type={page_type} />
                     </React.Fragment>)
                 case 'user':
                   return (
@@ -153,8 +165,10 @@ class Selections extends React.Component {
                       <RemovedFilter page_type={page_type} />
                       <RemovedByFilter page_type={page_type}/>
                       <TagsFilter page_type={page_type}/>
-                      {categoryFilter}
-                      <TextFilter page_type={page_type} />
+                      <div>
+                        {categoryFilter}
+                        {textFilter}
+                      </div>
                     </React.Fragment>)
                 case 'thread':
                   return (

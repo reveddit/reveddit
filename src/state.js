@@ -305,6 +305,7 @@ class GlobalState extends Container {
       removedByFilter: this.state.removedByFilter,
       tagsFilter: this.state.tagsFilter,
       showContext: this.state.showContext,
+      n: this.state.n,
     }
     put(defaultFilters_str, filters)
   }
@@ -321,7 +322,10 @@ class GlobalState extends Container {
         if (typeof(value) === 'object') {
           value = Object.keys(value).join()
         }
-        adjust_qparams_for_selection(page_type, queryParams, selection, value)
+        // only set the query param to the user's saved default if it is not already set
+        if (! queryParams.has(selection)) {
+          adjust_qparams_for_selection(page_type, queryParams, selection, value)
+        }
       }
       updateURL(queryParams)
     }
