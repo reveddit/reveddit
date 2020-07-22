@@ -7,20 +7,12 @@ const posts_page_title = 'user-deleted posts that have no comments are not shown
 
 class ResultsSummary extends React.Component {
   render() {
-    const {num_showing, page_type} = this.props
+    const {num_showing, page_type, oldestTimestamp, newestTimestamp,
+          } = this.props
     const {before, before_id, items, paginationMeta} = this.props.global.state
-    let oldest_time = Infinity
-    let youngest_time = -Infinity
-    items.forEach(item => {
-      if (item.created_utc < oldest_time && (page_type === 'thread' || ! item.modlog)) {
-        oldest_time = item.created_utc
-      }
-      if (item.created_utc > youngest_time) {
-        youngest_time = item.created_utc
-      }
-    })
-    const youngest_pretty = getPrettyDate(youngest_time)
-    const oldest_pretty = getPrettyDate(oldest_time)
+
+    const youngest_pretty = getPrettyDate(newestTimestamp)
+    const oldest_pretty = getPrettyDate(oldestTimestamp)
 
     let timeFrame = ''
     let numPagesText = '', totalPagesText = ''
@@ -44,22 +36,21 @@ class ResultsSummary extends React.Component {
       timeFrame =
         <div>
           <div className='non-item text'>
-            <Time created_utc={oldest_time} showDate='true' /> -&nbsp;
-            <Time created_utc={youngest_time} showDate='true' />
+            <Time created_utc={oldestTimestamp} showDate='true' /> — <Time created_utc={newestTimestamp} showDate='true' />
           </div>
           <div className='non-item text'>
-            timespan {getPrettyTimeLength(youngest_time - oldest_time)}
+            timespan {getPrettyTimeLength(newestTimestamp - oldestTimestamp)}
           </div>
         </div>
     } else if (youngest_pretty !== oldest_pretty) {
       timeFrame = <div className='non-item text'>
-                    <Time created_utc={youngest_time} pretty={youngest_pretty} />
+                    <Time created_utc={newestTimestamp} pretty={youngest_pretty} />
                     <div>—</div>
-                    <Time created_utc={oldest_time} pretty={oldest_pretty} />
+                    <Time created_utc={oldestTimestamp} pretty={oldest_pretty} />
                   </div>
     } else {
       timeFrame = <div className='non-item text'>
-                    since <Time created_utc={oldest_time} pretty={oldest_pretty} />
+                    since <Time created_utc={oldestTimestamp} pretty={oldest_pretty} />
                   </div>
     }
     return (

@@ -195,7 +195,8 @@ class Selections extends React.Component {
             <ResultsSummary num_showing={num_showing}
                             category_type={category_type}
                             category_unique_field={category_unique_field}
-                            page_type={page_type} />
+                            page_type={page_type}
+                            oldestTimestamp={oldestTimestamp} newestTimestamp={newestTimestamp} />
           </Pagination>
           : ''
         }
