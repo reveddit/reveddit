@@ -8,6 +8,9 @@ const before_param = 'before'
 const prev_before_param = 'prev_before'
 const params = [before_param, prev_before_param]
 
+const timestampPagination_page_types =
+  ['search', 'subreddit_posts', 'subreddit_comments', 'duplicate_posts', 'domain_posts']
+
 const clearParams = (searchParams) => {
   for (const name of params) searchParams.delete(name)
   return searchParams
@@ -39,12 +42,13 @@ const setNextParams = (current_searchParams, next_searchParams, param_name, time
 }
 
 const Pagination = ({paginationMeta, oldestTimestamp, newestTimestamp,
-                     bottom, subreddit, global, children}) => {
+                     bottom, subreddit, page_type, global, children}) => {
   let content = <>{children}</>
   let prev, next
   const {loading} = global.state
   const current_searchParams = create_qparams()
-  const useTimestampPagination = oldestTimestamp && (! subreddit || subreddit !== 'all')
+  const useTimestampPagination = oldestTimestamp &&
+    (timestampPagination_page_types.includes(page_type) || page_type === 'info' && current_searchParams.has('url'))
   if (paginationMeta || useTimestampPagination) {
     if (paginationMeta) {
       const {page_number, num_pages} = paginationMeta

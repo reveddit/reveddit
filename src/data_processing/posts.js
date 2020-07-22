@@ -372,26 +372,28 @@ const searchRedditAndPushshiftPosts = (global, searchInput) => {
   const pushshift_promises = [], reddit_promises = []
   const {reddit_info_url, reddit_search_selftext, reddit_search_url,
   pushshift_urls, pushshift_selftext_urls} = searchInput
-
-  if (reddit_info_url.length) {
-    reddit_promises.push(getRedditPostsForURLs(reddit_info_url))
-  }
-  if (reddit_search_selftext.length) {
-    reddit_promises.push(queryRedditSearch({selftexts: reddit_search_selftext}))
-  }
-  if (reddit_search_url.length) {
-    reddit_promises.push(queryRedditSearch({urls: reddit_search_url}))
+  const {before} = global.state
+  if (! before) {
+    if (reddit_info_url.length) {
+      reddit_promises.push(getRedditPostsForURLs(reddit_info_url))
+    }
+    if (reddit_search_selftext.length) {
+      reddit_promises.push(queryRedditSearch({selftexts: reddit_search_selftext}))
+    }
+    if (reddit_search_url.length) {
+      reddit_promises.push(queryRedditSearch({urls: reddit_search_url}))
+    }
   }
   if (pushshift_urls.length) {
     pushshift_promises.push(
-      pushshiftQueryPosts({url: getPushshiftURLString(pushshift_urls)})
+      pushshiftQueryPosts({url: getPushshiftURLString(pushshift_urls), before})
       .catch(() => {}) // ignore intermittent ps errors
     )
   }
   if (pushshift_selftext_urls.length) {
     pushshift_promises.push(
       pushshiftQueryPosts(
-        {selftext: getPushshiftURLString(pushshift_selftext_urls)})
+        {selftext: getPushshiftURLString(pushshift_selftext_urls), before})
       .catch(() => {}) // ignore intermittent ps errors
     )
   }
