@@ -61,26 +61,9 @@ class SubredditComments extends React.Component {
     } else if (localSort === localSort_types.num_comments) {
       items_sorted.sort( reversible(byNumComments, localSortReverse) )
     }
-    let pagination = ''
-    const {page_number, num_pages} = paginationMeta || {}
-    if (paginationMeta) {
-      if (num_pages > 1) {
-        const hasPrev = page_number > 1, hasNext = page_number < num_pages
-        let prev = null, next = null
-        const qparams = create_qparams()
-        if (hasPrev) {
-          prev =  page_number > 2 ?
-            qparams.set('page', page_number-1).toString() :
-            window.location.pathname+qparams.delete('page').toString()
-        }
-        if (hasNext) {
-          next = qparams.set('page', page_number+1).toString()
-        }
-        pagination = <Pagination prev={prev} next={next}/>
-      }
-    } else if (oldestTimestamp && newestTimestamp && subreddit !== 'all' && ! loading) {
-      pagination = <Pagination oldestTimestamp={oldestTimestamp} newestTimestamp={newestTimestamp}/>
-    }
+    const pagination = <Pagination oldestTimestamp={oldestTimestamp} newestTimestamp={newestTimestamp}
+                                   paginationMeta={paginationMeta} bottom={true} subreddit={subreddit}/>
+
     return (
       <React.Fragment>
         <div className="revddit-sharing">

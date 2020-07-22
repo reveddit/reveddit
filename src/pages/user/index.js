@@ -13,6 +13,7 @@ import { getQueryParams } from 'data_processing/user'
 import { SimpleURLSearchParams, copyLink, get, put } from 'utils'
 import Highlight from 'pages/common/Highlight'
 import ModalContext from 'contexts/modal'
+import { Spin } from 'components/Misc'
 
 const hidePinPostNotice_var = 'hidePinPostNotice'
 const pinPostLink = 'https://old.reddit.com/user/me/submit?title=See+which+comments+of+yours+have+been+removed&url=https%3A%2F%2Fwww.reveddit.com%2Fabout%2F'
@@ -50,7 +51,7 @@ const User = ({match, global, page_type, viewableItems, selections, notShownMsg}
     }
   }
   if (gs.loading) {
-    nextLink = <div className='non-item'><img className='spin' src='/images/spin.gif'/></div>
+    nextLink = <Spin/>
   } else if (gs.userNext) {
     nextLink = <div className='non-item'>
       <LoadLink user={user}

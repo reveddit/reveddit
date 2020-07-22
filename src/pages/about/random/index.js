@@ -1,6 +1,7 @@
 import React, {useEffect} from 'react'
 import { randomRedditor } from 'api/reddit'
 import { connect } from 'state'
+import { Spin } from 'components/Misc'
 
 export const Random = (props) => {
   useEffect(() => {
@@ -16,9 +17,7 @@ export const Random = (props) => {
   return (
     <>
       <p style={{'textAlign':'center'}}>Searching for a random redditor...</p>
-      <div className='non-item'>
-        <img className='spin' src='/images/spin.gif'/>
-      </div>
+      <Spin/>
     </>
   )
 }

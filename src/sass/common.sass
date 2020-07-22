@@ -12,7 +12,7 @@ noscript
   color: white
 
 .main
-  margin: 15px 15px 100px
+  margin: 15px 15px 25px
   color: white
 
 .toggleFilters
@@ -123,12 +123,22 @@ a.white
     margin-bottom: 5px
 
 .pagination
+  display: flex
+  justify-content: center
   a.prev
-    margin-right: 40px
+    margin-right: 10px
+  a.next
+    margin-left: 10px
   a.prev, a.next
+    white-space: nowrap
+    align-self: flex-end
+    margin-bottom: 40px
     user-select: none
   .disabled
     text-decoration: none
+  &.bottom
+    a.prev, a.next
+      margin-bottom: 0
 
 .notice-with-link
   background-color: $notebg

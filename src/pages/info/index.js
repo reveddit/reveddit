@@ -8,11 +8,14 @@ import {byScore, byDate, byNumComments, byControversiality,
         byNumReplies, bySubredditSubscribers} from 'data_processing/info'
 import { byNumCrossposts } from 'data_processing/posts'
 import Highlight from 'pages/common/Highlight'
+import Pagination from 'components/Pagination'
 
 export class Info extends React.Component {
 
   render() {
-    const { page_type, viewableItems, selections, archiveDelayMsg } = this.props
+    const { page_type, viewableItems, selections, archiveDelayMsg,
+            oldestTimestamp, newestTimestamp,
+          } = this.props
     const {items, loading, localSort, localSortReverse} = this.props.global.state
     const noItemsFound = items.length === 0 && ! loading && window.location.search !== ''
     const items_sorted = viewableItems
@@ -39,6 +42,12 @@ export class Info extends React.Component {
       </div>
     ) : ''
 
+    let pagination = ''
+    if (page_type === 'search') {
+      pagination = <Pagination oldestTimestamp={oldestTimestamp} newestTimestamp={newestTimestamp}
+                               bottom={true}/>
+    }
+
     return (
       <div className='infopage'>
         {shareLink}
@@ -56,6 +65,7 @@ export class Info extends React.Component {
             }
           })
         }
+        {pagination}
       </div>
     )
 

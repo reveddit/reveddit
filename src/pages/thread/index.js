@@ -9,6 +9,7 @@ import Selections from 'pages/common/selections'
 import { withFetch } from 'pages/RevdditFetcher'
 import { SimpleURLSearchParams, jumpToHash } from 'utils'
 import Highlight from 'pages/common/Highlight'
+import { Spin } from 'components/Misc'
 
 class Thread extends React.Component {
   render () {
@@ -71,7 +72,7 @@ class Thread extends React.Component {
                   <Notice message="context is flattened." htmlLink={viewContext}/>
                 }
                 {loading &&
-                  <div className='non-item'><img className='spin' src='/images/spin.gif'/></div>
+                  <Spin/>
                 }
                 <CommentSection
                   root={root}

@@ -3,6 +3,8 @@ import { getPrettyTimeLength, getPrettyDate } from 'utils'
 import Time from 'pages/common/Time'
 import { connect } from 'state'
 
+const posts_page_title = 'user-deleted posts that have no comments are not shown'
+
 class ResultsSummary extends React.Component {
   render() {
     const {num_showing, page_type} = this.props
@@ -21,9 +23,26 @@ class ResultsSummary extends React.Component {
     const oldest_pretty = getPrettyDate(oldest_time)
 
     let timeFrame = ''
+    let numPagesText = '', totalPagesText = ''
+    if (paginationMeta && paginationMeta.num_pages > 1) {
+      const total = paginationMeta.total_count
+      if (total > items.length) {
+        totalPagesText = ` (${total.toLocaleString()})`
+      }
+      numPagesText = (
+        <div className='non-item text'>page {paginationMeta.page_number} of {paginationMeta.num_pages}</div>
+      )
+    }
+    // WARNING: a class name & attribute are used by the reveddit extension:
+    // #numItemsLoaded, data-numitemsloaded
+    const numShowingText =
+      <div id='numItemsLoaded' data-numitemsloaded={items.length} title={page_type === 'subreddit_posts' ? posts_page_title : ''}
+         className='non-item text'>{num_showing.toLocaleString()+' of '}
+         {items.length.toLocaleString()}{totalPagesText}</div>
+
     if (before || before_id) {
       timeFrame =
-        <React.Fragment>
+        <div>
           <div className='non-item text'>
             <Time created_utc={oldest_time} showDate='true' /> -&nbsp;
             <Time created_utc={youngest_time} showDate='true' />
@@ -31,7 +50,7 @@ class ResultsSummary extends React.Component {
           <div className='non-item text'>
             timespan {getPrettyTimeLength(youngest_time - oldest_time)}
           </div>
-        </React.Fragment>
+        </div>
     } else if (youngest_pretty !== oldest_pretty) {
       timeFrame = <div className='non-item text'>
                     <Time created_utc={youngest_time} pretty={youngest_pretty} />
@@ -43,26 +62,13 @@ class ResultsSummary extends React.Component {
                     since <Time created_utc={oldest_time} pretty={oldest_pretty} />
                   </div>
     }
-    let pagination = '', total_text = ''
-    if (paginationMeta && paginationMeta.num_pages > 1) {
-      const total = paginationMeta.total_count
-      if (total > items.length) {
-        total_text = ` (${total.toLocaleString()})`
-      }
-      pagination = (
-        <div className='non-item text'>page {paginationMeta.page_number} of {paginationMeta.num_pages}</div>
-      )
-    }
-    const posts_page_title = 'user-deleted posts that have no comments are not shown'
-    // WARNING: a class name & attribute are used by the revddit extension:
-    // #numItemsLoaded, data-numitemsloaded
     return (
       <React.Fragment>
-        {timeFrame}
-        {pagination}
-        <div id='numItemsLoaded' data-numitemsloaded={items.length} title={page_type === 'subreddit_posts' ? posts_page_title : ''}
-             className='non-item text'>{num_showing.toLocaleString()+' of '}
-             {items.length.toLocaleString()}{total_text}</div>
+        <div>
+          {timeFrame}
+          {numShowingText}
+        </div>
+        {numPagesText}
       </React.Fragment>
     )
   }

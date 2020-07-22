@@ -13,6 +13,7 @@ import ResultsSummary from 'pages/common/ResultsSummary'
 import Selfposts from 'pages/common/selections/Selfposts'
 import { SimpleURLSearchParams } from 'utils'
 import ErrorBoundary from 'components/ErrorBoundary'
+import Pagination from 'components/Pagination'
 
 import { ApolloProvider } from 'react-apollo'
 import { ApolloClient } from 'apollo-client'
@@ -77,7 +78,9 @@ class Selections extends React.Component {
   }
   render () {
     const { subreddit, page_type, visibleItemsWithoutCategoryFilter, num_items, num_showing,
-            category_type, category_title, category_unique_field } = this.props
+            category_type, category_title, category_unique_field,
+            oldestTimestamp, newestTimestamp
+          } = this.props
     const { showFilters } = this.state
     let upvoteRemovalRateHistory = ''
     if (['subreddit_posts', 'subreddit_comments', 'thread'].includes(page_type)) {
@@ -187,11 +190,14 @@ class Selections extends React.Component {
           </div>
         }
         {num_items ?
-          <ResultsSummary num_showing={num_showing}
-                          category_type={category_type}
-                          category_unique_field={category_unique_field}
-                          page_type={page_type} />
-                          : ''
+          <Pagination oldestTimestamp={oldestTimestamp} newestTimestamp={newestTimestamp}
+                      subreddit={subreddit}>
+            <ResultsSummary num_showing={num_showing}
+                            category_type={category_type}
+                            category_unique_field={category_unique_field}
+                            page_type={page_type} />
+          </Pagination>
+          : ''
         }
       </React.Fragment>
     )

@@ -32,10 +32,8 @@ class SubredditPosts extends React.Component {
       items_sorted.sort( reversible(byNumCrossposts, localSortReverse) )
     }
 
-    let pagination = ''
-    if (oldestTimestamp && newestTimestamp && subreddit !== 'all' && ! loading) {
-      pagination = <Pagination oldestTimestamp={oldestTimestamp} newestTimestamp={newestTimestamp}/>
-    }
+    const pagination = <Pagination oldestTimestamp={oldestTimestamp} newestTimestamp={newestTimestamp}
+                                   bottom={true} subreddit={subreddit}/>
 
     return (
       <React.Fragment>
