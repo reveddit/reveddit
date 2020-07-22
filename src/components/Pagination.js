@@ -40,7 +40,7 @@ const setNextParams = (current_searchParams, next_searchParams, param_name, time
 
 const Pagination = ({paginationMeta, oldestTimestamp, newestTimestamp,
                      bottom, subreddit, global, children}) => {
-  let content = <></>
+  let content = <>{children}</>
   let prev, next
   const {loading} = global.state
   const current_searchParams = create_qparams()
