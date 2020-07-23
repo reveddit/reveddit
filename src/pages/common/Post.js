@@ -98,9 +98,7 @@ class Post extends React.Component {
           }
           <span className='domain'>({domain})</span>
           <div className='thread-info'>
-            submitted <Time {...props}/> by&nbsp;
-            <Author {...props}/>
-            &nbsp;to <a className='subreddit-link' href={`/r/${props.subreddit}`}>/r/{props.subreddit}</a>
+            submitted <Time {...props}/> by <Author {...props}/> to <a className='subreddit-link' href={`/r/${props.subreddit}`}>/r/{props.subreddit}</a>
             {props.locked && <span className='lockedTag'>locked</span>}
             <div><RemovedBy {...props} /></div>
           </div>
@@ -118,7 +116,7 @@ class Post extends React.Component {
           }
           <div className='total-comments post-links'>
             {props.quarantine && <span className="quarantined">quarantined</span>}
-            <a href={props.permalink}>{props.num_comments}&nbsp;comments</a>
+            <a href={props.permalink} className='nowrap'>{props.num_comments} comments</a>
             <a href={`https://www.reddit.com${props.permalink}`}>reddit</a>
               <a href={`/r/${props.subreddit}/duplicates/${props.id}`}>other-discussions{props.num_crossposts ? ` (${props.num_crossposts}+)`:''}</a>
             { directlink && <a href={directlink}>directlink</a>}

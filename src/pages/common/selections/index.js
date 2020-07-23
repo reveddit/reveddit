@@ -82,7 +82,7 @@ class Selections extends React.Component {
             oldestTimestamp, newestTimestamp
           } = this.props
     const { showFilters } = this.state
-    let upvoteRemovalRateHistory = ''
+    let upvoteRemovalRateHistory = '', save_reset_buttons = ''
     if (['subreddit_posts', 'subreddit_comments', 'thread'].includes(page_type)) {
       upvoteRemovalRateHistory = (
         <ErrorBoundary>
@@ -97,13 +97,17 @@ class Selections extends React.Component {
       visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
       type={category_type} title={category_title} unique_field={category_unique_field}/>
     const textFilter = <TextFilter page_type={page_type} />
+    if (showFilters) {
+      const save = <a className='pointer' onClick={() => this.props.global.saveDefaults(page_type)}>save</a>
+      const reset = <a className='pointer' onClick={() => this.props.global.resetDefaults(page_type)}>reset</a>
+      save_reset_buttons = <> | {save} / {reset}</>
+    }
+
     return (
       <React.Fragment>
-        <div className='toggleFilters'><a onClick={this.toggleShowFilters}
-                className='collapseToggle'>
-                {this.getShowFiltersText()}</a>
-            {showFilters && <> | <a className='pointer' onClick={() => this.props.global.saveDefaults(page_type)}>save</a>
-            &nbsp;/ <a className='pointer' onClick={() => this.props.global.resetDefaults(page_type)}>reset</a></>}
+        <div className='toggleFilters'>
+          <a onClick={this.toggleShowFilters} className='collapseToggle'>{this.getShowFiltersText()}</a>
+          {save_reset_buttons}
         </div>
         <div style={{clear:'both'}}></div>
         {showFilters &&
