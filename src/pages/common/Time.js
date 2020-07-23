@@ -3,7 +3,9 @@ import { connect } from 'state'
 import { getPrettyDate, getPrettyTimeLength } from 'utils'
 import {showRelDates_global} from 'pages/common/Settings'
 
-export default ({ showDate, pretty, created_utc, edited, global, name, parent_id, page_type, noAgo=false }) => {
+export default ({ showDate, pretty, created_utc, edited, global, name,
+                  parent_id, page_type, noAgo=false, className='',
+               }) => {
   var localTime = new Date(0)
   let displayTime = '', edited_text = ''
   if (created_utc) localTime.setUTCSeconds(created_utc)
@@ -32,5 +34,5 @@ export default ({ showDate, pretty, created_utc, edited, global, name, parent_id
     const edited_displayTime = getPrettyTimeLength(edited-created_utc)
     edited_text = <span title={edited_localTime} dateTime={edited_localTime} className='time'>* (edited {edited_displayTime} after)</span>
   }
-  return <span title={localTime} dateTime={localTime} className='time'>{displayTime}{edited_text}</span>
+  return <span title={localTime} dateTime={localTime} className={`time ${className}`}>{displayTime}{edited_text}</span>
 }

@@ -22,8 +22,7 @@ class CommentPreview extends React.Component {
             </a>
           </div>
           <div className='comment-head subhead'>
-            <span className='comment-score'>{prettyScore(props.score)} point{(props.score !== 1) && 's'}</span>
-            <span className='space' />
+            <span className='comment-score spaceRight'>{prettyScore(props.score)} point{(props.score !== 1) && 's'}</span>
             <Time created_utc={props.last_created_utc}/>
           </div>
           <div className='comment-body-and-links'>

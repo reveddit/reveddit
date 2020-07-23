@@ -77,8 +77,7 @@ class Comment extends React.Component {
     return (
       <div id={props.name} className={classNames.join(' ')} data-fullname={props.name} data-created_utc={props.created_utc}>
         <div className='comment-head'>
-          <a onClick={() => this.toggleDisplayBody()} className='collapseToggle'>{this.getExpandIcon()}</a>
-          <span className='space' />
+          <a onClick={() => this.toggleDisplayBody()} className='collapseToggle spaceRight'>{this.getExpandIcon()}</a>
           <a
             href={props.url ? props.url : props.link_permalink}
             className='title'
@@ -112,10 +111,8 @@ class Comment extends React.Component {
           }
         </div>
         <div className='comment-head subhead'>
-        <Author {...props}/>
-        <span className='space' />
-        <span className='comment-score'>{prettyScore(props.score)} point{(props.score !== 1) && 's'}</span>
-        <span className='space' />
+        <Author {...props} className='spaceRight'/>
+        <span className='comment-score spaceRight'>{prettyScore(props.score)} point{(props.score !== 1) && 's'}</span>
         <Time {...props}/>
         {props.locked && <span className='lockedTag'>locked</span>}
         <RemovedBy {...props} />

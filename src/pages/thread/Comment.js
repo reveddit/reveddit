@@ -106,12 +106,9 @@ class Comment extends React.Component {
             ${props.id === props.focusCommentID ? 'focus':''}
       `}>
         <div className='comment-head'>
-          <a onClick={() => this.toggleDisplayBody()} className={`collapseToggle ${hidden}`}>{expandIcon}</a>
-          <span className='space' />
-          <Author {...props}/>
-          <span className='space' />
-          <span className='comment-score'>{prettyScore(props.score)} point{(props.score !== 1) && 's'}</span>
-          <span className='space' />
+          <a onClick={() => this.toggleDisplayBody()} className={`collapseToggle spaceRight ${hidden}`}>{expandIcon}</a>
+          <Author {...props} className='spaceRight'/>
+          <span className='comment-score spaceRight'>{prettyScore(props.score)} point{(props.score !== 1) && 's'}</span>
           <Time {...props}/>
           {props.locked && <span className='lockedTag'>locked</span>}
           <RemovedBy {...props} />

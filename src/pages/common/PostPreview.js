@@ -17,10 +17,8 @@ class PostPreview extends React.Component {
             <a className='title' href='#'>{title}</a>
           </div>
           <div>
-            <span className='score'>{prettyScore(props.score)} points</span>
-            <span className='space' />
-            <Time created_utc={props.last_created_utc}/>
-            <span className='space' />
+            <span className='score spaceRight'>{prettyScore(props.score)} points</span>
+            <Time className='spaceRight' created_utc={props.last_created_utc}/>
             {props.num_comments ?
               <span className='score'>{props.num_comments} comments</span>
               : ''
