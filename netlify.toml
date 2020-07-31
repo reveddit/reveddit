@@ -15,7 +15,7 @@
       style-src 'self';
       object-src 'none';
       base-uri 'self';
-      connect-src 'self' https://api.pushshift.io https://api.revddit.com https://oauth.reddit.com https://ored.reveddit.com https://rviewit.com https://www.reddit.com;
+      connect-src 'self' https://api.pushshift.io https://api.revddit.com https://oauth.reddit.com https://ored.reveddit.com https://rviewit.com https://www.reddit.com https://logs.mod.rcoronavirus.org;
       font-src 'self';
       frame-src 'self' https://js.stripe.com;
       img-src 'self' data: https:;
