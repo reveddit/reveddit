@@ -100,11 +100,11 @@ class Selections extends React.Component {
     if (showFilters) {
       const save = <a className='pointer' onClick={() => this.props.global.saveDefaults(page_type)}>save</a>
       const reset = <a className='pointer' onClick={() => this.props.global.resetDefaults(page_type)}>reset</a>
-      save_reset_buttons = <> | {save} / {reset}</>
+      save_reset_buttons = <span> | {save} / {reset}</span>
     }
 
     return (
-      <React.Fragment>
+      <>
         <div className='toggleFilters'>
           <a onClick={this.toggleShowFilters} className='collapseToggle'>{this.getShowFiltersText()}</a>
           {save_reset_buttons}
@@ -120,7 +120,7 @@ class Selections extends React.Component {
                 case 'info':
                 case 'search':
                   return (
-                    <React.Fragment>
+                    <>
                       {page_type === 'subreddit_posts' &&
                         <Content page_type={page_type}/>
                       }
@@ -141,11 +141,11 @@ class Selections extends React.Component {
                       {subreddit !== 'all' && page_type === 'subreddit_posts' &&
                         upvoteRemovalRateHistory
                       }
-                    </React.Fragment>)
+                    </>)
                 case 'subreddit_comments':
                 case 'missing_comments':
                   return (
-                    <React.Fragment>
+                    <>
                       {page_type === 'subreddit_comments' &&
                         <Content page_type={page_type}/>
                       }
@@ -163,10 +163,10 @@ class Selections extends React.Component {
                       {subreddit !== 'all' &&
                         upvoteRemovalRateHistory
                       }
-                    </React.Fragment>)
+                    </>)
                 case 'user':
                   return (
-                    <React.Fragment>
+                    <>
                       <Content page_type={page_type} />
                       <RedditSort page_type={page_type} />
                       <RemovedFilter page_type={page_type} />
@@ -176,10 +176,10 @@ class Selections extends React.Component {
                         {categoryFilter}
                         {textFilter}
                       </div>
-                    </React.Fragment>)
+                    </>)
                 case 'thread':
                   return (
-                    <React.Fragment>
+                    <>
                       <LocalSort page_type={page_type} />
                       <RemovedFilter page_type={page_type} />
                       <RemovedByFilter page_type={page_type} />
@@ -187,7 +187,7 @@ class Selections extends React.Component {
                       {subreddit !== 'all' &&
                         upvoteRemovalRateHistory
                       }
-                    </React.Fragment>)
+                    </>)
                 default: return ''
               }
             })()}
@@ -204,7 +204,7 @@ class Selections extends React.Component {
           </Pagination>
           : ''
         }
-      </React.Fragment>
+      </>
     )
   }
 }
