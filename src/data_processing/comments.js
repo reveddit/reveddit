@@ -69,59 +69,13 @@ export const combinePushshiftAndRedditComments = (pushshiftComments, redditComme
   })
   // Replace pushshift data with reddit and mark removedby
   Object.values(pushshiftComments).forEach(ps_comment => {
-    const retrievalLatency = ps_comment.retrieved_on ? ps_comment.retrieved_on - ps_comment.created_utc : 9999
     const redditComment = redditComments[ps_comment.id]
     ps_comment.name = 't1_'+ps_comment.id // name needed for info page render
     initializeComment(ps_comment, post)
     if (ps_comment.processed) {
       combinedComments[ps_comment.id] = ps_comment
     } else if (redditComment !== undefined) {
-      set_link_permalink(ps_comment, redditComment)
-      copy_fields.forEach(field => {
-        ps_comment[field] = redditComment[field]
-      })
-      copy_if_value_fields.forEach(field => {
-        if (redditComment[field]) {
-          ps_comment[field] = redditComment[field]
-        }
-      })
-      if (! redditComment.link_title) {
-        ps_comment.link_title = redditComment.permalink.split('/')[5].replace(/_/g, ' ')
-      }
-
-      if (typeof(redditComment.num_comments) !== 'undefined') {
-        ps_comment.num_comments = redditComment.num_comments
-      }
-      if (! redditComment.deleted) {
-        const modlog = ps_comment.modlog
-        const modlog_says_bot_removed = modlogSaysBotRemoved(modlog, redditComment)
-        if (modlog) {
-          ps_comment.author = modlog.author
-          ps_comment.body = modlog.body
-        }
-        if (! commentIsRemoved(redditComment)) {
-          if (commentIsRemoved(ps_comment) || modlog_says_bot_removed) {
-            ps_comment.removedby = AUTOMOD_REMOVED_MOD_APPROVED
-          } else {
-            ps_comment.removedby = NOT_REMOVED
-          }
-          ps_comment.author = redditComment.author
-          ps_comment.body = redditComment.body
-        } else {
-          if (commentIsRemoved(ps_comment)) {
-            if ( retrievalLatency <= AUTOMOD_LATENCY_THRESHOLD || modlog_says_bot_removed) {
-              ps_comment.removedby = AUTOMOD_REMOVED
-            } else {
-              ps_comment.removedby = UNKNOWN_REMOVED
-            }
-          } else if (modlog_says_bot_removed) {
-            ps_comment.removedby = AUTOMOD_REMOVED
-          } else {
-            ps_comment.removedby = MOD_OR_AUTOMOD_REMOVED
-          }
-        }
-      }
-      ps_comment.processed = true
+      setupCommentMeta(ps_comment, redditComment)
       combinedComments[ps_comment.id] = ps_comment
     } else {
       // known issue: r/all/comments?before=1538269380 will show some comments whose redditComment has no data
@@ -142,6 +96,56 @@ export const combinePushshiftAndRedditComments = (pushshiftComments, redditComme
   console.log(`Pushshift: ${Object.keys(pushshiftComments).length} comments`)
   console.log(`Reddit: ${Object.keys(redditComments).length} comments`)
   return combinedComments
+}
+
+const setupCommentMeta = (archiveComment, redditComment) => {
+  const retrievalLatency = archiveComment.retrieved_on ? archiveComment.retrieved_on - archiveComment.created_utc : 9999
+  set_link_permalink(archiveComment, redditComment)
+  copy_fields.forEach(field => {
+    archiveComment[field] = redditComment[field]
+  })
+  copy_if_value_fields.forEach(field => {
+    if (redditComment[field]) {
+      archiveComment[field] = redditComment[field]
+    }
+  })
+  if (! redditComment.link_title) {
+    archiveComment.link_title = redditComment.permalink.split('/')[5].replace(/_/g, ' ')
+  }
+
+  if (typeof(redditComment.num_comments) !== 'undefined') {
+    archiveComment.num_comments = redditComment.num_comments
+  }
+  if (! redditComment.deleted) {
+    const modlog = archiveComment.modlog
+    const modlog_says_bot_removed = modlogSaysBotRemoved(modlog, redditComment)
+    if (modlog) {
+      archiveComment.author = modlog.author
+      archiveComment.body = modlog.body
+    }
+    if (! commentIsRemoved(redditComment)) {
+      if (commentIsRemoved(archiveComment) || modlog_says_bot_removed) {
+        archiveComment.removedby = AUTOMOD_REMOVED_MOD_APPROVED
+      } else {
+        archiveComment.removedby = NOT_REMOVED
+      }
+      archiveComment.author = redditComment.author
+      archiveComment.body = redditComment.body
+    } else {
+      if (commentIsRemoved(archiveComment)) {
+        if ( retrievalLatency <= AUTOMOD_LATENCY_THRESHOLD || modlog_says_bot_removed) {
+          archiveComment.removedby = AUTOMOD_REMOVED
+        } else {
+          archiveComment.removedby = UNKNOWN_REMOVED
+        }
+      } else if (modlog_says_bot_removed) {
+        archiveComment.removedby = AUTOMOD_REMOVED
+      } else {
+        archiveComment.removedby = MOD_OR_AUTOMOD_REMOVED
+      }
+    }
+  }
+  archiveComment.processed = true
 }
 
 // Using Pushshift may be faster, but it is missing the quarantine field in submissions data

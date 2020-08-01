@@ -148,15 +148,22 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
       resetPath()
     }
     const origRedditComments = {...redditComments}
-    const remainingRedditIDs = []
+    const user_comment = await add_user_promise.then(userPage => {
+      return (userPage.items || [])[0] || {}
+    })
+    const remainingRedditIDs = {}
+    if (user_comment.created_utc) {
+      remainingRedditIDs[user_comment.id] = 1
+    }
     Object.keys(pushshiftComments).forEach(id => {
       if (! (id in redditComments)) {
-        remainingRedditIDs.push(id)
+        remainingRedditIDs[id] = 1
       }
     })
+    const remainingRedditIDs_arr = Object.keys(remainingRedditIDs)
     let reddit_remaining_comments_promise = Promise.resolve([])
-    if (remainingRedditIDs.length) {
-      reddit_remaining_comments_promise = getRedditComments({ids: remainingRedditIDs})
+    if (remainingRedditIDs_arr.length) {
+      reddit_remaining_comments_promise = getRedditComments({ids: remainingRedditIDs_arr})
     }
     const early_combinedComments = combinePushshiftAndRedditComments(pushshiftComments, redditComments, false, reddit_post)
     const early_commentTree = createCommentTree(threadID, root_commentID, early_combinedComments)
@@ -169,9 +176,6 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     const moderators = await moderators_promise
     Object.values(remainingRedditComments).forEach(comment => {
       redditComments[comment.id] = comment
-    })
-    const user_comment = await add_user_promise.then(userPage => {
-      return (userPage.items || [])[0] || {}
     })
     const combinedComments = combinePushshiftAndRedditComments(pushshiftComments, redditComments, false, reddit_post, user_comment)
     //todo: check if pushshiftComments has any parent_ids that are not in combinedComments
