@@ -45,7 +45,7 @@ const queryItems = ({q, author, subreddit, n = 500, sort='desc', before, after, 
     ...(author && {author}),
     ...(subreddit && {subreddit}),
     ...(after && {after}),
-    ...(before && {before: parseInt(before)+1}),
+    ...(before && {before: ifNumParseAndAdd(before, 1)}),
     ...(domain && {domain}),
     ...(parent_id && {parent_id})
   }
@@ -141,6 +141,15 @@ export const getCommentsBySubreddit = function(args) {
   })
 }
 
+const ifNumParseAndAdd = (n, add) => {
+  if (/^\d+$/.test(n)) {
+    return parseInt(n)+add
+  } else {
+    return n
+  }
+
+}
+
 export const getItemsBySubredditOrDomain = function(
   {subreddit:subreddits_str, domain:domains_str, n=maxNumItems, before='',
    ps_url, fields}
@@ -151,7 +160,7 @@ export const getItemsBySubredditOrDomain = function(
     fields,
   }
   if (before) {
-    queryParams['before'] = parseInt(before)+1
+    queryParams['before'] = ifNumParseAndAdd(before, 1)
   }
   if (subreddits_str) {
     queryParams['subreddit'] = subreddits_str.toLowerCase().replace(/\+/g,',')
