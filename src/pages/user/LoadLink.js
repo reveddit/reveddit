@@ -22,10 +22,13 @@ class LoadLink extends React.Component {
     }
     if (userPage_after && ! this.props.show) {
       return <Link className={className} to={to} onClick={() => {
-        getRevdditUserItems(this.props.user,
-                            this.props.kind,
-                            qp,
-                            this.props.global)
+        this.props.global.setLoading('')
+        .then(() => {
+          getRevdditUserItems(this.props.user,
+                              this.props.kind,
+                              qp,
+                              this.props.global)
+        })
       }}>{text}</Link>
     } else {
       return ''
