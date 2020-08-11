@@ -67,6 +67,13 @@ class App extends React.Component {
                               pathname: location.pathname.replace(/api\/info/, 'info')
                             }} /> )}
                       />
+                      <Route path="/gallery/" component={({ location }) => (
+                          <Redirect
+                            to={{
+                              ...location,
+                              pathname: location.pathname.replace(/\/gallery/, '')
+                            }} /> )}
+                      />
                       <DefaultLayout path='/about' component={About} />
                       <DefaultLayout path='/add-ons' component={AddOns} />
                       <DefaultLayout path='/info' page_type='info' component={Info} />
