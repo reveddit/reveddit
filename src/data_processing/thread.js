@@ -148,6 +148,13 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
       resetPath()
     }
     const origRedditComments = {...redditComments}
+    const early_combinedComments = combinePushshiftAndRedditComments(pushshiftComments, redditComments, false, reddit_post)
+    const early_commentTree = createCommentTree(threadID, root_commentID, early_combinedComments)
+
+    await global.setState({items: Object.values(early_combinedComments),
+                      itemsLookup: early_combinedComments,
+                      commentTree: early_commentTree,
+            initialFocusCommentID: commentID})
     const user_comment = await add_user_promise.then(userPage => {
       return (userPage.items || [])[0] || {}
     })
@@ -165,15 +172,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     if (remainingRedditIDs_arr.length) {
       reddit_remaining_comments_promise = getRedditComments({ids: remainingRedditIDs_arr})
     }
-    const early_combinedComments = combinePushshiftAndRedditComments(pushshiftComments, redditComments, false, reddit_post)
-    const early_commentTree = createCommentTree(threadID, root_commentID, early_combinedComments)
-
-    await global.setState({items: Object.values(early_combinedComments),
-                      itemsLookup: early_combinedComments,
-                      commentTree: early_commentTree,
-            initialFocusCommentID: commentID})
     const remainingRedditComments = await reddit_remaining_comments_promise
-    const moderators = await moderators_promise
     Object.values(remainingRedditComments).forEach(comment => {
       redditComments[comment.id] = comment
     })
@@ -188,6 +187,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
       console.log('missing', missing.join(','))
       submitMissingComments(missing)
     }
+    const moderators = await moderators_promise
     return {combinedComments, commentTree, moderators, subreddit_lc: reddit_post.subreddit.toLowerCase()}
   })
   await pushshift_post_promise
