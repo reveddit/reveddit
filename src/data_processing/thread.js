@@ -123,7 +123,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     if (combined_post.removed && combined_post.is_self) {
       if (modlog) {
         combined_post.selftext = modlog.target_body
-      } else {
+      } else if (ps_post && ps_post.selftext) {
         combined_post.selftext = ps_post.selftext
       }
     }

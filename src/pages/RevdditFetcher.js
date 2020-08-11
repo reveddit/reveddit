@@ -169,7 +169,6 @@ export const withFetch = (WrappedComponent) =>
       loading: true,
       showAllCollapsed: false,
       showAllOrphaned: false,
-      archiveTimes: null
     }
     componentDidUpdate() {
       window.onpopstate  = () => {
@@ -205,7 +204,7 @@ export const withFetch = (WrappedComponent) =>
         setTimeout(this.maybeShowSubscribeUserModal, 3000)
       }
       if (page_type !== 'user') {
-        getArchiveTimes().then(archiveTimes => this.setState({archiveTimes}))
+        getArchiveTimes().then(archiveTimes => this.props.global.setState({archiveTimes}))
       }
       const simpleURLSearchParams = new SimpleURLSearchParams(window.location.search)
       this.props.global.setQueryParamsFromSavedDefaults(page_type)
@@ -418,8 +417,7 @@ export const withFetch = (WrappedComponent) =>
       const subreddit = (this.props.match.params.subreddit || '').toLowerCase()
       const domain = (this.props.match.params.domain || '').toLowerCase()
       const { page_type } = this.props
-      const { items, showContext } = this.props.global.state
-      const { archiveTimes } = this.state
+      const { items, showContext, archiveTimes } = this.props.global.state
 
       const visibleItemsWithoutCategoryFilter_meta = this.getVisibleItemsWithoutCategoryFilter()
       const {visibleItemsWithoutCategoryFilter} = visibleItemsWithoutCategoryFilter_meta

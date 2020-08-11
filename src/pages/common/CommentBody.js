@@ -21,7 +21,7 @@ const CommentBody = (props) => {
   let innerHTML = '', note = ''
   if (! props.deleted) {
     if (commentIsRemoved(props) && props.removed) {
-      innerHTML = '<p>'+getRemovedMessage(props)+'</p>'
+      innerHTML = '<p>'+getRemovedMessage(props, 'comment')+'</p>'
     } else {
       if (props.page_type === 'user' && ! props.removed) {
         if (commentIsMissingInThread(props)) {

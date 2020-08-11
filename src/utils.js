@@ -405,12 +405,15 @@ export const paramString = (params) => {
   return Object.keys(params).map(k => `${k}=${params[k]}`).join('&')
 }
 
-export const getRemovedMessage = (props) => {
-  let removedMessage = 'too quickly to be archived'
+export const getRemovedMessage = (props, itemType) => {
+  let removedMessage = 'before archival'
+  const {archiveTimes} = props.global.state
   if (props.retrieved_on) {
     removedMessage = 'before archival'+getRemovedWithinText(props)
   } else if (props.global.state.loading) {
     removedMessage = 'content loading...'
+  } else if (archiveTimes) {
+    removedMessage += '. Current delay is '+getPrettyTimeLength(archiveTimes.updated - archiveTimes[itemType])
   }
   return `[removed ${removedMessage}]`
 }

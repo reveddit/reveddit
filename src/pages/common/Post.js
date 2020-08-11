@@ -53,7 +53,7 @@ class Post extends React.Component {
     let snippet_is_set = false
     if (selftext) {
       if (postIsRemovedAndSelftextSaysRemoved(props)) {
-        selftext = getRemovedMessage(props)
+        selftext = getRemovedMessage(props, 'submission')
         selftext_snippet = selftext
       } else if (selftext.length > max_selftext_length + 10) {
         snippet_is_set = true

@@ -233,7 +233,8 @@ class GlobalState extends Container {
         limitCommentDepth: true,
         moderators: {},
         moderated_subreddits: {},
-        authors: {}
+        authors: {},
+        archiveTimes: null,
       }
   }
 
