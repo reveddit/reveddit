@@ -5,7 +5,7 @@ import gql from 'graphql-tag'
 import * as d3 from 'd3'
 import CommentPreview from 'pages/common/CommentPreview'
 import PostPreview from 'pages/common/PostPreview'
-import { kFormatter, SimpleURLSearchParams } from 'utils'
+import { kFormatter, SimpleURLSearchParams, ifNumParseInt } from 'utils'
 
 
 class Sparkline extends React.PureComponent {
@@ -183,11 +183,7 @@ class UpvoteRemovalRateHistory extends React.Component {
     Object.keys(componentParams).forEach(param => {
       let paramVal = queryParams.get(param)
       if (paramVal) {
-        const isNumber = /^\d+$/.test(paramVal)
-        if (isNumber) {
-          paramVal = parseInt(paramVal)
-        }
-        state[param] = paramVal
+        state[param] = ifNumParseInt(paramVal)
       }
     })
     this.state = state

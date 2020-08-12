@@ -14,7 +14,9 @@ import { removedFilter_types, getExtraGlobalStateVars, create_qparams } from 'st
 import { NOT_REMOVED, COLLAPSED, ORPHANED } from 'pages/common/RemovedBy'
 import { SimpleURLSearchParams, jumpToHash, get, put, ext_urls,
          itemIsActioned, itemIsCollapsed, commentIsOrphaned,
-         commentIsMissingInThread, getPrettyDate, getPrettyTimeLength } from 'utils'
+         commentIsMissingInThread, getPrettyDate, getPrettyTimeLength,
+         ADDUSERPARAM_NAME
+} from 'utils'
 import { getAuthorInfoByName } from 'api/reddit'
 import { getAuth } from 'api/reddit/auth'
 import { getArchiveTimes } from 'api/reveddit'
@@ -211,7 +213,7 @@ export const withFetch = (WrappedComponent) =>
       this.props.global.setStateFromQueryParams(
                       page_type,
                       simpleURLSearchParams,
-                      getExtraGlobalStateVars(page_type, queryParams.sort, allQueryParams.get('add_user')))
+                      getExtraGlobalStateVars(page_type, queryParams.sort, allQueryParams.get(ADDUSERPARAM_NAME)))
       .then(result => {
         if (page_type === 'info' && simpleURLSearchParams.toString() === '') {
           return this.props.global.setSuccess()

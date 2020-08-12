@@ -1,5 +1,5 @@
 import React from 'react'
-import { prettyScore, parse, isRemoved, paramString } from 'utils'
+import { prettyScore, parse, isRemoved, AddUserParam } from 'utils'
 import Time from 'pages/common/Time'
 import RemovedBy from 'pages/common/RemovedBy'
 import { NOT_REMOVED } from 'pages/common/RemovedBy'
@@ -43,23 +43,27 @@ class Comment extends React.Component {
     props.locked && classNames.push('locked')
 
     let directlink = ''
-    let after_before = ''
+    let after_before = '', after = '', before = ''
     let add_user = ''
     if (props.prev) {
       after_before = `after=${props.prev}&`
+      after = props.prev
     } else if (props.next) {
       after_before = `before=${props.next}&`
+      before = props.next
     }
     if (after_before) {
       directlink = '?'+after_before+`limit=1&sort=${props.sort}&show=${props.name}&removal_status=all`
       if (props.removed) {
-        const params = {
-          add_user: props.author,
-          ...(t && {user_time: t}),
-          ...(sort && {user_sort: sort}),
-          ...(props.kind && {user_kind: props.kind})
-        }
-        add_user = '&' + after_before + paramString(params)
+        const addUserParam = new AddUserParam()
+        addUserParam.addItem({
+          author: props.author,
+          ...(props.kind && {kind: props.kind}),
+          ...(sort && {sort: sort}),
+          ...(t && {time: t}),
+          before, after, limit: 1,
+        })
+        add_user = '&' + addUserParam.toString()
       }
     }
     let post_parent_removed = []

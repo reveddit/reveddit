@@ -274,6 +274,64 @@ export class SimpleURLSearchParams {
   }
 }
 
+//AddUserItem represents properties used on thread pages to load data from a user page
+const ADDUSERITEM_SEPARATOR = '.'
+const ADDUSER_PROPS = ['author', 'limit', 'kind', 'sort', 'time', 'before', 'after']
+class AddUserItem {
+  constructor({string = '', props}) {
+    if (string) {
+      this.setPropsFromString(string)
+    } else {
+      Object.assign(this, props)
+    }
+  }
+  getOrderedProps() {
+    return ADDUSER_PROPS.map(p => this[p])
+  }
+  setPropsFromString(string) {
+    const parts = string.split(ADDUSERITEM_SEPARATOR)
+    for (let i = 0; i < parts.length; i++) {
+      this[ADDUSER_PROPS[i]] = ifNumParseInt(parts[i])
+    }
+  }
+  toString() {
+    return this.getOrderedProps().join(ADDUSERITEM_SEPARATOR)
+  }
+}
+
+export const ifNumParseInt = (x) => {
+  if (/^\d+$/.test(x)) {
+    return parseInt(x)
+  }
+  return x
+}
+
+
+const ADDUSERPARAM_SEPARATOR = ','
+export const ADDUSERPARAM_NAME = 'add_user'
+export class AddUserParam {
+  constructor({string, items} = {}) {
+    if (string) {
+      this.items = string.split(ADDUSERPARAM_SEPARATOR).map(i => new AddUserItem({string: i}))
+    } else if (items) {
+      this.items = items
+    } else {
+      this.items = []
+    }
+  }
+  addItem(props) {
+    this.items.push(new AddUserItem({props}))
+  }
+  getItems() {
+    return this.items
+  }
+  toString() {
+    if (this.items) {
+      return ADDUSERPARAM_NAME+'='+this.items.map(i => i.toString()).join(ADDUSERPARAM_SEPARATOR)
+    }
+    return ''
+  }
+}
 
 export const roundToX = (num, X) => {
     return +(Math.round(num + "e+"+X)  + "e-"+X);

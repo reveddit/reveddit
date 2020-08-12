@@ -2,7 +2,9 @@ import React from 'react'
 import { Subscribe, Container } from 'unstated'
 import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED,
          UNKNOWN_REMOVED, NOT_REMOVED } from 'pages/common/RemovedBy'
-import { SimpleURLSearchParams, get, put } from 'utils'
+import { SimpleURLSearchParams, get, put, ifNumParseInt,
+         ADDUSERPARAM_NAME
+} from 'utils'
 import { limitCommentDepth_global } from 'pages/common/Settings'
 
 const defaultFilters_str = 'defaultFilters'
@@ -69,7 +71,7 @@ export const urlParamKeys = {
   selfposts: 'selfposts',
   limitCommentDepth: 'limitCommentDepth',
   page: 'page',
-  add_user: 'add_user',
+  add_user: ADDUSERPARAM_NAME,
   user_sort: 'user_sort',
   user_kind: 'user_kind',
   user_time: 'user_time',
@@ -167,10 +169,8 @@ const parseType = (value) => {
     return false
   } else if (value === 'true') {
     return true
-  } else if (/^\d+$/.test(value)) {
-    return parseInt(value)
   } else {
-    return value
+    return ifNumParseInt(value)
   }
 }
 
@@ -235,6 +235,7 @@ class GlobalState extends Container {
         moderated_subreddits: {},
         authors: {},
         archiveTimes: null,
+        add_user: '',
       }
   }
 
