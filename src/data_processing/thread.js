@@ -1,4 +1,5 @@
-import { combinePushshiftAndRedditComments, copyModlogItemsToArchiveItems } from 'data_processing/comments'
+import { combinePushshiftAndRedditComments, copyModlogItemsToArchiveItems,
+} from 'data_processing/comments'
 import { combineRedditAndPushshiftPost } from 'data_processing/posts'
 import {
   getPost as getPushshiftPost,
@@ -15,12 +16,11 @@ import { getAuth } from 'api/reddit/auth'
 import {
   submitMissingComments
 } from 'api/reveddit'
-import { itemIsRemovedOrDeleted, postIsDeleted, postIsRemoved, jumpToHash,
-         AddUserParam
-} from 'utils'
+import { itemIsRemovedOrDeleted, postIsDeleted, postIsRemoved, jumpToHash } from 'utils'
 import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
          MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED,
          AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
+import {AddUserParam, getUserCommentsForPost, addUserComments} from 'data_processing/FindCommentViaAuthors'
 
 const numCommentsWithPost = 500
 let archiveError = false
@@ -37,16 +37,16 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     .catch(ignoreArchiveErrors)
   }
   await getAuth()
-  let add_user_promises = []
+  const add_user_promises = []
   if (add_user) {
     if (! add_user.match(/\./)) {
       //old format
-      add_user_promises = [queryUserPage(add_user, user_kind || 'overview', user_sort, before, after, user_time, 1)]
+      add_user_promises.push(queryUserPage(add_user, user_kind || '', user_sort, before, after, user_time, 1))
     } else {
       //new format
       const addUserItems = (new AddUserParam({string: add_user})).getItems().slice(0,10)
       for (const aui of addUserItems) {
-        add_user_promises.push(queryUserPage(aui.author, aui.kind || 'overview', aui.sort, aui.before, aui.after, aui.time, aui.limit || 100))
+        add_user_promises.push(aui.query())
       }
     }
   }
@@ -166,22 +166,9 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
                       itemsLookup: early_combinedComments,
                       commentTree: early_commentTree,
             initialFocusCommentID: commentID})
-    const remainingRedditIDs = {}
-    const user_comments = await Promise.all(add_user_promises).then(userPages => {
-      const all_user_comments = []
-      for (const userPage of userPages) {
-        const comments = userPage.items || []
-        for (const c of comments) {
-          if (reddit_post.name === c.link_id) {
-            all_user_comments.push(c)
-            if (! (c.id in early_combinedComments)) {
-              remainingRedditIDs[c.id] = 1
-            }
-          }
-        }
-      }
-      return all_user_comments
-    })
+    const {user_comments, newIDs: remainingRedditIDs} = await Promise.all(add_user_promises).then(
+      getUserCommentsForPost.bind(null, reddit_post.name, early_combinedComments)
+    )
     Object.keys(pushshiftComments).forEach(id => {
       if (! (id in redditComments)) {
         remainingRedditIDs[id] = 1
@@ -197,16 +184,10 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
       redditComments[comment.id] = comment
     })
     const combinedComments = combinePushshiftAndRedditComments(pushshiftComments, redditComments, false, reddit_post)
-    for (const user_comment of user_comments) {
-      const combined_comment = combinedComments[user_comment.id]
-      if (combined_comment) {
-        combined_comment.body = user_comment.body
-        combined_comment.author = user_comment.author
-        combined_comment.author_fullname = user_comment.author_fullname
-      } else {
-        combinedComments[user_comment.id] = user_comment
-      }
+    const insertUserComments = (user_comments, commentsLookup, threadID, root_commentID) => {
+
     }
+    addUserComments(user_comments, combinedComments)
     //todo: check if pushshiftComments has any parent_ids that are not in combinedComments
     //      and do a reddit query for these. Possibly query twice if the result has items whose parent IDs
     //      are not in combinedComments after adding the result of the first query
@@ -231,6 +212,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     return global.setError('', stateObj)
   }
 }
+
 
 export const insertParent = (child_id, global) => {
   let promise = Promise.resolve()

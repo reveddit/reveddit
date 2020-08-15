@@ -1,3 +1,9 @@
 import React from 'react'
 
-export const Spin = () => <div className='non-item'><img className='spin' src='/images/spin.gif'/></div>
+export const Spin = ({width}) => {
+  const spin = <img className='spin' width={width} src='/images/spin.gif'/>
+  if (! width) {
+    return <div className='non-item'>{spin}</div>
+  }
+  return spin
+}

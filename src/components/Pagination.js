@@ -45,15 +45,17 @@ const Pagination = ({paginationMeta, oldestTimestamp, newestTimestamp,
                      bottom, subreddit, page_type, global, children}) => {
   let content = <>{children}</>
   let prev, next
-  const {loading} = global.state
+  const {loading, frontPage, items} = global.state
   const current_searchParams = create_qparams()
   const useTimestampPagination = oldestTimestamp &&
     (timestampPagination_page_types.includes(page_type) || page_type === 'info' && current_searchParams.has('url'))
-  if (paginationMeta || useTimestampPagination) {
-    if (paginationMeta) {
-      const {page_number, num_pages} = paginationMeta
-      if (num_pages > 1) {
-        const hasPrev = page_number > 1, hasNext = page_number < num_pages
+  const usingRemovedditAPI = frontPage || subreddit === 'all'
+  if (paginationMeta || useTimestampPagination || usingRemovedditAPI) {
+    if (paginationMeta || usingRemovedditAPI) {
+      const {page_number, num_pages} = paginationMeta || {page_number: parseInt(current_searchParams.get('page')) || 1}
+      if ((paginationMeta && num_pages > 1) || usingRemovedditAPI) {
+        const hasPrev = page_number > 1
+        const hasNext = (usingRemovedditAPI && items.length >= 100) || (paginationMeta && page_number < num_pages)
         if (hasPrev) {
           prev =  page_number > 2 ?
             current_searchParams.set('page', page_number-1).toString() :
@@ -75,12 +77,15 @@ const Pagination = ({paginationMeta, oldestTimestamp, newestTimestamp,
       next_searchParams.delete('after')
       next = window.location.pathname+next_searchParams.toString()
     }
-    content = loading && bottom ? <Spin/> :
+    const prevOrNext = prev || next
+    const buttons = prevOrNext ?
       <div className={`non-item pagination ${bottom ? 'bottom' : ''}`}>
-        <a href={prev} className={`prev ${! prev && 'disabled'}`}>&lt;- prev</a>
+        <a href={prev} className={`prev ${! prev ? 'disabled': 'lightblue bubble'}`}>&lt;- prev</a>
         {children}
-        <a href={next} className={`next ${! next && 'disabled'}`}>next -&gt;</a>
+        <a href={next} className={`next ${! next ? 'disabled': 'lightblue bubble'}`}>next -&gt;</a>
       </div>
+    : <>{children}</>
+    content = loading && bottom ? <Spin/> : buttons
   }
   return content
 }

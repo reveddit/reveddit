@@ -1,13 +1,12 @@
 import React from 'react'
-import { prettyScore, roundToX } from 'utils'
+import { prettyScore, roundToX, replaceAmpGTLT } from 'utils'
 import Time from 'pages/common/Time'
 
 class CommentPreview extends React.Component {
   render() {
     const props = this.props
     const body = props.body ?
-      props.body.replace(/&amp;/g, '&').replace(/&gt;/g, '>').replace(/&lt;/g, '<')
-      : ''
+      replaceAmpGTLT(props.body) : ''
 
     return (
       <div id={props.name} className='comment preview'>

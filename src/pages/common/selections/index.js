@@ -122,7 +122,7 @@ class Selections extends React.Component {
                   return (
                     <>
                       {page_type === 'subreddit_posts' &&
-                        <Content page_type={page_type}/>
+                        <Content page_type={page_type} subreddit={subreddit}/>
                       }
                       {page_type === 'domain_posts' &&
                         <Selfposts page_type={page_type}/>

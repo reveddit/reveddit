@@ -2,14 +2,16 @@ import React from 'react'
 import { Subscribe, Container } from 'unstated'
 import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED,
          UNKNOWN_REMOVED, NOT_REMOVED } from 'pages/common/RemovedBy'
-import { SimpleURLSearchParams, get, put, ifNumParseInt,
-         ADDUSERPARAM_NAME
-} from 'utils'
+import { SimpleURLSearchParams, get, put, ifNumParseInt } from 'utils'
 import { limitCommentDepth_global } from 'pages/common/Settings'
 
 const defaultFilters_str = 'defaultFilters'
 
-export const getExtraGlobalStateVars = (page_type, sort, add_user) => {
+export const hasClickedRemovedUserCommentContext = () => {
+  put('hasClickedRemovedUserCommentContext', true)
+}
+
+export const getExtraGlobalStateVars = (page_type, sort) => {
   let hasVisitedUserPage = false
   if (get('hasVisitedUserPage', null)) {
     hasVisitedUserPage = true
@@ -37,9 +39,6 @@ export const getExtraGlobalStateVars = (page_type, sort, add_user) => {
   let hasClickedRemovedUserCommentContext = false
   if (get('hasClickedRemovedUserCommentContext', null)) {
     hasClickedRemovedUserCommentContext = true
-  } else if (add_user) {
-    hasClickedRemovedUserCommentContext = true
-    put('hasClickedRemovedUserCommentContext', true)
   }
   return {hasVisitedUserPage, hasVisitedUserPage_sortTop,
           hasVisitedSubredditPage, hasClickedRemovedUserCommentContext,
@@ -71,7 +70,7 @@ export const urlParamKeys = {
   selfposts: 'selfposts',
   limitCommentDepth: 'limitCommentDepth',
   page: 'page',
-  add_user: ADDUSERPARAM_NAME,
+  add_user: 'add_user',
   user_sort: 'user_sort',
   user_kind: 'user_kind',
   user_time: 'user_time',
@@ -139,7 +138,8 @@ export const filter_pageType_defaults = {
   q: '', author: '', subreddit: '', after: '', domain: '', or_domain: '',
   content: 'all', url: '',
   selfposts: true,
-  limitCommentDepth: limitCommentDepth_global
+  limitCommentDepth: limitCommentDepth_global,
+  add_user: '',
 }
 
 // pushshift max per call is now 100 (previously was 1000)
@@ -185,7 +185,7 @@ const adjust_qparams_for_selection = (page_type, queryParams, selection, value) 
   return queryParams
 }
 
-const updateURL = (queryParams) => {
+export const updateURL = (queryParams) => {
   const to = `${window.location.pathname}${queryParams.toString()}`
   window.history.replaceState(null,null,to)
 }
@@ -236,6 +236,7 @@ class GlobalState extends Container {
         authors: {},
         archiveTimes: null,
         add_user: '',
+        alreadySearchedAuthors: {},
       }
   }
 
@@ -428,7 +429,7 @@ class GlobalState extends Container {
   setError = (error, other = {}) => {
     return this.setState({statusText: error.message, statusImage: '/images/error.png', loading:false, error: true, ...other})
   }
-  setLoading = (text) => this.setState({...loadingVars, statusText: text})
+  setLoading = (text = '') => this.setState({...loadingVars, statusText: text})
   clearStatus = () => this.setState({statusText: '', statusImage: undefined, loading:false})
 }
 

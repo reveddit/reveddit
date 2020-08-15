@@ -88,17 +88,19 @@ export const combinePushshiftAndRedditComments = (pushshiftComments, redditComme
   return combinedComments
 }
 
+export const copyFields = (fields, source, target, if_value = false) => {
+  for (const field of fields) {
+    if (! if_value || source[field]) {
+      target[field] = source[field]
+    }
+  }
+}
+
 const setupCommentMeta = (archiveComment, redditComment) => {
   const retrievalLatency = archiveComment.retrieved_on ? archiveComment.retrieved_on - archiveComment.created_utc : 9999
   set_link_permalink(archiveComment, redditComment)
-  copy_fields.forEach(field => {
-    archiveComment[field] = redditComment[field]
-  })
-  copy_if_value_fields.forEach(field => {
-    if (redditComment[field]) {
-      archiveComment[field] = redditComment[field]
-    }
-  })
+  copyFields(copy_fields, redditComment, archiveComment)
+  copyFields(copy_if_value_fields, redditComment, archiveComment, true)
   if (! redditComment.link_title) {
     archiveComment.link_title = redditComment.permalink.split('/')[5].replace(/_/g, ' ')
   }

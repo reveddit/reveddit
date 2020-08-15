@@ -10,13 +10,13 @@ import { retrieveRedditPosts_and_combineWithPushshiftPosts } from 'data_processi
 import { copyModlogItemsToArchiveItems } from 'data_processing/comments'
 
 export const getRevdditPostsBySubreddit = (subreddit, global) => {
-  const {n, before, before_id, frontPage} = global.state
+  const {n, before, before_id, frontPage, page} = global.state
   // /r/sub/new , /r/sub/controversial etc. are not implemented, so redirect
   if (window.location.pathname.match(/^\/r\/([^/]*)\/.+/g)) {
     window.history.replaceState(null,null,`/r/${subreddit}/`+window.location.search)
   }
-  if (subreddit === 'all') {
-    return getRemovedPostIDs(subreddit)
+  if (subreddit === 'all' || frontPage) {
+    return getRemovedPostIDs(subreddit, page || 1)
     .then(ids => getRedditPosts({ids}))
     .then(posts => {
       const posts_array = Object.values(posts)
@@ -33,9 +33,6 @@ export const getRevdditPostsBySubreddit = (subreddit, global) => {
     })
     .catch(global.setError)
   } else {
-    if (frontPage) {
-      global.selection_update('frontPage', false, '')
-    }
     const subreddit_lc = subreddit.toLowerCase()
     const moderators_promise = getModerators(subreddit)
     .then(moderators => {

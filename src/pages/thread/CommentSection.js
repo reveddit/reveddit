@@ -6,6 +6,7 @@ import { itemIsOneOfSelectedActions, itemIsOneOfSelectedTags, filterSelectedActi
 import { createCommentTree } from 'data_processing/thread'
 import { reversible, itemIsActioned, not } from 'utils'
 import { getMaxCommentDepth } from 'pages/thread/Comment'
+import { Spin } from 'components/Misc'
 
 const MAX_COMMENTS_TO_SHOW = 200
 
@@ -111,7 +112,7 @@ class CommentSection extends React.Component {
     const { removedFilter, removedByFilter, localSort,
             localSortReverse, showContext, context,
             itemsLookup: commentsLookup, commentTree: fullCommentTree,
-            threadPost, limitCommentDepth } = props.global.state
+            threadPost, limitCommentDepth, loading } = props.global.state
     const removedByFilterIsUnset = this.props.global.removedByFilterIsUnset()
     const tagsFilterIsUnset = this.props.global.tagsFilterIsUnset()
 
@@ -186,10 +187,15 @@ class CommentSection extends React.Component {
       status = (<p>No {removedFilter_text[removedFilter]} comments found</p>)
     }
     return (
-      <div className='threadComments'>
-        {comments_render}
-        {status}
-      </div>
+      <>
+        {loading && ! commentTree.length &&
+          <Spin/>
+        }
+        <div className='threadComments'>
+          {comments_render}
+          {status}
+        </div>
+      </>
     )
   }
 }

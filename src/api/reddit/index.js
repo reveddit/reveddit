@@ -156,20 +156,45 @@ export const getPostWithComments = ({threadID, commentID: comment, context = 0, 
     })
 }
 
+
+
+export const OVERVIEW = 'overview', SUBMITTED = 'submitted', COMMENTS='comments', GILDED='gilded'
+// when kind = 'posts', page redirects via src/index.js
+const kinds = {
+  'c': COMMENTS,
+  's': SUBMITTED,
+  'g': GILDED,
+  'o': OVERVIEW,
+  [COMMENTS]: COMMENTS,
+  [SUBMITTED]: SUBMITTED,
+  [GILDED]: GILDED,
+  [OVERVIEW]: OVERVIEW,
+  '': '',
+  null: '',
+  undefined: '',
+}
+export const kindsReverse = {
+  [COMMENTS]: 'c',
+  [SUBMITTED]: 's',
+  [GILDED]: 'g',
+  [OVERVIEW]: 'o',
+  c: 'c',
+  s: 's',
+  g: 'g',
+  o: 'o',
+  '': '',
+}
+
 export const queryUserPage = (user, kind, sort, before, after, t, limit = 100, host = oauth_reddit) => {
   var params = {
-    sort: sort,
-    limit,
+    ...(sort && {sort}),
+    ...(limit && {limit}),
     ...(t && {t}),
     ...(after && {after}),
     ...(before && {before}),
-    raw_json:1
-  }
-  if (! kind) {
-    kind = ''
   }
 
-  const url = host + `user/${user}/${kind}.json` + '?'+paramString(params)
+  const url = host + `user/${user}/${kinds[kind]}.json` + '?'+paramString(params)
   return getAuth()
     .then(auth => window.fetch(url, auth))
     .then(response => response.json())

@@ -1,11 +1,12 @@
 import React from 'react'
-import { prettyScore, parse, isRemoved, AddUserParam } from 'utils'
+import { prettyScore, parse } from 'utils'
 import Time from 'pages/common/Time'
 import RemovedBy from 'pages/common/RemovedBy'
 import { NOT_REMOVED } from 'pages/common/RemovedBy'
 import CommentBody from 'pages/common/CommentBody'
 import Author from 'pages/common/Author'
-import { connect } from 'state'
+import { connect, hasClickedRemovedUserCommentContext } from 'state'
+import {AddUserParam} from 'data_processing/FindCommentViaAuthors'
 
 
 class Comment extends React.Component {
@@ -56,7 +57,7 @@ class Comment extends React.Component {
       directlink = '?'+after_before+`limit=1&sort=${props.sort}&show=${props.name}&removal_status=all`
       if (props.removed) {
         const addUserParam = new AddUserParam()
-        addUserParam.addItem({
+        addUserParam.addItems({
           author: props.author,
           ...(props.kind && {kind: props.kind}),
           ...(sort && {sort: sort}),
@@ -136,7 +137,9 @@ class Comment extends React.Component {
                         <a href={reddit+props.permalink+'?context=1'}>reddit-permalink</a>
                       </>
                       :
-                        <a href={props.permalink+'?context=3'+add_user+'#'+props.name}>context{props.num_replies && `(${props.num_replies})`}</a>
+                        <a href={props.permalink+'?context=3'+add_user+'#'+props.name}
+                           onClick={add_user ? hasClickedRemovedUserCommentContext: null}
+                        >context{props.num_replies && `(${props.num_replies})`}</a>
                     }
                     {props.link_permalink &&
                       <a href={props.link_permalink.replace(/^https:\/\/[^/]*/,'')}>full comments

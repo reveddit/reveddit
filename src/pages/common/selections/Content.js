@@ -34,6 +34,7 @@ class Content extends React.Component {
   }
 
   render() {
+    const {subreddit} = this.props
     return (
         <div className='content selection'>
           <div className='title'>Content</div>
@@ -42,13 +43,14 @@ class Content extends React.Component {
               {this.getLink('', 'comments and posts')}
               {this.getLink('comments', 'comments')}
               {this.getLink('submitted', 'posts')}
+              {this.getLink('gilded', 'gilded')}
             </React.Fragment>
           }
           {['subreddit_posts', 'subreddit_comments'].includes(this.props.page_type) &&
             <React.Fragment>
               {this.getLink('', 'posts')}
-              {
-                //this.getLink('', r_all)
+              { subreddit !== 'all' &&
+                this.getLink('', r_all)
               }
               {this.getLink('comments', 'comments')}
             </React.Fragment>

@@ -9,11 +9,10 @@ import Selections from 'pages/common/selections'
 import { withFetch } from 'pages/RevdditFetcher'
 import { SimpleURLSearchParams, jumpToHash } from 'utils'
 import Highlight from 'pages/common/Highlight'
-import { Spin } from 'components/Misc'
 
 class Thread extends React.Component {
   render () {
-    const { itemsLookup:comments, loading, threadPost: post, hasVisitedUserPage,
+    const { itemsLookup:comments, threadPost: post, hasVisitedUserPage,
             context, showContext, initialFocusCommentID } = this.props.global.state
 
     const { id, author } = post
@@ -70,9 +69,6 @@ class Thread extends React.Component {
                 }
                 {! showContext &&
                   <Notice message="context is flattened." htmlLink={viewContext}/>
-                }
-                {loading &&
-                  <Spin/>
                 }
                 <CommentSection
                   root={root}

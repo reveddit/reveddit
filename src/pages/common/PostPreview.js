@@ -1,13 +1,12 @@
 import React from 'react'
 import Time from 'pages/common/Time'
-import { prettyScore, roundToX } from 'utils'
+import { prettyScore, roundToX, replaceAmpGTLT } from 'utils'
 
 class PostPreview extends React.Component {
   render() {
     const props = this.props
     const title = props.title ?
-      props.title.replace(/&amp;/g, '&').replace(/&gt;/g, '>').replace(/&lt;/g, '<')
-      : ''
+      replaceAmpGTLT(props.title) : ''
 
     return (
       <div id={props.name} className='post preview'>

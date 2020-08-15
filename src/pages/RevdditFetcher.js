@@ -12,12 +12,11 @@ import Selections from 'pages/common/selections'
 import { showAccountInfo_global } from 'pages/common/Settings'
 import { removedFilter_types, getExtraGlobalStateVars, create_qparams } from 'state'
 import { NOT_REMOVED, COLLAPSED, ORPHANED } from 'pages/common/RemovedBy'
-import { SimpleURLSearchParams, jumpToHash, get, put, ext_urls,
+import { jumpToHash, get, put, ext_urls,
          itemIsActioned, itemIsCollapsed, commentIsOrphaned,
          commentIsMissingInThread, getPrettyDate, getPrettyTimeLength,
-         ADDUSERPARAM_NAME
 } from 'utils'
-import { getAuthorInfoByName } from 'api/reddit'
+import { getAuthorInfoByName, OVERVIEW, SUBMITTED, COMMENTS, GILDED } from 'api/reddit'
 import { getAuth } from 'api/reddit/auth'
 import { getArchiveTimes } from 'api/reveddit'
 import {meta} from 'pages/about/AddOns'
@@ -156,8 +155,7 @@ const getLoadDataFunctionAndParam = (
   }
   return null
 }
-const OVERVIEW = 'overview', SUBMITTED = 'submitted', BLANK='', COMMENTS='comments'
-const acceptable_kinds = [OVERVIEW, COMMENTS, SUBMITTED, BLANK]
+const acceptable_kinds = [OVERVIEW, COMMENTS, SUBMITTED, GILDED, '']
 const acceptable_sorts = ['new', 'top', 'controversial', 'hot']
 const MAX_COLLAPSED_VISIBLE = 2
 const MAX_ORPHANED_VISIBLE = 2
@@ -208,14 +206,13 @@ export const withFetch = (WrappedComponent) =>
       if (page_type !== 'user') {
         getArchiveTimes().then(archiveTimes => this.props.global.setState({archiveTimes}))
       }
-      const simpleURLSearchParams = new SimpleURLSearchParams(window.location.search)
       this.props.global.setQueryParamsFromSavedDefaults(page_type)
       this.props.global.setStateFromQueryParams(
                       page_type,
-                      simpleURLSearchParams,
-                      getExtraGlobalStateVars(page_type, queryParams.sort, allQueryParams.get(ADDUSERPARAM_NAME)))
+                      allQueryParams,
+                      getExtraGlobalStateVars(page_type, queryParams.sort ))
       .then(result => {
-        if (page_type === 'info' && simpleURLSearchParams.toString() === '') {
+        if (page_type === 'info' && allQueryParams.toString() === '') {
           return this.props.global.setSuccess()
         }
         getAuth().then(() => {
