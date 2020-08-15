@@ -116,7 +116,7 @@ class Comment extends React.Component {
         {
           this.state.displayBody ?
             <div className='comment-body-and-links'>
-              <CommentBody {...props} />
+              <CommentBody {...props} page_type={props.page_type}/>
               <div className='comment-links'>
                 { ! props.deleted &&
                   <React.Fragment>

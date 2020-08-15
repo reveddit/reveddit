@@ -25,7 +25,9 @@ const CommentBody = (props) => {
   if (! props.deleted) {
     if (commentIsRemoved(props) && props.removed) {
       innerHTML = '<p>'+getRemovedMessage(props, 'comment')+'</p>'
-      searchAuthorsForm = <FindCommentViaAuthors {...props}/>
+      if (props.page_type === 'thread') {
+        searchAuthorsForm = <FindCommentViaAuthors {...props}/>
+      }
     } else {
       if (props.page_type === 'user' && ! props.removed) {
         if (commentIsMissingInThread(props)) {
