@@ -58,6 +58,8 @@ class Post extends React.Component {
       } else if (selftext.length > max_selftext_length + 10) {
         snippet_is_set = true
         selftext_snippet = selftext.substring(0,max_selftext_length)+'...'
+      } else {
+        selftext_snippet = selftext
       }
     }
     let directlink = ''
