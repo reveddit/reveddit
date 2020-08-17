@@ -6,12 +6,18 @@ import { Spin } from 'components/Misc'
 import { copyFields } from 'data_processing/comments'
 
 const FindCommentViaAuthors = (props) => {
+  let searchButton = ''
+  //TODO: move "Find authors" logic to data_processing/thread.js, after final fetch, so it doesn't need to be done on the fly
+  //START Find authors
+  const {itemsLookup, alreadySearchedAuthors} = props.global.state
+  const grandparentComment = getAncestor(props, itemsLookup, 2)
+  const grandchildComment = ((props.replies[0] || {}).replies || [])[0] || {}
+  const aug = new AddUserGroup({alreadySearchedAuthors})
+  aug.add(grandparentComment.author, grandchildComment.author)
+  //END Find authors
   const search = async (targetComment) => {
     props.global.setLoading()
-    const {itemsLookup, alreadySearchedAuthors} = props.global.state
     let {add_user} = props.global.state
-    const grandparentComment = getAncestor(props, itemsLookup, 2)
-    const grandchildComment = ((props.replies[0] || {}).replies || [])[0] || {}
 
     //TODO: find and sort authors
     //PREREQ: sort all comments by date
@@ -20,8 +26,6 @@ const FindCommentViaAuthors = (props) => {
     // authors who commented around the same time anywhere in the thread
     // is_mod LAST
     //const {grandparentAuthor, grandchildAuthors, urlParamAuthors} = scanAuthors()
-    const aug = new AddUserGroup({alreadySearchedAuthors})
-    aug.add(grandparentComment.author, grandchildComment.author)
 
     const {authors, promises} = aug.query()
     const {user_comments, newIDs} = await Promise.all(promises).then(
@@ -57,13 +61,16 @@ const FindCommentViaAuthors = (props) => {
     //      no authors remain: remove button
     props.global.setSuccess({alreadySearchedAuthors, add_user})
   }
-  return(
-    <div style={{padding: '15px 0', minHeight: '25px'}}>
-      {props.global.state.loading ?
-        <Spin width='20px'/>
-        : <a className='pointer bubble big lightblue' onClick={search}
-          >search for comment via nearby users</a>}
-    </div>)
+  if (aug.length()) {
+    searchButton = (
+      <div style={{padding: '15px 0', minHeight: '25px'}}>
+        {props.global.state.loading ?
+          <Spin width='20px'/>
+          : <a className='pointer bubble medium lightblue' onClick={search}
+            >search <span className='mobile-only'>🗘</span><span className='desktop-only'>via nearby users</span></a>}
+      </div>)
+  }
+  return searchButton
 }
 
 class AddUserGroup {
@@ -72,6 +79,9 @@ class AddUserGroup {
     this.max = max
     this.authorsToSearch = {}
     this.itemsToSearch = []
+  }
+  length() {
+    return this.itemsToSearch.length
   }
   getAlreadySearchedAuthors() {
     return this.alreadySearchedAuthors
