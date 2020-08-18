@@ -98,6 +98,8 @@ export const copyFields = (fields, source, target, if_value = false) => {
 
 const setupCommentMeta = (archiveComment, redditComment) => {
   const retrievalLatency = archiveComment.retrieved_on ? archiveComment.retrieved_on - archiveComment.created_utc : 9999
+  const archive_body_removed = commentIsRemoved(archiveComment)
+  archiveComment.archive_body_removed = archive_body_removed
   set_link_permalink(archiveComment, redditComment)
   copyFields(copy_fields, redditComment, archiveComment)
   copyFields(copy_if_value_fields, redditComment, archiveComment, true)
@@ -116,7 +118,7 @@ const setupCommentMeta = (archiveComment, redditComment) => {
       archiveComment.body = modlog.body
     }
     if (! commentIsRemoved(redditComment)) {
-      if (commentIsRemoved(archiveComment) || modlog_says_bot_removed) {
+      if (archive_body_removed || modlog_says_bot_removed) {
         archiveComment.removedby = AUTOMOD_REMOVED_MOD_APPROVED
       } else {
         archiveComment.removedby = NOT_REMOVED
@@ -124,7 +126,7 @@ const setupCommentMeta = (archiveComment, redditComment) => {
       archiveComment.author = redditComment.author
       archiveComment.body = redditComment.body
     } else {
-      if (commentIsRemoved(archiveComment)) {
+      if (archive_body_removed) {
         if ( retrievalLatency <= AUTOMOD_LATENCY_THRESHOLD || modlog_says_bot_removed) {
           archiveComment.removedby = AUTOMOD_REMOVED
         } else {

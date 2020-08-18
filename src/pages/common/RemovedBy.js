@@ -58,7 +58,7 @@ const RemovedBy = (props) => {
     meta = REMOVAL_META[removedby]
     if (removedby === UNKNOWN_REMOVED && isPost(props) &&
         postRemovedUnknownWithin(props)) {
-      withinText = getRemovedWithinText(props)
+      withinText = ', '+getRemovedWithinText(props)
     }
   } else if (removedby === USER_REMOVED) {
     meta = USER_REMOVED_META

@@ -1,7 +1,7 @@
 import React from 'react'
-import { parse, commentIsRemoved, replaceAmpGTLT,
+import { markdownToHTML, commentIsRemoved, replaceAmpGTLT,
          commentIsOrphaned, commentIsMissingInThread, get, put,
-         getRemovedMessage } from 'utils'
+         getRemovedMessage, textSaysRemoved, getRemovedWithinText } from 'utils'
 import { connect } from 'state'
 import Notice from 'pages/common/Notice'
 import FindCommentViaAuthors from 'data_processing/FindCommentViaAuthors'
@@ -18,15 +18,20 @@ const dismiss = (noticeType) => {
   }
 }
 
-
 const CommentBody = (props) => {
   let innerHTML = '', actionDescription = '', searchAuthorsForm = ''
-
+  const isThread = props.page_type === 'thread'
+  const comment_Is_Removed = commentIsRemoved(props)
   if (! props.deleted) {
-    if (commentIsRemoved(props) && props.removed) {
+    if ( (comment_Is_Removed || (isThread && props.archive_body_removed))
+         && props.removed) {
       innerHTML = '<p>'+getRemovedMessage(props, 'comment')+'</p>'
-      if (props.page_type === 'thread') {
-        searchAuthorsForm = <FindCommentViaAuthors {...props}/>
+      if (isThread) {
+        if (comment_Is_Removed) {
+          searchAuthorsForm = <FindCommentViaAuthors {...props}/>
+        } else if (props.archive_body_removed) { // explicit for clarity, could be else { w/no condition
+          innerHTML = `[removed ${getRemovedWithinText(props)}, restored via user page]`+markdownToHTML(props.body)
+        }
       }
     } else {
       if (props.page_type === 'user' && ! props.removed) {
@@ -42,7 +47,7 @@ const CommentBody = (props) => {
             dismissFn={() => dismiss('orphaned')} />
         }
       }
-      innerHTML = parse(replaceAmpGTLT(props.body))
+      innerHTML = markdownToHTML(props.body)
     }
   } else {
     innerHTML = '<p>[deleted by user]</p>'
