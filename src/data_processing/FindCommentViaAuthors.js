@@ -67,7 +67,7 @@ const FindCommentViaAuthors = (props) => {
         {props.global.state.loading ?
           <Spin width='20px'/>
           : <a className='pointer bubble medium lightblue' onClick={search}
-            >search <span className='mobile-only'>🗘</span><span className='desktop-only'>via nearby users</span></a>}
+            >search<span className='desktop-only'> via nearby users</span></a>}
       </div>)
   }
   return searchButton
