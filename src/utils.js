@@ -275,7 +275,9 @@ export class SimpleURLSearchParams {
         queryVals.push(key+'='+this.params[key])
     }
     if (queryVals.length) {
-      return '?'+queryVals.join('&')
+      const search = queryVals.join('&')
+      const extraAMP = search.slice(-1) === '.' ? '&' : ''
+      return '?'+search+extraAMP
     } else {
       return ''
     }
