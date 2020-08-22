@@ -9,11 +9,11 @@ const FindCommentViaAuthors = (props) => {
   let searchButton = ''
   //TODO: move "Find authors" logic to data_processing/thread.js, after final fetch, so it doesn't need to be done on the fly
   //START Find authors
-  const {itemsLookup, alreadySearchedAuthors} = props.global.state
+  const {itemsLookup, alreadySearchedAuthors, threadPost} = props.global.state
   const grandparentComment = getAncestor(props, itemsLookup, 2)
   const grandchildComment = ((props.replies[0] || {}).replies || [])[0] || {}
   const aug = new AddUserGroup({alreadySearchedAuthors})
-  aug.add(grandparentComment.author, grandchildComment.author)
+  aug.add(grandparentComment.author, grandchildComment.author, threadPost.author)
   //END Find authors
   const search = async (targetComment) => {
     props.global.setLoading()
