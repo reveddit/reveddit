@@ -19,6 +19,16 @@ const ThreadRedirect = lazy(() => import('pages/thread/redirect'))
 const NotFound = lazy(() => import('pages/404'))
 const Random = lazy(() => import('pages/about/random'))
 
+const RouteRedirectWithParams = ({path, search, replace}) =>
+  <Route path={path} component={({ location }) => (
+      <Redirect
+        to={{
+          ...location,
+          pathname: location.pathname.replace(search, replace)
+        }} /> )}
+  />
+
+
 class App extends React.Component {
 
   render() {
@@ -38,42 +48,11 @@ class App extends React.Component {
                     <Switch>
                       <Redirect exact from='/' to='/about#welcome' />
                       <Redirect from='/u/*' to='/user/*' />
-                      <Redirect from='/u/' to='/user/' />
-                      <Route path="/user/:user/posts/" component={({ location }) => (
-                          <Redirect
-                            to={{
-                              ...location,
-                              pathname: location.pathname.replace(/\/posts/, '/submitted')
-                            }} /> )}
-                      />
-                      <Route path="/y/" component={({ location }) => (
-                          <Redirect
-                            to={{
-                              ...location,
-                              pathname: location.pathname.replace(/\/y/, '/user')
-                            }} /> )}
-                      />
-                      <Route path="/v/" component={({ location }) => (
-                          <Redirect
-                            to={{
-                              ...location,
-                              pathname: location.pathname.replace(/\/v/, '/r')
-                            }} /> )}
-                      />
-                      <Route path="/api/info/" component={({ location }) => (
-                          <Redirect
-                            to={{
-                              ...location,
-                              pathname: location.pathname.replace(/api\/info/, 'info')
-                            }} /> )}
-                      />
-                      <Route path="/gallery/" component={({ location }) => (
-                          <Redirect
-                            to={{
-                              ...location,
-                              pathname: location.pathname.replace(/\/gallery/, '')
-                            }} /> )}
-                      />
+                      <RouteRedirectWithParams path='/user/:user/posts/' search={/\/posts/} replace='/submitted'/>
+                      <RouteRedirectWithParams path='/y/' search={/\/y/} replace='/user'/>
+                      <RouteRedirectWithParams path='/v/' search={/\/v/} replace='/r'/>
+                      <RouteRedirectWithParams path='/api/info/' search={/\/api\/info/} replace='/info'/>
+                      <RouteRedirectWithParams path='/gallery/' search={/\/gallery/} replace=''/>
                       <DefaultLayout path='/about' component={About} />
                       <DefaultLayout path='/add-ons' component={AddOns} />
                       <DefaultLayout path='/info' page_type='info' component={Info} />
