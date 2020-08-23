@@ -6,6 +6,8 @@ import RemovedBy from 'pages/common/RemovedBy'
 import Author from 'pages/common/Author'
 import { NOT_REMOVED } from 'pages/common/RemovedBy'
 import { connect } from 'state'
+import {MessageMods} from 'components/Misc'
+import {www_reddit} from 'api/reddit'
 
 const max_selftext_length = 100
 
@@ -29,11 +31,8 @@ class Post extends React.Component {
     if (!props.title) {
       return <div />
     }
-    const reddit = 'https://www.reddit.com'
-    const mods_message_body = '\n\n\n'+reddit+props.permalink;
-    const mods_link = reddit+'/message/compose?to=/r/'+props.subreddit+'&message='+encodeURI(mods_message_body);
 
-    let url = props.url.replace('https://www.reddit.com', '')
+    let url = props.url.replace(www_reddit, '')
 
     let thumbnail
     const thumbnailWidth = props.thumbnail_width ? props.thumbnail_width * 0.5 : 70
@@ -119,10 +118,10 @@ class Post extends React.Component {
           <div className='total-comments post-links'>
             {props.quarantine && <span className="quarantined">quarantined</span>}
             <a href={props.permalink} className='nowrap'>{props.num_comments} comments</a>
-            <a href={`https://www.reddit.com${props.permalink}`}>reddit</a>
+            <a href={www_reddit+props.permalink}>reddit</a>
               <a href={`/r/${props.subreddit}/duplicates/${props.id}`}>other-discussions{props.num_crossposts ? ` (${props.num_crossposts}+)`:''}</a>
             { directlink && <a href={directlink}>directlink</a>}
-            <a href={mods_link} target="_blank">message mods</a>
+            <MessageMods {...props}/>
           </div>
         </div>
         <div className='clearBoth'></div>

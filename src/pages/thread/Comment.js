@@ -7,6 +7,7 @@ import CommentBody from 'pages/common/CommentBody'
 import Author from 'pages/common/Author'
 import { connect } from 'state'
 import { insertParent } from 'data_processing/thread'
+import {MessageMods} from 'components/Misc'
 
 const contextDefault = 3
 const MIN_COMMENT_DEPTH = 4
@@ -119,18 +120,21 @@ class Comment extends React.Component {
               <CommentBody {...props} page_type={props.page_type}/>
               <div className='comment-links'>
                 { ! props.deleted &&
-                  <React.Fragment>
+                  <>
                     {getPermalink('permalink')}
-                    {parent_link &&
-                      // using <a> instead of <Link> for parent & context links b/c
-                      // <Link> causes comments to disappear momentarily when inserting a parent
-                      <>
-                        <a href={parent_link} onClick={(e) => {
-                          e.preventDefault()
-                          insertParent(props.id, props.global)
-                          .then(() => context_update(0, props, parent_link))
-                          .then(() => jumpToHash(window.location.hash))
-                        }}>parent</a>
+                  </>
+                }
+                {parent_link &&
+                    // using <a> instead of <Link> for parent & context links b/c
+                    // <Link> causes comments to disappear momentarily when inserting a parent
+                    <>
+                      <a href={parent_link} onClick={(e) => {
+                        e.preventDefault()
+                        insertParent(props.id, props.global)
+                        .then(() => context_update(0, props, parent_link))
+                        .then(() => jumpToHash(window.location.hash))
+                      }}>parent</a>
+                      {! props.deleted &&
                         <a href={contextLink} onClick={(e) => {
                           e.preventDefault()
                           insertParent(props.id, props.global)
@@ -139,9 +143,11 @@ class Comment extends React.Component {
                           .then(() => context_update(contextDefault, props, contextLink))
                           .then(() => jumpToHash(window.location.hash))
                         }}>context</a>
-                      </>
-                    }
-                  </React.Fragment>
+                      }
+                    </>
+                }
+                { ! props.deleted && props.removed &&
+                  <MessageMods {...props}/>
                 }
               </div>
               <div>

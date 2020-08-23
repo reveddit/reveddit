@@ -5,6 +5,7 @@ import {
   userPageHTML,
   getModeratedSubreddits,
   oauth_reddit_rev,
+  www_reddit,
 } from 'api/reddit'
 import { getMissingComments } from 'api/reveddit'
 import { getAuth } from 'api/reddit/auth'
@@ -35,7 +36,6 @@ export const getQueryParams = () => {
   return result
 }
 
-const reddit = 'https://www.reddit.com'
 const verify = 'Verify the url and reload this page to double check. '
 const deleted_shadowbanned_notexist = 'may be deleted, shadowbanned, or may not exist. '
 
@@ -149,7 +149,7 @@ function getItems (user, kind, global, sort, before = '', after = '', time, limi
           } else {
             return userPageHTML(user)
             .then(html_result => {
-              const status = `You can also check account status at <a href="${reddit}/user/${user}">/u/${user}</a> or <a href="${reddit}/r/ShadowBan">/r/ShadowBan</a>.`
+              const status = `You can also check account status at <a href="${www_reddit}/user/${user}">/u/${user}</a> or <a href="${www_reddit}/r/ShadowBan">/r/ShadowBan</a>.`
               if ('error' in html_result) {
                 console.error(html_result.error)
                 global.setError(Error(''), {userIssueDescription: deleted_shadowbanned_notexist+verify+status})

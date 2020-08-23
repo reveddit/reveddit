@@ -3,7 +3,7 @@ import { connect } from 'state'
 import BlankUser from 'components/BlankUser'
 import Comment from 'pages/common/Comment'
 import Time from 'pages/common/Time'
-import { getComments } from 'api/reddit'
+import { getComments, www_reddit } from 'api/reddit'
 import { getWhatPeopleSay } from 'api/reveddit'
 import { getCommentsByID as getPushshiftComments } from 'api/pushshift'
 import { itemIsRemovedOrDeleted, SimpleURLSearchParams, makeDonateVisible } from 'utils'
@@ -11,8 +11,6 @@ import { combinePushshiftAndRedditComments } from 'data_processing/comments'
 import { setPostAndParentDataForComments } from 'data_processing/info'
 import Highlight from 'pages/common/Highlight'
 import { Link } from 'react-router-dom'
-
-const reddit = 'https://www.reddit.com'
 
 const filterDeletedComments = (comments) => {
   const result = []
@@ -32,34 +30,34 @@ const NewsItem = ({href, to, title, created_utc}) => {
 }
 
 const news = [
-  {href:`${reddit}/hq7a8s/`,
+  {href:`${www_reddit}/hq7a8s/`,
    title:'Showing archive delay',
    created_utc:'1594608021'},
   {href:`/r/all/missing-comments/`,
    title:'tracking missing comments',
    created_utc:'1591339363'},
-  {href:`${reddit}/gdaj40/`,
+  {href:`${www_reddit}/gdaj40/`,
    title:'added public mod logs + other updates',
    created_utc:'1588594602'},
-  {href:`${reddit}/estw67/`,
+  {href:`${www_reddit}/estw67/`,
    title:'random user, collapsed comments, xposts',
    created_utc:'1579789966'},
   {to:'/add-ons/',
    title:'real-time notifier extension',
    created_utc:'1576163308'},
-  {href:`${reddit}/e1wsqy/`,
+  {href:`${www_reddit}/e1wsqy/`,
    title:'revddit.com -> www.reveddit.com',
    created_utc:'1574768321'},
-  {href:`${reddit}/db5hfm/`,
+  {href:`${www_reddit}/db5hfm/`,
    title:'tip: /y and /v aliases for /user and /r',
    created_utc:'1569812523'},
-  {href:`${reddit}/r/shortcuts/comments/ct64s6/is_it_possible_to_modify_a_copied_link/exkas2j/?context:3`,
+  {href:`${www_reddit}/r/shortcuts/comments/ct64s6/is_it_possible_to_modify_a_copied_link/exkas2j/?context:3`,
    title:'reveddit shortcut for iOS',
    created_utc:'1566381957'},
-  {href:`${reddit}/clwnxg/`,
+  {href:`${www_reddit}/clwnxg/`,
    title:'reveddit linker extension',
    created_utc:'1564927561'},
-  {href:`${reddit}/9n9l45/`,
+  {href:`${www_reddit}/9n9l45/`,
    title:'site launch',
    created_utc:'1539261445'},
 ]
@@ -192,7 +190,7 @@ export class About extends React.Component {
             <div className='section half'>
               <h2 className='about'>Feedback</h2>
               <ul>
-                <li><a href='https://www.reddit.com/r/reveddit/'>/r/reveddit</a></li>
+                <li><a href={www_reddit+'/r/reveddit/'}>/r/reveddit</a></li>
                 <li><a href='https://github.com/reveddit/reveddit'>github.com/reveddit/reveddit</a></li>
               </ul>
             </div>
@@ -203,7 +201,7 @@ export class About extends React.Component {
               </p>
               <ul>
                 <li><a href='https://github.com/JubbeArt/removeddit'>Removeddit</a> by Jesper Wrang</li>
-                <li><a href='https://www.reddit.com/r/pushshift/'>Pushshift</a> by Jason Baumgartner</li>
+                <li><a href={www_reddit+'/r/pushshift/'}>Pushshift</a> by Jason Baumgartner</li>
               </ul>
             </div>
           </div>

@@ -20,7 +20,7 @@ const maxNumCommentsByID = 900
 const waitInterval = 400
 
 // retrieved_on will become retrieved_utc
-// https://www.reddit.com/r/pushshift/comments/ap6vx5/changelog_changes_to_the_retrieved_on_key/
+// https://reddit.com/r/pushshift/comments/ap6vx5/changelog_changes_to_the_retrieved_on_key/
 const update_retrieved_field = (item) => {
   if ('retrieved_utc' in item && item.retrieved_utc) {
     item.retrieved_on = item.retrieved_utc

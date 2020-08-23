@@ -3,6 +3,7 @@ import { getAuth } from './auth'
 
 const oauth_reddit = 'https://oauth.reddit.com/'
 export const oauth_reddit_rev = 'https://ored.reveddit.com/'
+export const www_reddit = 'https://www.reddit.com'
 const revddit_q = REVEDDIT_CORS_ANWHERE_HOST + 'q/'
 const u_publicmodlogs_feed = '7e9b27126097f51ae6c9cd5b049af34891da6ba6'
 const coronavirus_logs = 'https://logs.mod.rcoronavirus.org/.json'

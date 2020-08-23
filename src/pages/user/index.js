@@ -14,6 +14,7 @@ import { SimpleURLSearchParams, copyLink, get, put } from 'utils'
 import Highlight from 'pages/common/Highlight'
 import ModalContext from 'contexts/modal'
 import { Spin } from 'components/Misc'
+import {www_reddit} from 'api/reddit'
 
 const hidePinPostNotice_var = 'hidePinPostNotice'
 const pinPostLink = 'https://old.reddit.com/user/me/submit?title=See+which+comments+of+yours+have+been+removed&url=https%3A%2F%2Fwww.reveddit.com%2Fabout%2F'
@@ -118,7 +119,7 @@ const User = ({match, global, page_type, viewableItems, selections, notShownMsg}
           {notShownMsg}
           { removedCommentIDs.length > 0 &&
             <Notice message="Some comments have been removed. To view this on reddit, open the below link in an incognito window or while logged out."
-              htmlLink={<a href={'https://www.reddit.com/api/info?id='+removedCommentIDs.join(',')} target="_blank">view removed comments on reddit</a>}
+              htmlLink={<a href={www_reddit+'/api/info?id='+removedCommentIDs.join(',')} target="_blank">view removed comments on reddit</a>}
             />
           }
           {selectedItems &&
