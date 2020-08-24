@@ -1,31 +1,65 @@
-import React from 'react'
+import React, {useRef} from 'react'
 import {ifNumParseInt, isCommentID, validAuthor} from 'utils'
 import {connect, urlParamKeys, create_qparams_and_adjust, updateURL} from 'state'
 import { kindsReverse, queryUserPage } from 'api/reddit'
 import { Spin } from 'components/Misc'
 import { copyFields } from 'data_processing/comments'
 
+const MAX_AUTHORS_NEARBY_BY_DATE = 4
+const MAX_AUTHORS_TO_SEARCH = 15
+
+const addAuthorIfExists = (comment, set) => {
+  if (comment && validAuthor(comment.author)) {
+    set.add(comment.author)
+  }
+}
+
 const FindCommentViaAuthors = (props) => {
+  const distance = useRef(1)
   let searchButton = ''
-  //TODO: move "Find authors" logic to data_processing/thread.js, after final fetch, so it doesn't need to be done on the fly
-  //START Find authors
-  const {itemsLookup, alreadySearchedAuthors, threadPost} = props.global.state
+  const {itemsLookup, alreadySearchedAuthors, threadPost,
+         commentsSortedByDate, add_user, loading} = props.global.state
   const grandparentComment = getAncestor(props, itemsLookup, 2)
   const grandchildComment = ((props.replies[0] || {}).replies || [])[0] || {}
+  // START nearby authors
+  const authors_nearbyByDate = new Set()
+  let distance_from_start = distance.current
+  if (commentsSortedByDate.length > 1) {
+    const comment_i = props.by_date_i
+    while (authors_nearbyByDate.size < MAX_AUTHORS_NEARBY_BY_DATE) {
+      addAuthorIfExists(commentsSortedByDate[comment_i - distance_from_start], authors_nearbyByDate)
+      if (authors_nearbyByDate.size < MAX_AUTHORS_NEARBY_BY_DATE) {
+        addAuthorIfExists(commentsSortedByDate[comment_i + distance_from_start], authors_nearbyByDate)
+      }
+      distance_from_start += 1
+      if (   (comment_i+distance_from_start) >= commentsSortedByDate.length
+          && (comment_i-distance_from_start) < 0) {
+        break
+      }
+    }
+  }
+  // END nearby authors
   const aug = new AddUserGroup({alreadySearchedAuthors})
-  aug.add(grandparentComment.author, grandchildComment.author, threadPost.author)
-  //END Find authors
+  const aup = new AddUserParam({string: add_user})
+  aug.add(grandparentComment.author,
+          grandchildComment.author,
+          ...aup.getAuthors(),
+          threadPost.author,
+          ...Array.from(authors_nearbyByDate),
+         )
   const search = async (targetComment) => {
-    props.global.setLoading()
-    let {add_user} = props.global.state
+    await props.global.setLoading()
+    distance.current = distance_from_start
+    //TODO: allow aug to allow a second query according to below
 
     //TODO: find and sort authors
     //PREREQ: sort all comments by date
-    // grandparent, grandchild, any author in URL Param, OP, highest karma
+    // 1st query: grandparent, grandchild, any author in URL Param, OP, highest karma
            // only add these for search *if they are not in alreadySearchedAuthors*
-    // authors who commented around the same time anywhere in the thread
+    // 2nd query:
+    //    authors who commented around the same time anywhere in the thread
+    //    (only runs if first didn't find the result or first has no authors)
     // is_mod LAST
-    //const {grandparentAuthor, grandchildAuthors, urlParamAuthors} = scanAuthors()
 
     const {authors, promises} = aug.query()
     const {user_comments, newIDs} = await Promise.all(promises).then(
@@ -34,19 +68,18 @@ const FindCommentViaAuthors = (props) => {
     //TODO: if there are newIDs:
     //   combinePushshiftAndRedditComments - only the new ones
     //   add the new ones to itemsLookup
-    //   createCommentTree - or make another version that only add new items
+    //   createCommentTree - or make another version that only adds new items
     if (Object.keys(newIDs).length) {
       // console.log('comment tree must be updated')
     }
+    let new_add_user = add_user
     const {changed, changedAuthors} = addUserComments(user_comments, itemsLookup)
     if (changedAuthors.length) {
-      const aup = new AddUserParam({string: add_user})
       aup.addItems(...changedAuthors.map(author => ({author, kind: 'c', sort: 'new'})))
       const [paramName, value] = aup.toString().split('=')
       updateURL(create_qparams_and_adjust('', paramName, value))
-      add_user = value
+      new_add_user = value
     }
-    //TODO: set AddUserParam
     // PREREQ: a lookup for all userPage data showing the order
     // sort changed by author, created_utc asc
     // for each author, find first and last comment for the thread
@@ -59,12 +92,12 @@ const FindCommentViaAuthors = (props) => {
     //TODO: If failed for clicked item, change messaging
     //         authors remain: try again
     //      no authors remain: remove button
-    props.global.setSuccess({alreadySearchedAuthors, add_user})
+    props.global.setSuccess({alreadySearchedAuthors, add_user: new_add_user})
   }
   if (aug.length()) {
     searchButton = (
       <div style={{padding: '15px 0', minHeight: '25px'}}>
-        {props.global.state.loading ?
+        {loading ?
           <Spin width='20px'/>
           : <a className='pointer bubble medium lightblue' onClick={search}
             >search<span className='desktop-only'> via nearby users</span></a>}
@@ -74,7 +107,7 @@ const FindCommentViaAuthors = (props) => {
 }
 
 class AddUserGroup {
-  constructor({alreadySearchedAuthors = {}, max = 10} = {}) {
+  constructor({alreadySearchedAuthors = {}, max = MAX_AUTHORS_TO_SEARCH} = {}) {
     this.alreadySearchedAuthors = alreadySearchedAuthors
     this.max = max
     this.authorsToSearch = {}
@@ -89,7 +122,10 @@ class AddUserGroup {
   add(...authors) {
     let allAdded = true
     for (const author of authors) {
-      if (validAuthor(author) && ! (author in this.alreadySearchedAuthors) && this.itemsToSearch.length < this.max) {
+      if (   validAuthor(author)
+          && ! (author in this.alreadySearchedAuthors)
+          && ! (author in this.authorsToSearch)
+          && this.itemsToSearch.length < this.max) {
         this.itemsToSearch.push(new AddUserItem({props: {author, kind: 'c', sort: 'new'}}))
         this.authorsToSearch[author] = true
       } else {
@@ -167,6 +203,9 @@ export class AddUserParam {
   }
   getItems() {
     return this.items
+  }
+  getAuthors() {
+    return this.items.map(i => i.author)
   }
   toString() {
     if (this.items) {

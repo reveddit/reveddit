@@ -127,7 +127,7 @@ class CommentSection extends React.Component {
     }
     let commentTree
     if (showContext) {
-      commentTree = createCommentTree(threadPost.id, root, commentsLookup)
+      [commentTree] = createCommentTree(threadPost.id, root, commentsLookup)
       if (removedFilter === removedFilter_types.removed) {
         this.filterCommentTree(commentTree, itemIsActioned)
       } else if (removedFilter === removedFilter_types.not_removed) {

@@ -92,11 +92,11 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
       .catch(ignoreArchiveErrors)
     }
     const combinedComments = combinePushshiftAndRedditComments({}, redditComments, false, post_without_pushshift_data)
-    const commentTree = createCommentTree(threadID, root_commentID, combinedComments)
+    const [commentTree, commentsSortedByDate] = createCommentTree(threadID, root_commentID, combinedComments)
     await global.setState({threadPost: post_without_pushshift_data,
                            items: Object.values(combinedComments),
                            itemsLookup: combinedComments,
-                           commentTree,
+                           commentTree, commentsSortedByDate,
                            initialFocusCommentID: commentID})
     jumpToHash(window.location.hash)
     // Add 100 to threshhold b/c if post.num_comments <= numCommentsWithPost, first call could return
@@ -160,11 +160,12 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     }
     const origRedditComments = {...redditComments}
     const early_combinedComments = combinePushshiftAndRedditComments(pushshiftComments, redditComments, false, reddit_post)
-    const early_commentTree = createCommentTree(threadID, root_commentID, early_combinedComments)
+    const [early_commentTree, early_commentsSortedByDate] = createCommentTree(threadID, root_commentID, early_combinedComments)
 
     await global.setState({items: Object.values(early_combinedComments),
                       itemsLookup: early_combinedComments,
                       commentTree: early_commentTree,
+                      commentsSortedByDate: early_commentsSortedByDate,
             initialFocusCommentID: commentID})
     const {user_comments, newIDs: remainingRedditIDs} = await Promise.all(add_user_promises).then(
       getUserCommentsForPost.bind(null, reddit_post.name, early_combinedComments)
@@ -191,7 +192,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     //todo: check if pushshiftComments has any parent_ids that are not in combinedComments
     //      and do a reddit query for these. Possibly query twice if the result has items whose parent IDs
     //      are not in combinedComments after adding the result of the first query
-    const commentTree = createCommentTree(threadID, root_commentID, combinedComments)
+    const [commentTree, commentsSortedByDate] = createCommentTree(threadID, root_commentID, combinedComments)
     const missing = []
     markTreeMeta(missing, origRedditComments, moreComments, commentTree, reddit_post.num_comments, root_commentID, commentID)
     if (missing.length) {
@@ -199,13 +200,14 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
       submitMissingComments(missing)
     }
     const moderators = await moderators_promise
-    return {combinedComments, commentTree, moderators, subreddit_lc: reddit_post.subreddit.toLowerCase()}
+    return {combinedComments, commentTree, commentsSortedByDate, moderators, subreddit_lc: reddit_post.subreddit.toLowerCase()}
   })
   await pushshift_post_promise
-  const {combinedComments, commentTree, moderators, subreddit_lc} = await combined_comments_promise
+  const {combinedComments, commentTree, commentsSortedByDate, moderators, subreddit_lc} = await combined_comments_promise
   const stateObj = {items: Object.values(combinedComments),
                     itemsLookup: combinedComments,
-                    commentTree, moderators: {[subreddit_lc]: moderators}}
+                    commentTree, commentsSortedByDate,
+                    moderators: {[subreddit_lc]: moderators}}
   if (! archiveError) {
     return global.setSuccess(stateObj)
   } else {
@@ -274,25 +276,25 @@ const markTreeMeta = (missing, origRedditComments, moreComments, comments, post_
 
 export const createCommentTree = (postID, root_commentID, comments) => {
     const commentTree = []
-    Object.keys(comments)
-      .sort((a,b) => comments[a].created_utc - comments[b].created_utc) // sort so ancestors are tracked properly
-      .forEach(commentID => {
-        const comment = comments[commentID]
-        comment.replies = [], comment.ancestors = {}
-        const parentID = comment.parent_id
-        const parentID_short = parentID.substr(3)
-        if ((! root_commentID && parentID === 't3_'+postID) ||
-             commentID === root_commentID) {
-          commentTree.push(comment)
-        } else if (comments[parentID_short] === undefined && ! root_commentID) {
-          // don't show error if root_commentID is defined b/c in that case
-          // the pushshift query may return results that can't be shown
-          console.error('MISSING PARENT ID:', parentID, 'for comment', comment)
-        } else if (comments[parentID_short]) {
-          comment.ancestors = {...comments[parentID_short].ancestors}
-          comment.ancestors[parentID_short] = true
-          comments[parentID_short].replies.push(comment)
-        }
-      })
-    return commentTree
+    const commentsSortedByDate = Object.values(comments).sort((a,b) => a.created_utc - b.created_utc)
+    // use sorted comments so ancestors are tracked properly
+    for (const [i, comment] of commentsSortedByDate.entries()) {
+      comment.by_date_i = i
+      comment.replies = [], comment.ancestors = {}
+      const parentID = comment.parent_id
+      const parentID_short = parentID.substr(3)
+      if ((! root_commentID && parentID === 't3_'+postID) ||
+           comment.id === root_commentID) {
+        commentTree.push(comment)
+      } else if (comments[parentID_short] === undefined && ! root_commentID) {
+        // don't show error if root_commentID is defined b/c in that case
+        // the pushshift query may return results that can't be shown
+        console.error('MISSING PARENT ID:', parentID, 'for comment', comment)
+      } else if (comments[parentID_short]) {
+        comment.ancestors = {...comments[parentID_short].ancestors}
+        comment.ancestors[parentID_short] = true
+        comments[parentID_short].replies.push(comment)
+      }
+    }
+    return [commentTree, commentsSortedByDate]
 }

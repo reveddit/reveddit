@@ -228,6 +228,7 @@ class GlobalState extends Container {
         selfposts: true,
         itemsLookup: {},
         commentTree: [],
+        commentsSortedByDate: [],
         initialFocusCommentID: '',
         commentParentsAndPosts: {},
         limitCommentDepth: true,
@@ -422,8 +423,8 @@ class GlobalState extends Container {
   setSuccess = (other = {}) => {
     if (! this.state.error) {
       return this.setState({statusText: '', statusImage: '/images/success.png', loading:false, ...other})
-    } else if (Object.keys(other).length) {
-      return this.setState(other)
+    } else {
+      return this.setState({statusImage: '/images/error.png', loading:false, ...other})
     }
   }
   setError = (error, other = {}) => {
