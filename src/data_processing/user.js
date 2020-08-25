@@ -198,7 +198,7 @@ function getItems (user, kind, global, sort, before = '', after = '', time, limi
       }
       items.push(item)
     })
-    items.slice().reverse().forEach((item, index, array) => {
+    [...items].reverse().forEach((item, index, array) => {
       if (index > 0) {
         item.next = array[index-1].name
       }
