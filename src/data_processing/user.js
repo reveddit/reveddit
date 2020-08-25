@@ -198,7 +198,8 @@ function getItems (user, kind, global, sort, before = '', after = '', time, limi
       }
       items.push(item)
     })
-    [...items].reverse().forEach((item, index, array) => {
+    // [...items] would be more clear here than slice() but it gives syntax error for some reason
+    items.slice().reverse().forEach((item, index, array) => {
       if (index > 0) {
         item.next = array[index-1].name
       }
