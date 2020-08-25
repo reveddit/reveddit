@@ -74,8 +74,8 @@ const FindCommentViaAuthors = (props) => {
     }
     let new_add_user = add_user
     const {changed, changedAuthors} = addUserComments(user_comments, itemsLookup)
-    if (changedAuthors.length) {
-      aup.addItems(...changedAuthors.map(author => ({author, kind: 'c', sort: 'new'})))
+    if (Object.keys(changedAuthors).length) {
+      aup.addItems(...Object.entries(changedAuthors).map(([author, comment]) => ({author, kind: 'c', sort: 'new', ...comment.before_after})))
       const [paramName, value] = aup.toString().split('=')
       updateURL(create_qparams_and_adjust('', paramName, value))
       new_add_user = value
@@ -225,16 +225,16 @@ export const addUserComments = (user_comments, commentsLookup) => {
     if (comment) {
       if (comment.body !== user_comment.body) {
         changed.push(user_comment)
-        changedAuthors[user_comment.author] = 1
+        changedAuthors[user_comment.author] = user_comment
       }
       copyFields(addUserFields, user_comment, comment)
     } else {
       commentsLookup[user_comment.id] = user_comment
       changed.push(user_comment)
-      changedAuthors[user_comment.author] = 1
+      changedAuthors[user_comment.author] = user_comment
     }
   }
-  return {changed, changedAuthors: Object.keys(changedAuthors)}
+  return {changed, changedAuthors}
 }
 
 //existingIDs: IDs already looked up via api/info
@@ -244,12 +244,33 @@ export const getUserCommentsForPost = (link_id, existingIDs, userPages) => {
   const newIDs = {}
   for (const userPage of userPages) {
     const comments = userPage.items || []
-    for (const c of comments) {
+    let last_comment, first_comment
+    const this_user_this_link_comments = []
+    for (const [i, c] of comments.entries()) {
+      if (i > 0) {
+        c.prev = comments[i-1].name
+      }
+      if ((i+1) < comments.length) {
+        c.next = comments[i+1].name
+      }
       if (link_id === c.link_id) {
         user_comments.push(c)
+        this_user_this_link_comments.push(c)
         if (! (c.id in existingIDs)) {
           newIDs[c.id] = 1
         }
+        if (! first_comment) {
+          first_comment = c
+        }
+        last_comment = c
+      }
+    }
+    if (last_comment) {
+      const before = last_comment.next || ''
+      const after = first_comment.prev || ''
+      const before_after = before ? {before} : {after}
+      for (const c of this_user_this_link_comments) {
+        c.before_after = before_after
       }
     }
   }
