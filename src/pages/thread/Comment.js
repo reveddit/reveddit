@@ -34,6 +34,7 @@ class Comment extends React.Component {
   }
   render() {
     let props = this.props
+    const {displayBody} = this.state
     const {contextAncestors, focusCommentID} = this.props
     const {showContext, limitCommentDepth} = this.props.global.state
     const updateStateAndURL = this.props.global.selection_update
@@ -76,7 +77,7 @@ class Comment extends React.Component {
       return <></>
     }
     let expandIcon = '[+]', hidden = 'hidden'
-    if (this.state.displayBody) {
+    if (displayBody) {
       expandIcon = '[–]'
       hidden = ''
     }
@@ -114,49 +115,44 @@ class Comment extends React.Component {
           {props.locked && <span className='lockedTag'>locked</span>}
           <RemovedBy {...props} />
         </div>
-        {
-          this.state.displayBody ?
-            <div className='comment-body-and-links'>
-              <CommentBody {...props} page_type={props.page_type}/>
-              <div className='comment-links'>
-                { ! props.deleted &&
-                  <>
-                    {getPermalink('permalink')}
-                  </>
-                }
-                {parent_link &&
-                    // using <a> instead of <Link> for parent & context links b/c
-                    // <Link> causes comments to disappear momentarily when inserting a parent
-                    <>
-                      <a href={parent_link} onClick={(e) => {
-                        e.preventDefault()
-                        insertParent(props.id, props.global)
-                        .then(() => context_update(0, props, parent_link))
-                        .then(() => jumpToHash(window.location.hash))
-                      }}>parent</a>
-                      {! props.deleted &&
-                        <a href={contextLink} onClick={(e) => {
-                          e.preventDefault()
-                          insertParent(props.id, props.global)
-                          // parent_id will never be t3_ b/c context link is not rendered for topmost comments
-                          .then(() => insertParent(props.parent_id.substr(3), props.global))
-                          .then(() => context_update(contextDefault, props, contextLink))
-                          .then(() => jumpToHash(window.location.hash))
-                        }}>context</a>
-                      }
-                    </>
-                }
-                { ! props.deleted && props.removed &&
-                  <MessageMods {...props}/>
-                }
-              </div>
-              <div>
-                { replies }
-              </div>
-            </div>
-
-          : ''
-        }
+        <div className='comment-body-and-links' style={displayBody ? {} : {display: 'none'}}>
+          <CommentBody {...props} page_type={props.page_type}/>
+          <div className='comment-links'>
+            { ! props.deleted &&
+              <>
+                {getPermalink('permalink')}
+              </>
+            }
+            {parent_link &&
+                // using <a> instead of <Link> for parent & context links b/c
+                // <Link> causes comments to disappear momentarily when inserting a parent
+                <>
+                  <a href={parent_link} onClick={(e) => {
+                    e.preventDefault()
+                    insertParent(props.id, props.global)
+                    .then(() => context_update(0, props, parent_link))
+                    .then(() => jumpToHash(window.location.hash))
+                  }}>parent</a>
+                  {! props.deleted &&
+                    <a href={contextLink} onClick={(e) => {
+                      e.preventDefault()
+                      insertParent(props.id, props.global)
+                      // parent_id will never be t3_ b/c context link is not rendered for topmost comments
+                      .then(() => insertParent(props.parent_id.substr(3), props.global))
+                      .then(() => context_update(contextDefault, props, contextLink))
+                      .then(() => jumpToHash(window.location.hash))
+                    }}>context</a>
+                  }
+                </>
+            }
+            { ! props.deleted && props.removed &&
+              <MessageMods {...props}/>
+            }
+          </div>
+          <div>
+            { replies }
+          </div>
+        </div>
       </div>
     )
   }

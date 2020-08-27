@@ -118,39 +118,35 @@ class Comment extends React.Component {
         {props.locked && <span className='lockedTag'>locked</span>}
         <RemovedBy {...props} />
         </div>
-        {
-          this.state.displayBody ?
-            <div className='comment-body-and-links'>
-              <CommentBody {...props}/>
-              <div className='comment-links'>
-                { ! props.deleted &&
+        <div className='comment-body-and-links' style={this.state.displayBody ? {} : {display: 'none'}}>
+          <CommentBody {...props}/>
+          <div className='comment-links'>
+            { ! props.deleted &&
+              <>
+                {props.quarantine && <span className="quarantined">quarantined</span>}
+                { props.parent_context ?
                   <>
-                    {props.quarantine && <span className="quarantined">quarantined</span>}
-                    { props.parent_context ?
-                      <>
-                        <a href={props.parent_context+'?removedby=missing'}>reveddit-parent</a>
-                        <a href={www_reddit+props.parent_context}>reddit-parent</a>
-                        <a href={www_reddit+props.permalink+'?context=1'}>reddit-permalink</a>
-                      </>
-                      :
-                        <a href={props.permalink+'?context=3'+add_user+'#'+props.name}
-                           onClick={add_user ? hasClickedRemovedUserCommentContext: null}
-                        >context{props.num_replies && `(${props.num_replies})`}</a>
-                    }
-                    {props.link_permalink &&
-                      <a href={props.link_permalink.replace(/^https:\/\/[^/]*/,'')}>full comments
-                        {'num_comments' in props && `(${props.num_comments})`}</a>
-                    }
-                    { directlink && <a href={directlink}>directlink</a>}
-                    { ! props.parent_context &&
-                      <MessageMods {...props}/>
-                    }
+                    <a href={props.parent_context+'?removedby=missing'}>reveddit-parent</a>
+                    <a href={www_reddit+props.parent_context}>reddit-parent</a>
+                    <a href={www_reddit+props.permalink+'?context=1'}>reddit-permalink</a>
                   </>
+                  :
+                    <a href={props.permalink+'?context=3'+add_user+'#'+props.name}
+                       onClick={add_user ? hasClickedRemovedUserCommentContext: null}
+                    >context{props.num_replies && `(${props.num_replies})`}</a>
                 }
-              </div>
-            </div>
-          : ''
-        }
+                {props.link_permalink &&
+                  <a href={props.link_permalink.replace(/^https:\/\/[^/]*/,'')}>full comments
+                    {'num_comments' in props && `(${props.num_comments})`}</a>
+                }
+                { directlink && <a href={directlink}>directlink</a>}
+                { ! props.parent_context &&
+                  <MessageMods {...props}/>
+                }
+              </>
+            }
+          </div>
+        </div>
       </div>
     )
   }
