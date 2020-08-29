@@ -64,7 +64,7 @@ class Comment extends React.Component {
           ...(t && {time: t}),
           before, after, limit: 1,
         })
-        add_user = '&' + addUserParam.toString()
+        add_user = addUserParam.toString()
       }
     }
     let post_parent_removed = []
@@ -131,12 +131,12 @@ class Comment extends React.Component {
                     <a href={www_reddit+props.permalink+'?context=1'}>reddit-permalink</a>
                   </>
                   :
-                    <a href={props.permalink+'?context=3'+add_user+'#'+props.name}
+                    <a href={props.permalink+'?context=3&'+add_user+'#'+props.name}
                        onClick={add_user ? hasClickedRemovedUserCommentContext: null}
                     >context{props.num_replies && `(${props.num_replies})`}</a>
                 }
                 {props.link_permalink &&
-                  <a href={props.link_permalink.replace(/^https:\/\/[^/]*/,'')}>full comments
+                  <a href={props.link_permalink.replace(/^https:\/\/[^/]*/,'')+'?'+add_user}>full comments
                     {'num_comments' in props && `(${props.num_comments})`}</a>
                 }
                 { directlink && <a href={directlink}>directlink</a>}
