@@ -7,7 +7,9 @@ import Notice from 'pages/common/Notice'
 import CommentSection from './CommentSection'
 import Selections from 'pages/common/selections'
 import { withFetch } from 'pages/RevdditFetcher'
-import { SimpleURLSearchParams, jumpToHash } from 'utils'
+import { SimpleURLSearchParams, jumpToHash,
+         PATH_STR_USER, PATH_STR_SUB,
+} from 'utils'
 import Highlight from 'pages/common/Highlight'
 
 class Thread extends React.Component {
@@ -18,7 +20,7 @@ class Thread extends React.Component {
     const { id, author } = post
     const { subreddit, threadID, urlTitle = '', commentID } = this.props.match.params
     const { selections, visibleItemsWithoutCategoryFilter, page_type, archiveDelayMsg } = this.props
-    const linkToRestOfComments = `/r/${subreddit}/comments/${threadID}/${urlTitle}/`
+    const linkToRestOfComments = `${PATH_STR_SUB}/${subreddit}/comments/${threadID}/${urlTitle}/`
     const isSingleComment = (commentID !== undefined)
     const threadFiltersAreUnset = this.props.global.threadFiltersAreUnset()
     const updateStateAndURL = this.props.global.selection_update
@@ -56,7 +58,7 @@ class Thread extends React.Component {
             {! hasVisitedUserPage &&
               <div className='notice-with-link userpage-note'>
                 <div>{"Check if you have any removed comments."}</div>
-                <Link to={'/user/'}>view my removed comments</Link>
+                <Link to={PATH_STR_USER+'/'}>view my removed comments</Link>
               </div>
             }
             {(numComments !== 0 && (commentID || id)) &&

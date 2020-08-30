@@ -5,7 +5,9 @@ import gql from 'graphql-tag'
 import * as d3 from 'd3'
 import CommentPreview from 'pages/common/CommentPreview'
 import PostPreview from 'pages/common/PostPreview'
-import { kFormatter, SimpleURLSearchParams, ifNumParseInt } from 'utils'
+import { kFormatter, SimpleURLSearchParams, ifNumParseInt,
+         PATH_STR_SUB,
+} from 'utils'
 
 
 class Sparkline extends React.PureComponent {
@@ -210,9 +212,9 @@ class UpvoteRemovalRateHistory extends React.Component {
         queryParams.set(param, this.state[param])
       }
     })
-    let baseURL = `/r/${subreddit}`
+    let baseURL = `${PATH_STR_SUB}/${subreddit}/`
     if (this.state[contentTypeParamKey] == 'comments') {
-      baseURL += '/comments'
+      baseURL += 'comments/'
     }
     this.props.global.upvoteRemovalRateHistory_update(
       last_created_utc,

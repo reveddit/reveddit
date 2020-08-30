@@ -7,7 +7,7 @@ import Selections from 'pages/common/selections'
 import ResultsSummary from 'pages/common/ResultsSummary'
 import { REMOVAL_META, NOT_REMOVED, USER_REMOVED } from 'pages/common/RemovedBy'
 import { withFetch } from 'pages/RevdditFetcher'
-import { reversible, getUrlWithTimestamp, copyLink } from 'utils'
+import { reversible, getUrlWithTimestamp, copyLink, PATH_STR_USER } from 'utils'
 import Highlight from 'pages/common/Highlight'
 import {byNumComments} from 'data_processing/info'
 import Pagination from 'components/Pagination'
@@ -73,7 +73,7 @@ class SubredditComments extends React.Component {
         {! hasVisitedUserPage &&
           <div className='notice-with-link userpage-note'>
             <div>{"Check if you have any removed comments."}</div>
-            <Link to={'/user/'}>view my removed comments</Link>
+            <Link to={PATH_STR_USER+'/'}>view my removed comments</Link>
           </div>
         }
         <Highlight/>

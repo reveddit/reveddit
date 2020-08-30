@@ -2,6 +2,7 @@ import React, {useEffect} from 'react'
 import { randomRedditor } from 'api/reddit'
 import { connect } from 'state'
 import { Spin } from 'components/Misc'
+import {PATH_STR_USER} from 'utils'
 
 export const Random = (props) => {
   useEffect(() => {
@@ -9,7 +10,7 @@ export const Random = (props) => {
     randomRedditor()
     .then(author => {
       if (author) {
-        window.location.href = `/user/${author}/?all=true&sort=top&t=year`
+        window.location.href = `${PATH_STR_USER+'/'+author}/?all=true&sort=top&t=year`
       }
     })
   }, [])

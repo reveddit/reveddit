@@ -1,6 +1,8 @@
 import React from 'react'
 import { Link, withRouter } from 'react-router-dom'
-import { prettyScore, parse, jumpToHash, SimpleURLSearchParams } from 'utils'
+import { prettyScore, parse, jumpToHash, SimpleURLSearchParams,
+         convertPathSub, PATH_STR_SUB,
+} from 'utils'
 import Time from 'pages/common/Time'
 import RemovedBy from 'pages/common/RemovedBy'
 import CommentBody from 'pages/common/CommentBody'
@@ -50,8 +52,8 @@ class Comment extends React.Component {
       author = '[deleted]'
     }
 
-    let permalink_nohash = props.permalink ? props.permalink
-      : `/r/${props.subreddit}/comments/${props.link_id}/_/${props.id}/`
+    const permalink_nohash = props.permalink ? convertPathSub(props.permalink)
+      : `${PATH_STR_SUB}/${props.subreddit}/comments/${props.link_id}/_/${props.id}/`
 
     const searchParams = new SimpleURLSearchParams(window.location.search).delete('context').delete('showFilters')
     const searchParams_nocontext = searchParams.toString()

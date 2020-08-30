@@ -444,3 +444,33 @@ export const postRemovedUnknownWithin = (post) => {
   return post.removed && post.removedby === UNKNOWN_REMOVED &&
     post.retrievalLatency < 300
 }
+
+const prefix_str_list = (list, prefix = '/') => {
+  return list.map(x => prefix+x)
+}
+
+export const PATHS_SUB = ['v','r']
+export const PATHS_STR_SUB = PATHS_SUB.join('')
+export const PATHS_USER = ['y','u','user']
+
+export const PATH_STR_SUB = '/'+PATHS_SUB[0]
+export const PATH_STR_USER = '/'+PATHS_USER[0]
+export const PATHS_ALT_SUB = prefix_str_list(PATHS_SUB.slice(1))
+export const PATHS_ALT_USER = prefix_str_list(PATHS_USER.slice(1))
+export const PATH_REDDIT_STR_SUB = '/r'
+export const PATH_REDDIT_STR_USER = '/user'
+
+const convertPathPrefix = (path, oldPrefix, newPrefix) => path.replace(new RegExp(`^${oldPrefix}/`), newPrefix+'/')
+export const convertPathSub = (path) => convertPathPrefix(path, PATH_REDDIT_STR_SUB, PATH_STR_SUB)
+export const convertPathUser = (path) => convertPathPrefix(path, PATH_REDDIT_STR_USER, PATH_STR_USER)
+
+export const stripHTTP = (url) => url.replace(/^https?:\/\//i,'')
+export const stripRedditLikeDomain_noHTTP = (url) => url.replace(/^[^/]*(reddit\.com|removeddit\.com|ceddit\.com|unreddit\.com|snew\.github\.io|snew\.notabug\.io|politicbot\.github\.io|r\.go1dfish\.me|reve?ddit\.com)/i,'')
+
+export const stripRedditLikeDomain = (url) => {
+  const path = stripRedditLikeDomain_noHTTP(stripHTTP(url))
+  if (path.match(/^\//)) {
+    return convertPathUser(convertPathSub(path))
+  }
+  return url
+}

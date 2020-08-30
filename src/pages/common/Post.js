@@ -1,6 +1,8 @@
 import React from 'react'
 import { prettyScore, parse, redditThumbnails, replaceAmpGTLT,
-         postIsRemovedAndSelftextSaysRemoved, getRemovedMessage } from 'utils'
+         postIsRemovedAndSelftextSaysRemoved, getRemovedMessage,
+         PATH_STR_SUB, convertPathSub, stripRedditLikeDomain,
+} from 'utils'
 import Time from 'pages/common/Time'
 import RemovedBy from 'pages/common/RemovedBy'
 import Author from 'pages/common/Author'
@@ -32,7 +34,7 @@ class Post extends React.Component {
       return <div />
     }
 
-    let url = props.url.replace(www_reddit, '')
+    let url = stripRedditLikeDomain(props.url)
 
     let thumbnail
     const thumbnailWidth = props.thumbnail_width ? props.thumbnail_width * 0.5 : 70
@@ -74,7 +76,7 @@ class Post extends React.Component {
     if (! domain.match(/^self\.[^.]+$/)) {
       domain = <a href={`/domain/${props.domain}/`}>{props.domain}</a>
     }
-
+    const rev_subreddit = PATH_STR_SUB+'/'+props.subreddit
     return (
       <div id={props.name} className={`post thread
             ${props.locked ? 'locked':''}
@@ -99,7 +101,7 @@ class Post extends React.Component {
           }
           <span className='domain'>({domain})</span>
           <div className='thread-info'>
-            submitted <Time {...props}/> by <Author {...props}/> to <a className='subreddit-link' href={`/r/${props.subreddit}`}>/r/{props.subreddit}</a>
+            submitted <Time {...props}/> by <Author {...props}/> to <a className='subreddit-link' href={rev_subreddit+'/'}>/r/{props.subreddit}</a>
             {props.locked && <span className='lockedTag'>locked</span>}
             <div><RemovedBy {...props} /></div>
           </div>
@@ -117,9 +119,9 @@ class Post extends React.Component {
           }
           <div className='total-comments post-links'>
             {props.quarantine && <span className="quarantined">quarantined</span>}
-            <a href={props.permalink} className='nowrap'>{props.num_comments} comments</a>
+            <a href={convertPathSub(props.permalink)} className='nowrap'>{props.num_comments} comments</a>
             <a href={www_reddit+props.permalink}>reddit</a>
-              <a href={`/r/${props.subreddit}/duplicates/${props.id}`}>other-discussions{props.num_crossposts ? ` (${props.num_crossposts}+)`:''}</a>
+              <a href={`${rev_subreddit}/duplicates/${props.id}`}>other-discussions{props.num_crossposts ? ` (${props.num_crossposts}+)`:''}</a>
             { directlink && <a href={directlink}>directlink</a>}
             <MessageMods {...props}/>
           </div>

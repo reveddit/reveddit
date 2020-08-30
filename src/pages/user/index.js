@@ -10,7 +10,7 @@ import { connect, removedFilter_types } from 'state'
 import Time from 'pages/common/Time'
 import { withFetch } from 'pages/RevdditFetcher'
 import { getQueryParams } from 'data_processing/user'
-import { SimpleURLSearchParams, copyLink, get, put } from 'utils'
+import { SimpleURLSearchParams, copyLink, get, put, PATH_STR_SUB } from 'utils'
 import Highlight from 'pages/common/Highlight'
 import ModalContext from 'contexts/modal'
 import { Spin } from 'components/Misc'
@@ -92,7 +92,7 @@ const User = ({match, global, page_type, viewableItems, selections, notShownMsg}
     />
   } else if (! gs.hasVisitedSubredditPage) {
     instructionalNotice = <Notice message="Subreddit pages work too."
-      htmlLink={<Link to={'/r/'}>view a subreddit</Link>}
+      htmlLink={<Link to={PATH_STR_SUB+'/'}>view a subreddit</Link>}
     />
   } else if (! gs.hasClickedRemovedUserCommentContext) {
     instructionalNotice = <Notice message={

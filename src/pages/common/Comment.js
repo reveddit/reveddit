@@ -1,5 +1,7 @@
 import React from 'react'
-import { prettyScore, parse } from 'utils'
+import { prettyScore, parse,
+         PATH_STR_USER, PATH_STR_SUB, convertPathSub, stripRedditLikeDomain,
+} from 'utils'
 import Time from 'pages/common/Time'
 import RemovedBy from 'pages/common/RemovedBy'
 import { NOT_REMOVED } from 'pages/common/RemovedBy'
@@ -74,22 +76,21 @@ class Comment extends React.Component {
     if (props.post_removed_label) {
       post_parent_removed.push('link '+props.post_removed_label)
     }
-
+    const rev_subreddit = PATH_STR_SUB+'/'+props.subreddit
+    const rev_link_permalink = props.link_permalink ?
+      convertPathSub(props.link_permalink.replace(/^https:\/\/[^/]*/,''))
+      : ''
     return (
       <div id={props.name} className={classNames.join(' ')} data-fullname={props.name} data-created_utc={props.created_utc}>
         <div className='comment-head'>
           <a onClick={() => this.toggleDisplayBody()} className='collapseToggle spaceRight'>{this.getExpandIcon()}</a>
-          <a
-            href={props.url ? props.url : props.link_permalink}
-            className='title'
-          >
-          {props.link_title}
-          </a>
+          <a href={props.url ? stripRedditLikeDomain(props.url) : rev_link_permalink} className='title'
+            >{props.link_title}</a>
           {'link_author' in props &&
             <React.Fragment>
               <span> by </span>
               <a
-                href={`/user/${props.link_author}`}
+                href={`${PATH_STR_USER}/${props.link_author}`}
                 className='author'>
                 {props.link_author}
               </a>
@@ -99,7 +100,7 @@ class Comment extends React.Component {
             <React.Fragment>
               <span> in </span>
               <a
-                href={`/r/${props.subreddit}`}
+                href={rev_subreddit+'/'}
                 className='subreddit-link subreddit'
                 data-subreddit={props.subreddit}
               >
@@ -135,8 +136,8 @@ class Comment extends React.Component {
                        onClick={add_user ? hasClickedRemovedUserCommentContext: null}
                     >context{props.num_replies && `(${props.num_replies})`}</a>
                 }
-                {props.link_permalink &&
-                  <a href={props.link_permalink.replace(/^https:\/\/[^/]*/,'')+'?'+add_user}>full comments
+                {rev_link_permalink &&
+                  <a href={rev_link_permalink+'?'+add_user}>full comments
                     {'num_comments' in props && `(${props.num_comments})`}</a>
                 }
                 { directlink && <a href={directlink}>directlink</a>}

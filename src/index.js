@@ -5,6 +5,9 @@ import { BrowserRouter, Switch, Route, Redirect } from 'react-router-dom'
 import { Provider } from 'unstated'
 import DefaultLayout from 'pages/DefaultLayout'
 import ErrorBoundary from 'components/ErrorBoundary'
+import {PATH_STR_SUB, PATH_STR_USER,
+        PATHS_ALT_SUB, PATHS_ALT_USER
+} from 'utils'
 
 const User = lazy(() => import('pages/user'))
 const BlankUser = lazy(() => import('components/BlankUser'))
@@ -28,6 +31,45 @@ const RouteRedirectWithParams = ({path, search, replace}) =>
         }} /> )}
   />
 
+const getAltRoutes = (alt_paths, replace_path) => {
+  return alt_paths.map(altPath =>
+    <RouteRedirectWithParams key={altPath} path={`${altPath}/`} search={new RegExp(altPath)} replace={replace_path}/>
+  )
+}
+
+const routes = (
+<Switch>
+  <Redirect exact from='/' to='/about#welcome' />
+  <RouteRedirectWithParams path={PATH_STR_USER+'/:user/posts/'} search={/\/posts/} replace='/submitted'/>
+  {getAltRoutes(PATHS_ALT_USER, PATH_STR_USER)}
+  {getAltRoutes(PATHS_ALT_SUB, PATH_STR_SUB)}
+  <RouteRedirectWithParams path='/api/info/' search={/\/api\/info/} replace='/info'/>
+  <RouteRedirectWithParams path='/gallery/' search={/\/gallery/} replace=''/>
+  <DefaultLayout path='/about' component={About} />
+  <DefaultLayout path='/add-ons' component={AddOns} />
+  <DefaultLayout path='/info' page_type='info' component={Info} />
+  <DefaultLayout path='/search' page_type='search' component={Info} />
+  <DefaultLayout path='/random' component={Random} />
+  <DefaultLayout path={PATH_STR_SUB+'/:subreddit/missing-comments'} page_type='missing_comments' component={SubredditComments} />
+  <DefaultLayout path={PATH_STR_SUB+'/:subreddit/comments/:threadID/:urlTitle/:commentID'} page_type='thread' component={Thread} />
+  <DefaultLayout path={PATH_STR_SUB+'/:subreddit/comments/:threadID/:urlTitle'} page_type='thread' component={Thread} />
+  <DefaultLayout path={PATH_STR_SUB+'/:subreddit/comments/:threadID'} page_type='thread' component={Thread} />
+  <DefaultLayout path={PATH_STR_SUB+'/:subreddit/comments/'} page_type='subreddit_comments' component={SubredditComments} />
+  <DefaultLayout path={PATH_STR_SUB+'/:subreddit/duplicates/:threadID'} page_type='duplicate_posts' component={Info} />
+  <DefaultLayout path={PATH_STR_SUB+'/:subreddit'} page_type='subreddit_posts' component={SubredditPosts} />
+  <DefaultLayout path={PATH_STR_SUB+'/'} page_type='blank_subreddit' component={BlankSubreddit} />
+  <DefaultLayout path='/comments/' page_type='blank_subreddit_comments' component={BlankSubreddit} is_comments_page={true} />
+  <DefaultLayout path='/domain/all' component={NotFound} />
+  <DefaultLayout path='/domain/:domain' page_type='domain_posts' component={SubredditPosts} />
+  <DefaultLayout path={PATH_STR_USER+'/:userSubreddit/comments/:threadID/:urlTitle/:commentID'} page_type='thread' component={Thread} />
+  <DefaultLayout path={PATH_STR_USER+'/:userSubreddit/comments/:threadID/:urlTitle'} page_type='thread' component={Thread} />
+  <DefaultLayout path={PATH_STR_USER+'/:userSubreddit/comments/:threadID'} page_type='thread' component={Thread} />
+  <DefaultLayout path={PATH_STR_USER+'/:user/:kind'} page_type='user' component={User} />
+  <DefaultLayout path={PATH_STR_USER+'/:user'} page_type='user' component={User} />
+  <DefaultLayout path={PATH_STR_USER+'/'} page_type='blank_user' component={BlankUser} />
+  <DefaultLayout path='/:threadID' page_type='thread' component={ThreadRedirect} />
+  <DefaultLayout component={NotFound} />
+</Switch>)
 
 class App extends React.Component {
 
@@ -45,39 +87,7 @@ class App extends React.Component {
               return (
                 <ErrorBoundary>
                   <Suspense fallback={<div>Loading...</div>}>
-                    <Switch>
-                      <Redirect exact from='/' to='/about#welcome' />
-                      <Redirect from='/u/*' to='/user/*' />
-                      <RouteRedirectWithParams path='/user/:user/posts/' search={/\/posts/} replace='/submitted'/>
-                      <RouteRedirectWithParams path='/y/' search={/\/y/} replace='/user'/>
-                      <RouteRedirectWithParams path='/v/' search={/\/v/} replace='/r'/>
-                      <RouteRedirectWithParams path='/api/info/' search={/\/api\/info/} replace='/info'/>
-                      <RouteRedirectWithParams path='/gallery/' search={/\/gallery/} replace=''/>
-                      <DefaultLayout path='/about' component={About} />
-                      <DefaultLayout path='/add-ons' component={AddOns} />
-                      <DefaultLayout path='/info' page_type='info' component={Info} />
-                      <DefaultLayout path='/search' page_type='search' component={Info} />
-                      <DefaultLayout path='/random' component={Random} />
-                      <DefaultLayout path='/r/:subreddit/missing-comments' page_type='missing_comments' component={SubredditComments} />
-                      <DefaultLayout path='/r/:subreddit/comments/:threadID/:urlTitle/:commentID' page_type='thread' component={Thread} />
-                      <DefaultLayout path='/r/:subreddit/comments/:threadID/:urlTitle' page_type='thread' component={Thread} />
-                      <DefaultLayout path='/r/:subreddit/comments/:threadID' page_type='thread' component={Thread} />
-                      <DefaultLayout path='/r/:subreddit/comments/' page_type='subreddit_comments' component={SubredditComments} />
-                      <DefaultLayout path='/r/:subreddit/duplicates/:threadID' page_type='duplicate_posts' component={Info} />
-                      <DefaultLayout path='/r/:subreddit' page_type='subreddit_posts' component={SubredditPosts} />
-                      <DefaultLayout path='/r/' page_type='blank_subreddit' component={BlankSubreddit} />
-                      <DefaultLayout path='/comments/' page_type='blank_subreddit_comments' component={BlankSubreddit} is_comments_page={true} />
-                      <DefaultLayout path='/domain/all' component={NotFound} />
-                      <DefaultLayout path='/domain/:domain' page_type='domain_posts' component={SubredditPosts} />
-                      <DefaultLayout path='/user/:userSubreddit/comments/:threadID/:urlTitle/:commentID' page_type='thread' component={Thread} />
-                      <DefaultLayout path='/user/:userSubreddit/comments/:threadID/:urlTitle' page_type='thread' component={Thread} />
-                      <DefaultLayout path='/user/:userSubreddit/comments/:threadID' page_type='thread' component={Thread} />
-                      <DefaultLayout path='/user/:user/:kind' page_type='user' component={User} />
-                      <DefaultLayout path='/user/:user' page_type='user' component={User} />
-                      <DefaultLayout path='/user/' page_type='blank_user' component={BlankUser} />
-                      <DefaultLayout path='/:threadID' page_type='thread' component={ThreadRedirect} />
-                      <DefaultLayout component={NotFound} />
-                    </Switch>
+                    {routes}
                   </Suspense>
                 </ErrorBoundary>
               )

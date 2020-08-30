@@ -6,7 +6,9 @@ import Time from 'pages/common/Time'
 import { getComments, www_reddit } from 'api/reddit'
 import { getWhatPeopleSay } from 'api/reveddit'
 import { getCommentsByID as getPushshiftComments } from 'api/pushshift'
-import { itemIsRemovedOrDeleted, SimpleURLSearchParams, makeDonateVisible } from 'utils'
+import { itemIsRemovedOrDeleted, SimpleURLSearchParams, makeDonateVisible,
+         PATH_STR_USER, PATH_STR_SUB,
+} from 'utils'
 import { combinePushshiftAndRedditComments } from 'data_processing/comments'
 import { setPostAndParentDataForComments } from 'data_processing/info'
 import Highlight from 'pages/common/Highlight'
@@ -175,14 +177,14 @@ export class About extends React.Component {
               <h2 className='about'>Site usage</h2>
               <p>Insert <span className='v'>ve</span> into the URL of any reddit page.</p>
                 <ul>
-                  <li><a href='/user/redditor_3975/'>user/redditor_3975</a></li>
-                  <li><a href='/r/all/'>r/all</a></li>
-                  <li><a href='/r/cant_say_goodbye/'>r/cant_say_goodbye</a></li>
-                  <li><a href='/r/cant_say_goodbye/comments'>r/.../comments</a></li>
-                  <li><a href='/r/cant_say_goodbye/comments/9ffoqz/comments_mentioning_goodbye_are_removed/'>r/.../comments/9ffoqz/</a></li>
+                  <li><a href={PATH_STR_USER+'/redditor_3975/'}>user/redditor_3975</a></li>
+                  <li><a href={PATH_STR_SUB+'/all/'}>r/all</a></li>
+                  <li><a href={PATH_STR_SUB+'/cant_say_goodbye/'}>r/cant_say_goodbye</a></li>
+                  <li><a href={PATH_STR_SUB+'/cant_say_goodbye/comments'}>r/.../comments</a></li>
+                  <li><a href={PATH_STR_SUB+'/cant_say_goodbye/comments/9ffoqz/comments_mentioning_goodbye_are_removed/'}>r/.../comments/9ffoqz/</a></li>
                   <li><a href='/domain/cnn.com+edition.cnn.com'>domain/cnn.com+ edition.cnn.com</a></li>
-                  <li><a href='/r/news+worldnews/'>r/news+worldnews/</a></li>
-                  <li><a href='/r/worldnews/duplicates/eb2hjw'>other-discussions+</a></li>
+                  <li><a href={PATH_STR_SUB+'/news+worldnews/'}>r/news+worldnews/</a></li>
+                  <li><a href={PATH_STR_SUB+'/worldnews/duplicates/eb2hjw'}>other-discussions+</a></li>
                 </ul>
             </div>
           </div>

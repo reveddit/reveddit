@@ -8,12 +8,13 @@ import { getPosts as getRedditPosts,
 import { postIsDeleted } from 'utils'
 import { retrieveRedditPosts_and_combineWithPushshiftPosts } from 'data_processing/posts'
 import { copyModlogItemsToArchiveItems } from 'data_processing/comments'
+import { PATHS_STR_SUB } from 'utils'
 
 export const getRevdditPostsBySubreddit = (subreddit, global) => {
   const {n, before, before_id, frontPage, page} = global.state
-  // /r/sub/new , /r/sub/controversial etc. are not implemented, so redirect
-  if (window.location.pathname.match(/^\/r\/([^/]*)\/.+/g)) {
-    window.history.replaceState(null,null,`/r/${subreddit}/`+window.location.search)
+  // /r/sub/new , /r/sub/controversial etc. are not implemented, so change path to indicate that
+  if (window.location.pathname.match(new RegExp('^/['+PATHS_STR_SUB+']/([^/]*)/.+'))) {
+    window.history.replaceState(null,null,`/v/${subreddit}/`+window.location.search)
   }
   if (subreddit === 'all' || frontPage) {
     return getRemovedPostIDs(subreddit, page || 1)

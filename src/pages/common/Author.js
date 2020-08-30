@@ -1,6 +1,6 @@
 import React from 'react'
 import { connect } from 'state'
-import { getPrettyTimeLength, replaceAmpGTLT } from 'utils'
+import { getPrettyTimeLength, replaceAmpGTLT, PATH_STR_USER } from 'utils'
 import { showAccountInfo_global } from 'pages/common/Settings'
 
 const now = Math.floor(new Date()/1000)
@@ -10,7 +10,7 @@ const Author = ({author, is_op, deleted, distinguished, subreddit, name,
                }) => {
   const {moderators, moderated_subreddits, authors} = global.state
   const subreddit_lc = subreddit.toLowerCase()
-  let link = `/user/${author}/`
+  let link = `${PATH_STR_USER}/${author}/`
   if (deleted || author === '[deleted]') {
     author = '[deleted]'
     link = undefined

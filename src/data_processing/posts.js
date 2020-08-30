@@ -7,7 +7,8 @@ import {
   getPost as getPushshiftPost
 } from 'api/pushshift'
 import { itemIsRemovedOrDeleted, postIsDeleted, display_post,
-         getUniqueItems, SimpleURLSearchParams, parse, replaceAmpGTLT
+         getUniqueItems, SimpleURLSearchParams, parse, replaceAmpGTLT,
+         PATHS_STR_SUB, stripHTTP, stripRedditLikeDomain_noHTTP
 } from 'utils'
 import { modlogSaysBotRemoved } from 'data_processing/comments'
 import { REMOVAL_META, ANTI_EVIL_REMOVED, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
@@ -181,9 +182,6 @@ const reduceDomain = (map, e) => {
 
 export const getRevdditPostsByDomain = async (domain, global) => {
   const {n, before, before_id, selfposts} = global.state
-  if (window.location.pathname.match(/^\/r\/([^/]*)\/.+/g)) {
-    window.history.replaceState(null,null,`/r/${domain}/`+window.location.search)
-  }
   const domains = Object.keys(domain.split('+').reduce(reduceDomain, {}))
   if (domains.length) {
     const linkpost_promise = combinedGetPostsBySubredditOrDomain({domain:domains.join('+'), n, before, before_id, global})
@@ -230,15 +228,13 @@ const getYoutubeURL_pushshift = (id) => {
 const getYoutubeURLs = (id) => {
   return Object.keys(youtube_aliases).map(x => 'https://'+x+youtube_aliases[x]+id)
 }
-const noHTTP = (u) => {
-  return u.replace(/^https?:\/\//i,'')
-}
+
 
 const getUrlMeta = (url) => {
-  const url_nohttp = noHTTP(url)
-  const redditlikeDomainStripped = url_nohttp.replace(/^[^/]*(reddit\.com|removeddit\.com|ceddit\.com|unreddit\.com|snew\.github\.io|snew\.notabug\.io|politicbot\.github\.io|r\.go1dfish\.me|reve?ddit\.com)/i,'')
+  const url_nohttp = stripHTTP(url)
+  const redditlikeDomainStripped = stripRedditLikeDomain_noHTTP(url_nohttp)
   const isRedditDomain = redditlikeDomainStripped.match(/^\//)
-  const isRedditPostURL = redditlikeDomainStripped.match(/^\/r\/[^/]*\/comments\/[a-z0-9]/i)
+  const isRedditPostURL = redditlikeDomainStripped.match(new RegExp('^/['+PATHS_STR_SUB+']/[^/]*/comments/[a-z0-9]', 'i'))
   let pushshift_urls = [url_nohttp]
   let reddit_info_url = [url]
   let reddit_search_selftext = [url_nohttp]

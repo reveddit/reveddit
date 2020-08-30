@@ -16,7 +16,9 @@ import { getAuth } from 'api/reddit/auth'
 import {
   submitMissingComments
 } from 'api/reveddit'
-import { itemIsRemovedOrDeleted, postIsDeleted, postIsRemoved, jumpToHash } from 'utils'
+import { itemIsRemovedOrDeleted, postIsDeleted, postIsRemoved, jumpToHash,
+         convertPathSub,
+} from 'utils'
 import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
          MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED,
          AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
@@ -64,7 +66,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     }
     document.title = reddit_post.title
     const resetPath = () => {
-      history.replace(reddit_post.permalink+window.location.search+window.location.hash)
+      history.replace(convertPathSub(reddit_post.permalink)+window.location.search+window.location.hash)
     }
     if ((window.location.pathname.match(/\//g) || []).length < 6) {
       resetPath()
