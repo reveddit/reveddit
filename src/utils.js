@@ -460,7 +460,7 @@ export const PATHS_ALT_USER = prefix_str_list(PATHS_USER.slice(1))
 export const PATH_REDDIT_STR_SUB = '/r'
 export const PATH_REDDIT_STR_USER = '/user'
 
-const convertPathPrefix = (path, oldPrefix, newPrefix) => path.replace(new RegExp(`^${oldPrefix}/`), newPrefix+'/')
+const convertPathPrefix = (path, searchPrefix, replacePrefix) => path.replace(new RegExp(`^${searchPrefix}/`), replacePrefix+'/')
 export const convertPathSub = (path) => convertPathPrefix(path, PATH_REDDIT_STR_SUB, PATH_STR_SUB)
 export const convertPathUser = (path) => convertPathPrefix(path, PATH_REDDIT_STR_USER, PATH_STR_USER)
 
