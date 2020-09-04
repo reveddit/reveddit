@@ -74,7 +74,7 @@ export const urlParamKeys = {
   user_sort: 'user_sort',
   user_kind: 'user_kind',
   user_time: 'user_time',
-  t: 't', sort: 'sort'
+  t: 't', sort: 'sort', limit: 'limit', show: 'show', all:false,
 }
 
 export const removedFilter_types = {
@@ -140,6 +140,7 @@ export const filter_pageType_defaults = {
   selfposts: true,
   limitCommentDepth: limitCommentDepth_global,
   add_user: '',
+  sort: 'new', limit: 100, t: '',
 }
 
 // pushshift max per call is now 100 (previously was 1000)
@@ -430,7 +431,7 @@ class GlobalState extends Container {
   setError = (error, other = {}) => {
     return this.setState({statusText: error.message, statusImage: '/images/error.png', loading:false, error: true, ...other})
   }
-  setLoading = (text = '') => this.setState({...loadingVars, statusText: text})
+  setLoading = (text = '', other = {}) => this.setState({...loadingVars, statusText: text, ...other})
   clearStatus = () => this.setState({statusText: '', statusImage: undefined, loading:false})
 }
 

@@ -6,6 +6,7 @@ import {
   getModeratedSubreddits,
   oauth_reddit_rev,
   www_reddit,
+  OVERVIEW, SUBMITTED, COMMENTS, GILDED,
 } from 'api/reddit'
 import { getMissingComments } from 'api/reveddit'
 import { getAuth } from 'api/reddit/auth'
@@ -15,26 +16,10 @@ import {
 import { REMOVAL_META, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
          MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED,
          AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
-import { itemIsRemovedOrDeleted, isComment, isPost, SimpleURLSearchParams } from 'utils'
+import { itemIsRemovedOrDeleted, isComment, isPost, SimpleURLSearchParams,
+} from 'utils'
 import { setPostAndParentDataForComments } from 'data_processing/info'
 import { setMissingCommentMeta } from 'data_processing/missing_comments'
-
-export const getQueryParams = () => {
-  const result = {
-                  sort: 'new', before: '', after: '', limit: 100,
-                  loadAll: false, searchPage_after: '', show:''}
-  const queryParams = new SimpleURLSearchParams(window.location.search);
-
-  if (queryParams.has('all')) { result.loadAll = true }
-
-  ['sort', 'before', 'after', 'limit', 'searchPage_after', 'show', 't'].forEach(p => {
-    if (queryParams.has(p)) {
-      result[p] = queryParams.get(p)
-    }
-  })
-
-  return result
-}
 
 const verify = 'Verify the url and reload this page to double check. '
 const deleted_shadowbanned_notexist = 'may be deleted, shadowbanned, or may not exist. '
@@ -113,8 +98,33 @@ function setRemovedBy(items_removedBy_undefined, ps_items_autoremoved) {
 const blankMissingComments = {comments: {}}
 let missing_comments_promise = Promise.resolve(blankMissingComments)
 
-export const getRevdditUserItems = async (user, kind, qp, global) => {
+const acceptable_kinds = [OVERVIEW, COMMENTS, SUBMITTED, GILDED, '']
+const acceptable_sorts = ['new', 'top', 'controversial', 'hot']
+
+
+export const getRevdditUserItems = async (user, kind, global) => {
   const gs = global.state
+  let {sort, before, after, t, limit, all} = gs
+  const pathParts = window.location.pathname.split('/')
+  const badKind = ! acceptable_kinds.includes(kind)
+  const badSort = ! acceptable_sorts.includes(sort)
+  const badPath = pathParts.length > 5
+  if (badKind || badSort || badPath) {
+    let path = pathParts.slice(0,4).join('/')
+    const params = new SimpleURLSearchParams(window.location.search)
+    if (badKind) {
+      kind = ''
+      path = pathParts.slice(0,3).join('/')
+    }
+    if (badSort) {
+      params.delete('sort')
+      sort = 'new'
+    }
+    if (path.slice(-1) !== '/') {
+      path += '/'
+    }
+    window.history.replaceState(null,null,path+params.toString()+window.location.hash)
+  }
   // only request missing comments once. this will always resolve immediately
   await missing_comments_promise.then(({comments}) => {
     if (Object.keys(comments).length === 0) {
@@ -125,7 +135,7 @@ export const getRevdditUserItems = async (user, kind, qp, global) => {
     }
   })
   getModeratedSubreddits(user).then(moderated_subreddits => global.setState({moderated_subreddits}))
-  return getItems(user, kind, global, qp.sort, qp.before, qp.after || gs.userNext, qp.t, qp.limit, qp.loadAll)
+  return getItems(user, kind, global, sort, before, after || gs.userNext, t, limit, all)
   .then(result => {
     return lookupAndSetRemovedBy(global)
     .then( tempres => {
@@ -135,7 +145,7 @@ export const getRevdditUserItems = async (user, kind, qp, global) => {
   })
 }
 
-function getItems (user, kind, global, sort, before = '', after = '', time, limit, loadAll = false) {
+function getItems (user, kind, global, sort, before = '', after = '', time, limit, all = false) {
   const gs = global.state
   const {commentParentsAndPosts} = gs
   return queryUserPage(user, kind, sort, before, after, time, limit, oauth_reddit_rev)
@@ -222,8 +232,8 @@ function getItems (user, kind, global, sort, before = '', after = '', time, limi
           setPostAndParentDataForComments(comments, commentParentsAndPosts)
           return global.setState({items, num_pages, userNext: userPageData.after, commentParentsAndPosts})
           .then(() => {
-            if (userPageData.after && loadAll) {
-              return getItems(user, kind, global, sort, '', userPageData.after, time, limit, loadAll)
+            if (userPageData.after && all) {
+              return getItems(user, kind, global, sort, '', userPageData.after, time, limit, all)
             }
             return userPageData.after
           })

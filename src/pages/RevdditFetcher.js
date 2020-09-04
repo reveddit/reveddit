@@ -4,7 +4,7 @@ import { getRevdditCommentsBySubreddit } from 'data_processing/comments'
 import { getRevdditMissingComments } from 'data_processing/missing_comments'
 import { getRevdditPostsBySubreddit } from 'data_processing/subreddit_posts'
 import { getRevdditPostsByDomain, getRevdditDuplicatePosts } from 'data_processing/posts'
-import { getRevdditUserItems, getQueryParams } from 'data_processing/user'
+import { getRevdditUserItems } from 'data_processing/user'
 import { getRevdditThreadItems } from 'data_processing/thread'
 import { getRevdditItems, getRevdditSearch } from 'data_processing/info'
 import { itemIsOneOfSelectedActions, itemIsOneOfSelectedTags, filterSelectedActions } from 'data_processing/filters'
@@ -16,7 +16,7 @@ import { jumpToHash, get, put, ext_urls,
          itemIsActioned, itemIsCollapsed, commentIsOrphaned,
          commentIsMissingInThread, getPrettyDate, getPrettyTimeLength,
 } from 'utils'
-import { getAuthorInfoByName, OVERVIEW, SUBMITTED, COMMENTS, GILDED } from 'api/reddit'
+import { getAuthorInfoByName } from 'api/reddit'
 import { getAuth } from 'api/reddit/auth'
 import { getArchiveTimes } from 'api/reveddit'
 import {meta} from 'pages/about/AddOns'
@@ -108,7 +108,7 @@ const getPageTitle = (page_type, string) => {
 
 }
 const getLoadDataFunctionAndParam = (
-  {page_type, subreddit, user, kind, threadID, commentID, context, domain, queryParams,
+  {page_type, subreddit, user, kind, threadID, commentID, context, domain,
    add_user, user_kind, user_sort, user_time, before, after,
   }
 ) => {
@@ -138,7 +138,7 @@ const getLoadDataFunctionAndParam = (
       break
     }
     case 'user': {
-      return [getRevdditUserItems, [user, kind, queryParams]]
+      return [getRevdditUserItems, [user, kind]]
       break
     }
     case 'info': {
@@ -155,8 +155,6 @@ const getLoadDataFunctionAndParam = (
   }
   return null
 }
-const acceptable_kinds = [OVERVIEW, COMMENTS, SUBMITTED, GILDED, '']
-const acceptable_sorts = ['new', 'top', 'controversial', 'hot']
 const MAX_COLLAPSED_VISIBLE = 2
 const MAX_ORPHANED_VISIBLE = 2
 
@@ -182,7 +180,6 @@ export const withFetch = (WrappedComponent) =>
       const user = (this.props.match.params.user || '' ).toLowerCase()
       const { threadID, commentID, kind = '' } = this.props.match.params
       const { userSubreddit } = (this.props.match.params.userSubreddit || '').toLowerCase()
-      const queryParams = getQueryParams()
       const allQueryParams = create_qparams()
       if (userSubreddit) {
         subreddit = 'u_'+userSubreddit
@@ -193,33 +190,25 @@ export const withFetch = (WrappedComponent) =>
         document.title = page_title
       }
       if (page_type === 'user') {
-        if (! acceptable_kinds.includes(kind)) {
-          this.props.global.setError(Error('Invalid page, check url'))
-          return
-        }
-        if (! acceptable_sorts.includes(queryParams.sort)) {
-          this.props.global.setError(Error('Invalid sort type, check url'))
-          return
-        }
         setTimeout(this.maybeShowSubscribeUserModal, 3000)
-      }
-      if (page_type !== 'user') {
+      } else {
         getArchiveTimes().then(archiveTimes => this.props.global.setState({archiveTimes}))
       }
       this.props.global.setQueryParamsFromSavedDefaults(page_type)
       this.props.global.setStateFromQueryParams(
                       page_type,
                       allQueryParams,
-                      getExtraGlobalStateVars(page_type, queryParams.sort ))
+                      getExtraGlobalStateVars(page_type, allQueryParams.get('sort') ))
       .then(result => {
         if (page_type === 'info' && allQueryParams.toString() === '') {
           return this.props.global.setSuccess()
         }
         getAuth().then(() => {
-          const {context, add_user, user_sort, user_kind, user_time, before, after} = this.props.global.state
+          const {context, add_user, user_sort, user_kind, user_time, before, after,
+                } = this.props.global.state
           const [loadDataFunction, params] = getLoadDataFunctionAndParam(
-            {page_type, subreddit, user, kind, threadID, commentID, context, domain, queryParams,
-            add_user, user_kind, user_sort, user_time, before, after})
+            {page_type, subreddit, user, kind, threadID, commentID, context, domain,
+             add_user, user_kind, user_sort, user_time, before, after})
           loadDataFunction(...params, this.props.global, this.props.history)
           .then(() => {
             const {commentTree, items, threadPost} = this.props.global.state

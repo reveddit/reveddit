@@ -9,7 +9,6 @@ import scrollToElement from 'scroll-to-element'
 import { connect, removedFilter_types } from 'state'
 import Time from 'pages/common/Time'
 import { withFetch } from 'pages/RevdditFetcher'
-import { getQueryParams } from 'data_processing/user'
 import { SimpleURLSearchParams, copyLink, get, put, PATH_STR_SUB } from 'utils'
 import Highlight from 'pages/common/Highlight'
 import ModalContext from 'contexts/modal'
@@ -27,15 +26,16 @@ const dismiss = () => {
 const User = ({match, global, page_type, viewableItems, selections, notShownMsg}) => {
   const { user, kind = ''} = match.params
   const modal = React.useContext(ModalContext)
-  const qp_with_defaults = getQueryParams()
   const queryParams = new SimpleURLSearchParams(window.location.search)
-  const gs = global.state
+  const {userNext, num_pages, loading, userIssueDescription, items, show, after, sort,
+         hasVisitedUserPage_sortTop, hasVisitedSubredditPage, hasClickedRemovedUserCommentContext,
+        } = global.state
   let loadAllLink = '', nextLink = '', pagesLoaded = ''
   let error = '', status = '', instructionalNotice = ''
   let totalPages = 10
   let selectedItems = null
-  if (! gs.userNext) {
-    totalPages = gs.num_pages
+  if (! userNext) {
+    totalPages = num_pages
   }
 
   let linkToRestOfComments = ''
@@ -43,30 +43,30 @@ const User = ({match, global, page_type, viewableItems, selections, notShownMsg}
     linkToRestOfComments = window.location.pathname + (new SimpleURLSearchParams(window.location.search)).delete('show')
     selectedItems = queryParams.get('show').split(',')
   }
-  if (! gs.loading) {
-    if (! qp_with_defaults.after && gs.userNext) {
+  if (! loading) {
+    if (! after && userNext) {
       loadAllLink = <LoadLink user={user}
                      kind={kind}
-                     show={qp_with_defaults.show}
+                     show={show}
                      loadAll={true}/>
     }
   }
-  if (gs.loading) {
+  if (loading) {
     nextLink = <Spin/>
-  } else if (gs.userNext) {
+  } else if (userNext) {
     nextLink = <div className='non-item'>
       <LoadLink user={user}
        kind={kind}
-       show={qp_with_defaults.show}
+       show={show}
        loadAll={false}/></div>
-  } else if (gs.userIssueDescription) {
-    error = <div className='non-item text' dangerouslySetInnerHTML={{ __html: user +' '+ gs.userIssueDescription }}></div>
+  } else if (userIssueDescription) {
+    error = <div className='non-item text' dangerouslySetInnerHTML={{ __html: user +' '+ userIssueDescription }}></div>
   }
-  if (gs.items.length) {
+  if (items.length) {
     pagesLoaded = <React.Fragment>
-                    <div id='pagesloaded' className='non-item text' data-pagesloaded={gs.num_pages}>loaded pages {`${gs.num_pages}/${totalPages}`}</div>
+                    <div id='pagesloaded' className='non-item text' data-pagesloaded={num_pages}>loaded pages {`${num_pages}/${totalPages}`}</div>
                   </React.Fragment>
-  } else if (! gs.loading) {
+  } else if (! loading) {
     status = <p>No comments or posts are available for this user.</p>
   }
 
@@ -75,9 +75,9 @@ const User = ({match, global, page_type, viewableItems, selections, notShownMsg}
   viewableItems.forEach(item => {
     if (! selectedItems || (selectedItems && selectedItems.includes(item.name))) {
       if (item.name.slice(0,2) === 't3') {
-        shownItems.push(<Post key={item.name} {...item} sort={qp_with_defaults.sort} />)
+        shownItems.push(<Post key={item.name} {...item} sort={sort} />)
       } else {
-        shownItems.push(<Comment key={item.name} {...item} sort={qp_with_defaults.sort} kind={kind} page_type={page_type} />)
+        shownItems.push(<Comment key={item.name} {...item} sort={sort} kind={kind} page_type={page_type} />)
         if (item.removed) {
           removedCommentIDs.push(item.name)
         }
@@ -86,21 +86,21 @@ const User = ({match, global, page_type, viewableItems, selections, notShownMsg}
   })
   const shareLink = window.location.pathname.replace(/^\/user/,'/y')+window.location.search+window.location.hash
 
-  if (! gs.hasVisitedUserPage_sortTop) {
+  if (! hasVisitedUserPage_sortTop) {
     instructionalNotice = <Notice message="Sorting by top may show more results."
       htmlLink={<a href={'?sort=top&all=true'}>sort by top</a>}
     />
-  } else if (! gs.hasVisitedSubredditPage) {
+  } else if (! hasVisitedSubredditPage) {
     instructionalNotice = <Notice message="Subreddit pages work too."
       htmlLink={<Link to={PATH_STR_SUB+'/'}>view a subreddit</Link>}
     />
-  } else if (! gs.hasClickedRemovedUserCommentContext) {
+  } else if (! hasClickedRemovedUserCommentContext) {
     instructionalNotice = <Notice message={
       <div><span class="quarantined">Tip</span> The context links of removed comments now show the comment in context even if the comment was not archived.</div>
     }/>
   } else if (! get(hidePinPostNotice_var, false)) {
-  instructionalNotice = <Notice title='share reveddit'
-    htmlLink={<div><a target='_blank' href={pinPostLink} className="pointer" onClick={() => dismiss()}>create a post</a>, then select <a className='pointer' onClick={() => modal.openModal({content: <img style={{marginTop: '20px'}}src='/images/pin-profile.png'/>})}>pin to profile</a></div>}/>
+    instructionalNotice = <Notice title='share reveddit'
+      htmlLink={<div><a target='_blank' href={pinPostLink} className="pointer" onClick={() => dismiss()}>create a post</a>, then select <a className='pointer' onClick={() => modal.openModal({content: <img style={{marginTop: '20px'}}src='/images/pin-profile.png'/>})}>pin to profile</a></div>}/>
   }
 
   return (

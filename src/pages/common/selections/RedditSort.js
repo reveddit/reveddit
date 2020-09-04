@@ -1,29 +1,26 @@
 import React from 'react'
 import { connect } from 'state'
-import { getQueryParams } from 'data_processing/user'
 
 class RedditSort extends React.Component {
-  state = {
-    s: getQueryParams()
-  }
 
-  getLink(sort) {
+  getLink(sort, selectedSort) {
     return (<div>
-              <a className={sort === this.state.s.sort ? 'selected': ''}
+              <a className={sort === selectedSort ? 'selected': ''}
                  href={`${window.location.pathname}?sort=${sort}`}>{sort}</a>
             </div>)
   }
 
   render() {
+    const {sort} = this.props.global.state
     return (
         <div className='redditSort selection'>
           <div className='title'>Sort By</div>
           {['user'].includes(this.props.page_type) ?
             <React.Fragment>
-              {this.getLink('new')}
-              {this.getLink('top')}
-              {this.getLink('hot')}
-              {this.getLink('controversial')}
+              {this.getLink('new', sort)}
+              {this.getLink('top', sort)}
+              {this.getLink('hot', sort)}
+              {this.getLink('controversial', sort)}
             </React.Fragment>
           :
             ''
