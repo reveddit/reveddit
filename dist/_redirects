@@ -33,6 +33,8 @@ https://us.reveddit.com/* https://www.reveddit.com/:splat 301!
 https://en.reveddit.com/* https://www.reveddit.com/:splat 301!
 https://nl.reveddit.com/* https://www.reveddit.com/:splat 301!
 https://fi.reveddit.com/* https://www.reveddit.com/:splat 301!
+https://i.reveddit.com/* https://www.reveddit.com/:splat 301!
+https://m.reveddit.com/* https://www.reveddit.com/:splat 301!
 
 https://old.revddit.com/* https://www.reveddit.com/:splat 301!
 https://new.revddit.com/* https://www.reveddit.com/:splat 301!
