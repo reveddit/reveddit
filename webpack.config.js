@@ -67,7 +67,18 @@ module.exports = (env, argv) => {
             plugins: ['@babel/plugin-syntax-dynamic-import', 'lodash', '@babel/plugin-proposal-optional-chaining'],
             presets: [['@babel/env', { 'targets': { 'node': 12, 'browsers': 'last 2 versions, safari >= 7, ios_saf >= 9, chrome >= 52' } }]]
           }
-        }
+        },
+        {
+          test: /\.svg$/,
+          use: [
+            {
+              loader: 'svg-url-loader',
+              options: {
+                limit: 10000,
+              },
+            },
+          ],
+        },
       ]
     },
     resolve: {

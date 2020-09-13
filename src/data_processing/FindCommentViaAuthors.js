@@ -4,6 +4,7 @@ import {connect, urlParamKeys, create_qparams_and_adjust, updateURL} from 'state
 import { kindsReverse, queryUserPage } from 'api/reddit'
 import { Spin } from 'components/Misc'
 import { copyFields } from 'data_processing/comments'
+import RefreshIcon from 'svg/refresh.svg';
 
 const MAX_AUTHORS_NEARBY_BY_DATE = 4
 const MAX_AUTHORS_TO_SEARCH = 15
@@ -14,46 +15,65 @@ const addAuthorIfExists = (comment, set) => {
   }
 }
 
+const Wrap = ({children}) => <div style={{padding: '15px 0', minHeight: '25px'}}>{children}</div>
+
+const getAddUserMeta = (props, distance) => {
+  const {itemsLookup, alreadySearchedAuthors, threadPost,
+   commentsSortedByDate, add_user, loading} = props.global.state
+
+   const grandparentComment = getAncestor(props, itemsLookup, 2)
+   const grandchildComment = ((props.replies[0] || {}).replies || [])[0] || {}
+   // START nearby authors
+   const authors_nearbyByDate = new Set()
+   let distance_from_start = distance.current
+   if (commentsSortedByDate.length > 1) {
+     const comment_i = props.by_date_i
+     while (authors_nearbyByDate.size < MAX_AUTHORS_NEARBY_BY_DATE) {
+       addAuthorIfExists(commentsSortedByDate[comment_i - distance_from_start], authors_nearbyByDate)
+       if (authors_nearbyByDate.size < MAX_AUTHORS_NEARBY_BY_DATE) {
+         addAuthorIfExists(commentsSortedByDate[comment_i + distance_from_start], authors_nearbyByDate)
+       }
+       distance_from_start += 1
+       if (   (comment_i+distance_from_start) >= commentsSortedByDate.length
+           && (comment_i-distance_from_start) < 0) {
+         break
+       }
+     }
+   }
+   // END nearby authors
+   const aug = new AddUserGroup({alreadySearchedAuthors})
+   const aup = new AddUserParam({string: add_user})
+   aug.add(grandparentComment.author,
+           grandchildComment.author,
+           ...aup.getAuthors(),
+           threadPost.author,
+           ...Array.from(authors_nearbyByDate),
+          )
+  return [aug, distance_from_start]
+}
+
 const FindCommentViaAuthors = (props) => {
-  const distance = useRef(1)
+  const distanceRef = useRef(1)
+  // if aug is null && ! loading, populate aug
+  // after finishing search, update aug
+  const augRef = useRef(null)
   let searchButton = ''
   const {itemsLookup, alreadySearchedAuthors, threadPost,
-         commentsSortedByDate, add_user, loading} = props.global.state
-  const grandparentComment = getAncestor(props, itemsLookup, 2)
-  const grandchildComment = ((props.replies[0] || {}).replies || [])[0] || {}
-  // START nearby authors
-  const authors_nearbyByDate = new Set()
-  let distance_from_start = distance.current
-  if (commentsSortedByDate.length > 1) {
-    const comment_i = props.by_date_i
-    while (authors_nearbyByDate.size < MAX_AUTHORS_NEARBY_BY_DATE) {
-      addAuthorIfExists(commentsSortedByDate[comment_i - distance_from_start], authors_nearbyByDate)
-      if (authors_nearbyByDate.size < MAX_AUTHORS_NEARBY_BY_DATE) {
-        addAuthorIfExists(commentsSortedByDate[comment_i + distance_from_start], authors_nearbyByDate)
-      }
-      distance_from_start += 1
-      if (   (comment_i+distance_from_start) >= commentsSortedByDate.length
-          && (comment_i-distance_from_start) < 0) {
-        break
-      }
-    }
+         commentsSortedByDate, add_user, loading, authors:globalAuthors} = props.global.state
+  //TODO: check that distance updates properly
+  //      -
+  if (! augRef.current && ! loading) {
+    [augRef.current, distanceRef.current] = getAddUserMeta(props, distanceRef)
+    //console.log('getAddUserMeta')
   }
-  // END nearby authors
-  const aug = new AddUserGroup({alreadySearchedAuthors})
-  const aup = new AddUserParam({string: add_user})
-  aug.add(grandparentComment.author,
-          grandchildComment.author,
-          ...aup.getAuthors(),
-          threadPost.author,
-          ...Array.from(authors_nearbyByDate),
-         )
+  //console.log(distanceRef.current)
+  const aug = augRef.current
   const search = async (targetComment) => {
     await props.global.setLoading()
-    distance.current = distance_from_start
+    const aup = new AddUserParam({string: add_user})
+    //distance.current = distance_from_start
     //TODO: allow aug to allow a second query according to below
 
-    //TODO: find and sort authors
-    //PREREQ: sort all comments by date
     // 1st query: grandparent, grandchild, any author in URL Param, OP, highest karma
            // only add these for search *if they are not in alreadySearchedAuthors*
     // 2nd query:
@@ -80,28 +100,31 @@ const FindCommentViaAuthors = (props) => {
       updateURL(create_qparams_and_adjust('', paramName, value))
       new_add_user = value
     }
-    // PREREQ: a lookup for all userPage data showing the order
-    // sort changed by author, created_utc asc
-    // for each author, find first and last comment for the thread
-    // set before/after using prev/next comment from that author
-    //      (note: Need a lookup for all userPage data)
-    // unlikely worst case: the 1st and 100th comment in user history is in the same thread
-    //        in that case: can set two params for the same user
-    //                  or: single comment (set no before/after)
 
     //TODO: If failed for clicked item, change messaging
-    //         authors remain: try again
-    //      no authors remain: remove button
+    //         authors remain: "try again" or show % complete (# authors searched / total # authors)
+    [augRef.current, distanceRef.current] = getAddUserMeta(props, distanceRef)
     props.global.setSuccess({alreadySearchedAuthors, add_user: new_add_user})
   }
-  if (aug.length()) {
+  //states:
+  //  loading && needToFindAuthors (! aug) => show spin
+  //  loading && ! needToFindAuthors (aug)
+  //     hasAuthors => show spin
+  //     noAuthors => show nothing
+  //  ! loading && hasAuthors => show button
+  //  ! loading && noAuthors => show nothing
+  if (loading) {
+    if (! aug || aug.length()) {
+      searchButton = <Wrap><Spin width='20px'/></Wrap>
+    }
+  } else if (aug.length()) {
+    const numAuthorsRemaining = Object.keys(globalAuthors).length - Object.keys(alreadySearchedAuthors).length
     searchButton = (
-      <div style={{padding: '15px 0', minHeight: '25px'}}>
-        {loading ?
-          <Spin width='20px'/>
-          : <a className='pointer bubble medium lightblue' onClick={search}
-            >search<span className='desktop-only'> via nearby users</span></a>}
-      </div>)
+      <Wrap>
+        <a className='pointer bubble medium lightblue' onClick={search}
+        ><img src={RefreshIcon} alt="Refresh icon" style={{verticalAlign: 'middle'}} /> refresh<span className='desktop-only'> ({numAuthorsRemaining.toLocaleString()} users left)</span></a>
+      </Wrap>
+    )
   }
   return searchButton
 }

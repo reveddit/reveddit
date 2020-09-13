@@ -227,13 +227,29 @@ export const withFetch = (WrappedComponent) =>
               })
             }
             window.scrollY === 0 && jumpToHash(window.location.hash)
-            if (showAccountInfo_global && (items.length || threadPost)) {
-              const uniqueAuthors = items.reduce((map, obj) => (map[obj.author_fullname] = true, map), {[threadPost.author_fullname]:true})
-              delete uniqueAuthors[undefined]
-              getAuthorInfoByName(Object.keys(uniqueAuthors))
-              .then(authors => {
-                this.props.global.setState({authors})
-              })
+            if ((showAccountInfo_global || threadPost) && items.length) {
+              const authorIDs = new Set()
+              const authorNames = new Set()
+              const itemsAndPost = items
+              if (threadPost && (threadPost.author || threadPost.author_fullname)) {
+                itemsAndPost.push(threadPost)
+              }
+              for (const item of itemsAndPost) {
+                if (item.author_fullname) {
+                  authorIDs.add(item.author_fullname)
+                }
+                if (item.author) {
+                  authorNames.add(item.author)
+                }
+              }
+              if (showAccountInfo_global) {
+                getAuthorInfoByName(Array.from(authorIDs))
+                .then(authors => {
+                  this.props.global.setState({authors})
+                })
+              } else {
+                this.props.global.setState({authors: Array.from(authorNames).reduce((map, val) => (map[val] = {}, map), {})})
+              }
             }
           })
           .catch(this.handleError)
