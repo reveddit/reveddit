@@ -31,7 +31,7 @@ const copy_fields = ['permalink', 'score', 'controversiality',
 
 const copy_if_value_fields = ['distinguished', 'stickied', 'author_fullname']
 
-const initializeComment = (comment, post) => {
+export const initializeComment = (comment, post) => {
   if (post && post.author === comment.author && comment.author !== '[deleted]') {
     comment.is_op = true
   }

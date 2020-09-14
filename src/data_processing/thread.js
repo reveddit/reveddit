@@ -170,7 +170,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
                       commentsSortedByDate: early_commentsSortedByDate,
             initialFocusCommentID: commentID})
     const {user_comments, newIDs: remainingRedditIDs} = await Promise.all(add_user_promises).then(
-      getUserCommentsForPost.bind(null, reddit_post.name, early_combinedComments)
+      getUserCommentsForPost.bind(null, reddit_post, early_combinedComments)
     )
     Object.keys(pushshiftComments).forEach(id => {
       if (! (id in redditComments)) {

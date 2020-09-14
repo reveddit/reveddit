@@ -3,7 +3,7 @@ import {ifNumParseInt, isCommentID, validAuthor} from 'utils'
 import {connect, urlParamKeys, create_qparams_and_adjust, updateURL} from 'state'
 import { kindsReverse, queryUserPage } from 'api/reddit'
 import { Spin } from 'components/Misc'
-import { copyFields } from 'data_processing/comments'
+import { copyFields, initializeComment } from 'data_processing/comments'
 import RefreshIcon from 'svg/refresh.svg';
 
 const MAX_AUTHORS_NEARBY_BY_DATE = 4
@@ -83,7 +83,7 @@ const FindCommentViaAuthors = (props) => {
 
     const {authors, promises} = aug.query()
     const {user_comments, newIDs} = await Promise.all(promises).then(
-      getUserCommentsForPost.bind(null, props.link_id, itemsLookup))
+      getUserCommentsForPost.bind(null, threadPost, itemsLookup))
     Object.assign(alreadySearchedAuthors, authors)
     //TODO: if there are newIDs:
     //   combinePushshiftAndRedditComments - only the new ones
@@ -240,7 +240,7 @@ export class AddUserParam {
   }
 }
 
-const addUserFields = ['body', 'edited', 'author', 'author_fullname']
+const addUserFields = ['body', 'edited', 'author', 'author_fullname', 'is_op']
 export const addUserComments = (user_comments, commentsLookup) => {
   const changed = [], changedAuthors = {}
   for (const user_comment of user_comments) {
@@ -262,7 +262,7 @@ export const addUserComments = (user_comments, commentsLookup) => {
 
 //existingIDs: IDs already looked up via api/info
 //newIDs: IDs found via user page that do not appear in existingIDs
-export const getUserCommentsForPost = (link_id, existingIDs, userPages) => {
+export const getUserCommentsForPost = (post, existingIDs, userPages) => {
   const user_comments = []
   const newIDs = {}
   for (const userPage of userPages) {
@@ -276,7 +276,8 @@ export const getUserCommentsForPost = (link_id, existingIDs, userPages) => {
       if ((i+1) < comments.length) {
         c.next = comments[i+1].name
       }
-      if (link_id === c.link_id) {
+      if (post.name === c.link_id) {
+        initializeComment(c, post)
         user_comments.push(c)
         this_user_this_link_comments.push(c)
         if (! (c.id in existingIDs)) {
