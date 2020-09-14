@@ -109,11 +109,24 @@ class Post extends React.Component {
             {props.locked && <span className='lockedTag'>locked</span>}
             <div><RemovedBy {...props} /></div>
           </div>
-          {selftext &&
-            <div className='thread-selftext user-text'>
+          <div className='total-comments post-links'>
+            {props.quarantine && <span className="quarantined">quarantined</span>}
+            <a href={convertPathSub(props.permalink)} className='nowrap'>{props.num_comments} comments</a>
+            <a href={www_reddit+props.permalink}>reddit</a>
+              <a href={`${rev_subreddit}/duplicates/${props.id}`}>other-discussions{props.num_crossposts ? ` (${props.num_crossposts}+)`:''}</a>
+            { directlink && <a href={directlink}>directlink</a>}
+            <MessageMods {...props}/>
+          </div>
+        </div>
+        <div className='clearBoth' style={{flexBasis:'100%', height: '0'}}></div>
+        {selftext &&
+          <div className='thread-selftext user-text'>
+            <div style={{display: 'table', tableLayout: 'fixed', width: '100%'}}>
               {this.state.displayFullSelftext ?
                 <>
-                  <a className='collapseToggle' onClick={() => this.hideFullSelftext()} style={{float:'left',marginRight:'10px'}}>[–]</a>
+                  {snippet_is_set &&
+                    <a className='collapseToggle' onClick={() => this.hideFullSelftext()} style={{float:'left',marginRight:'10px'}}>[–]</a>
+                  }
                   <div dangerouslySetInnerHTML={{ __html: parse(selftext)}}/>
                 </>
               :
@@ -129,17 +142,8 @@ class Post extends React.Component {
                 </>
               }
             </div>
-          }
-          <div className='total-comments post-links'>
-            {props.quarantine && <span className="quarantined">quarantined</span>}
-            <a href={convertPathSub(props.permalink)} className='nowrap'>{props.num_comments} comments</a>
-            <a href={www_reddit+props.permalink}>reddit</a>
-              <a href={`${rev_subreddit}/duplicates/${props.id}`}>other-discussions{props.num_crossposts ? ` (${props.num_crossposts}+)`:''}</a>
-            { directlink && <a href={directlink}>directlink</a>}
-            <MessageMods {...props}/>
           </div>
-        </div>
-        <div className='clearBoth'></div>
+        }
       </div>
     )
   }
