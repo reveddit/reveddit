@@ -16,15 +16,19 @@ const max_selftext_length = 100
 class Post extends React.Component {
   state = {
     displayFullSelftext: true,
-    manuallyDisplayedSelftext: false
+    manuallyDisplayedSelftext: false,
+    manuallyHiddenSelftext: false,
   }
   displayFullSelftext() {
     this.setState({displayFullSelftext: true, manuallyDisplayedSelftext: true})
   }
+  hideFullSelftext() {
+    this.setState({displayFullSelftext: false, manuallyHiddenSelftext: true})
+  }
   componentDidUpdate() {
     if (! this.state.manuallyDisplayedSelftext && this.props.global.state.initialFocusCommentID && this.state.displayFullSelftext) {
       this.setState({displayFullSelftext: false})
-    } else if (! this.props.global.state.initialFocusCommentID && ! this.state.displayFullSelftext) {
+    } else if (! this.state.manuallyHiddenSelftext && ! this.props.global.state.initialFocusCommentID && ! this.state.displayFullSelftext) {
       this.setState({displayFullSelftext: true})
     }
   }
@@ -107,13 +111,22 @@ class Post extends React.Component {
           </div>
           {selftext &&
             <div className='thread-selftext user-text'>
-              <div dangerouslySetInnerHTML={{ __html: this.state.displayFullSelftext ? parse(selftext) : parse(selftext_snippet) }}/>
-              {!this.state.displayFullSelftext && snippet_is_set &&
-                <p>
-                  <a className='collapseToggle' onClick={() => this.displayFullSelftext()}>
-                    ... view full text
-                  </a>
-                </p>
+              {this.state.displayFullSelftext ?
+                <>
+                  <a className='collapseToggle' onClick={() => this.hideFullSelftext()} style={{float:'left',marginRight:'10px'}}>[–]</a>
+                  <div dangerouslySetInnerHTML={{ __html: parse(selftext)}}/>
+                </>
+              :
+                <>
+                  <div dangerouslySetInnerHTML={{ __html: parse(selftext_snippet) }}/>
+                  {snippet_is_set &&
+                    <p>
+                      <a className='collapseToggle' onClick={() => this.displayFullSelftext()}>
+                        ... view full text
+                      </a>
+                    </p>
+                  }
+                </>
               }
             </div>
           }
