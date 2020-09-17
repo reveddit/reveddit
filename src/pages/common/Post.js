@@ -101,7 +101,7 @@ class Post extends React.Component {
           <a className='thread-title' href={url}>{replaceAmpGTLT(props.title)}</a>
           {
             props.link_flair_text &&
-            <span className='link-flair'>{props.link_flair_text}</span>
+            <span className='link-flair'>{replaceAmpGTLT(props.link_flair_text)}</span>
           }
           <span className='domain'>({domain})</span>
           <div className='thread-info'>
