@@ -230,9 +230,9 @@ export const withFetch = (WrappedComponent) =>
             if ((showAccountInfo_global || threadPost) && items.length) {
               const authorIDs = new Set()
               const authorNames = new Set()
-              const itemsAndPost = items
+              let itemsAndPost = items
               if (threadPost && (threadPost.author || threadPost.author_fullname)) {
-                itemsAndPost.push(threadPost)
+                itemsAndPost = items.concat(threadPost)
               }
               for (const item of itemsAndPost) {
                 if (item.author_fullname) {
