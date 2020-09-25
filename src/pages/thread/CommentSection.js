@@ -73,7 +73,7 @@ class CommentSection extends React.Component {
     comments.sort(sortFunction)
 
     comments.forEach(comment => {
-      if (comment.replies.length > 0) {
+      if (comment?.replies.length > 0) {
         this.sortCommentTree(comment.replies, sortFunction)
       }
     })
