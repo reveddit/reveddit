@@ -24,14 +24,15 @@ const CommentBody = (props) => {
   const isThread = props.page_type === 'thread'
   const comment_Is_Removed = commentIsRemoved(props)
   if (! props.deleted) {
-    if ( (comment_Is_Removed || (isThread && props.archive_body_removed))
+    const archiveRemoved_or_noArchive = props.archive_body_removed || ! props.archive_processed
+    if ( (comment_Is_Removed || (isThread && archiveRemoved_or_noArchive))
          && props.removed) {
       innerHTML = '<p>'+getRemovedMessage(props, 'comment')+'</p>'
       if (isThread) {
         if (comment_Is_Removed) {
           searchAuthorsForm = <FindCommentViaAuthors {...props}/>
-        } else if (props.archive_body_removed) { // explicit for clarity, could be else { w/no condition
-          innerHTML = `[removed ${getRemovedWithinText(props)}, restored via user page]`+markdownToHTML(props.body)
+        } else if (archiveRemoved_or_noArchive) { // explicit for clarity, could be else { w/no condition
+          innerHTML = `[removed${getRemovedWithinText(props)}, restored via user page]`+markdownToHTML(props.body)
         }
       }
     } else {

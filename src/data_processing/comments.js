@@ -72,7 +72,7 @@ export const combinePushshiftAndRedditComments = (pushshiftComments, redditComme
     const redditComment = redditComments[ps_comment.id]
     ps_comment.name = 't1_'+ps_comment.id // name needed for info page render
     initializeComment(ps_comment, post)
-    if (ps_comment.processed) {
+    if (ps_comment.archive_processed) {
       combinedComments[ps_comment.id] = ps_comment
     } else if (redditComment !== undefined) {
       setupCommentMeta(ps_comment, redditComment)
@@ -139,7 +139,7 @@ const setupCommentMeta = (archiveComment, redditComment) => {
       }
     }
   }
-  archiveComment.processed = true
+  archiveComment.archive_processed = true
 }
 
 // Using Pushshift may be faster, but it is missing the quarantine field in submissions data

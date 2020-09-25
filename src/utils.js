@@ -427,7 +427,7 @@ export const getRemovedMessage = (props, itemType) => {
   let removedMessage = ' before archival'
   const {archiveTimes} = props.global.state
   if (props.retrieved_on) {
-    removedMessage = ' before archival, '+getRemovedWithinText(props)
+    removedMessage = ' before archival,'+getRemovedWithinText(props)
   } else if (props.global.state.loading) {
     removedMessage = ' content loading...'
   } else if (archiveTimes) {
@@ -442,7 +442,7 @@ export const getRemovedMessage = (props, itemType) => {
 
 export const getRemovedWithinText = (props) => {
   return props.retrieved_on ?
-    'within '+getPrettyTimeLength(props.retrieved_on-props.created_utc)
+    ' within '+getPrettyTimeLength(props.retrieved_on-props.created_utc)
     : ''
 }
 
