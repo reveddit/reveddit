@@ -6,6 +6,7 @@ import {useRef, useEffect} from 'react'
 const markdown = SnuOwnd.getParser()
 const chrome_base = 'https://chrome.google.com/webstore/detail/'
 const ff_base = 'https://addons.mozilla.org/en-US/firefox/addon/'
+const now = Math.floor(new Date()/1000)
 
 export const ext_urls = {
   rt: {
@@ -319,7 +320,6 @@ export const reversible = (func, reverse) => {
 export const getUrlWithTimestamp = () => {
   let urlWithTimestamp = window.location.href
   if (! urlWithTimestamp.match(/[?&]before=/)) {
-    const now = Math.floor(new Date()/1000)
     if (urlWithTimestamp.match(/\?/)) {
       urlWithTimestamp += '&'
     } else {
@@ -421,17 +421,23 @@ export const paramString = (params) => {
   return Object.keys(params).map(k => `${k}=${params[k]}`).join('&')
 }
 
+export const archiveTimes_isCurrent = (archiveTimes) => (now - archiveTimes.updated) < 60*15
+
 export const getRemovedMessage = (props, itemType) => {
-  let removedMessage = 'before archival'
+  let removedMessage = ' before archival'
   const {archiveTimes} = props.global.state
   if (props.retrieved_on) {
-    removedMessage = 'before archival, '+getRemovedWithinText(props)
+    removedMessage = ' before archival, '+getRemovedWithinText(props)
   } else if (props.global.state.loading) {
-    removedMessage = 'content loading...'
+    removedMessage = ' content loading...'
   } else if (archiveTimes) {
-    removedMessage += '. Current delay is '+getPrettyTimeLength(archiveTimes.updated - archiveTimes[itemType])
+    if (archiveTimes_isCurrent(archiveTimes)) {
+      removedMessage += '. Current delay is '+getPrettyTimeLength(archiveTimes.updated - archiveTimes[itemType])
+    } else {
+      removedMessage = ', archive currently unavailable'
+    }
   }
-  return `[removed ${removedMessage}]`
+  return `[removed${removedMessage}]`
 }
 
 export const getRemovedWithinText = (props) => {

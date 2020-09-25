@@ -15,6 +15,7 @@ import { NOT_REMOVED, COLLAPSED, ORPHANED } from 'pages/common/RemovedBy'
 import { jumpToHash, get, put, ext_urls,
          itemIsActioned, itemIsCollapsed, commentIsOrphaned,
          commentIsMissingInThread, getPrettyDate, getPrettyTimeLength,
+         archiveTimes_isCurrent,
 } from 'utils'
 import { getAuthorInfoByName } from 'api/reddit'
 import { getAuth } from 'api/reddit/auth'
@@ -32,7 +33,6 @@ const CAT_POST_TITLE = {category: 'link_title',
                         category_title: 'Post Title',
                         category_unique_field: 'link_id'}
 
-const now = Math.floor(new Date()/1000)
 const normalArchiveDelay = 60
 
 const getCategorySettings = (page_type, subreddit) => {
@@ -451,7 +451,7 @@ export const withFetch = (WrappedComponent) =>
       }
       const notShownMsg = <>{numOrphanedNotShownMsg}{numCollapsedNotShownMsg}</>
       let archiveDelayMsg = ''
-      if (archiveTimes && ((now - archiveTimes.updated) < 60*15 || page_type === 'info') ) {
+      if (archiveTimes && (archiveTimes_isCurrent(archiveTimes) || page_type === 'info') ) {
         let commentsMsg = '', submissionsMsg = ''
         if (page_type === 'info' ||
               (archiveTimes.updated - archiveTimes.submission > normalArchiveDelay
