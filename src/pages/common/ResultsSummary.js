@@ -54,13 +54,11 @@ class ResultsSummary extends React.Component {
                   </div>
     }
     return (
-      <React.Fragment>
         <div>
           {timeFrame}
           {numShowingText}
+          {numPagesText}
         </div>
-        {numPagesText}
-      </React.Fragment>
     )
   }
 }
