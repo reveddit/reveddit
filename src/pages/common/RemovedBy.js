@@ -51,6 +51,14 @@ export const USER_REMOVED_META = {filter_text: 'user deleted',
                                         label: '[deleted] by user',
                                          desc: 'user deleted'}
 
+export const ALL_ACTIONS_META = {
+  ...REMOVAL_META,
+  [COLLAPSED]: COLLAPSED_META,
+  [MISSING_IN_THREAD]: MISSING_IN_THREAD_META,
+  [ORPHANED]: ORPHANED_META,
+  [USER_REMOVED]: USER_REMOVED_META,
+}
+
 const RemovedBy = (props) => {
   let displayTag = '', title = '', text = '', details = '', meta = undefined, withinText = ''
   const {removedby} = props

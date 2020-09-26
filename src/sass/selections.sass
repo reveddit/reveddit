@@ -2,12 +2,12 @@ $selectionsMarginRight: -15px
 $selectionMarginTop: 10px
 $selectionMarginRight: 20px
 .selections
-  color: #828282
+  color: $metalabels
   display: flex
   flex-wrap: wrap
   margin: (-$selectionMarginTop) ($selectionsMarginRight) 10px 0
   a
-    color: #828282
+    color: $metalabels
   .categoryFilter
     width: 150px
     select
@@ -19,6 +19,8 @@ $selectionMarginRight: 20px
     .title
       font-weight: bold
       margin-bottom: 5px
+    span.title
+      margin-left: 15px
   .filter-menu
     display: flex
   .filter

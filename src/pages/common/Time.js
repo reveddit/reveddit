@@ -1,7 +1,7 @@
 import React from 'react'
 import { connect } from 'state'
 import { getPrettyDate, getPrettyTimeLength } from 'utils'
-import {showRelDates_global} from 'pages/common/Settings'
+import {showRelDates_global} from 'pages/modals/Settings'
 
 export default ({ showDate, pretty, created_utc, edited, global, name,
                   parent_id, page_type, noAgo=false, className='',

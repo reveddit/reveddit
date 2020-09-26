@@ -1,7 +1,7 @@
 import React from 'react'
 import { connect } from 'state'
 import { getPrettyTimeLength, replaceAmpGTLT, PATH_STR_USER } from 'utils'
-import { showAccountInfo_global } from 'pages/common/Settings'
+import { showAccountInfo_global } from 'pages/modals/Settings'
 
 const now = Math.floor(new Date()/1000)
 

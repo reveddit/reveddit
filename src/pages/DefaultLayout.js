@@ -3,9 +3,10 @@ import { Route } from 'react-router-dom'
 import Modal from 'react-modal'
 import { connect } from 'state'
 import Header from 'pages/common/Header'
-import Donate from 'pages/common/donate'
-import Welcome from 'pages/common/Welcome'
-import Settings from 'pages/common/Settings'
+import Donate from 'pages/modals/donate'
+import Welcome from 'pages/modals/Welcome'
+import Settings from 'pages/modals/Settings'
+import ActionHelp from 'pages/modals/ActionHelp'
 import { ModalProvider } from 'contexts/modal'
 
 Modal.setAppElement('#app')
@@ -33,6 +34,8 @@ const getContentForHash = (hash) => {
       return <Donate/>
     case 'settings':
       return <Settings/>
+    case 'action_help':
+      return <ActionHelp/>
   }
   return undefined
 }
@@ -90,15 +93,17 @@ class DefaultLayout extends React.Component {
               <Modal isOpen={this.state.genericModalIsOpen}
                 onRequestClose={this.closeGenericModal}
                 style={customStyles}>
-                <div id='genericModal' className={this.state.hash}>
-                  <div className='dismiss'>
-                    <a className='pointer' onClick={this.closeGenericModal}>✖&#xfe0e;</a>
+                <div id='modalContainer'>
+                  <div id='genericModal' className={this.state.hash}>
+                    <div className='dismiss'>
+                      <a className='pointer' onClick={this.closeGenericModal}>✖&#xfe0e;</a>
+                    </div>
+                    {this.state.hash ?
+                      getContentForHash(this.state.hash)
+                      :
+                      this.state.content
+                    }
                   </div>
-                  {this.state.hash ?
-                    getContentForHash(this.state.hash)
-                    :
-                    this.state.content
-                  }
                 </div>
               </Modal>
               <ModalProvider value={{openModal: this.openGenericModal}}>

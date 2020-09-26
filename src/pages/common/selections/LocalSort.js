@@ -1,5 +1,7 @@
 import React from 'react'
 import { connect, localSort_types } from 'state'
+import SortIcon from 'svg/sort.svg';
+
 const paramKey_sortType = 'localSort'
 const paramKey_reverse = 'localSortReverse'
 
@@ -38,7 +40,10 @@ class LocalSort extends React.Component {
 
     return (
         <div className={`localSort selection`}>
-          <div className='title'>Sort By</div>
+          <div>
+            <img src={SortIcon} alt="Sort icon" style={{verticalAlign: 'middle', height: '20px', width: '20px'}} />
+            <span className='title'>Sort By</span>
+          </div>
           {['thread', 'subreddit_comments'].includes(page_type) ?
             <React.Fragment>
               {this.makeLabel('controversiality1', 'controversiality v1')}
