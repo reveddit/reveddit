@@ -51,8 +51,6 @@ const CommentBody = (props) => {
       }
       innerHTML = markdownToHTML(props.body)
     }
-  } else {
-    innerHTML = '<p>[deleted by user]</p>'
   }
 
   return (

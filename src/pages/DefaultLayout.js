@@ -27,6 +27,10 @@ const customStyles = {
 }
 
 const getContentForHash = (hash) => {
+  const action = hash.match(/^action_(.+)_help$/)
+  if (action) {
+    return <ActionHelp action={action[1]}/>
+  }
   switch (hash) {
     case 'welcome':
       return <Welcome/>

@@ -2,6 +2,8 @@ import React from 'react'
 import {itemIsCollapsed, commentIsMissingInThread,
         isPost, getRemovedWithinText, postRemovedUnknownWithin} from 'utils'
 import {www_reddit} from 'api/reddit'
+import ModalContext from 'contexts/modal'
+import {QuestionMark} from 'pages/common/svg'
 
 export const ANTI_EVIL_REMOVED = 'anti_evil_ops'
 export const AUTOMOD_REMOVED = 'automod'
@@ -73,28 +75,42 @@ export const ALL_ACTIONS_META = {
 }
 
 const RemovedBy = (props) => {
-  let displayTag = '', title = '', text = '', details = '', meta = undefined, withinText = ''
-  const {removedby} = props
-  if (removedby && removedby !== NOT_REMOVED && removedby !== USER_REMOVED) {
+  const modal = React.useContext(ModalContext)
+  let displayTag = '', details = '', meta = undefined, withinText = '', fill = 'rgb(199,3,0)'
+  let {removedby, orphaned_label = '', style} = props
+  if (removedby === ORPHANED) {
+    meta = ORPHANED_META
+  } else if (removedby && removedby !== NOT_REMOVED && removedby !== USER_REMOVED) {
     meta = REMOVAL_META[removedby]
     if (removedby === UNKNOWN_REMOVED && isPost(props) &&
         postRemovedUnknownWithin(props)) {
       withinText = ','+getRemovedWithinText(props)
+    } else if (removedby === AUTOMOD_REMOVED_MOD_APPROVED) {
+      fill = 'white'
+    }
+    const modlog = props.modlog
+    if (modlog && modlog.details && modlog.details !== 'remove') {
+      details = ' | ' + modlog.details
     }
   } else if (removedby === USER_REMOVED) {
     meta = USER_REMOVED_META
   } else if (commentIsMissingInThread(props)) {
+    removedby = MISSING_IN_THREAD
     meta = MISSING_IN_THREAD_META
   } else if (itemIsCollapsed(props)) {
+    removedby = COLLAPSED
     meta = COLLAPSED_META
-  }
-  const modlog = props.modlog
-  if (modlog && modlog.details && modlog.details !== 'remove') {
-    details = ' | ' + modlog.details
+  } else if (props.deleted) {
+    removedby = USER_REMOVED
+    meta = USER_REMOVED_META
   }
   if (meta) {
-    title = meta.desc
-    displayTag = <span title={title} data-removedby={removedby} className='removedby'>{meta.label+withinText+details}</span>
+    displayTag =
+      <div style={style}>
+        <a className='pointer' onClick={() => modal.openModal({hash:'action_'+removedby+'_help'})}>
+          <span title={meta.desc} data-removedby={removedby} className='removedby'>{orphaned_label+(meta.label || '')+withinText+details} <QuestionMark fill={fill}/></span>
+        </a>
+      </div>
   }
   return displayTag
 }

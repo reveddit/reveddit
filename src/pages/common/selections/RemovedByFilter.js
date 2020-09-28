@@ -4,7 +4,7 @@ import { REMOVAL_META, ANTI_EVIL_REMOVED, USER_REMOVED, USER_REMOVED_META,
          COLLAPSED, COLLAPSED_META, MISSING_IN_THREAD, MISSING_IN_THREAD_META,
          ORPHANED, ORPHANED_META
 } from 'pages/common/RemovedBy'
-import QuestionMark from 'svg/qmark.svg';
+import { QuestionMark } from 'pages/common/svg'
 import ModalContext from 'contexts/modal'
 
 
@@ -34,7 +34,7 @@ const RemovedByFilter = (props) => {
         <div>
           <div className='title' style={{display:'inline'}}>Action</div>
           <a className='pointer' onClick={() => modal.openModal({hash:'action_help'})}>
-            <img src={QuestionMark} alt="Help icon" style={{verticalAlign: 'middle', height: '20px', width: '20px', marginLeft:'10px'}} />
+            <QuestionMark style={{marginLeft: '10px'}} wh='20'/>
           </a>
           <div style={{clear:'both'}}/>
         </div>
