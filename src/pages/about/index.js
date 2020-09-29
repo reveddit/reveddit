@@ -213,10 +213,6 @@ export class About extends React.Component {
               <p>re(ve)ddit is free and ad-free. You can support work like this with a <a className="pointer" onClick={this.donate}>donation</a>, feedback, or code fixes.</p>
               <p>Thank you!</p>
             </div>
-            <div className='section half'>
-              <h2 className='about'>Credo</h2>
-              <p>Secretly removing content is within reddit's free speech rights, and so is revealing said removals.</p>
-            </div>
           </div>
         </div>
       </div>

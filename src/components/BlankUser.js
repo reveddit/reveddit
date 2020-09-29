@@ -2,6 +2,7 @@ import React, {useState} from 'react'
 import { Link, Redirect } from 'react-router-dom'
 import { SimpleURLSearchParams, useFocus } from 'utils'
 import { Shuffle } from 'pages/common/svg'
+import { www_reddit } from 'api/reddit'
 
 
 export default () => {
@@ -76,7 +77,7 @@ export default () => {
         </button>
       </form>
       <div className='text'>
-        Reveddit does not display user-deleted content.
+        Conversations are better when users <a target='_blank' href={www_reddit+'/r/science/comments/duwdco/should_moderators_provide_removal_explanations/f79o1yr/'}>receive feedback</a> about removed content.
       </div>
     </div>
   )
