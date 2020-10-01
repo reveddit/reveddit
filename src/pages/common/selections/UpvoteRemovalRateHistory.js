@@ -20,7 +20,7 @@ class Sparkline extends React.PureComponent {
   }
   componentDidMount() {
     const self = this;
-    d3.select('svg')
+    d3.select('.graph svg')
     .on('mousemove', function() { self._onMouseMove(d3.mouse(this)[0]); })
     .on('click', function() { self._onMouseClick(d3.mouse(this)[0]); })
     .on('mouseleave', function() { self._onMouseMove(null); });
