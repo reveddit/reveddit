@@ -63,7 +63,7 @@ export const ORPHANED_META = {filter_text: 'comment parent or link removed',
 
 export const USER_REMOVED_META = {filter_text: 'user deleted',
                                         label: '[deleted] by user',
-                                         desc: 'The author of this content deleted it.',
+                                         desc: 'The author of this content deleted it. Posts may have been first removed by a moderator.',
                                      morelink: www_reddit+'/r/removeddit/comments/ir1oyw/_/g5fgxgl/?context=3#thing_t1_g5fgxgl'}
 
 export const ALL_ACTIONS_META = {
