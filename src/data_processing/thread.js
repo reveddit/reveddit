@@ -65,8 +65,9 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
       modlogs_posts_promise = getModlogsPosts(reddit_post.subreddit)
     }
     document.title = reddit_post.title
-    const resetPath = () => {
-      history.replace(convertPathSub(reddit_post.permalink)+window.location.search+window.location.hash)
+    const resetPath = (commentID) => {
+      const commentPath = commentID ? commentID + '/' : ''
+      history.replace(convertPathSub(reddit_post.permalink)+commentPath+window.location.search+window.location.hash)
     }
     if ((window.location.pathname.match(/\//g) || []).length < 6) {
       resetPath()
@@ -159,6 +160,8 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
       commentID = undefined
       root_commentID = undefined
       resetPath()
+    } else {
+      resetPath(commentID)
     }
     const origRedditComments = {...redditComments}
     const early_combinedComments = combinePushshiftAndRedditComments(pushshiftComments, redditComments, false, reddit_post)
