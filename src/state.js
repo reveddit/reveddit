@@ -74,7 +74,7 @@ export const urlParamKeys = {
   user_sort: 'user_sort',
   user_kind: 'user_kind',
   user_time: 'user_time',
-  t: 't', sort: 'sort', limit: 'limit', show: 'show', all:false,
+  t: 't', sort: 'sort', limit: 'limit', show: 'show', all:'all',
 }
 
 export const removedFilter_types = {
@@ -239,6 +239,7 @@ class GlobalState extends Container {
         archiveTimes: null,
         add_user: '',
         alreadySearchedAuthors: {},
+        all: false,
       }
   }
 
