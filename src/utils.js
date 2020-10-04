@@ -480,3 +480,16 @@ export const stripRedditLikeDomain = (url) => {
   }
   return url
 }
+
+export const matchOrIncludes = (str, search, useMatch = true) => {
+  if (useMatch) {
+    let result = false
+    try {
+      result = str.match(search)
+    } catch (err) {
+      return false
+    }
+    return result
+  }
+  return str.includes(search)
+}

@@ -15,7 +15,7 @@ import { NOT_REMOVED, COLLAPSED, ORPHANED } from 'pages/common/RemovedBy'
 import { jumpToHash, get, put, ext_urls,
          itemIsActioned, itemIsCollapsed, commentIsOrphaned,
          commentIsMissingInThread, getPrettyDate, getPrettyTimeLength,
-         archiveTimes_isCurrent,
+         archiveTimes_isCurrent, matchOrIncludes,
 } from 'utils'
 import { getAuthorInfoByName } from 'api/reddit'
 import { getAuth } from 'api/reddit/auth'
@@ -356,7 +356,7 @@ export const withFetch = (WrappedComponent) =>
           ( (removedByFilterIsUnset || itemIsOneOfSelectedActions(item, ...filteredActions)) &&
             (tagsFilterIsUnset || itemIsOneOfSelectedTags(item, gs)))
         ) {
-          const keywords = gs.keywords.toString().replace(/\s\s+/g, ' ').trim().toLocaleLowerCase().split(' ')
+          const keywords = gs.keywords.toString().replace(/\s\s+/g, ' ').trim().toLocaleLowerCase().match(/(-?"[^"]+"|[^"\s]+)/g) || []
           let match = true, negWordMatch = false
           let titleField = ''
           if ('title' in item) {
@@ -366,12 +366,19 @@ export const withFetch = (WrappedComponent) =>
           }
           for (let i = 0; i < keywords.length; i++) {
             const negateWord = keywords[i].startsWith('-') ? true : false
-            const word = keywords[i].replace(/^-/,'')
+            let word = keywords[i].replace(/^-/,'')
+            const isPhraseRegex = word.startsWith('"') ? true : false
+            if (isPhraseRegex) {
+              word = word.replace(/^"(.+)"$/,"$1")
+            }
+
             let word_in_title = true
             if (titleField) {
-              word_in_title = item[titleField].toLocaleLowerCase().includes(word)
+              word_in_title = matchOrIncludes(item[titleField].toLocaleLowerCase(), word, isPhraseRegex)
             }
-            const word_in_item = (('body' in item && ( word_in_title || item.body.toLocaleLowerCase().includes(word)))
+            const word_in_item = (('body' in item
+                                    && ( word_in_title
+                                      || matchOrIncludes(item.body.toLocaleLowerCase(), word, isPhraseRegex)))
                                   || word_in_title)
             if ((! negateWord && ! word_in_item) || (negateWord && word_in_item)) {
               match = false
