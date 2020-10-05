@@ -4,7 +4,7 @@ import { prettyScore, parse, redditThumbnails, replaceAmpGTLT,
          PATH_STR_SUB, convertPathSub, stripRedditLikeDomain,
 } from 'utils'
 import Time from 'pages/common/Time'
-import RemovedBy from 'pages/common/RemovedBy'
+import RemovedBy, {QuarantinedLabel} from 'pages/common/RemovedBy'
 import Author from 'pages/common/Author'
 import { NOT_REMOVED } from 'pages/common/RemovedBy'
 import { connect } from 'state'
@@ -106,11 +106,10 @@ class Post extends React.Component {
           <span className='domain'>({domain})</span>
           <div className='thread-info'>
             submitted <Time {...props}/> by <Author {...props}/> to <a className='subreddit-link' href={rev_subreddit+'/'}>/r/{props.subreddit}</a>
-            {props.locked && <span className='lockedTag'>locked</span>}
             <div><RemovedBy {...props} /></div>
           </div>
           <div className='total-comments post-links'>
-            {props.quarantine && <span className="quarantined">quarantined</span>}
+            <QuarantinedLabel {...props}/>
             <a href={convertPathSub(props.permalink)} className='nowrap'>{props.num_comments} comments</a>
             <a href={www_reddit+props.permalink}>reddit</a>
               <a href={`${rev_subreddit}/duplicates/${props.id}`}>other-discussions{props.num_crossposts ? ` (${props.num_crossposts}+)`:''}</a>

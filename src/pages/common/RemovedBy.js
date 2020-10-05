@@ -76,8 +76,8 @@ export const ALL_ACTIONS_META = {
 
 const RemovedBy = (props) => {
   const modal = React.useContext(ModalContext)
-  let displayTag = '', details = '', meta = undefined, withinText = '', fill = 'rgb(199,3,0)'
-  let {removedby, orphaned_label = '', style} = props
+  let displayTag = '', details = '', meta = undefined, withinText = '', fill = 'rgb(199,3,0)', everythingExceptLocked = '', lockedTag = ''
+  let {removedby, orphaned_label = '', style, locked} = props
   if (removedby === ORPHANED) {
     meta = ORPHANED_META
   } else if (removedby && removedby !== NOT_REMOVED && removedby !== USER_REMOVED) {
@@ -105,14 +105,43 @@ const RemovedBy = (props) => {
     meta = USER_REMOVED_META
   }
   if (meta) {
+    everythingExceptLocked =
+      <a className='pointer' onClick={() => modal.openModal({hash:'action_'+removedby+'_help'})} style={{marginRight: '5px'}}>
+        <span title={meta.desc} data-removedby={removedby} className='removedby'>{orphaned_label+(meta.label || '')+withinText+details} <QuestionMark fill={fill}/></span>
+      </a>
+  }
+  if (locked) {
+    lockedTag =
+      <a className='pointer' onClick={() => modal.openModal({hash:'action_locked_help'})}>
+        <span className='lockedTag'>locked <QuestionMark fill={'black'}/></span>
+      </a>
+  }
+  if (everythingExceptLocked || lockedTag) {
     displayTag =
       <div style={style}>
-        <a className='pointer' onClick={() => modal.openModal({hash:'action_'+removedby+'_help'})}>
-          <span title={meta.desc} data-removedby={removedby} className='removedby'>{orphaned_label+(meta.label || '')+withinText+details} <QuestionMark fill={fill}/></span>
-        </a>
+        {everythingExceptLocked}
+        {lockedTag}
       </div>
   }
   return displayTag
+}
+
+const quarantinedInfo =
+  <div>
+    <h3>Quarantined</h3>
+    <p><a target='_blank' href='https://reddit.zendesk.com/hc/en-us/articles/360043069012-Quarantined-Subreddits'>More info</a></p>
+  </div>
+
+export const QuarantinedLabel = ({quarantine}) => {
+  const modal = React.useContext(ModalContext)
+  if (quarantine) {
+    return (
+      <a className='pointer' onClick={() => modal.openModal({content:quarantinedInfo})}>
+        <span className="quarantined">quarantined <QuestionMark wh='12' fill={'black'}/></span>
+      </a>
+    )
+  }
+  return ''
 }
 
 export default RemovedBy

@@ -114,7 +114,6 @@ class Comment extends React.Component {
           <Author {...props} className='spaceRight'/>
           <span className='comment-score spaceRight'>{prettyScore(props.score)} point{(props.score !== 1) && 's'}</span>
           <Time {...props}/>
-          {props.locked && <span className='lockedTag'>locked</span>}
           <RemovedBy {...props} />
         </div>
         <div className='comment-body-and-links' style={displayBody ? {} : {display: 'none'}}>

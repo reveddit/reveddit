@@ -3,7 +3,7 @@ import { prettyScore, parse,
          PATH_STR_USER, PATH_STR_SUB, convertPathSub, stripRedditLikeDomain,
 } from 'utils'
 import Time from 'pages/common/Time'
-import RemovedBy from 'pages/common/RemovedBy'
+import RemovedBy, {QuarantinedLabel} from 'pages/common/RemovedBy'
 import { NOT_REMOVED, ORPHANED } from 'pages/common/RemovedBy'
 import CommentBody from 'pages/common/CommentBody'
 import Author from 'pages/common/Author'
@@ -110,23 +110,22 @@ class Comment extends React.Component {
           }
         </div>
         <div className='comment-head subhead'>
-        <Author {...props} className='spaceRight'/>
-        <span className='comment-score spaceRight'>{prettyScore(props.score)} point{(props.score !== 1) && 's'}</span>
-        <Time {...props}/>
-        {props.locked && <span className='lockedTag'>locked</span>}
-        <div>
-          <RemovedBy style={{display:'inline', marginRight: '5px'}} {...props} />
-          {post_parent_removed.length !== 0 &&
-            <RemovedBy removedby={ORPHANED} orphaned_label={'['+post_parent_removed.join(', ')+']'} style={{display:'inline'}}/>
-          }
-        </div>
+          <Author {...props} className='spaceRight'/>
+          <span className='comment-score spaceRight'>{prettyScore(props.score)} point{(props.score !== 1) && 's'}</span>
+          <Time {...props}/>
+          <div>
+            <RemovedBy style={{display:'inline', marginRight: '5px'}} {...props} />
+            {post_parent_removed.length !== 0 &&
+              <RemovedBy removedby={ORPHANED} orphaned_label={'['+post_parent_removed.join(', ')+']'} style={{display:'inline'}}/>
+            }
+          </div>
         </div>
         <div className='comment-body-and-links' style={this.state.displayBody ? {} : {display: 'none'}}>
           <CommentBody {...props}/>
           <div className='comment-links'>
             { ! props.deleted &&
               <>
-                {props.quarantine && <span className="quarantined">quarantined</span>}
+                <QuarantinedLabel {...props}/>
                 { props.parent_context ?
                   <>
                     <a href={props.parent_context+'?removedby=missing'}>reveddit-parent</a>
