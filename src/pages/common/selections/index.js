@@ -79,7 +79,6 @@ class Selections extends React.Component {
   render () {
     const { subreddit, page_type, visibleItemsWithoutCategoryFilter, num_items, num_showing,
             category_type, category_title, category_unique_field,
-            oldestTimestamp, newestTimestamp
           } = this.props
     const { showFilters } = this.state
     let upvoteRemovalRateHistory = '', save_reset_buttons = ''
@@ -194,13 +193,11 @@ class Selections extends React.Component {
           </div>
         }
         {num_items ?
-          <Pagination oldestTimestamp={oldestTimestamp} newestTimestamp={newestTimestamp}
-                      subreddit={subreddit} page_type={page_type}>
+          <Pagination subreddit={subreddit} page_type={page_type}>
             <ResultsSummary num_showing={num_showing}
                             category_type={category_type}
                             category_unique_field={category_unique_field}
-                            page_type={page_type}
-                            oldestTimestamp={oldestTimestamp} newestTimestamp={newestTimestamp} />
+                            page_type={page_type} />
           </Pagination>
           : ''
         }

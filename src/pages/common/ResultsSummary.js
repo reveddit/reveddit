@@ -7,10 +7,15 @@ const posts_page_title = 'user-deleted posts that have no comments are not shown
 
 class ResultsSummary extends React.Component {
   render() {
-    const {num_showing, page_type, oldestTimestamp, newestTimestamp,
-          } = this.props
-    const {before, before_id, items, paginationMeta} = this.props.global.state
-
+    const {num_showing, page_type } = this.props
+    const {before, before_id, items, paginationMeta,
+           itemsSortedByDate = []
+          } = this.props.global.state
+    let {oldestTimestamp, newestTimestamp} = this.props.global.state
+    if (! oldestTimestamp && itemsSortedByDate.length) {
+      oldestTimestamp = itemsSortedByDate[0].created_utc
+      newestTimestamp = itemsSortedByDate[itemsSortedByDate.length-1].created_utc
+    }
     const youngest_pretty = getPrettyDate(newestTimestamp)
     const oldest_pretty = getPrettyDate(oldestTimestamp)
 

@@ -220,6 +220,7 @@ export const getRevdditSearch = (global) => {
       })
       items = newItems
     }
-    global.setSuccess({items})
+    items.sort((a,b) => a.created_utc - b.created_utc)
+    global.setSuccess({items, itemsSortedByDate: items})
   })
 }

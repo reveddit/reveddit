@@ -405,7 +405,8 @@ const searchRedditAndPushshiftPosts = (global, searchInput) => {
       redditPosts: Object.values(redditPosts),
       includePostsWithZeroComments: true})
     .then(items => {
-      global.setState({items})
+      items.sort((a,b) => a.created_utc - b.created_utc)
+      global.setState({items, itemsSortedByDate: items})
       return Promise.all(pushshift_promises)
       .then(pushshift_results => {
         if (pushshift_results.length === 1) {
@@ -421,7 +422,8 @@ const searchRedditAndPushshiftPosts = (global, searchInput) => {
     })
   })
   .then(items => {
-    global.setSuccess({items})
+    items.sort((a,b) => a.created_utc - b.created_utc)
+    global.setSuccess({items, itemsSortedByDate: items})
     return items
   })
 }

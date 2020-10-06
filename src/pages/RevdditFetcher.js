@@ -329,19 +329,9 @@ export const withFetch = (WrappedComponent) =>
       const removedByFilterIsUnset = this.props.global.removedByFilterIsUnset()
       const tagsFilterIsUnset = this.props.global.tagsFilterIsUnset()
       const visibleItems = []
-      let oldestTimestamp = 0, newestTimestamp = 0
       const gs = this.props.global.state
       const filteredActions = filterSelectedActions(Object.keys(gs.removedByFilter))
-      if (gs.items.length) {
-        oldestTimestamp = gs.items[0].created_utc
-        newestTimestamp = oldestTimestamp
-      }
       gs.items.forEach(item => {
-        if (item.created_utc > newestTimestamp) {
-          newestTimestamp = item.created_utc
-        } else if (item.created_utc < oldestTimestamp) {
-          oldestTimestamp = item.created_utc
-        }
         if (
           (gs.removedFilter === removedFilter_types.all ||
             (
@@ -390,7 +380,7 @@ export const withFetch = (WrappedComponent) =>
           }
         }
       })
-      return {visibleItemsWithoutCategoryFilter: visibleItems, oldestTimestamp, newestTimestamp}
+      return {visibleItemsWithoutCategoryFilter: visibleItems}
     }
     handleError = (error) => {
       console.error(error)

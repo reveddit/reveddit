@@ -229,7 +229,7 @@ class GlobalState extends Container {
         selfposts: true,
         itemsLookup: {},
         commentTree: [],
-        commentsSortedByDate: [],
+        itemsSortedByDate: [],
         initialFocusCommentID: '',
         commentParentsAndPosts: {},
         limitCommentDepth: true,
@@ -240,6 +240,7 @@ class GlobalState extends Container {
         add_user: '',
         alreadySearchedAuthors: {},
         all: false,
+        oldestTimestamp: undefined, newestTimestamp: undefined,
       }
   }
 

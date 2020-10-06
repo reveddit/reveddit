@@ -19,22 +19,22 @@ const Wrap = ({children}) => <div style={{padding: '15px 0', minHeight: '25px'}}
 
 const getAddUserMeta = (props, distance) => {
   const {itemsLookup, alreadySearchedAuthors, threadPost,
-   commentsSortedByDate, add_user, loading} = props.global.state
+   itemsSortedByDate, add_user, loading} = props.global.state
 
    const grandparentComment = getAncestor(props, itemsLookup, 2)
    const grandchildComment = ((props.replies[0] || {}).replies || [])[0] || {}
    // START nearby authors
    const authors_nearbyByDate = new Set()
    let distance_from_start = distance.current
-   if (commentsSortedByDate.length > 1) {
+   if (itemsSortedByDate.length > 1) {
      const comment_i = props.by_date_i
      while (authors_nearbyByDate.size < MAX_AUTHORS_NEARBY_BY_DATE) {
-       addAuthorIfExists(commentsSortedByDate[comment_i - distance_from_start], authors_nearbyByDate)
+       addAuthorIfExists(itemsSortedByDate[comment_i - distance_from_start], authors_nearbyByDate)
        if (authors_nearbyByDate.size < MAX_AUTHORS_NEARBY_BY_DATE) {
-         addAuthorIfExists(commentsSortedByDate[comment_i + distance_from_start], authors_nearbyByDate)
+         addAuthorIfExists(itemsSortedByDate[comment_i + distance_from_start], authors_nearbyByDate)
        }
        distance_from_start += 1
-       if (   (comment_i+distance_from_start) >= commentsSortedByDate.length
+       if (   (comment_i+distance_from_start) >= itemsSortedByDate.length
            && (comment_i-distance_from_start) < 0) {
          break
        }
@@ -59,7 +59,7 @@ const FindCommentViaAuthors = (props) => {
   const augRef = useRef(null)
   let searchButton = ''
   const {itemsLookup, alreadySearchedAuthors, threadPost,
-         commentsSortedByDate, add_user, loading, authors:globalAuthors} = props.global.state
+         itemsSortedByDate, add_user, loading, authors:globalAuthors} = props.global.state
   //TODO: check that distance updates properly
   //      -
   if (! augRef.current && ! loading) {

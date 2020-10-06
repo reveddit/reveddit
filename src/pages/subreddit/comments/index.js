@@ -39,13 +39,12 @@ class SubredditComments extends React.Component {
   render () {
     const { subreddit } = this.props.match.params
     const { page_type, viewableItems, selections, notShownMsg, archiveDelayMsg,
-            oldestTimestamp, newestTimestamp,
           } = this.props
     const {items, loading, localSort, localSortReverse, hasVisitedUserPage,
-           paginationMeta} = this.props.global.state
+           paginationMeta, oldestTimestamp, newestTimestamp,
+          } = this.props.global.state
     const noItemsFound = items.length === 0 && ! loading
     const items_sorted = viewableItems
-
     if (localSort === localSort_types.date) {
       items_sorted.sort( reversible(byDate, localSortReverse) )
     } else if (localSort === localSort_types.date_observed) {

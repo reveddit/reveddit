@@ -32,7 +32,10 @@ export const getRevdditMissingComments = (subreddit, global) => {
         setMissingCommentMeta(c, missingComments)
       }
       setPostAndParentDataForComments(combinedComments_array, postData)
-      return global.setSuccess({items: combinedComments_array, paginationMeta: missingCommentsMeta})
+      combinedComments_array.sort((a,b) => a.created_utc - b.created_utc)
+      return global.setSuccess({items: combinedComments_array,
+                                itemsSortedByDate: combinedComments_array,
+                                paginationMeta: missingCommentsMeta})
     })
   })
 }

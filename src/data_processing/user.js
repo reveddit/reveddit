@@ -148,6 +148,7 @@ export const getRevdditUserItems = async (user, kind, global) => {
 function getItems (user, kind, global, sort, before = '', after = '', time, limit, all = false) {
   const gs = global.state
   const {commentParentsAndPosts} = gs
+  let {oldestTimestamp, newestTimestamp} = gs
   return queryUserPage(user, kind, sort, before, after, time, limit, oauth_reddit_rev)
   .then(async (userPageData) => {
     if ('error' in userPageData) {
@@ -186,6 +187,14 @@ function getItems (user, kind, global, sort, before = '', after = '', time, limi
     userPageData.items.forEach(item => {
       userPage_item_lookup[item.name] = item
       ids.push(item.name)
+      if (! oldestTimestamp) {
+        oldestTimestamp = item.created_utc
+        newestTimestamp = item.created_utc
+      } else if (item.created_utc > newestTimestamp) {
+        newestTimestamp = item.created_utc
+      } else if (item.created_utc < oldestTimestamp) {
+        oldestTimestamp = item.created_utc
+      }
       if (isPost(item)) {
         item.selftext = ''
       } else {
@@ -230,7 +239,9 @@ function getItems (user, kind, global, sort, before = '', after = '', time, limi
         return comment_parent_and_post_promise.then(commentParentsAndPosts_new => {
           Object.assign(commentParentsAndPosts, commentParentsAndPosts_new)
           setPostAndParentDataForComments(comments, commentParentsAndPosts)
-          return global.setState({items, num_pages, userNext: userPageData.after, commentParentsAndPosts})
+          return global.setState({items, num_pages, userNext: userPageData.after,
+            commentParentsAndPosts, oldestTimestamp, newestTimestamp
+          })
           .then(() => {
             if (userPageData.after && all) {
               return getItems(user, kind, global, sort, '', userPageData.after, time, limit, all)

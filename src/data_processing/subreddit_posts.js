@@ -77,6 +77,7 @@ export const combinedGetItemsBySubredditOrDomain = (args) => {
     // make sure previous promise completes b/c it sets state
     const newCombinePromise = combinePromise.then(() => {
       const {items, itemsLookup} = global.state
+      let {oldestTimestamp, newestTimestamp} = global.state
       let foundStartingPoint = false
       let pushshiftItems = {}, pushshiftItemsAll = {}
       // this loop does duplicate checking b/c pushshift does not support before_id.
@@ -90,12 +91,19 @@ export const combinedGetItemsBySubredditOrDomain = (args) => {
           if (! before_id || foundStartingPoint) {
             pushshiftItems[item.id] = item
             itemsLookup[item.id] = item
+            if (! newestTimestamp) {
+              newestTimestamp = item.created_utc
+            }
           }
+          oldestTimestamp = item.created_utc
         }
       }
       if (before_id && ! foundStartingPoint) {
         console.error('data displayed is an approximation, starting id not found in first set of results: '+before_id)
         pushshiftItems = pushshiftItemsAll
+        if (! newestTimestamp && pushshiftItemsUnfiltered.length) {
+          newestTimestamp = pushshiftItemsUnfiltered[0].created_utc
+        }
       }
       return modlogs_promise.then(modlogsItems => {
         Object.values(modlogsItems).forEach(item => {
@@ -106,7 +114,7 @@ export const combinedGetItemsBySubredditOrDomain = (args) => {
           {[postProcessCombine_ItemsArgName]: pushshiftItems, subreddit_about_promise})
         .then(combinedItems => {
           const allItems = items.concat(combinedItems)
-          return global.setState({items: allItems, itemsLookup})
+          return global.setState({items: allItems, itemsLookup, oldestTimestamp, newestTimestamp})
           .then(() => allItems)
         })
       })
