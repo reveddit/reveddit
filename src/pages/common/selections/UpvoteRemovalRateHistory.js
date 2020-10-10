@@ -241,13 +241,11 @@ class UpvoteRemovalRateHistory extends React.Component {
       <Query
         query={gql`
           query($subreddit:String!, $limit:Int!){
-            ${commentFunction}(args: {subreddit: $subreddit},
-                               limit: $limit) {
+            ${commentFunction}(args: {subreddit: $subreddit, num_records: $limit} ) {
               body
               ${commonFields.join('\n')}
             }
-            ${postFunction}(args: {subreddit: $subreddit},
-                           limit: $limit) {
+            ${postFunction}(args: {subreddit: $subreddit, num_records: $limit}) {
               ${commonFields.join('\n')}
               num_comments
             }
