@@ -25,13 +25,10 @@
   "dependencies": {
     "@babel/polyfill": "^7.10.1",
     "@babel/runtime": "^7.10.2",
-    "apollo-boost": "^0.4.7",
     "bowser": "^2.9.0",
     "github-fork-ribbon-css": "^0.2.3",
-    "graphql": "^14.2.1",
     "js-detect-incognito-private-browsing": "https://github.com/Maykonn/js-detect-incognito-private-browsing-paywall#v2.5.1",
     "react": "^16.12.0",
-    "react-apollo": "^3.1.3",
     "react-dom": "^16.12.0",
     "react-modal": "^3.8.2",
     "react-router": "^5.1.2",

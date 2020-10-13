@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from 'react'
+import React, { lazy } from 'react'
 import {connect} from 'state'
 import RemovedFilter from 'pages/common/selections/RemovedFilter'
 import RemovedByFilter from 'pages/common/selections/RemovedByFilter'
@@ -12,39 +12,12 @@ import TagsFilter from 'pages/common/selections/TagsFilter'
 import ResultsSummary from 'pages/common/ResultsSummary'
 import Selfposts from 'pages/common/selections/Selfposts'
 import { SimpleURLSearchParams } from 'utils'
-import ErrorBoundary from 'components/ErrorBoundary'
 import Pagination from 'components/Pagination'
-
-import { ApolloProvider } from 'react-apollo'
-import { ApolloClient } from 'apollo-client'
-import { InMemoryCache } from 'apollo-cache-inmemory'
-import { HttpLink } from 'apollo-link-http'
 
 const UpvoteRemovalRateHistory = lazy(() => import('pages/common/selections/UpvoteRemovalRateHistory'))
 
 const paramKey = 'showFilters'
 
-// disable preflight request, which can't be cached by cloudflare, by using customFetch
-const customFetch = (uri, options) => {
-  const fetchOptions = {
-    credentials: 'same-origin',
-    method: "GET",
-    headers: {
-      accept: '*/*'
-    },
-    signal: options.signal
-  }
-  return fetch(decodeURI(uri), fetchOptions)
-}
-
-const apolloClient = new ApolloClient({
-  cache: new InMemoryCache(),
-  link: new HttpLink({
-    uri: REVEDDIT_GRAPHQL_HOST + 'graphql-get/',
-    fetch: customFetch,
-    useGETForQueries: true
-  }),
-})
 
 class Selections extends React.Component {
   state = {
@@ -83,14 +56,7 @@ class Selections extends React.Component {
     const { showFilters } = this.state
     let upvoteRemovalRateHistory = '', save_reset_buttons = ''
     if (['subreddit_posts', 'subreddit_comments', 'thread'].includes(page_type)) {
-      upvoteRemovalRateHistory = (
-        <ErrorBoundary>
-          <Suspense fallback={<div>Loading...</div>}>
-            <ApolloProvider client={apolloClient}>
-              <UpvoteRemovalRateHistory subreddit={subreddit} page_type={page_type}/>
-            </ApolloProvider>
-          </Suspense>
-        </ErrorBoundary> )
+      upvoteRemovalRateHistory = <UpvoteRemovalRateHistory subreddit={subreddit} page_type={page_type}/>
     }
     const categoryFilter = <CategoryFilter page_type={page_type}
       visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}

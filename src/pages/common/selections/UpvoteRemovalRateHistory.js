@@ -1,35 +1,34 @@
 import React from 'react'
 import { connect } from 'state'
-import { Query } from 'react-apollo'
-import gql from 'graphql-tag'
 import * as d3 from 'd3'
 import CommentPreview from 'pages/common/CommentPreview'
 import PostPreview from 'pages/common/PostPreview'
 import { kFormatter, SimpleURLSearchParams, ifNumParseInt,
          PATH_STR_SUB,
 } from 'utils'
+import { Fetch } from 'hooks/fetch'
 
 
 class Sparkline extends React.PureComponent {
   constructor(props) {
-    super(props);
-    this.xScale = d3.scaleLinear();
-    this.yScale = d3.scaleLinear();
-    this.line = d3.line();
-    this._updateDataTransforms(props);
+    super(props)
+    this.xScale = d3.scaleLinear()
+    this.yScale = d3.scaleLinear()
+    this.line = d3.line()
+    this._updateDataTransforms(props)
   }
   componentDidMount() {
-    const self = this;
+    const self = this
     d3.select('.graph svg')
-    .on('mousemove', function() { self._onMouseMove(d3.mouse(this)[0]); })
-    .on('click', function() { self._onMouseClick(d3.mouse(this)[0]); })
-    .on('mouseleave', function() { self._onMouseMove(null); });
+    .on('mousemove', function() { self._onMouseMove(d3.mouse(this)[0]) })
+    .on('click', function() { self._onMouseClick(d3.mouse(this)[0]) })
+    .on('mouseleave', function() { self._onMouseMove(null) })
   }
   componentDidUpdate(newProps) {
-    this._updateDataTransforms(newProps);
+    this._updateDataTransforms(newProps)
   }
   _updateDataTransforms(props) {
-    const {xAccessor, yAccessor, width, height, data} = props;
+    const {xAccessor, yAccessor, width, height, data} = props
     let len = data.length, min = Infinity, max = -Infinity
     while (len--) {
       const val = data[len].y.rate
@@ -42,60 +41,60 @@ class Sparkline extends React.PureComponent {
     }
     this.xScale
       .domain([0, data.length])
-      .range([0, width]);
+      .range([0, width])
     this.yScale
       .domain([min, max])
-      .range([height, 0]);
+      .range([height, 0])
     this.line
       .x((d, i) => this.xScale(xAccessor(d, i)))
-      .y((d, i) => this.yScale(yAccessor(d, i)));
-    this.bisectByX = d3.bisector(xAccessor).left;
+      .y((d, i) => this.yScale(yAccessor(d, i)))
+    this.bisectByX = d3.bisector(xAccessor).left
   }
   _onMouseClick(xPixelPos) {
-    const {data, onClick, xAccessor} = this.props;
+    const {data, onClick, xAccessor} = this.props
     if (xPixelPos === null) {
-      onClick(null, null);
+      onClick(null, null)
     }
     else {
-      const xValue = this.xScale.invert(xPixelPos);
-      const i = this._findClosest(data, xValue, xAccessor);
-      onClick(data[i], i);
+      const xValue = this.xScale.invert(xPixelPos)
+      const i = this._findClosest(data, xValue, xAccessor)
+      onClick(data[i], i)
     }
   }
   _onMouseMove(xPixelPos) {
-    const {data, onHover, xAccessor} = this.props;
+    const {data, onHover, xAccessor} = this.props
     if (xPixelPos === null) {
-      onHover(null, null);
+      onHover(null, null)
     }
     else {
-      const xValue = this.xScale.invert(xPixelPos);
-      const i = this._findClosest(data, xValue, xAccessor);
-      onHover(data[i], i);
+      const xValue = this.xScale.invert(xPixelPos)
+      const i = this._findClosest(data, xValue, xAccessor)
+      onHover(data[i], i)
     }
   }
   _findClosest(array, value, accessor) {
     if (!array || !array.length) {
-      return null;
+      return null
     }
 
-    const bisect = d3.bisector(accessor).right;
-    const pointIndex = bisect(array, value);
+    const bisect = d3.bisector(accessor).right
+    const pointIndex = bisect(array, value)
     const left_i = pointIndex - 1
     const right_i = pointIndex
-    const left = array[left_i], right = array[right_i];
+    const left = array[left_i], right = array[right_i]
 
-    let i;
+    let i
 
     // take the closer element
     if (left && right) {
-      i = Math.abs(value - accessor(left)) < Math.abs(value - accessor(right)) ? left_i : right_i;
+      i = Math.abs(value - accessor(left)) < Math.abs(value - accessor(right)) ? left_i : right_i
     } else if (left) {
-      i = left_i;
+      i = left_i
     } else {
-      i = right_i;
+      i = right_i
     }
 
-    return i;
+    return i
   }
 
   render() {
@@ -119,7 +118,7 @@ class Sparkline extends React.PureComponent {
           style={{strokeWidth: '2px', stroke: 'red', opacity: .65}}
         />
       )
-      : null;
+      : null
     return (
       <svg width={width} height={height} ref="svg">
         <path
@@ -128,13 +127,13 @@ class Sparkline extends React.PureComponent {
         />
         {hoveredRender}
       </svg>
-    );
+    )
   }
 }
 Sparkline.defaultProps = {
   xAccessor: ({x}) => x,
   yAccessor: ({y}) => y.rate,
-};
+}
 
 
 
@@ -229,51 +228,34 @@ class UpvoteRemovalRateHistory extends React.Component {
     const {page_type, subreddit} = this.props
     const {clicked} = this.state
     let {hovered} = this.state
+    let sort = 'top'
+    let type = 'comments'
+    const limit = this.state[numGraphPointsParamKey]
     let preview = ''
-    let commentFunction = 'getcommentupvoteremovedratesbyrate'
-    let postFunction = 'getpostupvoteremovedratesbyrate'
     if (this.state[sortByParamKey] === 'last_created_utc') {
-      commentFunction = 'getcommentupvoteremovedratesbydate'
-      postFunction = 'getpostupvoteremovedratesbydate'
+      sort = 'new'
     }
-
+    if (this.state[contentTypeParamKey] === 'posts') {
+      type = 'posts'
+    }
+    // Passing a render callback to a component: https://americanexpress.io/faccs-are-an-antipattern/#render-props:~:text=pass%20a%20render%20callback%20function%20to%20a%20component%20in%20a%20clean%20manner%3F
     return (
-      <Query
-        query={gql`
-          query($subreddit:String!, $limit:Int!){
-            ${commentFunction}(args: {subreddit: $subreddit, num_records: $limit} ) {
-              body
-              ${commonFields.join('\n')}
-            }
-            ${postFunction}(args: {subreddit: $subreddit, num_records: $limit}) {
-              ${commonFields.join('\n')}
-              num_comments
-            }
-          }
-      `}
-      variables={{subreddit, limit: this.state[numGraphPointsParamKey]}}
-      >
-        {({ loading, error, data }) => {
-          if (loading) return <p>Loading...</p>;
-          if (error) return <p>Error :(</p>;
-
-          let selected_data = []
-          if (this.state[contentTypeParamKey] === 'comments') {
-            selected_data = data[commentFunction]
-          } else {
-            selected_data = data[postFunction]
-          }
-          selected_data = selected_data.sort((a,b) => a.last_created_utc - b.last_created_utc).map((y, x) => { return {x, y}; })
+      <Fetch url={REVEDDIT_FLASK_HOST + `aggregations/?type=${type}&subreddit=${subreddit}&limit=${limit}&sort=${sort}`}
+        render={({ loading, error, data }) => {
+          if (loading) return <p>Loading...</p>
+          if (error) return <p>Error :(</p>
+          // turn data into graph points: [{x: 0, y: item}, {x: 1, y: item}]
+          data = data.sort((a,b) => a.last_created_utc - b.last_created_utc).map((y, x) => { return {x, y} })
           const before_id = new SimpleURLSearchParams(window.location.search).get('before_id')
           if (! hovered && before_id) {
-            selected_data.forEach(point => {
+            data.forEach(point => {
               if (point.y.last_id == before_id) {
                 hovered = point
               }
             })
           }
           if (hovered) {
-            if (this.state[contentTypeParamKey] === 'comments') {
+            if (type === 'comments') {
               preview = <CommentPreview {...hovered.y}/>
             } else {
               preview = <PostPreview {...hovered.y}/>
@@ -297,7 +279,7 @@ class UpvoteRemovalRateHistory extends React.Component {
                         return (
                           <label key={n}>
                             <input type='radio' value={n}
-                                   checked={this.state[numGraphPointsParamKey] == n}
+                                   checked={limit == n}
                                    onChange={(e) =>
                                        this.updateStateAndURL(numGraphPointsParamKey,
                                                               parseInt(e.target.value),
@@ -312,7 +294,7 @@ class UpvoteRemovalRateHistory extends React.Component {
                     <label className='filter-name' title="sort order of database retrieval. results are resorted by date for graph display">
                       sort</label>
                     <label>
-                      <input type='radio' value='rate' checked={this.state[sortByParamKey] == 'rate'}
+                      <input type='radio' value='rate' checked={sort == 'top'}
                         onChange={(e) =>
                             this.updateStateAndURL(sortByParamKey,
                                                    e.target.value,
@@ -320,7 +302,7 @@ class UpvoteRemovalRateHistory extends React.Component {
                       <span>top</span>
                     </label>
                     <label>
-                      <input type='radio' value='last_created_utc' checked={this.state[sortByParamKey] == 'last_created_utc'}
+                      <input type='radio' value='last_created_utc' checked={sort == 'new'}
                         onChange={(e) =>
                             this.updateStateAndURL(sortByParamKey,
                                                    e.target.value,
@@ -332,7 +314,7 @@ class UpvoteRemovalRateHistory extends React.Component {
                     <label className='filter-name'>
                       type</label>
                     <label>
-                      <input type='radio' value='comments' checked={this.state[contentTypeParamKey] == 'comments'}
+                      <input type='radio' value='comments' checked={type === 'comments'}
                         onChange={(e) =>
                             this.updateStateAndURL(contentTypeParamKey,
                                                    e.target.value,
@@ -340,7 +322,7 @@ class UpvoteRemovalRateHistory extends React.Component {
                       <span>comments</span>
                     </label>
                     <label>
-                      <input type='radio' value='posts' checked={this.state[contentTypeParamKey] == 'posts'}
+                      <input type='radio' value='posts' checked={type === 'posts'}
                         onChange={(e) =>
                             this.updateStateAndURL(contentTypeParamKey,
                                                    e.target.value,
@@ -352,7 +334,7 @@ class UpvoteRemovalRateHistory extends React.Component {
               }
               <div className='graph'>
                 <Sparkline
-                  data={selected_data}
+                  data={data}
                   width={200}
                   height={50}
                   hovered={hovered}
@@ -366,7 +348,7 @@ class UpvoteRemovalRateHistory extends React.Component {
             </div>
           )
         }}
-      </Query>
+      />
 
     )
   }
