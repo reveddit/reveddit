@@ -19,7 +19,7 @@ export default () => {
     const queryParams = new SimpleURLSearchParams(window.location.search)
     queryParams.set('all', 'true')
 
-    const val = data.get('username').trim()
+    const val = data.get('username').trim().replace(/^u(?:ser)?\//i, '')
     // remove amp from user-entered URLs
     const val_noamp = val.replace(/^(https?:\/\/)www.google.com\/amp(\/[^.]*)*\/(amp\.)?/i,"$1")
     let url = '/'
