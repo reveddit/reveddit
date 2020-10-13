@@ -62,7 +62,7 @@ export default () => {
   return (
     <div className='blank_page'>
       <div className='text'>
-        Enter a reddit username to view removed content (blank for random), or enter a link, subreddit <a className='pointer' onClick={() => {setInput('r/'); setInputFocus()}}>(r/)</a> or domain:
+        Reveal reddit's removed content for users, subreddits <a className='pointer' onClick={() => {setInput('r/'); setInputFocus()}}>(r/)</a>, links and domains:
       </div>
       <form id='user-form' onSubmit={handleSubmitUser}>
         <input ref={inputRef} id='search' type='text' name='username' placeholder='user, r/sub or url' autoFocus='autoFocus'
@@ -78,6 +78,7 @@ export default () => {
       </form>
       <div className='text'>
         Conversations are better when users <a target='_blank' href={www_reddit+'/r/science/comments/duwdco/should_moderators_provide_removal_explanations/f79o1yr/'}>receive feedback</a> about removed content.
+        Reveddit does not display user-deleted content.
       </div>
     </div>
   )
