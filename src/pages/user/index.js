@@ -47,7 +47,6 @@ const User = ({match, global, page_type, viewableItems, selections, notShownMsg}
     if (! after && userNext) {
       loadAllLink = <LoadLink user={user}
                      kind={kind}
-                     show={show}
                      loadAll={true}/>
     }
   }
@@ -57,7 +56,6 @@ const User = ({match, global, page_type, viewableItems, selections, notShownMsg}
     nextLink = <div className='non-item'>
       <LoadLink user={user}
        kind={kind}
-       show={show}
        loadAll={false}/></div>
   } else if (userIssueDescription) {
     error = <div className='non-item text' dangerouslySetInnerHTML={{ __html: user +' '+ userIssueDescription }}></div>

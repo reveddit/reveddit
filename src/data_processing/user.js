@@ -134,11 +134,24 @@ export const getRevdditUserItems = async (user, kind, global) => {
       })
     }
   })
+
   getModeratedSubreddits(user).then(moderated_subreddits => global.setState({moderated_subreddits}))
-  return getItems(user, kind, global, sort, before, after || gs.userNext, t, limit, all)
+  const params_pre_after = [user, kind, global, sort, before]
+  const params_post_after = [t, limit, all]
+  return getItems(...params_pre_after, after || gs.userNext, ...params_post_after)
   .then(result => {
     return lookupAndSetRemovedBy(global)
     .then( tempres => {
+      window.onscroll = (ev) => {
+        const {loading, userNext, show} = global.state
+        if (userNext && ! loading && ! show && (window.innerHeight + window.pageYOffset) >= document.body.offsetHeight - 2) {
+          global.setLoading('')
+          .then(() => {
+            getItems(...params_pre_after, userNext, ...params_post_after)
+            .then(() => global.setSuccess())
+          })
+        }
+      }
       global.setSuccess()
       return result
     })

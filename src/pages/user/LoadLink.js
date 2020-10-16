@@ -7,7 +7,7 @@ import { SimpleURLSearchParams } from 'utils'
 class LoadLink extends React.Component {
 
   render() {
-    const userPage_after = this.props.global.state.userNext
+    const {userNext, show} = this.props.global.state
     let className = 'load-next'
     let text = 'view more'
     let to = window.location.pathname+window.location.search
@@ -20,7 +20,7 @@ class LoadLink extends React.Component {
       className = 'load-all'
       text = 'load all'
     }
-    if (userPage_after && ! this.props.show) {
+    if (userNext && ! show) {
       return <Link className={className} to={to} onClick={() => {
         this.props.global.setLoading('', otherState)
         .then(() => {
