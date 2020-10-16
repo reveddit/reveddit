@@ -32,6 +32,9 @@ const NewsItem = ({href, to, title, created_utc}) => {
 }
 
 const news = [
+  {href:`${www_reddit}/r/RethinkReddit`,
+   title:'r/RethinkReddit',
+   created_utc:'1602822760'},
   {href:`${www_reddit}/hq7a8s/`,
    title:'Showing archive delay',
    created_utc:'1594608021'},
