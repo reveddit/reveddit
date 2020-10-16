@@ -182,6 +182,7 @@ export class About extends React.Component {
                 <ul>
                   <li><a href={PATH_STR_USER+'/redditor_3975/'}>user/redditor_3975</a></li>
                   <li><a href={PATH_STR_SUB+'/all/'}>r/all</a></li>
+                  <li><a href={PATH_STR_SUB+'/all/missing-comments/'}>r/all/missing-comments</a></li>
                   <li><a href={PATH_STR_SUB+'/cant_say_goodbye/'}>r/cant_say_goodbye</a></li>
                   <li><a href={PATH_STR_SUB+'/cant_say_goodbye/comments'}>r/.../comments</a></li>
                   <li><a href={PATH_STR_SUB+'/cant_say_goodbye/comments/9ffoqz/comments_mentioning_goodbye_are_removed/'}>r/.../comments/9ffoqz/</a></li>
