@@ -8,6 +8,7 @@ import ItemsPerPage from 'pages/common/selections/ItemsPerPage'
 import RedditSort from 'pages/common/selections/RedditSort'
 import Content from 'pages/common/selections/Content'
 import TextFilter from 'pages/common/selections/TextFilter'
+import PostFlairFilter from 'pages/common/selections/PostFlairFilter'
 import TagsFilter from 'pages/common/selections/TagsFilter'
 import ResultsSummary from 'pages/common/ResultsSummary'
 import Selfposts from 'pages/common/selections/Selfposts'
@@ -61,7 +62,10 @@ class Selections extends React.Component {
     const categoryFilter = <CategoryFilter page_type={page_type}
       visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
       type={category_type} title={category_title} unique_field={category_unique_field}/>
-    const textFilter = <TextFilter page_type={page_type} />
+    const textFilters = <>
+      <TextFilter page_type={page_type} />
+      <PostFlairFilter page_type={page_type} />
+    </>
     if (showFilters) {
       const save = <a className='pointer' onClick={() => this.props.global.saveDefaults(page_type)}>save</a>
       const reset = <a className='pointer' onClick={() => this.props.global.resetDefaults(page_type)}>reset</a>
@@ -101,7 +105,7 @@ class Selections extends React.Component {
                       <TagsFilter page_type={page_type}/>
                       <div>
                         {categoryFilter}
-                        {textFilter}
+                        {textFilters}
                       </div>
                       {subreddit !== 'all' && page_type === 'subreddit_posts' &&
                         upvoteRemovalRateHistory
@@ -123,7 +127,7 @@ class Selections extends React.Component {
                       <TagsFilter page_type={page_type}/>
                       <div>
                         {categoryFilter}
-                        {textFilter}
+                        {textFilters}
                       </div>
                       {subreddit !== 'all' &&
                         upvoteRemovalRateHistory
@@ -139,7 +143,7 @@ class Selections extends React.Component {
                       <TagsFilter page_type={page_type}/>
                       <div>
                         {categoryFilter}
-                        {textFilter}
+                        {textFilters}
                       </div>
                     </>)
                 case 'thread':

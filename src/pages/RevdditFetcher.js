@@ -347,7 +347,7 @@ export const withFetch = (WrappedComponent) =>
             (tagsFilterIsUnset || itemIsOneOfSelectedTags(item, gs)))
         ) {
           const keywords = gs.keywords.toString().replace(/\s\s+/g, ' ').trim().toLocaleLowerCase().match(/(-?"[^"]+"|[^"\s]+)/g) || []
-          let match = true, negWordMatch = false
+          let match = true
           let titleField = ''
           if ('title' in item) {
             titleField = 'title'
@@ -373,6 +373,24 @@ export const withFetch = (WrappedComponent) =>
             if ((! negateWord && ! word_in_item) || (negateWord && word_in_item)) {
               match = false
               break
+            }
+          }
+          //TODO: consolidate below and above code into function(s)
+          const flairwords = gs.post_flair.toString().replace(/\s\s+/g, ' ').trim().toLocaleLowerCase().match(/(-?"[^"]+"|[^"\s]+)/g) || []
+          if (match && flairwords.length) {
+            for (let i = 0; i < flairwords.length; i++) {
+              const negateFlair = flairwords[i].startsWith('-') ? true : false
+              let word = flairwords[i].replace(/^-/,'')
+              const isPhraseRegex = word.startsWith('"') ? true : false
+              if (isPhraseRegex) {
+                word = word.replace(/^"(.+)"$/,"$1")
+              }
+              const word_in_flair = ( item.link_flair_text
+                                      && matchOrIncludes(item.link_flair_text.toLocaleLowerCase(), word, isPhraseRegex))
+              if ((! negateFlair && ! word_in_flair) || (negateFlair && word_in_flair)) {
+                match = false
+                break
+              }
             }
           }
           if (match) {

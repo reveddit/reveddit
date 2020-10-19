@@ -5,19 +5,24 @@ import debounce from 'lodash/debounce'
 import { QuestionMark } from 'pages/common/svg'
 import ModalContext from 'contexts/modal'
 
-const help =
-  <div>
-    <h3>Word filter help</h3>
-    <p>Matches content containing ALL keywords</p>
-    <p>To negate, prefix the word with - (minus sign)</p>
-    <p>Phrase search "using quotes". Phrases are treated as javascript regular expressions. Examples,</p>
-    <ul>
-      <li>fox trot -delta</li>
-      <li>"find this phrase" -"not this one"</li>
-      <li>"\?": find a question mark</li>
-      <li>"this|that": match ANY words (must use quotes)</li>
-    </ul>
-  </div>
+export const help = (title = '') => {
+  return (
+    <div>
+      <h3>{title} filter help</h3>
+      <p>Matches content containing ALL keywords</p>
+      <p>To negate, prefix the word with - (minus sign)</p>
+      <p>Phrase search "using quotes". Phrases are treated as javascript regular expressions. Examples,</p>
+      <ul>
+        <li>fox trot -delta</li>
+        <li>"find this phrase" -"not this one"</li>
+        <li>"\?": find a question mark</li>
+        <li>"this|that": match ANY words (must use quotes)</li>
+      </ul>
+    </div>
+  )
+}
+
+const word_help = help('Title/Body')
 
 class TextFilter extends React.Component {
   static contextType = ModalContext
@@ -41,7 +46,7 @@ class TextFilter extends React.Component {
     const modal = this.context
     return (
       <div className={`textFilter selection filter ${textValue.trim().length !== 0 ? 'set': ''}`}>
-        <div className='title nowrap'>Word filter<a className='pointer' onClick={() => modal.openModal({content:help})}>
+        <div className='title nowrap'>Title/Body<a className='pointer' onClick={() => modal.openModal({content:word_help})}>
             <QuestionMark style={{marginLeft: '10px'}} wh='20'/>
           </a>
         </div>
