@@ -158,6 +158,29 @@ const getLoadDataFunctionAndParam = (
 const MAX_COLLAPSED_VISIBLE = 2
 const MAX_ORPHANED_VISIBLE = 2
 
+const itemMatches = (item, searchString, fields) => {
+  const keywords = searchString.toString().replace(/\s\s+/g, ' ').trim().toLocaleLowerCase().match(/(-?"[^"]+"|[^"\s]+)/g) || []
+  for (let i = 0; i < keywords.length; i++) {
+    const negateWord = keywords[i].startsWith('-') ? true : false
+    let word = keywords[i].replace(/^-/,'')
+    const isPhraseRegex = word.startsWith('"') ? true : false
+    if (isPhraseRegex) {
+      word = word.replace(/^"(.+)"$/,"$1")
+    }
+    let word_in_item = false
+    for (const field of fields) {
+      if (item[field] && matchOrIncludes(item[field].toLocaleLowerCase(), word, isPhraseRegex)) {
+        word_in_item = true
+        break
+      }
+    }
+    if ((! negateWord && ! word_in_item) || (negateWord && word_in_item)) {
+      return false
+    }
+  }
+  return true
+}
+
 export const withFetch = (WrappedComponent) =>
   class extends React.Component {
     state = {
@@ -346,52 +369,15 @@ export const withFetch = (WrappedComponent) =>
           ( (removedByFilterIsUnset || itemIsOneOfSelectedActions(item, ...filteredActions)) &&
             (tagsFilterIsUnset || itemIsOneOfSelectedTags(item, gs)))
         ) {
-          const keywords = gs.keywords.toString().replace(/\s\s+/g, ' ').trim().toLocaleLowerCase().match(/(-?"[^"]+"|[^"\s]+)/g) || []
-          let match = true
-          let titleField = ''
+          const title_body_fields = ['body']
           if ('title' in item) {
-            titleField = 'title'
+            title_body_fields.push('title')
           } else if ('link_title' in item) {
-            titleField = 'link_title'
+            title_body_fields.push('link_title')
           }
-          for (let i = 0; i < keywords.length; i++) {
-            const negateWord = keywords[i].startsWith('-') ? true : false
-            let word = keywords[i].replace(/^-/,'')
-            const isPhraseRegex = word.startsWith('"') ? true : false
-            if (isPhraseRegex) {
-              word = word.replace(/^"(.+)"$/,"$1")
-            }
-
-            let word_in_title = true
-            if (titleField) {
-              word_in_title = matchOrIncludes(item[titleField].toLocaleLowerCase(), word, isPhraseRegex)
-            }
-            const word_in_item = (('body' in item
-                                    && ( word_in_title
-                                      || matchOrIncludes(item.body.toLocaleLowerCase(), word, isPhraseRegex)))
-                                  || word_in_title)
-            if ((! negateWord && ! word_in_item) || (negateWord && word_in_item)) {
-              match = false
-              break
-            }
-          }
-          //TODO: consolidate below and above code into function(s)
-          const flairwords = gs.post_flair.toString().replace(/\s\s+/g, ' ').trim().toLocaleLowerCase().match(/(-?"[^"]+"|[^"\s]+)/g) || []
-          if (match && flairwords.length) {
-            for (let i = 0; i < flairwords.length; i++) {
-              const negateFlair = flairwords[i].startsWith('-') ? true : false
-              let word = flairwords[i].replace(/^-/,'')
-              const isPhraseRegex = word.startsWith('"') ? true : false
-              if (isPhraseRegex) {
-                word = word.replace(/^"(.+)"$/,"$1")
-              }
-              const word_in_flair = ( item.link_flair_text
-                                      && matchOrIncludes(item.link_flair_text.toLocaleLowerCase(), word, isPhraseRegex))
-              if ((! negateFlair && ! word_in_flair) || (negateFlair && word_in_flair)) {
-                match = false
-                break
-              }
-            }
+          let match = itemMatches(item, gs.keywords, title_body_fields)
+          if (match) {
+            match = itemMatches(item, gs.post_flair, ['link_flair_text'])
           }
           if (match) {
             visibleItems.push(item)
