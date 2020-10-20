@@ -6,6 +6,7 @@ export const MOD = 'mod'
 export const QUARANTINE = 'quarantine'
 export const ADMIN = 'admin'
 export const NONE = 'none'
+export const STICKIED = 'stickied'
 
 export const TAG_META = {[IS_OP]: {
                           field: 'is_op',
@@ -26,7 +27,11 @@ export const TAG_META = {[IS_OP]: {
                          [QUARANTINE]: {
                            field: 'quarantine',
                            values: [true],
-                           text: 'quarantined'}
+                           text: 'quarantined'},
+                         [STICKIED]: {
+                           field: 'stickied',
+                           values: [true],
+                           text: 'stickied'}
                          }
 
 class TagsFilter extends React.Component {

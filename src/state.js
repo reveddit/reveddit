@@ -65,6 +65,7 @@ export const urlParamKeys = {
   context: 'context',
   frontPage: 'frontPage',
   q: 'q', author: 'author', subreddit: 's_subreddit', after: 'after', domain: 's_domain', or_domain: 's_or_domain',
+  title: 'title', selftext: 'selftext',
   content: 'content',
   tagsFilter: 'tags',
   url: 'url',
@@ -75,7 +76,7 @@ export const urlParamKeys = {
   user_sort: 'user_sort',
   user_kind: 'user_kind',
   user_time: 'user_time',
-  t: 't', sort: 'sort', limit: 'limit', show: 'show', all:'all',
+  t: 't', sort: 'sort', limit: 'limit', show: 'show', all:'all', stickied: 'stickied'
 }
 
 export const removedFilter_types = {
@@ -137,12 +138,13 @@ export const filter_pageType_defaults = {
   id: '',
   context: '',
   frontPage: false,
-  q: '', author: '', subreddit: '', after: '', domain: '', or_domain: '',
+  q: '', author: '', subreddit: '', after: '', domain: '', or_domain: '', title: '', selftext: '',
   content: 'all', url: '',
   selfposts: true,
   limitCommentDepth: limitCommentDepth_global,
   add_user: '',
   sort: 'new', limit: 100, t: '',
+  stickied: undefined,
 }
 
 // pushshift max per call is now 100 (previously was 1000)
@@ -227,7 +229,7 @@ class GlobalState extends Container {
         id: '',
         context: '',
         frontPage: false,
-        q: '', author: '', subreddit: '', after: '', domain: '', or_domain: '',
+        q: '', author: '', subreddit: '', after: '', domain: '', or_domain: '', title: '', selftext: '',
         content: 'all', url: '',
         selfposts: true,
         itemsLookup: {},
@@ -244,6 +246,7 @@ class GlobalState extends Container {
         alreadySearchedAuthors: {},
         all: false,
         oldestTimestamp: undefined, newestTimestamp: undefined,
+        stickied: undefined
       }
   }
 
