@@ -231,14 +231,14 @@ const getYoutubeURLs = (id) => {
 
 
 const getUrlMeta = (url) => {
-  const url_nohttp = stripHTTP(url)
+  const url_nohttp = stripHTTP(url).replace(/((?:[^/]*\.|)twitter\.com\/)([^?]+)\?.*/i, '$1$2')
   const redditlikeDomainStripped = stripRedditLikeDomain_noHTTP(url_nohttp)
   const isRedditDomain = redditlikeDomainStripped.match(/^\//)
   const isRedditPostURL = redditlikeDomainStripped.match(new RegExp('^/['+PATHS_STR_SUB+']/[^/]*/comments/[a-z0-9]', 'i'))
   let pushshift_urls = [url_nohttp]
   let reddit_info_url = [url]
   let reddit_search_selftext = [url_nohttp]
-  let reddit_search_url = []
+  let reddit_search_url = [url_nohttp]
   const isYoutubeURL = url.match(/^https?:\/\/(?:www\.|m\.)?(youtube\.com|youtu\.be)\/(.+)/i)
   if (isRedditPostURL) {
     const minPostPath = getMinimalPostPath(redditlikeDomainStripped)
