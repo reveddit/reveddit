@@ -3,13 +3,12 @@ import { connect } from 'state'
 import { SimpleURLSearchParams } from 'utils'
 import debounce from 'lodash/debounce'
 import { QuestionMark } from 'pages/common/svg'
-import ModalContext from 'contexts/modal'
 import { help } from 'pages/common/selections/TextFilter'
+import { Selection } from './SelectionBase'
 
 const flair_help = help('Post Flair')
 
 class PostFlairFilter extends React.Component {
-  static contextType = ModalContext
   state = {local: ""}
 
   componentDidMount() {
@@ -27,18 +26,14 @@ class PostFlairFilter extends React.Component {
 
   render() {
     const textValue = this.state.local
-    const modal = this.context
     return (
-      <div className={`textFilter selection filter ${textValue.trim().length !== 0 ? 'set': ''}`}>
-        <div className='title nowrap'>Post Flair<a className='pointer' onClick={() => modal.openModal({content:flair_help})}>
-            <QuestionMark style={{marginLeft: '10px'}} wh='20'/>
-          </a>
-        </div>
+      <Selection className='textFilter' isFilter={true} isSet={textValue.trim().length !== 0}
+                 title='Post Flair' titleHelpModal={{content:flair_help}}>
         <input type='text'
           name='post_flair' value={textValue} placeholder='post flair'
           onChange={(e) => this.changeLocalFast_DelayedGlobalStateUpdate(e)}
         />
-      </div>
+      </Selection>
     )
   }
 }

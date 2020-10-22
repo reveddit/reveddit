@@ -1,5 +1,6 @@
 import React from 'react'
 import { connect } from 'state'
+import { Selection } from './SelectionBase'
 
 export const IS_OP = 'is_op'
 export const MOD = 'mod'
@@ -41,8 +42,7 @@ class TagsFilter extends React.Component {
     const tagsFilter = this.props.global.state.tagsFilter
     const updateStateAndURL = this.props.global.tagsFilter_update
     return (
-        <div className={`tagsFilter selection filter ${Object.keys(tagsFilter).length !== 0 ? 'set': ''}`}>
-          <div className='title'>Tags</div>
+        <Selection className='tagsFilter' isFilter={true} isSet={Object.keys(tagsFilter).length !== 0} title='Tags'>
           {
             Object.keys(TAG_META).map(type => {
               return (
@@ -59,7 +59,7 @@ class TagsFilter extends React.Component {
               )
             })
           }
-        </div>
+        </Selection>
     )
   }
 }

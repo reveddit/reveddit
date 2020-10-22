@@ -1,6 +1,7 @@
 import React from 'react'
 import { connect, create_qparams_and_adjust } from 'state'
 import { SimpleURLSearchParams } from 'utils'
+import { Selection } from './SelectionBase'
 
 const updateURL = (value) => {
   const queryParams = create_qparams_and_adjust('domain_posts', 'selfposts', value)
@@ -21,11 +22,10 @@ const getLink = (include_selfposts, selected) => {
 const Selfposts = (props) => {
   const {selfposts} = props.global.state
   return (
-      <div className='selfposts selection'>
-        <div className='title'>Selfposts</div>
-          {getLink(true, selfposts)}
-          {getLink(false, ! selfposts)}
-      </div>
+    <Selection className='selfposts' title='Selfposts'>
+      {getLink(true, selfposts)}
+      {getLink(false, ! selfposts)}
+    </Selection>
   )
 }
 

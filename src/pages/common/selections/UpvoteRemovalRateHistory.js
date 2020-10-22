@@ -7,6 +7,7 @@ import { kFormatter, SimpleURLSearchParams, ifNumParseInt,
          PATH_STR_SUB,
 } from 'utils'
 import { Fetch } from 'hooks/fetch'
+import { Selection } from './SelectionBase'
 
 
 class Sparkline extends React.PureComponent {
@@ -262,11 +263,9 @@ class UpvoteRemovalRateHistory extends React.Component {
             }
           }
           return (
-            <div className='upvoteRemovalRate selection'>
-              <div className='title' title='percentage upvotes removed over time'>Upvote Removal Rate</div>
-              <div className='toggleOptions'><a onClick={this.toggleDisplayOptions}
-                      className='collapseToggle'>
-                      {this.getDisplayOptionsText()}</a>
+            <Selection className='upvoteRemovalRate' title='Upvote Removal Rate' titleTitle='percentage upvotes removed over time'>
+              <div className='toggleOptions'>
+                <a onClick={this.toggleDisplayOptions} className='collapseToggle'>{this.getDisplayOptionsText()}</a>
               </div>
               {this.state.displayOptions &&
                 <div className='options'>
@@ -345,7 +344,7 @@ class UpvoteRemovalRateHistory extends React.Component {
                   {preview}
                 </div>
               </div>
-            </div>
+            </Selection>
           )
         }}
       />

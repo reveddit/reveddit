@@ -5,11 +5,10 @@ import { REMOVAL_META, ANTI_EVIL_REMOVED, USER_REMOVED, USER_REMOVED_META,
          ORPHANED, ORPHANED_META
 } from 'pages/common/RemovedBy'
 import { QuestionMark } from 'pages/common/svg'
-import ModalContext from 'contexts/modal'
+import { Selection } from './SelectionBase'
 
 
 const RemovedByFilter = (props) => {
-  const modal = React.useContext(ModalContext)
   const {page_type} = props
   const removedByFilter = props.global.state.removedByFilter
   let removal_meta = REMOVAL_META
@@ -30,31 +29,25 @@ const RemovedByFilter = (props) => {
   }
   const updateStateAndURL = props.global.removedByFilter_update
   return (
-      <div className={`removedbyFilter selection filter ${Object.keys(removedByFilter).length !== 0 ? 'set': ''}`}>
-        <div>
-          <div className='title' style={{display:'inline'}}>Action</div>
-          <a className='pointer' onClick={() => modal.openModal({hash:'action_help'})}>
-            <QuestionMark style={{marginLeft: '10px'}} wh='20'/>
-          </a>
-          <div style={{clear:'both'}}/>
-        </div>
-        {
-          Object.keys(removal_meta).map(type => {
-            return (
-              <div key={type}>
-                <label title={removal_meta[type].desc}>
-                  <input id={type} type='checkbox'
-                    checked={removedByFilter[type] !== undefined}
-                    value={type}
-                    onChange={(e) => updateStateAndURL(e.target, page_type)}
-                  />
-                  <span>{removal_meta[type].filter_text}</span>
-                </label>
-              </div>
-            )
-          })
-        }
-      </div>
+    <Selection className='removedbyFilter' isFilter={true} isSet={Object.keys(removedByFilter).length !== 0}
+               title='Action' titleHelpModal={{hash:'action_help'}}>
+      {
+        Object.keys(removal_meta).map(type => {
+          return (
+            <div key={type}>
+              <label title={removal_meta[type].desc}>
+                <input id={type} type='checkbox'
+                  checked={removedByFilter[type] !== undefined}
+                  value={type}
+                  onChange={(e) => updateStateAndURL(e.target, page_type)}
+                />
+                <span>{removal_meta[type].filter_text}</span>
+              </label>
+            </div>
+          )
+        })
+      }
+    </Selection>
   )
 
 }

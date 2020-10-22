@@ -1,5 +1,6 @@
 import React from 'react'
 import { connect } from 'state'
+import { Selection } from './SelectionBase'
 
 class RedditSort extends React.Component {
 
@@ -13,19 +14,18 @@ class RedditSort extends React.Component {
   render() {
     const {sort} = this.props.global.state
     return (
-        <div className='redditSort selection'>
-          <div className='title'>Sort By</div>
-          {['user'].includes(this.props.page_type) ?
-            <React.Fragment>
-              {this.getLink('new', sort)}
-              {this.getLink('top', sort)}
-              {this.getLink('hot', sort)}
-              {this.getLink('controversial', sort)}
-            </React.Fragment>
-          :
-            ''
-          }
-        </div>
+      <Selection className='redditSort' title='Sort By'>
+        {['user'].includes(this.props.page_type) ?
+          <React.Fragment>
+            {this.getLink('new', sort)}
+            {this.getLink('top', sort)}
+            {this.getLink('hot', sort)}
+            {this.getLink('controversial', sort)}
+          </React.Fragment>
+        :
+          ''
+        }
+      </Selection>
     )
   }
 }

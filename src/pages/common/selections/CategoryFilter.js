@@ -1,5 +1,6 @@
 import React from 'react'
 import { connect } from 'state'
+import { Selection } from './SelectionBase'
 
 class CategoryFilter extends React.Component {
 
@@ -38,8 +39,7 @@ class CategoryFilter extends React.Component {
     const updateStateAndURL = this.props.global.categoryFilter_update
 
     return (
-      <div className={`categoryFilter selection filter ${categoryFilter !== 'all'? 'set': ''}`}>
-        <div className='title'>{title}</div>
+      <Selection className='categoryFilter' isFilter={true} isSet={categoryFilter !== 'all'} title={title}>
         <select value={categoryFilter}
           onChange={(e) => updateStateAndURL(type, e.target.value, page_type )}>
           <option key='all' value='all'>all</option>
@@ -57,7 +57,7 @@ class CategoryFilter extends React.Component {
             })
           }
         </select>
-      </div>
+      </Selection>
     )
   }
 }

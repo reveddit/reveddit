@@ -3,7 +3,7 @@ import { connect } from 'state'
 import { SimpleURLSearchParams } from 'utils'
 import debounce from 'lodash/debounce'
 import { QuestionMark } from 'pages/common/svg'
-import ModalContext from 'contexts/modal'
+import { Selection } from './SelectionBase'
 
 export const help = (title = '') => {
   return (
@@ -25,7 +25,6 @@ export const help = (title = '') => {
 const word_help = help('Title/Body')
 
 class TextFilter extends React.Component {
-  static contextType = ModalContext
   state = {localKeywords: ""}
 
   componentDidMount() {
@@ -43,18 +42,14 @@ class TextFilter extends React.Component {
 
   render() {
     const textValue = this.state.localKeywords
-    const modal = this.context
     return (
-      <div className={`textFilter selection filter ${textValue.trim().length !== 0 ? 'set': ''}`}>
-        <div className='title nowrap'>Title/Body<a className='pointer' onClick={() => modal.openModal({content:word_help})}>
-            <QuestionMark style={{marginLeft: '10px'}} wh='20'/>
-          </a>
-        </div>
+      <Selection className='textFilter' isFilter={true} isSet={textValue.trim().length !== 0}
+                 title='Title/Body' titleHelpModal={{content:word_help}}>
         <input type='text'
           name='keywords' value={textValue} placeholder='keywords'
           onChange={(e) => this.changeLocalFast_DelayedGlobalStateUpdate(e)}
         />
-      </div>
+      </Selection>
     )
   }
 }

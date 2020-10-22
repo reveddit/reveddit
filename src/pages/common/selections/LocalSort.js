@@ -1,6 +1,6 @@
 import React from 'react'
 import { connect, localSort_types } from 'state'
-import SortIcon from 'svg/sort.svg';
+import { Selection } from './SelectionBase'
 
 const paramKey_sortType = 'localSort'
 const paramKey_reverse = 'localSortReverse'
@@ -39,11 +39,7 @@ class LocalSort extends React.Component {
     }
 
     return (
-        <div className={`localSort selection`}>
-          <div>
-            <img src={SortIcon} alt="Sort icon" style={{verticalAlign: 'middle', height: '20px', width: '20px'}} />
-            <span className='title'>Sort By</span>
-          </div>
+        <Selection className='localSort' title='Sort By' isSort={true}>
           {['thread', 'subreddit_comments'].includes(page_type) ?
             <React.Fragment>
               {this.makeLabel('controversiality1', 'controversiality v1')}
@@ -81,7 +77,7 @@ class LocalSort extends React.Component {
               {makeCheckbox('limitCommentDepth', 'limitCommentDepth', 'limit comment depth', limitCommentDepth)}
             </>
           }
-        </div>
+        </Selection>
     )
   }
 }

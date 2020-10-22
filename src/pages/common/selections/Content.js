@@ -1,5 +1,6 @@
 import React from 'react'
 import { connect } from 'state'
+import { Selection } from './SelectionBase'
 
 const r_all = 'r/all top 100'
 
@@ -36,8 +37,7 @@ class Content extends React.Component {
   render() {
     const {subreddit} = this.props
     return (
-        <div className='content selection'>
-          <div className='title'>Content</div>
+        <Selection className='content' title='Content'>
           {['user'].includes(this.props.page_type) &&
             <React.Fragment>
               {this.getLink('', 'comments and posts')}
@@ -55,7 +55,7 @@ class Content extends React.Component {
               {this.getLink('comments', 'comments')}
             </React.Fragment>
           }
-        </div>
+        </Selection>
     )
   }
 }
