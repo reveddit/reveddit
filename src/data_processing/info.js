@@ -148,18 +148,19 @@ export const setPostAndParentDataForComments = (comments, postData) => {
 }
 
 export const getRevdditSearch = (global) => {
-  const {q, author, subreddit, n, before, after, domain, or_domain, content, url, stickied, title, selftext} = global.state
+  const {q, author, subreddit, n, before, after, domain, or_domain,
+         content, url, stickied, title, selftext, distinguished} = global.state
   const promises = []
   const notAuthors = author.split(',').filter(x => x.match(/^!/)).reduce((map, obj) => (map[obj.substr(1)] = 1, map), {});
   let include_comments = false
   if ((content === 'comments' || content === 'all') && ! url) {
     include_comments = true
-    promises.push(pushshiftQueryComments({q, author, subreddit, n, before, after, stickied}))
+    promises.push(pushshiftQueryComments({q, author, subreddit, n, before, after, stickied, distinguished}))
   }
   if (content === 'posts' || content === 'all') {
-    promises.push(pushshiftQueryPosts({q, author, subreddit, n, before, after, domain, url, stickied, title, selftext}))
+    promises.push(pushshiftQueryPosts({q, author, subreddit, n, before, after, domain, url, stickied, title, selftext, distinguished}))
     if (or_domain) {
-      promises.push(pushshiftQueryPosts({domain: or_domain, author, subreddit, n, before, after, stickied, title, selftext}))
+      promises.push(pushshiftQueryPosts({domain: or_domain, author, subreddit, n, before, after, stickied, title, selftext, distinguished}))
     }
   }
   let commentChildrenPromise = undefined

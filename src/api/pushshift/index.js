@@ -35,7 +35,9 @@ export const queryPosts = (params) => {
   return queryItems(params, postURL, post_fields, 't3_', null)
 }
 
-const queryItems = ({q, author, subreddit, n = 500, sort='desc', before, after, domain, url, selftext, parent_id, stickied, title}, apiURL, fields, prefix, key = 'name') => {
+const queryItems = ({q, author, subreddit, n = 500, sort='desc', before, after, domain,
+                       url, selftext, parent_id, stickied, title, distinguished},
+                     apiURL, fields, prefix, key = 'name') => {
   const results = {}
   const queryParams = {
     size: n,
@@ -50,6 +52,7 @@ const queryItems = ({q, author, subreddit, n = 500, sort='desc', before, after, 
     ...(parent_id && {parent_id}),
     ...(stickied !== undefined && {stickied}),
     ...(title && {title}),
+    ...(distinguished && {distinguished}),
   }
   if (selftext) queryParams.selftext = encodeURIComponent(selftext)
   if (url) queryParams.url = encodeURIComponent(url)

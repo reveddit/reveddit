@@ -76,7 +76,7 @@ export const urlParamKeys = {
   user_sort: 'user_sort',
   user_kind: 'user_kind',
   user_time: 'user_time',
-  t: 't', sort: 'sort', limit: 'limit', show: 'show', all:'all', stickied: 'stickied'
+  t: 't', sort: 'sort', limit: 'limit', show: 'show', all:'all', stickied: 'stickied', distinguished: 'distinguished',
 }
 
 export const removedFilter_types = {
@@ -145,6 +145,7 @@ export const filter_pageType_defaults = {
   add_user: '',
   sort: 'new', limit: 100, t: '',
   stickied: undefined,
+  distinguished: undefined,
 }
 
 // pushshift max per call is now 100 (previously was 1000)
@@ -246,7 +247,7 @@ class GlobalState extends Container {
         alreadySearchedAuthors: {},
         all: false,
         oldestTimestamp: undefined, newestTimestamp: undefined,
-        stickied: undefined
+        stickied: undefined, distinguished: undefined,
       }
   }
 
