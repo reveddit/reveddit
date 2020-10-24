@@ -62,7 +62,7 @@ export default () => {
   return (
     <div className='blank_page'>
       <div className='text'>
-        Reveal reddit's removed content for users, subreddits <a className='pointer' onClick={() => {setInput('r/'); setInputFocus()}}>(r/)</a>, links and domains:
+        Reveal reddit's removed content. Search by username, subreddit <a className='pointer' onClick={() => {setInput('r/'); setInputFocus()}}>(r/)</a>, link or domain:
       </div>
       <form id='user-form' onSubmit={handleSubmitUser}>
         <input ref={inputRef} id='search' type='text' name='username' placeholder='user, r/sub or url' autoFocus='autoFocus'
