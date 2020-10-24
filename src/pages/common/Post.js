@@ -10,8 +10,10 @@ import { NOT_REMOVED } from 'pages/common/RemovedBy'
 import { connect } from 'state'
 import {MessageMods} from 'components/Misc'
 import {www_reddit} from 'api/reddit'
+import Flair from './Flair'
 
 const max_selftext_length = 100
+
 
 class Post extends React.Component {
   state = {
@@ -98,11 +100,8 @@ class Post extends React.Component {
         </div>
         {thumbnail}
         <div className='thread-content'>
+          <Flair className='link-flair' field='link_flair_text' globalVarName='post_flair' {...props} />
           <a className='thread-title' href={url}>{replaceAmpGTLT(props.title)}</a>
-          {
-            props.link_flair_text &&
-            <span className='link-flair'>{replaceAmpGTLT(props.link_flair_text)}</span>
-          }
           <span className='domain'>({domain})</span>
           <div className='thread-info'>
             submitted <Time {...props}/> by <Author {...props}/> to <a className='subreddit-link' href={rev_subreddit+'/'}>/r/{props.subreddit}</a>

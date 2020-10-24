@@ -158,6 +158,7 @@ export const getPostDataForComments = ({comments = undefined, link_ids_set = und
 export const applyPostAndParentDataToComment = (postData, comment, applyPostLabels = true) => {
   const post = postData[comment.link_id]
   comment.link_title = post.title
+  comment.link_flair_text = post.link_flair_text
   if (post.url) {
     comment.url = post.url
   }

@@ -11,6 +11,7 @@ import { connect, hasClickedRemovedUserCommentContext } from 'state'
 import {AddUserParam} from 'data_processing/FindCommentViaAuthors'
 import {MessageMods} from 'components/Misc'
 import {www_reddit} from 'api/reddit'
+import Flair from './Flair'
 
 class Comment extends React.Component {
   state = {
@@ -84,6 +85,7 @@ class Comment extends React.Component {
       <div id={props.name} className={classNames.join(' ')} data-fullname={props.name} data-created_utc={props.created_utc}>
         <div className='comment-head'>
           <a onClick={() => this.toggleDisplayBody()} className='collapseToggle spaceRight'>{this.getExpandIcon()}</a>
+          <Flair className='link-flair' field='link_flair_text' globalVarName='post_flair' {...props} />
           <a href={props.url ? stripRedditLikeDomain(props.url) : rev_link_permalink} className='title'
             >{props.link_title}</a>
           {'link_author' in props &&

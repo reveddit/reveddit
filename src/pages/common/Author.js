@@ -2,6 +2,7 @@ import React from 'react'
 import { connect } from 'state'
 import { getPrettyTimeLength, replaceAmpGTLT, PATH_STR_USER } from 'utils'
 import { showAccountInfo_global } from 'pages/modals/Settings'
+import Flair from './Flair'
 
 const now = Math.floor(new Date()/1000)
 
@@ -39,9 +40,7 @@ const Author = ({author, is_op, deleted, distinguished, subreddit, name,
       </a>
       {
         author !== '[deleted]' && author_flair_text &&
-        <>
-          <span className='flair spaceLeft'>{replaceAmpGTLT(author_flair_text)}</span>
-        </>
+          <Flair className='flair spaceLeft' field='author_flair_text' globalVarName='user_flair' author_flair_text={author_flair_text} />
       }
     </span>
   )
