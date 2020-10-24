@@ -380,6 +380,9 @@ export const withFetch = (WrappedComponent) =>
             match = itemMatches(item, gs.post_flair, ['link_flair_text'])
           }
           if (match) {
+            match = itemMatches(item, gs.user_flair, ['author_flair_text'])
+          }
+          if (match) {
             visibleItems.push(item)
           }
         }

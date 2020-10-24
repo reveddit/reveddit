@@ -8,7 +8,6 @@ import ItemsPerPage from 'pages/common/selections/ItemsPerPage'
 import RedditSort from 'pages/common/selections/RedditSort'
 import Content from 'pages/common/selections/Content'
 import TextFilter from 'pages/common/selections/TextFilter'
-import PostFlairFilter from 'pages/common/selections/PostFlairFilter'
 import TagsFilter from 'pages/common/selections/TagsFilter'
 import ResultsSummary from 'pages/common/ResultsSummary'
 import Selfposts from 'pages/common/selections/Selfposts'
@@ -19,6 +18,25 @@ const UpvoteRemovalRateHistory = lazy(() => import('pages/common/selections/Upvo
 
 const paramKey = 'showFilters'
 
+export const help = (title = '') => {
+  return (
+    <div>
+      <h3>{title} filter help</h3>
+      <p>Matches content containing ALL keywords</p>
+      <p>To negate, prefix the word with - (minus sign)</p>
+      <p>Phrase search "using quotes". Phrases are treated as javascript regular expressions. Examples,</p>
+      <ul>
+        <li>fox trot -delta</li>
+        <li>"find this phrase" -"not this one"</li>
+        <li>"\?": find a question mark</li>
+        <li>"this|that": match ANY words (must use quotes)</li>
+      </ul>
+    </div>
+  )
+}
+
+const word_help = help('Title/Body')
+const flair_help = help('Flair')
 
 class Selections extends React.Component {
   state = {
@@ -62,10 +80,14 @@ class Selections extends React.Component {
     const categoryFilter = <CategoryFilter page_type={page_type}
       visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
       type={category_type} title={category_title} unique_field={category_unique_field}/>
-    const textFilters = <>
-      <TextFilter page_type={page_type} />
-      <PostFlairFilter page_type={page_type} />
-    </>
+    const textFilters = [
+      <TextFilter page_type={page_type} globalVarName='keywords' placeholder='keywords' key='k'
+                  title='Title/Body' titleHelpModal={{content:word_help}} />,
+      <TextFilter page_type={page_type} globalVarName='post_flair' placeholder='post flair' key='p'
+                  title='Post Flair' titleHelpModal={{content:flair_help}} />,
+      <TextFilter page_type={page_type} globalVarName='user_flair' placeholder='user flair' key='u'
+                  title='User Flair' titleHelpModal={{content:flair_help}} />,
+    ]
     if (showFilters) {
       const save = <a className='pointer' onClick={() => this.props.global.saveDefaults(page_type)}>save</a>
       const reset = <a className='pointer' onClick={() => this.props.global.resetDefaults(page_type)}>reset</a>
@@ -103,13 +125,13 @@ class Selections extends React.Component {
                       </div>
                       <RemovedByFilter page_type={page_type}/>
                       <TagsFilter page_type={page_type}/>
+                      <div>{textFilters}</div>
                       <div>
                         {categoryFilter}
-                        {textFilters}
+                        {subreddit !== 'all' && page_type === 'subreddit_posts' &&
+                          upvoteRemovalRateHistory
+                        }
                       </div>
-                      {subreddit !== 'all' && page_type === 'subreddit_posts' &&
-                        upvoteRemovalRateHistory
-                      }
                     </>)
                 case 'subreddit_comments':
                 case 'missing_comments':
@@ -125,13 +147,13 @@ class Selections extends React.Component {
                       </div>
                       <RemovedByFilter page_type={page_type} />
                       <TagsFilter page_type={page_type}/>
+                      <div>{textFilters}</div>
                       <div>
                         {categoryFilter}
-                        {textFilters}
+                        {subreddit !== 'all' &&
+                          upvoteRemovalRateHistory
+                        }
                       </div>
-                      {subreddit !== 'all' &&
-                        upvoteRemovalRateHistory
-                      }
                     </>)
                 case 'user':
                   return (
@@ -140,11 +162,11 @@ class Selections extends React.Component {
                       <RedditSort page_type={page_type} />
                       <RemovedFilter page_type={page_type} />
                       <RemovedByFilter page_type={page_type}/>
-                      <TagsFilter page_type={page_type}/>
                       <div>
                         {categoryFilter}
-                        {textFilters}
+                        <TagsFilter page_type={page_type}/>
                       </div>
+                      <div>{textFilters}</div>
                     </>)
                 case 'thread':
                   return (

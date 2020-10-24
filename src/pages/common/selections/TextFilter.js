@@ -1,57 +1,37 @@
-import React from 'react'
+import React, {useState, useEffect, useCallback} from 'react'
 import { connect } from 'state'
 import { SimpleURLSearchParams } from 'utils'
 import debounce from 'lodash/debounce'
 import { QuestionMark } from 'pages/common/svg'
 import { Selection } from './SelectionBase'
+import { urlParamKeys } from 'state'
 
-export const help = (title = '') => {
-  return (
-    <div>
-      <h3>{title} filter help</h3>
-      <p>Matches content containing ALL keywords</p>
-      <p>To negate, prefix the word with - (minus sign)</p>
-      <p>Phrase search "using quotes". Phrases are treated as javascript regular expressions. Examples,</p>
-      <ul>
-        <li>fox trot -delta</li>
-        <li>"find this phrase" -"not this one"</li>
-        <li>"\?": find a question mark</li>
-        <li>"this|that": match ANY words (must use quotes)</li>
-      </ul>
-    </div>
+const TextFilter = ({global, page_type, globalVarName, placeholder, ...selectionProps }) => {
+  const valueFromQueryParam = decodeURIComponent(new SimpleURLSearchParams(window.location.search).get(urlParamKeys[globalVarName]) || '')
+  const [inputValue, setInputValue] = useState(valueFromQueryParam)
+  useEffect(() => {
+    debounced_updateStateAndURL(inputValue)
+  }, [inputValue])
+  // when another component updates global state and url param (see: LinkFlair), need this effect to update the input field's shown value
+  useEffect(() => {
+    setInputValue(valueFromQueryParam)
+  }, [valueFromQueryParam])
+
+  const debounced_updateStateAndURL = useCallback(
+    debounce(value => {
+      global.selection_update(globalVarName, value, page_type)
+    }, 500),
+    []
   )
-}
 
-const word_help = help('Title/Body')
-
-class TextFilter extends React.Component {
-  state = {localKeywords: ""}
-
-  componentDidMount() {
-    const param = new SimpleURLSearchParams(window.location.search).get('keywords') || ''
-    if (param.trim().length) {
-      this.setState({localKeywords: decodeURIComponent(param)})
-    }
-    this.updateStateAndURL = debounce(this.props.global.selection_update, 500)
-  }
-
-  changeLocalFast_DelayedGlobalStateUpdate = (e) => {
-    this.setState({localKeywords: e.target.value})
-    this.updateStateAndURL('keywords', e.target.value, this.props.page_type)
-  }
-
-  render() {
-    const textValue = this.state.localKeywords
-    return (
-      <Selection className='textFilter' isFilter={true} isSet={textValue.trim().length !== 0}
-                 title='Title/Body' titleHelpModal={{content:word_help}}>
-        <input type='text'
-          name='keywords' value={textValue} placeholder='keywords'
-          onChange={(e) => this.changeLocalFast_DelayedGlobalStateUpdate(e)}
-        />
-      </Selection>
-    )
-  }
+  return (
+    <Selection className='textFilter' isFilter={true} isSet={inputValue.trim().length !== 0} {...selectionProps}>
+      <input type='text'
+        name={globalVarName} value={inputValue} placeholder={placeholder}
+        onChange={(e) => setInputValue(e.target.value)}
+      />
+    </Selection>
+  )
 }
 
 export default connect(TextFilter)
