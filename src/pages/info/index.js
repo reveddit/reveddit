@@ -38,7 +38,7 @@ export class Info extends React.Component {
     const ids = items_sorted.map(o => o.name)
     const shareLink = page_type === 'search' ? (
       <div className="revddit-sharing">
-        <a href={'/info?id='+ids.join(',')} onClick={copyLink}>copy sharelink</a>
+        <a href={'/info?id='+ids.join(',')} onClick={(e) => copyLink(e, true)}>copy sharelink</a>
       </div>
     ) : ''
 

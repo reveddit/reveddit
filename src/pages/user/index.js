@@ -107,7 +107,7 @@ const User = ({match, global, page_type, viewableItems, selections, notShownMsg}
         <div className='top'>
           <div className='top-selections'>
             <div id="buttons-right">
-              <div><a href={shareLink} onClick={copyLink}>copy sharelink</a></div>
+              <div><a href={shareLink} onClick={(e) => copyLink(e, true)}>copy sharelink</a></div>
               <div>{loadAllLink}</div>
             </div>
             {selections}

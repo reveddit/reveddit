@@ -339,9 +339,13 @@ export const copyToClipboard = (str) => {
   document.body.removeChild(el)
 }
 
-export const copyLink = (e) => {
+export const copyLink = (e, useHref = false) => {
   e.preventDefault()
-  copyToClipboard(e.target.href)
+  if (useHref) {
+    copyToClipboard(e.target.href)
+  } else {
+    copyToClipboard(getUrlWithTimestamp())
+  }
   e.target.title='copied link'
 }
 
