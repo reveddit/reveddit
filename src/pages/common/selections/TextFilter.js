@@ -10,9 +10,11 @@ const TextFilter = ({global, page_type, globalVarName, placeholder, ...selection
   const valueFromQueryParam = decodeURIComponent(new SimpleURLSearchParams(window.location.search).get(urlParamKeys[globalVarName]) || '')
   const [inputValue, setInputValue] = useState(valueFromQueryParam)
   useEffect(() => {
-    debounced_updateStateAndURL(inputValue)
+    if (global.state[globalVarName] !== inputValue) {
+      debounced_updateStateAndURL(inputValue)
+    }
   }, [inputValue])
-  // when another component updates global state and url param (see: LinkFlair), need this effect to update the input field's shown value
+  // when another component updates global state and url param (see: Flair), need this effect to update the input field's shown value
   useEffect(() => {
     setInputValue(valueFromQueryParam)
   }, [valueFromQueryParam])
