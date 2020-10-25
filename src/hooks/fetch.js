@@ -38,23 +38,33 @@ export const useFetch = (url) => {
   )
   React.useEffect(() => {
     dispatch({type: fetch})
+    let isCancelled = false
     if (cache[url]) {
       // using setTimeout b/c UpvoteRemovalRateHistory graph does not
       // properly re-render axes unless there is a delay. Why?
       setTimeout(() => {
-        dispatch({type: success, data: cache[url]})
+        if (! isCancelled) {
+          dispatch({type: success, data: cache[url]})
+        }
       }, 30)
     } else {
       window.fetch(url)
       .then(response => response.json())
       .then(data => {
         cache[url] = data
-        dispatch({ type: success, data })
+        if (!isCancelled) {
+          dispatch({ type: success, data })
+        }
       })
       .catch(e => {
         console.warn(e.message)
-        dispatch({ type: error })
+        if (! isCancelled) {
+          dispatch({ type: error })
+        }
       })
+    }
+    return () => {
+      isCancelled = true
     }
   }, [url])
   return {...state}
