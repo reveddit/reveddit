@@ -178,9 +178,7 @@ class Selections extends React.Component {
                       <RemovedFilter page_type={page_type} />
                       <RemovedByFilter page_type={page_type} />
                       <TagsFilter page_type={page_type}/>
-                      {subreddit !== 'all' &&
-                        upvoteRemovalRateHistory
-                      }
+                      {upvoteRemovalRateHistory}
                     </>)
                 default: return ''
               }
