@@ -380,7 +380,7 @@ export const withFetch = (WrappedComponent) =>
             match = item.subreddit_subscribers >= gs.min_subscribers
           }
           if (match) {
-            itemMatches(item, gs.keywords, title_body_fields)
+            match = itemMatches(item, gs.keywords, title_body_fields)
           }
           if (match) {
             match = itemMatches(item, gs.post_flair, ['link_flair_text'])
