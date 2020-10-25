@@ -2,6 +2,7 @@ import React from 'react'
 import { prettyScore, parse, redditThumbnails, replaceAmpGTLT,
          postIsRemovedAndSelftextSaysRemoved, getRemovedMessage,
          PATH_STR_SUB, convertPathSub, stripRedditLikeDomain,
+         prettyFormatBigNumber,
 } from 'utils'
 import Time from 'pages/common/Time'
 import RemovedBy, {QuarantinedLabel} from 'pages/common/RemovedBy'
@@ -11,6 +12,7 @@ import { connect } from 'state'
 import {MessageMods} from 'components/Misc'
 import {www_reddit} from 'api/reddit'
 import Flair from './Flair'
+import SubscribersCount from './SubscribersCount'
 
 const max_selftext_length = 100
 
@@ -104,7 +106,7 @@ class Post extends React.Component {
           <a className='thread-title' href={url}>{replaceAmpGTLT(props.title)}</a>
           <span className='domain'>({domain})</span>
           <div className='thread-info'>
-            submitted <Time {...props}/> by <Author {...props}/> to <a className='subreddit-link' href={rev_subreddit+'/'}>/r/{props.subreddit}</a>
+            submitted <Time {...props}/> by <Author {...props}/> to <a className='subreddit-link' href={rev_subreddit+'/'}>/r/{props.subreddit}</a> <SubscribersCount {...props}/>
             <div><RemovedBy {...props} /></div>
           </div>
           <div className='total-comments post-links'>

@@ -3,7 +3,7 @@ import { connect } from 'state'
 import * as d3 from 'd3'
 import CommentPreview from 'pages/common/CommentPreview'
 import PostPreview from 'pages/common/PostPreview'
-import { kFormatter, SimpleURLSearchParams, ifNumParseInt,
+import { prettyFormatBigNumber, SimpleURLSearchParams, ifNumParseInt,
          PATH_STR_SUB,
 } from 'utils'
 import { Fetch } from 'hooks/fetch'
@@ -274,7 +274,7 @@ class UpvoteRemovalRateHistory extends React.Component {
                       size</label>
                     {
                       [10,50,500,1000].map(n => {
-                        let displayValue = kFormatter(n)
+                        let displayValue = prettyFormatBigNumber(n)
                         return (
                           <label key={n}>
                             <input type='radio' value={n}

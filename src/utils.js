@@ -154,8 +154,11 @@ export const prettyScore = score => {
   return score
 }
 
-export const kFormatter = num => {
-    return Math.abs(num) > 999 ? Math.sign(num)*((Math.abs(num)/1000).toFixed(1)) + 'k' : Math.sign(num)*Math.abs(num)
+export const prettyFormatBigNumber = num => {
+  const abs = Math.abs(num), sign = Math.sign(num)
+  return abs > 999999 ?
+    sign*((abs/1000000).toFixed(1)) + 'm'
+    : abs > 999 ? sign*((abs/1000).toFixed(1)) + 'k' : sign*abs
 }
 
 

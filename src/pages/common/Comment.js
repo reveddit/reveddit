@@ -12,6 +12,7 @@ import {AddUserParam} from 'data_processing/FindCommentViaAuthors'
 import {MessageMods} from 'components/Misc'
 import {www_reddit} from 'api/reddit'
 import Flair from './Flair'
+import SubscribersCount from './SubscribersCount'
 
 class Comment extends React.Component {
   state = {
@@ -107,7 +108,7 @@ class Comment extends React.Component {
                 data-subreddit={props.subreddit}
               >
                 {`/r/${props.subreddit}`}
-              </a>
+              </a> <SubscribersCount {...props}/>
             </React.Fragment>
           }
         </div>
