@@ -1,4 +1,5 @@
-import React, { lazy } from 'react'
+import React, { Suspense, lazy } from 'react'
+import ErrorBoundary from 'components/ErrorBoundary'
 import {connect} from 'state'
 import RemovedFilter from 'pages/common/selections/RemovedFilter'
 import RemovedByFilter from 'pages/common/selections/RemovedByFilter'
@@ -75,7 +76,12 @@ class Selections extends React.Component {
     const { showFilters } = this.state
     let upvoteRemovalRateHistory = '', save_reset_buttons = '', minSubscribers = ''
     if (['subreddit_posts', 'subreddit_comments', 'thread'].includes(page_type) && subreddit !== 'all') {
-      upvoteRemovalRateHistory = <UpvoteRemovalRateHistory subreddit={subreddit} page_type={page_type}/>
+      upvoteRemovalRateHistory = (
+        <ErrorBoundary>
+          <Suspense fallback={<></>}>
+            <UpvoteRemovalRateHistory subreddit={subreddit} page_type={page_type}/>
+          </Suspense>
+        </ErrorBoundary>)
     } else {
       minSubscribers = <TextFilter page_type={page_type} globalVarName='min_subscribers' placeholder='1000'
                                    title='Min. Subscribers'/>
