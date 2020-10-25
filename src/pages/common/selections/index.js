@@ -73,10 +73,14 @@ class Selections extends React.Component {
             category_type, category_title, category_unique_field,
           } = this.props
     const { showFilters } = this.state
-    let upvoteRemovalRateHistory = '', save_reset_buttons = ''
-    if (['subreddit_posts', 'subreddit_comments', 'thread'].includes(page_type)) {
+    let upvoteRemovalRateHistory = '', save_reset_buttons = '', minSubscribers = ''
+    if (['subreddit_posts', 'subreddit_comments', 'thread'].includes(page_type) && subreddit !== 'all') {
       upvoteRemovalRateHistory = <UpvoteRemovalRateHistory subreddit={subreddit} page_type={page_type}/>
+    } else {
+      minSubscribers = <TextFilter page_type={page_type} globalVarName='min_subscribers' placeholder='1000'
+                                   title='Min. Subscribers'/>
     }
+
     const categoryFilter = <CategoryFilter page_type={page_type}
       visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
       type={category_type} title={category_title} unique_field={category_unique_field}/>
@@ -128,9 +132,7 @@ class Selections extends React.Component {
                       <div>{textFilters}</div>
                       <div>
                         {categoryFilter}
-                        {subreddit !== 'all' && page_type === 'subreddit_posts' &&
-                          upvoteRemovalRateHistory
-                        }
+                        {upvoteRemovalRateHistory || minSubscribers}
                       </div>
                     </>)
                 case 'subreddit_comments':
@@ -150,9 +152,7 @@ class Selections extends React.Component {
                       <div>{textFilters}</div>
                       <div>
                         {categoryFilter}
-                        {subreddit !== 'all' &&
-                          upvoteRemovalRateHistory
-                        }
+                        {upvoteRemovalRateHistory || minSubscribers}
                       </div>
                     </>)
                 case 'user':
@@ -160,11 +160,14 @@ class Selections extends React.Component {
                     <>
                       <Content page_type={page_type} />
                       <RedditSort page_type={page_type} />
-                      <RemovedFilter page_type={page_type} />
+                      <div>
+                        <RemovedFilter page_type={page_type} />
+                        {categoryFilter}
+                      </div>
                       <RemovedByFilter page_type={page_type}/>
                       <div>
-                        {categoryFilter}
                         <TagsFilter page_type={page_type}/>
+                        {minSubscribers}
                       </div>
                       <div>{textFilters}</div>
                     </>)
