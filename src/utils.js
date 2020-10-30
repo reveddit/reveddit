@@ -500,3 +500,5 @@ export const matchOrIncludes = (str, search, useMatch = true) => {
   }
   return str.includes(search)
 }
+
+export const sortCreatedAsc = (a,b) => a.created_utc - b.created_utc

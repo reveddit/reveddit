@@ -1,6 +1,6 @@
 import { isCommentID, isPostID, getUniqueItems,
          commentIsDeleted, commentIsRemoved,
-         itemIsRemovedOrDeleted, postIsDeleted
+         itemIsRemovedOrDeleted, postIsDeleted, sortCreatedAsc,
 } from 'utils'
 import { getPostsByURL } from './posts'
 import {
@@ -221,7 +221,7 @@ export const getRevdditSearch = (global) => {
       })
       items = newItems
     }
-    items.sort((a,b) => a.created_utc - b.created_utc)
+    items.sort(sortCreatedAsc)
     global.setSuccess({items, itemsSortedByDate: items})
   })
 }

@@ -8,7 +8,7 @@ import { getPosts as getRedditPosts,
 import { postIsDeleted } from 'utils'
 import { retrieveRedditPosts_and_combineWithPushshiftPosts } from 'data_processing/posts'
 import { copyModlogItemsToArchiveItems } from 'data_processing/comments'
-import { PATHS_STR_SUB } from 'utils'
+import { PATHS_STR_SUB, sortCreatedAsc } from 'utils'
 
 export const getRevdditPostsBySubreddit = (subreddit, global) => {
   const {n, before, before_id, frontPage, page} = global.state
@@ -21,7 +21,7 @@ export const getRevdditPostsBySubreddit = (subreddit, global) => {
     .then(ids => getRedditPosts({ids}))
     .then(posts => {
       const posts_array = Object.values(posts)
-      posts_array.forEach(post => {
+      posts_array.sort(sortCreatedAsc).forEach(post => {
         post.selftext = ''
         if (postIsDeleted(post)) {
           post.deleted = true
@@ -29,7 +29,7 @@ export const getRevdditPostsBySubreddit = (subreddit, global) => {
           post.removed = true
         }
       })
-      global.setSuccess({items: posts_array})
+      global.setSuccess({items: posts_array, itemsSortedByDate:posts_array})
       return posts
     })
     .catch(global.setError)

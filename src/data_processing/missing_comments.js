@@ -9,6 +9,7 @@ import {
   set_link_permalink
 } from 'data_processing/comments'
 import { setPostAndParentDataForComments } from 'data_processing/info'
+import { sortCreatedAsc } from 'utils'
 
 const maxN = 100
 export const getRevdditMissingComments = (subreddit, global) => {
@@ -32,7 +33,7 @@ export const getRevdditMissingComments = (subreddit, global) => {
         setMissingCommentMeta(c, missingComments)
       }
       setPostAndParentDataForComments(combinedComments_array, postData)
-      combinedComments_array.sort((a,b) => a.created_utc - b.created_utc)
+      combinedComments_array.sort(sortCreatedAsc)
       return global.setSuccess({items: combinedComments_array,
                                 itemsSortedByDate: combinedComments_array,
                                 paginationMeta: missingCommentsMeta})

@@ -17,7 +17,7 @@ import {
   submitMissingComments
 } from 'api/reveddit'
 import { itemIsRemovedOrDeleted, postIsDeleted, postIsRemoved, jumpToHash,
-         convertPathSub,
+         convertPathSub, sortCreatedAsc,
 } from 'utils'
 import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
          MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED,
@@ -281,7 +281,7 @@ const markTreeMeta = (missing, origRedditComments, moreComments, comments, post_
 
 export const createCommentTree = (postID, root_commentID, comments) => {
     const commentTree = []
-    const itemsSortedByDate = Object.values(comments).sort((a,b) => a.created_utc - b.created_utc)
+    const itemsSortedByDate = Object.values(comments).sort(sortCreatedAsc)
     // use sorted comments so ancestors are tracked properly
     for (const [i, comment] of itemsSortedByDate.entries()) {
       comment.by_date_i = i

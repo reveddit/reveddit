@@ -8,7 +8,8 @@ import {
 } from 'api/pushshift'
 import { itemIsRemovedOrDeleted, postIsDeleted, display_post,
          getUniqueItems, SimpleURLSearchParams, parse, replaceAmpGTLT,
-         PATHS_STR_SUB, stripHTTP, stripRedditLikeDomain_noHTTP
+         PATHS_STR_SUB, stripHTTP, stripRedditLikeDomain_noHTTP,
+         sortCreatedAsc,
 } from 'utils'
 import { modlogSaysBotRemoved } from 'data_processing/comments'
 import { REMOVAL_META, ANTI_EVIL_REMOVED, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
@@ -405,7 +406,7 @@ const searchRedditAndPushshiftPosts = (global, searchInput) => {
       redditPosts: Object.values(redditPosts),
       includePostsWithZeroComments: true})
     .then(items => {
-      items.sort((a,b) => a.created_utc - b.created_utc)
+      items.sort(sortCreatedAsc)
       global.setState({items, itemsSortedByDate: items})
       return Promise.all(pushshift_promises)
       .then(pushshift_results => {
@@ -422,7 +423,7 @@ const searchRedditAndPushshiftPosts = (global, searchInput) => {
     })
   })
   .then(items => {
-    items.sort((a,b) => a.created_utc - b.created_utc)
+    items.sort(sortCreatedAsc)
     global.setSuccess({items, itemsSortedByDate: items})
     return items
   })
