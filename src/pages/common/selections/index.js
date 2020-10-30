@@ -14,30 +14,38 @@ import ResultsSummary from 'pages/common/ResultsSummary'
 import Selfposts from 'pages/common/selections/Selfposts'
 import { SimpleURLSearchParams } from 'utils'
 import Pagination from 'components/Pagination'
+import {www_reddit} from 'api/reddit'
 
 const UpvoteRemovalRateHistory = lazy(() => import('pages/common/selections/UpvoteRemovalRateHistory'))
 
 const paramKey = 'showFilters'
 
-export const help = (title = '') => {
+const word_filter_help = (
+  <>
+    <p>Matches content containing ALL keywords, case insensitive.</p>
+    <p>To negate, prefix the word with - (minus sign).</p>
+    <p>Phrase search "using quotes". Phrases are treated as javascript regular expressions. Examples,</p>
+    <ul>
+      <li>fox trot -delta</li>
+      <li>"find this phrase" -"not this one" (phrase)</li>
+      <li>".": match anything (regex)</li>
+      <li>"this|that": match EITHER this OR that (regex)</li>
+    </ul>
+    <p><a target='_blank' href={www_reddit+'/jh52dn'}>more info</a></p>
+  </>
+)
+
+export const help = (title = '', content = '') => {
   return (
     <div>
-      <h3>{title} filter help</h3>
-      <p>Matches content containing ALL keywords</p>
-      <p>To negate, prefix the word with - (minus sign)</p>
-      <p>Phrase search "using quotes". Phrases are treated as javascript regular expressions. Examples,</p>
-      <ul>
-        <li>fox trot -delta</li>
-        <li>"find this phrase" -"not this one"</li>
-        <li>"\?": find a question mark</li>
-        <li>"this|that": match ANY words (must use quotes)</li>
-      </ul>
+      <h3>{title} help</h3>
+      {content}
     </div>
   )
 }
 
-const word_help = help('Title/Body')
-const flair_help = help('Flair')
+const word_help = help('Title/Body filter', word_filter_help)
+const flair_help = help('Flair filter', word_filter_help)
 
 class Selections extends React.Component {
   state = {

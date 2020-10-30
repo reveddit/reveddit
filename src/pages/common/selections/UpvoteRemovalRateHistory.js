@@ -8,7 +8,19 @@ import { prettyFormatBigNumber, SimpleURLSearchParams, ifNumParseInt,
 } from 'utils'
 import { Fetch } from 'hooks/fetch'
 import { Selection } from './SelectionBase'
+import { QuestionMarkModal } from 'pages/common/selections/SelectionBase'
+import { help } from 'pages/common/selections'
 
+const urr_title = 'Upvote Removal Rate'
+const urr_help_content = (
+  <>
+    <p>Shows the percentage of upvotes removed in periods of 1,000 comments or posts over time.</p>
+    <p>Hovering the mouse shows a preview of the highest-scored removed item. Clicking on a point loads all items for that period.</p>
+    <p>Each point in the graph represents the summed score of removed items divided by the summed score of all items for that period.</p>
+    <p>If 1,000 items have a combined score of 20,000 and the removed items have a combined score of 10,000, then the removal rate for that period is 50%.</p>
+  </>
+)
+const urr_help = help(urr_title, urr_help_content)
 
 class Sparkline extends React.PureComponent {
   constructor(props) {
@@ -263,9 +275,10 @@ class UpvoteRemovalRateHistory extends React.Component {
             }
           }
           return (
-            <Selection className='upvoteRemovalRate' title='Upvote Removal Rate' titleTitle='percentage upvotes removed over time'>
+            <Selection className='upvoteRemovalRate' title={urr_title} titleTitle='percentage upvotes removed over time'>
               <div className='toggleOptions'>
                 <a onClick={this.toggleDisplayOptions} className='collapseToggle'>{this.getDisplayOptionsText()}</a>
+                <QuestionMarkModal modalContent={{content:urr_help}}/>
               </div>
               {this.state.displayOptions &&
                 <div className='options'>

@@ -2,7 +2,6 @@ import React, {useState, useEffect, useCallback} from 'react'
 import { connect } from 'state'
 import { SimpleURLSearchParams } from 'utils'
 import debounce from 'lodash/debounce'
-import { QuestionMark } from 'pages/common/svg'
 import { Selection } from './SelectionBase'
 import { urlParamKeys } from 'state'
 
