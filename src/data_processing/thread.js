@@ -207,7 +207,6 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     const moderators = await moderators_promise
     return {combinedComments, commentTree, itemsSortedByDate, moderators, subreddit_lc: reddit_post.subreddit.toLowerCase()}
   })
-  await pushshift_post_promise
   const {combinedComments, commentTree, itemsSortedByDate, moderators, subreddit_lc} = await combined_comments_promise
   const stateObj = {items: Object.values(combinedComments),
                     itemsLookup: combinedComments,
