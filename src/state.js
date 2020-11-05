@@ -78,7 +78,8 @@ export const urlParamKeys = {
   user_kind: 'user_kind',
   user_time: 'user_time',
   t: 't', sort: 'sort', limit: 'limit', show: 'show', all:'all', stickied: 'stickied', distinguished: 'distinguished',
-  min_subscribers: 'min_subscribers',
+  num_subscribers_min: 'num_subscribers_min', score_min: 'score_min', num_comments_min: 'num_comments_min',
+  num_subscribers_max: 'num_subscribers_max', score_max: 'score_max', num_comments_max: 'num_comments_max',
 }
 
 export const removedFilter_types = {
@@ -148,7 +149,8 @@ export const filter_pageType_defaults = {
   sort: 'new', limit: 100, t: '',
   stickied: undefined,
   distinguished: undefined,
-  min_subscribers: '',
+  num_subscribers_min: '', score_min: '', num_comments_min: '',
+  num_subscribers_max: '', score_max: '', num_comments_max: '',
 }
 
 // pushshift max per call is now 100 (previously was 1000)
@@ -186,7 +188,8 @@ const parseType = (value) => {
 const adjust_qparams_for_selection = (page_type, queryParams, selection, value) => {
   value = parseType(value)
   if (value === filter_pageType_defaults[selection] ||
-      value === filter_pageType_defaults[selection][page_type]) {
+     (typeof(filter_pageType_defaults[selection]) === 'object' &&
+      value === filter_pageType_defaults[selection][page_type])) {
     queryParams.delete(urlParamKeys[selection])
   } else {
     queryParams.set(urlParamKeys[selection], value)
@@ -198,6 +201,7 @@ export const updateURL = (queryParams) => {
   const to = `${window.location.pathname}${queryParams.toString()}`
   window.history.replaceState(null,null,to)
 }
+
 
 class GlobalState extends Container {
   constructor(props) {
@@ -251,7 +255,8 @@ class GlobalState extends Container {
         all: false,
         oldestTimestamp: undefined, newestTimestamp: undefined,
         stickied: undefined, distinguished: undefined,
-        min_subscribers: undefined,
+        num_subscribers_max: undefined, score_max: undefined, num_comments_max: undefined,
+        num_subscribers_min: undefined, score_min: undefined, num_comments_min: undefined,
       }
   }
 

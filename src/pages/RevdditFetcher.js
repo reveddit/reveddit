@@ -181,6 +181,19 @@ const itemMatches = (item, searchString, fields) => {
   return true
 }
 
+const minMaxMatch = (match, gs, globalVarBase, item, field) => {
+  if (field in item) {
+    const min = gs[globalVarBase+'_min']
+    const max = gs[globalVarBase+'_max']
+    if (min !== '') {
+      return min <= item[field]
+    } else if (max !== '') {
+      return item[field] <= max
+    }
+  }
+  return match
+}
+
 export const withFetch = (WrappedComponent) =>
   class extends React.Component {
     state = {
@@ -376,8 +389,14 @@ export const withFetch = (WrappedComponent) =>
             title_body_fields.push('link_title')
           }
           let match = true
-          if (gs.min_subscribers && 'subreddit_subscribers' in item) {
-            match = item.subreddit_subscribers >= gs.min_subscribers
+          if (match) {
+            match = minMaxMatch(match, gs, 'num_subscribers', item, 'subreddit_subscribers')
+          }
+          if (match) {
+            match = minMaxMatch(match, gs, 'num_comments', item, 'num_comments')
+          }
+          if (match) {
+            match = minMaxMatch(match, gs, 'score', item, 'score')
           }
           if (match) {
             match = itemMatches(item, gs.keywords, title_body_fields)

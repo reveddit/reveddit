@@ -1,17 +1,18 @@
 import React, { Suspense, lazy, useState, useEffect } from 'react'
 import ErrorBoundary from 'components/ErrorBoundary'
 import {connect} from 'state'
-import RemovedFilter from 'pages/common/selections/RemovedFilter'
-import RemovedByFilter from 'pages/common/selections/RemovedByFilter'
-import CategoryFilter from 'pages/common/selections/CategoryFilter'
-import LocalSort from 'pages/common/selections/LocalSort'
-import ItemsPerPage from 'pages/common/selections/ItemsPerPage'
-import RedditSort from 'pages/common/selections/RedditSort'
-import Content from 'pages/common/selections/Content'
-import TextFilter from 'pages/common/selections/TextFilter'
-import TagsFilter from 'pages/common/selections/TagsFilter'
+import RemovedFilter from './RemovedFilter'
+import RemovedByFilter from './RemovedByFilter'
+import CategoryFilter from './CategoryFilter'
+import LocalSort from './LocalSort'
+import ItemsPerPage from './ItemsPerPage'
+import RedditSort from './RedditSort'
+import Content from './Content'
+import TextFilter from './TextFilter'
+import MinMaxFilters from './MinMaxFilters'
+import TagsFilter from './TagsFilter'
 import ResultsSummary from 'pages/common/ResultsSummary'
-import Selfposts from 'pages/common/selections/Selfposts'
+import Selfposts from './Selfposts'
 import { SimpleURLSearchParams } from 'utils'
 import Pagination from 'components/Pagination'
 import {www_reddit} from 'api/reddit'
@@ -72,7 +73,7 @@ const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter, nu
     setShowFilters(oppositeShowFilters)
   }
   const showFiltersText = showFilters ? '[–] hide filters' : '[+] show filters'
-  let upvoteRemovalRateHistory = '', save_reset_buttons = '', minSubscribers = ''
+  let upvoteRemovalRateHistory = '', save_reset_buttons = ''
   if (['subreddit_posts', 'subreddit_comments', 'thread'].includes(page_type) && subreddit !== 'all') {
     upvoteRemovalRateHistory = (
       <ErrorBoundary>
@@ -80,10 +81,8 @@ const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter, nu
           <UpvoteRemovalRateHistory subreddit={subreddit} page_type={page_type}/>
         </Suspense>
       </ErrorBoundary>)
-  } else {
-    minSubscribers = <TextFilter page_type={page_type} globalVarName='min_subscribers' placeholder='1000'
-                                 title='Min. Subscribers'/>
   }
+  const minMaxFilters = <MinMaxFilters page_type={page_type}/>
 
   const categoryFilter = <CategoryFilter page_type={page_type}
     visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
@@ -132,11 +131,14 @@ const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter, nu
                       <ItemsPerPage/>
                     </div>
                     <RemovedByFilter page_type={page_type}/>
-                    <TagsFilter page_type={page_type}/>
+                    <div>
+                      <TagsFilter page_type={page_type}/>
+                      {minMaxFilters}
+                    </div>
                     <div>{textFilters}</div>
                     <div>
                       {categoryFilter}
-                      {upvoteRemovalRateHistory || minSubscribers}
+                      {upvoteRemovalRateHistory}
                     </div>
                   </>)
               case 'subreddit_comments':
@@ -152,11 +154,14 @@ const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter, nu
                       <ItemsPerPage/>
                     </div>
                     <RemovedByFilter page_type={page_type} />
-                    <TagsFilter page_type={page_type}/>
+                    <div>
+                      <TagsFilter page_type={page_type}/>
+                      {minMaxFilters}
+                    </div>
                     <div>{textFilters}</div>
                     <div>
                       {categoryFilter}
-                      {upvoteRemovalRateHistory || minSubscribers}
+                      {upvoteRemovalRateHistory}
                     </div>
                   </>)
               case 'user':
@@ -171,7 +176,7 @@ const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter, nu
                     <RemovedByFilter page_type={page_type}/>
                     <div>
                       <TagsFilter page_type={page_type}/>
-                      {minSubscribers}
+                      {minMaxFilters}
                     </div>
                     <div>{textFilters}</div>
                   </>)
@@ -181,7 +186,6 @@ const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter, nu
                     <LocalSort page_type={page_type} />
                     <RemovedFilter page_type={page_type} />
                     <RemovedByFilter page_type={page_type} />
-                    <TagsFilter page_type={page_type}/>
                     {upvoteRemovalRateHistory}
                   </>)
               default: return ''
