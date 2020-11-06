@@ -52,14 +52,14 @@ const MinMaxFilters = ({page_type, global}) => {
     }
   }, [])
   return (
-    <div className='selection'>
+    <div className='selection numeric'>
       {Object.entries(visibleFilters).map(([key, value]) =>
         <TextFilter key={key} page_type={page_type} globalVarName={value.globalVarBase} placeholder={value.placeholder}
                     title={value.text} minMax={true}/>
       )}
       {Object.keys(visibleFilters).length < Object.keys(filters).length ?
         <div className='selection'>
-          <a href='' onClick={addFilter}>[+] add # filter</a>
+          <a className='pointer' onClick={addFilter}>[+] add # filter</a>
         </div>
       : null}
     </div>
