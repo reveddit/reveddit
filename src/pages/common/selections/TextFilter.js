@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useCallback} from 'react'
+import React, {useState, useEffect, useCallback, useRef} from 'react'
 import { connect } from 'state'
 import { SimpleURLSearchParams } from 'utils'
 import debounce from 'lodash/debounce'
@@ -27,11 +27,18 @@ const TextFilter = ({global, page_type, globalVarName, placeholder, minMax, ...s
     valueFromQueryParam = val
   }
   const [inputValue, setInputValue] = useState(valueFromQueryParam)
+  const oldSelectMinRef = useRef()
   useEffect(() => {
+    const oldSelectMin = oldSelectMinRef.current
+    oldSelectMinRef.current = selectMin
     const suffix = minMax ?
       selectMin ? SUFFIX_MIN : SUFFIX_MAX
       : ''
-    if (global.state[globalVarName+suffix] !== inputValue) {
+    // change state quickly when the drop down changes,
+    // slowly when text input changes
+    if (oldSelectMin !== selectMin) {
+      updateStateAndURL(inputValue)
+    } else if (global.state[globalVarName+suffix] !== inputValue) {
       debounced_updateStateAndURL(inputValue)
     }
   }, [inputValue, selectMin])
@@ -39,9 +46,8 @@ const TextFilter = ({global, page_type, globalVarName, placeholder, minMax, ...s
   useEffect(() => {
     setInputValue(valueFromQueryParam)
   }, [valueFromQueryParam])
-
-  const debounced_updateStateAndURL = useCallback(
-    debounce(value => {
+  const updateStateAndURL = useCallback(
+    (value) => {
       let suffix = '', oppSuffix = ''
       if (minMax) {
         suffix = SUFFIX_MIN, oppSuffix = SUFFIX_MAX
@@ -54,7 +60,10 @@ const TextFilter = ({global, page_type, globalVarName, placeholder, minMax, ...s
         updateURL(queryParams)
       }
       global.selection_update(globalVarName+suffix, value, page_type)
-    }, 500),
+    }, [selectMin]
+  )
+  const debounced_updateStateAndURL = useCallback(
+    debounce(updateStateAndURL, 500),
     [selectMin]
   )
   let size, select
