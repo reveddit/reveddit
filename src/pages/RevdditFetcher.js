@@ -431,14 +431,13 @@ export const withFetch = (WrappedComponent) =>
         } else {
           content =
             <>
-              <p>Error: unable to connect to either reddit or pushshift</p>
-              <div>Possible causes:
-                <ul>
-                  <li>conflicting extensions that block connections</li>
-                  <li>temporary network outage</li>
-                  <li>the page contains <span className='quarantined'>quarantined</span> content that requires a <a href={ext_urls.rt.c}>Chrome</a> or <a href={ext_urls.rt.f}>Firefox</a> extension to view accurately.</li>
-                </ul>
-              </div>
+              <p>Unable to connect to either reddit or pushshift. Possible causes:</p>
+              <ul>
+                <li>conflicting extensions that block connections</li>
+                <li>strict privacy settings that block connections</li>
+                <li>temporary network outage</li>
+                <li>the page contains <span className='quarantined'>quarantined</span> content that requires a <a href={ext_urls.rt.c}>Chrome</a> or <a href={ext_urls.rt.f}>Firefox</a> extension to view accurately.</li>
+              </ul>
             </>
         }
         this.props.openGenericModal({content})
