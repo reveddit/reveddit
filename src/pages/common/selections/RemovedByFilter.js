@@ -4,7 +4,6 @@ import { REMOVAL_META, ANTI_EVIL_REMOVED, USER_REMOVED, USER_REMOVED_META,
          COLLAPSED, COLLAPSED_META, MISSING_IN_THREAD, MISSING_IN_THREAD_META,
          ORPHANED, ORPHANED_META
 } from 'pages/common/RemovedBy'
-import { QuestionMark } from 'pages/common/svg'
 import { Selection } from './SelectionBase'
 
 
