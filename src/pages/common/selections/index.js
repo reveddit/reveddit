@@ -47,6 +47,7 @@ export const help = (title = '', content = '') => {
 
 const word_help = help('Title/Body filter', word_filter_help)
 const flair_help = help('Flair filter', word_filter_help)
+const url_help = help('URL filter', word_filter_help)
 
 const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter, num_items, num_showing,
                      category_type, category_title, category_unique_field, global,
@@ -88,12 +89,14 @@ const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter, nu
     visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
     type={category_type} title={category_title} unique_field={category_unique_field}/>
   const textFilters = [
-    <TextFilter page_type={page_type} globalVarName='keywords' placeholder='keywords' key='k'
+    <TextFilter page_type={page_type} globalVarName='keywords' placeholder='keywords' key='kw'
                 title='Title/Body' titleHelpModal={{content:word_help}} />,
-    <TextFilter page_type={page_type} globalVarName='post_flair' placeholder='post flair' key='p'
+    <TextFilter page_type={page_type} globalVarName='post_flair' placeholder='post flair' key='pf'
                 title='Post Flair' titleHelpModal={{content:flair_help}} />,
-    <TextFilter page_type={page_type} globalVarName='user_flair' placeholder='user flair' key='u'
+    <TextFilter page_type={page_type} globalVarName='user_flair' placeholder='user flair' key='uf'
                 title='User Flair' titleHelpModal={{content:flair_help}} />,
+    <TextFilter page_type={page_type} globalVarName='filter_url' placeholder='url' key='url'
+                title='URL' titleHelpModal={{content:url_help}} />,
   ]
   if (showFilters) {
     const save = <a className='pointer' onClick={() => global.saveDefaults(page_type)}>save</a>

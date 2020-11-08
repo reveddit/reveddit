@@ -399,13 +399,16 @@ export const withFetch = (WrappedComponent) =>
             match = minMaxMatch(match, gs, 'score', item, 'score')
           }
           if (match) {
-            match = itemMatches(item, gs.keywords, title_body_fields)
-          }
-          if (match) {
             match = itemMatches(item, gs.post_flair, ['link_flair_text'])
           }
           if (match) {
             match = itemMatches(item, gs.user_flair, ['author_flair_text'])
+          }
+          if (match) {
+            match = itemMatches(item, gs.filter_url, ['url'])
+          }
+          if (match) {
+            match = itemMatches(item, gs.keywords, title_body_fields)
           }
           if (match) {
             visibleItems.push(item)
