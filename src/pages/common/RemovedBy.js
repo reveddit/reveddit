@@ -77,7 +77,10 @@ export const ALL_ACTIONS_META = {
 const RemovedBy = (props) => {
   const modal = React.useContext(ModalContext)
   let displayTag = '', details = '', meta = undefined, withinText = '', fill = 'rgb(199,3,0)', everythingExceptLocked = '', lockedTag = ''
-  let {removedby, orphaned_label = '', style, locked} = props
+  let {removedby, orphaned_label = '', style, locked, removed} = props
+  if (removed && ! removedby) {
+    removedby = UNKNOWN_REMOVED
+  }
   if (removedby === ORPHANED) {
     meta = ORPHANED_META
     orphaned_label = '[orphaned] '+orphaned_label
