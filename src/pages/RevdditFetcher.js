@@ -477,7 +477,7 @@ export const withFetch = (WrappedComponent) =>
       if (numOrphanedNotShown) {
           numOrphanedNotShownMsg =
             <div className='notice-with-link center' onClick={() => this.setState({showAllOrphaned: true})}>
-              show {numOrphanedNotShown} comments whose parent or link was removed
+              show {numOrphanedNotShown} orphaned comments
             </div>
       }
       const notShownMsg = <>{numOrphanedNotShownMsg}{numCollapsedNotShownMsg}</>

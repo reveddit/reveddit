@@ -57,8 +57,8 @@ export const MISSING_IN_THREAD_META = {filter_text: 'missing in thread',
                                               desc: 'The comment does not appear on the reddit thread unless directly linked.',
                                           morelink: www_reddit+'/gwzbxp'}
 
-export const ORPHANED_META = {filter_text: 'comment parent or link removed',
-                                     desc: 'The thread or the parent of the comment was removed.',
+export const ORPHANED_META = {filter_text: 'orphaned',
+                                     desc: 'The link itself or the direct parent of the comment was removed.',
                                  morelink: '/r/TheoryOfReddit/comments/hctddn/reddit_has_a_problem_false_posts_get_removed/fvi50y9/?context=3&add_user=rhaksw.1..new...t1_fvi5di8#t1_fvi50y9'}
 
 export const USER_REMOVED_META = {filter_text: 'user deleted',
@@ -80,6 +80,7 @@ const RemovedBy = (props) => {
   let {removedby, orphaned_label = '', style, locked} = props
   if (removedby === ORPHANED) {
     meta = ORPHANED_META
+    orphaned_label = '[orphaned] '+orphaned_label
   } else if (removedby && removedby !== NOT_REMOVED && removedby !== USER_REMOVED) {
     meta = REMOVAL_META[removedby]
     if (removedby === UNKNOWN_REMOVED && isPost(props) &&

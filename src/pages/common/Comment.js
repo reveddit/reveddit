@@ -119,7 +119,7 @@ class Comment extends React.Component {
           <div>
             <RemovedBy style={{display:'inline', marginRight: '5px'}} {...props} />
             {post_parent_removed.length !== 0 &&
-              <RemovedBy removedby={ORPHANED} orphaned_label={'['+post_parent_removed.join(', ')+']'} style={{display:'inline'}}/>
+              <RemovedBy removedby={ORPHANED} orphaned_label={post_parent_removed.join(', ')} style={{display:'inline'}}/>
             }
           </div>
         </div>
