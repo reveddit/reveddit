@@ -128,9 +128,12 @@ export const postIsRemovedAndSelftextSaysRemoved = post => {
 export const display_post = (list, post, ps_item, isInfoPage=false) => {
   if (post.subreddit_type !== 'user' &&
         (isInfoPage ||
-          (! ('whitelist_status' in post && post.whitelist_status == "promo_adult_nsfw") &&
+          (post.whitelist_status !== 'promo_adult_nsfw' && ! post.over_18 &&
             ( ! ps_item ||
-              ! ('thumbnail' in ps_item && ps_item.thumbnail == 'nsfw'))))) {
+              ps_item.thumbnail !== 'nsfw')))) {
+    if (post.id === 'jl2sh3') {
+      console.log(post)
+    }
     list.push(post)
   }
 }
