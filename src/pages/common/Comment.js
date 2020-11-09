@@ -10,7 +10,7 @@ import Author from 'pages/common/Author'
 import { connect, hasClickedRemovedUserCommentContext } from 'state'
 import {AddUserParam} from 'data_processing/FindCommentViaAuthors'
 import {MessageMods} from 'components/Misc'
-import {www_reddit} from 'api/reddit'
+import {www_reddit, old_reddit} from 'api/reddit'
 import Flair from './Flair'
 import SubscribersCount from './SubscribersCount'
 
@@ -144,6 +144,7 @@ class Comment extends React.Component {
                   <a href={rev_link_permalink+'?'+add_user}>full comments
                     {'num_comments' in props && `(${props.num_comments})`}</a>
                 }
+                <a href={old_reddit+props.permalink+'?context=3'}>reddit</a>
                 { directlink && <a href={directlink}>directlink</a>}
                 { ! props.parent_context &&
                   <MessageMods {...props}/>
