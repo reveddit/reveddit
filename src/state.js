@@ -47,40 +47,45 @@ export const getExtraGlobalStateVars = (page_type, sort) => {
 
 const loadingVars = {statusText: '', statusImage: '/images/loading.gif', loading:true}
 
-export const urlParamKeys = {
-  removedFilter: 'removal_status', // removedFilter should appear above removedByFilter
+//everything except removedFilter can use the default value when resetting to show all items
+const urlParamKeys_filters_for_reset_to_show_all_items = {
   removedByFilter: 'removedby',
-  localSort: 'localSort',
-  localSortReverse: 'localSortReverse',
-  showContext: 'showContext',
   categoryFilter_subreddit: 'subreddit',
   categoryFilter_domain: 'domain',
   categoryFilter_link_title: 'link_title',
-  n: 'n',
-  before: 'before',
-  before_id: 'before_id',
   keywords: 'keywords',
   post_flair: 'post_flair',
   user_flair: 'user_flair',
   filter_url: 'filter_url',
+  tagsFilter: 'tags',
+  num_subscribers_min: 'num_subscribers_min', score_min: 'score_min', num_comments_min: 'num_comments_min',
+  num_subscribers_max: 'num_subscribers_max', score_max: 'score_max', num_comments_max: 'num_comments_max',
+}
+
+export const urlParamKeys = {
+  removedFilter: 'removal_status', // removedFilter should appear above removedByFilter
+  localSort: 'localSort',
+  localSortReverse: 'localSortReverse',
+  showContext: 'showContext',
+  before: 'before',
+  before_id: 'before_id',
   id: 'id',
   context: 'context',
   frontPage: 'frontPage',
+  n: 'n',
   q: 'q', author: 'author', subreddit: 's_subreddit', after: 'after', domain: 's_domain', or_domain: 's_or_domain',
   title: 'title', selftext: 'selftext',
   content: 'content',
-  tagsFilter: 'tags',
   url: 'url',
   selfposts: 'selfposts',
   limitCommentDepth: 'limitCommentDepth',
   page: 'page',
   add_user: 'add_user',
-  user_sort: 'user_sort',
-  user_kind: 'user_kind',
-  user_time: 'user_time',
+  user_sort: 'user_sort', // for legacy add_user code
+  user_kind: 'user_kind', // for legacy add_user code
+  user_time: 'user_time', // for legacy add_user code
   t: 't', sort: 'sort', limit: 'limit', show: 'show', all:'all', stickied: 'stickied', distinguished: 'distinguished',
-  num_subscribers_min: 'num_subscribers_min', score_min: 'score_min', num_comments_min: 'num_comments_min',
-  num_subscribers_max: 'num_subscribers_max', score_max: 'score_max', num_comments_max: 'num_comments_max',
+  ...urlParamKeys_filters_for_reset_to_show_all_items
 }
 
 export const removedFilter_types = {
@@ -322,15 +327,14 @@ class GlobalState extends Container {
   }
   saveDefaults = (page_type) => {
     const filters = get(defaultFilters_str, {})
-    filters[page_type] = {
-      localSort: this.state.localSort,
-      localSortReverse: this.state.localSortReverse,
-      removedFilter: this.state.removedFilter,
-      removedByFilter: this.state.removedByFilter,
-      tagsFilter: this.state.tagsFilter,
-      showContext: this.state.showContext,
-      n: this.state.n,
-    }
+    filters[page_type] = [
+      'localSort', 'localSortReverse', 'removedFilter', 'removedByFilter', 'tagsFilter',
+      'showContext', 'n', 'sort', 't',
+      'categoryFilter_subreddit', 'categoryFilter_domain', 'categoryFilter_link_title',
+      'num_subscribers_min', 'score_min', 'num_comments_min',
+      'num_subscribers_max', 'score_max', 'num_comments_max',
+      'keywords', 'post_flair', 'user_flair', 'filter_url',
+    ].reduce((map,varname) => (map[varname] = this.state[varname], map), {})
     put(defaultFilters_str, filters)
   }
   resetDefaults = (page_type) => {
@@ -432,11 +436,12 @@ class GlobalState extends Container {
             this.tagsFilterIsUnset()
            )
   }
-  resetThreadFilters = (page_type) => {
+  resetFilters = (page_type) => {
     const queryParams = create_qparams()
     adjust_qparams_for_selection(page_type, queryParams, 'removedFilter', removedFilter_types.all)
-    adjust_qparams_for_selection(page_type, queryParams, 'tagsFilter', '')
-    adjust_qparams_for_selection(page_type, queryParams, 'removedByFilter', '')
+    for (const globalVarName of Object.keys(urlParamKeys_filters_for_reset_to_show_all_items)) {
+      adjust_qparams_for_selection(page_type, queryParams, globalVarName, filter_pageType_defaults[globalVarName])
+    }
     return this.updateURLandState(queryParams, page_type)
   }
 

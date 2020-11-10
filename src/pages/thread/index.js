@@ -39,10 +39,10 @@ class Thread extends React.Component {
         }
       }
     }
-    const resetThreadFilters = () => this.props.global.resetThreadFilters(page_type)
+    const resetFilters_func = () => this.props.global.resetFilters(page_type)
     const viewContext = <a className="pointer" onClick={() => updateStateAndURL('showContext', true, page_type)}>show context</a>
-    let viewAllComments = <Link to={linkToRestOfComments} onClick={resetThreadFilters}>view all comments</Link>
-    const resetFilters = <a className="pointer" onClick={resetThreadFilters}>reset filters</a>
+    let viewAllComments = <Link to={linkToRestOfComments} onClick={resetFilters_func}>view all comments</Link>
+    const resetFilters = <a className="pointer" onClick={resetFilters_func}>reset filters</a>
     if (initialFocusCommentID) {
       viewAllComments = <a href={linkToRestOfComments}>view all comments</a>
     }

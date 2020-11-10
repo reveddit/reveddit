@@ -5,6 +5,9 @@ import { connect } from 'state'
 
 const posts_page_title = 'user-deleted posts that have no comments are not shown'
 
+const ConditionalWrapper = ({ condition, wrapper, children }) =>
+  condition ? wrapper(children) : children
+
 class ResultsSummary extends React.Component {
   render() {
     const {num_showing, page_type } = this.props
@@ -30,12 +33,16 @@ class ResultsSummary extends React.Component {
         <div className='non-item text'>page {paginationMeta.page_number} of {paginationMeta.num_pages}</div>
       )
     }
+
     // WARNING: a class name & attribute are used by the reveddit extension:
     // #numItemsLoaded, data-numitemsloaded
     const numShowingText =
       <div id='numItemsLoaded' data-numitemsloaded={items.length} title={page_type === 'subreddit_posts' ? posts_page_title : ''}
-         className='non-item text'>{num_showing.toLocaleString()+' of '}
-         {items.length.toLocaleString()}{totalPagesText}</div>
+         className='non-item text'>
+         <ConditionalWrapper condition={num_showing !== items.length}
+            wrapper={children => <a className='pointer' onClick={() => this.props.global.resetFilters(page_type)}>{children}</a>}
+         >{num_showing.toLocaleString()+' of ' + items.length.toLocaleString()+totalPagesText}</ConditionalWrapper>
+      </div>
 
     if (before || before_id) {
       timeFrame =
