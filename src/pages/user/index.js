@@ -65,7 +65,7 @@ const User = ({match, global, page_type, viewableItems, selections, notShownMsg}
                     <div id='pagesloaded' className='non-item text' data-pagesloaded={num_pages}>loaded pages {`${num_pages}/${totalPages}`}</div>
                   </React.Fragment>
   } else if (! loading) {
-    status = <p>No comments or posts are available for this user.</p>
+    status = <p>No comments or posts were found.</p>
   }
 
   const shownItems = []

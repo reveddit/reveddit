@@ -6,7 +6,7 @@ import RemovedByFilter from './RemovedByFilter'
 import CategoryFilter from './CategoryFilter'
 import LocalSort from './LocalSort'
 import ItemsPerPage from './ItemsPerPage'
-import RedditSort from './RedditSort'
+import RedditSortTimeBase from './RedditSortTimeBase'
 import Content from './Content'
 import TextFilter from './TextFilter'
 import MinMaxFilters from './MinMaxFilters'
@@ -171,7 +171,8 @@ const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter, nu
                 return (
                   <>
                     <Content page_type={page_type} />
-                    <RedditSort page_type={page_type} />
+                    <RedditSortTimeBase globalVarName='sort' className='redditSort' title='Sort By'/>
+                    <RedditSortTimeBase globalVarName='t' className='redditTime' title='From'/>
                     <div>
                       <RemovedFilter page_type={page_type} />
                       {categoryFilter}

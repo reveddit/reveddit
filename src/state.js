@@ -147,7 +147,7 @@ export const filter_pageType_defaults = {
   selfposts: true,
   limitCommentDepth: limitCommentDepth_global,
   add_user: '',
-  sort: 'new', limit: 100, t: '',
+  sort: 'new', limit: 100, t: 'all',
   stickied: undefined,
   distinguished: undefined,
   num_subscribers_min: '', score_min: '', num_comments_min: '',
@@ -186,7 +186,7 @@ const parseType = (value) => {
   }
 }
 
-const adjust_qparams_for_selection = (page_type, queryParams, selection, value) => {
+export const adjust_qparams_for_selection = (page_type, queryParams, selection, value) => {
   value = parseType(value)
   if (value === filter_pageType_defaults[selection] ||
      (typeof(filter_pageType_defaults[selection]) === 'object' &&
