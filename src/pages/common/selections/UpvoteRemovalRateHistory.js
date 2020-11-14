@@ -8,7 +8,7 @@ import { prettyFormatBigNumber, SimpleURLSearchParams, ifNumParseInt,
 } from 'utils'
 import { Fetch } from 'hooks/fetch'
 import { Selection } from './SelectionBase'
-import { QuestionMarkModal } from 'pages/common/selections/SelectionBase'
+import { QuestionMarkModal } from 'components/Misc'
 import { help } from 'pages/common/selections'
 
 const urr_title = 'Upvote Removal Rate'

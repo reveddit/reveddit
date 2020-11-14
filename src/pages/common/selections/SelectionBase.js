@@ -1,16 +1,6 @@
 import React from 'react'
-import { QuestionMark } from 'pages/common/svg'
-import ModalContext from 'contexts/modal'
-import SortIcon from 'svg/sort.svg';
-
-export const QuestionMarkModal = ({modalContent}) => {
-  const modal = React.useContext(ModalContext)
-  return (
-    <a className='pointer' onClick={() => modal.openModal(modalContent)}>
-      <QuestionMark style={{marginLeft: '10px'}} wh='20'/>
-    </a>
-  )
-}
+import { QuestionMarkModal } from 'components/Misc'
+import SortIcon from 'svg/sort.svg'
 
 export const Selection = ({children, className = '', title = null, titleTitle = null,
                            isSet = false, isFilter = false, isSort = false, titleHelpModal = null }) => {
