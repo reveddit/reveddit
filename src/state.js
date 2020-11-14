@@ -47,6 +47,22 @@ export const getExtraGlobalStateVars = (page_type, sort) => {
 
 const loadingVars = {statusText: '', statusImage: '/images/loading.gif', loading:true}
 
+const urlParamKeys_max_min_base = {
+  num_subscribers: 'num_subscribers',
+  score: 'score',
+  num_comments: 'num_comments',
+  link_age: 'link_age',
+}
+const MIN = '_min', MAX = '_max'
+const urlParamKeys_max_min = Object.keys(urlParamKeys_max_min_base)
+  .reduce((map,key) => {
+    map[key+MIN] = key+MIN
+    map[key+MAX] = key+MAX
+    return map
+  }, {})
+
+const urlParamKeys_max_min_defaults = Object.keys(urlParamKeys_max_min).reduce((m, k) => (m[k] = '', m), {})
+
 //everything except removedFilter can use the default value when resetting to show all items
 const urlParamKeys_filters_for_reset_to_show_all_items = {
   removedByFilter: 'removedby',
@@ -58,8 +74,7 @@ const urlParamKeys_filters_for_reset_to_show_all_items = {
   user_flair: 'user_flair',
   filter_url: 'filter_url',
   tagsFilter: 'tags',
-  num_subscribers_min: 'num_subscribers_min', score_min: 'score_min', num_comments_min: 'num_comments_min',
-  num_subscribers_max: 'num_subscribers_max', score_max: 'score_max', num_comments_max: 'num_comments_max',
+  ...urlParamKeys_max_min,
 }
 
 export const urlParamKeys = {
@@ -155,8 +170,7 @@ export const filter_pageType_defaults = {
   sort: 'new', limit: 100, t: 'all',
   stickied: undefined,
   distinguished: undefined,
-  num_subscribers_min: '', score_min: '', num_comments_min: '',
-  num_subscribers_max: '', score_max: '', num_comments_max: '',
+  ...urlParamKeys_max_min_defaults,
 }
 
 // pushshift max per call is now 100 (previously was 1000)
@@ -261,8 +275,7 @@ class GlobalState extends Container {
         all: false,
         oldestTimestamp: undefined, newestTimestamp: undefined,
         stickied: undefined, distinguished: undefined,
-        num_subscribers_max: undefined, score_max: undefined, num_comments_max: undefined,
-        num_subscribers_min: undefined, score_min: undefined, num_comments_min: undefined,
+        ...urlParamKeys_max_min_defaults,
       }
   }
 

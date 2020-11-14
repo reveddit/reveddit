@@ -159,6 +159,7 @@ export const applyPostAndParentDataToComment = (postData, comment, applyPostLabe
   const post = postData[comment.link_id]
   comment.link_title = post.title
   comment.link_flair_text = post.link_flair_text
+  comment.link_created_utc = post.created_utc
   if (post.url) {
     comment.url = post.url
   }

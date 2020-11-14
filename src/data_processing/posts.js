@@ -97,6 +97,7 @@ export const combinePushshiftAndRedditPosts = async (
     const ps_post = pushshiftPosts_lookup[reddit_post.id]
     const post = combineRedditAndPushshiftPost(reddit_post, ps_post)
     post.selftext = ''
+    post.link_created_utc = post.created_utc
     if (post.deleted || post.removed) {
       if (  (    post.num_comments > 0
               || includePostsWithZeroComments

@@ -15,7 +15,7 @@ import { NOT_REMOVED, COLLAPSED, ORPHANED } from 'pages/common/RemovedBy'
 import { jumpToHash, get, put, ext_urls,
          itemIsActioned, itemIsCollapsed, commentIsOrphaned,
          commentIsMissingInThread, getPrettyDate, getPrettyTimeLength,
-         archiveTimes_isCurrent, matchOrIncludes,
+         archiveTimes_isCurrent, matchOrIncludes, now,
 } from 'utils'
 import { getAuthorInfoByName } from 'api/reddit'
 import { getAuth } from 'api/reddit/auth'
@@ -181,14 +181,17 @@ const itemMatches = (item, searchString, fields) => {
   return true
 }
 
-const minMaxMatch = (match, gs, globalVarBase, item, field) => {
+const minMaxMatch = (match, gs, globalVarBase, item, field, isAge=false) => {
   if (field in item) {
     const min = gs[globalVarBase+'_min']
     const max = gs[globalVarBase+'_max']
+    const value = isAge ?
+      (now - item[field])/60
+      : item[field]
     if (min !== '') {
-      return min <= item[field]
+      return min <= value
     } else if (max !== '') {
-      return item[field] <= max
+      return value <= max
     }
   }
   return match
@@ -397,6 +400,9 @@ export const withFetch = (WrappedComponent) =>
           }
           if (match) {
             match = minMaxMatch(match, gs, 'score', item, 'score')
+          }
+          if (match) {
+            match = minMaxMatch(match, gs, 'link_age', item, 'link_created_utc', true)
           }
           if (match) {
             match = itemMatches(item, gs.post_flair, ['link_flair_text'])
