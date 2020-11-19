@@ -139,7 +139,7 @@ export class About extends React.Component {
             }
             <h2 className='about'>About</h2>
             <BlankUser/>
-            <Highlight/>
+            <Highlight showMobile={true}/>
           </div>
           <div className='section'>
             <h2 className='about'>What people say</h2>
