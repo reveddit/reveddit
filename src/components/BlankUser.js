@@ -78,7 +78,7 @@ export default () => {
       </form>
       <div className='text'>
         Conversations are better when users <a target='_blank' href={www_reddit+'/r/science/comments/duwdco/should_moderators_provide_removal_explanations/f79o1yr/'}>receive feedback</a> about removed content.
-        Reveddit does not display user-deleted content.
+        <p className='small'>User-deleted content does not appear on reveddit.</p>
       </div>
     </div>
   )

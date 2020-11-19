@@ -15,20 +15,18 @@ export const meta = {
   }
 }
 
-const notNeeded = 'This is not necessary if the Real-Time Extension is installed.'
-const ext_txt = ' Extension'
-
+const rev = 'Reveddit '
 const textContent = {
   'rt': {
-    title: 'Real-Time'+ext_txt,
+    title: rev+'Real-Time',
     description: 'Notifies you when any of your content on reddit has been removed.'
   },
   'linker': {
-    title: 'Linker'+ext_txt,
+    title: rev+'Linker',
     description: 'One click icon to jump between viewing content on reddit and reveddit.'
   },
   'q': {
-    title: 'Quarantined'+ext_txt,
+    title: rev+'Quarantined',
     description: 'Allows quarantined content to be viewed on reveddit.'
   }
 }
@@ -57,7 +55,7 @@ const linkWrap = (extension) => {
           {extensionLink('firefox', extension)}
         </div>
         {['q'].includes(extension) &&
-          <p>{notNeeded}</p>
+          <p>This is not necessary if the Real-Time Extension is installed.</p>
         }
       </div>
     </>
