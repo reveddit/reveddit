@@ -6,6 +6,9 @@ import { connect } from 'state'
 import Notice from 'pages/common/Notice'
 import FindCommentViaAuthors from 'data_processing/FindCommentViaAuthors'
 import {www_reddit} from 'api/reddit'
+import {LabelWithModal} from 'pages/common/RemovedBy'
+import {QuestionMark} from 'pages/common/svg'
+
 
 const notices = {
   'orphaned': 'hideOrphanedNotice',
@@ -20,7 +23,7 @@ const dismiss = (noticeType) => {
 }
 
 const CommentBody = (props) => {
-  let innerHTML = '', actionDescription = '', searchAuthorsForm = ''
+  let innerHTML = '', actionDescription = '', searchAuthorsForm = '', restoredTag = ''
   const isThread = props.page_type === 'thread'
   const comment_Is_Removed = commentIsRemoved(props)
   if (! props.deleted) {
@@ -32,7 +35,12 @@ const CommentBody = (props) => {
         if (comment_Is_Removed) {
           searchAuthorsForm = <FindCommentViaAuthors {...props}/>
         } else if (archiveRemoved_or_noArchive) { // explicit for clarity, could be else { w/no condition
-          innerHTML = `[removed${getRemovedWithinText(props)}, restored via user page]`+markdownToHTML(props.body)
+          restoredTag = (
+            <LabelWithModal hash='action_restored_help'>
+              <span className='removedby'>[removed]{getRemovedWithinText(props)}, restored via user page <QuestionMark fill='rgb(199,3,0)'/></span>
+            </LabelWithModal>
+          )
+          innerHTML = markdownToHTML(props.body)
         }
       }
     } else {
@@ -56,6 +64,7 @@ const CommentBody = (props) => {
   return (
     <div className='comment-body'>
       {actionDescription}
+      {restoredTag}
       <div dangerouslySetInnerHTML={{ __html: innerHTML }} />
       {searchAuthorsForm}
     </div>

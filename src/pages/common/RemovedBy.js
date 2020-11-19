@@ -16,6 +16,7 @@ export const LOCKED = 'locked'
 export const COLLAPSED = 'collapsed'
 export const MISSING_IN_THREAD = 'missing'
 export const ORPHANED = 'orphaned'
+export const RESTORED = 'restored'
 export const AUTOMOD_LATENCY_THRESHOLD = 15
 
 const AUTOMOD_LINK = '/wiki/automoderator'
@@ -66,18 +67,23 @@ export const USER_REMOVED_META = {filter_text: 'user deleted',
                                          desc: 'The author of this content deleted it. Posts may have been first removed by a moderator.',
                                      morelink: www_reddit+'/r/removeddit/comments/ir1oyw/_/g5fgxgl/?context=3#thing_t1_g5fgxgl'}
 
+export const RESTORED_META = {filter_text: 'restored via user page',
+                                     desc: "The comment was removed before it could be archived. Its body was copied from the author's /user page on reddit.",
+                                 morelink: www_reddit+'/ih86wk'}
+
 export const ALL_ACTIONS_META = {
   ...REMOVAL_META,
   [COLLAPSED]: COLLAPSED_META,
   [MISSING_IN_THREAD]: MISSING_IN_THREAD_META,
   [ORPHANED]: ORPHANED_META,
   [USER_REMOVED]: USER_REMOVED_META,
+  [RESTORED]: RESTORED_META,
 }
 
 const RemovedBy = (props) => {
-  const modal = React.useContext(ModalContext)
-  let displayTag = '', details = '', meta = undefined, withinText = '', fill = 'rgb(199,3,0)', everythingExceptLocked = '', lockedTag = ''
-  let {removedby, orphaned_label = '', style, locked, removed} = props
+  let displayTag = '', details = '', meta = undefined, withinText = '', fill = 'rgb(199,3,0)',
+      everythingExceptLocked = '', lockedTag = '', restoredTag = ''
+  let {removedby, orphaned_label = '', style, locked, removed, deleted} = props
   if (removed && ! removedby) {
     removedby = UNKNOWN_REMOVED
   }
@@ -104,21 +110,21 @@ const RemovedBy = (props) => {
   } else if (itemIsCollapsed(props)) {
     removedby = COLLAPSED
     meta = COLLAPSED_META
-  } else if (props.deleted) {
+  } else if (deleted) {
     removedby = USER_REMOVED
     meta = USER_REMOVED_META
   }
   if (meta) {
     everythingExceptLocked =
-      <a className='pointer' onClick={() => modal.openModal({hash:'action_'+removedby+'_help'})} style={{marginRight: '5px'}}>
+      <LabelWithModal hash={'action_'+removedby+'_help'}>
         <span title={meta.desc} data-removedby={removedby} className='removedby'>{orphaned_label+(meta.label || '')+withinText+details} <QuestionMark fill={fill}/></span>
-      </a>
+      </LabelWithModal>
   }
   if (locked) {
     lockedTag =
-      <a className='pointer' onClick={() => modal.openModal({hash:'action_locked_help'})}>
-        <span className='lockedTag'>locked <QuestionMark fill={'black'}/></span>
-      </a>
+      <LabelWithModal hash='action_locked_help'>
+        <span className='lockedTag'>locked <QuestionMark fill='black'/></span>
+      </LabelWithModal>
   }
   if (everythingExceptLocked || lockedTag) {
     displayTag =
@@ -128,6 +134,15 @@ const RemovedBy = (props) => {
       </div>
   }
   return displayTag
+}
+
+export const LabelWithModal = ({children, hash, marginRight = '5px'}) => {
+  const modal = React.useContext(ModalContext)
+  return (
+    <a className='pointer' onClick={() => modal.openModal({hash})} style={{marginRight}}>
+      {children}
+    </a>
+  )
 }
 
 const quarantinedInfo =
