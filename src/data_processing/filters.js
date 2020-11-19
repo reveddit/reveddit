@@ -12,10 +12,10 @@ const otherActions = {
   [ORPHANED]: true
 }
 
-const actions_that_are_other_and_removedBy = [AUTOMOD_REMOVED]
+const actions_that_are_other_and_removedBy = {[AUTOMOD_REMOVED]: true}
 
 export const filterSelectedActions = (selectedActions) => {
-  const selectedOtherActions = selectedActions.filter(a => a in otherActions).concat(actions_that_are_other_and_removedBy)
+  const selectedOtherActions = selectedActions.filter(a => a in otherActions || a in actions_that_are_other_and_removedBy)
   const selectedRemovedByActions = selectedActions.filter(a => ! (a in otherActions))
   return [selectedOtherActions, selectedRemovedByActions]
 }
