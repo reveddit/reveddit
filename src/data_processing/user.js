@@ -148,7 +148,16 @@ export const getRevdditUserItems = async (user, kind, global) => {
           global.setLoading('')
           .then(() => {
             getItems(...params_pre_after, userNext, ...params_post_after)
-            .then(() => global.setSuccess())
+            .then(() => {
+              const {userNext: updated_userNext, items} = global.state
+              // on scroll load, call pushshift if page # is > 1 and there are no more pages
+              if (! updated_userNext && items.length > 100) {
+                return lookupAndSetRemovedBy(global)
+                .then(() => global.setSuccess())
+              } else {
+                return global.setSuccess()
+              }
+            })
           })
         }
       }
