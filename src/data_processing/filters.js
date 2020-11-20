@@ -1,18 +1,26 @@
 import { REMOVAL_META, USER_REMOVED, LOCKED, COLLAPSED,
-         MISSING_IN_THREAD, ORPHANED, AUTOMOD_REMOVED } from 'pages/common/RemovedBy'
+         MISSING_IN_THREAD, ORPHANED, AUTOMOD_REMOVED,
+         MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED,
+       } from 'pages/common/RemovedBy'
 import { TAG_META, QUARANTINE, MOD, ADMIN } from 'pages/common/selections/TagsFilter'
 import { itemIsCollapsed, commentIsOrphaned, commentIsMissingInThread,
          postRemovedUnknownWithin } from 'utils'
 
 const otherActions = {
-  [USER_REMOVED]: true,
-  [LOCKED]: true,
-  [COLLAPSED]: true,
-  [MISSING_IN_THREAD]: true,
-  [ORPHANED]: true
+  [USER_REMOVED]: 1,
+  [LOCKED]: 1,
+  [COLLAPSED]: 1,
+  [MISSING_IN_THREAD]: 1,
+  [ORPHANED]: 1,
 }
 
-const actions_that_are_other_and_removedBy = {[AUTOMOD_REMOVED]: true}
+const actions_that_are_other_and_removedBy = {[AUTOMOD_REMOVED]: 1}
+
+const actions_that_are_unknown_without_archive_data = {
+  [MOD_OR_AUTOMOD_REMOVED]: 1,
+  [AUTOMOD_REMOVED]: 1,
+  [UNKNOWN_REMOVED]: 1,
+}
 
 export const filterSelectedActions = (selectedActions) => {
   const selectedOtherActions = selectedActions.filter(a => a in otherActions || a in actions_that_are_other_and_removedBy)
@@ -44,7 +52,7 @@ export const itemIsOneOfSelectedActions = (item, selectedOtherActions, selectedR
     }
   }
   for (const type of selectedRemovedByActions) {
-    if ( (! item.removedby && item.removed ) || item.removedby === type) {
+    if ( (! item.removedby && item.removed && type in actions_that_are_unknown_without_archive_data) || item.removedby === type) {
       return true
     }
   }
