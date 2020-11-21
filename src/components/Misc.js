@@ -5,6 +5,7 @@ import ModalContext from 'contexts/modal'
 import Bowser from 'bowser'
 import {ext_urls} from 'utils'
 import {meta} from 'pages/about/AddOns'
+import { Link } from 'react-router-dom'
 
 const chromelike = ['chrome', 'chromium', 'opera', 'edge', 'vivaldi']
 const chromelike_fullnames = {}
@@ -26,6 +27,11 @@ const NewWindowLink = ({children, ...props}) => {
   return <a target='_blank' {...props}>{children}</a>
 }
 
+export const LinkWithCloseModal = ({children, to}) => {
+  const modal = React.useContext(ModalContext)
+  return <Link to={to} onClick={modal.closeModal}>{children}</Link>
+}
+
 export const ExtensionLink = ({image = false}) => {
   let content = 'Reveddit Real-Time'
   if (image) {
@@ -36,8 +42,7 @@ export const ExtensionLink = ({image = false}) => {
   } else if (Bowser.BROWSER_MAP['firefox'] == browserName) {
     return <NewWindowLink href={ext_urls.rt.f}>{content}</NewWindowLink>
   }
-  //using <a> tag instead of <Link> b/c when this appears in a modal on mobile, <Link> doesn't close the modal
-  return <a href='/add-ons/'>{content}</a>
+  return <LinkWithCloseModal to='/add-ons/'>{content}</LinkWithCloseModal>
 }
 
 export const Spin = ({width}) => {

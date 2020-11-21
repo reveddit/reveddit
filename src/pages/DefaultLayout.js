@@ -102,11 +102,13 @@ class DefaultLayout extends React.Component {
                     <div className='dismiss'>
                       <a className='pointer' onClick={this.closeGenericModal}>✖&#xfe0e;</a>
                     </div>
-                    {this.state.hash ?
-                      getContentForHash(this.state.hash)
-                      :
-                      this.state.content
-                    }
+                    <ModalProvider value={{closeModal: this.closeGenericModal}}>
+                      {this.state.hash ?
+                        getContentForHash(this.state.hash)
+                        :
+                        this.state.content
+                      }
+                    </ModalProvider>
                   </div>
                 </div>
               </Modal>
