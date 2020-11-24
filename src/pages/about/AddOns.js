@@ -1,5 +1,6 @@
 import React, {useEffect} from 'react'
 import {ext_urls, makeDonateVisible} from 'utils'
+import { InternalPage } from 'components/Misc'
 
 export const meta = {
   'chrome': {
@@ -67,12 +68,10 @@ export default () => {
     makeDonateVisible()
   }, [])
   return (
-    <div id='main'>
-      <div id='main-box'>
-        {linkWrap('rt')}
-        {linkWrap('linker')}
-        {linkWrap('q')}
-      </div>
-    </div>
+    <InternalPage>
+      {linkWrap('rt')}
+      {linkWrap('linker')}
+      {linkWrap('q')}
+    </InternalPage>
   )
 }

@@ -1,9 +1,9 @@
-import React from 'react'
+import React, {useEffect} from 'react'
 import {www_reddit} from 'api/reddit'
 import { QuestionMark } from 'pages/common/svg'
 import ModalContext from 'contexts/modal'
 import Bowser from 'bowser'
-import {ext_urls} from 'utils'
+import {ext_urls, jumpToHash} from 'utils'
 import {meta} from 'pages/about/AddOns'
 import { Link } from 'react-router-dom'
 
@@ -23,8 +23,8 @@ if (chromelike_fullnames[browserName]) {
   browserExtensionImage = <img alt="Add to Firefox" src={meta.firefox.img}/>
 }
 
-const NewWindowLink = ({children, ...props}) => {
-  return <a target='_blank' {...props}>{children}</a>
+export const NewWindowLink = ({children, reddit, ...props}) => {
+  return <a href={reddit ? www_reddit+reddit : props.href} target='_blank'  {...props}>{children}</a>
 }
 
 export const LinkWithCloseModal = ({children, to}) => {
@@ -65,5 +65,18 @@ export const QuestionMarkModal = ({modalContent}) => {
     <a className='pointer' onClick={() => modal.openModal(modalContent)}>
       <QuestionMark style={{marginLeft: '10px'}} wh='20'/>
     </a>
+  )
+}
+
+export const InternalPage = ({children}) => {
+  useEffect(() => {
+    jumpToHash(window.location.hash, 0)
+  }, [])
+  return (
+    <div id='main'>
+      <div id='main-box'>
+        {children}
+      </div>
+    </div>
   )
 }

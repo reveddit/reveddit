@@ -356,9 +356,9 @@ export const copyLink = (e, useHref = false) => {
 }
 
 
-export const jumpToHash = (hash) => {
+export const jumpToHash = (hash, offset = -10) => {
   if (hash) {
-    scrollToElement(hash, { offset: -10 });
+    scrollToElement(hash, { offset });
   }
 }
 

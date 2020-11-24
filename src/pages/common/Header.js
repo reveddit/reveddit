@@ -142,11 +142,11 @@ class Header extends React.Component {
       <React.Fragment>
         <header>
           <div id='header'>
-            <div id='site-name'><Link to="/about/">re<span style={{color: 'white'}}>ve</span>ddit</Link></div>
+            <div id='site-name'><Link to="/about/">about <span className='rev'>rev</span>eddit</Link></div>
             <div id='nav'>
               <a href="#settings" onClick={this.settings}>⚙</a>
               <span> | </span>
-              <Link to="/about/">search</Link>
+              <Link to="/about/faq/">F.A.Q.</Link>
               <span> | </span>
               <Link to="/add-ons/">add-ons</Link>
             </div>

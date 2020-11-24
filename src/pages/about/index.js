@@ -13,6 +13,8 @@ import { combinePushshiftAndRedditComments } from 'data_processing/comments'
 import { setPostAndParentDataForComments } from 'data_processing/info'
 import Highlight from 'pages/common/Highlight'
 import { Link } from 'react-router-dom'
+import { InternalPage } from 'components/Misc'
+import {jumpToHash} from 'utils'
 
 const filterDeletedComments = (comments) => {
   const result = []
@@ -23,6 +25,18 @@ const filterDeletedComments = (comments) => {
     }
   })
   return result
+}
+
+export const ContentWithHeader = ({header, children, half, id}) => {
+  const hash = '#'+id
+  return (
+    <div id={id} className={'section ' + (half ? 'half' : '')}>
+      {id ? <Link to={hash} onClick={() => jumpToHash(hash)} style={{marginRight:'5px'}}>🔗</Link> : null}
+      <h2 className='about' style={{display:'inline'}}>{header}</h2>
+      <p></p>
+      {children}
+    </div>
+  )
 }
 
 const NewsItem = ({href, to, title, created_utc}) => {
@@ -103,7 +117,6 @@ export class About extends React.Component {
   }
   render() {
     const props = this.props
-    document.title = 'About reveddit'
     if (props.global.state.statusImage !== undefined) {
       props.global.clearStatus()
     }
@@ -129,20 +142,19 @@ export class About extends React.Component {
       message = 'Your donation has been cancelled.'
     }
     return (
-      <div id='main'>
-        <div id='main-box'>
+        <InternalPage>
           <div className='about section'>
             {message &&
               <div className='message'>
                 {message}
               </div>
             }
-            <h2 className='about'>About</h2>
-            <BlankUser/>
-            <Highlight showMobile={true}/>
+            <ContentWithHeader header='About'>
+              <BlankUser/>
+              <Highlight showMobile={true}/>
+            </ContentWithHeader>
           </div>
-          <div className='section'>
-            <h2 className='about'>What people say</h2>
+          <ContentWithHeader header='What people say' className='section'>
             {this.state.comments.length ?
               singleDisplayComment ?
                 <React.Fragment>
@@ -168,40 +180,36 @@ export class About extends React.Component {
                   </div>
                 </React.Fragment>
             : ''}
-          </div>
+          </ContentWithHeader>
           <div className='sections'>
-            <div className='section half'>
-              <h2 className='about'>News</h2>
+            <ContentWithHeader header='News' half={true}>
               <ul className='news'>
                 {this.showNews()}
               </ul>
-            </div>
-            <div className='section half'>
-              <h2 className='about'>Site usage</h2>
+            </ContentWithHeader>
+            <ContentWithHeader header='Site usage' half={true}>
               <p>Insert <span className='v'>ve</span> into the URL of any reddit page.</p>
-                <ul>
-                  <li><a href={PATH_STR_USER+'/redditor_3975/'}>user/redditor_3975</a></li>
-                  <li><a href={PATH_STR_SUB+'/all/'}>r/all</a></li>
-                  <li><a href={PATH_STR_SUB+'/all/missing-comments/'}>r/all/missing-comments</a></li>
-                  <li><a href={PATH_STR_SUB+'/cant_say_goodbye/'}>r/cant_say_goodbye</a></li>
-                  <li><a href={PATH_STR_SUB+'/cant_say_goodbye/comments'}>r/.../comments</a></li>
-                  <li><a href={PATH_STR_SUB+'/cant_say_goodbye/comments/9ffoqz/comments_mentioning_goodbye_are_removed/'}>r/.../comments/9ffoqz/</a></li>
-                  <li><a href='/domain/cnn.com+edition.cnn.com'>domain/cnn.com+ edition.cnn.com</a></li>
-                  <li><a href={PATH_STR_SUB+'/news+worldnews/'}>r/news+worldnews/</a></li>
-                  <li><a href={PATH_STR_SUB+'/worldnews/duplicates/eb2hjw'}>other-discussions+</a></li>
-                </ul>
-            </div>
+              <ul>
+                <li><a href={PATH_STR_USER+'/redditor_3975/'}>user/redditor_3975</a></li>
+                <li><a href={PATH_STR_SUB+'/all/'}>r/all</a></li>
+                <li><a href={PATH_STR_SUB+'/all/missing-comments/'}>r/all/missing-comments</a></li>
+                <li><a href={PATH_STR_SUB+'/cant_say_goodbye/'}>r/cant_say_goodbye</a></li>
+                <li><a href={PATH_STR_SUB+'/cant_say_goodbye/comments'}>r/.../comments</a></li>
+                <li><a href={PATH_STR_SUB+'/cant_say_goodbye/comments/9ffoqz/comments_mentioning_goodbye_are_removed/'}>r/.../comments/9ffoqz/</a></li>
+                <li><a href='/domain/cnn.com+edition.cnn.com'>domain/cnn.com+ edition.cnn.com</a></li>
+                <li><a href={PATH_STR_SUB+'/news+worldnews/'}>r/news+worldnews/</a></li>
+                <li><a href={PATH_STR_SUB+'/worldnews/duplicates/eb2hjw'}>other-discussions+</a></li>
+              </ul>
+            </ContentWithHeader>
           </div>
           <div className='sections'>
-            <div className='section half'>
-              <h2 className='about'>Feedback</h2>
+            <ContentWithHeader header='Feedback' half={true}>
               <ul>
                 <li><a href={www_reddit+'/r/reveddit/'}>/r/reveddit</a></li>
                 <li><a href='https://github.com/reveddit/reveddit'>github.com/reveddit/reveddit</a></li>
               </ul>
-            </div>
-            <div className='section half'>
-              <h2 className='about'>Credits</h2>
+            </ContentWithHeader>
+            <ContentWithHeader header='Credits' half={true}>
               <p>
                 Created by <a href='https://github.com/rhaksw/'>Rob Hawkins</a> using:
               </p>
@@ -209,17 +217,15 @@ export class About extends React.Component {
                 <li><a href='https://github.com/JubbeArt/removeddit'>Removeddit</a> by Jesper Wrang</li>
                 <li><a href={www_reddit+'/r/pushshift/'}>Pushshift</a> by Jason Baumgartner</li>
               </ul>
-            </div>
+            </ContentWithHeader>
           </div>
           <div className='sections'>
-            <div className='section half'>
-              <h2 className='about'>Donate</h2>
+            <ContentWithHeader header='Donate' half={true}>
               <p>re(ve)ddit is free and ad-free. You can support work like this with a <a className="pointer" onClick={this.donate}>donation</a>, feedback, or code fixes.</p>
               <p>Thank you!</p>
-            </div>
+            </ContentWithHeader>
           </div>
-        </div>
-      </div>
+        </InternalPage>
     )
   }
 }

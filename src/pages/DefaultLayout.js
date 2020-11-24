@@ -72,6 +72,9 @@ class DefaultLayout extends React.Component {
       const url = newSearch + window.location.hash
       history.replaceState({}, '', url)
     }
+    if (this.props.title) {
+      document.title = this.props.title
+    }
   }
   openGenericModal = ({content, hash = ''}) => {
     if (hash) {

@@ -23,7 +23,7 @@ import { getArchiveTimes } from 'api/reveddit'
 import {meta} from 'pages/about/AddOns'
 import Notice from 'pages/common/Notice'
 import Time from 'pages/common/Time'
-
+import {LinkWithCloseModal} from 'components/Misc'
 
 const CAT_SUBREDDIT = {category: 'subreddit',
                        category_title: 'Subreddit',
@@ -435,6 +435,7 @@ export const withFetch = (WrappedComponent) =>
               <p>Error: unable to connect to reddit</p>
               <p>Tracking Protection on Firefox prevents this site from accessing reddit's API. <b>To fix this</b>, add an exception by clicking the shield icon next to the URL:</p>
               <img src="/images/etp.png"/>
+              <p><LinkWithCloseModal to='/about/faq/#firefox'>Why should I disable tracking protection?</LinkWithCloseModal></p>
               <p>If this does not resolve the issue, there may be a conflicting extension blocking connections to reddit from other websites.</p>
             </>
         } else {

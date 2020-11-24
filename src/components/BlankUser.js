@@ -2,7 +2,7 @@ import React, {useState} from 'react'
 import { Link, Redirect } from 'react-router-dom'
 import { SimpleURLSearchParams, useFocus } from 'utils'
 import { Shuffle } from 'pages/common/svg'
-import { www_reddit } from 'api/reddit'
+import { LinkWithCloseModal } from 'components/Misc'
 
 
 export default () => {
@@ -77,8 +77,7 @@ export default () => {
         </button>
       </form>
       <div className='text'>
-        Conversations are better when users <a target='_blank' href={www_reddit+'/r/science/comments/duwdco/should_moderators_provide_removal_explanations/f79o1yr/'}>receive feedback</a> about removed content.
-        <p className='small'>User-deleted content does not appear on reveddit.</p>
+        <LinkWithCloseModal to='/about/faq/#why'>F.A.Q. - Why do I need this?</LinkWithCloseModal>
       </div>
     </div>
   )
