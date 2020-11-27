@@ -98,6 +98,7 @@ export const combinePushshiftAndRedditPosts = async (
     const post = combineRedditAndPushshiftPost(reddit_post, ps_post)
     post.selftext = ''
     post.link_created_utc = post.created_utc
+    post.link_score = post.score
     if (post.deleted || post.removed) {
       if (  (    post.num_comments > 0
               || includePostsWithZeroComments

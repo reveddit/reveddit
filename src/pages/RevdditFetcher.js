@@ -158,7 +158,8 @@ const getLoadDataFunctionAndParam = (
 const MAX_COLLAPSED_VISIBLE = 2
 const MAX_ORPHANED_VISIBLE = 2
 
-const itemMatches = (item, searchString, fields) => {
+const textMatch = (gs, item, globalVarName, fields) => {
+  const searchString = gs[globalVarName]
   const keywords = searchString.toString().replace(/\s\s+/g, ' ').trim().toLocaleLowerCase().match(/(-?"[^"]+"|[^"\s]+)/g) || []
   for (let i = 0; i < keywords.length; i++) {
     const negateWord = keywords[i].startsWith('-') ? true : false
@@ -181,7 +182,7 @@ const itemMatches = (item, searchString, fields) => {
   return true
 }
 
-const minMaxMatch = (match, gs, globalVarBase, item, field, isAge=false) => {
+const minMaxMatch = (gs, item, globalVarBase, field, isAge=false) => {
   if (field in item) {
     const min = gs[globalVarBase+'_min']
     const max = gs[globalVarBase+'_max']
@@ -194,7 +195,7 @@ const minMaxMatch = (match, gs, globalVarBase, item, field, isAge=false) => {
       return value <= max
     }
   }
-  return match
+  return true
 }
 
 export const withFetch = (WrappedComponent) =>
@@ -392,29 +393,24 @@ export const withFetch = (WrappedComponent) =>
             title_body_fields.push('link_title')
           }
           let match = true
-          if (match) {
-            match = minMaxMatch(match, gs, 'num_subscribers', item, 'subreddit_subscribers')
-          }
-          if (match) {
-            match = minMaxMatch(match, gs, 'num_comments', item, 'num_comments')
-          }
-          if (match) {
-            match = minMaxMatch(match, gs, 'score', item, 'score')
-          }
-          if (match) {
-            match = minMaxMatch(match, gs, 'link_age', item, 'link_created_utc', true)
-          }
-          if (match) {
-            match = itemMatches(item, gs.post_flair, ['link_flair_text'])
-          }
-          if (match) {
-            match = itemMatches(item, gs.user_flair, ['author_flair_text'])
-          }
-          if (match) {
-            match = itemMatches(item, gs.filter_url, ['url'])
-          }
-          if (match) {
-            match = itemMatches(item, gs.keywords, title_body_fields)
+          const matchFuncAndParams = [
+            [minMaxMatch, ['num_subscribers', 'subreddit_subscribers']],
+            [minMaxMatch, ['num_comments', 'num_comments']],
+            [minMaxMatch, ['score', 'score']],
+            [minMaxMatch, ['link_score', 'link_score']],
+            [minMaxMatch, ['link_age', 'link_created_utc', true]],
+            [textMatch, ['post_flair', ['link_flair_text']]],
+            [textMatch, ['user_flair', ['author_flair_text']]],
+            [textMatch, ['filter_url', ['url']]],
+            [textMatch, ['keywords', title_body_fields]],
+          ]
+          for (const funcAndParams of matchFuncAndParams) {
+            if (match) {
+              const fn = funcAndParams[0]
+              match = fn(gs, item, ...funcAndParams[1])
+            } else {
+              break
+            }
           }
           if (match) {
             visibleItems.push(item)

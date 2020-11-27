@@ -19,6 +19,11 @@ const filters = {
     text: 'Score',
     placeholder: '10',
   },
+  'link_score': {
+    globalVarBase: 'link_score',
+    text: 'Link score',
+    placeholder: '10',
+  },
   'link_age': {
     globalVarBase: 'link_age',
     text: 'Link age (min.)',
