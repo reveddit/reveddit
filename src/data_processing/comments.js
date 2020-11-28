@@ -138,6 +138,11 @@ const setupCommentMeta = (archiveComment, redditComment) => {
         archiveComment.removedby = MOD_OR_AUTOMOD_REMOVED
       }
     }
+  } else if (commentIsDeleted(redditComment)) {
+    // modlog entries that were later deleted by the user didn't have author and body fields,
+    // causing errors in later processing where those fields are assumed to exist
+    archiveComment.author = redditComment.author
+    archiveComment.body = redditComment.body
   }
   archiveComment.archive_processed = true
 }
