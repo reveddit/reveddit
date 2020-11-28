@@ -14,10 +14,13 @@ import { help } from 'pages/common/selections'
 const urr_title = 'Karma Removal Rate'
 const urr_help_content = (
   <>
-    <p>Shows the percentage of karma removed in periods of 1,000 comments or posts over time.</p>
-    <p>Hovering the mouse shows a preview of the highest-scored removed item. Clicking on a point loads all items for that period.</p>
-    <p>Each point in the graph represents the summed score of removed items divided by the summed score of all items for that period.</p>
-    <p>If 1,000 items have a combined score of 20,000 and the removed items have a combined score of 10,000, then the removal rate for that period is 50%.</p>
+    <p>This graph shows highly upvoted removed content for any subreddit. Peaks in the graph may indicate where users and moderators disagree about what should appear.</p>
+    <p><b>How do I use it?</b></p>
+    <p>Hover the mouse to show a preview of the highest-scored removed item. Click on a point to load all items for that period.</p>
+    <p>Select options to see results for comments or posts.</p>
+    <p><b>How is it calculated?</b></p>
+    <p>The graph shows the percentage of karma removed in periods of 1,000 comments or posts over time. Each point represents the summed score of removed items divided by the summed score of all items for that period.</p>
+    <p>For example, if 1,000 items have a combined score of 20,000 and the removed items have a combined score of 10,000, then the removal rate for that period is 50%.</p>
   </>
 )
 const urr_help = help(urr_title, urr_help_content)
