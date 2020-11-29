@@ -54,8 +54,8 @@ class LocalSort extends React.Component {
           {['thread', 'subreddit_comments', 'missing_comments'].includes(page_type) &&
             this.makeLabel('comment_length', 'comment length')}
 
-          {this.makeLabel('score', 'score')}
-          {this.makeLabel('date', 'date')}
+          {this.makeLabel('score', 'score (top)')}
+          {this.makeLabel('date', 'date (new)')}
           {page_type === 'missing_comments' &&
             this.makeLabel('date_observed', 'date observed')}
           {['subreddit_posts', 'domain_posts', 'info', 'search', 'duplicate_posts'].includes(page_type) &&
