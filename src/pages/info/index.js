@@ -13,7 +13,7 @@ import Pagination from 'components/Pagination'
 export class Info extends React.Component {
 
   render() {
-    const { page_type, viewableItems, selections, archiveDelayMsg,
+    const { page_type, viewableItems, selections, summary, archiveDelayMsg,
             oldestTimestamp, newestTimestamp,
           } = this.props
     const {items, loading, localSort, localSortReverse} = this.props.global.state
@@ -52,6 +52,7 @@ export class Info extends React.Component {
       <div className='infopage'>
         {shareLink}
         {selections}
+        {summary}
         <Highlight/>
         {archiveDelayMsg}
         {

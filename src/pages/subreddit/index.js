@@ -13,7 +13,7 @@ class SubredditPosts extends React.Component {
 
   render () {
     const { subreddit } = this.props.match.params
-    const { page_type, viewableItems, selections, archiveDelayMsg,
+    const { page_type, viewableItems, selections, summary, archiveDelayMsg,
             oldestTimestamp, newestTimestamp,
           } = this.props
     const {items, loading, localSort, localSortReverse, hasVisitedUserPage} = this.props.global.state
@@ -41,6 +41,7 @@ class SubredditPosts extends React.Component {
           <a href={getUrlWithTimestamp()} onClick={copyLink}>copy sharelink</a>
         </div>
         {selections}
+        {summary}
         {! hasVisitedUserPage &&
           <div className='notice-with-link userpage-note'>
             <div>{"Check if you have any removed comments."}</div>

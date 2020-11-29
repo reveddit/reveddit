@@ -9,6 +9,7 @@ import { getRevdditThreadItems } from 'data_processing/thread'
 import { getRevdditItems, getRevdditSearch } from 'data_processing/info'
 import { itemIsOneOfSelectedActions, itemIsOneOfSelectedTags, filterSelectedActions } from 'data_processing/filters'
 import Selections from 'pages/common/selections'
+import SummaryAndPagination from 'pages/common/SummaryAndPagination'
 import { showAccountInfo_global } from 'pages/modals/Settings'
 import { removedFilter_types, getExtraGlobalStateVars, create_qparams } from 'state'
 import { NOT_REMOVED, COLLAPSED, ORPHANED } from 'pages/common/RemovedBy'
@@ -470,6 +471,13 @@ export const withFetch = (WrappedComponent) =>
                     num_items={items.length}
                     category_type={category} category_title={category_title}
                     category_unique_field={category_unique_field}/>
+      const summary =
+        <SummaryAndPagination num_items={items.length}
+                              num_showing={viewableItems.length}
+                              page_type={page_type}
+                              subreddit={subreddit}
+                              category_type={category}
+                              category_unique_field={category_unique_field}/>
       let numCollapsedNotShownMsg = ''
       if (numCollapsedNotShown) {
           numCollapsedNotShownMsg =
@@ -509,6 +517,7 @@ export const withFetch = (WrappedComponent) =>
         <React.Fragment>
           <WrappedComponent {...this.props} {...this.state}
             selections={selections}
+            summary={summary}
             viewableItems={viewableItems}
             notShownMsg={notShownMsg}
             archiveDelayMsg={archiveDelayMsg}

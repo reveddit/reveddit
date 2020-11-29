@@ -128,6 +128,9 @@ class Post extends React.Component {
                     <a className='collapseToggle' onClick={() => this.hideFullSelftext()} style={{float:'left',marginRight:'10px'}}>[–]</a>
                   }
                   <div dangerouslySetInnerHTML={{ __html: parse(selftext)}}/>
+                  {snippet_is_set &&
+                    <p><a className='collapseToggle' onClick={() => this.hideFullSelftext()} style={{float:'left',marginRight:'10px'}}>[–] view less</a></p>
+                  }
                 </>
               :
                 <>

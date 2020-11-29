@@ -19,7 +19,9 @@ class Thread extends React.Component {
 
     const { id, author } = post
     const { subreddit, threadID, urlTitle = '', commentID } = this.props.match.params
-    const { selections, visibleItemsWithoutCategoryFilter, page_type, archiveDelayMsg } = this.props
+    const { selections, summary,
+            visibleItemsWithoutCategoryFilter, page_type, archiveDelayMsg,
+          } = this.props
     const linkToRestOfComments = `${PATH_STR_SUB}/${subreddit}/comments/${threadID}/${urlTitle}/`
     const isSingleComment = (commentID !== undefined)
     const threadFiltersAreUnset = this.props.global.threadFiltersAreUnset()
@@ -49,37 +51,34 @@ class Thread extends React.Component {
 
     return (
       <>
+        {selections}
         <Post {...post} />
-        {
+        {summary}
+        <Highlight/>
+        {archiveDelayMsg}
+        {! hasVisitedUserPage &&
+          <div className='notice-with-link userpage-note'>
+            <div>{"Check if you have any removed comments."}</div>
+            <Link to={PATH_STR_USER+'/'}>view my removed comments</Link>
+          </div>
+        }
+        {(numComments !== 0 && (commentID || id)) &&
           <>
-            {selections}
-            <Highlight/>
-            {archiveDelayMsg}
-            {! hasVisitedUserPage &&
-              <div className='notice-with-link userpage-note'>
-                <div>{"Check if you have any removed comments."}</div>
-                <Link to={PATH_STR_USER+'/'}>view my removed comments</Link>
-              </div>
+            {isSingleComment &&
+              <Notice message="you are viewing a single comment's thread." htmlLink={viewAllComments}/>
             }
-            {(numComments !== 0 && (commentID || id)) &&
-              <>
-                {isSingleComment &&
-                  <Notice message="you are viewing a single comment's thread." htmlLink={viewAllComments}/>
-                }
-                {! threadFiltersAreUnset &&
-                  <Notice message="some comments may be hidden by selected filters." htmlLink={resetFilters}/>
-                }
-                {! showContext &&
-                  <Notice message="context is flattened." htmlLink={viewContext}/>
-                }
-                <CommentSection
-                  root={root}
-                  visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
-                  page_type={page_type}
-                  focusCommentID={commentID}
-                />
-              </>
+            {! threadFiltersAreUnset &&
+              <Notice message="some comments may be hidden by selected filters." htmlLink={resetFilters}/>
             }
+            {! showContext &&
+              <Notice message="context is flattened." htmlLink={viewContext}/>
+            }
+            <CommentSection
+              root={root}
+              visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
+              page_type={page_type}
+              focusCommentID={commentID}
+            />
           </>
         }
       </>

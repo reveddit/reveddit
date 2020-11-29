@@ -23,7 +23,7 @@ const dismiss = () => {
   return true
 }
 
-const User = ({match, global, page_type, viewableItems, selections, notShownMsg}) => {
+const User = ({match, global, page_type, viewableItems, selections, summary, notShownMsg}) => {
   const { user, kind = ''} = match.params
   const modal = React.useContext(ModalContext)
   const queryParams = new SimpleURLSearchParams(window.location.search)
@@ -111,6 +111,7 @@ const User = ({match, global, page_type, viewableItems, selections, notShownMsg}
               <div>{loadAllLink}</div>
             </div>
             {selections}
+            {summary}
           </div>
           <Highlight/>
           {instructionalNotice}

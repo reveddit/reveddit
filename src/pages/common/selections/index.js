@@ -11,10 +11,8 @@ import Content from './Content'
 import TextFilter from './TextFilter'
 import MinMaxFilters from './MinMaxFilters'
 import TagsFilter from './TagsFilter'
-import ResultsSummary from 'pages/common/ResultsSummary'
 import Selfposts from './Selfposts'
 import { SimpleURLSearchParams } from 'utils'
-import Pagination from 'components/Pagination'
 import {www_reddit} from 'api/reddit'
 import { QuestionMarkModal } from 'components/Misc'
 
@@ -50,7 +48,7 @@ const word_help = help('Title/Body filter', word_filter_help)
 const flair_help = help('Flair filter', word_filter_help)
 const url_help = help('URL filter', word_filter_help)
 
-const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter, num_items, num_showing,
+const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter,
                      category_type, category_title, category_unique_field, global,
                    }) => {
   const [showFilters, setShowFilters] = useState(false)
@@ -204,15 +202,6 @@ const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter, nu
             }
           })()}
         </div>
-      }
-      {num_items ?
-        <Pagination subreddit={subreddit} page_type={page_type}>
-          <ResultsSummary num_showing={num_showing}
-                          category_type={category_type}
-                          category_unique_field={category_unique_field}
-                          page_type={page_type} />
-        </Pagination>
-        : ''
       }
     </>
   )

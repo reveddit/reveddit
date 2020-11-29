@@ -38,7 +38,8 @@ const byControversiality2 = (a, b) => {
 class SubredditComments extends React.Component {
   render () {
     const { subreddit } = this.props.match.params
-    const { page_type, viewableItems, selections, notShownMsg, archiveDelayMsg,
+    const { page_type, viewableItems, selections, summary,
+            notShownMsg, archiveDelayMsg,
           } = this.props
     const {items, loading, localSort, localSortReverse, hasVisitedUserPage,
            paginationMeta, oldestTimestamp, newestTimestamp,
@@ -69,6 +70,7 @@ class SubredditComments extends React.Component {
           <a href={getUrlWithTimestamp()} onClick={copyLink}>copy sharelink</a>
         </div>
         {selections}
+        {summary}
         {! hasVisitedUserPage &&
           <div className='notice-with-link userpage-note'>
             <div>{"Check if you have any removed comments."}</div>
