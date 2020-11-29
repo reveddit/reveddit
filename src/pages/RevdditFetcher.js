@@ -398,6 +398,7 @@ export const withFetch = (WrappedComponent) =>
             [minMaxMatch, ['num_comments', 'num_comments']],
             [minMaxMatch, ['score', 'score']],
             [minMaxMatch, ['link_score', 'link_score']],
+            [minMaxMatch, ['age', 'created_utc', true]],
             [minMaxMatch, ['link_age', 'link_created_utc', true]],
             [textMatch, ['post_flair', ['link_flair_text']]],
             [textMatch, ['user_flair', ['author_flair_text']]],

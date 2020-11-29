@@ -51,6 +51,7 @@ const urlParamKeys_max_min_base = {
   num_subscribers: 'num_subscribers',
   score: 'score',
   num_comments: 'num_comments',
+  age: 'age',
   link_age: 'link_age',
   link_score: 'link_score',
 }
