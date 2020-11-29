@@ -2,9 +2,9 @@ import React, {useRef} from 'react'
 import {ifNumParseInt, isCommentID, validAuthor} from 'utils'
 import {connect, urlParamKeys, create_qparams_and_adjust, updateURL} from 'state'
 import { kindsReverse, queryUserPage } from 'api/reddit'
-import { Spin } from 'components/Misc'
+import { Spin, QuestionMarkModal, Help, NewWindowLink } from 'components/Misc'
 import { copyFields, initializeComment } from 'data_processing/comments'
-import RefreshIcon from 'svg/refresh.svg';
+import RefreshIcon from 'svg/refresh.svg'
 
 const MAX_AUTHORS_NEARBY_BY_DATE = 4
 const MAX_AUTHORS_TO_SEARCH = 15
@@ -14,6 +14,22 @@ const addAuthorIfExists = (comment, set) => {
     set.add(comment.author)
   }
 }
+
+export const unarchived_search_button_word = 'Refresh'
+
+export const unarchived_search_see_more = <>
+  See <NewWindowLink reddit={'/r/removeddit/comments/hy5z7g/_/g4xlrne/'}>search for unarchived comments</NewWindowLink> and <NewWindowLink reddit='/ih86wk'>restored via user page</NewWindowLink> for more information.
+</>
+
+export const unarchived_search_help_content = (
+  <>
+    <p>Sometimes the archive service, called "Pushshift", falls behind. If something is removed before it can be archived then it can only be found on the author's /user page. To find it you need to know the author first. Reveddit can search /user pages of nearby authors, such as the grandparent comment's author, to fill in some of these comments.</p>
+    <p>Clicking '{unarchived_search_button_word}' performs this search once for a group of users who have successfully commented in the thread. If there is no result after the first click, clicking more times may yield a result.</p>
+    <p>{unarchived_search_see_more}</p>
+  </>
+)
+
+const search_comment_help = <Help title={unarchived_search_button_word+' Comment'} content={unarchived_search_help_content}/>
 
 const Wrap = ({children}) => <div style={{padding: '15px 0', minHeight: '25px'}}>{children}</div>
 
@@ -122,7 +138,8 @@ const FindCommentViaAuthors = (props) => {
     searchButton = (
       <Wrap>
         <a className='pointer bubble medium lightblue' onClick={search}
-        ><img src={RefreshIcon} alt="Refresh icon" style={{verticalAlign: 'middle'}} /> refresh<span className='desktop-only'> ({numAuthorsRemaining.toLocaleString()} users left)</span></a>
+        ><img src={RefreshIcon} alt="Refresh icon" style={{verticalAlign: 'middle'}} /> {unarchived_search_button_word}<span className='desktop-only'> ({numAuthorsRemaining.toLocaleString()} users left)</span></a>
+        <QuestionMarkModal modalContent={{content:search_comment_help}} fill='white'/>
       </Wrap>
     )
   }

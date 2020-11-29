@@ -3,6 +3,7 @@ import { www_reddit } from 'api/reddit'
 import { InternalPage, NewWindowLink } from 'components/Misc'
 import {ExtensionLink} from 'components/Misc'
 import {ContentWithHeader} from 'pages/about'
+import { unarchived_search_help_content, unarchived_search_button_word } from 'data_processing/FindCommentViaAuthors'
 
 const About_faq = () => {
   return (
@@ -42,11 +43,11 @@ const About_faq = () => {
         <p>Thread pages rely on an archive service called Pushshift which sometimes falls behind. If a comment is removed before it is archived then it may not appear on reveddit.</p>
         <p>Your /user page will always be up to date since that only relies on data from reddit.</p>
       </ContentWithHeader>
-      <ContentWithHeader header='What does it mean when a removed comment has been "restored via user page"?' id='restored'>
-        <p>It means the comment was not archived but able to be copied from the author's /user page. <NewWindowLink reddit='/ih86wk'>more info</NewWindowLink></p>
+      <ContentWithHeader header={'What does the "'+unarchived_search_button_word+'" button on removed comments in thread pages do?'} id='refresh'>
+        {unarchived_search_help_content}
       </ContentWithHeader>
-      <ContentWithHeader header='What does the "refresh" button on removed comments in thread pages do?' id='refresh'>
-        <p>Reveddit can search /user pages of nearby authors, such as the grandparent comment's author, to fill in unarchived comments. Clicking this button performs that search on five nearby authors. <NewWindowLink reddit='/ih86wk'>more info</NewWindowLink></p>
+      <ContentWithHeader header='What does it mean when a removed comment has been "restored via user page"?' id='restored'>
+        <p>It means the comment was not archived but able to be copied from the author's /user page. For more information, see the answer about the <a href='#refresh'>"{unarchived_search_button_word}" button</a>.</p>
       </ContentWithHeader>
     </InternalPage>
   )

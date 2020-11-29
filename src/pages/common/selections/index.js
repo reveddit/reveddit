@@ -14,7 +14,7 @@ import TagsFilter from './TagsFilter'
 import Selfposts from './Selfposts'
 import { SimpleURLSearchParams } from 'utils'
 import {www_reddit} from 'api/reddit'
-import { QuestionMarkModal } from 'components/Misc'
+import { QuestionMarkModal, Help } from 'components/Misc'
 
 const UpvoteRemovalRateHistory = lazy(() => import('pages/common/selections/UpvoteRemovalRateHistory'))
 
@@ -35,18 +35,10 @@ const word_filter_help = (
   </>
 )
 
-export const help = (title = '', content = '') => {
-  return (
-    <div>
-      <h3>{title} help</h3>
-      {content}
-    </div>
-  )
-}
 
-const word_help = help('Title/Body filter', word_filter_help)
-const flair_help = help('Flair filter', word_filter_help)
-const url_help = help('URL filter', word_filter_help)
+const word_help = <Help title='Title/Body filter' content={word_filter_help}/>
+const flair_help = <Help title='Flair filter' content={word_filter_help}/>
+const url_help = <Help title='URL filter' content={word_filter_help}/>
 
 const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter,
                      category_type, category_title, category_unique_field, global,
@@ -98,13 +90,13 @@ const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter,
                 title='URL' titleHelpModal={{content:url_help}} />,
   ]
   if (showFilters) {
-    const save_reset_help = help('Save/Reset',
+    const save_reset_help = <Help title='Save/Reset' content={
       <>
         <p>Save: Saves the currently selected filters as the default on page loads for the current page type, [{page_type}]</p>
         <p>Reset: Resets saved custom filters to the default values.</p>
         <p><span className="quarantined">Tip</span> To show all items on a page, click the link on the number of items shown, for example "4 of 100"</p>
       </>
-    )
+    }/>
     const save = <a className='pointer' onClick={() => global.saveDefaults(page_type)}>save</a>
     const reset = <a className='pointer' onClick={() => global.resetDefaults(page_type)}>reset</a>
     save_reset_buttons = <span> | {save} / {reset}<QuestionMarkModal modalContent={{content:save_reset_help}}/></span>

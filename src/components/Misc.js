@@ -23,6 +23,15 @@ if (chromelike_fullnames[browserName]) {
   browserExtensionImage = <img alt="Add to Firefox" src={meta.firefox.img}/>
 }
 
+export const RedditOrLocalLink = ({children, reddit, to}) => {
+  if (reddit) {
+    return <NewWindowLink reddit={reddit}>{children}</NewWindowLink>
+  } else if (to) {
+    return <LinkWithCloseModal to={to}>{children}</LinkWithCloseModal>
+  }
+  return null
+}
+
 export const NewWindowLink = ({children, reddit, ...props}) => {
   return <a href={reddit ? www_reddit+reddit : props.href} target='_blank'  {...props}>{children}</a>
 }
@@ -59,11 +68,11 @@ export const MessageMods = ({permalink, subreddit}) => {
   return <a href={mods_link} target="_blank">message mods</a>
 }
 
-export const QuestionMarkModal = ({modalContent}) => {
+export const QuestionMarkModal = ({modalContent, fill}) => {
   const modal = React.useContext(ModalContext)
   return (
     <a className='pointer' onClick={() => modal.openModal(modalContent)}>
-      <QuestionMark style={{marginLeft: '10px'}} wh='20'/>
+      <QuestionMark style={{marginLeft: '10px'}} wh='20' fill={fill}/>
     </a>
   )
 }
@@ -77,6 +86,15 @@ export const InternalPage = ({children}) => {
       <div id='main-box'>
         {children}
       </div>
+    </div>
+  )
+}
+
+export const Help = ({title = '', content = ''}) => {
+  return (
+    <div>
+      <h3>{title} help</h3>
+      {content}
     </div>
   )
 }

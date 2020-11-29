@@ -1,7 +1,6 @@
 import React from 'react'
 import {itemIsCollapsed, commentIsMissingInThread,
         isPost, getRemovedWithinText, postRemovedUnknownWithin} from 'utils'
-import {www_reddit} from 'api/reddit'
 import ModalContext from 'contexts/modal'
 import {QuestionMark} from 'pages/common/svg'
 
@@ -25,51 +24,51 @@ export const REMOVAL_META = {
                  [ANTI_EVIL_REMOVED]: {filter_text: 'reddit anti-evil ops removed',
                                          label: '[removed] by reddit anti-evil ops',
                                           desc: 'Removed by an admin.',
-                                      morelink: www_reddit+'/9qf5ma'},
+                                   reddit_link: '/9qf5ma'},
         [MOD_OR_AUTOMOD_REMOVED]: {filter_text: 'likely mod removed (maybe automod)',
                                          label: '[removed] likely by mod (maybe automod)',
                                           desc: '90% chance this was removed by a moderator, 10% chance removed by automod.',
-                                      morelink: www_reddit+'/fifhp7'},
+                                   reddit_link: '/fifhp7'},
                [AUTOMOD_REMOVED]: {filter_text: 'automod removed',
                                          label: '[removed] by automod',
                                           desc: '100% certain, automod removed.',
-                                      morelink: www_reddit+AUTOMOD_LINK},
+                                   reddit_link: AUTOMOD_LINK},
   [AUTOMOD_REMOVED_MOD_APPROVED]: {filter_text: 'automod removed, manually approved',
                                          label: '[approved] automod removed, manually approved',
                                           desc: 'This content was initially auto-removed by automoderator and later manually approved by a moderator.',
-                                      morelink: www_reddit+AUTOMOD_LINK},
+                                   reddit_link: AUTOMOD_LINK},
                [UNKNOWN_REMOVED]: {filter_text: 'unknown if mod or automod removed',
                                          label: '[removed] unknown if by mod or automod',
                                           desc: 'Cannot say with certainty whether this was removed by a mod or by automod.',
-                                      morelink: www_reddit+'/comments/cve5vl/?comment=ey4mzwq'},
+                                   reddit_link: '/comments/cve5vl/?comment=ey4mzwq'},
                         [LOCKED]: {filter_text: 'locked',
                                          label: 'locked',
                                           desc: 'locked, replies are not permitted.',
-                                      morelink: www_reddit+'/brgr8i'}
+                                   reddit_link: '/brgr8i'}
                             }
 
 export const COLLAPSED_META = {filter_text: 'collapsed',
                                      label: 'collapsed',
                                       desc: 'The comment has a positive score and is collapsed in the thread.',
-                                  morelink: www_reddit+'/e8vl4d'}
+                               reddit_link: '/e8vl4d'}
 
 export const MISSING_IN_THREAD_META = {filter_text: 'missing in thread',
                                              label: 'missing in thread',
                                               desc: 'The comment does not appear on the reddit thread unless directly linked.',
-                                          morelink: www_reddit+'/gwzbxp'}
+                                       reddit_link: '/gwzbxp'}
 
 export const ORPHANED_META = {filter_text: 'orphaned',
                                      desc: 'The link itself or the direct parent of the comment was removed.',
-                                 morelink: '/r/TheoryOfReddit/comments/hctddn/reddit_has_a_problem_false_posts_get_removed/fvi50y9/?context=3&add_user=rhaksw.1..new...t1_fvi5di8#t1_fvi50y9'}
+                               local_link: '/r/TheoryOfReddit/comments/hctddn/reddit_has_a_problem_false_posts_get_removed/fvi50y9/?context=3&add_user=rhaksw.1..new...t1_fvi5di8#t1_fvi50y9'}
 
 export const USER_REMOVED_META = {filter_text: 'user deleted',
                                         label: '[deleted] by user',
                                          desc: 'The author of this content deleted it. Posts may have been first removed by a moderator.',
-                                     morelink: www_reddit+'/r/removeddit/comments/ir1oyw/_/g5fgxgl/?context=3#thing_t1_g5fgxgl'}
+                                  reddit_link: '/r/removeddit/comments/ir1oyw/_/g5fgxgl/?context=3#thing_t1_g5fgxgl'}
 
 export const RESTORED_META = {filter_text: 'restored via user page',
-                                     desc: "The comment was removed before it could be archived. Its body was copied from the author's /user page on reddit.",
-                                 morelink: www_reddit+'/ih86wk'}
+                                     desc: "This comment was not archived but could be copied from the author's /user page on reddit.",
+                              local_link: '/about/faq/#restored'}
 
 export const ALL_ACTIONS_META = {
   ...REMOVAL_META,

@@ -8,11 +8,10 @@ import { prettyFormatBigNumber, SimpleURLSearchParams, ifNumParseInt,
 } from 'utils'
 import { Fetch } from 'hooks/fetch'
 import { Selection } from './SelectionBase'
-import { QuestionMarkModal } from 'components/Misc'
-import { help } from 'pages/common/selections'
+import { QuestionMarkModal, Help } from 'components/Misc'
 
 const urr_title = 'Karma Removal Rate'
-const urr_help_content = (
+const urr_help = <Help title={urr_title} content={
   <>
     <p>This graph shows highly upvoted removed content for any subreddit. Peaks in the graph may indicate where users and moderators disagree about what should appear.</p>
     <p><b>How do I use it?</b></p>
@@ -22,8 +21,7 @@ const urr_help_content = (
     <p>The graph shows the percentage of karma removed in periods of 1,000 comments or posts over time. Each point represents the summed score of removed items divided by the summed score of all items for that period.</p>
     <p>For example, if 1,000 items have a combined score of 20,000 and the removed items have a combined score of 10,000, then the removal rate for that period is 50%.</p>
   </>
-)
-const urr_help = help(urr_title, urr_help_content)
+}/>
 
 class Sparkline extends React.PureComponent {
   constructor(props) {

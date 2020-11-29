@@ -1,10 +1,11 @@
 import React from 'react'
 import {ALL_ACTIONS_META} from 'pages/common/RemovedBy'
+import { RedditOrLocalLink } from 'components/Misc'
 
 const ActionHelpEntry = ({meta}) =>
   <div>
     <h3>{meta.filter_text}</h3>
-    <p>{meta.desc}{meta.morelink && <> <a target='_blank' href={meta.morelink}>More info</a></>}</p>
+    <p>{meta.desc} <RedditOrLocalLink reddit={meta.reddit_link} to={meta.local_link}>More info</RedditOrLocalLink></p>
   </div>
 
 export default ({action}) => {
