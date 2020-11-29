@@ -156,8 +156,8 @@ const getLoadDataFunctionAndParam = (
   }
   return null
 }
-const MAX_COLLAPSED_VISIBLE = 2
-const MAX_ORPHANED_VISIBLE = 2
+const MAX_COLLAPSED_VISIBLE = 1
+const MAX_ORPHANED_VISIBLE = 1
 
 const textMatch = (gs, item, globalVarName, fields) => {
   const searchString = gs[globalVarName]
