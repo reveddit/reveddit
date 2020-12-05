@@ -1,5 +1,5 @@
 import React from 'react'
-import { markdownToHTML, commentIsRemoved, replaceAmpGTLT,
+import { markdownToHTML, commentIsRemoved,
          commentIsOrphaned, commentIsMissingInThread, get, put,
          getRemovedMessage, textSaysRemoved, getRemovedWithinText } from 'utils'
 import { connect } from 'state'
