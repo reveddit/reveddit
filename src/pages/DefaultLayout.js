@@ -91,12 +91,19 @@ class DefaultLayout extends React.Component {
 
   render() {
     const {component: Component, ...rest } = this.props
+    const {threadPost} = this.props.global.state
+    let threadClass = ''
+    if (threadPost.removed) {
+      threadClass = 'thread-removed'
+    } else if (threadPost.deleted) {
+      threadClass = 'thread-deleted'
+    }
     return (
       <Route {...rest} render={matchProps => {
         return (
           <React.Fragment>
             <Header {...matchProps} {...rest} openGenericModal={this.openGenericModal}/>
-            <div className='main'>
+            <div className={'main '+threadClass}>
               <Modal isOpen={this.state.genericModalIsOpen}
                 onRequestClose={this.closeGenericModal}
                 style={customStyles}>
@@ -126,4 +133,4 @@ class DefaultLayout extends React.Component {
   }
 }
 
-export default DefaultLayout
+export default connect(DefaultLayout)
