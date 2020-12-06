@@ -3,6 +3,7 @@ import {itemIsCollapsed, commentIsMissingInThread,
         isPost, getRemovedWithinText, postRemovedUnknownWithin} from 'utils'
 import ModalContext from 'contexts/modal'
 import {QuestionMark} from 'pages/common/svg'
+import ActionHelp from 'pages/modals/ActionHelp'
 
 export const ANTI_EVIL_REMOVED = 'anti_evil_ops'
 export const AUTOMOD_REMOVED = 'automod'
@@ -16,22 +17,23 @@ export const COLLAPSED = 'collapsed'
 export const MISSING_IN_THREAD = 'missing'
 export const ORPHANED = 'orphaned'
 export const RESTORED = 'restored'
-export const AUTOMOD_LATENCY_THRESHOLD = 15
+export const AUTOMOD_LATENCY_THRESHOLD = 25
 
 const AUTOMOD_LINK = '/wiki/automoderator'
+const faq = '/about/faq/'
 
 export const REMOVAL_META = {
-                 [ANTI_EVIL_REMOVED]: {filter_text: 'reddit anti-evil ops removed',
+                 [ANTI_EVIL_REMOVED]: {filter_text: 'anti-evil ops removed',
                                          label: '[removed] by reddit anti-evil ops',
                                           desc: 'Removed by an admin.',
                                    reddit_link: '/9qf5ma'},
-        [MOD_OR_AUTOMOD_REMOVED]: {filter_text: 'likely mod removed',
-                                         label: '[removed] likely by mod',
-                                          desc: '90% chance this was removed by a moderator, 10% chance removed by automod.',
+        [MOD_OR_AUTOMOD_REMOVED]: {filter_text: 'mod removed',
+                                         label: '[removed] by mod',
+                                          desc: 'Likely removed by a moderator. There is also a chance it was removed by automod.',
                                    reddit_link: '/fifhp7'},
                [AUTOMOD_REMOVED]: {filter_text: 'automod removed',
                                          label: '[removed] by automod',
-                                          desc: '100% certain, automod removed.',
+                                          desc: 'Likely removed by automod.',
                                    reddit_link: AUTOMOD_LINK},
   [AUTOMOD_REMOVED_MOD_APPROVED]: {filter_text: 'auto-removed -> approved',
                                          label: '[approved] auto-removed, then approved',
@@ -40,7 +42,7 @@ export const REMOVAL_META = {
                [UNKNOWN_REMOVED]: {filter_text: 'unknown removed',
                                          label: '[removed] unknown if by mod/automod',
                                           desc: 'Cannot say with certainty whether this was removed by a mod or by automod.',
-                                   reddit_link: '/comments/cve5vl/?comment=ey4mzwq'},
+                                    local_link: faq+'#unknown-removed'},
                         [LOCKED]: {filter_text: 'locked',
                                          label: 'locked',
                                           desc: 'locked, replies are not permitted.',
@@ -114,8 +116,16 @@ const RemovedBy = (props) => {
     meta = USER_REMOVED_META
   }
   if (meta) {
+    let modalDetails = ''
+    if (removedby === AUTOMOD_REMOVED) {
+      if (! props.modlog) {
+        modalDetails = getRemovedWithinText(props)
+      } else {
+        modalDetails = 'Modlogs indicate automod removed this item.'
+      }
+    }
     everythingExceptLocked =
-      <LabelWithModal hash={'action_'+removedby+'_help'}>
+      <LabelWithModal hash={'action_'+removedby+'_help'} details={modalDetails} removedby={removedby}>
         <span title={meta.desc} data-removedby={removedby} className='removedby'>{orphaned_label+(meta.label || '')+withinText+details} <QuestionMark fill={fill}/></span>
       </LabelWithModal>
   }
@@ -135,10 +145,16 @@ const RemovedBy = (props) => {
   return displayTag
 }
 
-export const LabelWithModal = ({children, hash, marginRight = '5px'}) => {
+export const LabelWithModal = ({children, hash, details, removedby, marginRight = '5px'}) => {
   const modal = React.useContext(ModalContext)
+  const modalContent = {}
+  if (details && removedby) {
+    modalContent.content = <><ActionHelp action={removedby}/><p>{details}</p></>
+  } else {
+    modalContent.hash = hash
+  }
   return (
-    <a className='pointer' onClick={() => modal.openModal({hash})} style={{marginRight}}>
+    <a className='pointer' onClick={() => modal.openModal(modalContent)} style={{marginRight}}>
       {children}
     </a>
   )

@@ -49,6 +49,9 @@ const About_faq = () => {
       <ContentWithHeader header='What does it mean when a removed comment has been "restored via user page"?' id='restored'>
         <p>It means the comment was not archived but able to be copied from the author's /user page. For more information, see the answer about the <a href='#refresh'>"{unarchived_search_button_word}" button</a>.</p>
       </ContentWithHeader>
+      <ContentWithHeader header='What does the "unknown removed" label mean?' id='unknown-removed'>
+        <p>The "unknown" label is applied when reveddit cannot determine if something was removed by a mod or by automod. Pushshift, a database that captures reddit data as it is created, and which reveddit queries, can fall behind retrieving data. When that happens, any removed items are marked as removed by "unknown." When Pushshift captures content soon after creation, and the content has already been removed, then it is marked as removed by automod.</p>
+      </ContentWithHeader>
     </InternalPage>
   )
 }
