@@ -22,9 +22,8 @@ const TextFilter = ({global, page_type, globalVarName, placeholder, minMax, ...s
   let suffix = ''
   if (minMax) {
     const suffix = selectMin ? SUFFIX_MIN : SUFFIX_MAX
-    const val = queryParams.get(urlParamKeys[globalVarName+suffix]) || ''
+    valueFromQueryParam = parseInt(queryParams.get(urlParamKeys[globalVarName+suffix])) || ''
     adjusted_globalVarName = globalVarName+suffix
-    valueFromQueryParam = val
   }
   const [inputValue, setInputValue] = useState(valueFromQueryParam)
   const oldSelectMinRef = useRef()
@@ -59,7 +58,13 @@ const TextFilter = ({global, page_type, globalVarName, placeholder, minMax, ...s
         queryParams.delete(globalVarName+oppSuffix)
         updateURL(queryParams)
       }
-      global.selection_update(globalVarName+suffix, value, page_type)
+      // when hiding/showing filters, this condition updates
+      // global state only when the value has changed rather than every first render
+      if (global.state[globalVarName+suffix] !== value) {
+        // don't need to update global state for oppSuffix b/c this function
+        // automatically sets state according to URL's query params
+        global.selection_update(globalVarName+suffix, value, page_type)
+      }
     }, [selectMin]
   )
   const debounced_updateStateAndURL = useCallback(
@@ -79,7 +84,7 @@ const TextFilter = ({global, page_type, globalVarName, placeholder, minMax, ...s
     )
   }
   return (
-    <Selection className='textFilter' isFilter={true} isSet={inputValue.trim().length !== 0} {...selectionProps}>
+    <Selection className='textFilter' isFilter={true} isSet={inputValue.toString().trim().length !== 0} {...selectionProps}>
       {select}
       <input type='text' size={size}
         name={globalVarName+suffix} value={inputValue} placeholder={placeholder}
