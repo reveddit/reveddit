@@ -1,9 +1,8 @@
 import React from 'react'
 import { Subscribe, Container } from 'unstated'
-import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED,
-         UNKNOWN_REMOVED, NOT_REMOVED } from 'pages/common/RemovedBy'
 import { SimpleURLSearchParams, get, put, ifNumParseInt } from 'utils'
 import { limitCommentDepth_global } from 'pages/modals/Settings'
+import { agg_defaults_for_page } from 'api/reveddit'
 
 const defaultFilters_str = 'defaultFilters'
 
@@ -156,6 +155,13 @@ export const filter_pageType_defaults = {
   categoryFilter_link_title: 'all',
   n: {
     domain_posts: 200,
+    aggregations: agg_defaults_for_page.limit,
+  },
+  sort: {
+    aggregations: agg_defaults_for_page.sort,
+  },
+  content: {
+    aggregations: agg_defaults_for_page.type,
   },
   before: '',
   before_id: '',
@@ -165,11 +171,11 @@ export const filter_pageType_defaults = {
   context: '',
   frontPage: false,
   q: '', author: '', subreddit: '', after: '', domain: '', or_domain: '', title: '', selftext: '',
-  content: 'all', url: '',
+  url: '',
   selfposts: true,
   limitCommentDepth: limitCommentDepth_global,
   add_user: '',
-  sort: 'new', limit: 100, t: 'all',
+  limit: 100, t: 'all',
   stickied: undefined,
   distinguished: undefined,
   ...urlParamKeys_max_min_defaults,
@@ -250,6 +256,7 @@ class GlobalState extends Container {
         categoryFilter_link_title: 'all',
         localSort: localSort_types.date,
         localSortReverse: false,
+        sort: 'new',
         showContext: true,
         statusText: '',
         statusImage: undefined,
@@ -389,15 +396,6 @@ class GlobalState extends Container {
   updateURLandState = (queryParams, page_type, callback = () => {}) => {
     updateURL(queryParams)
     return this.setStateFromQueryParams(page_type, queryParams, {}, callback)
-  }
-  upvoteRemovalRateHistory_update = (before, before_id, n, content_type, queryParams, baseURL) => {
-    queryParams.set(urlParamKeys.before, before)
-    queryParams.set(urlParamKeys.before_id, before_id)
-    queryParams.set(urlParamKeys.n, n)
-    queryParams.set(urlParamKeys.removedFilter, removedFilter_types.removed)
-    queryParams.set(urlParamKeys.localSort, localSort_types.score)
-    queryParams.set(urlParamKeys.removedByFilter, [MOD_OR_AUTOMOD_REMOVED, AUTOMOD_REMOVED, UNKNOWN_REMOVED].join(','))
-    window.location.href = `${baseURL}${queryParams.toString()}`
   }
   categoryFilter_update = (type, value, page_type) => {
     this.selection_update('categoryFilter_'+type, value, page_type)

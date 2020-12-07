@@ -13,12 +13,7 @@ class CommentPreview extends React.Component {
         <div className='rate'>{roundToX(props.rate*100,1)}%</div>
         <div className='comment-head-and-body'>
           <div className='comment-head'>
-            <a
-              href='#'
-              className='title'
-            >
-            {props.title}
-            </a>
+            <span className='title'>{props.title}</span>
           </div>
           <div className='comment-head subhead'>
             <span className='comment-score spaceRight'>{prettyScore(props.score)} point{(props.score !== 1) && 's'}</span>

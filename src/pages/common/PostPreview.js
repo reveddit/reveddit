@@ -13,7 +13,7 @@ class PostPreview extends React.Component {
         <div className='rate'>{roundToX(props.rate*100,1)}%</div>
         <div>
           <div>
-            <a className='title' href='#'>{title}</a>
+            <span className='title'>{title}</span>
           </div>
           <div>
             <span className='score spaceRight'>{prettyScore(props.score)} points</span>

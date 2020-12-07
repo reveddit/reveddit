@@ -18,6 +18,7 @@ const AddOns = lazy(() => import('pages/about/AddOns'))
 const Info = lazy(() => import('pages/info'))
 const SubredditPosts = lazy(() => import('pages/subreddit'))
 const SubredditComments = lazy(() => import('pages/subreddit/comments'))
+const Aggregations = lazy(() => import('pages/subreddit/aggregations'))
 const Thread = lazy(() => import('pages/thread'))
 const ThreadRedirect = lazy(() => import('pages/thread/redirect'))
 const NotFound = lazy(() => import('pages/404'))
@@ -42,6 +43,7 @@ const routes = (
 <Switch>
   <Redirect exact from='/' to='/about#welcome' />
   <RouteRedirectWithParams path={PATH_STR_USER+'/:user/posts/'} search={/\/posts/} replace='/submitted'/>
+  <RouteRedirectWithParams path={PATH_STR_SUB+'/:subreddit/controversial/'} search={/\/controversial/} replace='/top'/>
   {getAltRoutes(PATHS_ALT_USER, PATH_STR_USER)}
   {getAltRoutes(PATHS_ALT_SUB, PATH_STR_SUB)}
   <RouteRedirectWithParams path='/api/info/' search={/\/api\/info/} replace='/info'/>
@@ -52,6 +54,7 @@ const routes = (
   <DefaultLayout path='/info' page_type='info' component={Info} />
   <DefaultLayout path='/search' page_type='search' component={Info} />
   <DefaultLayout path='/random' component={Random} />
+  <DefaultLayout path={PATH_STR_SUB+'/:subreddit/top'} page_type='aggregations' component={Aggregations} />
   <DefaultLayout path={PATH_STR_SUB+'/:subreddit/missing-comments'} page_type='missing_comments' component={SubredditComments} />
   <DefaultLayout path={PATH_STR_SUB+'/:subreddit/comments/:threadID/:urlTitle/:commentID'} page_type='thread' component={Thread} />
   <DefaultLayout path={PATH_STR_SUB+'/:subreddit/comments/:threadID/:urlTitle'} page_type='thread' component={Thread} />

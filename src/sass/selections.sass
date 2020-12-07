@@ -28,8 +28,6 @@ $selectionMarginRight: 20px
     .title
       font-weight: bold
       margin-bottom: 5px
-    span.title
-      margin-left: 15px
   .filter-menu
     display: flex
   .filter
@@ -68,13 +66,19 @@ $selectionMarginRight: 20px
 
 .upvoteRemovalRate
   .preview
-    padding: 5px 8px
     position: absolute
-    background-color: $background
     z-index: 10
+.upvoteRemovalRate, .page_aggregations
+  .preview
+    padding: 5px 8px
+    background-color: $background
     display: flex
     &.post
       font-size: 14px
+    .title
+      color: $metalabels
+      font-weight: bold
+      margin-bottom: 5px
     .rate
       color: #646464
       font-size: 18px

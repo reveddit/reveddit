@@ -3,6 +3,7 @@ import scrollToElement from 'scroll-to-element'
 import { getRevdditCommentsBySubreddit } from 'data_processing/comments'
 import { getRevdditMissingComments } from 'data_processing/missing_comments'
 import { getRevdditPostsBySubreddit } from 'data_processing/subreddit_posts'
+import { getRevdditAggregations } from 'data_processing/aggregations'
 import { getRevdditPostsByDomain, getRevdditDuplicatePosts } from 'data_processing/posts'
 import { getRevdditUserItems } from 'data_processing/user'
 import { getRevdditThreadItems } from 'data_processing/thread'
@@ -71,29 +72,34 @@ const getCategorySettings = (page_type, subreddit) => {
 }
 
 const getPageTitle = (page_type, string) => {
+  const subreddit = `r/${string}`
   switch(page_type) {
     case 'subreddit_posts': {
-      return `/r/${string}`
+      return `${subreddit}`
       break
     }
     case 'subreddit_comments': {
-      return `/r/${string}/comments`
+      return `${subreddit}/comments`
+      break
+    }
+    case 'aggregations': {
+      return `${subreddit}/top`
       break
     }
     case 'missing_comments': {
-      return `/r/${string}: missing comments`
+      return `${subreddit}: missing comments`
       break
     }
     case 'domain_posts': {
-      return `/domain/${string}`
+      return `domain/${string}`
       break
     }
     case 'duplicate_posts': {
-      return `/duplicates/${string}`
+      return `duplicates/${string}`
       break
     }
     case 'user': {
-      return `/u/${string}`
+      return `u/${string}`
       break
     }
     case 'info': {
@@ -120,6 +126,10 @@ const getLoadDataFunctionAndParam = (
     }
     case 'subreddit_comments': {
       return [getRevdditCommentsBySubreddit, [subreddit]]
+      break
+    }
+    case 'aggregations': {
+      return [getRevdditAggregations, [subreddit]]
       break
     }
     case 'missing_comments': {

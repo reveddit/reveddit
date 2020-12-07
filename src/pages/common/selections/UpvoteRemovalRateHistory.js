@@ -9,6 +9,9 @@ import { prettyFormatBigNumber, SimpleURLSearchParams, ifNumParseInt,
 import { Fetch } from 'hooks/fetch'
 import { Selection } from './SelectionBase'
 import { QuestionMarkModal, Help } from 'components/Misc'
+import { getAggregationsURL, getAggregationsPeriodURL,
+  numGraphPointsParamKey, sortByParamKey, contentTypeParamKey, aggregationPeriodParams
+} from 'api/reveddit'
 
 const urr_title = 'Karma Removal Rate'
 const urr_help = <Help title={urr_title} content={
@@ -151,16 +154,6 @@ Sparkline.defaultProps = {
 
 
 
-const numGraphPointsParamKey = 'rr_ngp'
-const sortByParamKey = 'rr_sortby'
-const contentTypeParamKey = 'rr_content'
-const numGraphPointsDefault = 50
-const sortByDefault = 'rate'
-const contentTypeDefault = 'comments'
-const componentParams = {[numGraphPointsParamKey]: numGraphPointsDefault,
-                         [sortByParamKey]: sortByDefault,
-                         [contentTypeParamKey]: contentTypeDefault}
-
 const commonFields = [
   'created_utc',
   'id_of_max_pos_removed_item',
@@ -190,12 +183,10 @@ class UpvoteRemovalRateHistory extends React.Component {
       hovered: null,
       clicked: null,
       displayOptions: false,
-      [numGraphPointsParamKey]: numGraphPointsDefault,
-      [sortByParamKey]: sortByDefault,
-      [contentTypeParamKey]: contentTypeDefault
+      ...aggregationPeriodParams,
     }
     const queryParams = new SimpleURLSearchParams(window.location.search)
-    Object.keys(componentParams).forEach(param => {
+    Object.keys(aggregationPeriodParams).forEach(param => {
       let paramVal = queryParams.get(param)
       if (paramVal) {
         state[param] = ifNumParseInt(paramVal)
@@ -217,25 +208,15 @@ class UpvoteRemovalRateHistory extends React.Component {
   }
   goToGraphURL = (last_created_utc, last_id, total_items) => {
     const {subreddit} = this.props
-    const queryParams = new SimpleURLSearchParams()
-    // constructing new queryParams, excluding any selections outside this component.
-    //  also excluding component param if value is the default
-    Object.keys(componentParams).forEach(param => {
-      if (this.state[param] != componentParams[param]) {
-        queryParams.set(param, this.state[param])
-      }
-    })
-    let baseURL = `${PATH_STR_SUB}/${subreddit}/`
-    if (this.state[contentTypeParamKey] == 'comments') {
-      baseURL += 'comments/'
-    }
-    this.props.global.upvoteRemovalRateHistory_update(
+    window.location.href = getAggregationsPeriodURL({
+      subreddit,
+      type: this.state[contentTypeParamKey],
+      numGraphPoints: this.state[numGraphPointsParamKey],
+      sort: this.state[sortByParamKey],
       last_created_utc,
       last_id,
-      total_items,
-      this.state[contentTypeParamKey],
-      queryParams,
-      baseURL)
+      limit: total_items,
+    })
   }
 
   render() {
@@ -254,7 +235,7 @@ class UpvoteRemovalRateHistory extends React.Component {
     }
     // Passing a render callback to a component: https://americanexpress.io/faccs-are-an-antipattern/#render-props:~:text=pass%20a%20render%20callback%20function%20to%20a%20component%20in%20a%20clean%20manner%3F
     return (
-      <Fetch url={REVEDDIT_FLASK_HOST + `aggregations/?type=${type}&subreddit=${subreddit}&limit=${limit}&sort=${sort}`}
+      <Fetch url={getAggregationsURL({type, subreddit, limit, sort})}
         render={({ loading, error, data }) => {
           if (loading) return <p>Loading...</p>
           if (error) return <p>Error :(</p>
@@ -296,7 +277,7 @@ class UpvoteRemovalRateHistory extends React.Component {
                                    onChange={(e) =>
                                        this.updateStateAndURL(numGraphPointsParamKey,
                                                               parseInt(e.target.value),
-                                                              numGraphPointsDefault)}/>
+                                                              aggregationPeriodParams[numGraphPointsParamKey])}/>
                             <span>{displayValue}</span>
                           </label>
                         )
@@ -311,7 +292,7 @@ class UpvoteRemovalRateHistory extends React.Component {
                         onChange={(e) =>
                             this.updateStateAndURL(sortByParamKey,
                                                    e.target.value,
-                                                   sortByDefault)}/>
+                                                   aggregationPeriodParams[sortByParamKey])}/>
                       <span>top</span>
                     </label>
                     <label>
@@ -319,7 +300,7 @@ class UpvoteRemovalRateHistory extends React.Component {
                         onChange={(e) =>
                             this.updateStateAndURL(sortByParamKey,
                                                    e.target.value,
-                                                   sortByDefault)}/>
+                                                   aggregationPeriodParams[sortByParamKey])}/>
                       <span>new</span>
                     </label>
                   </div>
@@ -331,7 +312,7 @@ class UpvoteRemovalRateHistory extends React.Component {
                         onChange={(e) =>
                             this.updateStateAndURL(contentTypeParamKey,
                                                    e.target.value,
-                                                   contentTypeDefault)}/>
+                                                   aggregationPeriodParams[contentTypeParamKey])}/>
                       <span>comments</span>
                     </label>
                     <label>
@@ -339,7 +320,7 @@ class UpvoteRemovalRateHistory extends React.Component {
                         onChange={(e) =>
                             this.updateStateAndURL(contentTypeParamKey,
                                                    e.target.value,
-                                                   contentTypeDefault)}/>
+                                                   aggregationPeriodParams[contentTypeParamKey])}/>
                       <span>posts</span>
                     </label>
                   </div>

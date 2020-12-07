@@ -1,5 +1,7 @@
-import { paramString } from 'utils'
+import { paramString, SimpleURLSearchParams, PATH_STR_SUB } from 'utils'
 import { mapRedditObj } from 'api/reddit'
+import { urlParamKeys, removedFilter_types, localSort_types } from 'state'
+import { AUTOMOD_REMOVED, MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED } from 'pages/common/RemovedBy'
 
 const errorHandler = (e) => {
   throw new Error(`Could not connect to Reveddit: ${e}`)
@@ -52,6 +54,60 @@ export const getArchiveTimes = async () => {
     c: getCount(120)
   }
   return flaskQuery('archive-times/?', params)
+}
+
+const aggregationsPath = 'aggregations/?'
+
+//default values for aggregations query via r/subreddit/top
+export const agg_defaults_for_page = {
+  limit: 100,
+  sort: 'rate',
+  type: 'comments',
+}
+
+export const getAggregations = ({subreddit, type = agg_defaults_for_page.type, limit = agg_defaults_for_page.limit, sort = agg_defaults_for_page.sort}) => {
+  return flaskQuery(aggregationsPath, {type, subreddit, limit, sort})
+}
+
+export const getAggregationsURL = ({subreddit, type = agg_defaults_for_page.type, limit = agg_defaults_for_page.limit, sort = agg_defaults_for_page.sort}) => {
+  return REVEDDIT_FLASK_HOST + aggregationsPath + paramString({type, subreddit, limit, sort})
+}
+
+export const numGraphPointsParamKey = 'rr_ngp'
+export const sortByParamKey = 'rr_sortby'
+export const contentTypeParamKey = 'rr_content'
+
+//default values for aggregations query via the "Removal Rate" graph
+export const aggregationPeriodParams = {
+  [numGraphPointsParamKey]: 50,
+  [sortByParamKey]: agg_defaults_for_page.sort,
+  [contentTypeParamKey]: agg_defaults_for_page.type,
+}
+
+export const getAggregationsPeriodURL = ({subreddit, type, numGraphPoints, limit, sort, last_created_utc: before, last_id: before_id}) => {
+  const queryParams = new SimpleURLSearchParams()
+  const translatedParams = {
+    //these params describe how data will be queried
+    [contentTypeParamKey]: type,
+    [sortByParamKey]: sort,
+    [numGraphPointsParamKey]: numGraphPoints,
+    [urlParamKeys.before]: before,
+    [urlParamKeys.before_id]: before_id,
+    [urlParamKeys.n]: limit,
+    //below params describe how the loaded page will be filtered/sorted
+    [urlParamKeys.removedFilter]: removedFilter_types.removed,
+    [urlParamKeys.localSort]: localSort_types.score,
+    [urlParamKeys.removedByFilter]: [MOD_OR_AUTOMOD_REMOVED, AUTOMOD_REMOVED, UNKNOWN_REMOVED].join(','),
+  }
+  Object.keys(translatedParams).forEach(param => {
+    //For params that have default values, only set param if value is not the default
+    //Set all other params
+    if (! (param in aggregationPeriodParams) || translatedParams[param] != aggregationPeriodParams[param]) {
+      queryParams.set(param, translatedParams[param])
+    }
+  })
+  const commentsPath = type === 'comments' ? 'comments/' : ''
+  return `${PATH_STR_SUB}/${subreddit}/`+commentsPath+queryParams.toString()
 }
 
 export const flaskQuery = (path, params = {}) => {

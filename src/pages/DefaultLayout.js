@@ -92,6 +92,7 @@ class DefaultLayout extends React.Component {
   render() {
     const {component: Component, ...rest } = this.props
     const {threadPost} = this.props.global.state
+    const {page_type} = rest
     let threadClass = ''
     if (threadPost.removed) {
       threadClass = 'thread-removed'
@@ -103,7 +104,7 @@ class DefaultLayout extends React.Component {
         return (
           <React.Fragment>
             <Header {...matchProps} {...rest} openGenericModal={this.openGenericModal}/>
-            <div className={'main '+threadClass}>
+            <div className={'main page_'+page_type+' '+threadClass}>
               <Modal isOpen={this.state.genericModalIsOpen}
                 onRequestClose={this.closeGenericModal}
                 style={customStyles}>
