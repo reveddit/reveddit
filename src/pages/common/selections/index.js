@@ -66,7 +66,7 @@ const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter,
   }
   const showFiltersText = showFilters ? '[–] hide filters' : '[+] show filters'
   let upvoteRemovalRateHistory = '', save_reset_buttons = ''
-  if (['subreddit_posts', 'subreddit_comments', 'thread'].includes(page_type) && subreddit !== 'all') {
+  if (['subreddit_posts', 'subreddit_comments', 'thread', 'aggregations'].includes(page_type) && subreddit !== 'all') {
     upvoteRemovalRateHistory = (
       <ErrorBoundary>
         <Suspense fallback={<></>}>
@@ -190,6 +190,8 @@ const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter,
                     <RemovedByFilter page_type={page_type} />
                     {upvoteRemovalRateHistory}
                   </>)
+              case 'aggregations':
+                return upvoteRemovalRateHistory
               default: return ''
             }
           })()}
