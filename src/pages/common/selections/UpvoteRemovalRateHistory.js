@@ -1,8 +1,7 @@
 import React from 'react'
 import { connect } from 'state'
 import * as d3 from 'd3'
-import CommentPreview from 'pages/common/CommentPreview'
-import PostPreview from 'pages/common/PostPreview'
+import Preview from 'pages/common/Preview'
 import { prettyFormatBigNumber, SimpleURLSearchParams, ifNumParseInt,
          PATH_STR_SUB,
 } from 'utils'
@@ -226,7 +225,6 @@ class UpvoteRemovalRateHistory extends React.Component {
     let sort = 'top'
     let type = 'comments'
     const limit = this.state[numGraphPointsParamKey]
-    let preview = ''
     if (this.state[sortByParamKey] === 'last_created_utc') {
       sort = 'new'
     }
@@ -248,13 +246,6 @@ class UpvoteRemovalRateHistory extends React.Component {
                 hovered = point
               }
             })
-          }
-          if (hovered) {
-            if (type === 'comments') {
-              preview = <CommentPreview {...hovered.y}/>
-            } else {
-              preview = <PostPreview {...hovered.y}/>
-            }
           }
           return (
             <Selection className='upvoteRemovalRate' title={urr_title} titleTitle='percentage karma removed over time'>
@@ -336,7 +327,7 @@ class UpvoteRemovalRateHistory extends React.Component {
                   onClick={(clicked, index) => this.goToGraphURL(clicked.y.last_created_utc, clicked.y.last_id, clicked.y.total_items)}
                 />
                 <div>
-                  {preview}
+                  {hovered ? <Preview type={type} {...hovered.y}/> : null}
                 </div>
               </div>
             </Selection>
