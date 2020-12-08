@@ -9,15 +9,9 @@ import { REMOVAL_META, NOT_REMOVED, USER_REMOVED } from 'pages/common/RemovedBy'
 import { withFetch } from 'pages/RevdditFetcher'
 import { reversible, getUrlWithTimestamp, copyLink, PATH_STR_USER } from 'utils'
 import Highlight from 'pages/common/Highlight'
-import {byNumComments} from 'data_processing/info'
 import Pagination from 'components/Pagination'
+import {byScore, byDate, byNumComments, bySubredditSubscribers} from 'data_processing/info'
 
-const byScore = (a, b) => {
-  return (b.score - a.score)
-}
-const byDate = (a, b) => {
-  return (b.created_utc - a.created_utc)
-}
 const byDateObserved = (a, b) => {
   return (b.observed_utc - a.observed_utc)
 }
@@ -60,6 +54,8 @@ class SubredditComments extends React.Component {
       items_sorted.sort( reversible(byCommentLength, localSortReverse) )
     } else if (localSort === localSort_types.num_comments) {
       items_sorted.sort( reversible(byNumComments, localSortReverse) )
+    } else if (localSort === localSort_types.subreddit_subscribers) {
+      items_sorted.sort( reversible(bySubredditSubscribers, localSortReverse) )
     }
     const pagination = <Pagination oldestTimestamp={oldestTimestamp} newestTimestamp={newestTimestamp}
                                    paginationMeta={paginationMeta} bottom={true} subreddit={subreddit}/>

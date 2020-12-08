@@ -62,7 +62,7 @@ class LocalSort extends React.Component {
             this.makeLabel('num_crossposts', 'number of crossposts')}
           {['search'].includes(page_type) &&
             this.makeLabel('num_replies', 'number of replies')}
-          {['search', 'info', 'domain_posts', 'duplicate_posts'].includes(page_type) &&
+          {['search', 'info', 'domain_posts', 'duplicate_posts', 'missing_comments'].includes(page_type) &&
             this.makeLabel('subreddit_subscribers', 'subreddit subscribers')}
           <label id='reverseSort'>
             <input type='checkbox'
