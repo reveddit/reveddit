@@ -435,11 +435,13 @@ export const archiveTimes_isCurrent = (archiveTimes) => (now - archiveTimes.upda
 
 export const getRemovedMessage = (props, itemType) => {
   let removedMessage = ' before archival'
-  const {archiveTimes} = props.global.state
+  const {archiveTimes, error, loading} = props.global.state
   if (props.retrieved_on) {
     removedMessage = ' before archival,'+getRemovedWithinText(props)
-  } else if (props.global.state.loading) {
+  } else if (loading) {
     removedMessage = ' content loading...'
+  } else if (error) {
+    return '[error connecting to archive, try again later]'
   } else if (archiveTimes) {
     if (archiveTimes_isCurrent(archiveTimes)) {
       removedMessage += '. Current delay is '+getPrettyTimeLength(archiveTimes.updated - archiveTimes[itemType])
