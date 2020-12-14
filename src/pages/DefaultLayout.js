@@ -26,6 +26,12 @@ const customStyles = {
   }
 }
 
+export const pageTypes = {
+  aggregations: 'aggregations',
+  subreddit_posts: 'subreddit_posts',
+  subreddit_comments: 'subreddit_comments',
+}
+
 const getContentForHash = (hash) => {
   const action = hash.match(/^action_(.+)_help$/)
   if (action) {

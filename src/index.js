@@ -3,7 +3,7 @@ import React, { Suspense, lazy } from 'react'
 import ReactDOM from 'react-dom'
 import { BrowserRouter, Switch, Route, Redirect } from 'react-router-dom'
 import { Provider } from 'unstated'
-import DefaultLayout from 'pages/DefaultLayout'
+import DefaultLayout, {pageTypes} from 'pages/DefaultLayout'
 import ErrorBoundary from 'components/ErrorBoundary'
 import {PATH_STR_SUB, PATH_STR_USER,
         PATHS_ALT_SUB, PATHS_ALT_USER
@@ -54,14 +54,14 @@ const routes = (
   <DefaultLayout path='/info' page_type='info' component={Info} />
   <DefaultLayout path='/search' page_type='search' component={Info} />
   <DefaultLayout path='/random' component={Random} />
-  <DefaultLayout path={PATH_STR_SUB+'/:subreddit/top'} page_type='aggregations' component={Aggregations} />
+  <DefaultLayout path={PATH_STR_SUB+'/:subreddit/top'} page_type={pageTypes.aggregations} component={Aggregations} />
   <DefaultLayout path={PATH_STR_SUB+'/:subreddit/missing-comments'} page_type='missing_comments' component={SubredditComments} />
   <DefaultLayout path={PATH_STR_SUB+'/:subreddit/comments/:threadID/:urlTitle/:commentID'} page_type='thread' component={Thread} />
   <DefaultLayout path={PATH_STR_SUB+'/:subreddit/comments/:threadID/:urlTitle'} page_type='thread' component={Thread} />
   <DefaultLayout path={PATH_STR_SUB+'/:subreddit/comments/:threadID'} page_type='thread' component={Thread} />
   <DefaultLayout path={PATH_STR_SUB+'/:subreddit/comments/'} page_type='subreddit_comments' component={SubredditComments} />
   <DefaultLayout path={PATH_STR_SUB+'/:subreddit/duplicates/:threadID'} page_type='duplicate_posts' component={Info} />
-  <DefaultLayout path={PATH_STR_SUB+'/:subreddit'} page_type='subreddit_posts' component={SubredditPosts} />
+  <DefaultLayout path={PATH_STR_SUB+'/:subreddit'} page_type={pageTypes.subreddit_posts} component={SubredditPosts} />
   <DefaultLayout path={PATH_STR_SUB+'/'} page_type='blank_subreddit' component={BlankSubreddit} />
   <DefaultLayout path='/comments/' page_type='blank_subreddit_comments' component={BlankSubreddit} is_comments_page={true} />
   <DefaultLayout path='/domain/all' component={NotFound} />

@@ -11,6 +11,7 @@ import { QuestionMarkModal, Help } from 'components/Misc'
 import { getAggregationsURL, getAggregationsPeriodURL,
   numGraphPointsParamKey, sortByParamKey, contentTypeParamKey, aggregationPeriodParams
 } from 'api/reveddit'
+import {pageTypes} from 'pages/DefaultLayout'
 
 const urr_title = 'Karma Removal Rate'
 const urr_help = <Help title={urr_title} content={
@@ -233,9 +234,9 @@ class UpvoteRemovalRateHistory extends React.Component {
       type = 'posts'
     }
     const queryParams = new SimpleURLSearchParams()
-    adjust_qparams_for_selection(page_type, queryParams, 'content', type)
-    adjust_qparams_for_selection(page_type, queryParams, 'n', limit)
-    adjust_qparams_for_selection(page_type, queryParams, 'sort', sort)
+    adjust_qparams_for_selection(pageTypes.aggregations, queryParams, 'content', type)
+    adjust_qparams_for_selection(pageTypes.aggregations, queryParams, 'n', limit)
+    adjust_qparams_for_selection(pageTypes.aggregations, queryParams, 'sort', sort)
     const own_page = `/r/${subreddit}/top/`+queryParams.toString()
     // Passing a render callback to a component: https://americanexpress.io/faccs-are-an-antipattern/#render-props:~:text=pass%20a%20render%20callback%20function%20to%20a%20component%20in%20a%20clean%20manner%3F
     return (
