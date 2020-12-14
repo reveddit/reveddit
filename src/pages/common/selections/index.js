@@ -191,7 +191,12 @@ const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter,
                     {upvoteRemovalRateHistory}
                   </>)
               case 'aggregations':
-                return upvoteRemovalRateHistory
+                return (
+                  <>
+                    <Content page_type={page_type} subreddit={subreddit}/>
+                    <ItemsPerPage/>
+                    {upvoteRemovalRateHistory}
+                  </>)
               default: return ''
             }
           })()}

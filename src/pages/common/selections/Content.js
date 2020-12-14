@@ -1,63 +1,76 @@
 import React from 'react'
-import { connect } from 'state'
+import { connect, urlParamKeys } from 'state'
 import { Selection } from './SelectionBase'
 
-const r_all = 'r/all top 100'
+const SELECTED_CLASS = 'selected'
 
-class Content extends React.Component {
-
-  getLink(expected_suffix, content_type_description) {
-    const frontPage = this.props.global.state.frontPage
-    const path_parts = window.location.pathname.split('/')
-    const suffix = path_parts.slice(3,4)[0] || ''
-    const link_path_parts = path_parts.slice(0,3)
-    link_path_parts.push(expected_suffix)
-    const path = link_path_parts.join('/').replace(/\/$/,'')
-    let selected = ''
-    let params = ''
-    if (suffix === expected_suffix ||
-          (this.props.page_type === 'subreddit_posts' &&
-           expected_suffix !== 'comments')) {
-      if (content_type_description === r_all) {
-        params = '?frontPage=true'
-        if (frontPage) {
-          selected = 'selected'
-        }
-      } else if (! frontPage) {
-        selected = 'selected'
+const ContentLink = connect(({expected_suffix, description,
+                      global,
+                      param_name, expected_param_value,
+                      include_param_in_link = true}) => {
+  const path_parts = window.location.pathname.split('/')
+  const suffix = path_parts.slice(3,4)[0] || ''
+  const link_path_parts = path_parts.slice(0,3)
+  link_path_parts.push(expected_suffix)
+  const path = link_path_parts.join('/').replace(/\/$/,'')+'/'
+  let selected = ''
+  let params = ''
+  if (param_name && include_param_in_link) {
+    params = `?${urlParamKeys[param_name]}=${expected_param_value}`
+  }
+  if (suffix === expected_suffix) {
+    if (param_name) {
+      if (global.state[param_name] === expected_param_value) {
+        selected = SELECTED_CLASS
       }
+    } else {
+      selected = SELECTED_CLASS
     }
-    return (<div>
-              <a className={selected} href={path+params}>
-                {content_type_description}
-              </a>
-            </div>)
   }
+  return (
+    <div>
+      <a className={selected} href={path+params}>
+        {description}
+      </a>
+    </div>
+  )
+})
 
-  render() {
-    const {subreddit} = this.props
-    return (
-        <Selection className='content' title='Content'>
-          {['user'].includes(this.props.page_type) &&
-            <React.Fragment>
-              {this.getLink('', 'comments and posts')}
-              {this.getLink('comments', 'comments')}
-              {this.getLink('submitted', 'posts')}
-              {this.getLink('gilded', 'gilded')}
-            </React.Fragment>
+const Content = ({subreddit, page_type}) => {
+  return (
+    <Selection className='content' title='Content'>
+      {page_type === 'user' &&
+        <>
+          <ContentLink expected_suffix='' description='comments and posts'/>
+          <ContentLink expected_suffix='comments' description='comments'/>
+          <ContentLink expected_suffix='submitted' description='posts'/>
+          <ContentLink expected_suffix='gilded' description='gilded'/>
+        </>
+      }
+      {['subreddit_posts', 'subreddit_comments', 'aggregations'].includes(page_type) &&
+        <>
+          <ContentLink expected_suffix='' description='posts'
+            param_name='frontPage' expected_param_value={false}
+            include_param_in_link={false} />
+          <ContentLink expected_suffix='comments' description='comments'/>
+          {subreddit !== 'all' &&
+            <>
+              <ContentLink expected_suffix='top' description='top comments'
+                           param_name='content'  expected_param_value='comments'/>
+              <ContentLink expected_suffix='top' description='top posts'
+                           param_name='content'  expected_param_value='posts'/>
+            </>
           }
-          {['subreddit_posts', 'subreddit_comments'].includes(this.props.page_type) &&
-            <React.Fragment>
-              {this.getLink('', 'posts')}
-              { subreddit !== 'all' &&
-                this.getLink('', r_all)
-              }
-              {this.getLink('comments', 'comments')}
-            </React.Fragment>
+          {subreddit !== 'all' &&
+            <>
+              <ContentLink expected_suffix='' description='r/all posts'
+                           param_name='frontPage' expected_param_value={true}/>
+            </>
           }
-        </Selection>
-    )
-  }
+        </>
+      }
+    </Selection>
+  )
 }
 
 export default connect(Content)
