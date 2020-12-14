@@ -79,9 +79,11 @@ const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter,
   const categoryFilter = <CategoryFilter page_type={page_type}
     visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
     type={category_type} title={category_title} unique_field={category_unique_field}/>
-  const textFilters = [
+  const textFilter_title_body =
     <TextFilter page_type={page_type} globalVarName='keywords' placeholder='keywords' key='kw'
-                title='Title/Body' titleHelpModal={{content:word_help}} />,
+                title='Title/Body' titleHelpModal={{content:word_help}} />
+  const textFilters = [
+    textFilter_title_body,
     <TextFilter page_type={page_type} globalVarName='post_flair' placeholder='post flair' key='pf'
                 title='Post Flair' titleHelpModal={{content:flair_help}} />,
     <TextFilter page_type={page_type} globalVarName='user_flair' placeholder='user flair' key='uf'
@@ -195,6 +197,7 @@ const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter,
                   <>
                     <Content page_type={page_type} subreddit={subreddit}/>
                     <ItemsPerPage/>
+                    {textFilter_title_body}
                     {upvoteRemovalRateHistory}
                   </>)
               default: return ''

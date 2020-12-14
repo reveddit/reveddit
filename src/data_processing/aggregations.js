@@ -1,5 +1,6 @@
 import { getAggregations } from 'api/reveddit'
 import { getComments } from 'api/reddit'
+import { sortCreatedAsc } from 'utils'
 
 export const getRevdditAggregations = (subreddit, global, history) => {
   const {content: type, n: limit, sort} = global.state
@@ -10,6 +11,7 @@ export const getRevdditAggregations = (subreddit, global, history) => {
       info_promise = getComments({ids: items.map(x => x.id_of_max_pos_removed_item)})
     }
     info_promise.then(comments => {
+      //post processing for comments
       if (Object.keys(comments).length) {
         for (const c of items) {
           const reddit_comment = comments[c.id_of_max_pos_removed_item]
@@ -18,7 +20,14 @@ export const getRevdditAggregations = (subreddit, global, history) => {
           }
         }
       }
-      global.setSuccess({items})
+      return comments
+    })
+    .then(() => {
+      //post processing for all items
+      for (const i of items) {
+        i.created_utc = i.last_created_utc
+      }
+      return global.setSuccess({items, itemsSortedByDate: [...items].sort(sortCreatedAsc)})
     })
   })
 }
