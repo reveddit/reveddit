@@ -1,5 +1,5 @@
 import React from 'react'
-import { connect } from 'state'
+import { connect, adjust_qparams_for_selection } from 'state'
 import * as d3 from 'd3'
 import Preview from 'pages/common/Preview'
 import { prettyFormatBigNumber, SimpleURLSearchParams, ifNumParseInt,
@@ -18,6 +18,7 @@ const urr_help = <Help title={urr_title} content={
     <p>This graph shows highly upvoted removed content for any subreddit. Peaks in the graph may indicate where users and moderators disagree about what should appear.</p>
     <p><b>How do I use it?</b></p>
     <p>Hover the mouse to show a preview of the highest-scored removed item. Click on a point to load all items for that period.</p>
+    <p>The 'previewed items page' link shows all previewed items on a new page.</p>
     <p>Select options to see results for comments or posts.</p>
     <p><b>How is it calculated?</b></p>
     <p>The graph shows the percentage of karma removed in periods of 1,000 comments or posts over time. Each point represents the summed score of removed items divided by the summed score of all items for that period.</p>
@@ -231,6 +232,11 @@ class UpvoteRemovalRateHistory extends React.Component {
     if (this.state[contentTypeParamKey] === 'posts') {
       type = 'posts'
     }
+    const queryParams = new SimpleURLSearchParams()
+    adjust_qparams_for_selection(page_type, queryParams, 'content', type)
+    adjust_qparams_for_selection(page_type, queryParams, 'n', limit)
+    adjust_qparams_for_selection(page_type, queryParams, 'sort', sort)
+    const own_page = `/r/${subreddit}/top/`+queryParams.toString()
     // Passing a render callback to a component: https://americanexpress.io/faccs-are-an-antipattern/#render-props:~:text=pass%20a%20render%20callback%20function%20to%20a%20component%20in%20a%20clean%20manner%3F
     return (
       <Fetch url={getAggregationsURL({type, subreddit, limit, sort})}
@@ -326,6 +332,9 @@ class UpvoteRemovalRateHistory extends React.Component {
                   onHover={(hovered, index) => this.setState({hovered})}
                   onClick={(clicked, index) => this.goToGraphURL(clicked.y.last_created_utc, clicked.y.last_id, clicked.y.total_items)}
                 />
+                <div>
+                  <a className='colorLink' href={own_page}>previewed items page</a>
+                </div>
                 <div>
                   {hovered ? <Preview type={type} {...hovered.y}/> : null}
                 </div>

@@ -74,7 +74,7 @@ const MinMaxFilters = ({page_type, global}) => {
       )}
       {Object.keys(visibleFilters).length < Object.keys(filters).length ?
         <div className='selection'>
-          <a className='pointer' onClick={addFilter}>[+] add # filter</a>
+          <a className='pointer colorLink' onClick={addFilter}>[+] add # filter</a>
         </div>
       : null}
     </div>
