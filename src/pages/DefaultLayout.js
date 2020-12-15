@@ -7,6 +7,7 @@ import Donate from 'pages/modals/donate'
 import Welcome from 'pages/modals/Welcome'
 import Settings from 'pages/modals/Settings'
 import ActionHelp from 'pages/modals/ActionHelp'
+import { Banned } from 'pages/modals/Misc'
 import { ModalProvider } from 'contexts/modal'
 
 Modal.setAppElement('#app')
@@ -46,6 +47,8 @@ const getContentForHash = (hash) => {
       return <Settings/>
     case 'action_help':
       return <ActionHelp/>
+    case 'banned':
+      return <Banned/>
   }
   return undefined
 }

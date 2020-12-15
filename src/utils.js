@@ -481,6 +481,7 @@ export const PATH_REDDIT_STR_USER = '/user'
 const convertPathPrefix = (path, searchPrefix, replacePrefix) => path.replace(new RegExp(`^${searchPrefix}/`), replacePrefix+'/')
 export const convertPathSub = (path) => convertPathPrefix(path, PATH_REDDIT_STR_SUB, PATH_STR_SUB)
 export const convertPathUser = (path) => convertPathPrefix(path, PATH_REDDIT_STR_USER, PATH_STR_USER)
+export const convertPathSub_reverse = (path) => convertPathPrefix(path, PATH_STR_SUB, PATH_REDDIT_STR_SUB)
 
 export const stripHTTP = (url) => url.replace(/^https?:\/\//i,'')
 export const stripRedditLikeDomain_noHTTP = (url) => url.replace(/^[^/]*(reddit\.com|removeddit\.com|ceddit\.com|unreddit\.com|snew\.github\.io|snew\.notabug\.io|politicbot\.github\.io|r\.go1dfish\.me|reve?ddit\.com)/i,'')
@@ -507,3 +508,5 @@ export const matchOrIncludes = (str, search, useMatch = true) => {
 }
 
 export const sortCreatedAsc = (a,b) => a.created_utc - b.created_utc
+
+export const isEmptyObj = (x) => typeof(x) === 'object' && Object.keys(x).length === 0

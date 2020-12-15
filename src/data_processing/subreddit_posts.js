@@ -5,7 +5,7 @@ import { getRemovedPostIDs } from 'api/removeddit'
 import { getPosts as getRedditPosts,
          getModerators, getSubredditAbout, getModlogsPosts
 } from 'api/reddit'
-import { postIsDeleted } from 'utils'
+import { postIsDeleted, isEmptyObj } from 'utils'
 import { retrieveRedditPosts_and_combineWithPushshiftPosts } from 'data_processing/posts'
 import { copyModlogItemsToArchiveItems } from 'data_processing/comments'
 import { PATHS_STR_SUB, sortCreatedAsc } from 'utils'
@@ -36,11 +36,20 @@ export const getRevdditPostsBySubreddit = (subreddit, global) => {
   } else {
     const subreddit_lc = subreddit.toLowerCase()
     const moderators_promise = getModerators(subreddit)
-    .then(moderators => {
+    const subreddit_about_promise = getSubredditAbout(subreddit)
+    moderators_promise.then(moderators => {
+      if (isEmptyObj(moderators)) {
+        subreddit_about_promise.then(res => {
+          if (isEmptyObj(res)) {
+            window.location.href = `/v/${subreddit}/top/#banned`
+          }
+          return res
+        })
+      }
       global.setState({moderators: {[subreddit_lc]: moderators}})
     })
-    const subreddit_about_promise = getSubredditAbout(subreddit)
     const modlogs_promise = getModlogsPosts(subreddit)
+
     return combinedGetPostsBySubredditOrDomain({subreddit, n, before, before_id, global,
       subreddit_about_promise, modlogs_promise})
     .then(() => {
