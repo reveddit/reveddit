@@ -14,16 +14,19 @@ import { getAggregationsURL, getAggregationsPeriodURL,
 import {pageTypes} from 'pages/DefaultLayout'
 
 const urr_title = 'Karma Removal Rate'
-const urr_help = <Help title={urr_title} content={
+const own_page_text = 'items preview page'
+export const urr_help = <Help title={urr_title} content={
   <>
-    <p>This graph shows highly upvoted removed content for any subreddit. Peaks in the graph may indicate where users and moderators disagree about what should appear.</p>
-    <p><b>How do I use it?</b></p>
-    <p>Hover the mouse to show a preview of the highest-scored removed item. Click on a point to load all items for that period.</p>
-    <p>The 'previewed items page' link shows all previewed items on a new page.</p>
-    <p>Select options to see results for comments or posts.</p>
+    <p>This shows highly upvoted removed content for any subreddit.</p>
     <p><b>How is it calculated?</b></p>
-    <p>The graph shows the percentage of karma removed in periods of 1,000 comments or posts over time. Each point represents the summed score of removed items divided by the summed score of all items for that period.</p>
-    <p>For example, if 1,000 items have a combined score of 20,000 and the removed items have a combined score of 10,000, then the removal rate for that period is 50%.</p>
+    <p>The rate shown is the percentage of karma removed in periods of either 1,000 comments or 1,000 posts over time. Each item represents the summed score of removed items in that period divided by the summed score of all items for that period. The comment or post next to the rate is a preview of the removed item with the highest score in the period.</p>
+    <p>For example, if 1,000 items have a combined score of 20,000 and the removed items have a combined score of 10,000, then the removal rate for that period is 50%, and the previewed item may have had a high score such as 7,000.</p>
+    <p><b>How do I view items on their own page?</b></p>
+    <p>Visit /r/subreddit/top or use the '{own_page_text}' link below the {urr_title} graph found under filters.</p>
+    <p><b>How do I use the graph?</b></p>
+    <p>Hover the mouse to show a preview of the highest-scored removed item. Click on a point to load all items for that period. This may take some time to load.</p>
+    <p><b>How up-to-date is this?</b></p>
+    <p>Sort by 'new' to see the most recent data.</p>
   </>
 }/>
 
@@ -334,7 +337,7 @@ class UpvoteRemovalRateHistory extends React.Component {
                   onClick={(clicked, index) => this.goToGraphURL(clicked.y.last_created_utc, clicked.y.last_id, clicked.y.total_items)}
                 />
                 <div>
-                  <a href={own_page}>previewed items page</a>
+                  <a href={own_page}>{own_page_text}</a>
                 </div>
                 <div>
                   {hovered ? <Preview type={type} {...hovered.y}/> : null}

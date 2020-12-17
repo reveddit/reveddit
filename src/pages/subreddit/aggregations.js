@@ -3,6 +3,10 @@ import { withFetch } from 'pages/RevdditFetcher'
 import { connect } from 'state'
 import Preview from 'pages/common/Preview'
 import { getAggregationsPeriodURL } from 'api/reveddit'
+import Notice from 'pages/common/Notice'
+import { urr_help } from 'pages/common/selections/UpvoteRemovalRateHistory'
+import { QuestionMarkModal } from 'components/Misc'
+
 
 const Aggregations = ({global, selections, summary, viewableItems, ...props}) => {
   const {content: type, n, sort} = global.state
@@ -11,6 +15,11 @@ const Aggregations = ({global, selections, summary, viewableItems, ...props}) =>
     <>
       {selections}
       {summary}
+      <Notice title={`top removed ${type}`} message={
+        <>
+          This page shows highly upvoted removed {type} for the given subreddit. <QuestionMarkModal modalContent={{content: urr_help}} text='more info'/>
+        </>
+      }/>
       {viewableItems.map((item, i) => {
         const url = getAggregationsPeriodURL({
           subreddit,
