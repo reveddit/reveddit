@@ -31,6 +31,7 @@ export const pageTypes = {
   aggregations: 'aggregations',
   subreddit_posts: 'subreddit_posts',
   subreddit_comments: 'subreddit_comments',
+  missing_comments: 'missing_comments'
 }
 
 const getContentForHash = (hash) => {

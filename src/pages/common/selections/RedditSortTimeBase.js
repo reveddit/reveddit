@@ -3,36 +3,50 @@ import { connect, create_qparams, adjust_qparams_for_selection } from 'state'
 import { Selection } from './SelectionBase'
 
 const types = {
-  sort: ['new', 'top', 'hot', 'controversial'],
-  t: ['hour', 'day', 'week', 'month', 'year', 'all'],
+  user: {
+    sort: ['new', 'top', 'hot', 'controversial'],
+    t: ['hour', 'day', 'week', 'month', 'year', 'all'],
+  },
+  aggregations: {
+    sort: ['top', 'new']
+  },
 }
 
 const displayTypes = {
-  sort: {},
-  t: {
-    'all': 'all time',
-    'day': 'past 24 hours',
+  user: {
+    sort: {},
+    t: {
+      'all': 'all time',
+      'day': 'past 24 hours',
+    },
+  },
+  aggregations: {
+    sort: {},
   },
 }
 
 const displayPrefixes = {
-  sort: '',
-  t: 'past ',
+  user: {
+    sort: '',
+    t: 'past ',
+  },
+  aggregations: {
+    sort: '',
+  },
 }
 
-const RedditSortTimeBase = ({global, globalVarName, className, title}) => {
+const RedditSortTimeBase = ({global, page_type, globalVarName, className, title}) => {
   const selectedValue = global.state[globalVarName]
   const queryParams = create_qparams()
-
   return (
     <Selection className={className} title={title}>
       {
-        types[globalVarName].map(type => {
-          adjust_qparams_for_selection('user', queryParams, globalVarName, type)
+        types[page_type][globalVarName].map(type => {
+          adjust_qparams_for_selection(page_type, queryParams, globalVarName, type)
           return (
             <div key={type}>
               <a className={type === selectedValue ? 'selected': ''}
-                 href={`${window.location.pathname}${queryParams.toString()}`}>{displayTypes[globalVarName][type] || displayPrefixes[globalVarName]+type}</a>
+                 href={`${window.location.pathname}${queryParams.toString()}`}>{displayTypes[page_type][globalVarName][type] || displayPrefixes[page_type][globalVarName]+type}</a>
             </div>
           )
         })

@@ -3,6 +3,7 @@ import { connect, adjust_qparams_for_selection } from 'state'
 import { Selection } from './SelectionBase'
 import { SimpleURLSearchParams } from 'utils'
 import { pageTypes } from 'pages/DefaultLayout'
+import { NewWindowLink } from 'components/Misc'
 
 const SELECTED_CLASS = 'selected'
 
@@ -38,10 +39,30 @@ const ContentLink = connect(({expected_suffix, description,
     </div>
   )
 })
+const from = 'from this subreddit'
+const out = 'May be several months out of date.'
+const un = 'r/undelete'
+const pushshift = <>This page is up to date according to the status shown on <a href='/info/'>/info</a>.</>
+
+const content_help =
+  <>
+    <h3>posts</h3>
+    <p>Recent posts {from}. {pushshift}</p>
+    <h3>comments</h3>
+    <p>Recent comments {from}. {pushshift}</p>
+    <h3>top posts</h3>
+    <p>Archived highly upvoted removed posts {from}. {out}</p>
+    <h3>top comments</h3>
+    <p>Archived highly upvoted removed comments {from}. {out}</p>
+    <h3>r/all posts</h3>
+    <p>Archived removed posts that had hit r/all {from}. This page is up to date if the <NewWindowLink reddit={`/${un}`}>{un}</NewWindowLink> bot is running.</p>
+    <h3>lost comments</h3>
+    <p>Comments {from} that do not appear in the thread unless directly linked. <NewWindowLink reddit='/gwzbxp'>more info</NewWindowLink></p>
+  </>
 
 const Content = ({subreddit, page_type}) => {
   return (
-    <Selection className='content' title='Content'>
+    <Selection className='content' title='Content' titleHelpModal={{content: content_help}}>
       {page_type === 'user' &&
         <>
           <ContentLink expected_suffix='' description='comments and posts'/>
@@ -50,7 +71,7 @@ const Content = ({subreddit, page_type}) => {
           <ContentLink expected_suffix='gilded' description='gilded'/>
         </>
       }
-      {[pageTypes.subreddit_posts, pageTypes.subreddit_comments, pageTypes.aggregations].includes(page_type) &&
+      {[pageTypes.subreddit_posts, pageTypes.subreddit_comments, pageTypes.aggregations, pageTypes.missing_comments].includes(page_type) &&
         <>
           <ContentLink expected_suffix='' description='posts'
             param_name='frontPage' expected_param_value={false}
@@ -70,6 +91,7 @@ const Content = ({subreddit, page_type}) => {
                            param_name='frontPage' expected_param_value={true} page_type={pageTypes.subreddit_posts}/>
             </>
           }
+          <ContentLink expected_suffix='missing-comments' description='lost comments'/>
         </>
       }
     </Selection>

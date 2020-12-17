@@ -334,7 +334,7 @@ class UpvoteRemovalRateHistory extends React.Component {
                   onClick={(clicked, index) => this.goToGraphURL(clicked.y.last_created_utc, clicked.y.last_id, clicked.y.total_items)}
                 />
                 <div>
-                  <a className='colorLink' href={own_page}>previewed items page</a>
+                  <a href={own_page}>previewed items page</a>
                 </div>
                 <div>
                   {hovered ? <Preview type={type} {...hovered.y}/> : null}

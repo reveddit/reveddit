@@ -61,7 +61,7 @@ const aggregationsPath = 'aggregations/?'
 //default values for aggregations query via r/subreddit/top
 export const agg_defaults_for_page = {
   limit: 100,
-  sort: 'rate',
+  sort: 'top',
   type: 'comments',
 }
 

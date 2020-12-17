@@ -55,7 +55,7 @@ const routes = (
   <DefaultLayout path='/search' page_type='search' component={Info} />
   <DefaultLayout path='/random' component={Random} />
   <DefaultLayout path={PATH_STR_SUB+'/:subreddit/top'} page_type={pageTypes.aggregations} component={Aggregations} />
-  <DefaultLayout path={PATH_STR_SUB+'/:subreddit/missing-comments'} page_type='missing_comments' component={SubredditComments} />
+  <DefaultLayout path={PATH_STR_SUB+'/:subreddit/missing-comments'} page_type={pageTypes.missing_comments} component={SubredditComments} />
   <DefaultLayout path={PATH_STR_SUB+'/:subreddit/comments/:threadID/:urlTitle/:commentID'} page_type='thread' component={Thread} />
   <DefaultLayout path={PATH_STR_SUB+'/:subreddit/comments/:threadID/:urlTitle'} page_type='thread' component={Thread} />
   <DefaultLayout path={PATH_STR_SUB+'/:subreddit/comments/:threadID'} page_type='thread' component={Thread} />

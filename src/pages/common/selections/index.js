@@ -148,9 +148,7 @@ const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter,
               case 'missing_comments':
                 return (
                   <>
-                    {page_type === 'subreddit_comments' &&
-                      <Content page_type={page_type}/>
-                    }
+                    <Content page_type={page_type} subreddit={subreddit}/>
                     <LocalSort page_type={page_type}/>
                     <div>
                       <RemovedFilter page_type={page_type} />
@@ -171,8 +169,8 @@ const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter,
                 return (
                   <>
                     <Content page_type={page_type} />
-                    <RedditSortTimeBase globalVarName='sort' className='redditSort' title='Sort By'/>
-                    <RedditSortTimeBase globalVarName='t' className='redditTime' title='From'/>
+                    <RedditSortTimeBase page_type={page_type} globalVarName='sort' className='redditSort' title='Sort By'/>
+                    <RedditSortTimeBase page_type={page_type} globalVarName='t' className='redditTime' title='From'/>
                     <div>
                       <RemovedFilter page_type={page_type} />
                       {categoryFilter}
@@ -196,7 +194,10 @@ const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter,
                 return (
                   <>
                     <Content page_type={page_type} subreddit={subreddit}/>
-                    <ItemsPerPage/>
+                    <div>
+                      <RedditSortTimeBase page_type={page_type} globalVarName='sort' className='aggSort' title='Sort By'/>
+                      <ItemsPerPage/>
+                    </div>
                     {textFilter_title_body}
                     {upvoteRemovalRateHistory}
                   </>)
