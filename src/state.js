@@ -3,6 +3,7 @@ import { Subscribe, Container } from 'unstated'
 import { SimpleURLSearchParams, get, put, ifNumParseInt } from 'utils'
 import { limitCommentDepth_global } from 'pages/modals/Settings'
 import { agg_defaults_for_page } from 'api/reveddit'
+import { pageTypes } from 'pages/DefaultLayout'
 
 const defaultFilters_str = 'defaultFilters'
 
@@ -10,41 +11,29 @@ export const hasClickedRemovedUserCommentContext = () => {
   put('hasClickedRemovedUserCommentContext', true)
 }
 
-export const getExtraGlobalStateVars = (page_type, sort) => {
-  let hasVisitedUserPage = false
-  if (get('hasVisitedUserPage', null)) {
-    hasVisitedUserPage = true
-  } else if (page_type === 'user') {
-    hasVisitedUserPage = true
-    put('hasVisitedUserPage', true)
-  }
-
-  let hasVisitedUserPage_sortTop = false
-  if (get('hasVisitedUserPage_sortTop', null)) {
-    hasVisitedUserPage_sortTop = true
-  } else if (page_type === 'user' && sort === 'top') {
-    hasVisitedUserPage_sortTop = true
-    put('hasVisitedUserPage_sortTop', true)
-  }
-
-  let hasVisitedSubredditPage = false
-  if (get('hasVisitedSubredditPage', null)) {
-    hasVisitedSubredditPage = true
-  } else if (page_type === 'subreddit_posts') {
-    hasVisitedSubredditPage = true
-    put('hasVisitedSubredditPage', true)
-  }
-
-  let hasClickedRemovedUserCommentContext = false
-  if (get('hasClickedRemovedUserCommentContext', null)) {
-    hasClickedRemovedUserCommentContext = true
-  }
-  return {hasVisitedUserPage, hasVisitedUserPage_sortTop,
-          hasVisitedSubredditPage, hasClickedRemovedUserCommentContext,
-          ...loadingVars}
-}
-
 const loadingVars = {statusText: '', statusImage: '/images/loading.gif', loading:true}
+
+export const getExtraGlobalStateVars = (page_type, sort) => {
+  //when condition is true, set the var to true, otherwise keep the locally stored var value
+  const extraGlobalStateVars = {
+    hasVisitedUserPage: page_type === 'user',
+    hasVisitedUserPage_sortTop: page_type === 'user' && sort === 'top',
+    hasVisitedSubredditPage: page_type === pageTypes.subreddit_posts,
+    hasClickedRemovedUserCommentContext: false,
+    hasVisitedTopRemovedPage: page_type === pageTypes.aggregations,
+  }
+  const results = {}
+  for (const [varName, condition] of Object.entries(extraGlobalStateVars)) {
+    results[varName] = false
+    if (get(varName, null)) {
+      results[varName] = true
+    } else if (condition) {
+      results[varName] = true
+      put(varName, true)
+    }
+  }
+  return {...results, ...loadingVars}
+}
 
 const urlParamKeys_max_min_base = {
   num_subscribers: 'num_subscribers',

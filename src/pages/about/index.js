@@ -46,6 +46,9 @@ const NewsItem = ({href, to, title, created_utc}) => {
 }
 
 const news = [
+  {href:`${www_reddit}/kfdaj7/`,
+   title:'Top removed content per subreddit',
+   created_utc:'1608262786'},
   {href:`${www_reddit}/r/RethinkReddit`,
    title:'r/RethinkReddit',
    created_utc:'1602822760'},

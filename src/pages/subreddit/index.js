@@ -4,9 +4,12 @@ import Post from 'pages/common/Post'
 import { withFetch } from 'pages/RevdditFetcher'
 import { connect, localSort_types } from 'state'
 import { byScore, byDate, byNumComments, byControversiality, byNumCrossposts } from 'data_processing/posts'
-import { reversible, getUrlWithTimestamp, copyLink, PATH_STR_USER } from 'utils'
+import { reversible, getUrlWithTimestamp, copyLink, PATH_STR_USER,
+         PATH_STR_SUB,
+} from 'utils'
 import Highlight from 'pages/common/Highlight'
 import Pagination from 'components/Pagination'
+import Notice from 'pages/common/Notice'
 
 
 class SubredditPosts extends React.Component {
@@ -16,7 +19,9 @@ class SubredditPosts extends React.Component {
     const { page_type, viewableItems, selections, summary, archiveDelayMsg,
             oldestTimestamp, newestTimestamp,
           } = this.props
-    const {items, loading, localSort, localSortReverse, hasVisitedUserPage} = this.props.global.state
+    const {items, loading, localSort, localSortReverse,
+           hasVisitedUserPage, hasVisitedTopRemovedPage,
+          } = this.props.global.state
     const noItemsFound = items.length === 0 && ! loading
 
     const items_sorted = viewableItems
@@ -34,7 +39,24 @@ class SubredditPosts extends React.Component {
 
     const pagination = <Pagination oldestTimestamp={oldestTimestamp} newestTimestamp={newestTimestamp}
                                    bottom={true} subreddit={subreddit}/>
-
+    let instructionalNotice = ''
+    if (! hasVisitedUserPage) {
+      instructionalNotice =
+        <Notice className='userpage-note' message={
+          <>
+            Check if you have any removed comments.
+          </>
+        } htmlLink={<Link to={PATH_STR_USER+'/'}>view my removed comments</Link>}
+        />
+    } else if (! hasVisitedTopRemovedPage) {
+      instructionalNotice =
+        <Notice className='top-removed-note' message={
+          <>
+            Check the archive for top removed content.
+          </>
+        } htmlLink={<a href={PATH_STR_SUB+`/${subreddit}/top/`}>show top removed content</a>}
+        />
+    }
     return (
       <React.Fragment>
         <div className="revddit-sharing">
@@ -42,12 +64,7 @@ class SubredditPosts extends React.Component {
         </div>
         {selections}
         {summary}
-        {! hasVisitedUserPage &&
-          <div className='notice-with-link userpage-note'>
-            <div>Check if you have any removed comments.</div>
-            <Link to={PATH_STR_USER+'/'}>view my removed comments</Link>
-          </div>
-        }
+        {instructionalNotice}
         <Highlight/>
         {archiveDelayMsg}
         {
