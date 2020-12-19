@@ -510,3 +510,5 @@ export const matchOrIncludes = (str, search, useMatch = true) => {
 export const sortCreatedAsc = (a,b) => a.created_utc - b.created_utc
 
 export const isEmptyObj = (x) => typeof(x) === 'object' && Object.keys(x).length === 0
+
+export const escapeRegExp = (text) => text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')
