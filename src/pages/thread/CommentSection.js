@@ -112,7 +112,9 @@ class CommentSection extends React.Component {
     const { removedFilter, removedByFilter, localSort,
             localSortReverse, showContext, context,
             itemsLookup: commentsLookup, commentTree: fullCommentTree,
-            threadPost, limitCommentDepth, loading } = props.global.state
+            categoryFilter_author,
+            threadPost, limitCommentDepth, loading,
+          } = props.global.state
     const removedByFilterIsUnset = this.props.global.removedByFilterIsUnset()
     const tagsFilterIsUnset = this.props.global.tagsFilterIsUnset()
 
@@ -147,7 +149,9 @@ class CommentSection extends React.Component {
     } else {
       commentTree = flattenTree(commentTreeSubset)
     }
-
+    if (categoryFilter_author && categoryFilter_author !== 'all') {
+      this.filterCommentTree(commentTree, (item) => item.author === categoryFilter_author)
+    }
     if (localSort === localSort_types.date) {
       this.sortCommentTree( commentTree, reversible(byDate, localSortReverse) )
     } else if (localSort === localSort_types.num_comments) {

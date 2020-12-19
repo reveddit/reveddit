@@ -57,10 +57,13 @@ const getCategorySettings = (page_type, subreddit) => {
     'duplicate_posts': CAT_SUBREDDIT,
     'user': CAT_SUBREDDIT,
     'info': CAT_SUBREDDIT,
-    'search': CAT_SUBREDDIT
+    'search': CAT_SUBREDDIT,
+    'thread': {category: 'author',
+               category_title: 'Author',
+               category_unique_field: 'author'},
   }
   if (page_type in category_settings) {
-    if (subreddit && ! ['duplicate_posts'].includes(page_type)) {
+    if (subreddit && ! ['duplicate_posts', 'thread'].includes(page_type)) {
       let sub_type = subreddit.toLowerCase() === 'all' ? 'all' : 'other'
       return category_settings[page_type][sub_type]
     } else {

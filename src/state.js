@@ -59,6 +59,7 @@ const urlParamKeys_filters_for_reset_to_show_all_items = {
   categoryFilter_subreddit: 'subreddit',
   categoryFilter_domain: 'domain',
   categoryFilter_link_title: 'link_title',
+  categoryFilter_author: 'author',
   keywords: 'keywords',
   post_flair: 'post_flair',
   user_flair: 'user_flair',
@@ -142,6 +143,7 @@ export const filter_pageType_defaults = {
   categoryFilter_subreddit: 'all',
   categoryFilter_domain: 'all',
   categoryFilter_link_title: 'all',
+  categoryFilter_author: 'all',
   n: {
     domain_posts: 200,
     aggregations: agg_defaults_for_page.limit,
@@ -243,6 +245,7 @@ class GlobalState extends Container {
         categoryFilter_subreddit: 'all',
         categoryFilter_domain: 'all',
         categoryFilter_link_title: 'all',
+        categoryFilter_author: 'all',
         localSort: localSort_types.date,
         localSortReverse: false,
         sort: 'new',
@@ -342,7 +345,7 @@ class GlobalState extends Container {
     filters[page_type] = [
       'localSort', 'localSortReverse', 'removedFilter', 'removedByFilter', 'tagsFilter',
       'showContext', 'n', 'sort', 't',
-      'categoryFilter_subreddit', 'categoryFilter_domain', 'categoryFilter_link_title',
+      'categoryFilter_subreddit', 'categoryFilter_domain', 'categoryFilter_link_title', 'categoryFilter_author',
       'num_subscribers_min', 'score_min', 'num_comments_min',
       'num_subscribers_max', 'score_max', 'num_comments_max',
       'keywords', 'post_flair', 'user_flair', 'filter_url',

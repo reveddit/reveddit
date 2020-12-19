@@ -188,6 +188,7 @@ const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter,
                     <LocalSort page_type={page_type} />
                     <RemovedFilter page_type={page_type} />
                     <RemovedByFilter page_type={page_type} />
+                    {categoryFilter}
                     {upvoteRemovalRateHistory}
                   </>)
               case 'aggregations':

@@ -7,7 +7,7 @@ import RemovedBy, {QuarantinedLabel} from 'pages/common/RemovedBy'
 import { NOT_REMOVED, ORPHANED } from 'pages/common/RemovedBy'
 import CommentBody from 'pages/common/CommentBody'
 import Author from 'pages/common/Author'
-import { connect, hasClickedRemovedUserCommentContext } from 'state'
+import { connect, hasClickedRemovedUserCommentContext, urlParamKeys } from 'state'
 import {AddUserParam} from 'data_processing/FindCommentViaAuthors'
 import {MessageMods} from 'components/Misc'
 import {www_reddit, old_reddit} from 'api/reddit'
@@ -84,9 +84,11 @@ const Comment = (props) => {
     post_parent_removed.push('link '+post_removed_label)
   }
   const rev_subreddit = PATH_STR_SUB+'/'+subreddit
-  const rev_link_permalink = link_permalink ?
-    convertPathSub(link_permalink.replace(/^https:\/\/[^/]*/,''))
-    : ''
+  let rev_link_permalink = '', rev_link_permalink_with_add_user = ''
+  if (link_permalink) {
+    rev_link_permalink = convertPathSub(link_permalink.replace(/^https:\/\/[^/]*/,''))
+    rev_link_permalink_with_add_user = rev_link_permalink + '?' + add_user
+  }
   return (
     <div id={name} className={classNames.join(' ')} data-fullname={name} data-created_utc={created_utc}>
       <div className='comment-head'>
@@ -146,8 +148,11 @@ const Comment = (props) => {
                   >context{num_replies && `(${num_replies})`}</a>
               }
               {rev_link_permalink &&
-                <a href={rev_link_permalink+'?'+add_user}>full comments
-                  {'num_comments' in props && `(${num_comments})`}</a>
+                <>
+                  <a href={rev_link_permalink_with_add_user}>full comments
+                    {'num_comments' in props && `(${num_comments})`}</a>
+                  <a href={rev_link_permalink_with_add_user+'&'+urlParamKeys.author+'='+author}>full comments(author)</a>
+                </>
               }
               <a href={old_reddit+permalink+'?context=3'}>reddit</a>
               { directlink && <a href={directlink}>directlink</a>}
