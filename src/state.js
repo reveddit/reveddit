@@ -263,6 +263,7 @@ class GlobalState extends Container {
         itemsSortedByDate: [],
         initialFocusCommentID: '',
         commentParentsAndPosts: {},
+        userCommentsByPost: {},
         limitCommentDepth: true,
         moderators: {},
         moderated_subreddits: {},

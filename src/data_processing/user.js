@@ -169,7 +169,7 @@ export const getRevdditUserItems = async (user, kind, global) => {
 
 function getItems (user, kind, global, sort, before = '', after = '', time, limit, all = false) {
   const gs = global.state
-  const {commentParentsAndPosts} = gs
+  const {commentParentsAndPosts, userCommentsByPost} = gs
   let {oldestTimestamp, newestTimestamp} = gs
   return queryUserPage(user, kind, sort, before, after, time, limit, oauth_reddit_rev)
   .then(async (userPageData) => {
@@ -206,8 +206,9 @@ function getItems (user, kind, global, sort, before = '', after = '', time, limi
     const userPage_item_lookup = {}
     const ids = [], comment_parent_and_post_ids = {}, comments = []
     const items = gs.items
-    userPageData.items.forEach(item => {
+    userPageData.items.forEach((item, i) => {
       userPage_item_lookup[item.name] = item
+      item.rev_position = items.length + i
       ids.push(item.name)
       if (! oldestTimestamp) {
         oldestTimestamp = item.created_utc
@@ -233,6 +234,10 @@ function getItems (user, kind, global, sort, before = '', after = '', time, limi
         if (item.id in missingComments) {
           setMissingCommentMeta(item, missingComments)
         }
+        if (! userCommentsByPost[item.link_id]) {
+          userCommentsByPost[item.link_id] = []
+        }
+        userCommentsByPost[item.link_id].push(item)
       }
       if (items.length > 0) {
         item.prev = items[items.length-1].name

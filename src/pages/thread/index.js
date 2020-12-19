@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link, withRouter } from 'react-router-dom'
 import scrollToElement from 'scroll-to-element'
-import { connect, localSort_types } from 'state'
+import { connect, localSort_types, urlParamKeys } from 'state'
 import Post from 'pages/common/Post'
 import Notice from 'pages/common/Notice'
 import CommentSection from './CommentSection'
@@ -15,14 +15,20 @@ import Highlight from 'pages/common/Highlight'
 class Thread extends React.Component {
   render () {
     const { itemsLookup:comments, threadPost: post, hasVisitedUserPage,
-            context, showContext, initialFocusCommentID } = this.props.global.state
+            context, showContext, initialFocusCommentID, add_user,
+          } = this.props.global.state
 
     const { id, author } = post
     const { subreddit, threadID, urlTitle = '', commentID } = this.props.match.params
     const { selections, summary,
             visibleItemsWithoutCategoryFilter, page_type, archiveDelayMsg,
           } = this.props
-    const linkToRestOfComments = `${PATH_STR_SUB}/${subreddit}/comments/${threadID}/${urlTitle}/`
+    //TODO: preserve add_user param here
+    const queryParams = new SimpleURLSearchParams()
+    if (add_user) {
+      queryParams.set(urlParamKeys.add_user, add_user)
+    }
+    const linkToRestOfComments = `${PATH_STR_SUB}/${subreddit}/comments/${threadID}/${urlTitle}/`+queryParams.toString()
     const isSingleComment = (commentID !== undefined)
     const threadFiltersAreUnset = this.props.global.threadFiltersAreUnset()
     const updateStateAndURL = this.props.global.selection_update

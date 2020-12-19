@@ -27,7 +27,7 @@ const User = ({match, global, page_type, viewableItems, selections, summary, not
   const { user, kind = ''} = match.params
   const modal = React.useContext(ModalContext)
   const queryParams = new SimpleURLSearchParams(window.location.search)
-  const {userNext, num_pages, loading, userIssueDescription, items, show, after, sort,
+  const {userNext, num_pages, loading, userIssueDescription, items, show, after,
          hasVisitedUserPage_sortTop, hasVisitedSubredditPage, hasClickedRemovedUserCommentContext,
         } = global.state
   let loadAllLink = '', nextLink = '', pagesLoaded = ''
@@ -73,9 +73,9 @@ const User = ({match, global, page_type, viewableItems, selections, summary, not
   viewableItems.forEach(item => {
     if (! selectedItems || (selectedItems && selectedItems.includes(item.name))) {
       if (item.name.slice(0,2) === 't3') {
-        shownItems.push(<Post key={item.name} {...item} sort={sort} />)
+        shownItems.push(<Post key={item.name} {...item} />)
       } else {
-        shownItems.push(<Comment key={item.name} {...item} sort={sort} kind={kind} page_type={page_type} />)
+        shownItems.push(<Comment key={item.name} {...item} kind={kind} page_type={page_type} />)
         if (item.removed) {
           removedCommentIDs.push(item.name)
         }

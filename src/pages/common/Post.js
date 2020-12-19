@@ -38,6 +38,7 @@ class Post extends React.Component {
   }
   render() {
     const props = this.props
+    const {sort} = props.global.state
     if (!props.title) {
       return <div />
     }
@@ -78,7 +79,7 @@ class Post extends React.Component {
       directlink = `?before=${props.next}&`
     }
     if (directlink) {
-      directlink += `limit=1&sort=${props.sort}&show=${props.name}&removal_status=all`
+      directlink += `limit=1&sort=${sort}&show=${props.name}&removal_status=all`
     }
     let domain = props.domain
     if (! domain.match(/^self\.[^.]+$/)) {
