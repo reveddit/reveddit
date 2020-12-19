@@ -79,15 +79,18 @@ const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter,
   const categoryFilter = <CategoryFilter page_type={page_type}
     visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
     type={category_type} title={category_title} unique_field={category_unique_field}/>
-  const textFilter_title_body =
+  const textFilter_content_title = page_type === 'thread' ? 'Body' : 'Title/Body'
+  const textFilter_content =
     <TextFilter page_type={page_type} globalVarName='keywords' placeholder='keywords' key='kw'
-                title='Title/Body' titleHelpModal={{content:word_help}} />
+                title={textFilter_content_title} titleHelpModal={{content:word_help}} />
+  const textFilter_user_flair =
+  <TextFilter page_type={page_type} globalVarName='user_flair' placeholder='user flair' key='uf'
+              title='User Flair' titleHelpModal={{content:flair_help}} />
   const textFilters = [
-    textFilter_title_body,
+    textFilter_content,
     <TextFilter page_type={page_type} globalVarName='post_flair' placeholder='post flair' key='pf'
                 title='Post Flair' titleHelpModal={{content:flair_help}} />,
-    <TextFilter page_type={page_type} globalVarName='user_flair' placeholder='user flair' key='uf'
-                title='User Flair' titleHelpModal={{content:flair_help}} />,
+    textFilter_user_flair,
     <TextFilter page_type={page_type} globalVarName='filter_url' placeholder='url' key='url'
                 title='URL' titleHelpModal={{content:url_help}} />,
   ]
@@ -188,7 +191,11 @@ const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter,
                     <LocalSort page_type={page_type} />
                     <RemovedFilter page_type={page_type} />
                     <RemovedByFilter page_type={page_type} />
-                    {categoryFilter}
+                    <div>
+                      {categoryFilter}
+                      {textFilter_content}
+                      {textFilter_user_flair}
+                    </div>
                     {upvoteRemovalRateHistory}
                   </>)
               case 'aggregations':
@@ -199,7 +206,7 @@ const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter,
                       <RedditSortTimeBase page_type={page_type} globalVarName='sort' className='aggSort' title='Sort By'/>
                       <ItemsPerPage/>
                     </div>
-                    {textFilter_title_body}
+                    {textFilter_content}
                     {upvoteRemovalRateHistory}
                   </>)
               default: return ''

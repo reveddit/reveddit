@@ -7,6 +7,7 @@ import { createCommentTree } from 'data_processing/thread'
 import { reversible, itemIsActioned, not } from 'utils'
 import { getMaxCommentDepth } from 'pages/thread/Comment'
 import { Spin } from 'components/Misc'
+import { textMatch } from 'pages/RevdditFetcher'
 
 const MAX_COMMENTS_TO_SHOW = 200
 
@@ -108,15 +109,17 @@ class CommentSection extends React.Component {
 
   render() {
     const props = this.props
-    const { focusCommentID, root } = this.props
+    const { global, focusCommentID, root, visibleItemsWithoutCategoryFilter,
+            page_type,
+          } = this.props
     const { removedFilter, removedByFilter, localSort,
             localSortReverse, showContext, context,
             itemsLookup: commentsLookup, commentTree: fullCommentTree,
-            categoryFilter_author,
+            categoryFilter_author, keywords, user_flair,
             threadPost, limitCommentDepth, loading,
-          } = props.global.state
-    const removedByFilterIsUnset = this.props.global.removedByFilterIsUnset()
-    const tagsFilterIsUnset = this.props.global.tagsFilterIsUnset()
+          } = global.state
+    const removedByFilterIsUnset = global.removedByFilterIsUnset()
+    const tagsFilterIsUnset = global.tagsFilterIsUnset()
 
     let commentTreeSubset = fullCommentTree
 
@@ -136,7 +139,7 @@ class CommentSection extends React.Component {
         this.filterCommentTree(commentTree, not(itemIsActioned))
       }
       if (! removedByFilterIsUnset) {
-        const filteredActions = filterSelectedActions(Object.keys(this.props.global.state.removedByFilter))
+        const filteredActions = filterSelectedActions(Object.keys(removedByFilter))
         this.filterCommentTree(commentTree, (item) => {
           return itemIsOneOfSelectedActions(item, ...filteredActions)
         })
@@ -145,12 +148,18 @@ class CommentSection extends React.Component {
         this.filterCommentTree(commentTree, this.itemIsOneOfSelectedTags_local)
       }
     } else if (! focusCommentID || ! commentsLookup[focusCommentID]) {
-      commentTree = this.props.visibleItemsWithoutCategoryFilter
+      commentTree = visibleItemsWithoutCategoryFilter
     } else {
       commentTree = flattenTree(commentTreeSubset)
     }
     if (categoryFilter_author && categoryFilter_author !== 'all') {
       this.filterCommentTree(commentTree, (item) => item.author === categoryFilter_author)
+    }
+    if (keywords) {
+      this.filterCommentTree(commentTree, (item) => textMatch(global.state, item, 'keywords', ['body']))
+    }
+    if (user_flair) {
+      this.filterCommentTree(commentTree, (item) => textMatch(global.state, item, 'user_flair', ['author_flair_text']))
     }
     if (localSort === localSort_types.date) {
       this.sortCommentTree( commentTree, reversible(byDate, localSortReverse) )
@@ -182,8 +191,8 @@ class CommentSection extends React.Component {
           key={comment.id}
           {...comment}
           depth={0}
-          page_type={props.page_type}
-          focusCommentID={props.focusCommentID}
+          page_type={page_type}
+          focusCommentID={focusCommentID}
           contextAncestors={contextAncestors}
         />)
       }

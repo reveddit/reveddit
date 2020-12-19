@@ -172,7 +172,7 @@ const getLoadDataFunctionAndParam = (
 const MAX_COLLAPSED_VISIBLE = 1
 const MAX_ORPHANED_VISIBLE = 1
 
-const textMatch = (gs, item, globalVarName, fields) => {
+export const textMatch = (gs, item, globalVarName, fields) => {
   const searchString = gs[globalVarName]
   const keywords = searchString.toString().replace(/\s\s+/g, ' ').trim().toLocaleLowerCase().match(/(-?"[^"]+"|[^"\s]+)/g) || []
   for (let i = 0; i < keywords.length; i++) {
