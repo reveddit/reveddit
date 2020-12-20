@@ -174,6 +174,7 @@ const Comment = (props) => {
               <ShowHideRepliesButton hideReplies={false} showHiddenReplies={true}/>
               : <ShowHideRepliesButton hideReplies={true}/>
             : null}
+          <a className='pointer' onClick={() => global.selection_update('author', author, page_type)}>author-focus</a>
           { ! deleted && removed &&
             <MessageMods {...props}/>
           }
