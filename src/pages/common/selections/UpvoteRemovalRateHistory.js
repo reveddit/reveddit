@@ -8,7 +8,7 @@ import { prettyFormatBigNumber, SimpleURLSearchParams, ifNumParseInt,
 import { Fetch } from 'hooks/fetch'
 import { Selection } from './SelectionBase'
 import { QuestionMarkModal, Help } from 'components/Misc'
-import { getAggregationsURL, getAggregationsPeriodURL,
+import { getAggregationsURL,
   numGraphPointsParamKey, sortByParamKey, contentTypeParamKey, aggregationPeriodParams
 } from 'api/reveddit'
 import {pageTypes} from 'pages/DefaultLayout'
@@ -24,7 +24,7 @@ export const urr_help = <Help title={urr_title} content={
     <p><b>How do I view items on their own page?</b></p>
     <p>Visit /r/subreddit/top or use the '{own_page_text}' link below the {urr_title} graph found under filters.</p>
     <p><b>How do I use the graph?</b></p>
-    <p>Hover the mouse to show a preview of the highest-scored removed item. Click on a point to load all items for that period. This may take some time to load.</p>
+    <p>Hover the mouse to show a preview of the highest-scored removed item. Click on a point to show that item. The 'period' link on the next page will load all items for that period. This may take a minute to load.</p>
     <p><b>How up-to-date is this?</b></p>
     <p>Sort by 'new' to see the most recent data.</p>
   </>
@@ -210,18 +210,6 @@ class UpvoteRemovalRateHistory extends React.Component {
     let to = `${window.location.pathname}${queryParams.toString()}`
     window.history.replaceState(null,null,to)
   }
-  goToGraphURL = (last_created_utc, last_id, total_items) => {
-    const {subreddit} = this.props
-    window.location.href = getAggregationsPeriodURL({
-      subreddit,
-      type: this.state[contentTypeParamKey],
-      numGraphPoints: this.state[numGraphPointsParamKey],
-      sort: this.state[sortByParamKey],
-      last_created_utc,
-      last_id,
-      limit: total_items,
-    })
-  }
 
   render() {
     const {page_type, subreddit} = this.props
@@ -334,7 +322,7 @@ class UpvoteRemovalRateHistory extends React.Component {
                   height={50}
                   hovered={hovered}
                   onHover={(hovered, index) => this.setState({hovered})}
-                  onClick={(clicked, index) => this.goToGraphURL(clicked.y.last_created_utc, clicked.y.last_id, clicked.y.total_items)}
+                  onClick={(clicked, index) => window.location.href = own_page+'#'+clicked.y.id_of_max_pos_removed_item}
                 />
                 <div>
                   <a href={own_page}>{own_page_text}</a>

@@ -11,6 +11,7 @@ import { QuestionMarkModal } from 'components/Misc'
 const Aggregations = ({global, selections, summary, viewableItems, ...props}) => {
   const {content: type, n, sort} = global.state
   const {subreddit} = props.match.params
+  const reddit_content_type = type === 'comments' ? '1' : '3'
   return (
     <>
       {selections}
@@ -30,7 +31,9 @@ const Aggregations = ({global, selections, summary, viewableItems, ...props}) =>
           last_id: item.last_id,
           limit: item.total_items,
         })
-        return <Preview key={i} type={type} subreddit={subreddit} periodUrl={url} {...item}/>
+        return <Preview key={i} type={type} subreddit={subreddit}
+                        periodUrl={url+`#t${reddit_content_type}_${item.id_of_max_pos_removed_item}`}
+                        {...item}/>
       })}
     </>
   )

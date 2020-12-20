@@ -2,9 +2,22 @@ import React from 'react'
 import Time from 'pages/common/Time'
 import { prettyScore, roundToX, replaceAmpGTLT } from 'utils'
 import { www_reddit } from 'api/reddit'
+import { QuestionMarkModal, Help } from 'components/Misc'
+import { urr_help } from 'pages/common/selections/UpvoteRemovalRateHistory'
 
 const COMMENTS = 'comments'
 const POSTS = 'posts'
+
+const period_help =
+  <Help title='Period' content={
+    <>
+      <p>The period link shows removed items for the period used to calculate the karma removal rate. <QuestionMarkModal
+        text='more info'
+        modalContent={{content: urr_help}}
+      /></p>
+      <p>The resulting page may take a minute to load. In some cases, a post may not be visible because a user deleted it after a moderator removed it. Such missing posts may reappear by selecting filters -> action -> user deleted.</p>
+    </>
+  }/>
 
 const Preview = ({
   body, title, rate, score, subreddit,
@@ -40,7 +53,7 @@ const Preview = ({
           <div className='links'>
             <a className='spaceRightLarge' href={link_path}>{link_text}</a>
             <a className='spaceRightLarge' href={www_reddit+link_path}>reddit</a>
-            <a href={periodUrl}>period</a>
+            <a href={periodUrl}>period</a> <QuestionMarkModal modalContent={{content: period_help}} wh='15' />
           </div>
           : null
         }

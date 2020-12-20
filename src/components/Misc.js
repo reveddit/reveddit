@@ -69,12 +69,12 @@ export const MessageMods = ({permalink, subreddit}) => {
 }
 
 //modalContent should be either {content: <>abc</>} or {hash: 'abc'}
-export const QuestionMarkModal = ({modalContent, fill, text}) => {
+export const QuestionMarkModal = ({modalContent, fill, text, wh='20'}) => {
   const modal = React.useContext(ModalContext)
   return (
     <a className='pointer' onClick={() => modal.openModal(modalContent)}>
       { text ? text :
-        <QuestionMark style={{marginLeft: '10px'}} wh='20' fill={fill}/>
+        <QuestionMark style={{marginLeft: '10px'}} wh={wh} fill={fill}/>
       }
     </a>
   )

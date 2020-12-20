@@ -10,7 +10,7 @@ export const getRevdditAggregations = (subreddit, global, history) => {
     if (type === 'comments') {
       info_promise = getComments({ids: items.map(x => x.id_of_max_pos_removed_item)})
     }
-    info_promise.then(comments => {
+    return info_promise.then(comments => {
       //post processing for comments
       if (Object.keys(comments).length) {
         for (const c of items) {
