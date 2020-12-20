@@ -284,7 +284,7 @@ export const createCommentTree = (postID, root_commentID, comments) => {
     // use sorted comments so ancestors are tracked properly
     for (const [i, comment] of itemsSortedByDate.entries()) {
       comment.by_date_i = i
-      comment.replies = [], comment.ancestors = {}
+      comment.replies = [], comment.ancestors = {}, comment.replies_copy = []
       const parentID = comment.parent_id
       const parentID_short = parentID.substr(3)
       if ((! root_commentID && parentID === 't3_'+postID) ||
@@ -298,6 +298,7 @@ export const createCommentTree = (postID, root_commentID, comments) => {
         comment.ancestors = {...comments[parentID_short].ancestors}
         comment.ancestors[parentID_short] = true
         comments[parentID_short].replies.push(comment)
+        comments[parentID_short].replies_copy.push(comment)
       }
     }
     return [commentTree, itemsSortedByDate]

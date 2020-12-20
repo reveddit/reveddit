@@ -120,12 +120,14 @@ class CommentSection extends React.Component {
           } = global.state
     const removedByFilterIsUnset = global.removedByFilterIsUnset()
     const tagsFilterIsUnset = global.tagsFilterIsUnset()
-
+    let numRootCommentsMatchOriginalCount = true
     let commentTreeSubset = fullCommentTree
+    let origNumRootComments = null
 
     if (commentsLookup[root]) {
       commentTreeSubset = [commentsLookup[root]]
     }
+
     let contextAncestors = {}
     if (context && focusCommentID && commentsLookup[focusCommentID]) {
       contextAncestors = commentsLookup[focusCommentID].ancestors
@@ -133,6 +135,7 @@ class CommentSection extends React.Component {
     let commentTree
     if (showContext) {
       [commentTree] = createCommentTree(threadPost.id, root, commentsLookup)
+      origNumRootComments = commentTree.length
       if (removedFilter === removedFilter_types.removed) {
         this.filterCommentTree(commentTree, itemIsActioned)
       } else if (removedFilter === removedFilter_types.not_removed) {
@@ -195,6 +198,9 @@ class CommentSection extends React.Component {
           focusCommentID={focusCommentID}
           contextAncestors={contextAncestors}
         />)
+      }
+      if (commentTree.length < origNumRootComments) {
+        comments_render.push(<a key='show-all' className='pointer' onClick={() => this.props.global.resetFilters(page_type)}>▾ reset filters</a>)
       }
     } else if (removedFilter !== removedFilter_types.all) {
       status = (<p>No {removedFilter_text[removedFilter]} comments found</p>)

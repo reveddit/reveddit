@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState} from 'react'
 import { Link, withRouter } from 'react-router-dom'
 import { prettyScore, parse, jumpToHash, SimpleURLSearchParams,
          convertPathSub, PATH_STR_SUB,
@@ -25,138 +25,166 @@ export const getMaxCommentDepth = () => {
   return depth
 }
 
-class Comment extends React.Component {
-  state = {
-    displayBody: ! this.props.stickied ||
-                 this.props.contextAncestors[this.props.id] ||
-                 this.props.id == this.props.focusCommentID
+const Comment = (props) => {
+  const {
+    global, history, //from HOC withRouter(connect(Comment))
+    page_type, //from parent component
+    id, parent_id, stickied, permalink, subreddit, link_id, score, //from reddit comment data
+    removed, deleted, locked, depth, //from reveddit post processing
+    contextAncestors, focusCommentID, ancestors, replies, replies_copy, //from reveddit post processing
+  } = props
+  const name = `t1_${id}` //some older pushshift data does not have name
+  let {author} = props
+  const [displayBody, setDisplayBody] = useState(
+    ! stickied ||
+      contextAncestors[id] ||
+      id === focusCommentID)
+  const [repliesMeta, setRepliesMeta] = useState({
+    showHiddenReplies: false,
+    hideReplies: ! replies.length && replies_copy.length,
+  })
+  const {showHiddenReplies, hideReplies} = repliesMeta
+  const {showContext, limitCommentDepth} = global.state
+  const {selection_update: updateStateAndURL, context_update} = global
+  const maxCommentDepth = getMaxCommentDepth()
+  let even_odd = ''
+  if (! removed && ! deleted) {
+    even_odd = depth % 2 === 0 ? 'comment-even' : 'comment-odd'
   }
-  toggleDisplayBody() {
-    this.setState({displayBody: ! this.state.displayBody})
+
+  if (deleted) {
+    author = '[deleted]'
   }
-  render() {
-    let props = this.props
-    const {displayBody} = this.state
-    const {contextAncestors, focusCommentID} = this.props
-    const {showContext, limitCommentDepth} = this.props.global.state
-    const updateStateAndURL = this.props.global.selection_update
-    const context_update = this.props.global.context_update
-    const maxCommentDepth = getMaxCommentDepth()
-    let even_odd = ''
-    if (!props.removed && !props.deleted) {
-      even_odd = props.depth % 2 === 0 ? 'comment-even' : 'comment-odd'
-    }
 
-    let author = props.author
-    if (props.deleted) {
-      author = '[deleted]'
-    }
+  const permalink_nohash = permalink ? convertPathSub(permalink)
+    : `${PATH_STR_SUB}/${subreddit}/comments/${link_id}/_/${id}/`
 
-    const permalink_nohash = props.permalink ? convertPathSub(props.permalink)
-      : `${PATH_STR_SUB}/${props.subreddit}/comments/${props.link_id}/_/${props.id}/`
-
-    const searchParams = new SimpleURLSearchParams(window.location.search).delete('context').delete('showFilters')
-    const searchParams_nocontext = searchParams.toString()
-    const contextLink = permalink_nohash+searchParams.set('context', contextDefault).toString()+`#${props.name}`
-    const permalink = permalink_nohash+searchParams_nocontext+`#${props.name}`
-    const getPermalink = (text) => {
-      return <Link to={permalink} onClick={(e) => {
-        context_update(0, props)
-        .then(() => jumpToHash(window.location.hash))
-      }}>{text}</Link>
+  const searchParams = new SimpleURLSearchParams(window.location.search).delete('context').delete('showFilters')
+  const searchParams_nocontext = searchParams.toString()
+  const contextLink = permalink_nohash+searchParams.set('context', contextDefault).toString()+`#${name}`
+  const permalink_with_hash = permalink_nohash+searchParams_nocontext+`#${name}`
+  const getPermalink = (text) => {
+    return <Link to={permalink_with_hash} onClick={(e) => {
+      context_update(0, props)
+      .then(() => jumpToHash(window.location.hash))
+    }}>{text}</Link>
+  }
+  let parent_link = undefined
+  if ('parent_id' in props && parent_id.substr(0,2) === 't1') {
+    parent_link = permalink_nohash.split('/').slice(0,6).join('/')+'/'+
+                  parent_id.substr(3)+'/'+searchParams_nocontext+'#'+parent_id
+  }
+  if (Object.keys(contextAncestors).length &&
+      id != focusCommentID &&
+      ! contextAncestors[id] &&
+      ! ancestors[focusCommentID]
+      ) {
+    return <></>
+  }
+  let expandIcon = '[+]', hidden = 'hidden'
+  if (displayBody) {
+    expandIcon = '[–]'
+    hidden = ''
+  }
+  let replies_viewable = null, num_replies_text = ''
+  if (showContext) {
+    const rest = {
+      depth: depth + 1,
+      global,
+      history,
+      page_type,
+      focusCommentID,
+      contextAncestors,
     }
-    let parent_link = undefined
-    if ('parent_id' in props && props.parent_id.substr(0,2) === 't1') {
-      parent_link = permalink_nohash.split('/').slice(0,6).join('/')+'/'+
-                    props.parent_id.substr(3)+'/'+searchParams_nocontext+'#'+props.parent_id
-    }
-    const name = `t1_${props.id}`
-    if (Object.keys(contextAncestors).length &&
-        props.id != focusCommentID &&
-        ! contextAncestors[props.id] &&
-        ! props.ancestors[focusCommentID]
-        ) {
-      return <></>
-    }
-    let expandIcon = '[+]', hidden = 'hidden'
-    if (displayBody) {
-      expandIcon = '[–]'
-      hidden = ''
-    }
-    let replies = ''
-    if (showContext && 'replies' in props && props.replies.length > 0) {
-      replies = (! limitCommentDepth || props.depth < maxCommentDepth) ?
-        props.replies.map(comment => (
-          <Comment
-            key={comment.id}
-            {...comment}
-            depth={props.depth + 1}
-            global={props.global}
-            history={props.history}
-            page_type={props.page_type}
-            focusCommentID={focusCommentID}
-            contextAncestors={contextAncestors}
-          />
-        ))
+    const createComment = (comment) => <Comment key={comment.id} {...comment} {...rest} />
+    const getReplies_or_continueLink = (replies) => {
+      return (! limitCommentDepth || depth < maxCommentDepth) ?
+        replies.map(createComment)
         : getPermalink('continue this thread⟶')
     }
-
-    return (
-      <div id={name} className={`comment
-            ${props.removed ? 'removed':''}
-            ${props.deleted ? 'deleted':''}
-            ${props.locked ? 'locked':''}
-            ${even_odd}
-            ${props.id === props.focusCommentID ? 'focus':''}
-      `}>
-        <div className='comment-head'>
-          <a onClick={() => this.toggleDisplayBody()} className={`collapseToggle spaceRight ${hidden}`}>{expandIcon}</a>
-          <Author {...props} className='spaceRight'/>
-          <span className='comment-score spaceRight'>{prettyScore(props.score)} point{(props.score !== 1) && 's'}</span>
-          <Time {...props}/>
-          <RemovedBy {...props} />
-        </div>
-        <div className='comment-body-and-links' style={displayBody ? {} : {display: 'none'}}>
-          <CommentBody {...props} page_type={props.page_type}/>
-          <div className='comment-links'>
-            { ! props.deleted &&
+    const ShowHiddenRepliesLink = ({num_replies_text}) =>
+      <a className='pointer' onClick={() => setRepliesMeta({showHiddenReplies: true, hideReplies: false})}>▾ show hidden replies{num_replies_text}</a>
+    if (replies_copy && replies_copy.length) {
+      num_replies_text = ' ('+replies_copy.length+')'
+    }
+    if (showHiddenReplies && ! hideReplies) {
+      replies_viewable = getReplies_or_continueLink(replies_copy)
+    } else if (replies && replies.length && ! hideReplies) {
+      replies_viewable = getReplies_or_continueLink(replies)
+      if (replies.length !== replies_copy.length) {
+        replies_viewable.push(<ShowHiddenRepliesLink key={id+'_extra_replies'} num_replies_text={' ('+(replies_copy.length-replies.length)+')'}/>)
+      }
+    } else if ((replies_copy && replies_copy.length) || hideReplies) {
+      replies_viewable = showHiddenReplies && ! hideReplies ?
+        getReplies_or_continueLink(replies_copy)
+        : <ShowHiddenRepliesLink num_replies_text={num_replies_text}/>
+    }
+  }
+  const ShowHideRepliesButton = ({hideReplies, ...other}) => {
+    const show_hide = hideReplies ? 'hide' : 'show'
+    return <a className='pointer' onClick={() => setRepliesMeta({...repliesMeta, ...other, hideReplies})}>{show_hide} replies{num_replies_text}</a>
+  }
+  return (
+    <div id={name} className={`comment
+          ${removed ? 'removed':''}
+          ${deleted ? 'deleted':''}
+          ${locked ? 'locked':''}
+          ${even_odd}
+          ${id === focusCommentID ? 'focus':''}
+    `}>
+      <div className='comment-head'>
+        <a onClick={() => setDisplayBody(! displayBody)} className={`collapseToggle spaceRight ${hidden}`}>{expandIcon}</a>
+        <Author {...props} className='spaceRight'/>
+        <span className='comment-score spaceRight'>{prettyScore(score)} point{(score !== 1) && 's'}</span>
+        <Time {...props}/>
+        <RemovedBy {...props} />
+      </div>
+      <div className='comment-body-and-links' style={displayBody ? {} : {display: 'none'}}>
+        <CommentBody {...props} page_type={page_type}/>
+        <div className='comment-links'>
+          { ! deleted &&
+            <>
+              {getPermalink('permalink')}
+            </>
+          }
+          {parent_link &&
+              // using <a> instead of <Link> for parent & context links b/c
+              // <Link> causes comments to disappear momentarily when inserting a parent
               <>
-                {getPermalink('permalink')}
-              </>
-            }
-            {parent_link &&
-                // using <a> instead of <Link> for parent & context links b/c
-                // <Link> causes comments to disappear momentarily when inserting a parent
-                <>
-                  <a href={parent_link} onClick={(e) => {
+                <a href={parent_link} onClick={(e) => {
+                  e.preventDefault()
+                  insertParent(id, global)
+                  .then(() => context_update(0, props, parent_link))
+                  .then(() => jumpToHash(window.location.hash))
+                }}>parent</a>
+                {! deleted &&
+                  <a href={contextLink} onClick={(e) => {
                     e.preventDefault()
-                    insertParent(props.id, props.global)
-                    .then(() => context_update(0, props, parent_link))
+                    insertParent(id, global)
+                    // parent_id will never be t3_ b/c context link is not rendered for topmost comments
+                    .then(() => insertParent(parent_id.substr(3), global))
+                    .then(() => context_update(contextDefault, props, contextLink))
                     .then(() => jumpToHash(window.location.hash))
-                  }}>parent</a>
-                  {! props.deleted &&
-                    <a href={contextLink} onClick={(e) => {
-                      e.preventDefault()
-                      insertParent(props.id, props.global)
-                      // parent_id will never be t3_ b/c context link is not rendered for topmost comments
-                      .then(() => insertParent(props.parent_id.substr(3), props.global))
-                      .then(() => context_update(contextDefault, props, contextLink))
-                      .then(() => jumpToHash(window.location.hash))
-                    }}>context</a>
-                  }
-                </>
-            }
-            { ! props.deleted && props.removed &&
-              <MessageMods {...props}/>
-            }
-          </div>
-          <div>
-            { replies }
-          </div>
+                  }}>context</a>
+                }
+              </>
+          }
+          {num_replies_text ?
+            hideReplies ?
+              <ShowHideRepliesButton hideReplies={false} showHiddenReplies={true}/>
+              : <ShowHideRepliesButton hideReplies={true}/>
+            : null}
+          { ! deleted && removed &&
+            <MessageMods {...props}/>
+          }
+        </div>
+        <div>
+          { replies_viewable }
         </div>
       </div>
-    )
-  }
+    </div>
+  )
+
 }
 
 export default withRouter(connect(Comment))
