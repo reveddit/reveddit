@@ -17,12 +17,14 @@ import {
   submitMissingComments
 } from 'api/reveddit'
 import { itemIsRemovedOrDeleted, postIsDeleted, postIsRemoved, jumpToHash,
-         convertPathSub, sortCreatedAsc,
+         convertPathSub, sortCreatedAsc, validAuthor, commentIsRemoved,
 } from 'utils'
 import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
          MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED,
          AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
-import {AddUserParam, getUserCommentsForPost, addUserComments} from 'data_processing/FindCommentViaAuthors'
+import {AddUserParam, AddUserItem, getUserCommentsForPost,
+        addUserComments, addUserComments_and_updateURL,
+} from 'data_processing/FindCommentViaAuthors'
 
 const numCommentsWithPost = 500
 let archiveError = false
@@ -40,6 +42,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
   }
   await getAuth()
   const add_user_promises = []
+  const add_user_authors = {}
   if (add_user) {
     if (! add_user.match(/\./)) {
       //old format
@@ -49,6 +52,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
       const addUserItems = (new AddUserParam({string: add_user})).getItems().slice(0,10)
       for (const aui of addUserItems) {
         add_user_promises.push(aui.query())
+        add_user_authors[aui.author] = 1
       }
     }
   }
@@ -156,12 +160,27 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
       redditComments[commentID] = rootComment[commentID]
     }
     copyModlogItemsToArchiveItems(modlogsComments, pushshiftComments)
-    if (! pushshiftComments[commentID] && ! redditComments[commentID]) {
+    const focusComment_pushshift = pushshiftComments[commentID]
+    const focusComment_reddit = redditComments[commentID]
+    let new_add_user
+    const add_user_promises_forURL = []
+    if (! focusComment_pushshift && ! focusComment_reddit) {
       commentID = undefined
       root_commentID = undefined
       resetPath()
     } else {
       resetPath(commentID)
+      if (focusComment_pushshift) {
+        const focusCommentAuthor = focusComment_pushshift.author
+        if (focusComment_reddit &&
+          commentIsRemoved(focusComment_reddit) &&
+          validAuthor(focusCommentAuthor) && ! add_user_authors[focusCommentAuthor]) {
+          //if the focus comment is removed, and the author does not appear in the add_user parameter,
+          //check for edits on the author's user page. Any edits will cause the URL to update
+          const aui = new AddUserItem({author: focusCommentAuthor})
+          add_user_promises_forURL.push(aui.query())
+        }
+      }
     }
     const origRedditComments = {...redditComments}
     const early_combinedComments = combinePushshiftAndRedditComments(pushshiftComments, redditComments, false, reddit_post)
@@ -172,9 +191,12 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
                       commentTree: early_commentTree,
                       itemsSortedByDate: early_itemsSortedByDate,
             initialFocusCommentID: commentID})
-    const {user_comments, newIDs: remainingRedditIDs} = await Promise.all(add_user_promises).then(
-      getUserCommentsForPost.bind(null, reddit_post, early_combinedComments)
-    )
+    const pass_userPages_to_getUserCommentsForPost = (userPages) => getUserCommentsForPost(reddit_post, early_combinedComments, userPages)
+    const {user_comments, newIDs: remainingRedditIDs} = await Promise.all(add_user_promises)
+      .then(pass_userPages_to_getUserCommentsForPost)
+    const {user_comments: user_comments_forURL, newIDs: remainingRedditIDs_2} = await Promise.all(add_user_promises_forURL)
+      .then(pass_userPages_to_getUserCommentsForPost)
+    Object.assign(remainingRedditIDs, remainingRedditIDs_2)
     Object.keys(pushshiftComments).forEach(id => {
       if (! (id in redditComments)) {
         remainingRedditIDs[id] = 1
@@ -190,10 +212,8 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
       redditComments[comment.id] = comment
     })
     const combinedComments = combinePushshiftAndRedditComments(pushshiftComments, redditComments, false, reddit_post)
-    const insertUserComments = (user_comments, commentsLookup, threadID, root_commentID) => {
-
-    }
     addUserComments(user_comments, combinedComments)
+    new_add_user = addUserComments_and_updateURL(user_comments_forURL, combinedComments, add_user)
     //todo: check if pushshiftComments has any parent_ids that are not in combinedComments
     //      and do a reddit query for these. Possibly query twice if the result has items whose parent IDs
     //      are not in combinedComments after adding the result of the first query
@@ -205,13 +225,17 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
       submitMissingComments(missing)
     }
     const moderators = await moderators_promise
-    return {combinedComments, commentTree, itemsSortedByDate, moderators, subreddit_lc: reddit_post.subreddit.toLowerCase()}
+    return {combinedComments, commentTree, itemsSortedByDate, moderators,
+            subreddit_lc: reddit_post.subreddit.toLowerCase(),
+            new_add_user,
+           }
   })
-  const {combinedComments, commentTree, itemsSortedByDate, moderators, subreddit_lc} = await combined_comments_promise
+  const {combinedComments, commentTree, itemsSortedByDate, moderators, subreddit_lc, new_add_user} = await combined_comments_promise
   const stateObj = {items: Object.values(combinedComments),
                     itemsLookup: combinedComments,
                     commentTree, itemsSortedByDate,
-                    moderators: {[subreddit_lc]: moderators}}
+                    moderators: {[subreddit_lc]: moderators,
+                    add_user: new_add_user || add_user}}
   if (! archiveError) {
     return global.setSuccess(stateObj)
   } else {

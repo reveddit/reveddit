@@ -36,7 +36,6 @@ const Wrap = ({children}) => <div style={{padding: '15px 0', minHeight: '25px'}}
 const getAddUserMeta = (props, distance) => {
   const {itemsLookup, alreadySearchedAuthors, threadPost,
    itemsSortedByDate, add_user, loading} = props.global.state
-
    const grandparentComment = getAncestor(props, itemsLookup, 2)
    const grandchildComment = ((props.replies[0] || {}).replies || [])[0] || {}
    // START nearby authors
@@ -79,14 +78,14 @@ const FindCommentViaAuthors = (props) => {
   //TODO: check that distance updates properly
   //      -
   if (! augRef.current && ! loading) {
-    [augRef.current, distanceRef.current] = getAddUserMeta(props, distanceRef)
-    //console.log('getAddUserMeta')
+    const [new_augRef, new_distanceRef] = getAddUserMeta(props, distanceRef)
+    augRef.current = new_augRef
+    distanceRef.current = new_distanceRef
   }
-  //console.log(distanceRef.current)
   const aug = augRef.current
   const search = async (targetComment) => {
     await props.global.setLoading()
-    const aup = new AddUserParam({string: add_user})
+
     //distance.current = distance_from_start
     //TODO: allow aug to allow a second query according to below
 
@@ -108,19 +107,13 @@ const FindCommentViaAuthors = (props) => {
     if (Object.keys(newIDs).length) {
       // console.log('comment tree must be updated')
     }
-    let new_add_user = add_user
-    const {changed, changedAuthors} = addUserComments(user_comments, itemsLookup)
-    if (Object.keys(changedAuthors).length) {
-      aup.addItems(...Object.entries(changedAuthors).map(([author, comment]) => ({author, kind: 'c', sort: 'new', ...comment.before_after})))
-      const [paramName, value] = aup.toString().split('=')
-      updateURL(create_qparams_and_adjust('', paramName, value))
-      new_add_user = value
-    }
-
+    const new_add_user = addUserComments_and_updateURL(user_comments, itemsLookup, add_user)
     //TODO: If failed for clicked item, change messaging
     //         authors remain: "try again" or show % complete (# authors searched / total # authors)
-    [augRef.current, distanceRef.current] = getAddUserMeta(props, distanceRef)
-    props.global.setSuccess({alreadySearchedAuthors, add_user: new_add_user})
+    const [new_augRef, new_distanceRef] = getAddUserMeta(props, distanceRef)
+    augRef.current = new_augRef
+    distanceRef.current = new_distanceRef
+    props.global.setSuccess({alreadySearchedAuthors, add_user: new_add_user || add_user})
   }
   //states:
   //  loading && needToFindAuthors (! aug) => show spin
@@ -166,7 +159,7 @@ class AddUserGroup {
           && ! (author in this.alreadySearchedAuthors)
           && ! (author in this.authorsToSearch)
           && this.itemsToSearch.length < this.max) {
-        this.itemsToSearch.push(new AddUserItem({props: {author, kind: 'c', sort: 'new'}}))
+        this.itemsToSearch.push(new AddUserItem({author, kind: 'c', sort: 'new'}))
         this.authorsToSearch[author] = true
       } else {
         allAdded = false
@@ -186,7 +179,7 @@ class AddUserGroup {
 const ADDUSERITEM_SEPARATOR = '.'
 const ADDUSER_PROPS = ['author', 'limit', 'kind', 'sort', 'time', 'before', 'after']
 export class AddUserItem {
-  constructor({string = '', props}) {
+  constructor({string = '', ...props}) {
     if (string) {
       this.setPropsFromString(string)
     } else {
@@ -237,8 +230,15 @@ export class AddUserParam {
     }
   }
   addItems(...items) {
-    for (const props of items) {
-      this.items.push(new AddUserItem({props}))
+    for (const item of items) {
+      this.addItem(item)
+    }
+  }
+  addItem(item) {
+    if (item instanceof AddUserItem) {
+      this.items.push(item)
+    } else {
+      this.items.push(new AddUserItem(item))
     }
   }
   getItems() {
@@ -275,6 +275,31 @@ export const addUserComments = (user_comments, commentsLookup) => {
     }
   }
   return {changed, changedAuthors}
+}
+
+const updateUrlFromChangedAuthors = (changedAuthors, add_user) => {
+  if (Object.keys(changedAuthors).length) {
+    const aup = new AddUserParam({string: add_user})
+    for (const [author, comment] of Object.entries(changedAuthors)) {
+      const item = new AddUserItem({author, kind: 'c', sort: 'new', ...comment.before_after})
+      const item_str = item.toString()
+//      if (! add_user.match(new RegExp('(^|,)'+author+'\\b'))) {
+
+      if (! add_user.includes(item_str)) {
+        aup.addItem(item)
+      }
+    }
+    const [paramName, value] = aup.toString().split('=')
+    updateURL(create_qparams_and_adjust('', paramName, value))
+    return value
+  }
+  return undefined
+}
+
+export const addUserComments_and_updateURL = (user_comments, itemsLookup, add_user) => {
+  const {changed, changedAuthors} = addUserComments(user_comments, itemsLookup)
+  const new_add_user = updateUrlFromChangedAuthors(changedAuthors, add_user)
+  return new_add_user
 }
 
 //existingIDs: IDs already looked up via api/info
