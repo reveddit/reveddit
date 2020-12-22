@@ -14,6 +14,7 @@ import { validAuthor } from 'utils'
 import {AddUserItem, getUserCommentsForPost,
         addUserComments_and_updateURL,
 } from 'data_processing/FindCommentViaAuthors'
+import { QuestionMarkModal, Help } from 'components/Misc'
 
 const contextDefault = 3
 const MIN_COMMENT_DEPTH = 4
@@ -28,6 +29,14 @@ export const getMaxCommentDepth = () => {
   }
   return depth
 }
+
+const buttons_help = {content: <Help title='Comment links' content={
+  <>
+    <p><b>author-focus:</b> Shows only comments by this comment's author and hides all other comments.</p>
+    <p><b>update:</b> Checks the author's user page to find any edits made after the comment was archived. Only for for removed comments that have been archived.</p>
+    <p><b>message mods:</b> Prepares a message with a link to the comment addressed to the subreddit's moderators.</p>
+  </>
+}/>}
 
 const Comment = (props) => {
   const {
@@ -185,6 +194,7 @@ const Comment = (props) => {
           { ! deleted && removed &&
             <MessageMods {...props}/>
           }
+          <QuestionMarkModal modalContent={buttons_help} wh='15'/>
         </div>
         <div>
           { replies_viewable }
