@@ -10,6 +10,10 @@ import Author from 'pages/common/Author'
 import { connect } from 'state'
 import { insertParent } from 'data_processing/thread'
 import {MessageMods} from 'components/Misc'
+import { validAuthor } from 'utils'
+import {AddUserItem, getUserCommentsForPost,
+        addUserComments_and_updateURL,
+} from 'data_processing/FindCommentViaAuthors'
 
 const contextDefault = 3
 const MIN_COMMENT_DEPTH = 4
@@ -44,7 +48,9 @@ const Comment = (props) => {
     hideReplies: ! replies.length && replies_copy.length,
   })
   const {showHiddenReplies, hideReplies} = repliesMeta
-  const {showContext, limitCommentDepth} = global.state
+  const {showContext, limitCommentDepth, itemsLookup, threadPost,
+         add_user, loading,
+        } = global.state
   const {selection_update: updateStateAndURL, context_update} = global
   const maxCommentDepth = getMaxCommentDepth()
   let even_odd = ''
@@ -175,6 +181,7 @@ const Comment = (props) => {
               : <ShowHideRepliesButton hideReplies={true}/>
             : null}
           <a className='pointer' onClick={() => global.selection_update('author', author, page_type)}>author-focus</a>
+          <UpdateButton post={threadPost} removed={removed} author={author}/>
           { ! deleted && removed &&
             <MessageMods {...props}/>
           }
@@ -187,5 +194,27 @@ const Comment = (props) => {
   )
 
 }
+
+export const UpdateButton = connect(({global, post, removed, author}) => {
+  if (! removed || ! validAuthor(author)) {
+    return null
+  }
+  const {loading, itemsLookup, add_user} = global.state
+  if (loading) {
+    return <a>.....</a>
+  }
+  return (
+    <a className='pointer' onClick={() => {
+      global.setLoading('')
+      const aui = new AddUserItem({author})
+      aui.query().then(userPage => getUserCommentsForPost(post, itemsLookup, [userPage]))
+      .then(({user_comments, newIDs}) => {
+        const new_add_user = addUserComments_and_updateURL(user_comments, itemsLookup, add_user)
+        global.setSuccess({itemsLookup, add_user: new_add_user || add_user})
+      })
+      .catch(() => global.setError(''))
+    }}>update</a>
+  )
+})
 
 export default withRouter(connect(Comment))

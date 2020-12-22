@@ -13,6 +13,7 @@ import {MessageMods} from 'components/Misc'
 import {www_reddit, old_reddit} from 'api/reddit'
 import Flair from './Flair'
 import SubscribersCount from './SubscribersCount'
+import { UpdateButton } from 'pages/thread/Comment'
 
 const Comment = (props) => {
   const [displayBody, setDisplayBody] = useState(true)
@@ -154,6 +155,7 @@ const Comment = (props) => {
                   <a href={rev_link_permalink_with_add_user+'&'+urlParamKeys.author+'='+author}>full comments(author)</a>
                 </>
               }
+              {! after_before && <UpdateButton post={{name: link_id, author: link_author}} removed={removed} author={author}/>}
               <a href={old_reddit+permalink+'?context=3'}>reddit</a>
               { directlink && <a href={directlink}>directlink</a>}
               { ! parent_context &&
