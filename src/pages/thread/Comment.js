@@ -78,12 +78,11 @@ const Comment = (props) => {
   const searchParams_nocontext = searchParams.toString()
   const contextLink = permalink_nohash+searchParams.set('context', contextDefault).toString()+`#${name}`
   const permalink_with_hash = permalink_nohash+searchParams_nocontext+`#${name}`
-  const getPermalink = (text) => {
-    return <Link to={permalink_with_hash} onClick={(e) => {
+  const Permalink = ({text}) =>
+    <Link to={permalink_with_hash} onClick={(e) => {
       context_update(0, props)
       .then(() => jumpToHash(window.location.hash))
     }}>{text}</Link>
-  }
   let parent_link = undefined
   if ('parent_id' in props && parent_id.substr(0,2) === 't1') {
     parent_link = permalink_nohash.split('/').slice(0,6).join('/')+'/'+
@@ -115,7 +114,7 @@ const Comment = (props) => {
     const getReplies_or_continueLink = (replies) => {
       return (! limitCommentDepth || depth < maxCommentDepth) ?
         replies.map(createComment)
-        : getPermalink('continue this thread⟶')
+        : [<Permalink key='c' text='continue this thread⟶'/>]
     }
     const ShowHiddenRepliesLink = ({num_replies_text}) =>
       <a className='pointer' onClick={() => setRepliesMeta({showHiddenReplies: true, hideReplies: false})}>▾ show hidden replies{num_replies_text}</a>
@@ -159,7 +158,7 @@ const Comment = (props) => {
         <div className='comment-links'>
           { ! deleted &&
             <>
-              {getPermalink('permalink')}
+              {<Permalink text='permalink'/>}
             </>
           }
           {parent_link &&
