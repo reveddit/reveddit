@@ -101,7 +101,7 @@ const Comment = (props) => {
     expandIcon = '[–]'
     hidden = ''
   }
-  let replies_viewable = null, num_replies_text = ''
+  let replies_viewable = [], num_replies_text = ''
   if (showContext) {
     const rest = {
       depth: depth + 1,
