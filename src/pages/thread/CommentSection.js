@@ -116,7 +116,7 @@ class CommentSection extends React.Component {
             localSortReverse, showContext, context,
             itemsLookup: commentsLookup, commentTree: fullCommentTree,
             categoryFilter_author, keywords, user_flair,
-            threadPost, limitCommentDepth, loading,
+            threadPost, limitCommentDepth, loading, tagsFilter,
           } = global.state
     const removedByFilterIsUnset = global.removedByFilterIsUnset()
     const tagsFilterIsUnset = global.tagsFilterIsUnset()
@@ -164,6 +164,12 @@ class CommentSection extends React.Component {
     if (user_flair) {
       this.filterCommentTree(commentTree, (item) => textMatch(global.state, item, 'user_flair', ['author_flair_text']))
     }
+    if (tagsFilter) {
+      this.filterCommentTree(commentTree, (item) => {
+        return itemIsOneOfSelectedTags(item, global.state)
+      })
+    }
+
     if (localSort === localSort_types.date) {
       this.sortCommentTree( commentTree, reversible(byDate, localSortReverse) )
     } else if (localSort === localSort_types.num_comments) {

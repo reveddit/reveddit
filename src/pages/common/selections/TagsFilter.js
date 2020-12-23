@@ -45,6 +45,9 @@ class TagsFilter extends React.Component {
         <Selection className='tagsFilter' isFilter={true} isSet={Object.keys(tagsFilter).length !== 0} title='Tags'>
           {
             Object.keys(TAG_META).map(type => {
+              if (page_type === 'thread' && type === QUARANTINE) {
+                return null
+              }
               return (
                 <div key={type}>
                   <label title={TAG_META[type].text}>

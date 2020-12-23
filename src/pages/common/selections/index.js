@@ -196,6 +196,7 @@ const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter,
                       {textFilter_content}
                       {textFilter_user_flair}
                     </div>
+                    <TagsFilter page_type={page_type}/>
                     {upvoteRemovalRateHistory}
                   </>)
               case 'aggregations':
