@@ -1,7 +1,7 @@
 import React, {useState} from 'react'
 import { Link, withRouter } from 'react-router-dom'
-import { prettyScore, parse, jumpToHash, SimpleURLSearchParams,
-         convertPathSub, PATH_STR_SUB,
+import { prettyScore, parse, jumpToCurrentHash_ifNoScroll, SimpleURLSearchParams,
+         convertPathSub, PATH_STR_SUB, validAuthor, copyToClipboard,
 } from 'utils'
 import Time from 'pages/common/Time'
 import RemovedBy from 'pages/common/RemovedBy'
@@ -10,11 +10,10 @@ import Author from 'pages/common/Author'
 import { connect } from 'state'
 import { insertParent } from 'data_processing/thread'
 import {MessageMods} from 'components/Misc'
-import { validAuthor } from 'utils'
 import {AddUserItem, getUserCommentsForPost,
         addUserComments_and_updateURL,
 } from 'data_processing/FindCommentViaAuthors'
-import { QuestionMarkModal, Help } from 'components/Misc'
+import { QuestionMarkModal, Help, ExtensionLink } from 'components/Misc'
 
 const contextDefault = 3
 const MIN_COMMENT_DEPTH = 4
@@ -33,8 +32,10 @@ export const getMaxCommentDepth = () => {
 const buttons_help = {content: <Help title='Comment links' content={
   <>
     <p><b>author-focus:</b> Shows only comments by this comment's author and hides all other comments.</p>
-    <p><b>update:</b> Checks the author's user page to find any edits made after the comment was archived. Only for for removed comments that have been archived.</p>
+    <p><b>update:</b> For removed comments, checks the author's user page to find any edits made after the comment was archived.</p>
+    <p><b>preserve:</b> Stores the location of the comment in the URL and copies the new URL to the clipboard. If the comment is later removed by a moderator then it can be viewed with this URL even if the archive service is unavailable.</p>
     <p><b>message mods:</b> Prepares a message with a link to the comment addressed to the subreddit's moderators.</p>
+    <p><b>subscribe:</b> When <ExtensionLink/> is installed, sends a notification when this comment is removed, approved, locked or unlocked.</p>
   </>
 }/>}
 
@@ -80,8 +81,9 @@ const Comment = (props) => {
   const permalink_with_hash = permalink_nohash+searchParams_nocontext+`#${name}`
   const Permalink = ({text}) =>
     <Link to={permalink_with_hash} onClick={(e) => {
+      const y = window.scrollY
       context_update(0, props)
-      .then(() => jumpToHash(window.location.hash))
+      .then(() => jumpToCurrentHash_ifNoScroll(y))
     }}>{text}</Link>
   let parent_link = undefined
   if ('parent_id' in props && parent_id.substr(0,2) === 't1') {
@@ -117,7 +119,7 @@ const Comment = (props) => {
         : [<Permalink key='c' text='continue this thread⟶'/>]
     }
     const ShowHiddenRepliesLink = ({num_replies_text}) =>
-      <a className='pointer' onClick={() => setRepliesMeta({showHiddenReplies: true, hideReplies: false})}>▾ show hidden replies{num_replies_text}</a>
+      <Button_noHref onClick={() => setRepliesMeta({showHiddenReplies: true, hideReplies: false})}>▾ show hidden replies{num_replies_text}</Button_noHref>
     if (replies_copy && replies_copy.length) {
       num_replies_text = ' ('+replies_copy.length+')'
     }
@@ -136,7 +138,7 @@ const Comment = (props) => {
   }
   const ShowHideRepliesButton = ({hideReplies, ...other}) => {
     const show_hide = hideReplies ? 'hide' : 'show'
-    return <a className='pointer' onClick={() => setRepliesMeta({...repliesMeta, ...other, hideReplies})}>{show_hide} replies{num_replies_text}</a>
+    return <Button_noHref onClick={() => setRepliesMeta({...repliesMeta, ...other, hideReplies})}>{show_hide} replies{num_replies_text}</Button_noHref>
   }
   return (
     <div id={name} className={`comment
@@ -155,44 +157,53 @@ const Comment = (props) => {
       </div>
       <div className='comment-body-and-links' style={displayBody ? {} : {display: 'none'}}>
         <CommentBody {...props} page_type={page_type}/>
-        <div className='comment-links'>
-          { ! deleted &&
-            <>
-              {<Permalink text='permalink'/>}
-            </>
-          }
-          {parent_link &&
+        <div>
+          <span className='comment-links'>
+            { ! deleted &&
+              <>
+                {<Permalink text='permalink'/>}
+              </>
+            }
+            {parent_link &&
               // using <a> instead of <Link> for parent & context links b/c
               // <Link> causes comments to disappear momentarily when inserting a parent
               <>
-                <a href={parent_link} onClick={(e) => {
-                  e.preventDefault()
-                  insertParent(id, global)
-                  .then(() => context_update(0, props, parent_link))
-                  .then(() => jumpToHash(window.location.hash))
-                }}>parent</a>
-                {! deleted &&
-                  <a href={contextLink} onClick={(e) => {
+                <LoadingOrButton Button={
+                  <a href={parent_link} onClick={(e) => {
+                    const y = window.scrollY
                     e.preventDefault()
                     insertParent(id, global)
-                    // parent_id will never be t3_ b/c context link is not rendered for topmost comments
-                    .then(() => insertParent(parent_id.substr(3), global))
-                    .then(() => context_update(contextDefault, props, contextLink))
-                    .then(() => jumpToHash(window.location.hash))
-                  }}>context</a>
+                    .then(() => context_update(0, props, parent_link))
+                    .then(() => jumpToCurrentHash_ifNoScroll(y))
+                  }}>parent</a>}
+                />
+                {! deleted &&
+                  <LoadingOrButton Button={
+                    <a href={contextLink} onClick={(e) => {
+                      const y = window.scrollY
+                      e.preventDefault()
+                      insertParent(id, global)
+                      // parent_id will never be t3_ b/c context link is not rendered for topmost comments
+                      .then(() => insertParent(parent_id.substr(3), global))
+                      .then(() => context_update(contextDefault, props, contextLink))
+                      .then(() => jumpToCurrentHash_ifNoScroll(y))
+                    }}>context</a>}
+                  />
                 }
               </>
-          }
-          {num_replies_text ?
-            hideReplies ?
-              <ShowHideRepliesButton hideReplies={false} showHiddenReplies={true}/>
-              : <ShowHideRepliesButton hideReplies={true}/>
-            : null}
-          <a className='pointer' onClick={() => global.selection_update('author', author, page_type)}>author-focus</a>
-          <UpdateButton post={threadPost} removed={removed} author={author}/>
-          { ! deleted && removed &&
-            <MessageMods {...props}/>
-          }
+            }
+            {num_replies_text ?
+              hideReplies ?
+                <ShowHideRepliesButton hideReplies={false} showHiddenReplies={true}/>
+                : <ShowHideRepliesButton hideReplies={true}/>
+              : null}
+            <Button_noHref onClick={() => global.selection_update('author', author, page_type)}>author-focus</Button_noHref>
+            <UpdateButton post={threadPost} removed={removed} author={author}/>
+            <PreserveButton post={threadPost} author={author} deleted={deleted} removed={removed}/>
+            { ! deleted && removed &&
+              <MessageMods {...props}/>
+            }
+          </span>
           <QuestionMarkModal modalContent={buttons_help} wh='15'/>
         </div>
         <div>
@@ -204,25 +215,72 @@ const Comment = (props) => {
 
 }
 
+const LoadingOrButton = connect(({global, Button}) => {
+  let result
+  if (global.state.loading) {
+    result = <a>.....</a>
+  } else {
+    result = Button
+  }
+  //wrapping in <span> maintains the position of the element so that the real-time extension's subscribe button is always added to the end
+  return <span>{result}</span>
+})
+
+const PreserveButton = connect(({global, post, author, deleted, removed}) => {
+  if (deleted || removed) {
+    return null
+  }
+  return (
+    <LoadingOrButton Button={
+      <Button_noHref onClick={() => {
+        const {add_user} = global.state
+        //passing empty itemsLookup here allows the URL to be updated w/this comment's user page location without modifying state
+        getLatestVersionOfComment(global, post, author, {})
+        .then(result => {
+          if (! result.error) {
+            copyToClipboard(window.location.href)
+            global.setSuccess({add_user: result.new_add_user || add_user})
+          }
+        })
+      }}>preserve</Button_noHref>}
+    />)
+})
+
+const Button_noHref = ({onClick, children}) => {
+  return <a className='pointer' onClick={onClick}>{children}</a>
+}
+
+const getLatestVersionOfComment = (global, post, author, itemsLookup = {}) => {
+  const {add_user} = global.state
+  global.setLoading('')
+  const aui = new AddUserItem({author})
+  return aui.query().then(userPage => getUserCommentsForPost(post, itemsLookup, [userPage]))
+  .then(({user_comments, newIDs}) => {
+    const new_add_user = addUserComments_and_updateURL(user_comments, itemsLookup, add_user)
+    return {new_add_user}
+  })
+  .catch(() => {
+    global.setError('')
+    return {error: true}
+  })
+}
+
 export const UpdateButton = connect(({global, post, removed, author}) => {
   if (! removed || ! validAuthor(author)) {
     return null
   }
-  const {loading, itemsLookup, add_user} = global.state
-  if (loading) {
-    return <a>.....</a>
-  }
+  const {itemsLookup, add_user} = global.state
   return (
-    <a className='pointer' onClick={() => {
-      global.setLoading('')
-      const aui = new AddUserItem({author})
-      aui.query().then(userPage => getUserCommentsForPost(post, itemsLookup, [userPage]))
-      .then(({user_comments, newIDs}) => {
-        const new_add_user = addUserComments_and_updateURL(user_comments, itemsLookup, add_user)
-        global.setSuccess({itemsLookup, add_user: new_add_user || add_user})
-      })
-      .catch(() => global.setError(''))
-    }}>update</a>
+    <LoadingOrButton Button={
+      <Button_noHref onClick={() => {
+        getLatestVersionOfComment(global, post, author, itemsLookup)
+        .then(result => {
+          if (! result.error) {
+            global.setSuccess({itemsLookup, add_user: result.new_add_user || add_user})
+          }
+        })
+      }}>update</Button_noHref>}
+    />
   )
 })
 
