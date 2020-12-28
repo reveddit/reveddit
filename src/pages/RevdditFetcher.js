@@ -212,6 +212,14 @@ const minMaxMatch = (gs, item, globalVarBase, field, isAge=false) => {
   return true
 }
 
+const asOfMatch = (gs, item) => {
+  const as_of = gs['thread_before']
+  if (/^\d+$/.test(as_of)) {
+    return item.created_utc <= parseInt(as_of)
+  }
+  return true
+}
+
 export const withFetch = (WrappedComponent) =>
   class extends React.Component {
     state = {
@@ -385,6 +393,18 @@ export const withFetch = (WrappedComponent) =>
       const visibleItems = []
       const gs = this.props.global.state
       const filteredActions = filterSelectedActions(Object.keys(gs.removedByFilter))
+      const matchFuncAndParams = [
+        [minMaxMatch, ['num_subscribers', 'subreddit_subscribers']],
+        [minMaxMatch, ['num_comments', 'num_comments']],
+        [minMaxMatch, ['score', 'score']],
+        [minMaxMatch, ['link_score', 'link_score']],
+        [minMaxMatch, ['age', 'created_utc', true]],
+        [minMaxMatch, ['link_age', 'link_created_utc', true]],
+        [textMatch, ['post_flair', ['link_flair_text']]],
+        [textMatch, ['user_flair', ['author_flair_text']]],
+        [textMatch, ['filter_url', ['url']]],
+        [asOfMatch, []],
+      ]
       gs.items.forEach(item => {
         if (
           (gs.removedFilter === removedFilter_types.all ||
@@ -406,19 +426,8 @@ export const withFetch = (WrappedComponent) =>
           } else if ('link_title' in item) {
             title_body_fields.push('link_title')
           }
+          matchFuncAndParams.push([textMatch, ['keywords', title_body_fields]])
           let match = true
-          const matchFuncAndParams = [
-            [minMaxMatch, ['num_subscribers', 'subreddit_subscribers']],
-            [minMaxMatch, ['num_comments', 'num_comments']],
-            [minMaxMatch, ['score', 'score']],
-            [minMaxMatch, ['link_score', 'link_score']],
-            [minMaxMatch, ['age', 'created_utc', true]],
-            [minMaxMatch, ['link_age', 'link_created_utc', true]],
-            [textMatch, ['post_flair', ['link_flair_text']]],
-            [textMatch, ['user_flair', ['author_flair_text']]],
-            [textMatch, ['filter_url', ['url']]],
-            [textMatch, ['keywords', title_body_fields]],
-          ]
           for (const funcAndParams of matchFuncAndParams) {
             if (match) {
               const fn = funcAndParams[0]

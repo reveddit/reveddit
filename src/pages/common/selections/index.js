@@ -40,6 +40,10 @@ const word_help = <Help title='Title/Body filter' content={word_filter_help}/>
 const flair_help = <Help title='Flair filter' content={word_filter_help}/>
 const url_help = <Help title='URL filter' content={word_filter_help}/>
 
+const as_of_help = <Help title='As of' content={<>
+  <p>Shows comments as of a certain time stamp. To set the timestamp, click the <b>as of</b> link beneath a comment.</p>
+</>}/>
+
 const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter,
                      category_type, category_title, category_unique_field, global,
                    }) => {
@@ -196,7 +200,11 @@ const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter,
                       {textFilter_content}
                       {textFilter_user_flair}
                     </div>
-                    <TagsFilter page_type={page_type}/>
+                    <div>
+                      <TagsFilter page_type={page_type}/>
+                      <TextFilter page_type={page_type} globalVarName='thread_before' placeholder='UTC timestamp'
+                                  title={'As of'} titleHelpModal={{content:as_of_help}} />
+                    </div>
                     {upvoteRemovalRateHistory}
                   </>)
               case 'aggregations':

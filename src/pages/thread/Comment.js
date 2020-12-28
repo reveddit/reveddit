@@ -1,7 +1,8 @@
 import React, {useState} from 'react'
 import { Link, withRouter } from 'react-router-dom'
-import { prettyScore, parse, jumpToCurrentHash_ifNoScroll, jumpToCurrentHash,
-         SimpleURLSearchParams, convertPathSub, PATH_STR_SUB, validAuthor,
+import { prettyScore, parse, SimpleURLSearchParams,
+         convertPathSub, PATH_STR_SUB, validAuthor,
+         jumpToCurrentHash_ifNoScroll, jumpToCurrentHash, jumpToHash,
          copyToClipboard,
 } from 'utils'
 import Time from 'pages/common/Time'
@@ -29,9 +30,11 @@ export const getMaxCommentDepth = () => {
   }
   return depth
 }
+const hide_all_others = ' and hides all other comments.'
 const buttons_help = {content: <Help title='Comment links' content={
   <>
-    <p><b>author-focus:</b> Shows only comments by this comment's author and hides all other comments.</p>
+    <p><b>author-focus:</b> Shows only comments by this comment's author{hide_all_others}</p>
+    <p><b>as-of:</b> Shows only comments created before this comment{hide_all_others} Scores are current and do not reflect values from the time this comment was created.</p>
     <p><b>update:</b> For removed comments, checks the author's user page to find any edits made after the comment was archived.</p>
     <p>{preserve_desc}</p>
     <p><b>message mods:</b> Prepares a message with a link to the comment addressed to the subreddit's moderators.</p>
@@ -43,7 +46,7 @@ const Comment = (props) => {
   const {
     global, history, //from HOC withRouter(connect(Comment))
     page_type, //from parent component
-    id, parent_id, stickied, permalink, subreddit, link_id, score, //from reddit comment data
+    id, parent_id, stickied, permalink, subreddit, link_id, score, created_utc, //from reddit comment data
     removed, deleted, locked, depth, //from reveddit post processing
     contextAncestors, focusCommentID, ancestors, replies, replies_copy, //from reveddit post processing
   } = props
@@ -77,8 +80,9 @@ const Comment = (props) => {
 
   const searchParams = new SimpleURLSearchParams(window.location.search).delete('context').delete('showFilters')
   const searchParams_nocontext = searchParams.toString()
-  const contextLink = permalink_nohash+searchParams.set('context', contextDefault).toString()+`#${name}`
-  const permalink_with_hash = permalink_nohash+searchParams_nocontext+`#${name}`
+  const thisHash = `#${name}`
+  const contextLink = permalink_nohash+searchParams.set('context', contextDefault).toString()+thisHash
+  const permalink_with_hash = permalink_nohash+searchParams_nocontext+thisHash
   const Permalink = ({text}) =>
     <Link to={permalink_with_hash} onClick={(e) => {
       context_update(0, props).then(jumpToCurrentHash)
@@ -195,7 +199,14 @@ const Comment = (props) => {
                 <ShowHideRepliesButton hideReplies={false} showHiddenReplies={true}/>
                 : <ShowHideRepliesButton hideReplies={true}/>
               : null}
-            <Button_noHref onClick={() => global.selection_update('author', author, page_type)}>author-focus</Button_noHref>
+            <Button_noHref onClick={() =>
+              global.selection_update('author', author, page_type)
+              .then(() => jumpToHash(thisHash))
+            }>author-focus</Button_noHref>
+            <Button_noHref onClick={() =>
+              global.selection_update('thread_before', created_utc, page_type)
+              .then(() => jumpToHash(thisHash))
+            }>as-of</Button_noHref>
             <UpdateButton post={threadPost} removed={removed} author={author}/>
             <PreserveButton post={threadPost} author={author} deleted={deleted}/>
             { ! deleted && removed &&

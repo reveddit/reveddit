@@ -117,6 +117,7 @@ class CommentSection extends React.Component {
             itemsLookup: commentsLookup, commentTree: fullCommentTree,
             categoryFilter_author, keywords, user_flair,
             threadPost, limitCommentDepth, loading, tagsFilter,
+            thread_before,
           } = global.state
     const removedByFilterIsUnset = global.removedByFilterIsUnset()
     const tagsFilterIsUnset = global.tagsFilterIsUnset()
@@ -156,7 +157,7 @@ class CommentSection extends React.Component {
       commentTree = flattenTree(commentTreeSubset)
     }
     if (categoryFilter_author && categoryFilter_author !== 'all') {
-      this.filterCommentTree(commentTree, (item) => item.author === categoryFilter_author)
+      this.filterCommentTree(commentTree, (item) => item.author == categoryFilter_author)
     }
     if (keywords) {
       this.filterCommentTree(commentTree, (item) => textMatch(global.state, item, 'keywords', ['body']))
@@ -168,6 +169,9 @@ class CommentSection extends React.Component {
       this.filterCommentTree(commentTree, (item) => {
         return itemIsOneOfSelectedTags(item, global.state)
       })
+    }
+    if (/^\d+$/.test(thread_before)) {
+      this.filterCommentTree(commentTree, (item) => item.created_utc <= parseInt(thread_before))
     }
 
     if (localSort === localSort_types.date) {
@@ -197,7 +201,7 @@ class CommentSection extends React.Component {
         // any attributes added below must also be added to thread/Comment.js
         // in prop.replies.map(...)
         comments_render.push(<Comment
-          key={comment.id}
+          key={[comment.id,categoryFilter_author,keywords,user_flair,thread_before].join('|')}
           {...comment}
           depth={0}
           page_type={page_type}
