@@ -4,6 +4,7 @@ import { getAuth } from './auth'
 const https = 'https://'
 const oauth_reddit = https+'oauth.reddit.com/'
 export const oauth_reddit_rev = https+'ored.reveddit.com/'
+let can_use_oauth_reddit_rev = true
 export const www_reddit = https+'www.reddit.com'
 export const old_reddit = https+'old.reddit.com'
 
@@ -76,6 +77,7 @@ export const getPostsByURL = (urlParam, auth = null, results) => {
   const params = {url: encodeURIComponent(urlParam), raw_json:1, limit:100}
   const url = oauth_reddit + 'api/info' + '?'+paramString(params)
   return query(url, auth, 'id', results)
+  .catch(errorHandler)
 }
 
 const getFullIDsForObjects = (objects, ids, prefix) => {
@@ -189,7 +191,7 @@ export const kindsReverse = {
   '': '',
 }
 
-export const queryUserPage = (user, kind, sort, before, after, t, limit = 100, host = oauth_reddit) => {
+export const queryUserPage = async (user, kind, sort, before, after, t, limit = 100, host = oauth_reddit) => {
   var params = {
     ...(sort && {sort}),
     ...(limit && {limit}),
@@ -197,75 +199,96 @@ export const queryUserPage = (user, kind, sort, before, after, t, limit = 100, h
     ...(after && {after}),
     ...(before && {before}),
   }
-
-  const url = host + `user/${user}/${kinds[kind]}.json` + '?'+paramString(params)
-  return getAuth()
-    .then(auth => window.fetch(url, auth))
+  const auth = await getAuth()
+  if (! can_use_oauth_reddit_rev) {
+    host = oauth_reddit
+  }
+  const fetchForHost = (host) =>
+    window.fetch(host + `user/${user}/${kinds[kind]}.json` + '?'+paramString(params), auth)
     .then(response => response.json())
-    .then(results => {
-      if (!('data' in results)) {
-        let empty = {items: [], after: null}
-        if ('message' in results && 'error' in results) {
-          empty.message = results.message
-          empty.error = results.error
-        }
-        return empty
-      } else {
-        return {
-          items: results.data.children.map(item => item.data),
-          after: results.data.after
-        }
+  return fetchForHost(host)
+  .catch(e => {
+    if (host !== oauth_reddit) {
+      can_use_oauth_reddit_rev = false
+      return fetchForHost(oauth_reddit)
+      .catch(errorHandler)
+    }
+    errorHandler(e)
+  })
+  .then(results => {
+    if (!('data' in results)) {
+      let empty = {items: [], after: null}
+      if ('message' in results && 'error' in results) {
+        empty.message = results.message
+        empty.error = results.error
       }
-    })
-    .catch(errorHandler)
+      return empty
+    } else {
+      return {
+        items: results.data.children.map(item => item.data),
+        after: results.data.after
+      }
+    }
+  })
 }
 
 export const usernameAvailable = (user) => {
   var params = {user: user, raw_json:1}
   const url = oauth_reddit + 'api/username_available' + '?'+paramString(params)
   return getAuth()
-    .then(auth => window.fetch(url, auth))
-    .then(response => response.json())
-    .catch(errorHandler)
+  .then(auth => window.fetch(url, auth))
+  .then(response => response.json())
+  .catch(errorHandler)
 }
 
 export const userPageHTML = (user) => {
   const url = revddit_q+`old.reddit.com/user/${user}`
   return fetchWithTimeout(url, {'Accept-Language': 'en'}, 3000)
-    .then(response => response.text())
-    .then(html => {
-      return {html: html}
-    })
-    .catch(error => {
-      return {error: error.message}
-    })
+  .then(response => response.text())
+  .then(html => {
+    return {html: html}
+  })
+  .catch(error => {
+    return {error: error.message}
+  })
 }
 
 const queryByID = (ids, auth, key = 'name', results = {}, host = oauth_reddit) => {
   var params = {id: ids.join(), raw_json:1}
-  const url = host + 'api/info' + '?'+paramString(params)
-  return query(url, auth, key, results)
+  if (! can_use_oauth_reddit_rev) {
+    host = oauth_reddit
+  }
+  const queryForHost = (host) => query(host + 'api/info' + '?'+paramString(params),
+                                       auth, key, results)
+  return queryForHost(host)
+  .catch(e => {
+    if (host !== oauth_reddit) {
+      can_use_oauth_reddit_rev = false
+      return queryForHost(oauth_reddit)
+      .catch(errorHandler)
+    }
+    errorHandler(e)
+  })
 }
 
 const query = async (url, auth, key, results = {}) => {
   return window.fetch(url, auth)
   .then(response => response.json())
   .then(json => json.data.children.reduce((map, obj) => mapRedditObj(map, obj, key), results))
-  .catch(errorHandler)
 }
 
 // Results must include a post w/created_utc less than encompass_created_utc
 // reference on async recursion w/promises: https://blog.scottlogic.com/2017/09/14/asynchronous-recursion.html#asynchronous-recursion-with-promises
 export const querySubredditPageUntil = (sub, encompass_created_utc, after = '') => {
-  return querySubredditPage(sub, 'new', after).then(
-    data => {
-      if (data.posts.slice(-1)[0].created_utc > encompass_created_utc && data.after) {
-        return querySubredditPageUntil(sub, encompass_created_utc, data.after)
-        .then(nextData => data.posts.concat(nextData))
-      } else {
-        return data.posts
-      }
-    })
+  return querySubredditPage(sub, 'new', after)
+  .then(data => {
+    if (data.posts.slice(-1)[0].created_utc > encompass_created_utc && data.after) {
+      return querySubredditPageUntil(sub, encompass_created_utc, data.after)
+      .then(nextData => data.posts.concat(nextData))
+    } else {
+      return data.posts
+    }
+  })
 }
 
 export const querySubredditPage = async (subreddit, sort, after = '', t = '', auth = null) => {
@@ -285,8 +308,6 @@ export const querySubredditPage = async (subreddit, sort, after = '', t = '', au
               after: results.data.after} })
     .catch(errorHandler)
 }
-
-
 
 export const querySearch = ({selftexts = [], urls = []}) => {
   var params = {q:'', sort:'new', limit:100, t:'all'}
