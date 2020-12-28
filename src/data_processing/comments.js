@@ -35,7 +35,7 @@ export const initializeComment = (comment, post) => {
   if (post && post.author === comment.author && comment.author !== '[deleted]') {
     comment.is_op = true
   }
-  comment.replies = []
+  comment.replies = [], comment.replies_copy = []
   comment.ancestors = {}
 }
 
