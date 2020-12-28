@@ -128,13 +128,15 @@ const FindCommentViaAuthors = (props) => {
     }
   } else if (aug.length()) {
     const numAuthorsRemaining = Object.keys(globalAuthors).length - Object.keys(alreadySearchedAuthors).length
-    searchButton = (
-      <Wrap>
-        <a className='pointer bubble medium lightblue' onClick={search}
-        ><img src={RefreshIcon} alt="Refresh icon" style={{verticalAlign: 'middle'}} /> {unarchived_search_button_word}<span className='desktop-only'> ({numAuthorsRemaining.toLocaleString()} users left)</span></a>
-        <QuestionMarkModal modalContent={{content:search_comment_help}} fill='white'/>
-      </Wrap>
-    )
+    if (numAuthorsRemaining) {
+      searchButton = (
+        <Wrap>
+          <a className='pointer bubble medium lightblue' onClick={search}
+          ><img src={RefreshIcon} alt="Refresh icon" style={{verticalAlign: 'middle'}} /> {unarchived_search_button_word}<span className='desktop-only'> ({numAuthorsRemaining.toLocaleString()} users left)</span></a>
+          <QuestionMarkModal modalContent={{content:search_comment_help}} fill='white'/>
+        </Wrap>
+      )
+    }
   }
   return searchButton
 }
