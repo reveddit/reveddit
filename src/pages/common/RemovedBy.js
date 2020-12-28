@@ -1,6 +1,8 @@
 import React from 'react'
 import {itemIsCollapsed, commentIsMissingInThread,
-        isPost, getRemovedWithinText, postRemovedUnknownWithin} from 'utils'
+        isPost, getRemovedWithinText, postRemovedUnknownWithin,
+
+} from 'utils'
 import ModalContext from 'contexts/modal'
 import {QuestionMark} from 'pages/common/svg'
 import ActionHelp from 'pages/modals/ActionHelp'
@@ -80,10 +82,17 @@ export const ALL_ACTIONS_META = {
   [USER_REMOVED]: USER_REMOVED_META,
   [RESTORED]: RESTORED_META,
 }
+export const preserve_desc = <><b>preserve:</b> This stores the location of the comment in the URL and copies the new URL to the clipboard. If the comment is later removed by a moderator, or if the archive becomes unavailable, then it can be viewed with this URL.</>
+const temp_vis_txt = 'Temporarily visible'
+const temp_vis_help = (<>
+  <h3>{temp_vis_txt}</h3>
+  <p>This comment is only visible here until it falls out of the most recent mod log items. To save it, click {preserve_desc}</p>
+</>)
+
 
 const RemovedBy = (props) => {
-  let displayTag = '', details = '', meta = undefined, withinText = '', fill = 'rgb(199,3,0)',
-      everythingExceptLocked = '', lockedTag = '', restoredTag = ''
+  let displayTag = '', details = '', meta = undefined, withinText = '', fill = undefined,
+      allActionsExceptLocked = '', lockedTag = '', temporarilyVisible = ''
   let {removedby, orphaned_label = '', style, locked, removed, deleted} = props
   if (removed && ! removedby) {
     removedby = UNKNOWN_REMOVED
@@ -100,8 +109,14 @@ const RemovedBy = (props) => {
       fill = 'white'
     }
     const modlog = props.modlog
-    if (modlog && modlog.details && modlog.details !== 'remove') {
-      details = ' | ' + modlog.details
+    if (modlog && props.archive_body_removed_before_modlog_copy) {
+      temporarilyVisible =
+        <LabelWithModal content={temp_vis_help}>
+          <span title={temp_vis_txt} className='removedby'>temporarily visible <QuestionMark/></span>
+        </LabelWithModal>
+      if (modlog.details && modlog.details !== 'remove') {
+        details = ' | ' + modlog.details
+      }
     }
   } else if (removedby === USER_REMOVED) {
     meta = USER_REMOVED_META
@@ -123,8 +138,10 @@ const RemovedBy = (props) => {
       } else {
         modalDetails = 'Modlogs indicate automod removed this item.'
       }
+    } else if (props.modlog) {
+      modalDetails = 'Modlogs mod: '+props.modlog.mod
     }
-    everythingExceptLocked =
+    allActionsExceptLocked =
       <LabelWithModal hash={'action_'+removedby+'_help'} details={modalDetails} removedby={removedby}>
         <span title={meta.desc} data-removedby={removedby} className='removedby'>{orphaned_label+(meta.label || '')+withinText+details} <QuestionMark fill={fill}/></span>
       </LabelWithModal>
@@ -135,21 +152,24 @@ const RemovedBy = (props) => {
         <span className='lockedTag'>locked <QuestionMark fill='black'/></span>
       </LabelWithModal>
   }
-  if (everythingExceptLocked || lockedTag) {
+  if (allActionsExceptLocked || lockedTag) {
     displayTag =
       <div style={style}>
-        {everythingExceptLocked}
+        {allActionsExceptLocked}
         {lockedTag}
+        {temporarilyVisible}
       </div>
   }
   return displayTag
 }
 
-export const LabelWithModal = ({children, hash, details, removedby, marginRight = '5px'}) => {
+export const LabelWithModal = ({children, hash, content, details, removedby, marginRight = '5px'}) => {
   const modal = React.useContext(ModalContext)
   const modalContent = {}
   if (details && removedby) {
     modalContent.content = <><ActionHelp action={removedby}/><p>{details}</p></>
+  } else if (content) {
+    modalContent.content = content
   } else {
     modalContent.hash = hash
   }

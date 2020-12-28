@@ -37,7 +37,7 @@ const CommentBody = (props) => {
         } else if (archiveRemoved_or_noArchive) { // explicit for clarity, could be else { w/no condition
           restoredTag = (
             <LabelWithModal hash='action_restored_help'>
-              <span className='removedby'>[removed]{getRemovedWithinText(props)}, restored via user page <QuestionMark fill='rgb(199,3,0)'/></span>
+              <span className='removedby'>[removed]{getRemovedWithinText(props)}, restored via user page <QuestionMark/></span>
             </LabelWithModal>
           )
           innerHTML = markdownToHTML(props.body)

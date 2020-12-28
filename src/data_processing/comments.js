@@ -111,6 +111,12 @@ const setupCommentMeta = (archiveComment, redditComment) => {
   if (! redditComment.deleted) {
     const modlog = archiveComment.modlog
     const modlog_says_bot_removed = modlogSaysBotRemoved(modlog, redditComment)
+    if (archiveComment.body) {
+      // on r/subreddit/comments pages this is inaccurate b/c modlogs are only combined with the first set of results from pushshift
+      // so, the 'temporarily visible' tag there is missing for older comments
+      // works fine on thread pages: when combine is done, all results from pushshift are available to compare with modlogs
+      archiveComment.archive_body_removed_before_modlog_copy = commentIsRemoved(archiveComment)
+    }
     if (modlog) {
       archiveComment.author = modlog.author
       archiveComment.body = modlog.body

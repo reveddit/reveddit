@@ -5,7 +5,7 @@ import { prettyScore, parse, jumpToCurrentHash_ifNoScroll, jumpToCurrentHash,
          copyToClipboard,
 } from 'utils'
 import Time from 'pages/common/Time'
-import RemovedBy from 'pages/common/RemovedBy'
+import RemovedBy, {preserve_desc} from 'pages/common/RemovedBy'
 import CommentBody from 'pages/common/CommentBody'
 import Author from 'pages/common/Author'
 import { connect } from 'state'
@@ -29,12 +29,11 @@ export const getMaxCommentDepth = () => {
   }
   return depth
 }
-
 const buttons_help = {content: <Help title='Comment links' content={
   <>
     <p><b>author-focus:</b> Shows only comments by this comment's author and hides all other comments.</p>
     <p><b>update:</b> For removed comments, checks the author's user page to find any edits made after the comment was archived.</p>
-    <p><b>preserve:</b> Stores the location of the comment in the URL and copies the new URL to the clipboard. If the comment is later removed by a moderator then it can be viewed with this URL even if the archive service is unavailable.</p>
+    <p>{preserve_desc}</p>
     <p><b>message mods:</b> Prepares a message with a link to the comment addressed to the subreddit's moderators.</p>
     <p><b>subscribe:</b> When <ExtensionLink/> is installed, sends a notification when this comment is removed, approved, locked or unlocked.</p>
   </>
@@ -198,7 +197,7 @@ const Comment = (props) => {
               : null}
             <Button_noHref onClick={() => global.selection_update('author', author, page_type)}>author-focus</Button_noHref>
             <UpdateButton post={threadPost} removed={removed} author={author}/>
-            <PreserveButton post={threadPost} author={author} deleted={deleted} removed={removed}/>
+            <PreserveButton post={threadPost} author={author} deleted={deleted}/>
             { ! deleted && removed &&
               <MessageMods {...props}/>
             }
@@ -230,8 +229,8 @@ const LoadingOrButton = connect(({global, Button}) => {
   return <span>{result}</span>
 })
 
-const PreserveButton = connect(({global, post, author, deleted, removed}) => {
-  if (deleted || removed) {
+const PreserveButton = connect(({global, post, author, deleted}) => {
+  if (deleted || ! validAuthor(author)) {
     return null
   }
   return (
