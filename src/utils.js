@@ -362,9 +362,11 @@ export const jumpToHash = (hash, offset = -10) => {
   }
 }
 
+export const jumpToCurrentHash = () => jumpToHash(window.location.hash)
+
 export const jumpToCurrentHash_ifNoScroll = (prevY) => {
   if (window.scrollY === prevY) {
-    jumpToHash(window.location.hash)
+    jumpToCurrentHash()
   }
 }
 

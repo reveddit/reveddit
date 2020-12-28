@@ -1,7 +1,8 @@
 import React, {useState} from 'react'
 import { Link, withRouter } from 'react-router-dom'
-import { prettyScore, parse, jumpToCurrentHash_ifNoScroll, SimpleURLSearchParams,
-         convertPathSub, PATH_STR_SUB, validAuthor, copyToClipboard,
+import { prettyScore, parse, jumpToCurrentHash_ifNoScroll, jumpToCurrentHash,
+         SimpleURLSearchParams, convertPathSub, PATH_STR_SUB, validAuthor,
+         copyToClipboard,
 } from 'utils'
 import Time from 'pages/common/Time'
 import RemovedBy from 'pages/common/RemovedBy'
@@ -81,9 +82,7 @@ const Comment = (props) => {
   const permalink_with_hash = permalink_nohash+searchParams_nocontext+`#${name}`
   const Permalink = ({text}) =>
     <Link to={permalink_with_hash} onClick={(e) => {
-      const y = window.scrollY
-      context_update(0, props)
-      .then(() => jumpToCurrentHash_ifNoScroll(y))
+      context_update(0, props).then(jumpToCurrentHash)
     }}>{text}</Link>
   let parent_link = undefined
   if ('parent_id' in props && parent_id.substr(0,2) === 't1') {
@@ -170,23 +169,23 @@ const Comment = (props) => {
               <>
                 <LoadingOrButton Button={
                   <a href={parent_link} onClick={(e) => {
-                    const y = window.scrollY
                     e.preventDefault()
-                    insertParent(id, global)
-                    .then(() => context_update(0, props, parent_link))
-                    .then(() => jumpToCurrentHash_ifNoScroll(y))
+                    finishPromise_then_jumpToHash(
+                      insertParent(id, global)
+                      .then(() => context_update(0, props, parent_link))
+                    )
                   }}>parent</a>}
                 />
                 {! deleted &&
                   <LoadingOrButton Button={
                     <a href={contextLink} onClick={(e) => {
-                      const y = window.scrollY
                       e.preventDefault()
-                      insertParent(id, global)
-                      // parent_id will never be t3_ b/c context link is not rendered for topmost comments
-                      .then(() => insertParent(parent_id.substr(3), global))
-                      .then(() => context_update(contextDefault, props, contextLink))
-                      .then(() => jumpToCurrentHash_ifNoScroll(y))
+                      finishPromise_then_jumpToHash(
+                        insertParent(id, global)
+                        // parent_id will never be t3_ b/c context link is not rendered for topmost comments
+                        .then(() => insertParent(parent_id.substr(3), global))
+                        .then(() => context_update(contextDefault, props, contextLink))
+                      )
                     }}>context</a>}
                   />
                 }
@@ -213,6 +212,11 @@ const Comment = (props) => {
     </div>
   )
 
+}
+
+const finishPromise_then_jumpToHash = (promise) => {
+  const y = window.scrollY
+  return promise.then(() => jumpToCurrentHash_ifNoScroll(y))
 }
 
 const LoadingOrButton = connect(({global, Button}) => {
