@@ -90,6 +90,7 @@ const Comment = (props) => {
     rev_link_permalink = convertPathSub(link_permalink.replace(/^https:\/\/[^/]*/,''))
     rev_link_permalink_with_add_user = rev_link_permalink + '?' + add_user
   }
+  const focusAuthorParam = urlParamKeys.categoryFilter_author+'='+author
   return (
     <div id={name} className={classNames.join(' ')} data-fullname={name} data-created_utc={created_utc}>
       <div className='comment-head'>
@@ -144,7 +145,7 @@ const Comment = (props) => {
                   <a href={www_reddit+permalink+'?context=1'}>reddit-permalink</a>
                 </>
                 :
-                  <a href={permalink+'?context=3&'+add_user+'#'+name}
+                  <a href={permalink+'?'+['context=3',add_user,focusAuthorParam].join('&')+'#'+name}
                      onClick={(removed && add_user) ? hasClickedRemovedUserCommentContext: null}
                   >context{num_replies && `(${num_replies})`}</a>
               }
@@ -152,7 +153,7 @@ const Comment = (props) => {
                 <>
                   <a href={rev_link_permalink_with_add_user}>full comments
                     {'num_comments' in props && `(${num_comments})`}</a>
-                  <a href={rev_link_permalink_with_add_user+'&'+urlParamKeys.author+'='+author}>full comments(author)</a>
+                  <a href={rev_link_permalink_with_add_user+'&'+focusAuthorParam}>full comments(author)</a>
                 </>
               }
               {! after_before && <UpdateButton post={{name: link_id, author: link_author}} removed={removed} author={author}/>}
