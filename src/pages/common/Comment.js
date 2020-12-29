@@ -91,6 +91,7 @@ const Comment = (props) => {
     rev_link_permalink_with_add_user = rev_link_permalink + '?' + add_user
   }
   const focusAuthorParam = urlParamKeys.categoryFilter_author+'='+author
+  const contextParamStr = ['context=3',...(add_user && [add_user]),focusAuthorParam].join('&')
   return (
     <div id={name} className={classNames.join(' ')} data-fullname={name} data-created_utc={created_utc}>
       <div className='comment-head'>
@@ -145,7 +146,7 @@ const Comment = (props) => {
                   <a href={www_reddit+permalink+'?context=1'}>reddit-permalink</a>
                 </>
                 :
-                  <a href={permalink+'?'+['context=3',add_user,focusAuthorParam].join('&')+'#'+name}
+                  <a href={permalink+'?'+contextParamStr+'#'+name}
                      onClick={(removed && add_user) ? hasClickedRemovedUserCommentContext: null}
                   >context{num_replies && `(${num_replies})`}</a>
               }
