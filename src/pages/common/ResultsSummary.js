@@ -6,7 +6,7 @@ import { connect } from 'state'
 const posts_page_title = 'user-deleted posts that have no comments are not shown'
 
 const ConditionalWrapper = ({ condition, wrapper, children }) =>
-  condition ? wrapper(children) : children
+  condition ? wrapper(<>▾ {children}</>) : children
 
 const ResultsSummary = ({global, num_showing, page_type}) => {
   const {before, before_id, items, paginationMeta,

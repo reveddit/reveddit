@@ -16,6 +16,7 @@ import {AddUserItem, getUserCommentsForPost,
         addUserComments_and_updateURL,
 } from 'data_processing/FindCommentViaAuthors'
 import { QuestionMarkModal, Help, ExtensionLink } from 'components/Misc'
+import { applySelectedSort } from './common'
 
 const contextDefault = 3
 const MIN_COMMENT_DEPTH = 4
@@ -62,7 +63,7 @@ const Comment = (props) => {
   })
   const {showHiddenReplies, hideReplies} = repliesMeta
   const {showContext, limitCommentDepth, itemsLookup, threadPost,
-         add_user, loading,
+         add_user, loading, localSort, localSortReverse,
         } = global.state
   const {selection_update: updateStateAndURL, context_update} = global
   const maxCommentDepth = getMaxCommentDepth()
@@ -81,6 +82,7 @@ const Comment = (props) => {
   const searchParams = new SimpleURLSearchParams(window.location.search).delete('context').delete('showFilters')
   const searchParams_nocontext = searchParams.toString()
   const thisHash = `#${name}`
+  const replies_id = name+'_replies'
   const contextLink = permalink_nohash+searchParams.set('context', contextDefault).toString()+thisHash
   const permalink_with_hash = permalink_nohash+searchParams_nocontext+thisHash
   const Permalink = ({text}) =>
@@ -115,18 +117,25 @@ const Comment = (props) => {
       contextAncestors,
     }
     const createComment = (comment) => <Comment key={comment.id} {...comment} {...rest} />
-    const getReplies_or_continueLink = (replies) => {
+    const getReplies_or_continueLink = (replies, sort = false) => {
+      if (sort) {
+        applySelectedSort(replies, localSort, localSortReverse)
+      }
       return (! limitCommentDepth || depth < maxCommentDepth) ?
         replies.map(createComment)
         : [<Permalink key='c' text='continue this thread⟶'/>]
     }
+    const getRepliesCopy = () => getReplies_or_continueLink(replies_copy, true)
     const ShowHiddenRepliesLink = ({num_replies_text}) =>
-      <Button_noHref onClick={() => setRepliesMeta({showHiddenReplies: true, hideReplies: false})}>▾ show hidden replies{num_replies_text}</Button_noHref>
+      <Button_noHref onClick={() => {
+        setRepliesMeta({showHiddenReplies: true, hideReplies: false})
+        jumpToHash(`#${replies_id}`)
+      }}>▾ show hidden replies{num_replies_text}</Button_noHref>
     if (replies_copy && replies_copy.length) {
       num_replies_text = ' ('+replies_copy.length+')'
     }
     if (showHiddenReplies && ! hideReplies) {
-      replies_viewable = getReplies_or_continueLink(replies_copy)
+      replies_viewable = getRepliesCopy()
     } else if (replies && replies.length && ! hideReplies) {
       replies_viewable = getReplies_or_continueLink(replies)
       if (replies.length !== replies_copy.length) {
@@ -134,7 +143,7 @@ const Comment = (props) => {
       }
     } else if ((replies_copy && replies_copy.length) || hideReplies) {
       replies_viewable = showHiddenReplies && ! hideReplies ?
-        getReplies_or_continueLink(replies_copy)
+        getRepliesCopy()
         : <ShowHiddenRepliesLink num_replies_text={num_replies_text}/>
     }
   }
@@ -215,7 +224,7 @@ const Comment = (props) => {
           </span>
           <QuestionMarkModal modalContent={buttons_help} wh='15'/>
         </div>
-        <div>
+        <div id={replies_id}>
           { replies_viewable }
         </div>
       </div>

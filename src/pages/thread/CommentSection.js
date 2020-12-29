@@ -1,46 +1,15 @@
 import React from 'react'
-import Comment from './Comment'
-import {connect, localSort_types, removedFilter_types, removedFilter_text} from 'state'
+import Comment, { getMaxCommentDepth } from './Comment'
+import {connect, removedFilter_types, removedFilter_text} from 'state'
 import { NOT_REMOVED, REMOVAL_META, USER_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED } from 'pages/common/RemovedBy'
 import { itemIsOneOfSelectedActions, itemIsOneOfSelectedTags, filterSelectedActions } from 'data_processing/filters'
 import { createCommentTree } from 'data_processing/thread'
-import { reversible, itemIsActioned, not } from 'utils'
-import { getMaxCommentDepth } from 'pages/thread/Comment'
+import { itemIsActioned, not } from 'utils'
 import { Spin } from 'components/Misc'
 import { textMatch } from 'pages/RevdditFetcher'
+import { applySelectedSort } from './common'
 
 const MAX_COMMENTS_TO_SHOW = 200
-
-const byScore = (a, b) => {
-  return (b.stickied - a.stickied) || (b.score - a.score)
-      || (b.replies.length - a.replies.length)
-}
-const byDate = (a, b) => {
-  return (b.stickied - a.stickied) || (b.created_utc - a.created_utc)
-      || (b.replies.length - a.replies.length)
-}
-const byNumComments = (a, b) => {
-  return (b.stickied - a.stickied) || (b.replies.length - a.replies.length)
-      || (b.created_utc - a.created_utc)
-}
-const byCommentLength = (a, b) => {
-  return (b.body.length - a.body.length) || (b.score - a.score) || (b.created_utc - a.created_utc)
-}
-const noNeg = (n) => {
-  return n < 0 ? 0 : n
-}
-const byControversiality1 = (a, b) => {
-  let a_score_noneg = a.score < 0 ? 0 : a.score
-  let b_score_noneg = b.score < 0 ? 0 : b.score
-  return (b.stickied - a.stickied) || (a_score_noneg - b_score_noneg)
-      || (b.replies.length - a.replies.length)
-}
-const byControversiality2 = (a, b) => {
-  let a_score_abs = Math.abs(a.score)
-  let b_score_abs = Math.abs(b.score)
-  return (b.stickied - a.stickied) || (b.controversiality - a.controversiality)
-      || (b.replies.length - a.replies.length) || (a_score_abs - b_score_abs)
-}
 
 const flattenTree = (commentTree) => {
   const comments = []
@@ -49,8 +18,6 @@ const flattenTree = (commentTree) => {
   )
   return comments
 }
-
-
 
 class CommentSection extends React.Component {
   state = {
@@ -67,17 +34,6 @@ class CommentSection extends React.Component {
       })
     }
     return sum
-  }
-  sortCommentTree (comments, sortFunction) {
-    const {localSortReverse} = this.props.global.state
-
-    comments.sort(sortFunction)
-
-    comments.forEach(comment => {
-      if (comment?.replies.length > 0) {
-        this.sortCommentTree(comment.replies, sortFunction)
-      }
-    })
   }
 
   filterCommentTree (comments, filterFunction) {
@@ -173,27 +129,14 @@ class CommentSection extends React.Component {
     if (/^\d+$/.test(thread_before)) {
       this.filterCommentTree(commentTree, (item) => item.created_utc <= parseInt(thread_before))
     }
-
-    if (localSort === localSort_types.date) {
-      this.sortCommentTree( commentTree, reversible(byDate, localSortReverse) )
-    } else if (localSort === localSort_types.num_comments) {
-      this.sortCommentTree( commentTree, reversible(byNumComments, localSortReverse) )
-    } else if (localSort === localSort_types.score) {
-      this.sortCommentTree( commentTree, reversible(byScore, localSortReverse) )
-    } else if (localSort === localSort_types.controversiality1) {
-      this.sortCommentTree( commentTree, reversible(byControversiality1, localSortReverse) )
-    } else if (localSort === localSort_types.controversiality2) {
-      this.sortCommentTree( commentTree, reversible(byControversiality2, localSortReverse) )
-    } else if (localSort === localSort_types.comment_length) {
-      this.sortCommentTree( commentTree, reversible(byCommentLength, localSortReverse) )
-    }
+    applySelectedSort(commentTree, localSort, localSortReverse)
     let comments_render = []
     let status = ''
     let numCommentsShown = 0
     if (commentTree.length) {
       for (var i = 0; i < commentTree.length; i++) {
         if (limitCommentDepth && numCommentsShown >= MAX_COMMENTS_TO_SHOW && ! this.state.showAllComments) {
-          comments_render.push(<a key="load-more" className='pointer' onClick={this.setShowAllComments}>load more comments</a>)
+          comments_render.push(<div key="load-more"><a className='pointer' onClick={this.setShowAllComments}>load more comments</a></div>)
           break
         }
         const comment = commentTree[i]
@@ -210,7 +153,7 @@ class CommentSection extends React.Component {
         />)
       }
       if (commentTree.length < origNumRootComments) {
-        comments_render.push(<a key='show-all' className='pointer' onClick={() => this.props.global.resetFilters(page_type)}>▾ reset filters</a>)
+        comments_render.push(<div key='show-all'><a className='pointer' onClick={() => this.props.global.resetFilters(page_type)}>▾ reset filters</a></div>)
       }
     } else if (removedFilter !== removedFilter_types.all) {
       status = (<p>No {removedFilter_text[removedFilter]} comments found</p>)
