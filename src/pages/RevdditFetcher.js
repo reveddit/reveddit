@@ -336,9 +336,15 @@ export const withFetch = (WrappedComponent) =>
     }
 
     getViewableItems(items, category, category_unique_field) {
-      const gs = this.props.global.state
-      const category_state = gs['categoryFilter_'+category]
-      const {page_type} = this.props
+      const {global, page_type} = this.props
+      const gs = global.state
+      const category_state = gs['categoryFilter_'+category].toString()
+      const stateSaysHideComments = (
+        ['user','subreddit_comments'].includes(page_type) &&
+        gs.removedFilter === removedFilter_types.removed &&
+        global.removedByFilterIsUnset() &&
+        global.tagsFilterIsUnset()
+      )
       const showAllCategories = category_state === 'all'
       let numCollapsed = 0, numCollapsedNotShown = 0,
            numOrphaned = 0,  numOrphanedNotShown = 0
@@ -347,11 +353,7 @@ export const withFetch = (WrappedComponent) =>
         if (category_state === item[category_unique_field]) {
           itemIsOneOfSelectedCategory = true
         }
-        if (['user','subreddit_comments'].includes(page_type) &&
-            gs.removedFilter === removedFilter_types.removed &&
-            this.props.global.removedByFilterIsUnset() &&
-            this.props.global.tagsFilterIsUnset() &&
-            ! commentIsMissingInThread(item)) {
+        if (stateSaysHideComments && ! commentIsMissingInThread(item)) {
           let hideItem = false
           const collapsed = itemIsCollapsed(item)
           const orphaned = commentIsOrphaned(item)

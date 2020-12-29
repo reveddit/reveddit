@@ -151,6 +151,16 @@ const Comment = (props) => {
     const show_hide = hideReplies ? 'hide' : 'show'
     return <Button_noHref onClick={() => setRepliesMeta({...repliesMeta, ...other, hideReplies})}>{show_hide} replies{num_replies_text}</Button_noHref>
   }
+  const locallyClickableFilters_data = {
+    user_flair: '',
+    categoryFilter_author: author,
+    thread_before: created_utc,
+  }
+  const locallyClickableFilters_set = (globalVarName) => {
+    const value = locallyClickableFilters_data[globalVarName]
+    const reset = Object.keys(locallyClickableFilters_data).filter(x => x !== globalVarName)
+    return global.selection_set_reset({set: {[globalVarName]: value}, reset, page_type})
+  }
   return (
     <div id={name} className={`comment
           ${removed ? 'removed':''}
@@ -209,11 +219,11 @@ const Comment = (props) => {
                 : <ShowHideRepliesButton hideReplies={true}/>
               : null}
             <Button_noHref onClick={() =>
-              global.selection_update('author', author, page_type)
+              locallyClickableFilters_set('categoryFilter_author')
               .then(() => jumpToHash(thisHash))
             }>author-focus</Button_noHref>
             <Button_noHref onClick={() =>
-              global.selection_update('thread_before', created_utc, page_type)
+              locallyClickableFilters_set('thread_before')
               .then(() => jumpToHash(thisHash))
             }>as-of</Button_noHref>
             <UpdateButton post={threadPost} removed={removed} author={author}/>
