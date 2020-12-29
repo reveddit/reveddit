@@ -79,22 +79,23 @@ const CommentSection = (props) => {
     contextAncestors = commentsLookup[focusCommentID].ancestors
   }
   let commentTree
+  const filterFunctions = []
   if (showContext) {
     [commentTree] = createCommentTree(threadPost.id, root, commentsLookup)
     origNumRootComments = commentTree.length
     if (removedFilter === removedFilter_types.removed) {
-      filterCommentTree(commentTree, itemIsActioned)
+      filterFunctions.push(itemIsActioned)
     } else if (removedFilter === removedFilter_types.not_removed) {
-      filterCommentTree(commentTree, not(itemIsActioned))
+      filterFunctions.push(not(itemIsActioned))
     }
     if (! removedByFilterIsUnset) {
       const filteredActions = filterSelectedActions(Object.keys(removedByFilter))
-      filterCommentTree(commentTree, (item) => {
+      filterFunctions.push((item) => {
         return itemIsOneOfSelectedActions(item, ...filteredActions)
       })
     }
     if (! tagsFilterIsUnset) {
-      filterCommentTree(commentTree, (item) => itemIsOneOfSelectedTags(item, global.state))
+      filterFunctions.push((item) => itemIsOneOfSelectedTags(item, global.state))
     }
   } else if (! focusCommentID || ! commentsLookup[focusCommentID]) {
     commentTree = visibleItemsWithoutCategoryFilter
@@ -102,22 +103,23 @@ const CommentSection = (props) => {
     commentTree = flattenTree(commentTreeSubset)
   }
   if (categoryFilter_author && categoryFilter_author !== 'all') {
-    filterCommentTree(commentTree, (item) => item.author == categoryFilter_author)
+    filterFunctions.push((item) => item.author == categoryFilter_author)
   }
   if (keywords) {
-    filterCommentTree(commentTree, (item) => textMatch(global.state, item, 'keywords', ['body']))
+    filterFunctions.push((item) => textMatch(global.state, item, 'keywords', ['body']))
   }
   if (user_flair) {
-    filterCommentTree(commentTree, (item) => textMatch(global.state, item, 'user_flair', ['author_flair_text']))
+    filterFunctions.push((item) => textMatch(global.state, item, 'user_flair', ['author_flair_text']))
   }
   if (tagsFilter) {
-    filterCommentTree(commentTree, (item) => {
+    filterFunctions.push((item) => {
       return itemIsOneOfSelectedTags(item, global.state)
     })
   }
   if (/^\d+$/.test(thread_before)) {
-    filterCommentTree(commentTree, (item) => item.created_utc <= parseInt(thread_before))
+    filterFunctions.push((item) => item.created_utc <= parseInt(thread_before))
   }
+  filterCommentTree(commentTree, (item) => filterFunctions.every(f => f(item)))
   applySelectedSort(commentTree, localSort, localSortReverse)
   let comments_render = []
   let status = ''
