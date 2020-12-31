@@ -9,6 +9,7 @@ import ItemsPerPage from './ItemsPerPage'
 import RedditSortTimeBase from './RedditSortTimeBase'
 import Content from './Content'
 import TextFilter from './TextFilter'
+import {FlairFilter} from './TextFilter'
 import MinMaxFilters from './MinMaxFilters'
 import TagsFilter from './TagsFilter'
 import Selfposts from './Selfposts'
@@ -86,14 +87,14 @@ const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter,
   const textFilter_content =
     <TextFilter page_type={page_type} globalVarName='keywords' placeholder='keywords' key='kw'
                 title={textFilter_content_title} titleHelpModal={{content:word_help}} />
-  const textFilter_user_flair =
-  <TextFilter page_type={page_type} globalVarName='user_flair' placeholder='user flair' key='uf'
-              title='User Flair' titleHelpModal={{content:flair_help}} />
+  const flairFilter_user =
+  <FlairFilter page_type={page_type} globalVarName='user_flair' placeholder='user flair' key='uf'
+               title='User Flair' titleHelpModal={{content:flair_help}} />
   const textFilters = [
     textFilter_content,
-    <TextFilter page_type={page_type} globalVarName='post_flair' placeholder='post flair' key='pf'
-                title='Post Flair' titleHelpModal={{content:flair_help}} />,
-    textFilter_user_flair,
+    <FlairFilter page_type={page_type} globalVarName='post_flair' placeholder='post flair' key='pf'
+                 title='Post Flair' titleHelpModal={{content:flair_help}} />,
+    flairFilter_user,
     <TextFilter page_type={page_type} globalVarName='filter_url' placeholder='url' key='url'
                 title='URL' titleHelpModal={{content:url_help}} />,
   ]
@@ -197,7 +198,7 @@ const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter,
                     <div>
                       {categoryFilter}
                       {textFilter_content}
-                      {textFilter_user_flair}
+                      {flairFilter_user}
                     </div>
                     <div>
                       <TagsFilter page_type={page_type}/>

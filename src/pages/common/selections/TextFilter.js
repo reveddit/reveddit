@@ -10,7 +10,9 @@ const MIN = 'min', MAX = 'max'
 const SUFFIX_MIN = '_'+MIN
 const SUFFIX_MAX = '_'+MAX
 
-const TextFilter = ({global, page_type, globalVarName, placeholder, minMax, ...selectionProps }) => {
+const anyNoneOpposite = { any: 'none', none: 'any' }
+
+const TextFilter = connect(({global, page_type, globalVarName, placeholder, minMax, anyNone, ...selectionProps }) => {
   const queryParams = new SimpleURLSearchParams(window.location.search)
   let adjusted_globalVarName = globalVarName
   let selectMinDefault = true
@@ -26,6 +28,10 @@ const TextFilter = ({global, page_type, globalVarName, placeholder, minMax, ...s
     adjusted_globalVarName = globalVarName+suffix
   }
   const [inputValue, setInputValue] = useState(valueFromQueryParam)
+  const [anyNoneChecked, setAnyNoneChecked] = useState({
+    any: false,
+    none: false,
+  })
   const oldSelectMinRef = useRef()
   useEffect(() => {
     const oldSelectMin = oldSelectMinRef.current
@@ -54,6 +60,7 @@ const TextFilter = ({global, page_type, globalVarName, placeholder, minMax, ...s
           suffix = SUFFIX_MAX, oppSuffix = SUFFIX_MIN
         }
         // hack, only allows one filter, min or max, per type (# comments, # subscribers, score)
+        // to allow both min and max, add 'between' dropdown option and make another text box appear when that's selected
         const queryParams = new SimpleURLSearchParams(window.location.search)
         queryParams.delete(globalVarName+oppSuffix)
         updateURL(queryParams)
@@ -71,7 +78,7 @@ const TextFilter = ({global, page_type, globalVarName, placeholder, minMax, ...s
     debounce(updateStateAndURL, 500),
     [selectMin]
   )
-  let size, select
+  let size, select, checkboxes
   if (minMax) {
     size = 7
     select = (
@@ -82,16 +89,53 @@ const TextFilter = ({global, page_type, globalVarName, placeholder, minMax, ...s
         <option value={MAX}>at most</option>
       </select>
     )
+  } else if (anyNone) {
+    size = 8
+    const Checkbox = ({text}) => {
+      return (
+        <label title={text}>
+          <input type='checkbox' checked={anyNoneChecked[text]} value={text} onChange={
+            (e) => {
+              const newVal = ! anyNoneChecked[text]
+              setAnyNoneChecked({
+                [anyNoneOpposite[text]]: false,
+                [text]: newVal
+              })
+              if (newVal) {
+                if (text === 'any') {
+                  setInputValue('"."')
+                } else {
+                  setInputValue('-"."')
+                }
+              } else if ((inputValue === '"."' && text === 'any') ||
+                         (inputValue === '-"."' && text === 'none')) {
+                setInputValue('')
+              }
+            }
+          }/>
+          <span>{text}</span>
+        </label>
+      )
+    }
+    checkboxes = <div><Checkbox text='any'/> <Checkbox text='none'/></div>
   }
   return (
     <Selection className='textFilter' isFilter={true} isSet={inputValue.toString().trim().length !== 0} {...selectionProps}>
-      {select}
-      <input type='text' size={size}
-        name={globalVarName+suffix} value={inputValue} placeholder={placeholder}
-        onChange={(e) => setInputValue(e.target.value)}
-      />
+      <div className='inputs'>
+        {select}
+        <input type='text' size={size}
+          name={globalVarName+suffix} value={inputValue} placeholder={placeholder}
+          onChange={(e) => setInputValue(e.target.value)}
+        />
+        {checkboxes}
+      </div>
     </Selection>
   )
+})
+
+
+export const FlairFilter = (props) => {
+  return <TextFilter anyNone={true} {...props}/>
 }
 
-export default connect(TextFilter)
+export default TextFilter
