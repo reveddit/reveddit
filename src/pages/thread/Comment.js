@@ -43,6 +43,13 @@ const buttons_help = {content: <Help title='Comment links' content={
   </>
 }/>}
 
+
+// list of filters to reset when a comment-clickable filter (flair, as-of, or author-focus) is clicked
+export const threadFiltersToReset = [
+  'user_flair', 'categoryFilter_author', 'thread_before',
+  'removedFilter', 'removedByFilter', 'keywords', 'tagsFilter',
+]
+
 const Comment = (props) => {
   const {
     global, history, //from HOC withRouter(connect(Comment))
@@ -152,14 +159,12 @@ const Comment = (props) => {
     return <Button_noHref onClick={() => setRepliesMeta({...repliesMeta, ...other, hideReplies})}>{show_hide} replies{num_replies_text}</Button_noHref>
   }
   const locallyClickableFilters_data = {
-    user_flair: '',
     categoryFilter_author: author,
     thread_before: created_utc,
   }
   const locallyClickableFilters_set = (globalVarName) => {
     const value = locallyClickableFilters_data[globalVarName]
-    const reset = Object.keys(locallyClickableFilters_data).filter(x => x !== globalVarName)
-    return global.selection_set_reset({set: {[globalVarName]: value}, reset, page_type})
+    return global.resetFilters(page_type, {[globalVarName]: value})
   }
   return (
     <div id={name} className={`comment

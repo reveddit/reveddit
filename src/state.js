@@ -386,16 +386,6 @@ class GlobalState extends Container {
     const queryParams = create_qparams_and_adjust(page_type, selection, encodeURIComponent(value))
     return this.updateURLandState(queryParams, page_type, callback)
   }
-  selection_set_reset = ({set = {}, reset = [], page_type}) => {
-    const queryParams = create_qparams()
-    for (const [globalVarName, value] of Object.entries(set)) {
-      adjust_qparams_for_selection(page_type, queryParams, globalVarName, value)
-    }
-    for (const globalVarName of reset) {
-      adjust_qparams_for_selection(page_type, queryParams, globalVarName, filter_pageType_defaults[globalVarName])
-    }
-    return this.updateURLandState(queryParams, page_type)
-  }
   updateURLandState = (queryParams, page_type, callback = () => {}) => {
     updateURL(queryParams)
     return this.setStateFromQueryParams(page_type, queryParams, {}, callback)
@@ -452,11 +442,14 @@ class GlobalState extends Container {
             this.tagsFilterIsUnset()
            )
   }
-  resetFilters = (page_type) => {
+  resetFilters = (page_type, set = {}) => {
     const queryParams = create_qparams()
     adjust_qparams_for_selection(page_type, queryParams, 'removedFilter', removedFilter_types.all)
     for (const globalVarName of Object.keys(urlParamKeys_filters_for_reset_to_show_all_items)) {
       adjust_qparams_for_selection(page_type, queryParams, globalVarName, filter_pageType_defaults[globalVarName])
+    }
+    for (const [globalVarName, value] of Object.entries(set)) {
+      adjust_qparams_for_selection(page_type, queryParams, globalVarName, value)
     }
     return this.updateURLandState(queryParams, page_type)
   }

@@ -84,6 +84,7 @@ class SubredditComments extends React.Component {
               key={item.id}
               {...item}
               depth={0}
+              page_type={page_type}
             />
           })
         }

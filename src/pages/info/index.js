@@ -60,9 +60,9 @@ export class Info extends React.Component {
           <p>No items found</p> :
           items_sorted.map(item => {
             if (item.name.slice(0,2) === 't3') {
-              return <Post key={item.name} {...item} />
+              return <Post key={item.name} {...item} page_type={page_type} />
             } else {
-              return <Comment key={item.name} {...item} />
+              return <Comment key={item.name} {...item} page_type={page_type} />
             }
           })
         }

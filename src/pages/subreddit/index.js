@@ -71,7 +71,7 @@ class SubredditPosts extends React.Component {
           noItemsFound ?
           <p>No posts found</p> :
           items_sorted.map(item => {
-            return <Post key={item.id} {...item} />
+            return <Post key={item.id} {...item} page_type={page_type}/>
           })
         }
         {pagination}

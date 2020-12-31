@@ -24,7 +24,7 @@ const Comment = (props) => {
          removed, deleted, is_op, num_replies, //from reveddit post processing
          rev_position, //from reveddit post processing
          prev, next, parent_context, parent_removed_label, post_removed_label, link_permalink, //from reveddit post processing
-         kind, //from parent component
+         kind, page_type, //from parent component
         } = props
   let classNames = ['comment', 'user']
   let submitter = ''

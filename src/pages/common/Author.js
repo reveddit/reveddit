@@ -7,7 +7,7 @@ import Flair from './Flair'
 const now = Math.floor(new Date()/1000)
 
 const Author = ({author, is_op, deleted, distinguished, subreddit, name,
-                 author_flair_text, className='', global,
+                 author_flair_text, page_type, className='', global,
                }) => {
   const {moderators, moderated_subreddits, authors} = global.state
   const subreddit_lc = subreddit.toLowerCase()
@@ -40,7 +40,8 @@ const Author = ({author, is_op, deleted, distinguished, subreddit, name,
       </a>
       {
         author !== '[deleted]' && author_flair_text &&
-          <Flair className='flair spaceLeft' field='author_flair_text' globalVarName='user_flair' author_flair_text={author_flair_text} />
+          <Flair className='flair spaceLeft' field='author_flair_text'
+                 globalVarName='user_flair' author_flair_text={author_flair_text} page_type={page_type}/>
       }
     </span>
   )
