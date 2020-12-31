@@ -152,8 +152,11 @@ const Comment = (props) => {
       } else if (contextAncestors[id] && replies.length > 1) {
         //if the current ID is in ancestors, then one of its replies is visible and others are not
         replies_viewable.push(<ShowHiddenRepliesLink key={extra_key} num_replies_text={' ('+(replies.length-1)+')'}/>)
-      } else if (focusCommentID && focusCommentID !== id && ! ancestors[focusCommentID] && replies.length) {
+      } else if (replies.length && focusCommentID && focusCommentID !== id &&
+                 ! ancestors[focusCommentID] &&
+                 ! contextAncestors[id]) {
         //if there is a focus comment ID, and it's not this comment, and it's not one of this comment's ancestors,
+        //and this comment is not one of the focus comment's ancestors
         //then this comment's replies are all hidden
         replies_viewable.push(<ShowHiddenRepliesLink key={extra_key} num_replies_text={' ('+(replies.length)+')'}/>)
       }
