@@ -271,7 +271,7 @@ export const withFetch = (WrappedComponent) =>
           const [loadDataFunction, params] = getLoadDataFunctionAndParam(
             {page_type, subreddit, user, kind, threadID, commentID, context, domain,
              add_user, user_kind, user_sort, user_time, before, after})
-          loadDataFunction(...params, this.props.global, this.props.history)
+          loadDataFunction(...params, this.props.global)
           .then(() => {
             const {commentTree, items, threadPost} = this.props.global.state
             if (items.length === 0 && ['subreddit_posts', 'subreddit_comments'].includes(page_type)) {

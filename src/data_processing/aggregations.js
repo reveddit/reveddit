@@ -2,7 +2,7 @@ import { getAggregations } from 'api/reveddit'
 import { getComments } from 'api/reddit'
 import { sortCreatedAsc } from 'utils'
 
-export const getRevdditAggregations = (subreddit, global, history) => {
+export const getRevdditAggregations = (subreddit, global) => {
   const {content: type, n: limit, sort} = global.state
   return getAggregations({subreddit, type, limit, sort})
   .then(items => {

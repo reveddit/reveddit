@@ -34,7 +34,7 @@ const ignoreArchiveErrors = () => {
 }
 
 export const getRevdditThreadItems = async (threadID, commentID, context, add_user, user_kind, user_sort, user_time, before, after,
-                                            global, history) => {
+                                            global) => {
   let pushshift_comments_promise = Promise.resolve({})
   if (! commentID) {
     pushshift_comments_promise = getPushshiftCommentsByThread(threadID)
@@ -71,7 +71,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     document.title = reddit_post.title
     const resetPath = (commentID) => {
       const commentPath = commentID ? commentID + '/' : ''
-      history.replace(convertPathSub(reddit_post.permalink)+commentPath+window.location.search+window.location.hash)
+      window.history.replaceState(null,null,convertPathSub(reddit_post.permalink)+commentPath+window.location.search+window.location.hash)
     }
     if ((window.location.pathname.match(/\//g) || []).length < 6) {
       resetPath()
