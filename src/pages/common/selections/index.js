@@ -1,6 +1,6 @@
 import React, { Suspense, lazy, useState, useEffect } from 'react'
 import ErrorBoundary from 'components/ErrorBoundary'
-import {connect} from 'state'
+import {connect, updateURL} from 'state'
 import RemovedFilter from './RemovedFilter'
 import RemovedByFilter from './RemovedByFilter'
 import CategoryFilter from './CategoryFilter'
@@ -64,8 +64,7 @@ const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter,
     } else {
       queryParams.delete(paramKey)
     }
-    let to = `${window.location.pathname}${queryParams.toString()}`
-    window.history.replaceState(null,null,to)
+    updateURL(queryParams)
     setShowFilters(oppositeShowFilters)
   }
   const showFiltersText = showFilters ? '[–] hide filters' : '[+] show filters'

@@ -1,5 +1,5 @@
 import React from 'react'
-import { connect, adjust_qparams_for_selection } from 'state'
+import { connect, adjust_qparams_for_selection, updateURL } from 'state'
 import * as d3 from 'd3'
 import Preview from 'pages/common/Preview'
 import { prettyFormatBigNumber, SimpleURLSearchParams, ifNumParseInt,
@@ -207,8 +207,7 @@ class UpvoteRemovalRateHistory extends React.Component {
     } else {
       queryParams.delete(paramKey)
     }
-    let to = `${window.location.pathname}${queryParams.toString()}`
-    window.history.replaceState(null,null,to)
+    updateURL(queryParams)
   }
 
   render() {

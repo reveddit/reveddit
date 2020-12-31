@@ -218,10 +218,9 @@ export const adjust_qparams_for_selection = (page_type, queryParams, selection, 
 }
 
 export const updateURL = (queryParams) => {
-  const to = `${window.location.pathname}${queryParams.toString()}`
+  const to = `${window.location.pathname}${queryParams.toString()}${window.location.hash}`
   window.history.replaceState(null,null,to)
 }
-
 
 class GlobalState extends Container {
   constructor(props) {
