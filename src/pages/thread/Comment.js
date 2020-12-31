@@ -53,26 +53,34 @@ export const threadFiltersToReset = [
 const Comment = (props) => {
   const {
     global, history, //from HOC withRouter(connect(Comment))
-    page_type, //from parent component
+    page_type, ignoreContext, //from parent component
     id, parent_id, stickied, permalink, subreddit, link_id, score, created_utc, //from reddit comment data
     removed, deleted, locked, depth, //from reveddit post processing
     contextAncestors, focusCommentID, ancestors, replies, replies_copy, //from reveddit post processing
   } = props
-  const name = `t1_${id}` //some older pushshift data does not have name
   let {author} = props
-  const [displayBody, setDisplayBody] = useState(
-    ! stickied ||
-      contextAncestors[id] ||
-      id === focusCommentID)
+  const {showContext, limitCommentDepth, itemsLookup, threadPost,
+         add_user, loading, localSort, localSortReverse,
+        } = global.state
+  const {selection_update: updateStateAndURL, context_update} = global
+  if (! ignoreContext &&
+      Object.keys(contextAncestors).length &&
+      id != focusCommentID &&
+      ! contextAncestors[id] &&
+      ! ancestors[focusCommentID]
+      ) {
+    return <></>
+  }
   const [repliesMeta, setRepliesMeta] = useState({
     showHiddenReplies: false,
     hideReplies: ! replies.length && replies_copy.length,
   })
   const {showHiddenReplies, hideReplies} = repliesMeta
-  const {showContext, limitCommentDepth, itemsLookup, threadPost,
-         add_user, loading, localSort, localSortReverse,
-        } = global.state
-  const {selection_update: updateStateAndURL, context_update} = global
+  const [displayBody, setDisplayBody] = useState(
+    ! stickied ||
+      contextAncestors[id] ||
+      id === focusCommentID)
+  const name = `t1_${id}` //some older pushshift data does not have name
   const maxCommentDepth = getMaxCommentDepth()
   let even_odd = ''
   if (! removed && ! deleted) {
@@ -101,13 +109,6 @@ const Comment = (props) => {
     parent_link = permalink_nohash.split('/').slice(0,6).join('/')+'/'+
                   parent_id.substr(3)+'/'+searchParams_nocontext+'#'+parent_id
   }
-  if (Object.keys(contextAncestors).length &&
-      id != focusCommentID &&
-      ! contextAncestors[id] &&
-      ! ancestors[focusCommentID]
-      ) {
-    return <></>
-  }
   let expandIcon = '[+]', hidden = 'hidden'
   if (displayBody) {
     expandIcon = '[–]'
@@ -123,16 +124,16 @@ const Comment = (props) => {
       focusCommentID,
       contextAncestors,
     }
-    const createComment = (comment) => <Comment key={comment.id} {...comment} {...rest} />
-    const getReplies_or_continueLink = (replies, sort = false) => {
+    const createComment = (comment, ignoreContext) => <Comment key={comment.id} {...comment} {...rest} ignoreContext={ignoreContext}/>
+    const getReplies_or_continueLink = (replies, sort = false, ignoreContext = false) => {
       if (sort) {
         applySelectedSort(replies, localSort, localSortReverse)
       }
       return (! limitCommentDepth || depth < maxCommentDepth) ?
-        replies.map(createComment)
+        replies.map(c => createComment(c, ignoreContext))
         : [<Permalink key='c' text='continue this thread⟶'/>]
     }
-    const getRepliesCopy = () => getReplies_or_continueLink(replies_copy, true)
+    const getRepliesCopy = () => getReplies_or_continueLink(replies_copy, true, true)
     const ShowHiddenRepliesLink = ({num_replies_text}) =>
       <Button_noHref onClick={() => {
         setRepliesMeta({showHiddenReplies: true, hideReplies: false})
@@ -145,8 +146,16 @@ const Comment = (props) => {
       replies_viewable = getRepliesCopy()
     } else if (replies && replies.length && ! hideReplies) {
       replies_viewable = getReplies_or_continueLink(replies)
+      const extra_key = id+'_extra_replies'
       if (replies.length !== replies_copy.length) {
-        replies_viewable.push(<ShowHiddenRepliesLink key={id+'_extra_replies'} num_replies_text={' ('+(replies_copy.length-replies.length)+')'}/>)
+        replies_viewable.push(<ShowHiddenRepliesLink key={extra_key} num_replies_text={' ('+(replies_copy.length-replies.length)+')'}/>)
+      } else if (contextAncestors[id] && replies.length > 1) {
+        //if the current ID is in ancestors, then one of its replies is visible and others are not
+        replies_viewable.push(<ShowHiddenRepliesLink key={extra_key} num_replies_text={' ('+(replies.length-1)+')'}/>)
+      } else if (focusCommentID && focusCommentID !== id && ! ancestors[focusCommentID] && replies.length) {
+        //if there is a focus comment ID, and it's not this comment, and it's not one of this comment's ancestors,
+        //then this comment's replies are all hidden
+        replies_viewable.push(<ShowHiddenRepliesLink key={extra_key} num_replies_text={' ('+(replies.length)+')'}/>)
       }
     } else if ((replies_copy && replies_copy.length) || hideReplies) {
       replies_viewable = showHiddenReplies && ! hideReplies ?
