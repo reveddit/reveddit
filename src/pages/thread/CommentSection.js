@@ -13,9 +13,11 @@ const MAX_COMMENTS_TO_SHOW = 200
 
 const flattenTree = (commentTree) => {
   const comments = []
-  commentTree.forEach(comment =>
+  commentTree.forEach(comment => {
     comments.push(comment, ...flattenTree(comment.replies))
-  )
+    comment.replies = []
+    comment.replies_copy = []
+  })
   return comments
 }
 
@@ -53,7 +55,7 @@ const countReplies = (comment, maxDepth, limitCommentDepth) => {
 }
 
 const CommentSection = (props) => {
-  const { global, focusCommentID, root, visibleItemsWithoutCategoryFilter,
+  const { global, focusCommentID, root,
           page_type,
         } = props
   const { removedFilter, removedByFilter, localSort,
@@ -68,43 +70,40 @@ const CommentSection = (props) => {
   const removedByFilterIsUnset = global.removedByFilterIsUnset()
   const tagsFilterIsUnset = global.tagsFilterIsUnset()
   let numRootCommentsMatchOriginalCount = true
-  let commentTreeSubset = fullCommentTree
-  let origRootComments = null
-
-  if (commentsLookup[root]) {
-    commentTreeSubset = [commentsLookup[root]]
-  }
+  let origRootComments = []
+  let removedByFilter_str = '', tagsFilter_str = ''
 
   let contextAncestors = {}
   if (context && focusCommentID && commentsLookup[focusCommentID]) {
     contextAncestors = commentsLookup[focusCommentID].ancestors
   }
-  let commentTree
   const filterFunctions = []
-  if (showContext) {
-    [commentTree] = createCommentTree(threadPost.id, root, commentsLookup)
-    origRootComments = [...commentTree]
-    if (removedFilter === removedFilter_types.removed) {
-      filterFunctions.push(itemIsActioned)
-    } else if (removedFilter === removedFilter_types.not_removed) {
-      filterFunctions.push(not(itemIsActioned))
-    }
-    if (! removedByFilterIsUnset) {
-      const filteredActions = filterSelectedActions(Object.keys(removedByFilter))
-      filterFunctions.push((item) => {
-        return itemIsOneOfSelectedActions(item, ...filteredActions)
-      })
-    }
-    if (! tagsFilterIsUnset) {
-      filterFunctions.push((item) => itemIsOneOfSelectedTags(item, global.state))
-    }
-  } else if (! focusCommentID || ! commentsLookup[focusCommentID]) {
-    commentTree = visibleItemsWithoutCategoryFilter
-  } else {
-    commentTree = flattenTree(commentTreeSubset)
+  // have to recreate the tree every time, even when ! showContext
+  // b/c creating it sets comment.replies and flattenTree resets comment.replies.
+  // In flat view, downtree results are lost in subsequent renders
+  // b/c flattenTree modifies state by resetting comment.replies = [].
+  // Modifying comment.replies like this is bad practice but it's not a big deal to recreate the comment tree
+  // when ! showContext since it simplifies below code and is not a commonly used feature
+  let [commentTree] = createCommentTree(threadPost.id, root, commentsLookup)
+  if (! showContext) {
+    commentTree = flattenTree(commentTree)
   }
-  if (categoryFilter_author && categoryFilter_author !== 'all') {
-    filterFunctions.push((item) => item.author == categoryFilter_author)
+  origRootComments = [...commentTree]
+  if (removedFilter === removedFilter_types.removed) {
+    filterFunctions.push(itemIsActioned)
+  } else if (removedFilter === removedFilter_types.not_removed) {
+    filterFunctions.push(not(itemIsActioned))
+  }
+  if (! removedByFilterIsUnset) {
+    const filteredActions = filterSelectedActions(Object.keys(removedByFilter))
+    removedByFilter_str = filteredActions.join()
+    filterFunctions.push((item) => {
+      return itemIsOneOfSelectedActions(item, ...filteredActions)
+    })
+  }
+  if (! tagsFilterIsUnset) {
+    tagsFilter_str = Object.keys(tagsFilter).join()
+    filterFunctions.push((item) => itemIsOneOfSelectedTags(item, global.state))
   }
   if (keywords) {
     filterFunctions.push((item) => textMatch(global.state, item, 'keywords', ['body']))
@@ -112,13 +111,11 @@ const CommentSection = (props) => {
   if (user_flair) {
     filterFunctions.push((item) => textMatch(global.state, item, 'user_flair', ['author_flair_text']))
   }
-  if (tagsFilter) {
-    filterFunctions.push((item) => {
-      return itemIsOneOfSelectedTags(item, global.state)
-    })
-  }
   if (/^\d+$/.test(thread_before)) {
     filterFunctions.push((item) => item.created_utc <= parseInt(thread_before))
+  }
+  if (categoryFilter_author && categoryFilter_author !== 'all') {
+    filterFunctions.push((item) => item.author == categoryFilter_author)
   }
   filterCommentTree(commentTree, (item) => filterFunctions.every(f => f(item)))
   if (showFilteredRootComments) {
@@ -139,7 +136,8 @@ const CommentSection = (props) => {
       // any attributes added below must also be added to thread/Comment.js
       // in rest = {...}
       comments_render.push(<Comment
-        key={[comment.id,categoryFilter_author,keywords,user_flair,thread_before].join('|')}
+        key={[comment.id,removedFilter,removedByFilter_str,categoryFilter_author,tagsFilter_str,
+              keywords,user_flair,thread_before,showContext.toString(),limitCommentDepth.toString()].join('|')}
         {...comment}
         depth={0}
         page_type={page_type}
@@ -148,7 +146,8 @@ const CommentSection = (props) => {
       />)
     }
     const numRepliesHiddenByFilters = origRootComments.length - commentTree.length
-    if (numRepliesHiddenByFilters) {
+    // can be negative when context is unchecked ('flat' view)
+    if (numRepliesHiddenByFilters > 0) {
       comments_render.push(
         <div key='show-all'>
           <a className='pointer' onClick={() => setShowFilteredRootComments(true)}>▾ show hidden replies ({numRepliesHiddenByFilters.toLocaleString()})</a>

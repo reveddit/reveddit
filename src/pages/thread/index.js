@@ -21,7 +21,7 @@ class Thread extends React.Component {
     const { id, author } = post
     const { subreddit, threadID, urlTitle = '', commentID } = this.props.match.params
     const { selections, summary,
-            visibleItemsWithoutCategoryFilter, page_type, archiveDelayMsg,
+            page_type, archiveDelayMsg,
           } = this.props
     //TODO: preserve add_user param here
     const queryParams = new SimpleURLSearchParams()
@@ -81,7 +81,6 @@ class Thread extends React.Component {
             }
             <CommentSection
               root={root}
-              visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
               page_type={page_type}
               focusCommentID={commentID}
             />
