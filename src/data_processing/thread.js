@@ -236,11 +236,17 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
                     commentTree, itemsSortedByDate,
                     moderators: {[subreddit_lc]: moderators,
                     add_user: new_add_user || add_user}}
-  if (! archiveError) {
-    return global.setSuccess(stateObj)
-  } else {
-    return global.setError('', stateObj)
-  }
+  //set success/failure after everything from the archive is returned,
+  //and display comments (archive + reddit) and the reddit post before archive post data responds since that is not critical info
+  Promise.all([pushshift_post_promise, combined_comments_promise])
+  .then(() => {
+    if (! archiveError) {
+      global.setSuccess()
+    } else {
+      global.setError('')
+    }
+  })
+  return global.setState(stateObj)
 }
 
 
