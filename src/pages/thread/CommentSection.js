@@ -70,7 +70,6 @@ const CommentSection = (props) => {
   const removedByFilterIsUnset = global.removedByFilterIsUnset()
   const tagsFilterIsUnset = global.tagsFilterIsUnset()
   let numRootCommentsMatchOriginalCount = true
-  let origRootComments = []
   let removedByFilter_str = '', tagsFilter_str = ''
 
   let contextAncestors = {}
@@ -88,7 +87,7 @@ const CommentSection = (props) => {
   if (! showContext) {
     commentTree = flattenTree(commentTree)
   }
-  origRootComments = [...commentTree]
+  const origRootComments = [...commentTree]
   if (removedFilter === removedFilter_types.removed) {
     filterFunctions.push(itemIsActioned)
   } else if (removedFilter === removedFilter_types.not_removed) {
@@ -146,8 +145,7 @@ const CommentSection = (props) => {
       />)
     }
     const numRepliesHiddenByFilters = origRootComments.length - commentTree.length
-    // can be negative when context is unchecked ('flat' view)
-    if (numRepliesHiddenByFilters > 0) {
+    if (numRepliesHiddenByFilters) {
       comments_render.push(
         <div key='show-all'>
           <a className='pointer' onClick={() => setShowFilteredRootComments(true)}>▾ show hidden replies ({numRepliesHiddenByFilters.toLocaleString()})</a>
