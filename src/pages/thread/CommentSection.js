@@ -64,11 +64,12 @@ const CommentSection = (props) => {
           thread_before,
         } = global.state
   const [showAllComments, setShowAllComments] = useState(false)
+  const [showFilteredRootComments, setShowFilteredRootComments] = useState(false)
   const removedByFilterIsUnset = global.removedByFilterIsUnset()
   const tagsFilterIsUnset = global.tagsFilterIsUnset()
   let numRootCommentsMatchOriginalCount = true
   let commentTreeSubset = fullCommentTree
-  let origNumRootComments = null
+  let origRootComments = null
 
   if (commentsLookup[root]) {
     commentTreeSubset = [commentsLookup[root]]
@@ -82,7 +83,7 @@ const CommentSection = (props) => {
   const filterFunctions = []
   if (showContext) {
     [commentTree] = createCommentTree(threadPost.id, root, commentsLookup)
-    origNumRootComments = commentTree.length
+    origRootComments = [...commentTree]
     if (removedFilter === removedFilter_types.removed) {
       filterFunctions.push(itemIsActioned)
     } else if (removedFilter === removedFilter_types.not_removed) {
@@ -120,6 +121,9 @@ const CommentSection = (props) => {
     filterFunctions.push((item) => item.created_utc <= parseInt(thread_before))
   }
   filterCommentTree(commentTree, (item) => filterFunctions.every(f => f(item)))
+  if (showFilteredRootComments) {
+    commentTree = origRootComments
+  }
   applySelectedSort(commentTree, localSort, localSortReverse)
   let comments_render = []
   let status = ''
@@ -143,8 +147,12 @@ const CommentSection = (props) => {
         contextAncestors={contextAncestors}
       />)
     }
-    if (commentTree.length < origNumRootComments) {
-      comments_render.push(<div key='show-all'><a className='pointer' onClick={() => global.resetFilters(page_type)}>▾ reset filters</a></div>)
+    const numRepliesHiddenByFilters = origRootComments.length - commentTree.length
+    if (numRepliesHiddenByFilters) {
+      comments_render.push(
+        <div key='show-all'>
+          <a className='pointer' onClick={() => setShowFilteredRootComments(true)}>▾ show hidden replies ({numRepliesHiddenByFilters.toLocaleString()})</a>
+        </div>)
     }
   } else if (removedFilter !== removedFilter_types.all) {
     status = (<p>No {removedFilter_text[removedFilter]} comments found</p>)
