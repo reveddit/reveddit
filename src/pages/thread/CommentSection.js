@@ -144,15 +144,15 @@ const CommentSection = (props) => {
         contextAncestors={contextAncestors}
       />)
     }
-    const numRepliesHiddenByFilters = origRootComments.length - commentTree.length
-    if (numRepliesHiddenByFilters) {
-      comments_render.push(
-        <div key='show-all'>
-          <a className='pointer' onClick={() => setShowFilteredRootComments(true)}>▾ show hidden replies ({numRepliesHiddenByFilters.toLocaleString()})</a>
-        </div>)
-    }
   } else if (removedFilter !== removedFilter_types.all) {
     status = (<p>No {removedFilter_text[removedFilter]} comments found</p>)
+  }
+  const numRepliesHiddenByFilters = origRootComments.length - commentTree.length
+  if (numRepliesHiddenByFilters) {
+    comments_render.push(
+      <div key='show-all'>
+        <a className='pointer' onClick={() => setShowFilteredRootComments(true)}>▾ show hidden replies ({numRepliesHiddenByFilters.toLocaleString()})</a>
+      </div>)
   }
   return (
     <>

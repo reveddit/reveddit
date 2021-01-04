@@ -124,14 +124,20 @@ const Comment = (props) => {
       focusCommentID,
       contextAncestors,
     }
+    const showReplies = (! limitCommentDepth || depth < maxCommentDepth)
+    const continue_link = [<Permalink key='c' text='continue this thread⟶'/>]
     const createComment = (comment, ignoreContext) => <Comment key={comment.id} {...comment} {...rest} ignoreContext={ignoreContext}/>
+    let showingContinueLink = false
     const getReplies_or_continueLink = (replies, sort = false, ignoreContext = false) => {
       if (sort) {
         applySelectedSort(replies, localSort, localSortReverse)
       }
-      return (! limitCommentDepth || depth < maxCommentDepth) ?
-        replies.map(c => createComment(c, ignoreContext))
-        : [<Permalink key='c' text='continue this thread⟶'/>]
+      if (showReplies) {
+        return replies.map(c => createComment(c, ignoreContext))
+      } else {
+        showingContinueLink = true
+        return continue_link
+      }
     }
     const getRepliesCopy = () => getReplies_or_continueLink(replies_copy, true, true)
     const ShowHiddenRepliesLink = ({num_replies_text}) =>
@@ -146,24 +152,28 @@ const Comment = (props) => {
       replies_viewable = getRepliesCopy()
     } else if (replies && replies.length && ! hideReplies) {
       replies_viewable = getReplies_or_continueLink(replies)
-      const extra_key = id+'_extra_replies'
-      if (replies.length !== replies_copy.length) {
-        replies_viewable.push(<ShowHiddenRepliesLink key={extra_key} num_replies_text={' ('+(replies_copy.length-replies.length)+')'}/>)
-      } else if (contextAncestors[id] && replies.length > 1) {
-        //if the current ID is in ancestors, then one of its replies is visible and others are not
-        replies_viewable.push(<ShowHiddenRepliesLink key={extra_key} num_replies_text={' ('+(replies.length-1)+')'}/>)
-      } else if (replies.length && focusCommentID && focusCommentID !== id &&
-                 ! ancestors[focusCommentID] &&
-                 ! contextAncestors[id]) {
-        //if there is a focus comment ID, and it's not this comment, and it's not one of this comment's ancestors,
-        //and this comment is not one of the focus comment's ancestors
-        //then this comment's replies are all hidden
-        replies_viewable.push(<ShowHiddenRepliesLink key={extra_key} num_replies_text={' ('+(replies.length)+')'}/>)
+      if (! showingContinueLink) {
+        const extra_key = id+'_extra_replies'
+        if (replies.length !== replies_copy.length) {
+          replies_viewable.push(<ShowHiddenRepliesLink key={extra_key} num_replies_text={' ('+(replies_copy.length-replies.length)+')'}/>)
+        } else if (contextAncestors[id] && replies.length > 1) {
+          //if the current ID is in ancestors, then one of its replies is visible and others are not
+          replies_viewable.push(<ShowHiddenRepliesLink key={extra_key} num_replies_text={' ('+(replies.length-1)+')'}/>)
+        } else if (replies.length && focusCommentID && focusCommentID !== id &&
+                   ! ancestors[focusCommentID] &&
+                   ! contextAncestors[id]) {
+          //if there is a focus comment ID, and it's not this comment, and it's not one of this comment's ancestors,
+          //and this comment is not one of the focus comment's ancestors
+          //then this comment's replies are all hidden
+          replies_viewable.push(<ShowHiddenRepliesLink key={extra_key} num_replies_text={' ('+(replies.length)+')'}/>)
+        }
       }
     } else if ((replies_copy && replies_copy.length) || hideReplies) {
       replies_viewable = showHiddenReplies && ! hideReplies ?
         getRepliesCopy()
-        : <ShowHiddenRepliesLink num_replies_text={num_replies_text}/>
+        : showReplies ?
+          <ShowHiddenRepliesLink num_replies_text={num_replies_text}/>
+          : continue_link
     }
   }
   const ShowHideRepliesButton = ({hideReplies, ...other}) => {
