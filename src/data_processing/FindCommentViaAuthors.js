@@ -259,7 +259,10 @@ export class AddUserParam {
   }
 }
 
-const addUserFields = ['body', 'edited', 'author', 'author_fullname', 'is_op']
+const addUserFields = [
+  'body', 'edited', 'author', 'author_fullname', 'author_flair_text',
+  'is_op',
+]
 export const addUserComments = (user_comments, commentsLookup) => {
   const changed = [], changedAuthors = {}
   for (const user_comment of user_comments) {
