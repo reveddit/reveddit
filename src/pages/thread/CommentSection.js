@@ -67,6 +67,7 @@ const CommentSection = (props) => {
         } = global.state
   const [showAllComments, setShowAllComments] = useState(false)
   const [showFilteredRootComments, setShowFilteredRootComments] = useState(false)
+  const [showSingleRoot, setShowSingleRoot] = useState(false)
   const removedByFilterIsUnset = global.removedByFilterIsUnset()
   const tagsFilterIsUnset = global.tagsFilterIsUnset()
   let numRootCommentsMatchOriginalCount = true
@@ -117,7 +118,7 @@ const CommentSection = (props) => {
     filterFunctions.push((item) => item.author == categoryFilter_author)
   }
   filterCommentTree(commentTree, (item) => filterFunctions.every(f => f(item)))
-  if (showFilteredRootComments) {
+  if (showFilteredRootComments || (showSingleRoot && origRootComments.length === 1)) {
     commentTree = origRootComments
   }
   applySelectedSort(commentTree, localSort, localSortReverse)
@@ -142,6 +143,7 @@ const CommentSection = (props) => {
         page_type={page_type}
         focusCommentID={focusCommentID}
         contextAncestors={contextAncestors}
+        setShowSingleRoot={setShowSingleRoot}
       />)
     }
   } else if (removedFilter !== removedFilter_types.all) {

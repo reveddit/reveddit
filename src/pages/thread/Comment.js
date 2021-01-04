@@ -53,7 +53,7 @@ export const threadFiltersToReset = [
 const Comment = (props) => {
   const {
     global, history, //from HOC withRouter(connect(Comment))
-    page_type, ignoreContext, //from parent component
+    page_type, ignoreContext, setShowSingleRoot, //from parent component
     id, parent_id, stickied, permalink, subreddit, link_id, score, created_utc, //from reddit comment data
     removed, deleted, locked, depth, //from reveddit post processing
     contextAncestors, focusCommentID, ancestors, replies, replies_copy, //from reveddit post processing
@@ -100,9 +100,11 @@ const Comment = (props) => {
   const replies_id = name+'_replies'
   const contextLink = permalink_nohash+searchParams.set('context', contextDefault).toString()+thisHash
   const permalink_with_hash = permalink_nohash+searchParams_nocontext+thisHash
-  const Permalink = ({text}) =>
+  const Permalink = ({text, onClick}) =>
     <Link to={permalink_with_hash} onClick={(e) => {
-      context_update(0, props).then(jumpToCurrentHash)
+      context_update(0, props)
+      .then(onClick)
+      .then(jumpToCurrentHash)
     }}>{text}</Link>
   let parent_link = undefined
   if ('parent_id' in props && parent_id.substr(0,2) === 't1') {
@@ -123,9 +125,10 @@ const Comment = (props) => {
       page_type,
       focusCommentID,
       contextAncestors,
+      setShowSingleRoot,
     }
     const showReplies = (! limitCommentDepth || depth < maxCommentDepth)
-    const continue_link = [<Permalink key='c' text='continue this thread⟶'/>]
+    const continue_link = [<Permalink key='c' text='continue this thread⟶' onClick={() => setShowSingleRoot(true)}/>]
     const createComment = (comment, ignoreContext) => <Comment key={comment.id} {...comment} {...rest} ignoreContext={ignoreContext}/>
     let showingContinueLink = false
     const getReplies_or_continueLink = (replies, sort = false, ignoreContext = false) => {
