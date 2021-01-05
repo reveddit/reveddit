@@ -177,8 +177,62 @@ export const filter_pageType_defaults = {
   ...urlParamKeys_max_min_defaults,
 }
 
+const initialState = {
+  n: 300,
+  before: '',
+  before_id: '',
+  keywords: '',
+  post_flair: '', user_flair: '', filter_url: '', thread_before: '',
+  items: [],
+  threadPost: {},
+  num_pages: 0,
+  userNext: null,
+  removedFilter: removedFilter_types.all,
+  removedByFilter: {},
+  exclude_action: false,
+  exclude_tag: false,
+  tagsFilter: {},
+  categoryFilter_subreddit: 'all',
+  categoryFilter_domain: 'all',
+  categoryFilter_link_title: 'all',
+  categoryFilter_author: 'all',
+  localSort: localSort_types.date,
+  localSortReverse: false,
+  sort: 'new',
+  showContext: true,
+  statusText: '',
+  statusImage: undefined,
+  loading: false,
+  error: false,
+  userIssueDescription: '',
+  id: '',
+  context: '',
+  frontPage: false,
+  q: '', author: '', subreddit: '', after: '', domain: '', or_domain: '', title: '', selftext: '',
+  content: 'all', url: '',
+  selfposts: true,
+  itemsLookup: {},
+  commentTree: [],
+  itemsSortedByDate: [],
+  initialFocusCommentID: '',
+  commentParentsAndPosts: {},
+  userCommentsByPost: {},
+  limitCommentDepth: true,
+  moderators: {},
+  moderated_subreddits: {},
+  authors: {},
+  archiveTimes: null,
+  add_user: '',
+  alreadySearchedAuthors: {},
+  all: false,
+  oldestTimestamp: undefined, newestTimestamp: undefined,
+  stickied: undefined, distinguished: undefined,
+  ...urlParamKeys_max_min_defaults,
+}
+
 // pushshift max per call is now 100 (previously was 1000)
 const maxN = 2000
+
 
 
 const getMultiFilterSettings = (stringValue) => {
@@ -213,7 +267,12 @@ export const adjust_qparams_for_selection = (page_type, queryParams, selection, 
   value = parseType(value)
   if (value === filter_pageType_defaults[selection] ||
      (typeof(filter_pageType_defaults[selection]) === 'object' &&
-      value === filter_pageType_defaults[selection][page_type])) {
+        (value === filter_pageType_defaults[selection][page_type] ||
+        //don't set url parameter when the value is equal to the initial state
+        //(this happens when using saved defaults)
+        (! (page_type in filter_pageType_defaults[selection]) && value === initialState[selection] ))
+      )
+    ) {
     queryParams.delete(urlParamKeys[selection])
   } else {
     queryParams.set(urlParamKeys[selection], value)
@@ -229,62 +288,11 @@ export const updateURL = (queryParams) => {
 class GlobalState extends Container {
   constructor(props) {
      super(props)
-     this.state = this.getInitialState()
+     this.state = initialState
   }
 
   getInitialState() {
-    return {
-        n: 300,
-        before: '',
-        before_id: '',
-        keywords: '',
-        post_flair: '', user_flair: '', filter_url: '', thread_before: '',
-        items: [],
-        threadPost: {},
-        num_pages: 0,
-        userNext: null,
-        removedFilter: removedFilter_types.all,
-        removedByFilter: {},
-        exclude_action: false,
-        exclude_tag: false,
-        tagsFilter: {},
-        categoryFilter_subreddit: 'all',
-        categoryFilter_domain: 'all',
-        categoryFilter_link_title: 'all',
-        categoryFilter_author: 'all',
-        localSort: localSort_types.date,
-        localSortReverse: false,
-        sort: 'new',
-        showContext: true,
-        statusText: '',
-        statusImage: undefined,
-        loading: false,
-        error: false,
-        userIssueDescription: '',
-        id: '',
-        context: '',
-        frontPage: false,
-        q: '', author: '', subreddit: '', after: '', domain: '', or_domain: '', title: '', selftext: '',
-        content: 'all', url: '',
-        selfposts: true,
-        itemsLookup: {},
-        commentTree: [],
-        itemsSortedByDate: [],
-        initialFocusCommentID: '',
-        commentParentsAndPosts: {},
-        userCommentsByPost: {},
-        limitCommentDepth: true,
-        moderators: {},
-        moderated_subreddits: {},
-        authors: {},
-        archiveTimes: null,
-        add_user: '',
-        alreadySearchedAuthors: {},
-        all: false,
-        oldestTimestamp: undefined, newestTimestamp: undefined,
-        stickied: undefined, distinguished: undefined,
-        ...urlParamKeys_max_min_defaults,
-      }
+    return
   }
 
   setStateFromCurrentURL = (page_type) => {
@@ -372,7 +380,7 @@ class GlobalState extends Container {
           value = Object.keys(value).join()
         }
         // only set the query param to the user's saved default if it is not already set
-        if (! queryParams.has(selection)) {
+        if (! queryParams.has(urlParamKeys[selection])) {
           adjust_qparams_for_selection(page_type, queryParams, selection, value)
         }
       }
