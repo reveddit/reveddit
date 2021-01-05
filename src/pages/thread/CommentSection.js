@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import Comment, { getMaxCommentDepth } from './Comment'
 import {connect, removedFilter_types, removedFilter_text} from 'state'
 import { NOT_REMOVED, REMOVAL_META, USER_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED } from 'pages/common/RemovedBy'
@@ -125,6 +125,14 @@ const CommentSection = (props) => {
   let comments_render = []
   let status = ''
   let numCommentsShown = 0
+  const filters_str = [
+    removedFilter,removedByFilter_str,categoryFilter_author,tagsFilter_str,
+    keywords,user_flair,thread_before,
+    ...[showContext,limitCommentDepth,exclude_action,exclude_tag].map(x => x.toString()),
+  ].join('|')
+  useEffect(() => {
+    setShowFilteredRootComments(false)
+  }, [filters_str])
   if (commentTree.length) {
     for (var i = 0; i < commentTree.length; i++) {
       if (limitCommentDepth && numCommentsShown >= MAX_COMMENTS_TO_SHOW && ! showAllComments) {
@@ -136,8 +144,7 @@ const CommentSection = (props) => {
       // any attributes added below must also be added to thread/Comment.js
       // in rest = {...}
       comments_render.push(<Comment
-        key={[comment.id,removedFilter,removedByFilter_str,categoryFilter_author,tagsFilter_str,
-              keywords,user_flair,thread_before,...[showContext,limitCommentDepth,exclude_action,exclude_tag].map(x => x.toString())].join('|')}
+        key={[comment.id,filters_str].join('|')}
         {...comment}
         depth={0}
         page_type={page_type}
