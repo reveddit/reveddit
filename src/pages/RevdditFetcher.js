@@ -350,7 +350,6 @@ export const withFetch = (WrappedComponent) =>
     getViewableItems(items, category, category_unique_field) {
       const {global, page_type} = this.props
       const gs = global.state
-      console.log(global.state)
       const category_state = (gs['categoryFilter_'+category] || '').toString()
       const stateSaysHideComments = (
         ['user','subreddit_comments'].includes(page_type) &&
