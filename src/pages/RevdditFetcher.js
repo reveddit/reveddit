@@ -254,7 +254,6 @@ export const withFetch = (WrappedComponent) =>
       const user = (this.props.match.params.user || '' ).toLowerCase()
       const { threadID, commentID, kind = '' } = this.props.match.params
       const { userSubreddit } = (this.props.match.params.userSubreddit || '').toLowerCase()
-      const allQueryParams = create_qparams()
       if (userSubreddit) {
         subreddit = 'u_'+userSubreddit
       }
@@ -269,6 +268,7 @@ export const withFetch = (WrappedComponent) =>
         getArchiveTimes().then(archiveTimes => this.props.global.setState({archiveTimes}))
       }
       this.props.global.setQueryParamsFromSavedDefaults(page_type)
+      const allQueryParams = create_qparams()
       this.props.global.setStateFromQueryParams(
                       page_type,
                       allQueryParams,
