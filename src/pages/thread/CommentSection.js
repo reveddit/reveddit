@@ -62,7 +62,7 @@ const CommentSection = (props) => {
           localSortReverse, showContext, context,
           itemsLookup: commentsLookup, commentTree: fullCommentTree,
           categoryFilter_author, keywords, user_flair,
-          threadPost, limitCommentDepth, loading, tagsFilter,
+          threadPost, limitCommentDepth, loading, tagsFilter, exclude_tag,
           thread_before,
         } = global.state
   const [showAllComments, setShowAllComments] = useState(false)
@@ -97,18 +97,13 @@ const CommentSection = (props) => {
   if (! removedByFilterIsUnset) {
     const filteredActions = filterSelectedActions(Object.keys(removedByFilter))
     removedByFilter_str = filteredActions.join()
-    const removedBy_func = exclude_action ?
-      (item) => {
-        return ! itemIsOneOfSelectedActions(item, ...filteredActions)
-      }
-      : (item) => {
-        return itemIsOneOfSelectedActions(item, ...filteredActions)
-      }
-    filterFunctions.push(removedBy_func)
+    const removedBy_func = (item) => itemIsOneOfSelectedActions(item, ...filteredActions)
+    filterFunctions.push(exclude_action ? not(removedBy_func) : removedBy_func)
   }
   if (! tagsFilterIsUnset) {
     tagsFilter_str = Object.keys(tagsFilter).join()
-    filterFunctions.push((item) => itemIsOneOfSelectedTags(item, global.state))
+    const tag_func = (item) => itemIsOneOfSelectedTags(item, global.state)
+    filterFunctions.push(exclude_tag ? not(tag_func) : tag_func)
   }
   if (keywords) {
     filterFunctions.push((item) => textMatch(global.state, item, 'keywords', ['body']))
@@ -142,7 +137,7 @@ const CommentSection = (props) => {
       // in rest = {...}
       comments_render.push(<Comment
         key={[comment.id,removedFilter,removedByFilter_str,categoryFilter_author,tagsFilter_str,
-              keywords,user_flair,thread_before,showContext.toString(),limitCommentDepth.toString()].join('|')}
+              keywords,user_flair,thread_before,...[showContext,limitCommentDepth,exclude_action,exclude_tag].map(x => x.toString())].join('|')}
         {...comment}
         depth={0}
         page_type={page_type}
