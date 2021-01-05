@@ -6,10 +6,10 @@ import { REMOVAL_META, ANTI_EVIL_REMOVED, USER_REMOVED, USER_REMOVED_META,
 } from 'pages/common/RemovedBy'
 import { Selection } from './SelectionBase'
 
-
+const ex = 'exclude'
 const RemovedByFilter = (props) => {
-  const {page_type} = props
-  const removedByFilter = props.global.state.removedByFilter
+  const {page_type, global} = props
+  const {removedByFilter, exclude_action} = global.state
   let removal_meta = REMOVAL_META
   if (page_type !== 'user') {
     removal_meta[USER_REMOVED] = USER_REMOVED_META
@@ -26,7 +26,6 @@ const RemovedByFilter = (props) => {
   if (['user', 'subreddit_comments', 'info', 'search', 'missing_comments'].includes(page_type)) {
     removal_meta[ORPHANED] = ORPHANED_META
   }
-  const updateStateAndURL = props.global.removedByFilter_update
   return (
     <Selection className='removedbyFilter' isFilter={true} isSet={Object.keys(removedByFilter).length !== 0}
                title='Action' titleHelpModal={{hash:'action_help'}}>
@@ -38,7 +37,7 @@ const RemovedByFilter = (props) => {
                 <input id={type} type='checkbox'
                   checked={removedByFilter[type] !== undefined}
                   value={type}
-                  onChange={(e) => updateStateAndURL(e.target, page_type)}
+                  onChange={(e) => global.removedByFilter_update(e.target, page_type)}
                 />
                 <span>{removal_meta[type].filter_text}</span>
               </label>
@@ -46,9 +45,23 @@ const RemovedByFilter = (props) => {
           )
         })
       }
+      <ExcludeLabel globalVarName='exclude_action' page_type={page_type} />
     </Selection>
   )
 
 }
+
+export const ExcludeLabel = connect(({global, globalVarName, page_type}) => {
+  const value = global.state[globalVarName]
+  return (
+    <label title={ex}>
+      <input className={ex} type='checkbox'
+        checked={value}
+        value={ex}
+        onChange={(e) => global.selection_update(globalVarName, e.target.checked, page_type)}/>
+      <span>{ex}</span>
+    </label>
+  )
+})
 
 export default connect(RemovedByFilter)

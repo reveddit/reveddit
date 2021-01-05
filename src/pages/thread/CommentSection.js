@@ -58,7 +58,7 @@ const CommentSection = (props) => {
   const { global, focusCommentID, root,
           page_type,
         } = props
-  const { removedFilter, removedByFilter, localSort,
+  const { removedFilter, removedByFilter, exclude_action, localSort,
           localSortReverse, showContext, context,
           itemsLookup: commentsLookup, commentTree: fullCommentTree,
           categoryFilter_author, keywords, user_flair,
@@ -97,9 +97,14 @@ const CommentSection = (props) => {
   if (! removedByFilterIsUnset) {
     const filteredActions = filterSelectedActions(Object.keys(removedByFilter))
     removedByFilter_str = filteredActions.join()
-    filterFunctions.push((item) => {
-      return itemIsOneOfSelectedActions(item, ...filteredActions)
-    })
+    const removedBy_func = exclude_action ?
+      (item) => {
+        return ! itemIsOneOfSelectedActions(item, ...filteredActions)
+      }
+      : (item) => {
+        return itemIsOneOfSelectedActions(item, ...filteredActions)
+      }
+    filterFunctions.push(removedBy_func)
   }
   if (! tagsFilterIsUnset) {
     tagsFilter_str = Object.keys(tagsFilter).join()

@@ -220,6 +220,18 @@ const asOfMatch = (gs, item) => {
   return true
 }
 
+const filterMatches = (filterIsUnset, fn, exclude) => {
+  if (! filterIsUnset) {
+    const oneOfSelected = fn()
+    if (exclude) {
+      return ! oneOfSelected
+    } else {
+      return oneOfSelected
+    }
+  }
+  return true
+}
+
 export const withFetch = (WrappedComponent) =>
   class extends React.Component {
     state = {
@@ -390,8 +402,6 @@ export const withFetch = (WrappedComponent) =>
     }
 
     getVisibleItemsWithoutCategoryFilter() {
-      const removedByFilterIsUnset = this.props.global.removedByFilterIsUnset()
-      const tagsFilterIsUnset = this.props.global.tagsFilterIsUnset()
       const visibleItems = []
       const gs = this.props.global.state
       const filteredActions = filterSelectedActions(Object.keys(gs.removedByFilter))
@@ -408,6 +418,16 @@ export const withFetch = (WrappedComponent) =>
         [asOfMatch, []],
       ]
       gs.items.forEach(item => {
+        const actionMatch = filterMatches(
+          this.props.global.removedByFilterIsUnset(),
+          () => itemIsOneOfSelectedActions(item, ...filteredActions),
+          gs.exclude_action
+        )
+        const tagMatch = filterMatches(
+          this.props.global.tagsFilterIsUnset(),
+          () => itemIsOneOfSelectedTags(item, gs),
+          gs.exclude_tag
+        )
         if (
           (gs.removedFilter === removedFilter_types.all ||
             (
@@ -418,9 +438,7 @@ export const withFetch = (WrappedComponent) =>
               gs.removedFilter === removedFilter_types.removed &&
               itemIsActioned(item)
             )
-          ) &&
-          ( (removedByFilterIsUnset || itemIsOneOfSelectedActions(item, ...filteredActions)) &&
-            (tagsFilterIsUnset || itemIsOneOfSelectedTags(item, gs)))
+          ) && actionMatch && tagMatch
         ) {
           const title_body_fields = ['body']
           if ('title' in item) {

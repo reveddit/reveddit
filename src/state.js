@@ -56,6 +56,8 @@ const urlParamKeys_max_min_defaults = Object.keys(urlParamKeys_max_min).reduce((
 //everything except removedFilter can use the default value when resetting to show all items
 const urlParamKeys_filters_for_reset_to_show_all_items = {
   removedByFilter: 'removedby',
+  exclude_action: 'exclude_action',
+  exclude_tag: 'exclude_tag',
   categoryFilter_subreddit: 'subreddit',
   categoryFilter_domain: 'domain',
   categoryFilter_link_title: 'link_title',
@@ -129,6 +131,8 @@ export const filter_pageType_defaults = {
     duplicate_posts: removedFilter_types.all
   },
   removedByFilter: '', // this is different than the state initialization value
+  exclude_action: false,
+  exclude_tag: false,
   tagsFilter: '',
   localSort: {
     user: localSort_types.date,
@@ -241,6 +245,8 @@ class GlobalState extends Container {
         userNext: null,
         removedFilter: removedFilter_types.all,
         removedByFilter: {},
+        exclude_action: false,
+        exclude_tag: false,
         tagsFilter: {},
         categoryFilter_subreddit: 'all',
         categoryFilter_domain: 'all',
@@ -343,7 +349,7 @@ class GlobalState extends Container {
   saveDefaults = (page_type) => {
     const filters = get(defaultFilters_str, {})
     filters[page_type] = [
-      'localSort', 'localSortReverse', 'removedFilter', 'removedByFilter', 'tagsFilter',
+      'localSort', 'localSortReverse', 'removedFilter', 'removedByFilter', 'exclude_action', 'tagsFilter', 'exclude_tag',
       'showContext', 'n', 'sort', 't',
       'categoryFilter_subreddit', 'categoryFilter_domain', 'categoryFilter_link_title', 'categoryFilter_author',
       'num_subscribers_min', 'score_min', 'num_comments_min',

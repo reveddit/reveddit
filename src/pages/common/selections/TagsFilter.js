@@ -1,6 +1,7 @@
 import React from 'react'
 import { connect } from 'state'
 import { Selection } from './SelectionBase'
+import { ExcludeLabel } from './RemovedByFilter'
 
 export const IS_OP = 'is_op'
 export const MOD = 'mod'
@@ -21,10 +22,6 @@ export const TAG_META = {[IS_OP]: {
                            field: 'distinguished',
                            values: ['admin','special'],
                            text: 'admin/special'},
-                         [NONE]: {
-                           field: 'distinguished',
-                           values: [null],
-                           text: 'not mod/admin/special'},
                          [QUARANTINE]: {
                            field: 'quarantine',
                            values: [true],
@@ -62,6 +59,7 @@ class TagsFilter extends React.Component {
               )
             })
           }
+          <ExcludeLabel globalVarName='exclude_tag' page_type={page_type} />
         </Selection>
     )
   }
