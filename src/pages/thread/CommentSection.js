@@ -144,7 +144,7 @@ const CommentSection = (props) => {
       // any attributes added below must also be added to thread/Comment.js
       // in rest = {...}
       comments_render.push(<Comment
-        key={[comment.id,comment.removedby || '',filters_str].join('|')}
+        key={[comment.id,comment.removedby || '',comment.replies.length.toString(),filters_str].join('|')}
         {...comment}
         depth={0}
         page_type={page_type}

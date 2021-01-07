@@ -129,7 +129,7 @@ const Comment = (props) => {
     }
     const showReplies = (! limitCommentDepth || depth < maxCommentDepth)
     const continue_link = [<Permalink key='c' text='continue this thread⟶' onClick={() => setShowSingleRoot(true)}/>]
-    const createComment = (comment, ignoreContext) => <Comment key={comment.id} {...comment} {...rest} ignoreContext={ignoreContext}/>
+    const createComment = (comment, ignoreContext) => <Comment key={[comment.id, comment.removedby, comment.replies.length.toString()].join('|')} {...comment} {...rest} ignoreContext={ignoreContext}/>
     let showingContinueLink = false
     const getReplies_or_continueLink = (replies, sort = false, ignoreContext = false) => {
       if (sort) {
@@ -158,7 +158,11 @@ const Comment = (props) => {
       if (! showingContinueLink) {
         const extra_key = id+'_extra_replies'
         if (replies.length !== replies_copy.length) {
-          replies_viewable.push(<ShowHiddenRepliesLink key={extra_key} num_replies_text={' ('+(replies_copy.length-replies.length)+')'}/>)
+          let num_replies = replies_copy.length - replies.length
+          if (focusCommentID) {
+            num_replies = replies_copy.length - 1
+          }
+          replies_viewable.push(<ShowHiddenRepliesLink key={extra_key} num_replies_text={' ('+(num_replies)+')'}/>)
         } else if (contextAncestors[id] && replies.length > 1) {
           //if the current ID is in ancestors, then one of its replies is visible and others are not
           replies_viewable.push(<ShowHiddenRepliesLink key={extra_key} num_replies_text={' ('+(replies.length-1)+')'}/>)
