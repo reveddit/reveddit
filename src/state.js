@@ -265,13 +265,12 @@ const parseType = (value) => {
 
 export const adjust_qparams_for_selection = (page_type, queryParams, selection, value) => {
   value = parseType(value)
-  if (value === filter_pageType_defaults[selection] ||
-     (typeof(filter_pageType_defaults[selection]) === 'object' &&
-        (value === filter_pageType_defaults[selection][page_type] ||
-        //don't set url parameter when the value is equal to the initial state
-        //(this happens when using saved defaults)
-        (! (page_type in filter_pageType_defaults[selection]) && value === initialState[selection] ))
-      )
+  if (value === filter_pageType_defaults[selection]
+       || (typeof(filter_pageType_defaults[selection]) === 'object'
+          && (value === filter_pageType_defaults[selection][page_type]
+            //don't set url parameter when the value is equal to the initial state
+            || (! (page_type in filter_pageType_defaults[selection])
+              && value === initialState[selection])))
     ) {
     queryParams.delete(urlParamKeys[selection])
   } else {
@@ -321,11 +320,10 @@ class GlobalState extends Container {
           stateVar[param] = filter_pageType_defaults[param]
         } else if (page_type in filter_pageType_defaults[param]) {
           stateVar[param] = filter_pageType_defaults[param][page_type]
+        } else {
+          stateVar[param] = initialState[param]
         }
       }
-      /*if (stateVar[param] === undefined) {
-        stateVar[param] = this.getInitialState()[param]
-      }*/
     } else {
       switch(param) {
         case 'removedFilter': {
