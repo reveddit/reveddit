@@ -8,6 +8,7 @@ import ErrorBoundary from 'components/ErrorBoundary'
 import {PATH_STR_SUB, PATH_STR_USER,
         PATHS_ALT_SUB, PATHS_ALT_USER
 } from 'utils'
+import {ExtensionRedirect} from 'components/Misc'
 
 const User = lazy(() => import('pages/user'))
 const BlankUser = lazy(() => import('components/BlankUser'))
@@ -50,6 +51,7 @@ const routes = (
   <RouteRedirectWithParams path='/gallery/' search={/\/gallery/} replace=''/>
   <DefaultLayout path='/about/faq' component={About_faq} title='Frequently Asked Questions'/>
   <DefaultLayout path='/about' component={About} title='About reveddit'/>
+  <DefaultLayout path='/add-ons/direct' component={ExtensionRedirect} />
   <DefaultLayout path='/add-ons' component={AddOns} />
   <DefaultLayout path='/info' page_type='info' component={Info} />
   <DefaultLayout path='/search' page_type='search' component={Info} />

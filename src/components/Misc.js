@@ -54,6 +54,22 @@ export const ExtensionLink = ({image = false}) => {
   return <LinkWithCloseModal to='/add-ons/'>{content}</LinkWithCloseModal>
 }
 
+const getExtensionURL = () => {
+  if (chromelike_fullnames[browserName]) {
+    return ext_urls.rt.c
+  } else if (Bowser.BROWSER_MAP['firefox'] == browserName) {
+    return ext_urls.rt.f
+  }
+  return '/add-ons/'
+}
+
+export const ExtensionRedirect = () => {
+  useEffect(() => {
+    window.location.replace(getExtensionURL())
+  }, [])
+  return null
+}
+
 export const Spin = ({width}) => {
   const spin = <img className='spin' width={width} src='/images/spin.gif'/>
   if (! width) {
