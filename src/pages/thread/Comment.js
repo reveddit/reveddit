@@ -264,7 +264,7 @@ const finishPromise_then_jumpToHash = (promise) => {
 const LoadingOrButton = connect(({global, Button}) => {
   let result
   if (global.state.loading) {
-    result = <a>.....</a>
+    result = <a className='dark'>{Button.props.children}</a>
   } else {
     result = Button
   }
