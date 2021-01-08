@@ -74,9 +74,6 @@ const CommentSection = (props) => {
   let removedByFilter_str = '', tagsFilter_str = ''
 
   let contextAncestors = {}
-  if (context && focusCommentID && commentsLookup[focusCommentID]) {
-    contextAncestors = commentsLookup[focusCommentID].ancestors
-  }
   const filterFunctions = []
   // have to recreate the tree every time, even when ! showContext
   // b/c creating it sets comment.replies and flattenTree resets comment.replies.
@@ -85,6 +82,15 @@ const CommentSection = (props) => {
   // Modifying comment.replies like this is bad practice but it's not a big deal to recreate the comment tree
   // when ! showContext since it simplifies below code and is not a commonly used feature
   let [commentTree] = createCommentTree(threadPost.id, root, commentsLookup)
+  
+  if (context && focusCommentID && commentsLookup[focusCommentID]) {
+    contextAncestors = commentsLookup[focusCommentID].ancestors
+    filterFunctions.push((item) => (
+      contextAncestors[item.id] ||
+      item.id === focusCommentID ||
+      item.ancestors[focusCommentID]
+    ))
+  }
   if (! showContext) {
     commentTree = flattenTree(commentTree)
   }
@@ -127,7 +133,7 @@ const CommentSection = (props) => {
   let numCommentsShown = 0
   const filters_str = [
     removedFilter,removedByFilter_str,categoryFilter_author,tagsFilter_str,
-    keywords,user_flair,thread_before,
+    keywords,user_flair,thread_before,focusCommentID,
     ...[showContext,limitCommentDepth,exclude_action,exclude_tag].map(x => x.toString()),
   ].join('|')
   useEffect(() => {

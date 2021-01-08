@@ -63,14 +63,7 @@ const Comment = (props) => {
          add_user, loading, localSort, localSortReverse,
         } = global.state
   const {selection_update: updateStateAndURL, context_update} = global
-  if (! ignoreContext &&
-      Object.keys(contextAncestors).length &&
-      id != focusCommentID &&
-      ! contextAncestors[id] &&
-      ! ancestors[focusCommentID]
-      ) {
-    return <></>
-  }
+
   const [repliesMeta, setRepliesMeta] = useState({
     showHiddenReplies: false,
     hideReplies: ! replies.length && replies_copy.length,
@@ -158,21 +151,7 @@ const Comment = (props) => {
       if (! showingContinueLink) {
         const extra_key = id+'_extra_replies'
         if (replies.length !== replies_copy.length) {
-          let num_replies = replies_copy.length - replies.length
-          if (focusCommentID) {
-            num_replies = replies_copy.length - 1
-          }
-          replies_viewable.push(<ShowHiddenRepliesLink key={extra_key} num_replies_text={' ('+(num_replies)+')'}/>)
-        } else if (contextAncestors[id] && replies.length > 1) {
-          //if the current ID is in ancestors, then one of its replies is visible and others are not
-          replies_viewable.push(<ShowHiddenRepliesLink key={extra_key} num_replies_text={' ('+(replies.length-1)+')'}/>)
-        } else if (replies.length && focusCommentID && focusCommentID !== id &&
-                   ! ancestors[focusCommentID] &&
-                   ! contextAncestors[id]) {
-          //if there is a focus comment ID, and it's not this comment, and it's not one of this comment's ancestors,
-          //and this comment is not one of the focus comment's ancestors
-          //then this comment's replies are all hidden
-          replies_viewable.push(<ShowHiddenRepliesLink key={extra_key} num_replies_text={' ('+(replies.length)+')'}/>)
+          replies_viewable.push(<ShowHiddenRepliesLink key={extra_key} num_replies_text={' ('+(replies_copy.length - replies.length)+')'}/>)
         }
       }
     } else if ((replies_copy && replies_copy.length) || hideReplies) {
