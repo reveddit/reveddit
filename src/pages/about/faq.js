@@ -52,6 +52,10 @@ const About_faq = () => {
       <ContentWithHeader header='What does the "unknown removed" label mean?' id='unknown-removed'>
         <p>The "unknown" label is applied when reveddit cannot determine if something was removed by a mod or by automod. Pushshift, a database that captures reddit data as it is created, and which reveddit queries, can fall behind retrieving data. When that happens, any removed items are marked as removed by "unknown." When Pushshift captures content soon after creation, and the content has already been removed, then it is marked as removed by automod.</p>
       </ContentWithHeader>
+      <ContentWithHeader header='How can I find out which mod removed something?' id='which-mod'>
+        <p>Reddit does not provide this information by default. Some subreddits expose it through feeds from <NewWindowLink reddit='/user/publicmodlogs'>u/publicmodlogs</NewWindowLink> or <NewWindowLink reddit='/user/modlogs'>u/modlogs</NewWindowLink>. Reveddit fills in details from these feeds where possible.</p>
+        <p>You can use the <code>message mods</code> button to send a message to the relevant subreddit's moderators regarding the post.</p>
+      </ContentWithHeader>
     </InternalPage>
   )
 }
