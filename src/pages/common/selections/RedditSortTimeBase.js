@@ -35,18 +35,24 @@ const displayPrefixes = {
   },
 }
 
-const RedditSortTimeBase = ({global, page_type, globalVarName, className, title}) => {
+const RedditSortTimeBase = ({global, page_type, globalVarName, ...selectionProps}) => {
   const selectedValue = global.state[globalVarName]
+  const sortIsHotOrControversial = ['top', 'controversial'].includes(global.state.sort)
   const queryParams = create_qparams()
   return (
-    <Selection className={className} title={title}>
+    <Selection {...selectionProps}>
       {
         types[page_type][globalVarName].map(type => {
           adjust_qparams_for_selection(page_type, queryParams, globalVarName, type)
+          let href = window.location.pathname+queryParams.toString()
+          let className = type === selectedValue ? 'selected': ''
+          if (globalVarName === 't' && ! sortIsHotOrControversial) {
+            href = null
+            className = 'disabled'
+          }
           return (
             <div key={type}>
-              <a className={type === selectedValue ? 'selected': ''}
-                 href={`${window.location.pathname}${queryParams.toString()}`}>{displayTypes[page_type][globalVarName][type] || displayPrefixes[page_type][globalVarName]+type}</a>
+              <a {...{className, href}}>{displayTypes[page_type][globalVarName][type] || displayPrefixes[page_type][globalVarName]+type}</a>
             </div>
           )
         })

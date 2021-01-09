@@ -36,14 +36,16 @@ const word_filter_help = (
   </>
 )
 
-
 const word_help = <Help title='Title/Body filter' content={word_filter_help}/>
 const flair_help = <Help title='Flair filter' content={word_filter_help}/>
 const url_help = <Help title='URL filter' content={word_filter_help}/>
-
 const as_of_help = <Help title='As of' content={<>
   <p>Shows comments as of a certain time stamp. To set the timestamp, click the <b>as of</b> link beneath a comment.</p>
 </>}/>
+const from_help = <Help title='From filter' content={<>
+  <p>The from filter is only available when <b>Sort by</b> is 'top' or 'controversial'.</p>
+</>
+}/>
 
 const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter,
                      category_type, category_title, category_unique_field, global,
@@ -177,7 +179,7 @@ const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter,
                   <>
                     <Content page_type={page_type} />
                     <RedditSortTimeBase page_type={page_type} globalVarName='sort' className='redditSort' title='Sort By'/>
-                    <RedditSortTimeBase page_type={page_type} globalVarName='t' className='redditTime' title='From'/>
+                    <RedditSortTimeBase page_type={page_type} globalVarName='t' className='redditTime' title='From' titleHelpModal={{content: from_help}}/>
                     <div>
                       <RemovedFilter page_type={page_type} />
                       {categoryFilter}
