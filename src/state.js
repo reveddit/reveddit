@@ -448,12 +448,6 @@ class GlobalState extends Container {
   tagsFilterIsUnset () {
     return Object.keys(this.state.tagsFilter).length === 0
   }
-  threadFiltersAreUnset() {
-    return (this.removedByFilterIsUnset() &&
-            this.state.removedFilter === removedFilter_types.all &&
-            this.tagsFilterIsUnset()
-           )
-  }
   resetFilters = (page_type, set = {}) => {
     const queryParams = create_qparams()
     adjust_qparams_for_selection(page_type, queryParams, 'removedFilter', removedFilter_types.all)

@@ -30,7 +30,6 @@ class Thread extends React.Component {
     }
     const linkToRestOfComments = `${PATH_STR_SUB}/${subreddit}/comments/${threadID}/${urlTitle}/`+queryParams.toString()
     const isSingleComment = (commentID !== undefined)
-    const threadFiltersAreUnset = this.props.global.threadFiltersAreUnset()
     const updateStateAndURL = this.props.global.selection_update
     let root = undefined
     const numComments = Object.keys(comments).length
@@ -72,9 +71,6 @@ class Thread extends React.Component {
           <>
             {isSingleComment &&
               <Notice message="you are viewing a single comment's thread." htmlLink={viewAllComments}/>
-            }
-            {! threadFiltersAreUnset &&
-              <Notice message="some comments may be hidden by selected filters." htmlLink={resetFilters}/>
             }
             {! showContext &&
               <Notice message="context is flattened." htmlLink={viewContext}/>
