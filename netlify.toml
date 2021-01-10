@@ -21,7 +21,7 @@
       img-src 'self' data: https:;
       manifest-src 'self';
       media-src 'self';
-      worker-src 'none';
+      worker-src 'self';
     '''
     X-Content-Type-Options = "nosniff"
     X-Frame-Options = "DENY"
