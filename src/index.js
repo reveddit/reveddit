@@ -10,6 +10,15 @@ import {PATH_STR_SUB, PATH_STR_USER,
 } from 'utils'
 import {ExtensionRedirect} from 'components/Misc'
 
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js').then(registration => {
+    }).catch(registrationError => {
+      console.log('SW registration failed: ', registrationError)
+    });
+  });
+}
+
 const User = lazy(() => import('pages/user'))
 const BlankUser = lazy(() => import('components/BlankUser'))
 const BlankSubreddit = lazy(() => import('components/BlankSubreddit'))

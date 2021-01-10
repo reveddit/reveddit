@@ -7,33 +7,39 @@ const TerserPlugin = require('terser-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const HtmlWebpackTagsPlugin = require('html-webpack-tags-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
-const { v4: uuid } = require('uuid')
-
-const hash = uuid()
+const WorkboxPlugin = require('workbox-webpack-plugin')
+const crypto = require('crypto')
+const fs = require('fs')
 
 const LOCALHOST = 'http://localhost'
 
-const injectScript = (scriptPath, omitPath) => {
-  return [
-    new HtmlWebpackTagsPlugin({
-      tags: [scriptPath],
-      useHash: true,
-      addHash: assetPath => {
-        const parts = assetPath.split('.')
-        parts[parts.length - 1] = `${hash}.${parts[parts.length - 1]}`
-        return parts.join('.').replace(omitPath, '')
-      }
-    }),
-    new CopyWebpackPlugin([
-      {
-        from: scriptPath,
-        to: `[name].${hash}.[ext]`
-      }
-    ])
-  ]
-}
+const createHashFromFile = filePath => new Promise(resolve => {
+  const hash = crypto.createHash('sha1');
+  fs.createReadStream(filePath).on('data', data => hash.update(data)).on('end', () => resolve(hash.digest('hex')));
+})
 
-module.exports = (env, argv) => {
+
+module.exports = async (env, argv) => {
+  const cssContentHash = await createHashFromFile('dist/main.css')
+  const injectScript = (scriptPath, omitPath) => {
+    return [
+      new HtmlWebpackTagsPlugin({
+        tags: [scriptPath],
+        useHash: true,
+        addHash: assetPath => {
+          const parts = assetPath.split('.')
+          parts[parts.length - 1] = `${cssContentHash}.${parts[parts.length - 1]}`
+          return parts.join('.').replace(omitPath, '')
+        }
+      }),
+      new CopyWebpackPlugin([
+        {
+          from: scriptPath,
+          to: `[name].${cssContentHash}.[ext]`
+        }
+      ])
+    ]
+  }
   const IS_PRODUCTION = argv.mode === 'production'
 
   let flask_host = 'https://rviewit.com/api/'
@@ -53,8 +59,8 @@ module.exports = (env, argv) => {
         disableDotRule: true
       }
     },
-    devtool: IS_PRODUCTION ? 'source-map' : 'cheap-module-eval-source-map',
-    output: {sourceMapFilename: '[file].map', publicPath: '/', filename: `[name].${hash}.js`},
+    devtool: IS_PRODUCTION ? 'source-map' : false,
+    output: {sourceMapFilename: '[file].map', publicPath: '/', filename: `[name].[contenthash].js`},
     module: {
       rules: [
         {
@@ -93,10 +99,28 @@ module.exports = (env, argv) => {
       new HtmlWebpackPlugin({
         template: path.resolve(__dirname, 'src/index.html')
       }),
-      ...injectScript('dist/main.css', 'dist/')
+        ...injectScript('dist/main.css', 'dist/'),
+      new WorkboxPlugin.GenerateSW({
+        // these options encourage the ServiceWorkers to get in there fast
+        // and not allow any straggling "old" SWs to hang around
+        clientsClaim: true,
+        skipWaiting: true,
+        ...(! IS_PRODUCTION && {maximumFileSizeToCacheInBytes: 8*1024*1024}),
+      }),
     ],
     optimization: {
-      minimize: true,
+      moduleIds: 'deterministic',
+      runtimeChunk: 'single',
+      splitChunks: {
+       cacheGroups: {
+         vendor: {
+           test: /[\\/]node_modules[\\/]/,
+           name: 'vendors',
+           chunks: 'all',
+         },
+       },
+     },
+      minimize: IS_PRODUCTION,
       minimizer: [
         new TerserPlugin({
           terserOptions: {
@@ -105,7 +129,6 @@ module.exports = (env, argv) => {
             },
           },
           extractComments: false,
-          sourceMap: true
         })
       ]
     }
