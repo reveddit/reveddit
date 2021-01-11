@@ -1,5 +1,5 @@
 import {
-  getPostsBySubredditOrDomain as pushshiftGetPostsBySubredditOrDomain
+  getPostsBySubredditOrDomain as pushshiftGetPostsBySubredditOrDomain,
 } from 'api/pushshift'
 import { getRemovedPostIDs } from 'api/removeddit'
 import { getPosts as getRedditPosts,
@@ -76,6 +76,7 @@ export const combinedGetItemsBySubredditOrDomain = (args) => {
     combinePromise = empty_arr_promise,
     subreddit_about_promise = empty_obj_promise,
     modlogs_promise = empty_modlogs_promise,
+    prev_last_id,
     pushshiftQueryFn,
     postProcessCombine_Fn, postProcessCombine_Args,
     postProcessCombine_ItemsArgName,
@@ -128,7 +129,18 @@ export const combinedGetItemsBySubredditOrDomain = (args) => {
         })
       })
     })
-    if (pushshiftItemsUnfiltered.length && numItemsQueried+pushshiftItemsUnfiltered.length < n) {
+    // need the prev_last_id condition b/c of the way
+    // querying pushshift by date works. must query by the timestamp, and to get all results,
+    // you end up at least including the last result from the previous set.
+    // (There may be two posts/comments made in the same second, one of which may have
+    // been cut off by the previous query's length limit.)
+    // Without this condition, the code infinitely queries pushshift when reaching the
+    // last set of results for the subreddit.
+    if (pushshiftItemsUnfiltered.length &&
+        ! (pushshiftItemsUnfiltered.length === 1 &&
+           prev_last_id && pushshiftItemsUnfiltered[0].id === prev_last_id
+          ) &&
+        (numItemsQueried+pushshiftItemsUnfiltered.length) < n) {
       const last = pushshiftItemsUnfiltered[pushshiftItemsUnfiltered.length - 1]
       // unset before_id and modlogs_promise: they only need to be used once.
       // if pushshift supports before_id in the future, duplicate checking above is not needed
@@ -138,6 +150,7 @@ export const combinedGetItemsBySubredditOrDomain = (args) => {
         numItemsQueried: numItemsQueried+pushshiftItemsUnfiltered.length,
         combinePromise: newCombinePromise, subreddit_about_promise,
         modlogs_promise: empty_modlogs_promise,
+        prev_last_id: last.id,
       })
     } else {
       return newCombinePromise
