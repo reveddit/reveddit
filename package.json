@@ -30,6 +30,7 @@
     "js-detect-incognito-private-browsing": "https://github.com/Maykonn/js-detect-incognito-private-browsing-paywall#v2.5.1",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
+    "react-iubenda-policy": "^0.1.1",
     "react-modal": "^3.8.2",
     "react-router": "^5.1.2",
     "react-router-dom": "^5.1.2",
@@ -37,6 +38,8 @@
     "stripe": "^7.4.0",
     "unstated": "^2.1.1",
     "whatwg-fetch": "^2.0.4",
+    "workbox-precaching": "^6.0.2",
+    "workbox-routing": "^6.0.2",
     "workbox-webpack-plugin": "^6.0.2"
   },
   "devDependencies": {

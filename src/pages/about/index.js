@@ -15,6 +15,7 @@ import Highlight from 'pages/common/Highlight'
 import { Link } from 'react-router-dom'
 import { InternalPage } from 'components/Misc'
 import {jumpToHash} from 'utils'
+import { NewWindowLink } from 'components/Misc'
 
 const filterDeletedComments = (comments) => {
   const result = []
@@ -187,7 +188,7 @@ export class About extends React.Component {
                 </React.Fragment>
             : ''}
           </ContentWithHeader>
-          <div className='sections'>
+          <Row>
             <ContentWithHeader header='News' half={true}>
               <ul className='news'>
                 {this.showNews()}
@@ -207,33 +208,22 @@ export class About extends React.Component {
                 <li><a href={PATH_STR_SUB+'/worldnews/duplicates/eb2hjw'}>other-discussions+</a></li>
               </ul>
             </ContentWithHeader>
-          </div>
-          <div className='sections'>
-            <ContentWithHeader header='Feedback' half={true}>
-              <ul>
-                <li><a href={www_reddit+'/r/reveddit/'}>/r/reveddit</a></li>
-                <li><a href='https://github.com/reveddit/reveddit'>github.com/reveddit/reveddit</a></li>
-              </ul>
-            </ContentWithHeader>
-            <ContentWithHeader header='Credits' half={true}>
-              <p>
-                Created by <a href='https://github.com/rhaksw/'>Rob Hawkins</a> using:
-              </p>
-              <ul>
-                <li><a href='https://github.com/JubbeArt/removeddit'>Removeddit</a> by Jesper Wrang</li>
-                <li><a href={www_reddit+'/r/pushshift/'}>Pushshift</a> by Jason Baumgartner</li>
-              </ul>
-            </ContentWithHeader>
-          </div>
-          <div className='sections'>
+          </Row>
+          <Row>
             <ContentWithHeader header='Donate' half={true}>
-              <p>re(ve)ddit is free and ad-free. You can support work like this with a <a className="pointer" onClick={this.donate}>donation</a>, feedback, or code fixes.</p>
+              <p>reveddit is free and ad-free. You can support work like this with a <a className="pointer" onClick={this.donate}>donation</a>, <Link to='contact'>feedback</Link>, or <NewWindowLink href='https://github.com/reveddit/reveddit'>pull requests</NewWindowLink>.</p>
               <p>Thank you!</p>
             </ContentWithHeader>
-          </div>
+          </Row>
+          <footer>
+            <Link to='contact'>contact</Link>
+            <Link to='contact#privacy'>privacy</Link>
+          </footer>
         </InternalPage>
     )
   }
 }
+
+export const Row = ({children}) => <div className='sections'>{children}</div>
 
 export default connect(About)

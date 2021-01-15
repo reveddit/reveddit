@@ -24,6 +24,7 @@ const BlankUser = lazy(() => import('components/BlankUser'))
 const BlankSubreddit = lazy(() => import('components/BlankSubreddit'))
 const About = lazy(() => import('pages/about'))
 const About_faq = lazy(() => import('pages/about/faq'))
+const About_contact = lazy(() => import('pages/about/contact'))
 const AddOns = lazy(() => import('pages/about/AddOns'))
 const Info = lazy(() => import('pages/info'))
 const SubredditPosts = lazy(() => import('pages/subreddit'))
@@ -59,6 +60,7 @@ const routes = (
   <RouteRedirectWithParams path='/api/info/' search={/\/api\/info/} replace='/info'/>
   <RouteRedirectWithParams path='/gallery/' search={/\/gallery/} replace=''/>
   <DefaultLayout path='/about/faq' component={About_faq} title='Frequently Asked Questions'/>
+  <DefaultLayout path='/about/contact' component={About_contact} title='Contact'/>
   <DefaultLayout path='/about' component={About} title='About reveddit'/>
   <DefaultLayout path='/add-ons/direct' component={ExtensionRedirect} />
   <DefaultLayout path='/add-ons' component={AddOns} />
