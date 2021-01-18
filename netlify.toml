@@ -11,14 +11,14 @@
   [headers.values]
     Content-Security-Policy = '''
       default-src 'self';
-      script-src 'self' 'sha256-dK06Ziaa0EW7eznMaLyuarFhVcusz+7eBUuwXo3gWD8=' https://js.stripe.com/v3/ https://www.google-analytics.com/analytics.js https://www.googletagmanager.com/gtag/js https://cdn.iubenda.com/iubenda.js;
+      script-src 'self' 'sha256-dK06Ziaa0EW7eznMaLyuarFhVcusz+7eBUuwXo3gWD8=' https://js.stripe.com/v3/ https://www.google-analytics.com https://ssl.google-analytics.com https://www.googletagmanager.com/gtag/js;
       style-src 'self';
       object-src 'none';
       base-uri 'self';
-      connect-src 'self' https://api.pushshift.io https://api.revddit.com https://oauth.reddit.com https://ored.reveddit.com https://rviewit.com https://www.reddit.com https://logs.mod.rcoronavirus.org https://removeddit.com;
+      connect-src 'self' https://api.pushshift.io https://api.revddit.com https://oauth.reddit.com https://ored.reveddit.com https://rviewit.com https://www.reddit.com https://logs.mod.rcoronavirus.org https://removeddit.com https://www.google-analytics.com;
       font-src 'self';
       frame-src 'self' https://js.stripe.com;
-      img-src 'self' data: https:;
+      img-src 'self' https://www.google-analytics.com data: https:;
       manifest-src 'self';
       media-src 'self';
       worker-src 'self';

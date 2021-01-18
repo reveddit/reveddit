@@ -36,15 +36,7 @@ const About_privacy = () => {
 }
 
 const Iubenda = ({ id, title, children }) => {
-    useEffect(() => {
-        var s = document.createElement("script");
-        let tag = document.getElementsByTagName("script")[0];
-        s.src="https://cdn.iubenda.com/iubenda.js";
-
-        tag.parentNode.insertBefore(s,tag);
-    }, []);
-
-    return <a href={`https://www.iubenda.com/privacy-policy/${id}`} className="iubenda-nostyle iubenda-embed" title={title}>{children}</a>
+    return <a target='_blank' href={`https://www.iubenda.com/privacy-policy/${id}`} title={title}>{children}</a>
 }
 
 export default About_privacy
