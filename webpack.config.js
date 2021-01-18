@@ -109,17 +109,6 @@ module.exports = async (env, argv) => {
       }),
     ],
     optimization: {
-      moduleIds: 'deterministic',
-      runtimeChunk: 'single',
-      splitChunks: {
-       cacheGroups: {
-         vendor: {
-           test: /[\\/]node_modules[\\/]/,
-           name: 'vendors',
-           chunks: 'all',
-         },
-       },
-     },
       minimize: IS_PRODUCTION,
       minimizer: [
         new TerserPlugin({
