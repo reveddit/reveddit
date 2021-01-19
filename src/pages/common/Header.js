@@ -56,7 +56,8 @@ class Header extends React.Component {
     return (
       <form {...form_attributes} onSubmit={(e) => this.handleSubmit(e, value)}>
         <span className='subheading'>{display}</span>
-        <input type='text' {...text_input_actions}
+        <label htmlFor={item_type} className='hide-element'>{item_type}</label>
+        <input id={item_type} type='text' {...text_input_actions}
         name={path_type} placeholder={item_type}/>
         {path_suffix &&
           <span className='subheading'>{`/${path_suffix}/`}</span>

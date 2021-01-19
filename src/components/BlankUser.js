@@ -65,6 +65,7 @@ export default () => {
         Reveal reddit's removed content. Search by username, subreddit <a className='pointer' onClick={() => {setInput('r/'); setInputFocus()}}>(r/)</a>, link or domain:
       </div>
       <form id='user-form' onSubmit={handleSubmitUser}>
+        <label htmlFor='search' className='hide-element'>search</label>
         <input ref={inputRef} id='search' type='text' name='username' placeholder='user, r/sub or url' autoFocus='autoFocus'
           value={input} onChange={(e) => setInput(e.target.value)}/>
         <input type='submit' id='button_u' value='go' />

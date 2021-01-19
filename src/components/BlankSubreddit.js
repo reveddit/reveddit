@@ -20,7 +20,8 @@ export default ({is_comments_page = false}) => {
         Enter a subreddit to view removed content:
       </div>
       <form onSubmit={handleSubmitSub}>
-        <input type='text' name='subreddit' placeholder='subreddit' autoFocus='autoFocus'/>
+        <label htmlFor='subreddit' className='hide-element'>subreddit</label>
+        <input id='subreddit' type='text' name='subreddit' placeholder='subreddit' autoFocus='autoFocus'/>
         <input type='submit' id='button_r' value='go' />
       </form>
     </div>
