@@ -3,7 +3,6 @@ import { Route } from 'react-router-dom'
 import Modal from 'react-modal'
 import { connect } from 'state'
 import Header from 'pages/common/Header'
-import Donate from 'pages/modals/donate'
 import Welcome from 'pages/modals/Welcome'
 import Settings from 'pages/modals/Settings'
 import ActionHelp from 'pages/modals/ActionHelp'
@@ -42,8 +41,6 @@ const getContentForHash = (hash) => {
   switch (hash) {
     case 'welcome':
       return <Welcome/>
-    case 'donate':
-      return <Donate/>
     case 'settings':
       return <Settings/>
     case 'action_help':
@@ -71,7 +68,6 @@ class DefaultLayout extends React.Component {
     hash: ''
   }
   componentDidMount() {
-    document.getElementById('donate-ribbon').onclick = () => this.openGenericModal({hash: 'donate'})
     const hash = window.location.hash.replace('#', '')
     const content = getContentForHash(hash)
     if (content) {
