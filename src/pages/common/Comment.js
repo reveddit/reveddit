@@ -10,7 +10,7 @@ import Author from 'pages/common/Author'
 import { connect, hasClickedRemovedUserCommentContext, urlParamKeys } from 'state'
 import {AddUserParam} from 'data_processing/FindCommentViaAuthors'
 import {MessageMods} from 'components/Misc'
-import {www_reddit, old_reddit} from 'api/reddit'
+import { NewWindowLink } from 'components/Misc'
 import Flair from './Flair'
 import SubscribersCount from './SubscribersCount'
 import { UpdateButton } from 'pages/thread/Comment'
@@ -142,8 +142,8 @@ const Comment = (props) => {
               { parent_context ?
                 <>
                   <a href={parent_context+'?removedby=missing'}>reveddit-parent</a>
-                  <a href={www_reddit+parent_context}>reddit-parent</a>
-                  <a href={www_reddit+permalink+'?context=1'}>reddit-permalink</a>
+                  <NewWindowLink reddit={parent_context}>reddit-parent</NewWindowLink>
+                  <NewWindowLink reddit={permalink+'?context=1'}>reddit-permalink</NewWindowLink>
                 </>
                 :
                   <a href={permalink+'?'+contextParamStr+'#'+name}
@@ -158,7 +158,7 @@ const Comment = (props) => {
                 </>
               }
               {! after_before && <UpdateButton post={{name: link_id, author: link_author}} removed={removed} author={author}/>}
-              <a href={old_reddit+permalink+'?context=3'}>reddit</a>
+              <NewWindowLink old={true} reddit={permalink+'?context=3'}>reddit</NewWindowLink>
               { directlink && <a href={directlink}>directlink</a>}
               { ! parent_context &&
                 <MessageMods {...props}/>

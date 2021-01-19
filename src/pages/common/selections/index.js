@@ -14,7 +14,7 @@ import MinMaxFilters from './MinMaxFilters'
 import TagsFilter from './TagsFilter'
 import Selfposts from './Selfposts'
 import { SimpleURLSearchParams } from 'utils'
-import {www_reddit} from 'api/reddit'
+import { NewWindowLink } from 'components/Misc'
 import { QuestionMarkModal, Help } from 'components/Misc'
 
 const UpvoteRemovalRateHistory = lazy(() => import('pages/common/selections/UpvoteRemovalRateHistory'))
@@ -32,7 +32,7 @@ const word_filter_help = (
       <li>".": match anything (regex)</li>
       <li>"this|that": match EITHER this OR that (regex)</li>
     </ul>
-    <p><a target='_blank' href={www_reddit+'/jh52dn'}>more info</a></p>
+    <p><NewWindowLink reddit={'/jh52dn'}>more info</NewWindowLink></p>
   </>
 )
 

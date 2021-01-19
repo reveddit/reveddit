@@ -5,7 +5,7 @@ import { markdownToHTML, commentIsRemoved,
 import { connect } from 'state'
 import Notice from 'pages/common/Notice'
 import FindCommentViaAuthors from 'data_processing/FindCommentViaAuthors'
-import {www_reddit} from 'api/reddit'
+import { NewWindowLink } from 'components/Misc'
 import {LabelWithModal} from 'pages/common/RemovedBy'
 import {QuestionMark} from 'pages/common/svg'
 
@@ -48,7 +48,7 @@ const CommentBody = (props) => {
         if (commentIsMissingInThread(props)) {
           if (! get(notices.missing, false)) {
             actionDescription = <Notice className='missing' title='missing'
-              message={<div>Due to a <a target='_blank' href={www_reddit+'/gwzbv0'}>rare bug in reddit</a>, this comment is missing in its thread. Click the reddit-parent link below to confirm this comment does not appear.</div>}
+              message={<div>Due to a <NewWindowLink reddit={'/gwzbv0'}>rare bug in reddit</NewWindowLink>, this comment is missing in its thread. Click the reddit-parent link below to confirm this comment does not appear.</div>}
               dismissFn={() => dismiss('missing')}/>
           }
         } else if (commentIsOrphaned(props) && ! get(notices.orphaned, false)) {

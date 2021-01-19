@@ -3,7 +3,7 @@ import { connect } from 'state'
 import BlankUser from 'components/BlankUser'
 import Comment from 'pages/common/Comment'
 import Time from 'pages/common/Time'
-import { getComments, www_reddit } from 'api/reddit'
+import { getComments } from 'api/reddit'
 import { getWhatPeopleSay } from 'api/reveddit'
 import { getCommentsByID as getPushshiftComments } from 'api/pushshift'
 import { itemIsRemovedOrDeleted, SimpleURLSearchParams, makeDonateVisible,
@@ -40,50 +40,50 @@ export const ContentWithHeader = ({header, children, half, id}) => {
   )
 }
 
-const NewsItem = ({href, to, title, created_utc}) => {
-  const link = href ? <a href={href}>{title}</a> : <Link to={to}>{title}</Link>
+const NewsItem = ({to, title, created_utc, ...props}) => {
+  const link = (props.href || props.reddit) ? <NewWindowLink {...props}>{title}</NewWindowLink> : <Link to={to}>{title}</Link>
   return <li>{link}
     <ul><li><Time created_utc={created_utc}/></li></ul></li>
 }
 
 const news = [
-  {href:`${www_reddit}/ki88o3/`,
+  {reddit:'/ki88o3/',
    title:'Author buttons and filters',
    created_utc:'1608653464'},
-  {href:`${www_reddit}/kfdaj7/`,
+  {reddit:'/kfdaj7/',
    title:'Top removed content per subreddit',
    created_utc:'1608262786'},
-  {href:`${www_reddit}/r/RethinkReddit`,
+  {reddit:'/r/RethinkReddit',
    title:'r/RethinkReddit',
    created_utc:'1602822760'},
-  {href:`${www_reddit}/hq7a8s/`,
+  {reddit:'/hq7a8s/',
    title:'Showing archive delay',
    created_utc:'1594608021'},
-  {href:`/r/all/missing-comments/`,
+  {to:`/r/all/missing-comments/`,
    title:'tracking missing comments',
    created_utc:'1591339363'},
-  {href:`${www_reddit}/gdaj40/`,
+  {reddit:'/gdaj40/',
    title:'added public mod logs + other updates',
    created_utc:'1588594602'},
-  {href:`${www_reddit}/estw67/`,
+  {reddit:'/estw67/',
    title:'random user, collapsed comments, xposts',
    created_utc:'1579789966'},
   {to:'/add-ons/',
    title:'real-time notifier extension',
    created_utc:'1576163308'},
-  {href:`${www_reddit}/e1wsqy/`,
+  {reddit:'/e1wsqy/',
    title:'revddit.com -> www.reveddit.com',
    created_utc:'1574768321'},
-  {href:`${www_reddit}/db5hfm/`,
+  {reddit:'/db5hfm/',
    title:'tip: /y and /v aliases for /user and /r',
    created_utc:'1569812523'},
-  {href:`${www_reddit}/r/shortcuts/comments/ct64s6/is_it_possible_to_modify_a_copied_link/exkas2j/?context:3`,
+  {reddit:'/r/shortcuts/comments/ct64s6/is_it_possible_to_modify_a_copied_link/exkas2j/?context=3',
    title:'reveddit shortcut for iOS',
    created_utc:'1566381957'},
-  {href:`${www_reddit}/clwnxg/`,
+  {reddit:'/clwnxg/',
    title:'reveddit linker extension',
    created_utc:'1564927561'},
-  {href:`${www_reddit}/9n9l45/`,
+  {reddit:'/9n9l45/',
    title:'site launch',
    created_utc:'1539261445'},
 ]

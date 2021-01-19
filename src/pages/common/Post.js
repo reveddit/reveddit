@@ -10,7 +10,7 @@ import Author from 'pages/common/Author'
 import { NOT_REMOVED } from 'pages/common/RemovedBy'
 import { connect } from 'state'
 import {MessageMods} from 'components/Misc'
-import {www_reddit} from 'api/reddit'
+import { NewWindowLink } from 'components/Misc'
 import Flair from './Flair'
 import SubscribersCount from './SubscribersCount'
 
@@ -113,7 +113,7 @@ class Post extends React.Component {
           <div className='total-comments post-links'>
             <QuarantinedLabel {...props}/>
             <a href={convertPathSub(props.permalink)} className='nowrap'>{props.num_comments} comments</a>
-            <a href={www_reddit+props.permalink}>reddit</a>
+            <NewWindowLink reddit={props.permalink}>reddit</NewWindowLink>
               <a href={`${rev_subreddit}/duplicates/${props.id}`}>other-discussions{props.num_crossposts ? ` (${props.num_crossposts}+)`:''}</a>
             { directlink && <a href={directlink}>directlink</a>}
             <MessageMods {...props}/>

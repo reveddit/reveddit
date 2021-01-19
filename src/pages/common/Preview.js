@@ -1,7 +1,7 @@
 import React from 'react'
 import Time from 'pages/common/Time'
 import { prettyScore, roundToX, replaceAmpGTLT } from 'utils'
-import { www_reddit } from 'api/reddit'
+import { NewWindowLink } from 'components/Misc'
 import { QuestionMarkModal, Help } from 'components/Misc'
 import { urr_help } from 'pages/common/selections/UpvoteRemovalRateHistory'
 
@@ -52,7 +52,7 @@ const Preview = ({
         {periodUrl ?
           <div className='links'>
             <a className='spaceRightLarge' href={link_path}>{link_text}</a>
-            <a className='spaceRightLarge' href={www_reddit+link_path}>reddit</a>
+            <NewWindowLink className='spaceRightLarge' reddit={link_path}>reddit</NewWindowLink>
             <a href={periodUrl}>period</a> <QuestionMarkModal modalContent={{content: period_help}} wh='15' />
           </div>
           : null

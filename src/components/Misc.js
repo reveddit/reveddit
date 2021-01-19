@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react'
-import {www_reddit} from 'api/reddit'
+import {www_reddit, old_reddit} from 'api/reddit'
 import { QuestionMark } from 'pages/common/svg'
 import ModalContext from 'contexts/modal'
 import Bowser from 'bowser'
@@ -32,8 +32,19 @@ export const RedditOrLocalLink = ({children, reddit, to}) => {
   return null
 }
 
-export const NewWindowLink = ({children, reddit, ...props}) => {
-  return <a href={reddit ? www_reddit+reddit : props.href} target='_blank'  {...props}>{children}</a>
+export const NewWindowLink = ({children, reddit, old=false, ...props}) => {
+  let href
+  if (reddit) {
+    if (! old) {
+      href = www_reddit
+    } else {
+      href = old_reddit
+    }
+    href += reddit
+  } else {
+    href = props.href
+  }
+  return <a href={href} target='_blank' rel='noopener' {...props}>{children}</a>
 }
 
 export const LinkWithCloseModal = ({children, to}) => {
@@ -80,8 +91,8 @@ export const Spin = ({width}) => {
 
 export const MessageMods = ({permalink, subreddit}) => {
   const mods_message_body = '\n\n\n'+www_reddit+permalink
-  const mods_link = www_reddit+'/message/compose?to=/r/'+subreddit+'&message='+encodeURI(mods_message_body)
-  return <a href={mods_link} target="_blank">message mods</a>
+  const mods_link = '/message/compose?to=/r/'+subreddit+'&message='+encodeURI(mods_message_body)
+  return <NewWindowLink reddit={mods_link} target="_blank">message mods</NewWindowLink>
 }
 
 //modalContent should be either {content: <>abc</>} or {hash: 'abc'}

@@ -182,7 +182,7 @@ function getItems (user, kind, global, sort, before = '', after = '', time, limi
           } else {
             return userPageHTML(user)
             .then(html_result => {
-              const status = `You can also check account status at <a href="${www_reddit}/user/${user}">/u/${user}</a> or <a href="${www_reddit}/r/ShadowBan">/r/ShadowBan</a>.`
+              const status = `You can also check account status at <a href="${www_reddit}/user/${user}" rel="noopener">/u/${user}</a> or <a href="${www_reddit}/r/ShadowBan" rel="noopener">/r/ShadowBan</a>.`
               if ('error' in html_result) {
                 console.error(html_result.error)
                 global.setError(Error(''), {userIssueDescription: deleted_shadowbanned_notexist+verify+status})

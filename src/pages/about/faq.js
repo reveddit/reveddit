@@ -1,5 +1,4 @@
 import React from 'react'
-import { www_reddit } from 'api/reddit'
 import { InternalPage, NewWindowLink } from 'components/Misc'
 import {ExtensionLink} from 'components/Misc'
 import {ContentWithHeader} from 'pages/about'
