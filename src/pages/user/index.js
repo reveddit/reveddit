@@ -16,7 +16,7 @@ import { Spin } from 'components/Misc'
 import { NewWindowLink } from 'components/Misc'
 
 const hidePinPostNotice_var = 'hidePinPostNotice'
-const pinPostLink = 'https://old.reddit.com/user/me/submit?title=See+which+comments+of+yours+have+been+removed&url=https%3A%2F%2Fwww.reveddit.com%2Fabout%2F'
+const pinPostLink = '/user/me/submit?title=See+which+comments+of+yours+have+been+removed&url=https%3A%2F%2Fwww.reveddit.com%2Fabout%2F'
 
 const dismiss = () => {
   put(hidePinPostNotice_var, true)
@@ -98,7 +98,7 @@ const User = ({match, global, page_type, viewableItems, selections, summary, not
     }/>
   } else if (! get(hidePinPostNotice_var, false)) {
     instructionalNotice = <Notice title='share reveddit'
-      htmlLink={<div><a target='_blank' href={pinPostLink} className="pointer" onClick={() => dismiss()}>create a post</a>, then select <a className='pointer' onClick={() => modal.openModal({content: <img style={{marginTop: '20px'}}src='/images/pin-profile.png'/>})}>pin to profile</a></div>}/>
+      htmlLink={<div><NewWindowLink old={true} reddit={pinPostLink} onClick={() => dismiss()}>create a post</NewWindowLink>, then select <a className='pointer' onClick={() => modal.openModal({content: <img style={{marginTop: '20px'}}src='/images/pin-profile.png'/>})}>pin to profile</a></div>}/>
   }
 
   return (
