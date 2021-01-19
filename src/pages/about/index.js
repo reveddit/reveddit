@@ -97,9 +97,6 @@ export class About extends React.Component {
   changeView = (index) => {
     this.setState({singleDisplayIndex: index})
   }
-  donate = () => {
-    this.props.openGenericModal({hash:'donate'})
-  }
   showNews = () => {
     return <>
       {this.state.showAllNews ? news.map(n => <NewsItem key={n.created_utc} {...n}/>) :
