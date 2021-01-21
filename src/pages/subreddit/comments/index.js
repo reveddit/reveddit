@@ -11,6 +11,7 @@ import { reversible, getUrlWithTimestamp, copyLink, PATH_STR_USER } from 'utils'
 import Highlight from 'pages/common/Highlight'
 import Pagination from 'components/Pagination'
 import {byScore, byDate, byNumComments, bySubredditSubscribers} from 'data_processing/info'
+import {useSort} from 'hooks/sort'
 
 const byDateObserved = (a, b) => {
   return (b.observed_utc - a.observed_utc)
@@ -28,70 +29,62 @@ const byControversiality2 = (a, b) => {
   let b_score_abs = Math.abs(b.score)
   return (b.controversiality - a.controversiality) || (a_score_abs - b_score_abs)
 }
+const sortFnMap = {
+  [localSort_types.date]: byDate,
+  [localSort_types.date_observed]: byDateObserved,
+  [localSort_types.score]: byScore,
+  [localSort_types.controversiality1]: byControversiality1,
+  [localSort_types.controversiality2]: byControversiality2,
+  [localSort_types.comment_length]: byCommentLength,
+  [localSort_types.num_comments]: byNumComments,
+  [localSort_types.subreddit_subscribers]: bySubredditSubscribers,
+}
 
-class SubredditComments extends React.Component {
-  render () {
-    const { subreddit } = this.props.match.params
-    const { page_type, viewableItems, selections, summary,
-            notShownMsg, archiveDelayMsg,
-          } = this.props
-    const {items, loading, localSort, localSortReverse, hasVisitedUserPage,
-           paginationMeta, oldestTimestamp, newestTimestamp,
-          } = this.props.global.state
-    const noItemsFound = items.length === 0 && ! loading
-    const items_sorted = viewableItems
-    if (localSort === localSort_types.date) {
-      items_sorted.sort( reversible(byDate, localSortReverse) )
-    } else if (localSort === localSort_types.date_observed) {
-      items_sorted.sort( reversible(byDateObserved, localSortReverse) )
-    } else if (localSort === localSort_types.score) {
-      items_sorted.sort( reversible(byScore, localSortReverse) )
-    } else if (localSort === localSort_types.controversiality1) {
-      items_sorted.sort( reversible(byControversiality1, localSortReverse) )
-    } else if (localSort === localSort_types.controversiality2) {
-      items_sorted.sort( reversible(byControversiality2, localSortReverse) )
-    } else if (localSort === localSort_types.comment_length) {
-      items_sorted.sort( reversible(byCommentLength, localSortReverse) )
-    } else if (localSort === localSort_types.num_comments) {
-      items_sorted.sort( reversible(byNumComments, localSortReverse) )
-    } else if (localSort === localSort_types.subreddit_subscribers) {
-      items_sorted.sort( reversible(bySubredditSubscribers, localSortReverse) )
-    }
-    const pagination = <Pagination oldestTimestamp={oldestTimestamp} newestTimestamp={newestTimestamp}
-                                   paginationMeta={paginationMeta} bottom={true} subreddit={subreddit}/>
+const SubredditComments = (props) => {
+  const { subreddit } = props.match.params
+  const { page_type, viewableItems, selections, summary,
+          notShownMsg, archiveDelayMsg, global,
+        } = props
+  const {items, loading, localSort, hasVisitedUserPage,
+         paginationMeta, oldestTimestamp, newestTimestamp,
+        } = global.state
+  const noItemsFound = items.length === 0 && ! loading
+  useSort(global, viewableItems, sortFnMap[localSort])
 
-    return (
-      <React.Fragment>
-        <div className="revddit-sharing">
-          <a href={getUrlWithTimestamp()} onClick={copyLink}>copy sharelink</a>
+  const pagination = <Pagination oldestTimestamp={oldestTimestamp} newestTimestamp={newestTimestamp}
+                                 paginationMeta={paginationMeta} bottom={true} subreddit={subreddit}/>
+
+  return (
+    <React.Fragment>
+      <div className="revddit-sharing">
+        <a href={getUrlWithTimestamp()} onClick={copyLink}>copy sharelink</a>
+      </div>
+      {selections}
+      {summary}
+      {! hasVisitedUserPage &&
+        <div className='notice-with-link userpage-note'>
+          <div>{"Check if you have any removed comments."}</div>
+          <Link to={PATH_STR_USER+'/'}>view my removed comments</Link>
         </div>
-        {selections}
-        {summary}
-        {! hasVisitedUserPage &&
-          <div className='notice-with-link userpage-note'>
-            <div>{"Check if you have any removed comments."}</div>
-            <Link to={PATH_STR_USER+'/'}>view my removed comments</Link>
-          </div>
-        }
-        <Highlight/>
-        {archiveDelayMsg}
-        {notShownMsg}
-        {
-          noItemsFound ?
-          <p>No comments found</p> :
-          items_sorted.map(item => {
-            return <Comment
-              key={item.id}
-              {...item}
-              depth={0}
-              page_type={page_type}
-            />
-          })
-        }
-        {pagination}
-      </React.Fragment>
-    )
-  }
+      }
+      <Highlight/>
+      {archiveDelayMsg}
+      {notShownMsg}
+      {
+        noItemsFound ?
+        <p>No comments found</p> :
+        viewableItems.map(item => {
+          return <Comment
+            key={item.id}
+            {...item}
+            depth={0}
+            page_type={page_type}
+          />
+        })
+      }
+      {pagination}
+    </React.Fragment>
+  )
 }
 
 export default connect(withFetch(SubredditComments))
