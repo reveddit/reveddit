@@ -63,7 +63,7 @@ const CommentSection = (props) => {
           itemsLookup: commentsLookup, commentTree: fullCommentTree,
           categoryFilter_author, keywords, user_flair,
           threadPost, limitCommentDepth, loading, tagsFilter, exclude_tag,
-          thread_before,
+          thread_before, itemsSortedByDate,
         } = global.state
   const [showAllComments, setShowAllComments] = useState(false)
   const [showFilteredRootComments, setShowFilteredRootComments] = useState(false)
@@ -81,8 +81,8 @@ const CommentSection = (props) => {
   // b/c flattenTree modifies state by resetting comment.replies = [].
   // Modifying comment.replies like this is bad practice but it's not a big deal to recreate the comment tree
   // when ! showContext since it simplifies below code and is not a commonly used feature
-  let [commentTree] = createCommentTree(threadPost.id, root, commentsLookup)
-  
+  let commentTree = createCommentTree(threadPost.id, root, commentsLookup, itemsSortedByDate)
+
   if (context && focusCommentID && commentsLookup[focusCommentID]) {
     contextAncestors = commentsLookup[focusCommentID].ancestors
     filterFunctions.push((item) => (
