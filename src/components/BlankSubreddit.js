@@ -1,5 +1,6 @@
 import React from 'react'
 import {PATH_STR_SUB} from 'utils'
+import { create_qparams } from 'state'
 
 export default ({is_comments_page = false}) => {
   const handleSubmitSub = (e) => {
@@ -7,11 +8,18 @@ export default ({is_comments_page = false}) => {
     const data = new FormData(e.target)
     const val = data.get('subreddit').trim().toLowerCase()
     if (val !== '') {
+      const queryParams = create_qparams()
+      let path = `${PATH_STR_SUB}/${val}/`
       if (is_comments_page) {
-        window.location.href = `${PATH_STR_SUB}/${val}/comments/?removedby=collapsed,locked,automod-rem-mod-app,mod`
+        path += 'comments/?removedby=collapsed,locked,automod-rem-mod-app,mod'
       } else {
-        window.location.href = `${PATH_STR_SUB}/${val}/?localSort=num_comments`
+        if (queryParams.get('contentType') === 'top') {
+          path += 'top/'
+        } else {
+          path += '?localSort=num_comments'
+        }
       }
+      window.location.href = path
     }
   }
   return (

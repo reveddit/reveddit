@@ -1,5 +1,6 @@
 import React from 'react'
 import { InternalPage, NewWindowLink } from 'components/Misc'
+import { Link } from 'react-router-dom'
 import {ExtensionLink} from 'components/Misc'
 import {ContentWithHeader} from 'pages/about'
 import { unarchived_search_help_content, unarchived_search_button_word } from 'data_processing/FindCommentViaAuthors'
@@ -7,12 +8,12 @@ import { unarchived_search_help_content, unarchived_search_button_word } from 'd
 const About_faq = () => {
   return (
     <InternalPage>
-      <ContentWithHeader header='I receive a message when my comments are removed. Why do I need this?' id='why'>
+      <ContentWithHeader header='I receive a message when my comments are removed. Why do I need this?' id='message'>
         <p>
-          This is a common misunderstanding. Two things to know are,
+          Two things to know are,
         </p>
         <ol>
-          <li>In many cases, reddit sends no message about removals. A message can <i>optionally</i> be sent by subreddit moderators.</li>
+          <li>These messages can <i>optionally</i> be sent by subreddit moderators. In many cases, reddit sends no message about removals.</li>
           <li>Reddit shows you your removed comments as if they are not removed.</li>
         </ol>
         <p>
@@ -22,9 +23,14 @@ const About_faq = () => {
         <p>
           You can verify this by opening the above link in an incognito window or while logged out. Your comment will not appear.
         </p>
+        <p>
+          Note, content from banned subreddits does not appear on reveddit or reddit <i>user pages</i>. The <Link to='/r/?contentType=top'>subreddit top page</Link> may display some content.
+        </p>
       </ContentWithHeader>
       <ContentWithHeader header='How can I receive a message about removals?' id='extension'>
         <p><ExtensionLink/> notifies you when any of your content on reddit has been removed.</p>
+      </ContentWithHeader>
+      <ContentWithHeader header='Why does this site exist?' id='exist'>
         <p>
           Conversations are better when users <NewWindowLink reddit='/r/science/comments/duwdco/should_moderators_provide_removal_explanations/f79o1yr/'>receive feedback</NewWindowLink> about removed content.
         </p>
