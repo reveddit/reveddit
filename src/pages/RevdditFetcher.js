@@ -235,10 +235,6 @@ const filterMatches = (filterIsUnset, fn, exclude) => {
 export const withFetch = (WrappedComponent) =>
   class extends React.Component {
     state = {
-      items: [],
-      threadPost: {},
-      num_pages: 0,
-      loading: true,
       showAllCollapsed: false,
       showAllOrphaned: false,
     }
