@@ -7,7 +7,7 @@ import { createCommentTree } from 'data_processing/thread'
 import { itemIsActioned, not } from 'utils'
 import { Spin } from 'components/Misc'
 import { textMatch } from 'pages/RevdditFetcher'
-import { applySelectedSort } from './common'
+import { applySelectedSort, getSortFn } from './common'
 
 const MAX_COMMENTS_TO_SHOW = 200
 
@@ -63,7 +63,7 @@ const CommentSection = (props) => {
           itemsLookup: commentsLookup, commentTree: fullCommentTree,
           categoryFilter_author, keywords, user_flair,
           threadPost, limitCommentDepth, loading, tagsFilter, exclude_tag,
-          thread_before, itemsSortedByDate,
+          thread_before, items,
         } = global.state
   const [showAllComments, setShowAllComments] = useState(false)
   const [showFilteredRootComments, setShowFilteredRootComments] = useState(false)
@@ -81,7 +81,7 @@ const CommentSection = (props) => {
   // b/c flattenTree modifies state by resetting comment.replies = [].
   // Modifying comment.replies like this is bad practice but it's not a big deal to recreate the comment tree
   // when ! showContext since it simplifies below code and is not a commonly used feature
-  let commentTree = createCommentTree(threadPost.id, root, commentsLookup, itemsSortedByDate)
+  let commentTree = createCommentTree(threadPost.id, root, commentsLookup, items)
 
   if (context && focusCommentID && commentsLookup[focusCommentID]) {
     contextAncestors = commentsLookup[focusCommentID].ancestors

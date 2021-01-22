@@ -101,7 +101,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     const combinedComments = combinePushshiftAndRedditComments({}, redditComments, false, post_without_pushshift_data)
     const [commentTree, itemsSortedByDate] = createCommentTreeWithSort(threadID, root_commentID, combinedComments)
     await global.setState({threadPost: post_without_pushshift_data,
-                           items: Object.values(combinedComments),
+                           items: [...itemsSortedByDate],
                            itemsLookup: combinedComments,
                            commentTree, itemsSortedByDate,
                            initialFocusCommentID: commentID})
@@ -185,8 +185,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     const origRedditComments = {...redditComments}
     const early_combinedComments = combinePushshiftAndRedditComments(pushshiftComments, redditComments, false, reddit_post)
     const [early_commentTree, early_itemsSortedByDate] = createCommentTreeWithSort(threadID, root_commentID, early_combinedComments)
-
-    await global.setState({items: Object.values(early_combinedComments),
+    await global.setState({items: [...early_itemsSortedByDate],
                       itemsLookup: early_combinedComments,
                       commentTree: early_commentTree,
                       itemsSortedByDate: early_itemsSortedByDate,
@@ -231,7 +230,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
            }
   })
   const {combinedComments, commentTree, itemsSortedByDate, moderators, subreddit_lc, new_add_user} = await combined_comments_promise
-  const stateObj = {items: Object.values(combinedComments),
+  const stateObj = {items: [...itemsSortedByDate],
                     itemsLookup: combinedComments,
                     commentTree, itemsSortedByDate,
                     moderators: {[subreddit_lc]: moderators,

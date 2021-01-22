@@ -39,18 +39,22 @@ const sortCommentTree = (comments, sortFunction) => {
   })
 }
 
+const sortFnMap = {
+  [localSort_types.date]: byDate,
+  [localSort_types.num_comments]: byNumComments,
+  [localSort_types.score]: byScore,
+  [localSort_types.controversiality1]: byControversiality1,
+  [localSort_types.controversiality2]: byControversiality2,
+  [localSort_types.comment_length]: byCommentLength,
+}
+
+export const getSortFn = (localSort) => {
+  return sortFnMap[localSort]
+}
+
 export const applySelectedSort = (commentTree, localSort, localSortReverse) => {
-  if (localSort === localSort_types.date) {
-    sortCommentTree( commentTree, reversible(byDate, localSortReverse) )
-  } else if (localSort === localSort_types.num_comments) {
-    sortCommentTree( commentTree, reversible(byNumComments, localSortReverse) )
-  } else if (localSort === localSort_types.score) {
-    sortCommentTree( commentTree, reversible(byScore, localSortReverse) )
-  } else if (localSort === localSort_types.controversiality1) {
-    sortCommentTree( commentTree, reversible(byControversiality1, localSortReverse) )
-  } else if (localSort === localSort_types.controversiality2) {
-    sortCommentTree( commentTree, reversible(byControversiality2, localSortReverse) )
-  } else if (localSort === localSort_types.comment_length) {
-    sortCommentTree( commentTree, reversible(byCommentLength, localSortReverse) )
+  const sortFn = getSortFn(localSort)
+  if (sortFn) {
+    sortCommentTree( commentTree, reversible(sortFn, localSortReverse) )
   }
 }
