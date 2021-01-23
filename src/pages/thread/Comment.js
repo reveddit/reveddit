@@ -3,7 +3,7 @@ import { Link, withRouter } from 'react-router-dom'
 import { prettyScore, parse, SimpleURLSearchParams,
          convertPathSub, PATH_STR_SUB, validAuthor,
          jumpToCurrentHash_ifNoScroll, jumpToCurrentHash, jumpToHash,
-         copyToClipboard,
+         copyToClipboard, reversible,
 } from 'utils'
 import Time from 'pages/common/Time'
 import RemovedBy, {preserve_desc} from 'pages/common/RemovedBy'
@@ -16,7 +16,7 @@ import {AddUserItem, getUserCommentsForPost,
         addUserComments_and_updateURL,
 } from 'data_processing/FindCommentViaAuthors'
 import { QuestionMarkModal, Help, ExtensionLink } from 'components/Misc'
-import { applySelectedSort } from './common'
+import { getSortFn } from './common'
 
 const contextDefault = 3
 const MIN_COMMENT_DEPTH = 4
@@ -50,30 +50,30 @@ export const threadFiltersToReset = [
   'removedFilter', 'removedByFilter', 'keywords', 'tagsFilter',
 ]
 
-const Comment = (props) => {
+const Comment = withRouter(connect((props) => {
   const {
     global, history, //from HOC withRouter(connect(Comment))
-    page_type, ignoreContext, setShowSingleRoot, //from parent component
+    page_type, setShowSingleRoot, contextAncestors, focusCommentID, visibleComments, //from parent component
     id, parent_id, stickied, permalink, subreddit, link_id, score, created_utc, //from reddit comment data
     removed, deleted, locked, depth, //from reveddit post processing
-    contextAncestors, focusCommentID, ancestors, replies, replies_copy, //from reveddit post processing
+    ancestors, replies, //from reveddit post processing
   } = props
   let {author} = props
   const {showContext, limitCommentDepth, itemsLookup, threadPost,
          add_user, loading, localSort, localSortReverse,
         } = global.state
   const {selection_update: updateStateAndURL, context_update} = global
-
+  const name = `t1_${id}` //some older pushshift data does not have name
+  const visibleReplies = visibleComments[name] || []
   const [repliesMeta, setRepliesMeta] = useState({
     showHiddenReplies: false,
-    hideReplies: ! replies.length && replies_copy.length,
+    hideReplies: ! visibleReplies.length && replies.length,
   })
   const {showHiddenReplies, hideReplies} = repliesMeta
   const [displayBody, setDisplayBody] = useState(
     ! stickied ||
       contextAncestors[id] ||
       id === focusCommentID)
-  const name = `t1_${id}` //some older pushshift data does not have name
   const maxCommentDepth = getMaxCommentDepth()
   let even_odd = ''
   if (! removed && ! deleted) {
@@ -95,7 +95,7 @@ const Comment = (props) => {
   const permalink_with_hash = permalink_nohash+searchParams_nocontext+thisHash
   const Permalink = ({text, onClick}) =>
     <Link to={permalink_with_hash} onClick={(e) => {
-      context_update(0, props)
+      context_update(0, page_type, history)
       .then(onClick)
       .then(jumpToCurrentHash)
     }}>{text}</Link>
@@ -113,50 +113,50 @@ const Comment = (props) => {
   if (showContext) {
     const rest = {
       depth: depth + 1,
-      global,
-      history,
       page_type,
       focusCommentID,
       contextAncestors,
       setShowSingleRoot,
+      visibleComments,
     }
     const showReplies = (! limitCommentDepth || depth < maxCommentDepth)
     const continue_link = [<Permalink key='c' text='continue this thread⟶' onClick={() => setShowSingleRoot(true)}/>]
-    const createComment = (comment, ignoreContext) => <Comment key={[comment.id, comment.removedby, comment.replies.length.toString()].join('|')} {...comment} {...rest} ignoreContext={ignoreContext}/>
+    const createComment = (comment) => <Comment
+      key={[comment.id, comment.removedby, (visibleComments[comment.name] || []).length.toString()].join('|')}
+      {...comment} {...rest}/>
     let showingContinueLink = false
-    const getReplies_or_continueLink = (replies, sort = false, ignoreContext = false) => {
-      if (sort) {
-        applySelectedSort(replies, localSort, localSortReverse)
-      }
+    const getReplies_or_continueLink = (visibleReplies) => {
       if (showReplies) {
-        return replies.map(c => createComment(c, ignoreContext))
+        return visibleReplies.map(c => createComment(c))
       } else {
         showingContinueLink = true
         return continue_link
       }
     }
-    const getRepliesCopy = () => getReplies_or_continueLink(replies_copy, true, true)
+    const sortFn = getSortFn(localSort)
+    // [...replies] so that state is not modified
+    const getAllReplies = () => getReplies_or_continueLink([...replies].sort(reversible(sortFn, localSortReverse)))
     const ShowHiddenRepliesLink = ({num_replies_text}) =>
       <Button_noHref onClick={() => {
         setRepliesMeta({showHiddenReplies: true, hideReplies: false})
         jumpToHash(`#${replies_id}`)
       }}>▾ show hidden replies{num_replies_text}</Button_noHref>
-    if (replies_copy && replies_copy.length) {
-      num_replies_text = ' ('+replies_copy.length+')'
+    if (replies && replies.length) {
+      num_replies_text = ' ('+replies.length+')'
     }
     if (showHiddenReplies && ! hideReplies) {
-      replies_viewable = getRepliesCopy()
-    } else if (replies && replies.length && ! hideReplies) {
-      replies_viewable = getReplies_or_continueLink(replies)
+      replies_viewable = getAllReplies()
+    } else if (visibleReplies.length && ! hideReplies) {
+      replies_viewable = getReplies_or_continueLink(visibleReplies)
       if (! showingContinueLink) {
         const extra_key = id+'_extra_replies'
-        if (replies.length !== replies_copy.length) {
-          replies_viewable.push(<ShowHiddenRepliesLink key={extra_key} num_replies_text={' ('+(replies_copy.length - replies.length)+')'}/>)
+        if (visibleReplies.length !== replies.length) {
+          replies_viewable.push(<ShowHiddenRepliesLink key={extra_key} num_replies_text={' ('+(replies.length - visibleReplies.length)+')'}/>)
         }
       }
-    } else if ((replies_copy && replies_copy.length) || hideReplies) {
+    } else if ((replies && replies.length) || hideReplies) {
       replies_viewable = showHiddenReplies && ! hideReplies ?
-        getRepliesCopy()
+        getAllReplies()
         : showReplies ?
           <ShowHiddenRepliesLink num_replies_text={num_replies_text}/>
           : continue_link
@@ -207,7 +207,7 @@ const Comment = (props) => {
                     e.preventDefault()
                     finishPromise_then_jumpToHash(
                       insertParent(id, global)
-                      .then(() => context_update(0, props, parent_link))
+                      .then(() => context_update(0, page_type, history, parent_link))
                     )
                   }}>parent</a>}
                 />
@@ -219,7 +219,7 @@ const Comment = (props) => {
                         insertParent(id, global)
                         // parent_id will never be t3_ b/c context link is not rendered for topmost comments
                         .then(() => insertParent(parent_id.substr(3), global))
-                        .then(() => context_update(contextDefault, props, contextLink))
+                        .then(() => context_update(contextDefault, page_type, history, contextLink))
                       )
                     }}>context</a>}
                   />
@@ -254,7 +254,7 @@ const Comment = (props) => {
     </div>
   )
 
-}
+}))
 
 const finishPromise_then_jumpToHash = (promise) => {
   const y = window.scrollY
@@ -330,4 +330,4 @@ export const UpdateButton = connect(({global, post, removed, author}) => {
   )
 })
 
-export default withRouter(connect(Comment))
+export default Comment

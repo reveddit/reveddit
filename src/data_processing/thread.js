@@ -274,6 +274,8 @@ export const insertParent = (child_id, global) => {
         return ps_promise.then(combined => {
           const combinedComment = combined[parent_id]
           combinedComment.replies = [child]
+          combinedComment.ancestors = {}
+          addAncestor(child, parent_id)
           items.push(combinedComment)
           itemsLookup[parent_id] = combinedComment
           commentTree = [combinedComment]
@@ -285,6 +287,13 @@ export const insertParent = (child_id, global) => {
     })
   }
   return promise
+}
+
+const addAncestor = (descendant, ancestor_id) => {
+  descendant.ancestors[ancestor_id] = true
+  for (const reply of descendant.replies) {
+    addAncestor(reply, ancestor_id)
+  }
 }
 
 const maxDepth = 9
@@ -318,7 +327,7 @@ export const createCommentTree = (postID, root_commentID, commentsLookup, commen
   const commentTree = []
   for (const [i, comment] of commentsSortedByDate.entries()) {
     comment.by_date_i = i
-    comment.replies = [], comment.ancestors = {}, comment.replies_copy = []
+    comment.replies = [], comment.ancestors = {}
     const parentID = comment.parent_id
     const parentID_short = parentID.substr(3)
     if ((! root_commentID && parentID === 't3_'+postID) ||
@@ -333,7 +342,6 @@ export const createCommentTree = (postID, root_commentID, commentsLookup, commen
       comment.ancestors = {...commentsLookup[parentID_short].ancestors}
       comment.ancestors[parentID_short] = true
       commentsLookup[parentID_short].replies.push(comment)
-      commentsLookup[parentID_short].replies_copy.push(comment)
     }
   }
   return commentTree

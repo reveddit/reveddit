@@ -3,25 +3,22 @@ import Comment, { getMaxCommentDepth } from './Comment'
 import {connect, removedFilter_types, removedFilter_text} from 'state'
 import { NOT_REMOVED, REMOVAL_META, USER_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED } from 'pages/common/RemovedBy'
 import { itemIsOneOfSelectedActions, itemIsOneOfSelectedTags, filterSelectedActions } from 'data_processing/filters'
-import { createCommentTree } from 'data_processing/thread'
-import { itemIsActioned, not } from 'utils'
+import { itemIsActioned, not, reversible } from 'utils'
 import { Spin } from 'components/Misc'
 import { textMatch } from 'pages/RevdditFetcher'
-import { applySelectedSort, getSortFn } from './common'
+import { getSortFn } from './common'
 
 const MAX_COMMENTS_TO_SHOW = 200
 
-const flattenTree = (commentTree) => {
-  const comments = []
-  commentTree.forEach(comment => {
-    comments.push(comment, ...flattenTree(comment.replies))
-    comment.replies = []
-    comment.replies_copy = []
-  })
-  return comments
+const flattenTree = (rootFullID, visibleComments) => {
+  const flattenedComments = []
+  for (const comment of Object.values(visibleComments[rootFullID] || {})) {
+    flattenedComments.push(comment, ...flattenTree('t1_'+comment.id, visibleComments))
+  }
+  return flattenedComments
 }
 
-const filterCommentTree = (comments, filterFunction) => {
+const filterCommentTree = (comments, visibleComments, filterFunction) => {
   if (comments.length === 0) {
     return false
   }
@@ -31,12 +28,14 @@ const filterCommentTree = (comments, filterFunction) => {
   // Reverse for loop since we are removing stuff
   for (let i = comments.length - 1; i >= 0; i--) {
     const comment = comments[i]
-    const isRepliesOk = filterCommentTree(comment.replies, filterFunction)
+    const isRepliesOk = filterCommentTree(comment.replies, visibleComments, filterFunction)
     const isCommentOk = filterFunction(comment)
 
-    if (!isRepliesOk && !isCommentOk) {
-      comments.splice(i, 1)
-    } else {
+    if (isRepliesOk || isCommentOk) {
+      if (! visibleComments[comment.parent_id]) {
+        visibleComments[comment.parent_id] = []
+      }
+      visibleComments[comment.parent_id].push(comment)
       hasOkComment = true
     }
   }
@@ -60,7 +59,7 @@ const CommentSection = (props) => {
         } = props
   const { removedFilter, removedByFilter, exclude_action, localSort,
           localSortReverse, showContext, context,
-          itemsLookup: commentsLookup, commentTree: fullCommentTree,
+          itemsLookup: commentsLookup, commentTree,
           categoryFilter_author, keywords, user_flair,
           threadPost, limitCommentDepth, loading, tagsFilter, exclude_tag,
           thread_before, items,
@@ -68,6 +67,7 @@ const CommentSection = (props) => {
   const [showAllComments, setShowAllComments] = useState(false)
   const [showFilteredRootComments, setShowFilteredRootComments] = useState(false)
   const [showSingleRoot, setShowSingleRoot] = useState(false)
+  const [visibleComments, setVisibleComments] = useState({})
   const removedByFilterIsUnset = global.removedByFilterIsUnset()
   const tagsFilterIsUnset = global.tagsFilterIsUnset()
   let numRootCommentsMatchOriginalCount = true
@@ -75,14 +75,6 @@ const CommentSection = (props) => {
 
   let contextAncestors = {}
   const filterFunctions = []
-  // have to recreate the tree every time, even when ! showContext
-  // b/c creating it sets comment.replies and flattenTree resets comment.replies.
-  // In flat view, downtree results are lost in subsequent renders
-  // b/c flattenTree modifies state by resetting comment.replies = [].
-  // Modifying comment.replies like this is bad practice but it's not a big deal to recreate the comment tree
-  // when ! showContext since it simplifies below code and is not a commonly used feature
-  let commentTree = createCommentTree(threadPost.id, root, commentsLookup, items)
-
   if (context && focusCommentID && commentsLookup[focusCommentID]) {
     contextAncestors = commentsLookup[focusCommentID].ancestors
     filterFunctions.push((item) => (
@@ -91,10 +83,7 @@ const CommentSection = (props) => {
       item.ancestors[focusCommentID]
     ))
   }
-  if (! showContext) {
-    commentTree = flattenTree(commentTree)
-  }
-  const origRootComments = [...commentTree]
+  const origRootComments = root ? commentsLookup[root]: commentTree
   if (removedFilter === removedFilter_types.removed) {
     filterFunctions.push(itemIsActioned)
   } else if (removedFilter === removedFilter_types.not_removed) {
@@ -123,46 +112,78 @@ const CommentSection = (props) => {
   if (categoryFilter_author && categoryFilter_author !== 'all') {
     filterFunctions.push((item) => item.author == categoryFilter_author)
   }
-  filterCommentTree(commentTree, (item) => filterFunctions.every(f => f(item)))
-  if (showFilteredRootComments || (showSingleRoot && origRootComments.length === 1)) {
-    commentTree = origRootComments
-  }
-  applySelectedSort(commentTree, localSort, localSortReverse)
-  let comments_render = []
-  let status = ''
-  let numCommentsShown = 0
   const filters_str = [
     removedFilter,removedByFilter_str,categoryFilter_author,tagsFilter_str,
     keywords,user_flair,thread_before,focusCommentID,
     ...[showContext,limitCommentDepth,exclude_action,exclude_tag].map(x => x.toString()),
   ].join('|')
+  const sortVisibleComments = (visibleComments) => {
+    const sortFn = getSortFn(localSort)
+    for (const list of Object.values(visibleComments)) {
+      list.sort(reversible(sortFn, localSortReverse))
+    }
+  }
+  const rootFullID = root ? 't1_'+root : threadPost.name
+  useEffect(() => {
+    const visibleComments = {}
+    filterCommentTree(commentTree, visibleComments, (item) => filterFunctions.every(f => f(item)))
+    if (! showContext) {
+      visibleComments[rootFullID] = flattenTree(rootFullID, visibleComments)
+      if (root && commentsLookup[root]) {
+        visibleComments[rootFullID].push(commentsLookup[root])
+      }
+    }
+    sortVisibleComments(visibleComments)
+    setVisibleComments(visibleComments)
+  }, [filters_str, showContext, items.length, context, focusCommentID, root, Object.keys(contextAncestors).join()])
+
+  const rootComments = root && commentsLookup[root] ? [commentsLookup[root]] : visibleComments[threadPost.name] || []
+  useEffect(() => {
+    if (showFilteredRootComments || (showSingleRoot && origRootComments.length === 1)) {
+      const newRootComments = [...origRootComments]
+      sortVisibleComments({[rootFullID]: newRootComments})
+      visibleComments[rootFullID] = newRootComments
+      setVisibleComments({...visibleComments})
+    }
+  }, [showFilteredRootComments, showSingleRoot, origRootComments.length])
+  useEffect(() => {
+    // since filters effect includes a sort, only need to run this when not loading
+    if (! loading) {
+      sortVisibleComments(visibleComments)
+      setVisibleComments({...visibleComments})
+    }
+  }, [localSort, localSortReverse, loading, items.length])
+  let comments_render = []
+  let status = ''
+  let numCommentsShown = 0
+
   useEffect(() => {
     setShowFilteredRootComments(false)
   }, [filters_str])
-  if (commentTree.length) {
-    for (var i = 0; i < commentTree.length; i++) {
-      if (limitCommentDepth && numCommentsShown >= MAX_COMMENTS_TO_SHOW && ! showAllComments) {
-        comments_render.push(<div key="load-more"><a className='pointer' onClick={() => setShowAllComments(true)}>load more comments</a></div>)
-        break
-      }
-      const comment = commentTree[i]
-      numCommentsShown += countReplies(comment, getMaxCommentDepth(), limitCommentDepth)+1
-      // any attributes added below must also be added to thread/Comment.js
-      // in rest = {...}
-      comments_render.push(<Comment
-        key={[comment.id,comment.removedby || '',comment.replies.length.toString(),filters_str].join('|')}
-        {...comment}
-        depth={0}
-        page_type={page_type}
-        focusCommentID={focusCommentID}
-        contextAncestors={contextAncestors}
-        setShowSingleRoot={setShowSingleRoot}
-      />)
+  for (const comment of rootComments) {
+    if (limitCommentDepth && numCommentsShown >= MAX_COMMENTS_TO_SHOW && ! showAllComments) {
+      comments_render.push(<div key="load-more"><a className='pointer' onClick={() => setShowAllComments(true)}>load more comments</a></div>)
+      break
     }
-  } else if (removedFilter !== removedFilter_types.all) {
+    numCommentsShown += countReplies(comment, getMaxCommentDepth(), limitCommentDepth)+1
+    // any attributes added below must also be added to thread/Comment.js
+    // in rest = {...}
+    comments_render.push(<Comment
+      key={[comment.id,comment.removedby || '',comment.replies.length.toString(),filters_str].join('|')}
+      {...comment}
+      depth={0}
+      page_type={page_type}
+      focusCommentID={focusCommentID}
+      contextAncestors={contextAncestors}
+      setShowSingleRoot={setShowSingleRoot}
+      visibleComments={visibleComments}
+    />)
+  }
+  if (! rootComments.length && removedFilter !== removedFilter_types.all) {
     status = (<p>No {removedFilter_text[removedFilter]} comments found</p>)
   }
-  const numRepliesHiddenByFilters = origRootComments.length - commentTree.length
+  const numRepliesHiddenByFilters = origRootComments.length - rootComments.length
+
   if (numRepliesHiddenByFilters) {
     comments_render.push(
       <div key='show-all'>
@@ -171,7 +192,7 @@ const CommentSection = (props) => {
   }
   return (
     <>
-      {loading && ! commentTree.length &&
+      {loading && ! rootComments.length &&
         <Spin/>
       }
       <div className='threadComments'>
