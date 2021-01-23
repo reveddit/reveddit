@@ -135,7 +135,7 @@ const CommentSection = (props) => {
     }
     sortVisibleComments(visibleComments)
     setVisibleComments(visibleComments)
-  }, [filters_str, showContext, items.length, context, focusCommentID, root, Object.keys(contextAncestors).join()])
+  }, [filters_str, showContext, items.length, context, focusCommentID, root])
 
   const rootComments = root && commentsLookup[root] ? [commentsLookup[root]] : visibleComments[threadPost.name] || []
   useEffect(() => {
@@ -169,7 +169,7 @@ const CommentSection = (props) => {
     // any attributes added below must also be added to thread/Comment.js
     // in rest = {...}
     comments_render.push(<Comment
-      key={[comment.id,comment.removedby || '',comment.replies.length.toString(),filters_str].join('|')}
+      key={[comment.id,comment.removedby || '',(visibleComments[comment.name] || []).length.toString(),filters_str].join('|')}
       {...comment}
       depth={0}
       page_type={page_type}
