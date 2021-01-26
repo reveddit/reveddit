@@ -83,7 +83,7 @@ const CommentSection = (props) => {
       item.ancestors[focusCommentID]
     ))
   }
-  const origRootComments = root ? commentsLookup[root]: commentTree
+  const origRootComments = root ? commentsLookup[root] || []: commentTree
   if (removedFilter === removedFilter_types.removed) {
     filterFunctions.push(itemIsActioned)
   } else if (removedFilter === removedFilter_types.not_removed) {
