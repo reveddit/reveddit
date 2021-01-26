@@ -165,6 +165,9 @@ const CommentSection = (props) => {
       comments_render.push(<div key="load-more"><a className='pointer' onClick={() => setShowAllComments(true)}>load more comments</a></div>)
       break
     }
+    //countReplies could be,
+    //   - computed in a hook & adjusted to use visibleComments, or
+    //   - omitted by using react-window
     numCommentsShown += countReplies(comment, getMaxCommentDepth(), limitCommentDepth)+1
     // any attributes added below must also be added to thread/Comment.js
     // in rest = {...}

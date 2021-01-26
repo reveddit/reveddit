@@ -30,15 +30,6 @@ const byControversiality2 = (a, b) => {
       || (b.replies.length - a.replies.length) || (a_score_abs - b_score_abs)
 }
 
-const sortCommentTree = (comments, sortFunction) => {
-  comments.sort(sortFunction)
-  comments.forEach(comment => {
-    if (comment?.replies.length > 0) {
-      sortCommentTree(comment.replies, sortFunction)
-    }
-  })
-}
-
 const sortFnMap = {
   [localSort_types.date]: byDate,
   [localSort_types.num_comments]: byNumComments,
@@ -50,11 +41,4 @@ const sortFnMap = {
 
 export const getSortFn = (localSort) => {
   return sortFnMap[localSort]
-}
-
-export const applySelectedSort = (commentTree, localSort, localSortReverse) => {
-  const sortFn = getSortFn(localSort)
-  if (sortFn) {
-    sortCommentTree( commentTree, reversible(sortFn, localSortReverse) )
-  }
 }
