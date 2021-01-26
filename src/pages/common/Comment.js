@@ -91,7 +91,7 @@ const Comment = (props) => {
     rev_link_permalink_with_add_user = rev_link_permalink + '?' + add_user
   }
   const focusAuthorParam = urlParamKeys.categoryFilter_author+'='+author
-  const contextParamStr = ['context=3',...(add_user && [add_user]),focusAuthorParam].join('&')
+  const contextParamStr = ['context=3',...(add_user && [add_user])].join('&')
   return (
     <div id={name} className={classNames.join(' ')} data-fullname={name} data-created_utc={created_utc}>
       <div className='comment-head'>
