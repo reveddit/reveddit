@@ -150,7 +150,9 @@ const Comment = withRouter(connect((props) => {
       replies_viewable = getReplies_or_continueLink(visibleReplies)
       if (! showingContinueLink) {
         const extra_key = id+'_extra_replies'
-        if (visibleReplies.length !== replies.length) {
+        // must check visibleReplies.length < replies.length b/c replies can be empty when it is reset and repopulated in createCommentTree()
+        // temp fix, later will get rid of createCommentTree and replace with something that incrementally updates instead of recreating the tree
+        if (visibleReplies.length < replies.length) {
           replies_viewable.push(<ShowHiddenRepliesLink key={extra_key} num_replies_text={' ('+(replies.length - visibleReplies.length)+')'}/>)
         }
       }
