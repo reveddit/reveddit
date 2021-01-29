@@ -99,11 +99,11 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
       .catch(ignoreArchiveErrors)
     }
     const combinedComments = combinePushshiftAndRedditComments({}, redditComments, false, post_without_pushshift_data)
-    const [commentTree, itemsSortedByDate] = createCommentTreeWithSort(threadID, root_commentID, combinedComments)
+    const commentTree = createCommentTree(threadID, root_commentID, combinedComments)
     await global.setState({threadPost: post_without_pushshift_data,
-                           items: [...itemsSortedByDate],
+                           items: Object.values(combinedComments),
                            itemsLookup: combinedComments,
-                           commentTree, itemsSortedByDate,
+                           commentTree,
                            initialFocusCommentID: commentID})
     jumpToHash(window.location.hash)
     // Add 100 to threshhold b/c if post.num_comments <= numCommentsWithPost, first call could return
@@ -184,11 +184,10 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     }
     const origRedditComments = {...redditComments}
     const early_combinedComments = combinePushshiftAndRedditComments(pushshiftComments, redditComments, false, reddit_post)
-    const [early_commentTree, early_itemsSortedByDate] = createCommentTreeWithSort(threadID, root_commentID, early_combinedComments)
-    await global.setState({items: [...early_itemsSortedByDate],
+    const early_commentTree = createCommentTree(threadID, root_commentID, early_combinedComments)
+    await global.setState({items: Object.values(early_combinedComments),
                       itemsLookup: early_combinedComments,
                       commentTree: early_commentTree,
-                      itemsSortedByDate: early_itemsSortedByDate,
             initialFocusCommentID: commentID})
     const pass_userPages_to_getUserCommentsForPost = (userPages) => getUserCommentsForPost(reddit_post, early_combinedComments, userPages)
     const {user_comments, newIDs: remainingRedditIDs} = await Promise.all(add_user_promises)
@@ -210,13 +209,20 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     Object.values(remainingRedditComments).forEach(comment => {
       redditComments[comment.id] = comment
     })
+    // consider: change this logic to update combinedComments incrementally rather than recreating it from scratch
+    // currently, combinePushshiftAndRedditComments() is called 3x:
+    //     once with only reddit comments
+    //     once with all Pushshift comments and some reddit comments
+    //     once with all Pushshift comments and remaining reddit comments
+    // The third call, here, could simply update based on the remainingRedditComments
+    // To do that, would need to use early_combinedComments as the basis for a return value
     const combinedComments = combinePushshiftAndRedditComments(pushshiftComments, redditComments, false, reddit_post)
     addUserComments(user_comments, combinedComments)
     new_add_user = addUserComments_and_updateURL(user_comments_forURL, combinedComments, add_user)
     //todo: check if pushshiftComments has any parent_ids that are not in combinedComments
     //      and do a reddit query for these. Possibly query twice if the result has items whose parent IDs
     //      are not in combinedComments after adding the result of the first query
-    const [commentTree, itemsSortedByDate] = createCommentTreeWithSort(threadID, root_commentID, combinedComments)
+    const commentTree = createCommentTree(threadID, root_commentID, combinedComments, true)
     const missing = []
     markTreeMeta(missing, origRedditComments, moreComments, commentTree, reddit_post.num_comments, root_commentID, commentID)
     if (missing.length) {
@@ -224,30 +230,29 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
       submitMissingComments(missing)
     }
     const moderators = await moderators_promise
-    return {combinedComments, commentTree, itemsSortedByDate, moderators,
+    return {combinedComments, commentTree, moderators,
             subreddit_lc: reddit_post.subreddit.toLowerCase(),
             new_add_user,
            }
   })
-  const {combinedComments, commentTree, itemsSortedByDate, moderators, subreddit_lc, new_add_user} = await combined_comments_promise
-  const stateObj = {items: [...itemsSortedByDate],
+  const {combinedComments, commentTree, moderators, subreddit_lc, new_add_user} = await combined_comments_promise
+  const itemsSortedByDate = sortLookupByDate(combinedComments)
+  const stateObj = {items: itemsSortedByDate,
                     itemsLookup: combinedComments,
                     commentTree, itemsSortedByDate,
                     moderators: {[subreddit_lc]: moderators,
                     add_user: new_add_user || add_user}}
   //set success/failure after everything from the archive is returned,
   //and display comments (archive + reddit) and the reddit post before archive post data responds since that is not critical info
-  Promise.all([pushshift_post_promise, combined_comments_promise])
+  return Promise.all([pushshift_post_promise, combined_comments_promise])
   .then(() => {
     if (! archiveError) {
-      global.setSuccess()
+      return global.setSuccess(stateObj)
     } else {
-      global.setError('')
+      return global.setError('', stateObj)
     }
   })
-  return global.setState(stateObj)
 }
-
 
 export const insertParent = (child_id, global) => {
   let promise = Promise.resolve()
@@ -316,33 +321,44 @@ const markTreeMeta = (missing, origRedditComments, moreComments, comments, post_
   })
 }
 
-export const createCommentTreeWithSort = (postID, root_commentID, commentsLookup) => {
-    const itemsSortedByDate = Object.values(commentsLookup).sort(sortCreatedAsc)
-    const commentTree = createCommentTree(postID, root_commentID, commentsLookup, itemsSortedByDate)
-    return [commentTree, itemsSortedByDate]
-}
-
-// comments must be sorted by date so that ancestors are tracked properly
-export const createCommentTree = (postID, root_commentID, commentsLookup, commentsSortedByDate) => {
+const createCommentTree = (postID, root_commentID, commentsLookup, logErrors = false) => {
   const commentTree = []
-  for (const [i, comment] of commentsSortedByDate.entries()) {
-    comment.by_date_i = i
-    comment.replies = [], comment.ancestors = {}
+  for (const comment of Object.values(commentsLookup)) {
+    comment.replies = []
     const parentID = comment.parent_id
     const parentID_short = parentID.substr(3)
+    const parentComment = commentsLookup[parentID_short]
     if ((! root_commentID && parentID === 't3_'+postID) ||
          comment.id === root_commentID) {
+      //add root comment
       commentTree.push(comment)
-    } else if (commentsLookup[parentID_short] === undefined && ! root_commentID) {
+    } else if (parentComment === undefined && ! root_commentID && logErrors) {
       // don't show error if root_commentID is defined b/c in that case
       // the pushshift query may return results that can't be shown
       console.error('MISSING PARENT ID:', parentID, 'for comment', comment)
-      return
-    } else if (commentsLookup[parentID_short]) {
-      comment.ancestors = {...commentsLookup[parentID_short].ancestors}
-      comment.ancestors[parentID_short] = true
-      commentsLookup[parentID_short].replies.push(comment)
+    } else if (parentComment) {
+      if (! parentComment.replies) {
+        parentComment.replies = []
+      }
+      parentComment.replies.push(comment)
     }
   }
+  setAncestors(commentTree)
   return commentTree
+}
+
+const setAncestors = (commentTree, ancestors = {}) => {
+  for (const comment of commentTree) {
+    comment.ancestors = ancestors
+    const ancestorsOfChild = {[comment.id]: true, ...ancestors}
+    setAncestors(comment.replies, ancestorsOfChild)
+  }
+}
+
+const sortLookupByDate = (lookup) => {
+  const itemsSortedByDate = Object.values(lookup).sort(sortCreatedAsc)
+  for (const [i, comment] of itemsSortedByDate.entries()) {
+    comment.by_date_i = i
+  }
+  return itemsSortedByDate
 }
