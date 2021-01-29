@@ -1,4 +1,4 @@
-import React, {useRef} from 'react'
+import React, {useRef, useState, useEffect} from 'react'
 import {ifNumParseInt, isCommentID, validAuthor} from 'utils'
 import {connect, urlParamKeys, create_qparams_and_adjust, updateURL} from 'state'
 import { kindsReverse, queryUserPage } from 'api/reddit'
@@ -72,11 +72,15 @@ const FindCommentViaAuthors = (props) => {
   // if aug is null && ! loading, populate aug
   // after finishing search, update aug
   const augRef = useRef(null)
+  const [localLoading, setLocalLoading] = useState(false)
   let searchButton = ''
   const {itemsLookup, alreadySearchedAuthors, threadPost,
-         itemsSortedByDate, add_user, loading, authors:globalAuthors} = props.global.state
+         itemsSortedByDate, add_user, authors:globalAuthors,
+         loading: globalLoading,
+        } = props.global.state
   //TODO: check that distance updates properly
   //      -
+  const loading = localLoading || globalLoading
   if (! augRef.current && ! loading) {
     const [new_augRef, new_distanceRef] = getAddUserMeta(props, distanceRef)
     augRef.current = new_augRef
@@ -84,7 +88,7 @@ const FindCommentViaAuthors = (props) => {
   }
   const aug = augRef.current
   const search = async (targetComment) => {
-    await props.global.setLoading()
+    await setLocalLoading(true)
 
     //distance.current = distance_from_start
     //TODO: allow aug to allow a second query according to below
@@ -113,7 +117,8 @@ const FindCommentViaAuthors = (props) => {
     const [new_augRef, new_distanceRef] = getAddUserMeta(props, distanceRef)
     augRef.current = new_augRef
     distanceRef.current = new_distanceRef
-    props.global.setSuccess({alreadySearchedAuthors, add_user: new_add_user || add_user})
+    await setLocalLoading(false)
+    return props.global.setSuccess({alreadySearchedAuthors, add_user: new_add_user || add_user})
   }
   //states:
   //  loading && needToFindAuthors (! aug) => show spin

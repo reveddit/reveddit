@@ -149,8 +149,17 @@ const CommentSection = (props) => {
   useEffect(() => {
     // since filters effect includes a sort, only need to run this when not loading
     if (! loading) {
-      sortVisibleComments(visibleComments)
-      setVisibleComments({...visibleComments})
+      const newVisibleComments = {}
+      //have to rebuild the list b/c 'restored via user page' feature can result in new objects
+      //that are not present in the existing visibleComments
+      for (const [id, list] of Object.entries(visibleComments)) {
+        newVisibleComments[id] = []
+        for (const comment of list) {
+          newVisibleComments[id].push(commentsLookup[comment.id])
+        }
+      }
+      sortVisibleComments(newVisibleComments)
+      setVisibleComments(newVisibleComments)
     }
   }, [localSort, localSortReverse, loading, items.length])
   let comments_render = []
