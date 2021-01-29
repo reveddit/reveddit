@@ -135,7 +135,8 @@ const CommentSection = (props) => {
     }
     sortVisibleComments(visibleComments)
     setVisibleComments(visibleComments)
-  }, [filters_str, showContext, items.length, context, focusCommentID, root])
+    // append sort vars since the sort effect isn't working
+  }, [filters_str, showContext, items.length, context, focusCommentID, root, localSort, localSortReverse])
 
   const rootComments = root && commentsLookup[root] ? [commentsLookup[root]] : visibleComments[threadPost.name] || []
   useEffect(() => {
@@ -146,22 +147,23 @@ const CommentSection = (props) => {
       setVisibleComments({...visibleComments})
     }
   }, [showFilteredRootComments, showSingleRoot, origRootComments.length])
-  useEffect(() => {
-    // since filters effect includes a sort, only need to run this when not loading
-    if (! loading) {
-      const newVisibleComments = {}
-      //have to rebuild the list b/c 'restored via user page' feature can result in new objects
-      //that are not present in the existing visibleComments
-      for (const [id, list] of Object.entries(visibleComments)) {
-        newVisibleComments[id] = []
-        for (const comment of list) {
-          newVisibleComments[id].push(commentsLookup[comment.id])
-        }
-      }
-      sortVisibleComments(newVisibleComments)
-      setVisibleComments(newVisibleComments)
-    }
-  }, [localSort, localSortReverse, loading, items.length])
+  // This effect results in unsynced display, some items hidden on page load with no filters
+  // useEffect(() => {
+  //   // since filters effect includes a sort, only need to run this when not loading
+  //   if (! loading) {
+  //     const newVisibleComments = {}
+  //     //have to rebuild the list b/c 'restored via user page' feature can result in new objects
+  //     //that are not present in the existing visibleComments
+  //     for (const [id, list] of Object.entries(visibleComments)) {
+  //       newVisibleComments[id] = []
+  //       for (const comment of list) {
+  //         newVisibleComments[id].push(commentsLookup[comment.id])
+  //       }
+  //     }
+  //     sortVisibleComments(newVisibleComments)
+  //     setVisibleComments(newVisibleComments)
+  //   }
+  // }, [localSort, localSortReverse, loading, items.length])
   let comments_render = []
   let status = ''
   let numCommentsShown = 0
