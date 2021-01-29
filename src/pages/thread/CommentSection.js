@@ -18,24 +18,27 @@ const flattenTree = (rootFullID, visibleComments) => {
   return flattenedComments
 }
 
-const filterCommentTree = (comments, visibleComments, filterFunction) => {
-  if (comments.length === 0) {
+const filterCommentTree = (commentTree, commentsLookup, visibleComments, filterFunction) => {
+  if (commentTree.length === 0) {
     return false
   }
 
   let hasOkComment = false
 
   // Reverse for loop since we are removing stuff
-  for (let i = comments.length - 1; i >= 0; i--) {
-    const comment = comments[i]
-    const isRepliesOk = filterCommentTree(comment.replies, visibleComments, filterFunction)
+  for (let i = commentTree.length - 1; i >= 0; i--) {
+    const comment = commentTree[i]
+    const isRepliesOk = filterCommentTree(comment.replies, commentsLookup, visibleComments, filterFunction)
     const isCommentOk = filterFunction(comment)
 
     if (isRepliesOk || isCommentOk) {
       if (! visibleComments[comment.parent_id]) {
         visibleComments[comment.parent_id] = []
       }
-      visibleComments[comment.parent_id].push(comment)
+      //loading from commentsLookup because the object in commentTree
+      //is not in sync with commentsLookup for add_user-modified objects, even when just copying fields
+      //don't know how that's happening
+      visibleComments[comment.parent_id].push(commentsLookup[comment.id])
       hasOkComment = true
     }
   }
@@ -62,7 +65,7 @@ const CommentSection = (props) => {
           itemsLookup: commentsLookup, commentTree,
           categoryFilter_author, keywords, user_flair,
           threadPost, limitCommentDepth, loading, tagsFilter, exclude_tag,
-          thread_before, items,
+          thread_before, items, add_user,
         } = global.state
   const [showAllComments, setShowAllComments] = useState(false)
   const [showFilteredRootComments, setShowFilteredRootComments] = useState(false)
@@ -72,7 +75,6 @@ const CommentSection = (props) => {
   const tagsFilterIsUnset = global.tagsFilterIsUnset()
   let numRootCommentsMatchOriginalCount = true
   let removedByFilter_str = '', tagsFilter_str = ''
-
   let contextAncestors = {}
   const filterFunctions = []
   if (context && focusCommentID && commentsLookup[focusCommentID]) {
@@ -126,7 +128,7 @@ const CommentSection = (props) => {
   const rootFullID = root ? 't1_'+root : threadPost.name
   useEffect(() => {
     const visibleComments = {}
-    filterCommentTree(commentTree, visibleComments, (item) => filterFunctions.every(f => f(item)))
+    filterCommentTree(commentTree, commentsLookup, visibleComments, (item) => filterFunctions.every(f => f(item)))
     if (! showContext) {
       visibleComments[rootFullID] = flattenTree(rootFullID, visibleComments)
       if (root && commentsLookup[root]) {
@@ -136,9 +138,8 @@ const CommentSection = (props) => {
     sortVisibleComments(visibleComments)
     setVisibleComments(visibleComments)
     // append sort vars since the sort effect isn't working
-  }, [filters_str, showContext, items.length, context, focusCommentID, root, localSort, localSortReverse])
+  }, [filters_str, showContext, items.length, context, focusCommentID, root, localSort, localSortReverse, add_user])
 
-  const rootComments = root && commentsLookup[root] ? [commentsLookup[root]] : visibleComments[threadPost.name] || []
   useEffect(() => {
     if (showFilteredRootComments || (showSingleRoot && origRootComments.length === 1)) {
       const newRootComments = [...origRootComments]
@@ -147,7 +148,7 @@ const CommentSection = (props) => {
       setVisibleComments({...visibleComments})
     }
   }, [showFilteredRootComments, showSingleRoot, origRootComments.length])
-  // This effect results in unsynced display, some items hidden on page load with no filters
+  // //  This effect results in unsynced display, some items hidden on page load with no filters
   // useEffect(() => {
   //   // since filters effect includes a sort, only need to run this when not loading
   //   if (! loading) {
@@ -171,6 +172,7 @@ const CommentSection = (props) => {
   useEffect(() => {
     setShowFilteredRootComments(false)
   }, [filters_str])
+  const rootComments = root && commentsLookup[root] ? [commentsLookup[root]] : visibleComments[threadPost.name] || []
   for (const comment of rootComments) {
     if (limitCommentDepth && numCommentsShown >= MAX_COMMENTS_TO_SHOW && ! showAllComments) {
       comments_render.push(<div key="load-more"><a className='pointer' onClick={() => setShowAllComments(true)}>load more comments</a></div>)
