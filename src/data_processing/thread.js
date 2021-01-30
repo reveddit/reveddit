@@ -259,7 +259,8 @@ export const insertParent = (child_id, global) => {
   let { items, itemsLookup, commentTree, threadPost } = global.state
   const child = itemsLookup[child_id]
   const [parent_kind, parent_id] = child.parent_id.split('_')
-  if (! itemsLookup[parent_id] && parent_kind === 't1') {
+  const parent = itemsLookup[parent_id]
+  if (! parent && parent_kind === 't1') {
     promise = global.setLoading('')
     .then(() => getRedditComments({ids: [parent_id]}))
     .then(redditComments => {
@@ -290,6 +291,13 @@ export const insertParent = (child_id, global) => {
         return global.setError('')
       }
     })
+  } else if (! parent.replies.length) {
+    //need this condition b/c when add_user is set on page load,
+    //and top comment's context is clicked, the 2 ancestors load w/out children
+    //might be a bug in add_user code improperly modifying state
+    parent.replies.push(child)
+    addAncestor(child, parent_id)
+    return global.setSuccess()
   }
   return promise
 }
