@@ -147,7 +147,6 @@ const CommentSection = (props) => {
     }
     sortVisibleComments(visibleComments)
     setVisibleComments(visibleComments)
-    // append sort vars since the sort effect isn't working
   }, [filters_str, showContext, items.length, context, focusCommentID, root, add_user])
 
   useEffect(() => {

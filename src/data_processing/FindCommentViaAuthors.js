@@ -3,7 +3,8 @@ import {ifNumParseInt, isCommentID, validAuthor} from 'utils'
 import {connect, urlParamKeys, create_qparams_and_adjust, updateURL} from 'state'
 import { kindsReverse, queryUserPage } from 'api/reddit'
 import { Spin, QuestionMarkModal, Help, NewWindowLink } from 'components/Misc'
-import { copyFields, initializeComment } from 'data_processing/comments'
+import { copyFields, initializeComment, retrieveRedditComments_and_combineWithPushshiftComments } from 'data_processing/comments'
+import { createCommentTree } from 'data_processing/thread'
 import RefreshIcon from 'svg/refresh.svg'
 
 const MAX_AUTHORS_NEARBY_BY_DATE = 4
@@ -76,8 +77,9 @@ const FindCommentViaAuthors = (props) => {
   let searchButton = ''
   const {itemsLookup, alreadySearchedAuthors, threadPost,
          itemsSortedByDate, add_user, authors:globalAuthors,
-         loading: globalLoading,
+         loading: globalLoading, items,
         } = props.global.state
+  let {commentTree} = props.global.state
   //TODO: check that distance updates properly
   //      -
   const loading = localLoading || globalLoading
@@ -101,24 +103,29 @@ const FindCommentViaAuthors = (props) => {
     // is_mod LAST
 
     const {authors, promises} = aug.query()
-    const {user_comments, newIDs} = await Promise.all(promises).then(
+    const {user_comments, newComments} = await Promise.all(promises).then(
       getUserCommentsForPost.bind(null, threadPost, itemsLookup))
     Object.assign(alreadySearchedAuthors, authors)
-    //TODO: if there are newIDs:
-    //   combinePushshiftAndRedditComments - only the new ones
-    //   add the new ones to itemsLookup
-    //   createCommentTree - or make another version that only adds new items
-    if (Object.keys(newIDs).length) {
-      // console.log('comment tree must be updated')
-    }
+
     const new_add_user = addUserComments_and_updateURL(user_comments, itemsLookup, add_user)
+    if (Object.keys(newComments).length) {
+      const combinedComments = await retrieveRedditComments_and_combineWithPushshiftComments(newComments)
+      for (const comment of Object.values(combinedComments)) {
+        itemsLookup[comment.id] = comment
+        items.push(comment)
+      }
+      //itemsSortedByDate could also be resorted here to get accurate time summary
+      //but it's not worth the cost for large threads
+      const rootCommentID = window.location.pathname.split('/')[6]
+      commentTree = createCommentTree(threadPost.id, rootCommentID, itemsLookup)
+    }
     //TODO: If failed for clicked item, change messaging
     //         authors remain: "try again" or show % complete (# authors searched / total # authors)
     const [new_augRef, new_distanceRef] = getAddUserMeta(props, distanceRef)
     augRef.current = new_augRef
     distanceRef.current = new_distanceRef
     await setLocalLoading(false)
-    return props.global.setSuccess({alreadySearchedAuthors, add_user: new_add_user || add_user})
+    return props.global.setSuccess({alreadySearchedAuthors, add_user: new_add_user || add_user, commentTree})
   }
   //states:
   //  loading && needToFindAuthors (! aug) => show spin
@@ -313,10 +320,10 @@ export const addUserComments_and_updateURL = (user_comments, itemsLookup, add_us
 }
 
 //existingIDs: IDs already looked up via api/info
-//newIDs: IDs found via user page that do not appear in existingIDs
+//newComments: Comments found via user page that do not appear in existingIDs
 export const getUserCommentsForPost = (post, existingIDs, userPages) => {
   const user_comments = []
-  const newIDs = {}
+  const newComments = {}
   for (const userPage of userPages) {
     const comments = userPage.items || []
     let last_comment, first_comment
@@ -333,7 +340,7 @@ export const getUserCommentsForPost = (post, existingIDs, userPages) => {
         user_comments.push(c)
         this_user_this_link_comments.push(c)
         if (! (c.id in existingIDs)) {
-          newIDs[c.id] = 1
+          newComments[c.id] = c
         }
         if (! first_comment) {
           first_comment = c
@@ -350,7 +357,7 @@ export const getUserCommentsForPost = (post, existingIDs, userPages) => {
       }
     }
   }
-  return {user_comments, newIDs}
+  return {user_comments, newComments}
 }
 
 

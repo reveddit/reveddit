@@ -501,6 +501,7 @@ const GenericPostProcessor = connect((props) => {
       Object.keys(gs.removedByFilter).join(), gs.exclude_action,
       Object.keys(gs.tagsFilter).join(), gs.exclude_tag,
       gs.items.length,
+      gs.add_user,
     ).join()
   const visibleItemsWithoutCategoryFilter_meta = useMemo(() =>
     getVisibleItemsWithoutCategoryFilter(),

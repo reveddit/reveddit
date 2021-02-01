@@ -190,9 +190,9 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
                       commentTree: early_commentTree,
             initialFocusCommentID: commentID})
     const pass_userPages_to_getUserCommentsForPost = (userPages) => getUserCommentsForPost(reddit_post, early_combinedComments, userPages)
-    const {user_comments, newIDs: remainingRedditIDs} = await Promise.all(add_user_promises)
+    const {user_comments, newComments: remainingRedditIDs} = await Promise.all(add_user_promises)
       .then(pass_userPages_to_getUserCommentsForPost)
-    const {user_comments: user_comments_forURL, newIDs: remainingRedditIDs_2} = await Promise.all(add_user_promises_forURL)
+    const {user_comments: user_comments_forURL, newComments: remainingRedditIDs_2} = await Promise.all(add_user_promises_forURL)
       .then(pass_userPages_to_getUserCommentsForPost)
     Object.assign(remainingRedditIDs, remainingRedditIDs_2)
     Object.keys(pushshiftComments).forEach(id => {
@@ -331,7 +331,7 @@ const markTreeMeta = (missing, origRedditComments, moreComments, comments, post_
   })
 }
 
-const createCommentTree = (postID, root_commentID, commentsLookup, logErrors = false) => {
+export const createCommentTree = (postID, root_commentID, commentsLookup, logErrors = false) => {
   const commentTree = []
   for (const comment of Object.values(commentsLookup)) {
     comment.replies = []

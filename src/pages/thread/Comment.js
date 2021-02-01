@@ -303,7 +303,7 @@ const getLatestVersionOfComment = (global, post, author, itemsLookup = {}) => {
   global.setLoading('')
   const aui = new AddUserItem({author})
   return aui.query().then(userPage => getUserCommentsForPost(post, itemsLookup, [userPage]))
-  .then(({user_comments, newIDs}) => {
+  .then(({user_comments, newComments}) => {
     const new_add_user = addUserComments_and_updateURL(user_comments, itemsLookup, add_user)
     return {new_add_user}
   })
