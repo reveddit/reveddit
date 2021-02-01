@@ -6,7 +6,7 @@ import { connect } from 'state'
 import Notice from 'pages/common/Notice'
 import FindCommentViaAuthors from 'data_processing/FindCommentViaAuthors'
 import { NewWindowLink } from 'components/Misc'
-import {LabelWithModal} from 'pages/common/RemovedBy'
+import {LabelWithModal, RESTORED} from 'pages/common/RemovedBy'
 import {QuestionMark} from 'pages/common/svg'
 
 
@@ -36,9 +36,7 @@ const CommentBody = (props) => {
           searchAuthorsForm = <FindCommentViaAuthors {...props}/>
         } else if (archiveRemoved_or_noArchive) { // explicit for clarity, could be else { w/no condition
           restoredTag = (
-            <LabelWithModal hash='action_restored_help'>
-              <span className='removedby'>[removed]{getRemovedWithinText(props)}, restored via user page <QuestionMark/></span>
-            </LabelWithModal>
+            <LabelWithModal hash='action_restored_help' removedby={RESTORED} details={'removed'+getRemovedWithinText(props)}/>
           )
           innerHTML = markdownToHTML(props.body)
         }

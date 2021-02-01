@@ -71,6 +71,7 @@ export const USER_REMOVED_META = {filter_text: 'user deleted',
                                   reddit_link: '/r/removeddit/comments/ir1oyw/_/g5fgxgl/?context=3#thing_t1_g5fgxgl'}
 
 export const RESTORED_META = {filter_text: 'restored via user page',
+                                    label: 'restored via user page',
                                      desc: "This comment was not archived but could be copied from the author's /user page on reddit.",
                               local_link: '/about/faq/#restored'}
 
@@ -173,9 +174,13 @@ export const LabelWithModal = ({children, hash, content, details, removedby, mar
   } else {
     modalContent.hash = hash
   }
+  let label = children
+  if (! label) {
+    label = <span className='removedby'>{ALL_ACTIONS_META[removedby].label} <QuestionMark/></span>
+  }
   return (
     <a className='pointer' onClick={() => modal.openModal(modalContent)} style={{marginRight}}>
-      {children}
+      {label}
     </a>
   )
 }
