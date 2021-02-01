@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState, useMemo} from 'react'
 import scrollToElement from 'scroll-to-element'
 import { getRevdditCommentsBySubreddit } from 'data_processing/comments'
 import { getRevdditMissingComments } from 'data_processing/missing_comments'
@@ -12,7 +12,7 @@ import { itemIsOneOfSelectedActions, itemIsOneOfSelectedTags, filterSelectedActi
 import Selections from 'pages/common/selections'
 import SummaryAndPagination from 'pages/common/SummaryAndPagination'
 import { showAccountInfo_global } from 'pages/modals/Settings'
-import { removedFilter_types, getExtraGlobalStateVars, create_qparams } from 'state'
+import { connect, removedFilter_types, getExtraGlobalStateVars, create_qparams } from 'state'
 import { NOT_REMOVED, COLLAPSED, ORPHANED } from 'pages/common/RemovedBy'
 import { jumpToHash, get, put, ext_urls,
          itemIsActioned, itemIsCollapsed, commentIsOrphaned,
@@ -234,16 +234,6 @@ const filterMatches = (filterIsUnset, fn, exclude) => {
 
 export const withFetch = (WrappedComponent) =>
   class extends React.Component {
-    state = {
-      showAllCollapsed: false,
-      showAllOrphaned: false,
-    }
-    componentDidUpdate() {
-      window.onpopstate  = () => {
-        // back/forward button was pressed
-        this.props.global.setStateFromCurrentURL(this.props.page_type)
-      }
-    }
     componentDidMount() {
       let subreddit = (this.props.match.params.subreddit || '').toLowerCase()
       const domain = (this.props.match.params.domain || '').toLowerCase()
@@ -343,122 +333,6 @@ export const withFetch = (WrappedComponent) =>
       }
     }
 
-    getViewableItems(items, category, category_unique_field) {
-      const {global, page_type} = this.props
-      const gs = global.state
-      const category_state = (gs['categoryFilter_'+category] || '').toString()
-      const stateSaysHideComments = (
-        ['user','subreddit_comments'].includes(page_type) &&
-        gs.removedFilter === removedFilter_types.removed &&
-        global.removedByFilterIsUnset() &&
-        global.tagsFilterIsUnset()
-      )
-      const showAllCategories = category_state === 'all'
-      let numCollapsed = 0, numCollapsedNotShown = 0,
-           numOrphaned = 0,  numOrphanedNotShown = 0
-      const viewableItems = items.filter(item => {
-        let itemIsOneOfSelectedCategory = false
-        if (! category_state || category_state === item[category_unique_field]) {
-          itemIsOneOfSelectedCategory = true
-        }
-        if (stateSaysHideComments && ! commentIsMissingInThread(item)) {
-          let hideItem = false
-          const collapsed = itemIsCollapsed(item)
-          const orphaned = commentIsOrphaned(item)
-          if (collapsed) {
-            numCollapsed += 1
-            if (! this.state.showAllCollapsed &&
-              ! (orphaned && this.state.showAllOrphaned) &&
-              ! gs.removedByFilter[COLLAPSED]) {
-              if (numCollapsed > MAX_COLLAPSED_VISIBLE) {
-                numCollapsedNotShown += 1
-                hideItem = true
-              }
-            }
-          }
-          if (orphaned) {
-            numOrphaned += 1
-            if (! item.deleted && ! item.removed &&
-              ! this.state.showAllOrphaned &&
-              ! (collapsed && this.state.showAllCollapsed) &&
-              ! gs.removedByFilter[ORPHANED]) {
-              if (numOrphaned > MAX_ORPHANED_VISIBLE) {
-                numOrphanedNotShown += 1
-                hideItem = true
-              }
-            }
-          }
-          if (hideItem) {
-            return false
-          }
-        }
-        return (showAllCategories || itemIsOneOfSelectedCategory)
-      })
-      return {viewableItems, numCollapsedNotShown, numOrphanedNotShown}
-    }
-
-    getVisibleItemsWithoutCategoryFilter() {
-      const visibleItems = []
-      const gs = this.props.global.state
-      const filteredActions = filterSelectedActions(Object.keys(gs.removedByFilter))
-      const matchFuncAndParams = [
-        [minMaxMatch, ['num_subscribers', 'subreddit_subscribers']],
-        [minMaxMatch, ['num_comments', 'num_comments']],
-        [minMaxMatch, ['score', 'score']],
-        [minMaxMatch, ['link_score', 'link_score']],
-        [minMaxMatch, ['age', 'created_utc', true]],
-        [minMaxMatch, ['link_age', 'link_created_utc', true]],
-        [textMatch, ['post_flair', ['link_flair_text']]],
-        [textMatch, ['user_flair', ['author_flair_text']]],
-        [textMatch, ['filter_url', ['url']]],
-        [asOfMatch, []],
-      ]
-      gs.items.forEach(item => {
-        const actionMatch = filterMatches(
-          this.props.global.removedByFilterIsUnset(),
-          () => itemIsOneOfSelectedActions(item, ...filteredActions),
-          gs.exclude_action
-        )
-        const tagMatch = filterMatches(
-          this.props.global.tagsFilterIsUnset(),
-          () => itemIsOneOfSelectedTags(item, gs),
-          gs.exclude_tag
-        )
-        if (
-          (gs.removedFilter === removedFilter_types.all ||
-            (
-              gs.removedFilter === removedFilter_types.not_removed &&
-              ! itemIsActioned(item)
-            ) ||
-            (
-              gs.removedFilter === removedFilter_types.removed &&
-              itemIsActioned(item)
-            )
-          ) && actionMatch && tagMatch
-        ) {
-          const title_body_fields = ['body']
-          if ('title' in item) {
-            title_body_fields.push('title')
-          } else if ('link_title' in item) {
-            title_body_fields.push('link_title')
-          }
-          matchFuncAndParams.push([textMatch, ['keywords', title_body_fields]])
-          let match = true
-          for (const funcAndParams of matchFuncAndParams) {
-            if (match) {
-              const fn = funcAndParams[0]
-              match = fn(gs, item, ...funcAndParams[1])
-            } else {
-              break
-            }
-          }
-          if (match) {
-            visibleItems.push(item)
-          }
-        }
-      })
-      return {visibleItemsWithoutCategoryFilter: visibleItems}
-    }
     handleError = (error) => {
       console.error(error)
       if (this.props.global.state.items.length === 0) {
@@ -492,79 +366,214 @@ export const withFetch = (WrappedComponent) =>
     }
 
     render () {
-      const subreddit = (this.props.match.params.subreddit || '').toLowerCase()
-      const domain = (this.props.match.params.domain || '').toLowerCase()
-      const { page_type } = this.props
-      const { items, showContext, archiveTimes } = this.props.global.state
-
-      const visibleItemsWithoutCategoryFilter_meta = this.getVisibleItemsWithoutCategoryFilter()
-      const {visibleItemsWithoutCategoryFilter} = visibleItemsWithoutCategoryFilter_meta
-      const {category, category_title, category_unique_field} = getCategorySettings(page_type, subreddit)
-      const {viewableItems, numCollapsedNotShown, numOrphanedNotShown} = this.getViewableItems(visibleItemsWithoutCategoryFilter, category, category_unique_field)
-      const selections =
-        <Selections subreddit={subreddit}
-                    page_type={page_type}
-                    {...visibleItemsWithoutCategoryFilter_meta}
-                    num_showing={viewableItems.length}
-                    num_items={items.length}
-                    category_type={category} category_title={category_title}
-                    category_unique_field={category_unique_field}/>
-      const summary =
-        <SummaryAndPagination num_items={items.length}
-                              num_showing={viewableItems.length}
-                              page_type={page_type}
-                              subreddit={subreddit}
-                              category_type={category}
-                              category_unique_field={category_unique_field}/>
-      let numCollapsedNotShownMsg = ''
-      if (numCollapsedNotShown) {
-          numCollapsedNotShownMsg =
-            <div className='notice-with-link center' onClick={() => this.setState({showAllCollapsed: true})}>
-              show {numCollapsedNotShown} collapsed comments
-            </div>
-      }
-      let numOrphanedNotShownMsg = ''
-      if (numOrphanedNotShown) {
-          numOrphanedNotShownMsg =
-            <div className='notice-with-link center' onClick={() => this.setState({showAllOrphaned: true})}>
-              show {numOrphanedNotShown} orphaned comments
-            </div>
-      }
-      const notShownMsg = <>{numOrphanedNotShownMsg}{numCollapsedNotShownMsg}</>
-      let archiveDelayMsg = ''
-      if (archiveTimes && (archiveTimes_isCurrent(archiveTimes) || page_type === 'info') ) {
-        let commentsMsg = '', submissionsMsg = ''
-        if (page_type === 'info' ||
-              (archiveTimes.updated - archiveTimes.submission > normalArchiveDelay
-              && ['search', 'subreddit_posts', 'duplicate_posts', 'domain_posts'].includes(page_type))) {
-          submissionsMsg = gridLabel('submissions', archiveTimes.submission, archiveTimes.updated)
-        }
-        if (page_type === 'info' ||
-              (archiveTimes.updated - archiveTimes.comment > normalArchiveDelay
-              && ['search', 'thread', 'subreddit_comments'].includes(page_type))) {
-          commentsMsg = gridLabel('comments', archiveTimes.comment, archiveTimes.updated)
-        }
-        if (submissionsMsg || commentsMsg) {
-          const updated = getPrettyDate(archiveTimes.updated)
-          archiveDelayMsg =
-            <Notice className='delay' title='archive delay' detail={'as of '+updated}
-              message = {<div className='container'>{submissionsMsg}{commentsMsg}</div>} />
-        }
-      }
-      return (
-        <React.Fragment>
-          <WrappedComponent {...this.props} {...this.state}
-            selections={selections}
-            summary={summary}
-            viewableItems={viewableItems}
-            notShownMsg={notShownMsg}
-            archiveDelayMsg={archiveDelayMsg}
-            {...visibleItemsWithoutCategoryFilter_meta}
-          />
-        </React.Fragment>
-      )
+      return <GenericPostProcessor WrappedComponent={WrappedComponent} {...this.props}/>
     }
   }
+
+const baseMatchFuncAndParams = [
+  [minMaxMatch, ['num_subscribers', 'subreddit_subscribers']],
+  [minMaxMatch, ['num_comments', 'num_comments']],
+  [minMaxMatch, ['score', 'score']],
+  [minMaxMatch, ['link_score', 'link_score']],
+  [minMaxMatch, ['age', 'created_utc', true]],
+  [minMaxMatch, ['link_age', 'link_created_utc', true]],
+  [textMatch, ['post_flair', ['link_flair_text']]],
+  [textMatch, ['user_flair', ['author_flair_text']]],
+  [textMatch, ['filter_url', ['url']]],
+  [asOfMatch, []],
+]
+
+
+const GenericPostProcessor = connect((props) => {
+  const subreddit = (props.match.params.subreddit || '').toLowerCase()
+  const domain = (props.match.params.domain || '').toLowerCase()
+  const { WrappedComponent, page_type, global } = props
+  const { items, showContext, archiveTimes } = global.state
+  const gs = global.state
+  const [showAllCollapsed, setShowAllCollapsed] = useState(false)
+  const [showAllOrphaned, setShowAllOrphaned] = useState(false)
+
+  const getVisibleItemsWithoutCategoryFilter = () => {
+    const matchFuncAndParams = [...baseMatchFuncAndParams]
+    const visibleItems = []
+    const filteredActions = filterSelectedActions(Object.keys(gs.removedByFilter))
+    gs.items.forEach(item => {
+      const actionMatch = filterMatches(
+        global.removedByFilterIsUnset(),
+        () => itemIsOneOfSelectedActions(item, ...filteredActions),
+        gs.exclude_action
+      )
+      const tagMatch = filterMatches(
+        global.tagsFilterIsUnset(),
+        () => itemIsOneOfSelectedTags(item, gs),
+        gs.exclude_tag
+      )
+      if (
+        (gs.removedFilter === removedFilter_types.all ||
+          (
+            gs.removedFilter === removedFilter_types.not_removed &&
+            ! itemIsActioned(item)
+          ) ||
+          (
+            gs.removedFilter === removedFilter_types.removed &&
+            itemIsActioned(item)
+          )
+        ) && actionMatch && tagMatch
+      ) {
+        const title_body_fields = ['body']
+        if ('title' in item) {
+          title_body_fields.push('title')
+        } else if ('link_title' in item) {
+          title_body_fields.push('link_title')
+        }
+        matchFuncAndParams.push([textMatch, ['keywords', title_body_fields]])
+        let match = true
+        for (const funcAndParams of matchFuncAndParams) {
+          if (match) {
+            const fn = funcAndParams[0]
+            match = fn(gs, item, ...funcAndParams[1])
+          } else {
+            break
+          }
+        }
+        if (match) {
+          visibleItems.push(item)
+        }
+      }
+    })
+    return {visibleItemsWithoutCategoryFilter: visibleItems}
+  }
+  const getViewableItems = (items, category_state, category_unique_field) => {
+    const stateSaysHideComments = (
+      ['user','subreddit_comments'].includes(page_type) &&
+      gs.removedFilter === removedFilter_types.removed &&
+      global.removedByFilterIsUnset() &&
+      global.tagsFilterIsUnset()
+    )
+    const showAllCategories = category_state === 'all'
+    let numCollapsed = 0, numCollapsedNotShown = 0,
+         numOrphaned = 0,  numOrphanedNotShown = 0
+    const viewableItems = items.filter(item => {
+      let itemIsOneOfSelectedCategory = false
+      if (! category_state || category_state === item[category_unique_field]) {
+        itemIsOneOfSelectedCategory = true
+      }
+      if (stateSaysHideComments && ! commentIsMissingInThread(item)) {
+        let hideItem = false
+        const collapsed = itemIsCollapsed(item)
+        const orphaned = commentIsOrphaned(item)
+        if (collapsed) {
+          numCollapsed += 1
+          if (! showAllCollapsed &&
+            ! (orphaned && showAllOrphaned) &&
+            ! gs.removedByFilter[COLLAPSED]) {
+            if (numCollapsed > MAX_COLLAPSED_VISIBLE) {
+              numCollapsedNotShown += 1
+              hideItem = true
+            }
+          }
+        }
+        if (orphaned) {
+          numOrphaned += 1
+          if (! item.deleted && ! item.removed &&
+            ! showAllOrphaned &&
+            ! (collapsed && showAllCollapsed) &&
+            ! gs.removedByFilter[ORPHANED]) {
+            if (numOrphaned > MAX_ORPHANED_VISIBLE) {
+              numOrphanedNotShown += 1
+              hideItem = true
+            }
+          }
+        }
+        if (hideItem) {
+          return false
+        }
+      }
+      return (showAllCategories || itemIsOneOfSelectedCategory)
+    })
+    return {viewableItems, numCollapsedNotShown, numOrphanedNotShown}
+  }
+  const dependencies_visibleItems = baseMatchFuncAndParams.map(x => x[1][0]).filter(x => x).map(x => gs[x])
+    .concat(
+      gs.keywords,
+      gs.removedFilter,
+      gs.thread_before,
+      Object.keys(gs.removedByFilter).join(), gs.exclude_action,
+      Object.keys(gs.tagsFilter).join(), gs.exclude_tag,
+      gs.items.length,
+    ).join()
+  const visibleItemsWithoutCategoryFilter_meta = useMemo(() =>
+    getVisibleItemsWithoutCategoryFilter(),
+    [dependencies_visibleItems])
+  const {visibleItemsWithoutCategoryFilter} = visibleItemsWithoutCategoryFilter_meta
+  const {category, category_title, category_unique_field} = getCategorySettings(page_type, subreddit)
+  const category_state = (gs['categoryFilter_'+category] || '').toString()
+  const {viewableItems, numCollapsedNotShown, numOrphanedNotShown} = useMemo(() =>
+    getViewableItems(visibleItemsWithoutCategoryFilter, category_state, category_unique_field),
+    [dependencies_visibleItems, category, category_state, category_unique_field])
+  const selections =
+    <Selections subreddit={subreddit}
+                page_type={page_type}
+                {...visibleItemsWithoutCategoryFilter_meta}
+                num_showing={viewableItems.length}
+                num_items={items.length}
+                category_type={category} category_title={category_title}
+                category_unique_field={category_unique_field}/>
+  const summary =
+    <SummaryAndPagination num_items={items.length}
+                          num_showing={viewableItems.length}
+                          page_type={page_type}
+                          subreddit={subreddit}
+                          category_type={category}
+                          category_unique_field={category_unique_field}/>
+  let numCollapsedNotShownMsg = ''
+  if (numCollapsedNotShown) {
+      numCollapsedNotShownMsg =
+        <div className='notice-with-link center' onClick={() => setShowAllCollapsed(true)}>
+          show {numCollapsedNotShown} collapsed comments
+        </div>
+  }
+  let numOrphanedNotShownMsg = ''
+  if (numOrphanedNotShown) {
+      numOrphanedNotShownMsg =
+        <div className='notice-with-link center' onClick={() => setShowAllOrphaned(true)}>
+          show {numOrphanedNotShown} orphaned comments
+        </div>
+  }
+  const notShownMsg = <>{numOrphanedNotShownMsg}{numCollapsedNotShownMsg}</>
+  let archiveDelayMsg = ''
+  if (archiveTimes && (archiveTimes_isCurrent(archiveTimes) || page_type === 'info') ) {
+    let commentsMsg = '', submissionsMsg = ''
+    if (page_type === 'info' ||
+          (archiveTimes.updated - archiveTimes.submission > normalArchiveDelay
+          && ['search', 'subreddit_posts', 'duplicate_posts', 'domain_posts'].includes(page_type))) {
+      submissionsMsg = gridLabel('submissions', archiveTimes.submission, archiveTimes.updated)
+    }
+    if (page_type === 'info' ||
+          (archiveTimes.updated - archiveTimes.comment > normalArchiveDelay
+          && ['search', 'thread', 'subreddit_comments'].includes(page_type))) {
+      commentsMsg = gridLabel('comments', archiveTimes.comment, archiveTimes.updated)
+    }
+    if (submissionsMsg || commentsMsg) {
+      const updated = getPrettyDate(archiveTimes.updated)
+      archiveDelayMsg =
+        <Notice className='delay' title='archive delay' detail={'as of '+updated}
+          message = {<div className='container'>{submissionsMsg}{commentsMsg}</div>} />
+    }
+  }
+  return (
+    <React.Fragment>
+      <WrappedComponent {...props} {...{showAllCollapsed, showAllOrphaned}}
+        selections={selections}
+        summary={summary}
+        viewableItems={viewableItems}
+        notShownMsg={notShownMsg}
+        archiveDelayMsg={archiveDelayMsg}
+        {...visibleItemsWithoutCategoryFilter_meta}
+      />
+    </React.Fragment>
+  )
+})
 
 const gridLabel = (label, created_utc, updated) => {
   return <>
