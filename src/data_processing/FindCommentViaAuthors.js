@@ -116,7 +116,7 @@ const FindCommentViaAuthors = (props) => {
       }
       //itemsSortedByDate could also be resorted here to get accurate time summary
       //but it's not worth the cost for large threads
-      const rootCommentID = window.location.pathname.split('/')[6]
+      const rootCommentID = window.location.pathname.split('/')[6] ? commentTree[0].id : undefined
       commentTree = createCommentTree(threadPost.id, rootCommentID, itemsLookup)
     }
     //TODO: If failed for clicked item, change messaging
