@@ -71,6 +71,11 @@ const urlParamKeys_filters_for_reset_to_show_all_items = {
   ...urlParamKeys_max_min,
 }
 
+const excludeMaps = {
+  exclude_action: 'removedByFilter',
+  exclude_tag: 'tagsFilter',
+}
+
 export const urlParamKeys = {
   removedFilter: 'removal_status', // removedFilter should appear above removedByFilter
   localSort: 'localSort',
@@ -372,13 +377,19 @@ class GlobalState extends Container {
   setQueryParamsFromSavedDefaults = (page_type) => {
     const filters = get(defaultFilters_str, {})
     if (filters[page_type]) {
+      const origQueryParams = create_qparams()
       const queryParams = create_qparams()
       for (let [selection, value] of Object.entries(filters[page_type])) {
         if (typeof(value) === 'object') {
           value = Object.keys(value).join()
         }
-        // only set the query param to the user's saved default if it is not already set
+        // set the query param to the user's saved default if it is not already set
         if (! queryParams.has(urlParamKeys[selection])) {
+          // if exclude_[tag,action] is set to true by default,
+          // and there is a value in the corresponding filter (tagsFilter or removedByFilter), don't set the exclude_ filter
+          if ( value && selection.match(/^exclude_/) && origQueryParams.get(urlParamKeys[excludeMaps[selection]])) {
+            continue
+          }
           adjust_qparams_for_selection(page_type, queryParams, selection, value)
         }
       }
