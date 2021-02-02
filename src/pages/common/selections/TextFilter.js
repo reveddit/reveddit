@@ -10,6 +10,8 @@ const MIN = 'min', MAX = 'max'
 const SUFFIX_MIN = '_'+MIN
 const SUFFIX_MAX = '_'+MAX
 
+const ANY = '"."'
+const NONE = '-"."'
 const anyNoneOpposite = { any: 'none', none: 'any' }
 
 const TextFilter = connect(({global, page_type, globalVarName, placeholder, minMax, anyNone, ...selectionProps }) => {
@@ -33,6 +35,16 @@ const TextFilter = connect(({global, page_type, globalVarName, placeholder, minM
     none: false,
   })
   const oldSelectMinRef = useRef()
+  useEffect(() => {
+    if (anyNone) {
+      const value = global.state[globalVarName]
+      if (value === ANY) {
+        setAnyNoneChecked({any: true})
+      } else if (value === NONE) {
+        setAnyNoneChecked({none: true})
+      }
+    }
+  }, [])
   useEffect(() => {
     const oldSelectMin = oldSelectMinRef.current
     oldSelectMinRef.current = selectMin
@@ -103,12 +115,12 @@ const TextFilter = connect(({global, page_type, globalVarName, placeholder, minM
               })
               if (newVal) {
                 if (text === 'any') {
-                  setInputValue('"."')
+                  setInputValue(ANY)
                 } else {
-                  setInputValue('-"."')
+                  setInputValue(NONE)
                 }
-              } else if ((inputValue === '"."' && text === 'any') ||
-                         (inputValue === '-"."' && text === 'none')) {
+              } else if ((inputValue === ANY && text === 'any') ||
+                         (inputValue === NONE && text === 'none')) {
                 setInputValue('')
               }
             }
