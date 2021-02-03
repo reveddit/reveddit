@@ -35,8 +35,9 @@ const CommentBody = (props) => {
         if (comment_Is_Removed) {
           searchAuthorsForm = <FindCommentViaAuthors {...props}/>
         } else if (archiveRemoved_or_noArchive) { // explicit for clarity, could be else { w/no condition
+          const within = getRemovedWithinText(props)
           restoredTag = (
-            <LabelWithModal hash='action_restored_help' removedby={RESTORED} details={'removed'+getRemovedWithinText(props)}/>
+            <LabelWithModal hash='action_restored_help' removedby={RESTORED} details={within ? 'removed'+within : ''}/>
           )
           innerHTML = markdownToHTML(props.body)
         }
