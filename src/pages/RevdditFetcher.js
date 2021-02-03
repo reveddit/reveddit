@@ -502,6 +502,7 @@ const GenericPostProcessor = connect((props) => {
       Object.keys(gs.tagsFilter).join(), gs.exclude_tag,
       gs.items.length,
       gs.add_user,
+      showAllOrphaned, showAllCollapsed,
     ).join()
   const visibleItemsWithoutCategoryFilter_meta = useMemo(() =>
     getVisibleItemsWithoutCategoryFilter(),
