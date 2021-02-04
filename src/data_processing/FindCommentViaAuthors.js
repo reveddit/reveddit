@@ -279,8 +279,10 @@ export const addUserComments = (user_comments, commentsLookup) => {
   const changed = [], changedAuthors = {}
   for (const user_comment of user_comments) {
     const comment = commentsLookup[user_comment.id]
+    user_comment.from_add_user = true
     if (comment) {
       if (comment.body !== user_comment.body) {
+        comment.from_add_user = true
         changed.push(user_comment)
         changedAuthors[user_comment.author] = user_comment
       }

@@ -27,14 +27,14 @@ const CommentBody = (props) => {
   const isThread = props.page_type === 'thread'
   const comment_Is_Removed = commentIsRemoved(props)
   if (! props.deleted) {
-    const archiveRemoved_or_noArchive = props.archive_body_removed || ! props.archive_processed
-    if ( (comment_Is_Removed || (isThread && archiveRemoved_or_noArchive))
+    const archiveRemoved_or_noArchive_or_fromAddUser = props.archive_body_removed || ! props.archive_processed || props.from_add_user
+    if ( (comment_Is_Removed || (isThread && archiveRemoved_or_noArchive_or_fromAddUser))
          && props.removed) {
       innerHTML = '<p>'+getRemovedMessage(props, 'comment')+'</p>'
       if (isThread) {
         if (comment_Is_Removed) {
           searchAuthorsForm = <FindCommentViaAuthors {...props}/>
-        } else if (archiveRemoved_or_noArchive) { // explicit for clarity, could be else { w/no condition
+        } else if (archiveRemoved_or_noArchive_or_fromAddUser) { // explicit for clarity, could be else { w/no condition
           const within = getRemovedWithinText(props)
           restoredTag = (
             <LabelWithModal hash='action_restored_help' removedby={RESTORED} details={within ? 'removed'+within : ''}/>
