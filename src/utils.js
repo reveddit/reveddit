@@ -263,7 +263,7 @@ export class SimpleURLSearchParams {
   }
   get(param) {
     if (param in this.params) {
-      return this.params[param]
+      return decodeURIComponent(this.params[param])
     } else {
       return null
     }
