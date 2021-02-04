@@ -269,7 +269,7 @@ export class SimpleURLSearchParams {
     }
   }
   set(param, value) {
-    this.params[param] = value
+    this.params[param] = encodeURIComponent(value)
     return this
   }
   delete(param) {

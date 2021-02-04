@@ -303,7 +303,7 @@ class GlobalState extends Container {
     return this.setStateFromQueryParams(page_type, create_qparams())
   }
 
-  setStateFromQueryParams(page_type, queryParams, extraGlobalStateVars = {}, callback = () => {}) {
+  setStateFromQueryParams(page_type, queryParams, extraGlobalStateVars = {}) {
     if (! page_type) {
       console.error('page_type is undefined')
     }
@@ -316,7 +316,7 @@ class GlobalState extends Container {
       const paramValue_decoded = paramValue === null ? paramValue : decodeURIComponent(paramValue)
       this.setValuesForParam(param, paramValue_decoded, stateVar, page_type)
     }
-    return this.setState(stateVar, callback)
+    return this.setState(stateVar)
   }
   setValuesForParam(param, value, stateVar, page_type) {
     if (value === null) {
@@ -405,13 +405,13 @@ class GlobalState extends Container {
     }
     return this.setStateFromQueryParams(page_type, queryParams, {})
   }
-  selection_update = (selection, value, page_type, callback = () => {}) => {
-    const queryParams = create_qparams_and_adjust(page_type, selection, encodeURIComponent(value))
-    return this.updateURLandState(queryParams, page_type, callback)
+  selection_update = (selection, value, page_type, other = {}) => {
+    const queryParams = create_qparams_and_adjust(page_type, selection, value)
+    return this.updateURLandState(queryParams, page_type, other)
   }
-  updateURLandState = (queryParams, page_type, callback = () => {}) => {
+  updateURLandState = (queryParams, page_type, other = {}) => {
     updateURL(queryParams)
-    return this.setStateFromQueryParams(page_type, queryParams, {}, callback)
+    return this.setStateFromQueryParams(page_type, queryParams, other)
   }
   categoryFilter_update = (type, value, page_type) => {
     this.selection_update('categoryFilter_'+type, value, page_type)
