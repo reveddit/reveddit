@@ -3,22 +3,12 @@ import { Link } from 'react-router-dom'
 import Post from 'pages/common/Post'
 import { withFetch } from 'pages/RevdditFetcher'
 import { connect, localSort_types } from 'state'
-import { byScore, byDate, byNumComments, byControversiality, byNumCrossposts } from 'data_processing/posts'
 import { reversible, getUrlWithTimestamp, copyLink, PATH_STR_USER,
          PATH_STR_SUB,
 } from 'utils'
 import Highlight from 'pages/common/Highlight'
 import Pagination from 'components/Pagination'
 import Notice from 'pages/common/Notice'
-import {useSort} from 'hooks/sort'
-
-const sortFnMap = {
-  [localSort_types.date]: byDate,
-  [localSort_types.num_comments]: byNumComments,
-  [localSort_types.score]: byScore,
-  [localSort_types.controversiality]: byControversiality,
-  [localSort_types.num_crossposts]: byNumCrossposts,
-}
 
 const SubredditPosts = (props) => {
   const { subreddit } = props.match.params
@@ -28,7 +18,6 @@ const SubredditPosts = (props) => {
   const {items, loading, localSort,
          hasVisitedUserPage, hasVisitedTopRemovedPage,
         } = global.state
-  useSort(global, viewableItems, sortFnMap[localSort])
   const noItemsFound = items.length === 0 && ! loading
   const pagination = <Pagination oldestTimestamp={oldestTimestamp} newestTimestamp={newestTimestamp}
                                  bottom={true} subreddit={subreddit}/>

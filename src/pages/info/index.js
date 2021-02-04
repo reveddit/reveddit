@@ -4,29 +4,15 @@ import Post from 'pages/common/Post'
 import Comment from 'pages/common/Comment'
 import { withFetch } from 'pages/RevdditFetcher'
 import { reversible, copyLink } from 'utils'
-import {byScore, byDate, byNumComments, byControversiality,
-        byNumReplies, bySubredditSubscribers} from 'data_processing/info'
-import { byNumCrossposts } from 'data_processing/posts'
 import Highlight from 'pages/common/Highlight'
 import Pagination from 'components/Pagination'
-import {useSort} from 'hooks/sort'
 
-const sortFnMap = {
-  [localSort_types.date]: byDate,
-  [localSort_types.score]: byScore,
-  [localSort_types.controversiality]: byControversiality,
-  [localSort_types.num_comments]: byNumComments,
-  [localSort_types.num_crossposts]: byNumCrossposts,
-  [localSort_types.num_replies]: byNumReplies,
-  [localSort_types.subreddit_subscribers]: bySubredditSubscribers,
-}
 const Info = (props) => {
   const { page_type, viewableItems, selections, summary, archiveDelayMsg,
           oldestTimestamp, newestTimestamp, global,
         } = props
   const {items, loading, localSort, localSortReverse} = global.state
   const noItemsFound = items.length === 0 && ! loading && window.location.search !== ''
-  useSort(global, viewableItems, sortFnMap[localSort])
 
   const ids = viewableItems.map(o => o.name)
   const shareLink = page_type === 'search' ? (

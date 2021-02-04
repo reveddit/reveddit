@@ -9,6 +9,7 @@ import { getRevdditUserItems } from 'data_processing/user'
 import { getRevdditThreadItems } from 'data_processing/thread'
 import { getRevdditItems, getRevdditSearch } from 'data_processing/info'
 import { itemIsOneOfSelectedActions, itemIsOneOfSelectedTags, filterSelectedActions } from 'data_processing/filters'
+import { getSortFn } from 'data_processing/sort'
 import Selections from 'pages/common/selections'
 import SummaryAndPagination from 'pages/common/SummaryAndPagination'
 import { showAccountInfo_global } from 'pages/modals/Settings'
@@ -17,7 +18,7 @@ import { NOT_REMOVED, COLLAPSED, ORPHANED } from 'pages/common/RemovedBy'
 import { jumpToHash, get, put, ext_urls,
          itemIsActioned, itemIsCollapsed, commentIsOrphaned,
          commentIsMissingInThread, getPrettyDate, getPrettyTimeLength,
-         archiveTimes_isCurrent, matchOrIncludes, now,
+         archiveTimes_isCurrent, matchOrIncludes, now, reversible,
 } from 'utils'
 import { getAuthorInfoByName } from 'api/reddit'
 import { getAuth } from 'api/reddit/auth'
@@ -384,14 +385,17 @@ const baseMatchFuncAndParams = [
 ]
 
 
+
 const GenericPostProcessor = connect((props) => {
   const subreddit = (props.match.params.subreddit || '').toLowerCase()
   const domain = (props.match.params.domain || '').toLowerCase()
   const { WrappedComponent, page_type, global } = props
-  const { items, showContext, archiveTimes } = global.state
+  const { items, showContext, archiveTimes, localSort, localSortReverse } = global.state
   const gs = global.state
   const [showAllCollapsed, setShowAllCollapsed] = useState(false)
   const [showAllOrphaned, setShowAllOrphaned] = useState(false)
+
+  const sortFn = getSortFn(page_type, localSort)
 
   const getVisibleItemsWithoutCategoryFilter = () => {
     const matchFuncAndParams = [...baseMatchFuncAndParams]
@@ -491,6 +495,11 @@ const GenericPostProcessor = connect((props) => {
       }
       return (showAllCategories || itemIsOneOfSelectedCategory)
     })
+    if (sortFn) {
+      // sort might be better implemented as a sort on gs.items
+      // so that every filter change would not need to re-sort
+      viewableItems.sort(reversible(sortFn, localSortReverse))
+    }
     return {viewableItems, numCollapsedNotShown, numOrphanedNotShown}
   }
   const dependencies_visibleItems = baseMatchFuncAndParams.map(x => x[1][0]).filter(x => x).map(x => gs[x])
@@ -503,6 +512,7 @@ const GenericPostProcessor = connect((props) => {
       gs.items.length,
       gs.add_user,
       showAllOrphaned, showAllCollapsed,
+      gs.localSort, gs.localSortReverse,
     ).join()
   const visibleItemsWithoutCategoryFilter_meta = useMemo(() =>
     getVisibleItemsWithoutCategoryFilter(),

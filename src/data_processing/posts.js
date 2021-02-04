@@ -17,35 +17,6 @@ import { REMOVAL_META, ANTI_EVIL_REMOVED, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_A
          AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
 import { combinedGetPostsBySubredditOrDomain } from 'data_processing/subreddit_posts'
 
-export const byScore = (a, b) => {
-  return (b.stickied - a.stickied) || (b.score - a.score)
-      || (b.num_comments - a.num_comments)
-}
-export const byDate = (a, b) => {
-  return (b.stickied - a.stickied) || (b.created_utc - a.created_utc)
-      || (b.num_comments - a.num_comments)
-}
-export const byNumComments = (a, b) => {
-  return (b.stickied - a.stickied) || (b.num_comments - a.num_comments)
-      || (b.created_utc - a.created_utc)
-}
-export const byControversiality = (a, b) => {
-  return (b.stickied - a.stickied) || (a.score - b.score)
-      || (b.num_comments - a.num_comments)
-}
-export const byNumCrossposts = (a, b) => {
-  if ('num_crossposts' in a && 'num_crossposts' in b) {
-    return (b.num_crossposts - a.num_crossposts) || (b.num_comments - a.num_comments)
-        || (b.created_utc - a.created_utc)
-  } if ('num_crossposts' in a) {
-    return -1
-  } else if ('num_crossposts' in b) {
-    return 1
-  } else {
-    return (b.created_utc - a.created_utc)
-  }
-}
-
 export const retrieveRedditPosts_and_combineWithPushshiftPosts = (
   {pushshiftPosts, pushshiftPostsObj, includePostsWithZeroComments = false, existingRedditPosts = {},
    subreddit_about_promise = Promise.resolve({})

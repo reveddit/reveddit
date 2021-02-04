@@ -17,54 +17,6 @@ import { combinePushshiftAndRedditComments, getRevdditComments,
 } from 'data_processing/comments'
 import { combinePushshiftAndRedditPosts, getRevdditPosts } from 'data_processing/posts'
 
-export const byScore = (a, b) => {
-  return (b.score - a.score)
-}
-export const byDate = (a, b) => {
-  return (b.created_utc - a.created_utc)
-}
-export const byNumComments = (a, b) => {
-  if ('num_comments' in a && 'num_comments' in b) {
-    return (b.num_comments - a.num_comments) || (b.score - a.score)
-  } if ('num_comments' in a) {
-    return -1
-  } else if ('num_comments' in b) {
-    return 1
-  } else {
-    return (b.score - a.score)
-  }
-}
-export const byNumReplies = (a, b) => {
-  if ('num_replies' in a && 'num_replies' in b) {
-    return (b.num_replies - a.num_replies) || (b.created_utc - a.created_utc)
-  } if ('num_replies' in a) {
-    return -1
-  } else if ('num_replies' in b) {
-    return 1
-  } else {
-    return (b.created_utc - a.created_utc)
-  }
-}
-
-export const bySubredditSubscribers = (a, b) => {
-  if ('subreddit_subscribers' in a && 'subreddit_subscribers' in b) {
-    return (b.subreddit_subscribers - a.subreddit_subscribers) || (b.score - a.score)
-  } if ('subreddit_subscribers' in a) {
-    return -1
-  } else if ('subreddit_subscribers' in b) {
-    return 1
-  } else {
-    return (b.score - a.score)
-  }
-}
-export const byControversiality = (a, b) => {
-  if ('num_comments' in a) {
-    return  (a.score - b.score) || (b.num_comments - a.num_comments)
-  } else {
-    return  (a.score - b.score)
-  }
-}
-
 export const getRevdditItems = (global) => {
   const gs = global.state
   if (gs.url && gs.url.split('.').length > 1) {
