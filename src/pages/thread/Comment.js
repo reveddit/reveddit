@@ -13,10 +13,11 @@ import { connect } from 'state'
 import { insertParent } from 'data_processing/thread'
 import {MessageMods} from 'components/Misc'
 import {AddUserItem, getUserCommentsForPost,
-        addUserComments_and_updateURL,
+        addUserComments_updateURL_createTreeIfNeeded,
 } from 'data_processing/FindCommentViaAuthors'
 import { QuestionMarkModal, Help, ExtensionLink } from 'components/Misc'
 import { getSortFn } from './common'
+import { RefreshIcon } from 'pages/common/svg'
 
 const contextDefault = 3
 const MIN_COMMENT_DEPTH = 4
@@ -32,17 +33,18 @@ export const getMaxCommentDepth = () => {
   return depth
 }
 const hide_all_others = ' and hides all other comments.'
-const buttons_help = {content: <Help title='Comment links' content={
+
+const CommentButtonsHelp = <QuestionMarkModal modalContent={{content: <Help title='Comment links' content={
   <>
     <p><b>author-focus:</b> Shows only comments by this comment's author{hide_all_others}</p>
     <p><b>as-of:</b> Shows only comments created before this comment{hide_all_others} Scores are current and do not reflect values from the time this comment was created.</p>
-    <p><b>update:</b> For removed comments, checks the author's user page to find any edits made after the comment was archived.</p>
-    <p>{preserve_desc}</p>
+    <p>{preserve_desc} The preserve button may also,
+      <ul><li>update the body of removed comments with any edits made after archival, and</li>
+      <li>insert unarchived comments found via the author's user page.</li></ul></p>
     <p><b>message mods:</b> Prepares a message with a link to the comment addressed to the subreddit's moderators.</p>
     <p><b>subscribe:</b> When <ExtensionLink/> is installed, sends a notification when this comment is removed, approved, locked or unlocked.</p>
   </>
-}/>}
-
+}/>}} wh='15'/>
 
 // list of filters to reset when a comment-clickable filter (flair, as-of, or author-focus) is clicked
 export const threadFiltersToReset = [
@@ -241,13 +243,12 @@ const Comment = withRouter(connect((props) => {
               locallyClickableFilters_set('thread_before')
               .then(() => jumpToHash(thisHash))
             }>as-of</Button_noHref>
-            <UpdateButton post={threadPost} removed={removed} author={author}/>
             <PreserveButton post={threadPost} author={author} deleted={deleted}/>
             { ! deleted && removed &&
               <MessageMods {...props}/>
             }
           </span>
-          <QuestionMarkModal modalContent={buttons_help} wh='15'/>
+          {CommentButtonsHelp}
         </div>
         <div id={replies_id}>
           { replies_viewable }
@@ -274,62 +275,37 @@ const LoadingOrButton = connect(({global, Button}) => {
   return <span>{result}</span>
 })
 
-const PreserveButton = connect(({global, post, author, deleted}) => {
-  if (deleted || ! validAuthor(author)) {
-    return null
-  }
-  return (
-    <LoadingOrButton Button={
-      <Button_noHref onClick={() => {
-        const {add_user} = global.state
-        //passing empty itemsLookup here allows the URL to be updated w/this comment's user page location without modifying state
-        getLatestVersionOfComment(global, post, author, {})
-        .then(result => {
-          if (! result.error) {
-            copyToClipboard(window.location.href)
-            global.setSuccess({add_user: result.new_add_user || add_user})
-          }
-        })
-      }}>preserve</Button_noHref>}
-    />)
-})
 
 const Button_noHref = ({onClick, children}) => {
   return <a className='pointer' onClick={onClick}>{children}</a>
 }
 
-const getLatestVersionOfComment = (global, post, author, itemsLookup = {}) => {
-  const {add_user} = global.state
-  global.setLoading('')
-  const aui = new AddUserItem({author})
-  return aui.query().then(userPage => getUserCommentsForPost(post, itemsLookup, [userPage]))
-  .then(({user_comments, newComments}) => {
-    const new_add_user = addUserComments_and_updateURL(user_comments, itemsLookup, add_user)
-    return {new_add_user}
-  })
-  .catch(() => {
-    global.setError('')
-    return {error: true}
-  })
-}
-
-export const UpdateButton = connect(({global, post, removed, author}) => {
-  if (! removed || ! validAuthor(author)) {
+const PreserveButton = connect(({global, post, author, deleted}) => {
+  if (deleted || ! validAuthor(author)) {
     return null
   }
-  const {itemsLookup, add_user} = global.state
+  const {loading} = global.state
   return (
     <LoadingOrButton Button={
       <Button_noHref onClick={() => {
-        getLatestVersionOfComment(global, post, author, itemsLookup)
-        .then(result => {
-          if (! result.error) {
-            global.setSuccess({itemsLookup, add_user: result.new_add_user || add_user})
-          }
+        global.setLoading('')
+        const {add_user, itemsLookup, threadPost, items, commentTree} = global.state
+        const aui = new AddUserItem({author})
+        aui.query().then(userPage => getUserCommentsForPost(post, itemsLookup, [userPage]))
+        .then(async ({user_comments, newComments}) => {
+          const {new_commentTree, new_add_user} = await addUserComments_updateURL_createTreeIfNeeded({
+            user_comments, itemsLookup, add_user, threadPost, newComments, items, commentTree})
+          copyToClipboard(window.location.href)
+          global.setSuccess({add_user: new_add_user || add_user,
+                             commentTree: new_commentTree || commentTree})
         })
-      }}>update</Button_noHref>}
-    />
-  )
+        .catch((e) => {
+          console.error(e)
+          global.setError('')
+        })
+      }}>preserve <RefreshIcon wh='12' fill={loading ? '#4c4949': '#828282'}/></Button_noHref>}
+    />)
 })
+
 
 export default Comment

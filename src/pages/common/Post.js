@@ -2,13 +2,13 @@ import React from 'react'
 import { prettyScore, parse, redditThumbnails, replaceAmpGTLT,
          postIsRemovedAndSelftextSaysRemoved, getRemovedMessage,
          PATH_STR_SUB, convertPathSub, stripRedditLikeDomain,
-         prettyFormatBigNumber,
+         prettyFormatBigNumber, SimpleURLSearchParams,
 } from 'utils'
 import Time from 'pages/common/Time'
 import RemovedBy, {QuarantinedLabel} from 'pages/common/RemovedBy'
 import Author from 'pages/common/Author'
 import { NOT_REMOVED } from 'pages/common/RemovedBy'
-import { connect } from 'state'
+import { connect, urlParamKeys } from 'state'
 import {MessageMods} from 'components/Misc'
 import { NewWindowLink } from 'components/Misc'
 import Flair from './Flair'
@@ -38,7 +38,7 @@ class Post extends React.Component {
   }
   render() {
     const props = this.props
-    const {sort} = props.global.state
+    const {sort, add_user} = props.global.state
     if (!props.title) {
       return <div />
     }
@@ -85,6 +85,10 @@ class Post extends React.Component {
     if (! domain.match(/^self\.[^.]+$/)) {
       domain = <a href={`/domain/${props.domain}/`}>{props.domain}</a>
     }
+    const queryParams = new SimpleURLSearchParams()
+    if (add_user) {
+      queryParams.set(urlParamKeys.add_user, add_user)
+    }
     const rev_subreddit = PATH_STR_SUB+'/'+props.subreddit
     return (
       <div id={props.name} className={`post thread
@@ -112,7 +116,7 @@ class Post extends React.Component {
           </div>
           <div className='total-comments post-links'>
             <QuarantinedLabel {...props}/>
-            <a href={convertPathSub(props.permalink)} className='nowrap'>{props.num_comments} comments</a>
+            <a href={convertPathSub(props.permalink)+queryParams.toString()} className='nowrap'>{props.num_comments} comments</a>
             <NewWindowLink reddit={props.permalink}>reddit</NewWindowLink>
               <a href={`${rev_subreddit}/duplicates/${props.id}`}>other-discussions{props.num_crossposts ? ` (${props.num_crossposts}+)`:''}</a>
             { directlink && <a href={directlink}>directlink</a>}

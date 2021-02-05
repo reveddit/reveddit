@@ -23,7 +23,6 @@ class Thread extends React.Component {
     const { selections, summary,
             page_type, archiveDelayMsg,
           } = this.props
-    //TODO: preserve add_user param here
     const queryParams = new SimpleURLSearchParams()
     if (add_user) {
       queryParams.set(urlParamKeys.add_user, add_user)

@@ -294,9 +294,8 @@ export const insertParent = (child_id, global) => {
   } else if (parent && ! parent.replies?.length) {
     //need this condition b/c when add_user is set on page load,
     //and top comment's context is clicked, the new ancestors might load w/out children
-    //because the current add_user logic does not recreate the comment tree when adding new comments.
-    //and, even if it did recreate the tree, some 'inserted' comments might not connect until insertParent
-    //is called by successive clicks
+    //because although the current add_user logic does recreate the comment tree when adding new comments,
+    //some 'inserted' comments might not connect until insertParent() runs a few times from successive clicks
     parent.replies.push(child)
     addAncestor(child, parent_id)
     return global.setSuccess()

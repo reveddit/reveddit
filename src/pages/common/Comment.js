@@ -13,7 +13,6 @@ import {MessageMods} from 'components/Misc'
 import { NewWindowLink } from 'components/Misc'
 import Flair from './Flair'
 import SubscribersCount from './SubscribersCount'
-import { UpdateButton } from 'pages/thread/Comment'
 
 const Comment = (props) => {
   const [displayBody, setDisplayBody] = useState(true)
@@ -157,7 +156,6 @@ const Comment = (props) => {
                   <a href={rev_link_permalink_with_add_user+'&'+focusAuthorParam}>full comments(author)</a>
                 </>
               }
-              {! after_before && <UpdateButton post={{name: link_id, author: link_author}} removed={removed} author={author}/>}
               <NewWindowLink old={true} reddit={permalink+'?context=3'}>reddit</NewWindowLink>
               { directlink && <a href={directlink}>directlink</a>}
               { ! parent_context &&

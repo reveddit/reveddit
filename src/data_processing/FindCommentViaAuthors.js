@@ -5,7 +5,7 @@ import { kindsReverse, queryUserPage } from 'api/reddit'
 import { Spin, QuestionMarkModal, Help, NewWindowLink } from 'components/Misc'
 import { copyFields, initializeComment, retrieveRedditComments_and_combineWithPushshiftComments } from 'data_processing/comments'
 import { createCommentTree } from 'data_processing/thread'
-import RefreshIcon from 'svg/refresh.svg'
+import { RefreshIcon } from 'pages/common/svg'
 
 const MAX_AUTHORS_NEARBY_BY_DATE = 4
 const MAX_AUTHORS_TO_SEARCH = 15
@@ -77,9 +77,8 @@ const FindCommentViaAuthors = (props) => {
   let searchButton = ''
   const {itemsLookup, alreadySearchedAuthors, threadPost,
          itemsSortedByDate, add_user, authors:globalAuthors,
-         loading: globalLoading, items,
+         loading: globalLoading, items, commentTree,
         } = props.global.state
-  let {commentTree} = props.global.state
   //TODO: check that distance updates properly
   //      -
   const loading = localLoading || globalLoading
@@ -106,26 +105,17 @@ const FindCommentViaAuthors = (props) => {
     const {user_comments, newComments} = await Promise.all(promises).then(
       getUserCommentsForPost.bind(null, threadPost, itemsLookup))
     Object.assign(alreadySearchedAuthors, authors)
-
-    const new_add_user = addUserComments_and_updateURL(user_comments, itemsLookup, add_user)
-    if (Object.keys(newComments).length) {
-      const combinedComments = await retrieveRedditComments_and_combineWithPushshiftComments(newComments)
-      for (const comment of Object.values(combinedComments)) {
-        itemsLookup[comment.id] = comment
-        items.push(comment)
-      }
-      //itemsSortedByDate could also be resorted here to get accurate time summary
-      //but it's not worth the cost for large threads
-      const rootCommentID = window.location.pathname.split('/')[6] ? commentTree[0].id : undefined
-      commentTree = createCommentTree(threadPost.id, rootCommentID, itemsLookup)
-    }
+    const {new_commentTree, new_add_user} = await addUserComments_updateURL_createTreeIfNeeded({
+      user_comments, itemsLookup, add_user, threadPost, newComments, items, commentTree})
     //TODO: If failed for clicked item, change messaging
     //         authors remain: "try again" or show % complete (# authors searched / total # authors)
     const [new_augRef, new_distanceRef] = getAddUserMeta(props, distanceRef)
     augRef.current = new_augRef
     distanceRef.current = new_distanceRef
     await setLocalLoading(false)
-    return props.global.setSuccess({alreadySearchedAuthors, add_user: new_add_user || add_user, commentTree})
+    return props.global.setSuccess({alreadySearchedAuthors,
+                                    add_user: new_add_user || add_user,
+                                    commentTree: new_commentTree || commentTree})
   }
   //states:
   //  loading && needToFindAuthors (! aug) => show spin
@@ -144,7 +134,7 @@ const FindCommentViaAuthors = (props) => {
       searchButton = (
         <Wrap>
           <a className='pointer bubble medium lightblue' onClick={search}
-          ><img src={RefreshIcon} alt="Refresh icon" style={{verticalAlign: 'middle'}} /> {unarchived_search_button_word}<span className='desktop-only'> ({numAuthorsRemaining.toLocaleString()} users left)</span></a>
+          ><RefreshIcon/> {unarchived_search_button_word}<span className='desktop-only'> ({numAuthorsRemaining.toLocaleString()} users left)</span></a>
           <QuestionMarkModal modalContent={{content:search_comment_help}} fill='white'/>
         </Wrap>
       )
@@ -361,6 +351,25 @@ export const getUserCommentsForPost = (post, existingIDs, userPages) => {
   }
   return {user_comments, newComments}
 }
+
+export const addUserComments_updateURL_createTreeIfNeeded = async ({user_comments, itemsLookup, add_user,
+  threadPost, newComments, items, commentTree}) => {
+  const new_add_user = addUserComments_and_updateURL(user_comments, itemsLookup, add_user)
+  let new_commentTree
+  if (Object.keys(newComments).length) {
+    const combinedComments = await retrieveRedditComments_and_combineWithPushshiftComments(newComments)
+    for (const comment of Object.values(combinedComments)) {
+      itemsLookup[comment.id] = comment
+      items.push(comment)
+    }
+    //itemsSortedByDate could also be resorted here to get accurate time summary
+    //but it's not worth the cost for large threads
+    const rootCommentID = window.location.pathname.split('/')[6] ? commentTree[0].id : undefined
+    new_commentTree = createCommentTree(threadPost.id, rootCommentID, itemsLookup)
+  }
+  return {new_add_user, new_commentTree}
+}
+
 
 
 export default connect(FindCommentViaAuthors)
