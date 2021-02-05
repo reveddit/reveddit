@@ -201,16 +201,29 @@ export const getPostsByID_chunk = (ids, fields = post_fields) => {
 
 export const getPost = id => {
   const params = 'ids='+id
-  return window.fetch(postURL+'?'+params)
-    .then(response => response.json())
-    .then(data => {
-      if (data.data.length) {
-        update_retrieved_field(data.data[0])
-        return data.data[0]
-      } else {
-        return {}
-      }
-    })
+  return fetchWithTimeout(postURL+'?'+params)
+  .then(response => response.json())
+  .then(data => {
+    if (data.data.length) {
+      update_retrieved_field(data.data[0])
+      return data.data[0]
+    } else {
+      return {}
+    }
+  })
+}
+
+async function fetchWithTimeout(resource, options = {}) {
+  const { timeout = 8000 } = options
+  const controller = new AbortController()
+  const id = setTimeout(() => controller.abort(), timeout)
+  const response = await fetch(resource, {
+    ...options,
+    signal: controller.signal
+  })
+  clearTimeout(id)
+
+  return response
 }
 
 // Function intended to be called with userpage-driven IDs
