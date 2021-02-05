@@ -261,8 +261,7 @@ export const insertParent = (child_id, global) => {
   const [parent_kind, parent_id] = child.parent_id.split('_')
   const parent = itemsLookup[parent_id]
   if (! parent && parent_kind === 't1') {
-    promise = global.setLoading('')
-    .then(() => getRedditComments({ids: [parent_id]}))
+    promise = getRedditComments({ids: [parent_id]})
     .then(redditComments => {
       const comment = redditComments[parent_id]
       if (comment) {

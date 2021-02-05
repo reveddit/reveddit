@@ -64,8 +64,10 @@ const Comment = withRouter(connect((props) => {
   } = props
   let {author} = props
   const {showContext, limitCommentDepth, itemsLookup, threadPost,
-         add_user, loading, localSort, localSortReverse,
+         add_user, loading: globalLoading, localSort, localSortReverse,
         } = global.state
+  const [localLoading, setLocalLoading] = useState(false)
+  const loading = localLoading || globalLoading
   const {selection_update: updateStateAndURL, context_update} = global
   const name = `t1_${id}` //some older pushshift data does not have name
   const visibleReplies = visibleComments[name] || []
@@ -208,23 +210,27 @@ const Comment = withRouter(connect((props) => {
               // using <a> instead of <Link> for parent & context links b/c
               // <Link> causes comments to disappear momentarily when inserting a parent
               <>
-                <LoadingOrButton Button={
+                <LoadingOrButton loading={loading} Button={
                   <a href={parent_link} onClick={(e) => {
+                    setLocalLoading(true)
                     e.preventDefault()
                     finishPromise_then_jumpToHash(
                       insertParent(id, global)
+                      .then(() => setLocalLoading(false))
                       .then(() => context_update(0, page_type, history, parent_link))
                     )
                   }}>parent</a>}
                 />
                 {! deleted &&
-                  <LoadingOrButton Button={
+                  <LoadingOrButton loading={loading} Button={
                     <a href={contextLink} onClick={(e) => {
+                      setLocalLoading(true)
                       e.preventDefault()
                       finishPromise_then_jumpToHash(
                         insertParent(id, global)
                         // parent_id will never be t3_ b/c context link is not rendered for topmost comments
                         .then(() => insertParent(parent_id.substr(3), global))
+                        .then(() => setLocalLoading(false))
                         .then(() => context_update(contextDefault, page_type, history, contextLink))
                       )
                     }}>context</a>}
@@ -245,7 +251,7 @@ const Comment = withRouter(connect((props) => {
               locallyClickableFilters_set('thread_before')
               .then(() => jumpToHash(thisHash))
             }>as-of</Button_noHref>
-            <PreserveButton post={threadPost} author={author} deleted={deleted}/>
+            <PreserveButton post={threadPost} author={author} deleted={deleted} {...{loading, setLocalLoading}}/>
             { ! deleted && removed &&
               <MessageMods {...props}/>
             }
@@ -266,31 +272,30 @@ const finishPromise_then_jumpToHash = (promise) => {
   return promise.then(() => jumpToCurrentHash_ifNoScroll(y))
 }
 
-const LoadingOrButton = connect(({global, Button}) => {
+const LoadingOrButton = ({loading, Button}) => {
   let result
-  if (global.state.loading) {
+  if (loading) {
     result = <a className='dark'>{Button.props.children}</a>
   } else {
     result = Button
   }
   //wrapping in <span> maintains the position of the element so that the real-time extension's subscribe button is always added to the end
   return <span>{result}</span>
-})
+}
 
 
 const Button_noHref = ({onClick, children}) => {
   return <a className='pointer' onClick={onClick}>{children}</a>
 }
 
-const PreserveButton = connect(({global, post, author, deleted}) => {
+const PreserveButton = connect(({global, post, author, deleted, loading, setLocalLoading}) => {
   if (deleted || ! validAuthor(author)) {
     return null
   }
-  const {loading} = global.state
   return (
-    <LoadingOrButton Button={
+    <LoadingOrButton loading={loading} Button={
       <Button_noHref onClick={() => {
-        global.setLoading('')
+        setLocalLoading(true)
         const {add_user, itemsLookup, threadPost, items, commentTree} = global.state
         const aui = new AddUserItem({author})
         aui.query().then(userPage => getUserCommentsForPost(post, itemsLookup, [userPage]))
@@ -298,6 +303,7 @@ const PreserveButton = connect(({global, post, author, deleted}) => {
           const {new_commentTree, new_add_user} = await addUserComments_updateURL_createTreeIfNeeded({
             user_comments, itemsLookup, add_user, threadPost, newComments, items, commentTree})
           copyToClipboard(window.location.href)
+          await setLocalLoading(false)
           global.setSuccess({add_user: new_add_user || add_user,
                              commentTree: new_commentTree || commentTree})
         })
