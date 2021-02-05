@@ -38,9 +38,11 @@ const CommentButtonsHelp = <QuestionMarkModal modalContent={{content: <Help titl
   <>
     <p><b>author-focus:</b> Shows only comments by this comment's author{hide_all_others}</p>
     <p><b>as-of:</b> Shows only comments created before this comment{hide_all_others} Scores are current and do not reflect values from the time this comment was created.</p>
-    <p>{preserve_desc} The preserve button may also,
-      <ul><li>update the body of removed comments with any edits made after archival, and</li>
-      <li>insert unarchived comments found via the author's user page.</li></ul></p>
+    <p>{preserve_desc} The preserve button may also,</p>
+    <ul>
+      <li>update the body of removed comments with any edits made after archival, and</li>
+      <li>insert unarchived comments found via the author's user page.</li>
+    </ul>
     <p><b>message mods:</b> Prepares a message with a link to the comment addressed to the subreddit's moderators.</p>
     <p><b>subscribe:</b> When <ExtensionLink/> is installed, sends a notification when this comment is removed, approved, locked or unlocked.</p>
   </>

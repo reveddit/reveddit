@@ -70,12 +70,13 @@ const User = ({match, global, page_type, viewableItems, selections, summary, not
 
   const shownItems = []
   const removedCommentIDs = []
+  const constantProps = {page_type, kind}
   viewableItems.forEach(item => {
     if (! selectedItems || (selectedItems && selectedItems.includes(item.name))) {
       if (item.name.slice(0,2) === 't3') {
-        shownItems.push(<Post key={item.name} {...item} page_type={page_type} />)
+        shownItems.push(<Post key={item.name} {...constantProps} {...item} />)
       } else {
-        shownItems.push(<Comment key={item.name} {...item} kind={kind} page_type={page_type} />)
+        shownItems.push(<Comment key={item.name} {...constantProps} {...item} />)
         if (item.removed) {
           removedCommentIDs.push(item.name)
         }

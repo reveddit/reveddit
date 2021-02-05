@@ -53,28 +53,7 @@ const Comment = (props) => {
   // after_before only has a value for user pages
   if (after_before) {
     directlink = '?'+after_before+`limit=1&sort=${sort}&show=${name}&removal_status=all`
-    const addUserParam = new AddUserParam()
-    const samePost_comments = userCommentsByPost[link_id]
-    const samePost_lastComment = samePost_comments[samePost_comments.length -1]
-    const samePost_firstComment = samePost_comments[0]
-    const addUser_afterBefore = {}
-    if (rev_position - samePost_lastComment.rev_position < 100 && samePost_lastComment.next) {
-      addUser_afterBefore.before = samePost_lastComment.next
-    } else if (samePost_firstComment.rev_position - rev_position < 100 && samePost_firstComment.prev) {
-      addUser_afterBefore.after = samePost_firstComment.prev
-    } else if (next) {
-      addUser_afterBefore.before = next
-    } else if (prev) {
-      addUser_afterBefore.after = prev
-    }
-    addUserParam.addItems({
-      author: author,
-      ...(kind && {kind}),
-      ...(sort && {sort}),
-      ...(t && {time: t}),
-      ...addUser_afterBefore,
-    })
-    add_user = addUserParam.toString()
+    add_user = getAddUserParamString({rev_position, author, userCommentsByPost, link_id, kind, sort, t, next, prev})
   }
   let post_parent_removed = []
   if (parent_removed_label) {
@@ -169,5 +148,33 @@ const Comment = (props) => {
   )
 
 }
+
+export const getAddUserParamString = (
+  {rev_position, author, userCommentsByPost, link_id,
+   kind, sort, t, next, prev}) => {
+  const addUserParam = new AddUserParam()
+  const samePost_comments = userCommentsByPost[link_id] || []
+  const samePost_lastComment = samePost_comments[samePost_comments.length -1] || {}
+  const samePost_firstComment = samePost_comments[0] || {}
+  const addUser_afterBefore = {}
+  if (rev_position - samePost_lastComment.rev_position < 100 && samePost_lastComment.next) {
+    addUser_afterBefore.before = samePost_lastComment.next
+  } else if (samePost_firstComment.rev_position - rev_position < 100 && samePost_firstComment.prev) {
+    addUser_afterBefore.after = samePost_firstComment.prev
+  } else if (next) {
+    addUser_afterBefore.before = next
+  } else if (prev) {
+    addUser_afterBefore.after = prev
+  }
+  addUserParam.addItems({
+    author: author,
+    ...(kind && {kind}),
+    ...(sort && {sort}),
+    ...(t && {time: t}),
+    ...addUser_afterBefore,
+  })
+  return addUserParam.toString()
+}
+
 
 export default connect(Comment)

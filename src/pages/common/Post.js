@@ -13,6 +13,7 @@ import {MessageMods} from 'components/Misc'
 import { NewWindowLink } from 'components/Misc'
 import Flair from './Flair'
 import SubscribersCount from './SubscribersCount'
+import {getAddUserParamString} from './Comment'
 
 const max_selftext_length = 100
 
@@ -38,7 +39,9 @@ class Post extends React.Component {
   }
   render() {
     const props = this.props
-    const {sort, add_user} = props.global.state
+    const {sort, t, userCommentsByPost} = props.global.state
+    let {add_user} = props.global.state
+    const {rev_position, kind, author, name, next, prev} = props
     if (!props.title) {
       return <div />
     }
@@ -72,7 +75,7 @@ class Post extends React.Component {
         selftext_snippet = selftext
       }
     }
-    let directlink = ''
+    let directlink = '', paramString = ''
     if (props.prev) {
       directlink = `?after=${props.prev}&`
     } else if (props.next) {
@@ -80,14 +83,18 @@ class Post extends React.Component {
     }
     if (directlink) {
       directlink += `limit=1&sort=${sort}&show=${props.name}&removal_status=all`
+      const add_user_param = getAddUserParamString({rev_position, author, userCommentsByPost, link_id: name, kind, sort, t, next, prev})
+      if (add_user_param) {
+        paramString = '?'+add_user_param
+      }
+    } else if (add_user) {
+      const queryParams = new SimpleURLSearchParams()
+      paramString = queryParams.set(urlParamKeys.add_user, add_user).toString()
     }
+
     let domain = props.domain
     if (! domain.match(/^self\.[^.]+$/)) {
       domain = <a href={`/domain/${props.domain}/`}>{props.domain}</a>
-    }
-    const queryParams = new SimpleURLSearchParams()
-    if (add_user) {
-      queryParams.set(urlParamKeys.add_user, add_user)
     }
     const rev_subreddit = PATH_STR_SUB+'/'+props.subreddit
     return (
@@ -116,7 +123,7 @@ class Post extends React.Component {
           </div>
           <div className='total-comments post-links'>
             <QuarantinedLabel {...props}/>
-            <a href={convertPathSub(props.permalink)+queryParams.toString()} className='nowrap'>{props.num_comments} comments</a>
+            <a href={convertPathSub(props.permalink)+paramString} className='nowrap'>{props.num_comments} comments</a>
             <NewWindowLink reddit={props.permalink}>reddit</NewWindowLink>
               <a href={`${rev_subreddit}/duplicates/${props.id}`}>other-discussions{props.num_crossposts ? ` (${props.num_crossposts}+)`:''}</a>
             { directlink && <a href={directlink}>directlink</a>}
