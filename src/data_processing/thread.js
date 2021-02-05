@@ -57,6 +57,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     }
   }
   let root_comment_promise = Promise.resolve({})
+  let pushshift_post_promise = Promise.resolve(undefined)
   if (commentID) {
     root_comment_promise = getRedditComments({ids: [commentID]})
   }
@@ -66,6 +67,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     const modlogs_comments_promise = getModlogsComments(reddit_post.subreddit, reddit_post.id)
     let modlogs_posts_promise = Promise.resolve({})
     if (postIsRemoved(reddit_post) && reddit_post.is_self) {
+      pushshift_post_promise = getPushshiftPost(threadID).catch(ignoreArchiveErrors)
       modlogs_posts_promise = getModlogsPosts(reddit_post.subreddit)
     }
     document.title = reddit_post.title
@@ -125,9 +127,6 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     return {reddit_post, root_commentID, reddit_comments_promise, pushshift_comments_promise, resetPath,
             moderators_promise, modlogs_comments_promise, modlogs_posts_promise}
   })
-
-  const pushshift_post_promise = getPushshiftPost(threadID)
-  .catch(ignoreArchiveErrors)
 
   reddit_pwc_promise.then(async ({reddit_post, modlogs_posts_promise}) => {
     const modlogsPosts = await modlogs_posts_promise
