@@ -398,7 +398,6 @@ const GenericPostProcessor = connect((props) => {
   const sortFn = getSortFn(page_type, localSort)
 
   const getVisibleItemsWithoutCategoryFilter = () => {
-    const matchFuncAndParams = [...baseMatchFuncAndParams]
     const visibleItems = []
     const filteredActions = filterSelectedActions(Object.keys(gs.removedByFilter))
     gs.items.forEach(item => {
@@ -430,6 +429,7 @@ const GenericPostProcessor = connect((props) => {
         } else if ('link_title' in item) {
           title_body_fields.push('link_title')
         }
+        const matchFuncAndParams = [...baseMatchFuncAndParams]
         matchFuncAndParams.push([textMatch, ['keywords', title_body_fields]])
         let match = true
         for (const funcAndParams of matchFuncAndParams) {
