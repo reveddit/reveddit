@@ -14,6 +14,7 @@ import { NewWindowLink } from 'components/Misc'
 import Flair from './Flair'
 import SubscribersCount from './SubscribersCount'
 import {getAddUserParamString} from './Comment'
+import {AuthorFocus} from 'pages/thread/Comment'
 
 const max_selftext_length = 100
 
@@ -24,7 +25,7 @@ const Post = connect((props) => {
     return <div/>
   }
   const {sort, t, userCommentsByPost, initialFocusCommentID} = global.state
-  let {add_user} = global.state
+  let {add_user, loading:globalLoading} = global.state
   const url = stripRedditLikeDomain(props.url)
   const [selftextMeta, setSelftextMeta] = useState({
     displayFullSelftext: true,
@@ -32,6 +33,8 @@ const Post = connect((props) => {
     manuallyHiddenSelftext: false,
   })
   const {displayFullSelftext, manuallyDisplayedSelftext, manuallyHiddenSelftext} = selftextMeta
+  const [localLoading, setLocalLoading] = useState(false)
+  const loading = localLoading || globalLoading
   const showFullSelftext = () => {
     setSelftextMeta({...selftextMeta, displayFullSelftext: true, manuallyDisplayedSelftext: true})
   }
@@ -125,13 +128,16 @@ const Post = connect((props) => {
           submitted <Time {...props}/> by <Author {...props}/> to <a className='subreddit-link' href={rev_subreddit+'/'}>/r/{props.subreddit}</a> <SubscribersCount {...props}/>
           <div><RemovedBy {...props} /></div>
         </div>
-        <div className='total-comments post-links'>
-          <QuarantinedLabel {...props}/>
-          <a href={convertPathSub(props.permalink)+paramString} className='nowrap'>{props.num_comments} comments</a>
-          <NewWindowLink reddit={props.permalink}>reddit</NewWindowLink>
-            <a href={`${rev_subreddit}/duplicates/${props.id}`}>other-discussions{props.num_crossposts ? ` (${props.num_crossposts}+)`:''}</a>
-          { directlink && <a href={directlink}>directlink</a>}
-          <MessageMods {...props}/>
+        <div>
+          <span className='total-comments post-links'>
+            <QuarantinedLabel {...props}/>
+            <a href={convertPathSub(props.permalink)+paramString} className='nowrap'>{props.num_comments} comments</a>
+            <NewWindowLink reddit={props.permalink}>reddit</NewWindowLink>
+              <a href={`${rev_subreddit}/duplicates/${props.id}`}>other-discussions{props.num_crossposts ? ` (${props.num_crossposts}+)`:''}</a>
+            { directlink && <a href={directlink}>directlink</a>}
+            <MessageMods {...props}/>
+            {props.page_type === 'thread' && <AuthorFocus post={props} author={author} deleted={props.deleted} {...{loading, setLocalLoading}} text='op-focus' addIcon={true}/>}
+          </span>
         </div>
       </div>
       <div className='clearBoth' style={{flexBasis:'100%', height: '0'}}></div>

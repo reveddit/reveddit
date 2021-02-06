@@ -56,7 +56,7 @@ class Thread extends React.Component {
     return (
       <>
         {selections}
-        <Post {...post} />
+        <Post {...post} page_type={page_type} />
         {summary}
         <Highlight/>
         {archiveDelayMsg}

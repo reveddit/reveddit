@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect, useRef} from 'react'
 import { Link, withRouter } from 'react-router-dom'
 import { prettyScore, parse, SimpleURLSearchParams,
          convertPathSub, PATH_STR_SUB, validAuthor,
@@ -12,7 +12,7 @@ import Author from 'pages/common/Author'
 import { connect } from 'state'
 import { insertParent } from 'data_processing/thread'
 import {MessageMods} from 'components/Misc'
-import {AddUserItem, getUserCommentsForPost,
+import {AddUserItem, getUserCommentsForPost, addUserComments_and_updateURL,
         addUserComments_updateURL_createTreeIfNeeded,
 } from 'data_processing/FindCommentViaAuthors'
 import { QuestionMarkModal, Help, ExtensionLink } from 'components/Misc'
@@ -36,7 +36,7 @@ const hide_all_others = ' and hides all other comments.'
 
 const CommentButtonsHelp = <QuestionMarkModal modalContent={{content: <Help title='Comment links' content={
   <>
-    <p><b>author-focus:</b> Shows only comments by this comment's author{hide_all_others}</p>
+    <p><b>author-focus:</b> Shows only comments by this comment's author{hide_all_others} This may also insert unarchived comments as described in <b>preserve</b>.</p>
     <p><b>as-of:</b> Shows only comments created before this comment{hide_all_others} Scores are current and do not reflect values from the time this comment was created.</p>
     <p>{preserve_desc} The preserve button may also,</p>
     <ul>
@@ -65,6 +65,7 @@ const Comment = withRouter(connect((props) => {
   let {author} = props
   const {showContext, limitCommentDepth, itemsLookup, threadPost,
          add_user, loading: globalLoading, localSort, localSortReverse,
+         categoryFilter_author,
         } = global.state
   const [localLoading, setLocalLoading] = useState(false)
   const loading = localLoading || globalLoading
@@ -95,10 +96,10 @@ const Comment = withRouter(connect((props) => {
 
   const searchParams = new SimpleURLSearchParams(window.location.search).delete('context').delete('showFilters')
   const searchParams_nocontext = searchParams.toString()
-  const thisHash = `#${name}`
+  const thisCommentHash = `#${name}`
   const replies_id = name+'_replies'
-  const contextLink = permalink_nohash+searchParams.set('context', contextDefault).toString()+thisHash
-  const permalink_with_hash = permalink_nohash+searchParams_nocontext+thisHash
+  const contextLink = permalink_nohash+searchParams.set('context', contextDefault).toString()+thisCommentHash
+  const permalink_with_hash = permalink_nohash+searchParams_nocontext+thisCommentHash
   const Permalink = ({text, onClick}) =>
     <Link to={permalink_with_hash} onClick={(e) => {
       context_update(0, page_type, history)
@@ -188,7 +189,7 @@ const Comment = withRouter(connect((props) => {
           ${deleted ? 'deleted':''}
           ${locked ? 'locked':''}
           ${even_odd}
-          ${id === focusCommentID ? 'focus':''}
+          ${id === focusCommentID || author === categoryFilter_author ? 'focus':''}
     `}>
       <div className='comment-head'>
         <a onClick={() => setDisplayBody(! displayBody)} className={`collapseToggle spaceRight ${hidden}`}>{expandIcon}</a>
@@ -243,13 +244,10 @@ const Comment = withRouter(connect((props) => {
                 <ShowHideRepliesButton hideReplies={false} showHiddenReplies={true}/>
                 : <ShowHideRepliesButton hideReplies={true}/>
               : null}
-            <Button_noHref onClick={() =>
-              locallyClickableFilters_set('categoryFilter_author')
-              .then(() => jumpToHash(thisHash))
-            }>author-focus</Button_noHref>
+            <AuthorFocus post={threadPost} author={author} deleted={deleted} {...{loading, setLocalLoading, thisCommentHash}}/>
             <Button_noHref onClick={() =>
               locallyClickableFilters_set('thread_before')
-              .then(() => jumpToHash(thisHash))
+              .then(() => jumpToHash(thisCommentHash))
             }>as-of</Button_noHref>
             <PreserveButton post={threadPost} author={author} deleted={deleted} {...{loading, setLocalLoading}}/>
             { ! deleted && removed &&
@@ -288,30 +286,69 @@ const Button_noHref = ({onClick, children}) => {
   return <a className='pointer' onClick={onClick}>{children}</a>
 }
 
-const PreserveButton = connect(({global, post, author, deleted, loading, setLocalLoading}) => {
+export const AuthorFocus = connect(({thisCommentHash, text = 'author-focus', addIcon = false, ...props}) => {
+  return <PreserveButton {...props} {...{text, addIcon}} forceUrlUpdate={false}
+    beforeFunc={() => {
+      return props.global.resetFilters('thread', {categoryFilter_author: props.author})
+      .then(() => {
+        if (thisCommentHash) {
+          jumpToHash(thisCommentHash)
+        }
+      })
+    }}
+  />
+})
+
+const PreserveButton = connect(({global, post, author, deleted, loading, setLocalLoading,
+                                 text = 'preserve', addIcon = true, beforeFunc = () => Promise.resolve(),
+                                 forceUrlUpdate = true,
+                                }) => {
   if (deleted || ! validAuthor(author)) {
     return null
   }
+  // per https://stackoverflow.com/questions/55647287/how-to-send-request-on-click-react-hooks-way/55647571#55647571
+  const isMounted = useRef(true)
+  useEffect(() => {
+    return () => {
+      isMounted.current = false
+    }
+  }, [])
+
   return (
     <LoadingOrButton loading={loading} Button={
       <Button_noHref onClick={() => {
         setLocalLoading(true)
+        const stateUpdate_promise = beforeFunc()
         const {add_user, itemsLookup, threadPost, items, commentTree} = global.state
         const aui = new AddUserItem({author})
         aui.query().then(userPage => getUserCommentsForPost(post, itemsLookup, [userPage]))
         .then(async ({user_comments, newComments}) => {
           const {new_commentTree, new_add_user} = await addUserComments_updateURL_createTreeIfNeeded({
             user_comments, itemsLookup, add_user, threadPost, newComments, items, commentTree})
+          let add_user_for_preserve
+          if (forceUrlUpdate) {
+            // passing an empty itemsLookup allows the url to update even when removed or new comments are not found
+            // this reruns one of the functions encapsulated above but it's short and only happens when user clicks
+            add_user_for_preserve = addUserComments_and_updateURL(user_comments, {}, new_add_user || add_user)
+          }
           copyToClipboard(window.location.href)
-          await setLocalLoading(false)
-          global.setSuccess({add_user: new_add_user || add_user,
-                             commentTree: new_commentTree || commentTree})
+          if (isMounted.current) {
+            await setLocalLoading(false)
+          }
+          await stateUpdate_promise
+          const final_add_user = add_user_for_preserve || new_add_user || add_user
+          const final_commentTree = new_commentTree || commentTree
+          if (final_add_user !== add_user || final_commentTree !== commentTree) {
+            global.setSuccess({add_user: final_add_user,
+                               commentTree: final_commentTree})
+          }
         })
         .catch((e) => {
           console.error(e)
           global.setError('')
         })
-      }}>preserve <RefreshIcon wh='12' fill={loading ? '#4c4949': '#828282'}/></Button_noHref>}
+      }}>{text}{addIcon && <> <RefreshIcon wh='12' fill={loading ? '#4c4949': '#828282'}/></>}
+      </Button_noHref>}
     />)
 })
 
