@@ -2,7 +2,7 @@ import {
   getComments as getRedditComments,
   getItems as getRedditItems,
   getModerators, getSubredditAbout,
-  getModlogsComments
+  getModlogsComments, oauth_reddit
 } from 'api/reddit'
 import {
   getPostsByIDForCommentData as getPushshiftPostsForCommentData,
@@ -14,8 +14,8 @@ import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED,
          AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
 import { combinedGetItemsBySubredditOrDomain } from 'data_processing/subreddit_posts'
 
-export const retrieveRedditComments_and_combineWithPushshiftComments = pushshiftComments => {
-  return getRedditComments({objects: pushshiftComments})
+export const retrieveRedditComments_and_combineWithPushshiftComments = (pushshiftComments, useProxy = false) => {
+  return getRedditComments({objects: pushshiftComments, useProxy})
   .then(redditComments => {
     return combinePushshiftAndRedditComments(pushshiftComments, redditComments)
   })
@@ -157,7 +157,7 @@ const setupCommentMeta = (archiveComment, redditComment) => {
 }
 
 // Using Pushshift may be faster, but it is missing the quarantine field in submissions data
-export const getPostDataForComments = ({comments = undefined, link_ids_set = undefined, source = 'reddit'}) => {
+export const getPostDataForComments = ({comments = undefined, link_ids_set = undefined, source = 'reddit', useProxy}) => {
   if (! link_ids_set) {
     link_ids_set = Object.values(comments).reduce((map, obj) => (map[obj.link_id] = true, map), {})
   }
@@ -165,7 +165,7 @@ export const getPostDataForComments = ({comments = undefined, link_ids_set = und
   if (source === 'pushshift') {
     queryFunction = getPushshiftPostsForCommentData
   }
-  return queryFunction(Object.keys(link_ids_set))
+  return queryFunction(Object.keys(link_ids_set), 'name', null, oauth_reddit, useProxy)
   .catch(() => { console.error(`Unable to retrieve full titles from ${source}`) })
 }
 
@@ -207,9 +207,9 @@ export const applyPostAndParentDataToComment = (postData, comment, applyPostLabe
   }
 }
 
-export const getRevdditComments = ({pushshiftComments, subreddit_about_promise = Promise.resolve({})}) => {
-  const postDataPromise = getPostDataForComments({comments: pushshiftComments})
-  const combinePromise = retrieveRedditComments_and_combineWithPushshiftComments(pushshiftComments)
+export const getRevdditComments = ({pushshiftComments, subreddit_about_promise = Promise.resolve({}), useProxy}) => {
+  const postDataPromise = getPostDataForComments({comments: pushshiftComments, useProxy})
+  const combinePromise = retrieveRedditComments_and_combineWithPushshiftComments(pushshiftComments, useProxy)
   return Promise.all([postDataPromise, combinePromise, subreddit_about_promise])
   .then(values => {
     const show_comments = []
@@ -261,32 +261,41 @@ export const combinedGetCommentsBySubreddit = (args) => {
   })
 }
 
-export const setSubredditMeta = (subreddit, global) => {
-  const moderators_promise = getModerators(subreddit)
-  const subreddit_about_promise = getSubredditAbout(subreddit)
-  let over18 = false
+export const setSubredditMeta = async (subreddit, global) => {
+  let moderators_promise = getModerators(subreddit)
+  let subreddit_about_promise = getSubredditAbout(subreddit)
+  let over18 = false, useProxy = false
   const subreddit_lc = subreddit.toLowerCase()
-  Promise.all([moderators_promise, subreddit_about_promise]).then(([moderators, subreddit_about]) => {
+  await Promise.all([moderators_promise, subreddit_about_promise])
+  .catch((e) => {
+    if (e.reason === 'quarantined') {
+      useProxy = true
+      moderators_promise = getModerators(subreddit, true)
+      subreddit_about_promise = getSubredditAbout(subreddit, true)
+    }
+    return Promise.all([moderators_promise, subreddit_about_promise])
+  })
+  .then(([moderators, subreddit_about]) => {
     if (isEmptyObj(moderators) && isEmptyObj(subreddit_about)) {
       window.location.href = `/v/${subreddit}/top/#banned`
     }
     over18 = subreddit_about.over18
     global.setState({moderators: {[subreddit_lc]: moderators}, over18})
   })
-  return subreddit_about_promise
+  return {subreddit_about_promise, useProxy}
 }
 
-export const getRevdditCommentsBySubreddit = (subreddit, global) => {
+export const getRevdditCommentsBySubreddit = async (subreddit, global) => {
   const {n, before, before_id} = global.state
 
   if (subreddit === 'all') {
     subreddit = ''
   }
-  const subreddit_about_promise = setSubredditMeta(subreddit, global)
+  const {subreddit_about_promise, useProxy} = await setSubredditMeta(subreddit, global)
   const modlogs_promise = getModlogsComments(subreddit)
 
   return combinedGetCommentsBySubreddit({subreddit, n, before, before_id, global,
-    subreddit_about_promise, modlogs_promise})
+    subreddit_about_promise, modlogs_promise, useProxy})
   .then(() => {
     global.setSuccess()
   })

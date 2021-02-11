@@ -19,7 +19,7 @@ import { combinedGetPostsBySubredditOrDomain } from 'data_processing/subreddit_p
 
 export const retrieveRedditPosts_and_combineWithPushshiftPosts = (
   {pushshiftPosts, pushshiftPostsObj, includePostsWithZeroComments = false, existingRedditPosts = {},
-   subreddit_about_promise = Promise.resolve({})
+   subreddit_about_promise = Promise.resolve({}), useProxy,
   }) => {
   const ids = []
   if (! pushshiftPosts) {
@@ -30,7 +30,7 @@ export const retrieveRedditPosts_and_combineWithPushshiftPosts = (
       ids.push(post.id)
     }
   })
-  return getRedditPosts({ids})
+  return getRedditPosts({ids, useProxy})
   .then(redditPosts => {
     Object.values(existingRedditPosts).forEach(post => {
       redditPosts[post.id] = post

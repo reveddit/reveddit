@@ -32,6 +32,7 @@ const ignoreArchiveErrors = () => {
   archiveError = true
   return {}
 }
+let useProxy = false
 
 export const getRevdditThreadItems = async (threadID, commentID, context, add_user, user_kind, user_sort, user_time, before, after,
                                             global) => {
@@ -61,9 +62,18 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
   if (commentID) {
     root_comment_promise = getRedditComments({ids: [commentID]})
   }
-  const reddit_pwc_promise = getRedditPostWithComments({threadID, commentID, context, sort: 'old', limit: numCommentsWithPost})
+  const reddit_pwc_baseArgs = {threadID, commentID, context, limit: numCommentsWithPost}
+  const reddit_pwc_baseArgs_firstQuery = {...reddit_pwc_baseArgs, sort: 'old'}
+  const reddit_pwc_promise = getRedditPostWithComments(reddit_pwc_baseArgs_firstQuery)
+  .catch(e => {
+    if (e.message === 'Forbidden') {
+      useProxy = true
+      return getRedditPostWithComments({...reddit_pwc_baseArgs_firstQuery, useProxy})
+    }
+    throw new Error('unable to retrieve data from reddit')
+  })
   .then(async ({post: reddit_post, comments: redditComments, moreComments, oldestComment}) => {
-    const moderators_promise = getModerators(reddit_post.subreddit)
+    const moderators_promise = getModerators(reddit_post.subreddit, useProxy)
     const modlogs_comments_promise = getModlogsComments(reddit_post.subreddit, reddit_post.id)
     let modlogs_posts_promise = Promise.resolve({})
     if (postIsRemoved(reddit_post) && reddit_post.is_self) {
@@ -85,7 +95,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     // lookup can make use of its created_utc
     let oldest_comment_promise = Promise.resolve(oldestComment)
     if (! Object.keys(oldestComment).length && commentID) {
-      oldest_comment_promise = getRedditComments({ids: [commentID]})
+      oldest_comment_promise = getRedditComments({ids: [commentID], useProxy})
       .then(oldestComments => {
         oldestComment = oldestComments[commentID] || {}
         Object.assign(redditComments, oldestComments)
@@ -113,7 +123,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     // In that case you still need to call api/info, getting 100 items per request.
     // Needs more testing, setting numCommentsWithPost=500 seemed slower than 100
     if (reddit_post.num_comments > numCommentsWithPost+100 && ! commentID) {
-      reddit_comments_promise = getRedditPostWithComments({threadID, commentID, context, sort:'new', limit: numCommentsWithPost})
+      reddit_comments_promise = getRedditPostWithComments({...reddit_pwc_baseArgs, sort:'new', useProxy})
       .then(({comments: redditComments_new, moreComments: moreComments_new}) => {
         Object.keys(redditComments_new).forEach(id => {
           if (! redditComments[id]) {
@@ -202,7 +212,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     const remainingRedditIDs_arr = Object.keys(remainingRedditIDs)
     let reddit_remaining_comments_promise = Promise.resolve([])
     if (remainingRedditIDs_arr.length) {
-      reddit_remaining_comments_promise = getRedditComments({ids: remainingRedditIDs_arr})
+      reddit_remaining_comments_promise = getRedditComments({ids: remainingRedditIDs_arr, useProxy})
     }
     const remainingRedditComments = await reddit_remaining_comments_promise
     Object.values(remainingRedditComments).forEach(comment => {
@@ -225,7 +235,6 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     const missing = []
     markTreeMeta(missing, origRedditComments, moreComments, commentTree, reddit_post.num_comments, root_commentID, commentID)
     if (missing.length) {
-      console.log('missing', missing.join(','))
       submitMissingComments(missing)
     }
     const moderators = await moderators_promise
@@ -260,7 +269,7 @@ export const insertParent = (child_id, global) => {
   const [parent_kind, parent_id] = child.parent_id.split('_')
   const parent = itemsLookup[parent_id]
   if (! parent && parent_kind === 't1') {
-    promise = getRedditComments({ids: [parent_id]})
+    promise = getRedditComments({ids: [parent_id], useProxy})
     .then(redditComments => {
       const comment = redditComments[parent_id]
       if (comment) {

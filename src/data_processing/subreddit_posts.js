@@ -10,7 +10,7 @@ import { retrieveRedditPosts_and_combineWithPushshiftPosts } from 'data_processi
 import { copyModlogItemsToArchiveItems, setSubredditMeta } from 'data_processing/comments'
 import { PATHS_STR_SUB, sortCreatedAsc } from 'utils'
 
-export const getRevdditPostsBySubreddit = (subreddit, global) => {
+export const getRevdditPostsBySubreddit = async (subreddit, global) => {
   const {n, before, before_id, frontPage, page} = global.state
   // /r/sub/new , /r/sub/controversial etc. are not implemented, so change path to indicate that
   if (window.location.pathname.match(new RegExp('^/['+PATHS_STR_SUB+']/([^/]*)/.+'))) {
@@ -34,11 +34,10 @@ export const getRevdditPostsBySubreddit = (subreddit, global) => {
     })
     .catch(global.setError)
   } else {
-    const subreddit_about_promise = setSubredditMeta(subreddit, global)
+    const {subreddit_about_promise, useProxy} = await setSubredditMeta(subreddit, global)
     const modlogs_promise = getModlogsPosts(subreddit)
-
     return combinedGetPostsBySubredditOrDomain({subreddit, n, before, before_id, global,
-      subreddit_about_promise, modlogs_promise})
+      subreddit_about_promise, modlogs_promise, useProxy})
     .then(() => {
       global.setSuccess()
     })
@@ -67,6 +66,7 @@ export const combinedGetItemsBySubredditOrDomain = (args) => {
     pushshiftQueryFn,
     postProcessCombine_Fn, postProcessCombine_Args,
     postProcessCombine_ItemsArgName,
+    useProxy,
   } = args
   return pushshiftQueryFn({subreddit, domain, n, before, before_id})
   .catch(error => {return []}) // if ps is down, can still return modlog results
@@ -108,7 +108,7 @@ export const combinedGetItemsBySubredditOrDomain = (args) => {
         })
         copyModlogItemsToArchiveItems(modlogsItems, pushshiftItems)
         return postProcessCombine_Fn(
-          {[postProcessCombine_ItemsArgName]: pushshiftItems, subreddit_about_promise})
+          {[postProcessCombine_ItemsArgName]: pushshiftItems, subreddit_about_promise, useProxy})
         .then(combinedItems => {
           const allItems = items.concat(combinedItems)
           return global.setState({items: allItems, itemsLookup, oldestTimestamp, newestTimestamp})

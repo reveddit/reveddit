@@ -23,25 +23,31 @@ const errorHandler = (e) => {
   throw new Error(`Could not connect to Reddit: ${e}`)
 }
 
-export const getComments = ({objects = undefined, ids = [], auth = null}) => {
+export const getComments = ({objects = undefined, ids = [], auth = null, useProxy = false}) => {
   const full_ids = getFullIDsForObjects(objects, ids, 't1_')
-  return getItems(full_ids, 'id', auth)
+  return getItems(full_ids, 'id', auth, oauth_reddit, useProxy)
 }
 
-export const getPosts = ({objects = undefined, ids = [], auth = null}) => {
+export const getPosts = ({objects = undefined, ids = [], auth = null, useProxy = false}) => {
   const full_ids = getFullIDsForObjects(objects, ids, 't3_')
-  return getItems(full_ids, 'id', auth)
+  return getItems(full_ids, 'id', auth, oauth_reddit, useProxy)
 }
 
-export const getModerators = (subreddit) => {
-  const url = oauth_reddit + `r/${subreddit}/about/moderators/.json`
+export const getModerators = (subreddit, useProxy = false) => {
+  let host = oauth_reddit
+  if (useProxy) {
+    host = oauth_reddit_rev
+  }
+  const url = host + `r/${subreddit}/about/moderators/.json`
   return getAuth()
   .then(auth => window.fetch(url, auth))
   .then(response => response.json())
   .then(results => {
+    if (results.reason === 'quarantined') {
+      throw results
+    }
     return results.data.children.reduce((map, obj) => (map[obj.name] = true, map), {})
   })
-  .catch(error => {return {}}) // this fails for some subreddits e.g. r/GoogleAnalytics, don't know why
 }
 
 export const getModeratedSubreddits = (user) => {
@@ -54,13 +60,21 @@ export const getModeratedSubreddits = (user) => {
   })
 }
 
-export const getSubredditAbout = (subreddit) => {
-  const url = oauth_reddit + `r/${subreddit}/about/.json`
+export const getSubredditAbout = (subreddit, useProxy = false) => {
+  let host = oauth_reddit
+  if (useProxy) {
+    host = oauth_reddit_rev
+  }
+  const url = host + `r/${subreddit}/about/.json`
   return getAuth()
   .then(auth => window.fetch(url, auth))
   .then(response => response.json())
-  .then(results => results.data)
-  .catch(error => {return {}}) // this fails for some subreddits e.g. r/GoogleAnalytics, don't know why
+  .then(results => {
+    if (results.reason === 'quarantined') {
+      throw results
+    }
+    return results.data
+  })
 }
 
 export const getPostsForURLs = async (urls, auth = null) => {
@@ -96,7 +110,7 @@ const getFullIDsForObjects = (objects, ids, prefix) => {
 
 export const mapRedditObj = (map, obj, key = 'name') => (map[obj.data[key]] = obj.data, map)
 
-export const getItems = async (ids, key = 'name', auth = null, host = oauth_reddit) => {
+export const getItems = async (ids, key = 'name', auth = null, host = oauth_reddit, useProxy = false) => {
   const results = {}
   if (! ids.length) {
     return results
@@ -104,9 +118,13 @@ export const getItems = async (ids, key = 'name', auth = null, host = oauth_redd
   if (! auth) {
     auth = await getAuth()
   }
+  if (useProxy) {
+    host = oauth_reddit_rev
+  }
   return groupRequests(queryByID, ids, [auth, key, results, host], maxNumItems)
-  .then(res => results)
-  .catch(errorHandler)
+  .then(() => {
+    return results
+  })
 }
 
 const groupRequests = async (func, items, params, localMaxNumItems) => {
@@ -125,7 +143,7 @@ const groupRequests = async (func, items, params, localMaxNumItems) => {
   return Promise.all(promises)
 }
 
-export const getPostWithComments = ({threadID, commentID: comment, context = 0, sort = 'old', limit=500}) => {
+export const getPostWithComments = ({threadID, commentID: comment, context = 0, sort = 'old', limit=500, useProxy = false}) => {
   const params = {
     limit,
     sort,
@@ -134,11 +152,18 @@ export const getPostWithComments = ({threadID, commentID: comment, context = 0, 
     ...(comment && {comment}),
     ...(context && {context})
   }
-  const url = oauth_reddit + `comments/${threadID}.json`+'?'+paramString(params)
+  let host = oauth_reddit
+  if (useProxy) {
+    host = oauth_reddit_rev
+  }
+  const url = host + `comments/${threadID}.json`+'?'+paramString(params)
   return getAuth()
     .then(auth => window.fetch(url, auth))
     .then(response => response.json())
     .then(results => {
+      if (results.message === 'Forbidden') {
+        throw results
+      }
       const items = results[1].data.children
       const comments = {}, moreComments = {}
       let oldestComment = {}
