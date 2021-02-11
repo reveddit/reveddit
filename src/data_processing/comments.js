@@ -116,6 +116,9 @@ const setupCommentMeta = (archiveComment, redditComment) => {
       // so, the 'temporarily visible' tag there is missing for older comments
       // works fine on thread pages: when combine is done, all results from pushshift are available to compare with modlogs
       archiveComment.archive_body_removed_before_modlog_copy = commentIsRemoved(archiveComment)
+    } else if (modlog && ! commentIsRemoved(modlog)) {
+      //handles case where the archive has no record of the comment
+      archiveComment.archive_body_removed_before_modlog_copy = true
     }
     if (modlog) {
       archiveComment.author = modlog.author
