@@ -65,7 +65,7 @@ const CommentSection = (props) => {
           itemsLookup: commentsLookup, commentTree,
           categoryFilter_author, keywords, user_flair,
           threadPost, limitCommentDepth, loading, tagsFilter, exclude_tag,
-          thread_before, items, add_user,
+          thread_before, items, add_user, add_user_on_page_load,
         } = global.state
   const [showAllComments, setShowAllComments] = useState(false)
   const [showFilteredRootComments, setShowFilteredRootComments] = useState(false)
@@ -147,7 +147,7 @@ const CommentSection = (props) => {
     }
     sortVisibleComments(visibleComments)
     setVisibleComments(visibleComments)
-  }, [filters_str, showContext, items.length, context, focusCommentID, root, add_user])
+  }, [filters_str, showContext, items.length, context, focusCommentID, root, add_user, add_user_on_page_load])
 
   useEffect(() => {
     if (showFilteredRootComments || (showSingleRoot && origRootComments.length === 1)) {

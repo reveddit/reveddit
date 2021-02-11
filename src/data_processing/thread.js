@@ -226,7 +226,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     // The third call, here, could simply update based on the remainingRedditComments
     // To do that, would need to use early_combinedComments as the basis for a return value
     const combinedComments = combinePushshiftAndRedditComments(pushshiftComments, redditComments, false, reddit_post)
-    addUserComments(user_comments, combinedComments)
+    const {changed} = addUserComments(user_comments, combinedComments)
     new_add_user = addUserComments_and_updateURL(user_comments_forURL, combinedComments, add_user)
     //todo: check if pushshiftComments has any parent_ids that are not in combinedComments
     //      and do a reddit query for these. Possibly query twice if the result has items whose parent IDs
@@ -240,18 +240,20 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     const moderators = await moderators_promise
     return {combinedComments, commentTree, moderators,
             subreddit_lc: reddit_post.subreddit.toLowerCase(),
-            new_add_user,
+            new_add_user, add_user_on_page_load: changed.length,
            }
   })
-  const {combinedComments, commentTree, moderators, subreddit_lc, new_add_user} = await combined_comments_promise
+  const {combinedComments, commentTree, moderators, subreddit_lc, new_add_user, add_user_on_page_load} = await combined_comments_promise
   const itemsSortedByDate = sortLookupByDate(combinedComments)
   const stateObj = {items: itemsSortedByDate,
                     itemsLookup: combinedComments,
                     commentTree, itemsSortedByDate,
-                    moderators: {[subreddit_lc]: moderators,
-                    add_user: new_add_user || add_user}}
+                    moderators: {[subreddit_lc]: moderators},
+                    add_user: new_add_user || add_user,
+                    add_user_on_page_load,
+                   }
   //set success/failure after everything from the archive is returned,
-  //and display comments (archive + reddit) and the reddit post before archive post data responds since that is not critical info
+  //pushshift_post_promise will time out, and it only sends a request for self posts, so it's okay to wait for this non-critical request
   return Promise.all([pushshift_post_promise, combined_comments_promise])
   .then(() => {
     if (! archiveError) {

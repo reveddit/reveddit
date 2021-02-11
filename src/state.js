@@ -176,6 +176,7 @@ export const filter_pageType_defaults = {
   selfposts: true,
   limitCommentDepth: limitCommentDepth_global,
   add_user: '',
+  add_user_on_page_load: undefined,
   limit: 100, t: 'all',
   stickied: undefined,
   distinguished: undefined,
