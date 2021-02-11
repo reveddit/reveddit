@@ -3,13 +3,14 @@ import { connect, adjust_qparams_for_selection, updateURL } from 'state'
 import * as d3 from 'd3'
 import Preview from 'pages/common/Preview'
 import { prettyFormatBigNumber, SimpleURLSearchParams, ifNumParseInt,
-         PATH_STR_SUB,
+         PATH_STR_SUB, truthyOrUndefined,
 } from 'utils'
 import { Fetch } from 'hooks/fetch'
 import { Selection } from './SelectionBase'
 import { QuestionMarkModal, Help } from 'components/Misc'
 import { getAggregationsURL,
-  numGraphPointsParamKey, sortByParamKey, contentTypeParamKey, aggregationPeriodParams
+  numGraphPointsParamKey, sortByParamKey, contentTypeParamKey, aggregationPeriodParams,
+  agg_defaults_for_page,
 } from 'api/reveddit'
 import {pageTypes} from 'pages/DefaultLayout'
 
@@ -211,7 +212,10 @@ class UpvoteRemovalRateHistory extends React.Component {
   }
 
   render() {
-    const {page_type, subreddit} = this.props
+    const {global, page_type, subreddit} = this.props
+    if (truthyOrUndefined(global.state.over18)) {
+      return null
+    }
     const {clicked} = this.state
     let {hovered} = this.state
     let sort = 'top'
@@ -225,7 +229,9 @@ class UpvoteRemovalRateHistory extends React.Component {
     }
     const queryParams = new SimpleURLSearchParams()
     adjust_qparams_for_selection(pageTypes.aggregations, queryParams, 'content', type)
-    adjust_qparams_for_selection(pageTypes.aggregations, queryParams, 'n', limit)
+    if (limit > agg_defaults_for_page.limit) {
+      adjust_qparams_for_selection(pageTypes.aggregations, queryParams, 'n', limit)
+    }
     adjust_qparams_for_selection(pageTypes.aggregations, queryParams, 'sort', sort)
     const own_page = `/r/${subreddit}/top/`+queryParams.toString()
     // Passing a render callback to a component: https://americanexpress.io/faccs-are-an-antipattern/#render-props:~:text=pass%20a%20render%20callback%20function%20to%20a%20component%20in%20a%20clean%20manner%3F

@@ -1,7 +1,7 @@
 import React from 'react'
 import { connect, adjust_qparams_for_selection } from 'state'
 import { Selection } from './SelectionBase'
-import { SimpleURLSearchParams } from 'utils'
+import { SimpleURLSearchParams, truthyOrUndefined } from 'utils'
 import { pageTypes } from 'pages/DefaultLayout'
 import { NewWindowLink } from 'components/Misc'
 
@@ -60,7 +60,7 @@ const content_help =
     <p>Comments {from} that do not appear in the thread unless directly linked. <NewWindowLink reddit='/gwzbxp'>more info</NewWindowLink></p>
   </>
 
-const Content = ({subreddit, page_type}) => {
+const Content = ({global, subreddit, page_type}) => {
   return (
     <Selection className='content' title='Content' titleHelpModal={{content: content_help}}>
       {page_type === 'user' &&
@@ -77,7 +77,7 @@ const Content = ({subreddit, page_type}) => {
             param_name='frontPage' expected_param_value={false}
             page_type={pageTypes.subreddit_posts}/>
           <ContentLink expected_suffix='comments' description='comments'/>
-          {subreddit !== 'all' &&
+          {subreddit !== 'all' && ! truthyOrUndefined(global.state.over18) &&
             <>
               <ContentLink expected_suffix='top' description='top comments'
                            param_name='content'  expected_param_value='comments' page_type={pageTypes.aggregations}/>

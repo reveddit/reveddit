@@ -1,14 +1,23 @@
 import { getAggregations } from 'api/reveddit'
-import { getComments } from 'api/reddit'
-import { sortCreatedAsc } from 'utils'
+import { getComments, getSubredditAbout } from 'api/reddit'
+import { sortCreatedAsc, display_post } from 'utils'
 
-export const getRevdditAggregations = (subreddit, global) => {
+export const getRevdditAggregations = async (subreddit, global) => {
   const {content: type, n: limit, sort} = global.state
+  const subredditAbout = await getSubredditAbout(subreddit)
+  const over18 = subredditAbout.over18
+  if (over18) {
+    return global.setSuccess({over18})
+  }
   return getAggregations({subreddit, type, limit, sort})
-  .then(items => {
+  .then(temp_items => {
+    const items = []
     let info_promise = Promise.resolve({})
     if (type === 'comments') {
-      info_promise = getComments({ids: items.map(x => x.id_of_max_pos_removed_item)})
+      info_promise = getComments({ids: temp_items.map(x => x.id_of_max_pos_removed_item)})
+    }
+    for (const item of temp_items) {
+      display_post(items, item)
     }
     return info_promise.then(comments => {
       //post processing for comments
@@ -27,7 +36,7 @@ export const getRevdditAggregations = (subreddit, global) => {
       for (const i of items) {
         i.created_utc = i.last_created_utc
       }
-      return global.setSuccess({items, itemsSortedByDate: [...items].sort(sortCreatedAsc)})
+      return global.setSuccess({items, itemsSortedByDate: [...items].sort(sortCreatedAsc), over18: false})
     })
   })
 }

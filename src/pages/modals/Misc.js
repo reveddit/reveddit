@@ -8,7 +8,7 @@ export const Banned = () => {
     <>
       <h3>Historical view</h3>
       <p><NewWindowLink reddit={redditPath}>{redditPath}</NewWindowLink> may not exist or has been banned.</p>
-      <p>Here is a historical view showing some of the top removed content.</p>
+      <p>This historical view may show some of the top removed content.</p>
     </>
   )
 }

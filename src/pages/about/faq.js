@@ -23,9 +23,11 @@ const About_faq = () => {
         <p>
           You can verify this by opening the above link in an incognito window or while logged out. Your comment will not appear.
         </p>
-        <p>
-          Note, content from banned subreddits does not appear on reveddit or reddit <i>user pages</i>. The <Link to='/r/?contentType=top'>subreddit top page</Link> may display some content.
-        </p>
+        <p>The following content is unavailable on reddit user pages and therefore cannot be tracked with reveddit user pages,</p>
+        <ul>
+          <li>Content from banned subreddits. The <Link to='/r/?contentType=top'>subreddit top page</Link> may display some content.</li>
+          <li>Reddit live/chat comments</li>
+        </ul>
       </ContentWithHeader>
       <ContentWithHeader header='How can I receive a message about removals?' id='extension'>
         <p><ExtensionLink/> notifies you when any of your content on reddit has been removed.</p>

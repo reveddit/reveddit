@@ -131,9 +131,6 @@ export const display_post = (list, post, ps_item, isInfoPage=false) => {
           (post.whitelist_status !== 'promo_adult_nsfw' && ! post.over_18 &&
             ( ! ps_item ||
               ps_item.thumbnail !== 'nsfw')))) {
-    if (post.id === 'jl2sh3') {
-      console.log(post)
-    }
     list.push(post)
   }
 }
@@ -520,3 +517,5 @@ export const sortCreatedAsc = (a,b) => a.created_utc - b.created_utc
 export const isEmptyObj = (x) => typeof(x) === 'object' && Object.keys(x).length === 0
 
 export const escapeRegExp = (text) => text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')
+
+export const truthyOrUndefined = (value) => value || value === undefined

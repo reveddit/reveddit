@@ -215,6 +215,7 @@ const initialState = {
   frontPage: false,
   q: '', author: '', subreddit: '', after: '', domain: '', or_domain: '', title: '', selftext: '',
   content: 'all', url: '',
+  over18: undefined,
   selfposts: true,
   itemsLookup: {},
   commentTree: [],

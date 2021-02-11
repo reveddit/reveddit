@@ -8,7 +8,7 @@ import {
   getPostsByIDForCommentData as getPushshiftPostsForCommentData,
   getCommentsBySubreddit as pushshiftGetCommentsBySubreddit
 } from 'api/pushshift'
-import { commentIsDeleted, commentIsRemoved, postIsDeleted } from 'utils'
+import { commentIsDeleted, commentIsRemoved, postIsDeleted, isEmptyObj } from 'utils'
 import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED,
          UNKNOWN_REMOVED, NOT_REMOVED,
          AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
@@ -258,18 +258,28 @@ export const combinedGetCommentsBySubreddit = (args) => {
   })
 }
 
+export const setSubredditMeta = (subreddit, global) => {
+  const moderators_promise = getModerators(subreddit)
+  const subreddit_about_promise = getSubredditAbout(subreddit)
+  let over18 = false
+  const subreddit_lc = subreddit.toLowerCase()
+  Promise.all([moderators_promise, subreddit_about_promise]).then(([moderators, subreddit_about]) => {
+    if (isEmptyObj(moderators) && isEmptyObj(subreddit_about)) {
+      window.location.href = `/v/${subreddit}/top/#banned`
+    }
+    over18 = subreddit_about.over18
+    global.setState({moderators: {[subreddit_lc]: moderators}, over18})
+  })
+  return subreddit_about_promise
+}
+
 export const getRevdditCommentsBySubreddit = (subreddit, global) => {
   const {n, before, before_id} = global.state
 
   if (subreddit === 'all') {
     subreddit = ''
   }
-  const subreddit_lc = subreddit.toLowerCase()
-  const moderators_promise = getModerators(subreddit)
-  .then(moderators => {
-    global.setState({moderators: {[subreddit_lc]: moderators}})
-  })
-  const subreddit_about_promise = getSubredditAbout(subreddit)
+  const subreddit_about_promise = setSubredditMeta(subreddit, global)
   const modlogs_promise = getModlogsComments(subreddit)
 
   return combinedGetCommentsBySubreddit({subreddit, n, before, before_id, global,
