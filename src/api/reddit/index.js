@@ -2,7 +2,7 @@ import { chunk, flatten, fetchWithTimeout, promiseDelay, getRandomInt, paramStri
 import { getAuth } from './auth'
 
 const https = 'https://'
-const oauth_reddit = https+'oauth.reddit.com/'
+export const oauth_reddit = https+'oauth.reddit.com/'
 export const oauth_reddit_rev = https+'ored.reveddit.com/'
 let can_use_oauth_reddit_rev = true
 export const www_reddit = https+'www.reddit.com'
