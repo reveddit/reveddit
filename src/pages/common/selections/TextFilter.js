@@ -12,7 +12,7 @@ const SUFFIX_MAX = '_'+MAX
 
 const ANY = '"."', ANY_TEXT = 'any'
 const NONE = '-"."', NONE_TEXT = 'none'
-const EXCLUDE = '-"^\\[removed\\]$"', EXCLUDE_TEXT = 'exclude [removed]'
+const EXCLUDE = '-"^\\[(removed|deleted)\\]$"', EXCLUDE_TEXT = 'exclude [removed]'
 
 const associatedValues = {
   [ANY_TEXT]: ANY,
