@@ -58,7 +58,7 @@ const countReplies = (comment, maxDepth, limitCommentDepth) => {
 
 const CommentSection = (props) => {
   const { global, focusCommentID, root,
-          page_type,
+          page_type, viewableItems,
         } = props
   const { removedFilter, removedByFilter, exclude_action, localSort,
           localSortReverse, showContext, context,
@@ -140,9 +140,15 @@ const CommentSection = (props) => {
     const visibleComments = {}
     filterCommentTree(commentTree, commentsLookup, visibleComments, (item) => filterFunctions.every(f => f(item)))
     if (! showContext) {
-      visibleComments[rootFullID] = flattenTree(rootFullID, visibleComments)
-      if (root && commentsLookup[root]) {
-        visibleComments[rootFullID].push(commentsLookup[root])
+      if (! focusCommentID || ! commentsLookup[focusCommentID]) {
+        visibleComments[rootFullID] = viewableItems
+      } else {
+        //need to filter a second time here b/c an uptree comment might be marked visible due to something below it.
+        //in flat view, don't want to show unmatched uptree comments
+        visibleComments[rootFullID] = flattenTree(rootFullID, visibleComments).filter(item => filterFunctions.every(f => f(item)))
+        if (root && commentsLookup[root] && filterFunctions.every(f => f(commentsLookup[root]))) {
+          visibleComments[rootFullID].push(commentsLookup[root])
+        }
       }
     }
     sortVisibleComments(visibleComments)
@@ -164,7 +170,12 @@ const CommentSection = (props) => {
   useEffect(() => {
     setShowFilteredRootComments(false)
   }, [filters_str])
-  const rootComments = root && commentsLookup[root] ? [commentsLookup[root]] : visibleComments[threadPost.name] || []
+  let rootComments
+  if (root && visibleComments[rootFullID]) {
+    rootComments = visibleComments[rootFullID]
+  } else {
+    rootComments = visibleComments[threadPost.name] || []
+  }
   for (const comment of rootComments) {
     if (limitCommentDepth && numCommentsShown >= MAX_COMMENTS_TO_SHOW && ! showAllComments) {
       comments_render.push(<div key="load-more"><a className='pointer' onClick={() => setShowAllComments(true)}>load more comments</a></div>)
@@ -173,7 +184,7 @@ const CommentSection = (props) => {
     //countReplies could be,
     //   - computed in a hook & adjusted to use visibleComments, or
     //   - omitted by using react-window
-    numCommentsShown += countReplies(comment, getMaxCommentDepth(), limitCommentDepth)+1
+    numCommentsShown += showContext ? countReplies(comment, getMaxCommentDepth(), limitCommentDepth)+1 : 1
     // any attributes added below must also be added to thread/Comment.js
     // in rest = {...}
     comments_render.push(<Comment
@@ -192,7 +203,7 @@ const CommentSection = (props) => {
   }
   const numRepliesHiddenByFilters = origRootComments.length - rootComments.length
 
-  if (numRepliesHiddenByFilters) {
+  if (numRepliesHiddenByFilters > 0 && showContext) {
     comments_render.push(
       <div key='show-all'>
         <a className='pointer' onClick={() => setShowFilteredRootComments(true)}>▾ show hidden replies ({numRepliesHiddenByFilters.toLocaleString()})</a>

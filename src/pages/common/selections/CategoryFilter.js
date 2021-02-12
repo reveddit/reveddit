@@ -46,6 +46,10 @@ class CategoryFilter extends React.Component {
           {
             category_ordered.map(category => {
               let displayValue = category_unique_to_displayValue[category]
+              if (! displayValue) {
+                //handle when [deleted] author gets filled in
+                return null
+              }
               if (displayValue.length > 30) {
                 displayValue = displayValue.substr(0, 30)+'...'
               }

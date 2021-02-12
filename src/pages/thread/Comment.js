@@ -189,7 +189,8 @@ const Comment = withRouter(connect((props) => {
           ${deleted ? 'deleted':''}
           ${locked ? 'locked':''}
           ${even_odd}
-          ${id === focusCommentID || author === categoryFilter_author ? 'focus':''}
+          ${   (categoryFilter_author !== 'all' && author === categoryFilter_author)
+            || (categoryFilter_author === 'all' && id === focusCommentID) ? 'focus':''}
     `}>
       <div className='comment-head'>
         <a onClick={() => setDisplayBody(! displayBody)} className={`collapseToggle spaceRight ${hidden}`}>{expandIcon}</a>
