@@ -171,8 +171,10 @@ const CommentSection = (props) => {
     setShowFilteredRootComments(false)
   }, [filters_str])
   let rootComments
-  if (root && visibleComments[rootFullID]) {
+  if (! showContext && visibleComments[rootFullID]) {
     rootComments = visibleComments[rootFullID]
+  } else if (root && commentsLookup[root]) {
+    rootComments = [commentsLookup[root]]
   } else {
     rootComments = visibleComments[threadPost.name] || []
   }
