@@ -10,8 +10,15 @@ const MIN = 'min', MAX = 'max'
 const SUFFIX_MIN = '_'+MIN
 const SUFFIX_MAX = '_'+MAX
 
-const ANY = '"."'
-const NONE = '-"."'
+const ANY = '"."', ANY_TEXT = 'any'
+const NONE = '-"."', NONE_TEXT = 'none'
+const EXCLUDE = '-"^\\[removed\\]$"', EXCLUDE_TEXT = 'exclude [removed]'
+
+const associatedValues = {
+  [ANY_TEXT]: ANY,
+  [NONE_TEXT]: NONE,
+  [EXCLUDE_TEXT]: EXCLUDE,
+}
 const anyNoneOpposite = { any: 'none', none: 'any' }
 
 const TextFilter = connect(({global, page_type, globalVarName, placeholder, minMax, anyNone, ...selectionProps }) => {
@@ -30,18 +37,14 @@ const TextFilter = connect(({global, page_type, globalVarName, placeholder, minM
     adjusted_globalVarName = globalVarName+suffix
   }
   const [inputValue, setInputValue] = useState(valueFromQueryParam)
-  const [anyNoneChecked, setAnyNoneChecked] = useState({
-    any: false,
-    none: false,
-  })
+  const [checkedMeta, setCheckedMeta] = useState({})
   const oldSelectMinRef = useRef()
   useEffect(() => {
-    if (anyNone) {
-      const value = global.state[globalVarName]
-      if (value === ANY) {
-        setAnyNoneChecked({any: true})
-      } else if (value === NONE) {
-        setAnyNoneChecked({none: true})
+    const value = global.state[globalVarName]
+    for (const [text, associatedValue] of Object.entries(associatedValues)) {
+      if (value === associatedValue) {
+        setCheckedMeta({[text]: true})
+        break
       }
     }
   }, [])
@@ -90,7 +93,28 @@ const TextFilter = connect(({global, page_type, globalVarName, placeholder, minM
     debounce(updateStateAndURL, 500),
     [selectMin]
   )
-  let size, select, checkboxes
+  let size, select, checkboxes, inputsClass = ''
+  const Checkbox = ({text}) => {
+    return (
+      <label title={text}>
+        <input type='checkbox' checked={checkedMeta[text]} value={text} onChange={
+          (e) => {
+            const newVal = ! checkedMeta[text]
+            setCheckedMeta({
+              [anyNoneOpposite[text]]: false,
+              [text]: newVal
+            })
+            if (newVal) {
+              setInputValue(associatedValues[text])
+            } else if (inputValue === associatedValues[text]) {
+              setInputValue('')
+            }
+          }
+        }/>
+        <span>{text}</span>
+      </label>
+    )
+  }
   if (minMax) {
     size = 7
     select = (
@@ -103,37 +127,14 @@ const TextFilter = connect(({global, page_type, globalVarName, placeholder, minM
     )
   } else if (anyNone) {
     size = 8
-    const Checkbox = ({text}) => {
-      return (
-        <label title={text}>
-          <input type='checkbox' checked={anyNoneChecked[text]} value={text} onChange={
-            (e) => {
-              const newVal = ! anyNoneChecked[text]
-              setAnyNoneChecked({
-                [anyNoneOpposite[text]]: false,
-                [text]: newVal
-              })
-              if (newVal) {
-                if (text === 'any') {
-                  setInputValue(ANY)
-                } else {
-                  setInputValue(NONE)
-                }
-              } else if ((inputValue === ANY && text === 'any') ||
-                         (inputValue === NONE && text === 'none')) {
-                setInputValue('')
-              }
-            }
-          }/>
-          <span>{text}</span>
-        </label>
-      )
-    }
-    checkboxes = <div><Checkbox text='any'/> <Checkbox text='none'/></div>
+    checkboxes = <div><Checkbox text={ANY_TEXT}/> <Checkbox text={NONE_TEXT}/></div>
+  } else if (['thread', 'subreddit_comments'].includes(page_type) && selectionProps.title.match(/body/i)) {
+    checkboxes = <div><Checkbox text={EXCLUDE_TEXT}/></div>
+    inputsClass = 'below'
   }
   return (
     <Selection className='textFilter' isFilter={true} isSet={inputValue.toString().trim().length !== 0} {...selectionProps}>
-      <div className='inputs'>
+      <div className={'inputs '+inputsClass}>
         {select}
         <input type='text' size={size}
           name={globalVarName+suffix} value={inputValue} placeholder={placeholder}
