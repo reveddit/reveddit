@@ -7,9 +7,10 @@ import Selections from 'pages/common/selections'
 import ResultsSummary from 'pages/common/ResultsSummary'
 import { REMOVAL_META, NOT_REMOVED, USER_REMOVED } from 'pages/common/RemovedBy'
 import { withFetch } from 'pages/RevdditFetcher'
-import { reversible, getUrlWithTimestamp, copyLink, PATH_STR_USER } from 'utils'
+import { reversible, getUrlWithTimestamp, PATH_STR_USER } from 'utils'
 import Highlight from 'pages/common/Highlight'
 import Pagination from 'components/Pagination'
+import { ShareLink } from 'components/Misc'
 
 const SubredditComments = (props) => {
   const { subreddit } = props.match.params
@@ -26,9 +27,7 @@ const SubredditComments = (props) => {
 
   return (
     <React.Fragment>
-      <div className="revddit-sharing">
-        <a href={getUrlWithTimestamp()} onClick={copyLink}>copy sharelink</a>
-      </div>
+      <ShareLink href={getUrlWithTimestamp()} useHref={false}/>
       {selections}
       {summary}
       {! hasVisitedUserPage &&

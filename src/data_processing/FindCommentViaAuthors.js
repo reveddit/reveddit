@@ -24,7 +24,8 @@ export const unarchived_search_see_more = <>
 
 export const unarchived_search_help_content = (
   <>
-    <p>Sometimes the archive service, called "Pushshift", falls behind. If something is removed before it can be archived then it can only be found on the author's /user page. To find it you need to know the author first. Reveddit can search /user pages of nearby authors, such as the grandparent comment's author, to fill in some of these comments.</p>
+    <p>Clicking '{unarchived_search_button_word}' searches for unarchived comments, adds them if they are found, and updates the URL to save their location so the results can be shared.</p>
+    <p>This is useful because sometimes the archive service, called "Pushshift", does not archive data in time. If something is removed before it can be archived then it can only be found on the author's /user page. To find it you need to know the author first. Reveddit can search /user pages of nearby authors, such as the grandparent comment's author, to fill in some of these comments.</p>
     <p>Clicking '{unarchived_search_button_word}' performs this search once for a group of users who have successfully commented in the thread. If there is no result after the first click, clicking more times may yield a result.</p>
     <p>{unarchived_search_see_more}</p>
   </>

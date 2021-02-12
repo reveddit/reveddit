@@ -3,12 +3,13 @@ import { Link } from 'react-router-dom'
 import Post from 'pages/common/Post'
 import { withFetch } from 'pages/RevdditFetcher'
 import { connect, localSort_types } from 'state'
-import { reversible, getUrlWithTimestamp, copyLink, PATH_STR_USER,
+import { reversible, getUrlWithTimestamp, PATH_STR_USER,
          PATH_STR_SUB,
 } from 'utils'
 import Highlight from 'pages/common/Highlight'
 import Pagination from 'components/Pagination'
 import Notice from 'pages/common/Notice'
+import { ShareLink } from 'components/Misc'
 
 const SubredditPosts = (props) => {
   const { subreddit } = props.match.params
@@ -41,9 +42,7 @@ const SubredditPosts = (props) => {
   }
   return (
     <React.Fragment>
-      <div className="revddit-sharing">
-        <a href={getUrlWithTimestamp()} onClick={copyLink}>copy sharelink</a>
-      </div>
+      <ShareLink href={getUrlWithTimestamp()} useHref={false}/>
       {selections}
       {summary}
       {instructionalNotice}

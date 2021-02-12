@@ -3,9 +3,10 @@ import { connect, localSort_types } from 'state'
 import Post from 'pages/common/Post'
 import Comment from 'pages/common/Comment'
 import { withFetch } from 'pages/RevdditFetcher'
-import { reversible, copyLink } from 'utils'
+import { reversible } from 'utils'
 import Highlight from 'pages/common/Highlight'
 import Pagination from 'components/Pagination'
+import { ShareLink } from 'components/Misc'
 
 const Info = (props) => {
   const { page_type, viewableItems, selections, summary, archiveDelayMsg,
@@ -15,10 +16,8 @@ const Info = (props) => {
   const noItemsFound = items.length === 0 && ! loading && window.location.search !== ''
 
   const ids = viewableItems.map(o => o.name)
-  const shareLink = page_type === 'search' ? (
-    <div className="revddit-sharing">
-      <a href={'/info?id='+ids.join(',')} onClick={(e) => copyLink(e, true)}>copy sharelink</a>
-    </div>
+  const shareLink = ids.length && page_type === 'search' ? (
+    <ShareLink href={'/info?id='+ids.join(',')}/>
   ) : ''
 
   let pagination = ''

@@ -11,79 +11,83 @@ import { SimpleURLSearchParams, jumpToHash,
          PATH_STR_USER, PATH_STR_SUB,
 } from 'utils'
 import Highlight from 'pages/common/Highlight'
+import { ShareLink } from 'components/Misc'
 
-class Thread extends React.Component {
-  render () {
-    const { itemsLookup:comments, threadPost: post, hasVisitedUserPage,
-            context, showContext, initialFocusCommentID, add_user,
-          } = this.props.global.state
+const Thread = connect(withFetch(withRouter(({global, ...props}) => {
+  const { itemsLookup:comments, threadPost: post, hasVisitedUserPage,
+          context, showContext, initialFocusCommentID, add_user,
+        } = global.state
 
-    const { id, author } = post
-    const { subreddit, threadID, urlTitle = '', commentID } = this.props.match.params
-    const { selections, summary,
-            page_type, archiveDelayMsg,
-          } = this.props
-    const queryParams = new SimpleURLSearchParams()
-    if (add_user) {
-      queryParams.set(urlParamKeys.add_user, add_user)
-    }
-    const linkToRestOfComments = `${PATH_STR_SUB}/${subreddit}/comments/${threadID}/${urlTitle}/`+queryParams.toString()
-    const isSingleComment = (commentID !== undefined)
-    const updateStateAndURL = this.props.global.selection_update
-    let root = undefined
-    const numComments = Object.keys(comments).length
+  const { id, author } = post
+  const { subreddit, threadID, urlTitle = '', commentID } = props.match.params
+  const { selections, summary,
+          page_type, archiveDelayMsg,
+        } = props
+  const queryParams = new SimpleURLSearchParams()
+  if (add_user) {
+    queryParams.set(urlParamKeys.add_user, add_user)
+  }
+  const basePath = `${PATH_STR_SUB}/${subreddit}/comments/${threadID}/${urlTitle}/`
+  const linkToRestOfComments = basePath+queryParams.toString()
+  const isSingleComment = (commentID !== undefined)
+  const updateStateAndURL = global.selection_update
+  let root = undefined
+  const numComments = Object.keys(comments).length
 
-    if (isSingleComment) {
-      root = commentID
-      if (parseInt(context) && numComments) {
-        var i
-        for (i = 0; i < context && (root in comments) && comments[root].parent_id.substr(0, 2) !== 't3'; i++) {
-          const parent_id = comments[root].parent_id.substr(3)
-          if (comments[parent_id]) {
-            root = comments[root].parent_id.substr(3)
-          }
+  if (isSingleComment) {
+    root = commentID
+    if (parseInt(context) && numComments) {
+      var i
+      for (i = 0; i < context && (root in comments) && comments[root].parent_id.substr(0, 2) !== 't3'; i++) {
+        const parent_id = comments[root].parent_id.substr(3)
+        if (comments[parent_id]) {
+          root = comments[root].parent_id.substr(3)
         }
       }
     }
-    const resetFilters_func = () => this.props.global.resetFilters(page_type)
-    const viewContext = <a className="pointer" onClick={() => updateStateAndURL('showContext', true, page_type)}>show context</a>
-    let viewAllComments = <Link to={linkToRestOfComments} onClick={resetFilters_func}>view all comments</Link>
-    const resetFilters = <a className="pointer" onClick={resetFilters_func}>reset filters</a>
-    if (initialFocusCommentID) {
-      viewAllComments = <a href={linkToRestOfComments}>view all comments</a>
-    }
-
-    return (
-      <>
-        {selections}
-        <Post {...post} page_type={page_type} />
-        {summary}
-        <Highlight/>
-        {archiveDelayMsg}
-        {! hasVisitedUserPage &&
-          <div className='notice-with-link userpage-note'>
-            <div>{"Check if you have any removed comments."}</div>
-            <Link to={PATH_STR_USER+'/'}>view my removed comments</Link>
-          </div>
-        }
-        {(numComments !== 0 && (commentID || id)) &&
-          <>
-            {isSingleComment &&
-              <Notice message="you are viewing a single comment's thread." htmlLink={viewAllComments}/>
-            }
-            {! showContext &&
-              <Notice message="context is flattened." htmlLink={viewContext}/>
-            }
-            <CommentSection
-              root={root}
-              page_type={page_type}
-              focusCommentID={commentID}
-            />
-          </>
-        }
-      </>
-    )
   }
-}
+  if (context) {
+    queryParams.set(urlParamKeys.context, context)
+  }
+  const shareLink = basePath + (commentID ? commentID + '/' : '') + queryParams.toString()
+  const resetFilters_func = () => global.resetFilters(page_type)
+  const viewContext = <a className="pointer" onClick={() => updateStateAndURL('showContext', true, page_type)}>show context</a>
+  let viewAllComments = <Link to={linkToRestOfComments} onClick={resetFilters_func}>view all comments</Link>
+  const resetFilters = <a className="pointer" onClick={resetFilters_func}>reset filters</a>
+  if (initialFocusCommentID) {
+    viewAllComments = <a href={linkToRestOfComments}>view all comments</a>
+  }
+  return (
+    <>
+      <ShareLink href={shareLink}/>
+      {selections}
+      <Post {...post} page_type={page_type} />
+      {summary}
+      <Highlight/>
+      {archiveDelayMsg}
+      {! hasVisitedUserPage &&
+        <div className='notice-with-link userpage-note'>
+          <div>{"Check if you have any removed comments."}</div>
+          <Link to={PATH_STR_USER+'/'}>view my removed comments</Link>
+        </div>
+      }
+      {(numComments !== 0 && (commentID || id)) &&
+        <>
+          {isSingleComment &&
+            <Notice message="you are viewing a single comment's thread." htmlLink={viewAllComments}/>
+          }
+          {! showContext &&
+            <Notice message="context is flattened." htmlLink={viewContext}/>
+          }
+          <CommentSection
+            root={root}
+            page_type={page_type}
+            focusCommentID={commentID}
+          />
+        </>
+      }
+    </>
+  )
+})))
 
-export default connect(withFetch(withRouter(Thread)))
+export default Thread

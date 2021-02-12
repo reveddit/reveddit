@@ -3,7 +3,7 @@ import {www_reddit, old_reddit} from 'api/reddit'
 import { QuestionMark } from 'pages/common/svg'
 import ModalContext from 'contexts/modal'
 import Bowser from 'bowser'
-import {ext_urls, jumpToHash} from 'utils'
+import {ext_urls, jumpToHash, copyLink} from 'utils'
 import {meta} from 'pages/about/AddOns'
 import { Link } from 'react-router-dom'
 
@@ -127,4 +127,13 @@ export const Help = ({title = '', content = ''}) => {
       {content}
     </div>
   )
+}
+
+export const ShareLink = ({href, useHref=true}) => {
+  return (
+    <div className="revddit-sharing">
+      <a href={href} onClick={(e) => copyLink(e, useHref)}>copy sharelink</a>
+    </div>
+  )
+
 }
