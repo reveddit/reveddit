@@ -170,31 +170,6 @@ export const get = (key, defaultValue) => {
 
 export const put = (key, value) => window.localStorage.setItem(key, JSON.stringify(value))
 
-// Sorting for comments
-export const topSort = (commentA, commentB) => {
-  if (commentA.score > commentB.score) return -1
-  if (commentA.score < commentB.score) return 1
-  return 0
-}
-
-export const bottomSort = (commentA, commentB) => {
-  if (commentA.score < commentB.score) return -1
-  if (commentA.score > commentB.score) return 1
-  return 0
-}
-
-export const newSort = (commentA, commentB) => {
-  if (commentA.created_utc > commentB.created_utc) return -1
-  if (commentA.created_utc < commentB.created_utc) return 1
-  return 0
-}
-
-export const oldSort = (commentA, commentB) => {
-  if (commentA.created_utc < commentB.created_utc) return -1
-  if (commentA.created_utc > commentB.created_utc) return 1
-  return 0
-}
-
 export const getPrettyTimeLength = (seconds) => {
   const thresholds = [[60, 'second', 'seconds'], [60, 'minute', 'minutes'], [24, 'hour', 'hours'], [7, 'day', 'days'],
                    [365/12/7, 'week', 'weeks'], [12, 'month', 'months'], [10, 'year', 'years'],
