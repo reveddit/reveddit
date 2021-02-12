@@ -42,11 +42,16 @@ export const getModerators = (subreddit, useProxy = false) => {
   return getAuth()
   .then(auth => window.fetch(url, auth))
   .then(response => response.json())
+  .catch(error => {return {}})
   .then(results => {
     if (results.reason === 'quarantined') {
       throw results
     }
-    return results.data.children.reduce((map, obj) => (map[obj.name] = true, map), {})
+    if (results.data) {
+      return results.data.children.reduce((map, obj) => (map[obj.name] = true, map), {})
+    } else {
+      return results
+    }
   })
 }
 
@@ -69,11 +74,12 @@ export const getSubredditAbout = (subreddit, useProxy = false) => {
   return getAuth()
   .then(auth => window.fetch(url, auth))
   .then(response => response.json())
+  .catch(error => {return {}})
   .then(results => {
     if (results.reason === 'quarantined') {
       throw results
     }
-    return results.data
+    return results.data || results
   })
 }
 
