@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react'
-import {ext_urls, makeDonateVisible} from 'utils'
+import {ext_urls, makeDonateVisible, copyLink} from 'utils'
 import { InternalPage } from 'components/Misc'
 
 export const meta = {
@@ -20,7 +20,11 @@ const rev = 'Reveddit '
 const textContent = {
   'rt': {
     title: rev+'Real-Time',
-    description: 'Notifies you when any of your content on reddit has been removed.'
+    description:
+      <>
+        <p>Notifies you when any of your content on reddit has been removed.</p>
+        <p><a href='direct/' onClick={(e) => copyLink(e, true)}>Copy a direct sharelink</a> - copies a link that navigates directly according to the browser.</p>
+      </>
   },
   'linker': {
     title: rev+'Linker',
@@ -45,9 +49,9 @@ const linkWrap = (extension) => {
     <>
       <h2 className='about'>{textContent[extension].title}</h2>
       <div style={{margin:'0 5%'}}>
-        <div style={{paddingBottom:'10px'}}>{textContent[extension].description}</div>
+        <div>{textContent[extension].description}</div>
         {extension === 'rt' &&
-          (<div style={{margin:'15px 0'}}>
+          (<div style={{margin:'0 0 15px'}}>
             <img src="/images/screenshot-notification-smaller.png" style={{maxWidth:'100%'}}/>
           </div>)
         }
