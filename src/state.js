@@ -44,7 +44,7 @@ const urlParamKeys_max_min_base = {
   link_score: 'link_score',
 }
 const MIN = '_min', MAX = '_max'
-const urlParamKeys_max_min = Object.keys(urlParamKeys_max_min_base)
+export const urlParamKeys_max_min = Object.keys(urlParamKeys_max_min_base)
   .reduce((map,key) => {
     map[key+MIN] = key+MIN
     map[key+MAX] = key+MAX

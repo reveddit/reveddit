@@ -13,7 +13,9 @@ import { getSortFn } from 'data_processing/sort'
 import Selections from 'pages/common/selections'
 import SummaryAndPagination from 'pages/common/SummaryAndPagination'
 import { showAccountInfo_global } from 'pages/modals/Settings'
-import { connect, removedFilter_types, getExtraGlobalStateVars, create_qparams } from 'state'
+import { connect, removedFilter_types, getExtraGlobalStateVars, create_qparams,
+         urlParamKeys_max_min,
+} from 'state'
 import { NOT_REMOVED, COLLAPSED, ORPHANED } from 'pages/common/RemovedBy'
 import { jumpToHash, get, put, ext_urls,
          itemIsActioned, itemIsCollapsed, commentIsOrphaned,
@@ -459,8 +461,11 @@ const GenericPostProcessor = connect((props) => {
          numOrphaned = 0,  numOrphanedNotShown = 0
     const viewableItems = items.filter(item => {
       let itemIsOneOfSelectedCategory = false
-      if (! category_state || category_state === item[category_unique_field]) {
+      if (! category_state || showAllCategories || category_state === item[category_unique_field]) {
         itemIsOneOfSelectedCategory = true
+      } else {
+        // don't count items not in the selected category
+        return false
       }
       if (stateSaysHideComments && ! commentIsMissingInThread(item)) {
         let hideItem = false
@@ -502,27 +507,27 @@ const GenericPostProcessor = connect((props) => {
     }
     return {viewableItems, numCollapsedNotShown, numOrphanedNotShown}
   }
-  const dependencies_visibleItems = baseMatchFuncAndParams.map(x => x[1][0]).filter(x => x).map(x => gs[x])
+  const filterDependencies = JSON.stringify(Object.keys(urlParamKeys_max_min).map(x => gs[x])
     .concat(
-      gs.keywords,
-      gs.removedFilter,
       gs.thread_before,
-      Object.keys(gs.removedByFilter).join(), gs.exclude_action,
-      Object.keys(gs.tagsFilter).join(), gs.exclude_tag,
+      gs.keywords, gs.post_flair, gs.user_flair, gs.filter_url,
+      gs.removedFilter,
+      gs.removedByFilter, gs.exclude_action,
+      gs.tagsFilter, gs.exclude_tag,
       gs.items.length,
-      gs.add_user,
+      gs.add_user, gs.add_user_on_page_load,
       showAllOrphaned, showAllCollapsed,
       gs.localSort, gs.localSortReverse,
-    ).join()
-  const visibleItemsWithoutCategoryFilter_meta = useMemo(() =>
-    getVisibleItemsWithoutCategoryFilter(),
-    [dependencies_visibleItems])
+    ))
+  const visibleItemsWithoutCategoryFilter_meta = useMemo(
+    getVisibleItemsWithoutCategoryFilter,
+    [filterDependencies])
   const {visibleItemsWithoutCategoryFilter} = visibleItemsWithoutCategoryFilter_meta
   const {category, category_title, category_unique_field} = getCategorySettings(page_type, subreddit)
   const category_state = (gs['categoryFilter_'+category] || '').toString()
   const {viewableItems, numCollapsedNotShown, numOrphanedNotShown} = useMemo(() =>
     getViewableItems(visibleItemsWithoutCategoryFilter, category_state, category_unique_field),
-    [dependencies_visibleItems, category, category_state, category_unique_field])
+    [filterDependencies, category, category_state, category_unique_field])
   const selections =
     <Selections subreddit={subreddit}
                 page_type={page_type}
@@ -530,7 +535,8 @@ const GenericPostProcessor = connect((props) => {
                 num_showing={viewableItems.length}
                 num_items={items.length}
                 category_type={category} category_title={category_title}
-                category_unique_field={category_unique_field}/>
+                category_unique_field={category_unique_field}
+                filterDependencies={filterDependencies}/>
   const summary =
     <SummaryAndPagination num_items={items.length}
                           num_showing={viewableItems.length}

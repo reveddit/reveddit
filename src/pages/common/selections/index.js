@@ -49,6 +49,7 @@ const from_help = <Help title='From filter' content={<>
 
 const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter,
                      category_type, category_title, category_unique_field, global,
+                     filterDependencies,
                    }) => {
   const [showFiltersMeta, setShowFiltersMeta] = useState({
     showFilters: false,
@@ -91,7 +92,9 @@ const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter,
 
   const categoryFilter = <CategoryFilter page_type={page_type}
     visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
-    type={category_type} title={category_title} unique_field={category_unique_field}/>
+    type={category_type} title={category_title} unique_field={category_unique_field}
+    filterDependencies={filterDependencies}
+  />
   const textFilter_content_title = page_type === 'thread' ? 'Body' : 'Title/Body'
   const textFilter_content =
     <TextFilter page_type={page_type} globalVarName='keywords' placeholder='keywords' key='kw'

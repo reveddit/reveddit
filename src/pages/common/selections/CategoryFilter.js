@@ -1,15 +1,16 @@
-import React, {useMemo} from 'react'
+import React, {useState, useMemo} from 'react'
 import { connect } from 'state'
 import { Selection } from './SelectionBase'
 
 const CategoryFilter = connect((props) => {
-  const { global, type, title, page_type } = props
+  const { global, type, title, page_type, filterDependencies } = props
   let unique_field = type
   if (props.unique_field) {
     unique_field = props.unique_field
   }
-  const {items, add_user, add_user_on_page_load} = global.state
-  const computeCountAndSortMeta = () => {
+  const {items} = global.state
+  const [sortAtoZ, setSortAtoZ] = useState(false)
+  const computeCountMeta = () => {
     const category_visible_counts = {}
     const category_counts = {}
     const category_unique_to_displayValue = {}
@@ -26,22 +27,26 @@ const CategoryFilter = connect((props) => {
     props.visibleItemsWithoutCategoryFilter.forEach(item => {
       category_visible_counts[item[unique_field]] += 1
     })
-    const category_ordered = Object.keys(category_visible_counts).sort((a,b) => {
-      let alpha = a.toLowerCase() < b.toLowerCase() ? -1 : 1
-      return (category_visible_counts[b] - category_visible_counts[a]) || alpha
-    })
 
     return {category_unique_to_displayValue,
             category_counts,
             category_visible_counts,
-            category_ordered,
            }
   }
   const {category_unique_to_displayValue,
          category_counts,
          category_visible_counts,
-         category_ordered,
-       } = useMemo(computeCountAndSortMeta, [items.length, add_user, add_user_on_page_load])
+       } = useMemo(computeCountMeta, [filterDependencies])
+  const category_ordered = useMemo(() => {
+    return Object.keys(category_visible_counts).sort((a,b) => {
+      const alpha = a.toLowerCase() < b.toLowerCase() ? -1 : 1
+      const byCount = (category_visible_counts[b] - category_visible_counts[a])
+      if (sortAtoZ) {
+        return alpha || byCount
+      }
+      return byCount || alpha
+    })
+  }, [filterDependencies, sortAtoZ])
   let categoryFilter = global.state['categoryFilter_'+type]
   if (! categoryFilter) {
     categoryFilter = 'all'
@@ -71,6 +76,10 @@ const CategoryFilter = connect((props) => {
           })
         }
       </select>
+      <label>
+        <input type='checkbox' checked={sortAtoZ} value='sort A-Z' onChange={() => setSortAtoZ(! sortAtoZ)}/>
+        <span>sort a-z</span>
+      </label>
     </Selection>
   )
 })
