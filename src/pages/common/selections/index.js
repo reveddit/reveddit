@@ -50,25 +50,32 @@ const from_help = <Help title='From filter' content={<>
 const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter,
                      category_type, category_title, category_unique_field, global,
                    }) => {
-  const [showFilters, setShowFilters] = useState(false)
+  const [showFiltersMeta, setShowFiltersMeta] = useState({
+    showFilters: false,
+    filtersHaveBeenShown: false,
+  })
 
   useEffect(() => {
     const queryParams = new SimpleURLSearchParams(window.location.search)
     if (queryParams.get(paramKey) === 'true') {
-      setShowFilters(true)
+      setShowFiltersMeta({showFilters: true, filtersHaveBeenShown: true})
     }
   }, [])
-
+  const {showFilters, filtersHaveBeenShown} = showFiltersMeta
   const toggleShowFilters = () => {
-    const oppositeShowFilters = ! showFilters
+    const newShowFiltersMeta = {
+      showFilters: ! showFilters,
+      filtersHaveBeenShown,
+    }
     const queryParams = new SimpleURLSearchParams(window.location.search)
-    if (oppositeShowFilters) {
+    if (newShowFiltersMeta.showFilters) {
+      newShowFiltersMeta.filtersHaveBeenShown = true
       queryParams.set(paramKey, true)
     } else {
       queryParams.delete(paramKey)
     }
     updateURL(queryParams)
-    setShowFilters(oppositeShowFilters)
+    setShowFiltersMeta(newShowFiltersMeta)
   }
   const showFiltersText = showFilters ? '[–] hide filters' : '[+] show filters'
   let upvoteRemovalRateHistory = '', save_reset_buttons = ''
@@ -120,8 +127,8 @@ const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter,
         {save_reset_buttons}
       </div>
       <div style={{clear:'both'}}></div>
-      {showFilters &&
-        <div className='selections'>
+      {filtersHaveBeenShown &&
+        <div className='selections' style={showFilters ? null : {display:'none'}}>
           {(() => {
             switch(page_type) {
               case 'subreddit_posts':
