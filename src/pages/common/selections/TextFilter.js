@@ -40,14 +40,17 @@ const TextFilter = connect(({global, page_type, globalVarName, placeholder, minM
   const [checkedMeta, setCheckedMeta] = useState({})
   const oldSelectMinRef = useRef()
   useEffect(() => {
-    const value = global.state[globalVarName]
+    // make checkbox reflect what's in the text input box
     for (const [text, associatedValue] of Object.entries(associatedValues)) {
-      if (value === associatedValue) {
-        setCheckedMeta({[text]: true})
+      const isChecked = checkedMeta[text]
+      if (inputValue === associatedValue && ! isChecked) {
+        setCheckedMeta({[text]: true, [anyNoneOpposite]: false})
         break
+      } else if (inputValue !== associatedValue && isChecked) {
+        setCheckedMeta({[text]: false})
       }
     }
-  }, [])
+  }, [inputValue])
   useEffect(() => {
     const oldSelectMin = oldSelectMinRef.current
     oldSelectMinRef.current = selectMin
@@ -128,7 +131,7 @@ const TextFilter = connect(({global, page_type, globalVarName, placeholder, minM
   } else if (anyNone) {
     size = 8
     checkboxes = <div><Checkbox text={ANY_TEXT}/> <Checkbox text={NONE_TEXT}/></div>
-  } else if (['thread', 'subreddit_comments'].includes(page_type) && selectionProps.title.match(/body/i)) {
+  } else if (['thread', 'subreddit_comments', 'search', 'info'].includes(page_type) && selectionProps.title.match(/body/i)) {
     checkboxes = <div><Checkbox text={EXCLUDE_TEXT}/></div>
     inputsClass = 'below'
   }
