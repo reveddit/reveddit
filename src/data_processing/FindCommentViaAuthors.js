@@ -27,8 +27,11 @@ export const unarchived_search_help_content = (
     <p>Clicking '{unarchived_search_button_word}' searches for unarchived comments, adds them if they are found, and updates the URL to save their location so the results can be shared.</p>
     <p>This is useful because sometimes the archive service, called "Pushshift", does not archive data in time. If something is removed before it can be archived then it can only be found on the author's /user page. To find it you need to know the author first. Reveddit can search /user pages of nearby authors, such as the grandparent comment's author, to fill in some of these comments.</p>
     <p>Clicking '{unarchived_search_button_word}' performs this search once for a group of users who have successfully commented in the thread. If there is no result after the first click, clicking more times may yield a result.</p>
-    <p>The 'preserve' button may reveal new comments for which there was previously no entry. They have no entry because they are unarchived and reddit's comment tree API does not display removed comments that have no replies. They will appear on reveddit as [removed] once they are archived. Or, they may be restored by sharing a URL that contains the add_user parameter.</p>
-    <p>Clicking 'author-focus' or 'op-focus' automatically performs a search for missing comments from the given author.</p>
+    <p>Clicking 'author-focus', 'op-focus', or 'preserve' automatically searches for missing comments from the given author.
+       Some new comments that can only be found on user pages may appear.
+       This happens when a comment has not yet been archived and it has no replies.
+       Reddit's comment tree API does not display removed comments that have no replies.
+    </p>
     <p>{unarchived_search_see_more}</p>
   </>
 )
