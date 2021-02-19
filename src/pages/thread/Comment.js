@@ -90,7 +90,18 @@ const Comment = withRouter(connect((props) => {
   if (deleted) {
     author = '[deleted]'
   }
-
+  // per https://stackoverflow.com/questions/55647287/how-to-send-request-on-click-react-hooks-way/55647571#55647571
+  const isMounted = useRef(true)
+  useEffect(() => {
+    return () => {
+      isMounted.current = false
+    }
+  }, [])
+  const stopLocalLoading = () => {
+    if (isMounted.current) {
+      return setLocalLoading(false)
+    }
+  }
   const permalink_nohash = permalink ? convertPathSub(permalink)
     : `${PATH_STR_SUB}/${subreddit}/comments/${link_id}/_/${id}/`
 
@@ -218,7 +229,7 @@ const Comment = withRouter(connect((props) => {
                     e.preventDefault()
                     finishPromise_then_jumpToHash(
                       insertParent(id, global)
-                      .then(() => setLocalLoading(false))
+                      .then(stopLocalLoading)
                       .then(() => context_update(0, page_type, history, parent_link))
                     )
                   }}>parent</a>}
@@ -232,8 +243,8 @@ const Comment = withRouter(connect((props) => {
                         insertParent(id, global)
                         // parent_id will never be t3_ b/c context link is not rendered for topmost comments
                         .then(() => insertParent(parent_id.substr(3), global))
-                        .then(() => setLocalLoading(false))
-                        .then(() => context_update(contextDefault, page_type, history, contextLink))
+                        .then(stopLocalLoading)
+                        .then(() => context_update(2, page_type, history, contextLink))
                       )
                     }}>context</a>}
                   />

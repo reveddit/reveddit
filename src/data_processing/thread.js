@@ -307,7 +307,12 @@ export const insertParent = (child_id, global) => {
     //some 'inserted' comments might not connect until insertParent() runs a few times from successive clicks
     parent.replies.push(child)
     addAncestor(child, parent_id)
-    return global.setSuccess()
+    commentTree = [parent]
+    return global.setSuccess({commentTree})
+  } else if (parent) {
+    addAncestor(child, parent_id)
+    commentTree = [parent]
+    return global.setSuccess({commentTree})
   }
   return promise
 }
