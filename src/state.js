@@ -42,6 +42,7 @@ const urlParamKeys_max_min_base = {
   age: 'age',
   link_age: 'link_age',
   link_score: 'link_score',
+  comment_length: 'comment_length',
 }
 const MIN = '_min', MAX = '_max'
 export const urlParamKeys_max_min = Object.keys(urlParamKeys_max_min_base)

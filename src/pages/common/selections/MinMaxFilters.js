@@ -33,6 +33,11 @@ const filters = {
     globalVarBase: 'link_age',
     text: 'Link age (mins.)',
     placeholder: '10',
+  },
+  'comment_length': {
+    globalVarBase: 'comment_length',
+    text: 'Comment length',
+    placeholder: '100',
   }
 }
 

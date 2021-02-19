@@ -199,13 +199,18 @@ export const textMatch = (gs, item, globalVarName, fields) => {
   return true
 }
 
-const minMaxMatch = (gs, item, globalVarBase, field, isAge=false) => {
+const minMaxMatch = (gs, item, globalVarBase, field, isAge=false, isLength=false) => {
   if (field in item) {
     const min = gs[globalVarBase+'_min']
     const max = gs[globalVarBase+'_max']
-    const value = isAge ?
-      (now - item[field])/60
-      : item[field]
+    let value
+    if (isAge) {
+      value = (now - item[field])/60
+    } else if (isLength) {
+      value = item[field].length
+    } else {
+      value = item[field]
+    }
     if (min !== '') {
       return min <= value
     } else if (max !== '') {
@@ -380,6 +385,7 @@ const baseMatchFuncAndParams = [
   [minMaxMatch, ['link_score', 'link_score']],
   [minMaxMatch, ['age', 'created_utc', true]],
   [minMaxMatch, ['link_age', 'link_created_utc', true]],
+  [minMaxMatch, ['comment_length', 'body', false, true]],
   [textMatch, ['post_flair', ['link_flair_text']]],
   [textMatch, ['user_flair', ['author_flair_text']]],
   [textMatch, ['filter_url', ['url']]],
