@@ -34,6 +34,8 @@ export const getMaxCommentDepth = () => {
 }
 const hide_all_others = ' and hides all other comments.'
 
+const localAlreadySearchedAuthors = {}
+
 const CommentButtonsHelp = <QuestionMarkModal modalContent={{content: <Help title='Comment links' content={
   <>
     <p><b>author-focus:</b> Shows only comments by this comment's author{hide_all_others} This may also insert unarchived comments as described in <b>preserve</b>.</p>
@@ -329,36 +331,39 @@ const PreserveButton = connect(({global, post, author, deleted, loading, setLoca
   return (
     <LoadingOrButton loading={loading} Button={
       <Button_noHref onClick={() => {
-        setLocalLoading(true)
         const stateUpdate_promise = beforeFunc()
-        const {add_user, itemsLookup, threadPost, items, commentTree} = global.state
-        const aui = new AddUserItem({author})
-        aui.query().then(userPage => getUserCommentsForPost(post, itemsLookup, [userPage]))
-        .then(async ({user_comments, newComments}) => {
-          const {new_commentTree, new_add_user} = await addUserComments_updateURL_createTreeIfNeeded({
-            user_comments, itemsLookup, add_user, threadPost, newComments, items, commentTree})
-          let add_user_for_preserve
-          if (forceUrlUpdate) {
-            // passing an empty itemsLookup allows the url to update even when removed or new comments are not found
-            // this reruns one of the functions encapsulated above but it's short and only happens when user clicks
-            add_user_for_preserve = addUserComments_and_updateURL(user_comments, {}, new_add_user || add_user)
-          }
-          copyToClipboard(window.location.href)
-          if (isMounted.current) {
-            await setLocalLoading(false)
-          }
-          await stateUpdate_promise
-          const final_add_user = add_user_for_preserve || new_add_user || add_user
-          const final_commentTree = new_commentTree || commentTree
-          if (final_add_user !== add_user || final_commentTree !== commentTree) {
-            global.setSuccess({add_user: final_add_user,
-                               commentTree: final_commentTree})
-          }
-        })
-        .catch((e) => {
-          console.error(e)
-          global.setError('')
-        })
+        const {add_user, itemsLookup, threadPost, items, commentTree, alreadySearchedAuthors} = global.state
+        if (forceUrlUpdate || (! alreadySearchedAuthors[author] && ! localAlreadySearchedAuthors[author])) {
+          setLocalLoading(true)
+          localAlreadySearchedAuthors[author] = true
+          const aui = new AddUserItem({author})
+          aui.query().then(userPage => getUserCommentsForPost(post, itemsLookup, [userPage]))
+          .then(async ({user_comments, newComments}) => {
+            const {new_commentTree, new_add_user} = await addUserComments_updateURL_createTreeIfNeeded({
+              user_comments, itemsLookup, add_user, threadPost, newComments, items, commentTree})
+            let add_user_for_preserve
+            if (forceUrlUpdate) {
+              // passing an empty itemsLookup allows the url to update even when removed or new comments are not found
+              // this reruns one of the functions encapsulated above but it's short and only happens when user clicks
+              add_user_for_preserve = addUserComments_and_updateURL(user_comments, {}, new_add_user || add_user)
+            }
+            copyToClipboard(window.location.href)
+            if (isMounted.current) {
+              await setLocalLoading(false)
+            }
+            await stateUpdate_promise
+            const final_add_user = add_user_for_preserve || new_add_user || add_user
+            const final_commentTree = new_commentTree || commentTree
+            if (final_add_user !== add_user || final_commentTree !== commentTree) {
+              global.setSuccess({add_user: final_add_user,
+                                 commentTree: final_commentTree})
+            }
+          })
+          .catch((e) => {
+            console.error(e)
+            global.setError('')
+          })
+        }
       }}>{text}{addIcon && <> <RefreshIcon wh='12' fill={loading ? '#4c4949': '#828282'}/></>}
       </Button_noHref>}
     />)
