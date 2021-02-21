@@ -172,7 +172,7 @@ const Post = connect((props) => {
           </div>
         </div>
       }
-      {page_type === 'thread' && media_metadata && ! props.over_18 &&
+      {page_type === 'thread' && media_metadata && ! props.over_18 && ! props.deleted &&
         <div className='thread-media'>
           { focusedImageList?.length ?
             <BestImage list={focusedImageList} onClick={() => setFocusedMediaKey(null)} />
