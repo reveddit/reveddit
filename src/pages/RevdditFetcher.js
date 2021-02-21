@@ -207,7 +207,7 @@ const minMaxMatch = (gs, item, globalVarBase, field, isAge=false, isLength=false
     if (isAge) {
       value = (now - item[field])/60
     } else if (isLength) {
-      value = item[field].length
+      value = typeof(item[field]) === 'string' ? item[field].length : 0
     } else {
       value = item[field]
     }
