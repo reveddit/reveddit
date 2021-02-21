@@ -20,7 +20,10 @@ const max_selftext_length = 100
 
 
 const Post = connect((props) => {
-  const {global, rev_position, kind, author, name, next, prev, title} = props
+  const {
+    global, rev_position, page_type,
+    kind, author, name, next, prev, title, media_metadata,
+  } = props
   if (! title) {
     return <div/>
   }
@@ -32,6 +35,8 @@ const Post = connect((props) => {
     manuallyDisplayedSelftext: false,
     manuallyHiddenSelftext: false,
   })
+  const [focusedMediaKey, setFocusedMediaKey] = useState(null)
+  const focusedImageList = media_metadata ? media_metadata[focusedMediaKey]?.p : undefined
   const {displayFullSelftext, manuallyDisplayedSelftext, manuallyHiddenSelftext} = selftextMeta
   const [localLoading, setLocalLoading] = useState(false)
   const loading = localLoading || globalLoading
@@ -52,8 +57,6 @@ const Post = connect((props) => {
       manuallyHiddenSelftext,
       initialFocusCommentID,
   ])
-
-
 
   let thumbnail
   const thumbnailWidth = props.thumbnail_width ? props.thumbnail_width * 0.5 : 70
@@ -136,13 +139,13 @@ const Post = connect((props) => {
               <a href={`${rev_subreddit}/duplicates/${props.id}`}>other-discussions{props.num_crossposts ? ` (${props.num_crossposts}+)`:''}</a>
             { directlink && <a href={directlink}>directlink</a>}
             <MessageMods {...props}/>
-            {props.page_type === 'thread' && <AuthorFocus post={props} author={author} deleted={props.deleted} {...{loading, setLocalLoading}} text='op-focus' addIcon={true}/>}
+            {page_type === 'thread' && <AuthorFocus post={props} author={author} deleted={props.deleted} {...{loading, setLocalLoading}} text='op-focus' addIcon={true}/>}
           </span>
         </div>
       </div>
       <div className='clearBoth' style={{flexBasis:'100%', height: '0'}}></div>
       {selftext &&
-        <div className='thread-selftext user-text'>
+        <div className='thread-selftext'>
           <div style={{display: 'table', tableLayout: 'fixed', width: '100%'}}>
             {displayFullSelftext ?
               <>
@@ -169,8 +172,36 @@ const Post = connect((props) => {
           </div>
         </div>
       }
+      {page_type === 'thread' && media_metadata &&
+        <div className='thread-media'>
+          { focusedImageList?.length ?
+            <BestImage list={focusedImageList} onClick={() => setFocusedMediaKey(null)} />
+            : Object.entries(media_metadata).map(([key, meta]) => {
+              if (meta.e !== 'Image' || ! meta.p.length) {
+                return null
+              }
+              const preview = meta.p[0]
+              return <Image key={key} {...preview}
+                            onClick={() => setFocusedMediaKey(key) } />
+            })
+          }
+        </div>
+      }
     </div>
   )
 })
+
+const Image = ({x, y, u, onClick}) => {
+  return <img className='pointer' width={x} height={y} src={replaceAmpGTLT(u)} onClick={onClick} />
+}
+
+const BestImage = ({list, onClick}) => {
+  for (const preview of list.slice().reverse()) {
+    if (preview.x < window.innerWidth - 40) {
+      return <Image {...preview} onClick={onClick} />
+    }
+  }
+  return <Image {...list[0]} onClick={onClick} />
+}
 
 export default Post

@@ -76,7 +76,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     const moderators_promise = getModerators(reddit_post.subreddit, useProxy)
     const modlogs_comments_promise = getModlogsComments(reddit_post.subreddit, reddit_post.id)
     let modlogs_posts_promise = Promise.resolve({})
-    if (postIsRemoved(reddit_post) && reddit_post.is_self) {
+    if (postIsRemoved(reddit_post) && (reddit_post.is_self || reddit_post.is_gallery)) {
       pushshift_post_promise = getPushshiftPost(threadID).catch(ignoreArchiveErrors)
       modlogs_posts_promise = getModlogsPosts(reddit_post.subreddit)
     }

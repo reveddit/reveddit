@@ -11,7 +11,7 @@ import { itemIsRemovedOrDeleted, postIsDeleted, display_post,
          PATHS_STR_SUB, stripHTTP, stripRedditLikeDomain_noHTTP,
          sortCreatedAsc,
 } from 'utils'
-import { modlogSaysBotRemoved } from 'data_processing/comments'
+import { modlogSaysBotRemoved, copyFields } from 'data_processing/comments'
 import { REMOVAL_META, ANTI_EVIL_REMOVED, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
          MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED, USER_REMOVED,
          AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
@@ -86,19 +86,15 @@ export const combinePushshiftAndRedditPosts = async (
 
 export const combineRedditAndPushshiftPost = (post, ps_post) => {
   let retrievalLatency = undefined
-  let modlog
   if (ps_post) {
     if (ps_post.retrieved_on) {
       retrievalLatency = ps_post.retrieved_on-ps_post.created_utc
       post.retrieved_on = ps_post.retrieved_on
       post.retrievalLatency = retrievalLatency
     }
-    if (ps_post.modlog) {
-      modlog = ps_post.modlog
-      post.modlog = modlog
-    }
+    copyFields(['modlog', 'media_metadata'], ps_post, post)
   }
-  const modlog_says_bot_removed = modlogSaysBotRemoved(modlog, post)
+  const modlog_says_bot_removed = modlogSaysBotRemoved(post.modlog, post)
   if (post.crosspost_parent_list) {
     post.num_crossposts += post.crosspost_parent_list.reduce((total,x) => total+x.num_crossposts,0)
   }
