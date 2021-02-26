@@ -30,7 +30,7 @@ export const unarchived_search_help_content = (
     <p>Clicking 'author-focus', 'op-focus', or 'preserve' automatically searches for missing comments from the given author.
        Some new comments that can only be found on user pages may appear.
        This happens when a comment has not yet been archived and it has no replies.
-       Reddit's comment tree API does not display removed comments that have no replies.
+       Removed comments that have no replies do not appear in Reddit's comment tree API.
     </p>
     <p>{unarchived_search_see_more}</p>
   </>

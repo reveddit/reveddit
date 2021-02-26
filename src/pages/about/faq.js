@@ -4,17 +4,22 @@ import { Link } from 'react-router-dom'
 import {ExtensionLink} from 'components/Misc'
 import {ContentWithHeader} from 'pages/about'
 import { unarchived_search_help_content, unarchived_search_button_word } from 'data_processing/FindCommentViaAuthors'
+import {shuffle} from 'utils'
+
+const reasons = [
+  <li key='m'>In many cases, reddit sends no message about removals. Messages can <i>optionally</i> be sent by subreddit moderators.</li>,
+  <li key='i'>Reddit shows you your removed comments as if they are not removed.</li>
+]
 
 const About_faq = () => {
   return (
     <InternalPage>
-      <ContentWithHeader header='I receive a message when my comments are removed. Why do I need this?' id='message'>
+      <ContentWithHeader header='Why do I need this?' id='message'>
         <p>
-          Two things to know are,
+          Two reasons,
         </p>
         <ol>
-          <li>These messages can <i>optionally</i> be sent by subreddit moderators. In many cases, reddit sends no message about removals.</li>
-          <li>Reddit shows you your removed comments as if they are not removed.</li>
+          {shuffle(reasons)}
         </ol>
         <p>
           Try it! Visit <NewWindowLink reddit='/r/CantSayAnything/about/sticky'>r/CantSayAnything</NewWindowLink> and write any comment.
