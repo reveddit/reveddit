@@ -3,15 +3,14 @@ import {www_reddit} from 'api/reddit'
 // Change this to your own client ID: https://reddit.com/prefs/apps
 // The app NEEDS TO BE an installed app and NOT a web apps
 
-// Current using dummy ID from throwaway
 const clientID = 'z-DQ9qOxQc46aA'
 
 // Token for reddit API
-let token
+let token, expires
 
 const getToken = () => {
-  // We have already gotten a token
-  if (token !== undefined) {
+  // already have an unexpired token
+  if (token !== undefined && expires > Date.now()/1000) {
     return Promise.resolve(token)
   }
 
@@ -29,6 +28,7 @@ const getToken = () => {
     .then(response => response.json())
     .then(response => {
       token = response.access_token
+      expires = Date.now()/1000 + response.expires_in - 1
       return token
     })
 }
