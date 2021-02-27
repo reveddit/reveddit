@@ -33,7 +33,7 @@
   [headers.values]
     cache-control = '''
     public,
-    max-age=604800'''
+    max-age=2592000'''
 
 [[headers]]
   for = "/*.js"
@@ -41,7 +41,7 @@
   [headers.values]
     cache-control = '''
     public,
-    max-age=604800'''
+    max-age=2592000'''
 
 [[headers]]
   for = "/*.css"
@@ -49,7 +49,7 @@
   [headers.values]
     cache-control = '''
     public,
-    max-age=604800'''
+    max-age=2592000'''
 
 [[headers]]
   for = "/service-worker.js"
