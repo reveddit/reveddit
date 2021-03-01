@@ -15,7 +15,7 @@ import Flair from './Flair'
 import SubscribersCount from './SubscribersCount'
 import {getAddUserParamString} from './Comment'
 import {AuthorFocus} from 'pages/thread/Comment'
-
+import {get_userPageSortAndTime} from 'data_processing/FindCommentViaAuthors'
 const max_selftext_length = 100
 
 
@@ -40,6 +40,7 @@ const Post = connect((props) => {
   const {displayFullSelftext, manuallyDisplayedSelftext, manuallyHiddenSelftext} = selftextMeta
   const [localLoading, setLocalLoading] = useState(false)
   const loading = localLoading || globalLoading
+  const {userPageSort, userPageTime} = get_userPageSortAndTime(props)
   const showFullSelftext = () => {
     setSelftextMeta({...selftextMeta, displayFullSelftext: true, manuallyDisplayedSelftext: true})
   }
@@ -139,7 +140,9 @@ const Post = connect((props) => {
               <a href={`${rev_subreddit}/duplicates/${props.id}`}>other-discussions{props.num_crossposts ? ` (${props.num_crossposts}+)`:''}</a>
             { directlink && <a href={directlink}>directlink</a>}
             <MessageMods {...props}/>
-            {page_type === 'thread' && <AuthorFocus post={props} author={author} deleted={props.deleted} {...{loading, setLocalLoading}} text='op-focus' addIcon={true}/>}
+            {page_type === 'thread' && <AuthorFocus post={props} author={author} deleted={props.deleted}
+                                                    {...{loading, setLocalLoading, userPageSort, userPageTime}}
+                                                    text='op-focus' addIcon={true}/>}
           </span>
         </div>
       </div>

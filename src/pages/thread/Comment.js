@@ -13,7 +13,7 @@ import { connect } from 'state'
 import { insertParent } from 'data_processing/thread'
 import {MessageMods} from 'components/Misc'
 import {AddUserItem, getUserCommentsForPost, addUserComments_and_updateURL,
-        addUserComments_updateURL_createTreeIfNeeded,
+        addUserComments_updateURL_createTreeIfNeeded, get_userPageSortAndTime,
 } from 'data_processing/FindCommentViaAuthors'
 import { QuestionMarkModal, Help, ExtensionLink } from 'components/Misc'
 import { getSortFn } from './common'
@@ -83,6 +83,7 @@ const Comment = withRouter(connect((props) => {
     ! stickied ||
       contextAncestors[id] ||
       id === focusCommentID)
+  const {userPageSort, userPageTime} = get_userPageSortAndTime(props)
   const maxCommentDepth = getMaxCommentDepth()
   let even_odd = ''
   if (! removed && ! deleted) {
@@ -258,12 +259,12 @@ const Comment = withRouter(connect((props) => {
                 <ShowHideRepliesButton hideReplies={false} showHiddenReplies={true}/>
                 : <ShowHideRepliesButton hideReplies={true}/>
               : null}
-            <AuthorFocus post={threadPost} author={author} deleted={deleted} {...{loading, setLocalLoading, thisCommentHash}}/>
+            <AuthorFocus post={threadPost} author={author} deleted={deleted} {...{loading, setLocalLoading, thisCommentHash, userPageSort, userPageTime}}/>
             <Button_noHref onClick={() =>
               locallyClickableFilters_set('thread_before')
               .then(() => jumpToHash(thisCommentHash))
             }>as-of</Button_noHref>
-            <PreserveButton post={threadPost} author={author} deleted={deleted} {...{loading, setLocalLoading}}/>
+            <PreserveButton post={threadPost} author={author} deleted={deleted} {...{loading, setLocalLoading, userPageSort, userPageTime}}/>
             { ! deleted && removed &&
               <MessageMods {...props}/>
             }
@@ -315,7 +316,7 @@ export const AuthorFocus = connect(({thisCommentHash, text = 'author-focus', add
 
 const PreserveButton = connect(({global, post, author, deleted, loading, setLocalLoading,
                                  text = 'preserve', addIcon = true, beforeFunc = () => Promise.resolve(),
-                                 forceUrlUpdate = true,
+                                 forceUrlUpdate = true, userPageSort, userPageTime,
                                 }) => {
   if (deleted || ! validAuthor(author)) {
     return null
@@ -336,16 +337,18 @@ const PreserveButton = connect(({global, post, author, deleted, loading, setLoca
         if (forceUrlUpdate || (! alreadySearchedAuthors[author] && ! localAlreadySearchedAuthors[author])) {
           setLocalLoading(true)
           localAlreadySearchedAuthors[author] = true
-          const aui = new AddUserItem({author})
+          // the idea of setting userPageSort to something other than 'new' here is, if the thread is old and the comment's score is high or low,
+          // then maybe the score of a removed comment from the same author is high/low, so change sort to 'top' or 'controversial'
+          const aui = new AddUserItem({author, sort: userPageSort, time: userPageTime})
           aui.query().then(userPage => getUserCommentsForPost(post, itemsLookup, [userPage]))
           .then(async ({user_comments, newComments}) => {
             const {new_commentTree, new_add_user} = await addUserComments_updateURL_createTreeIfNeeded({
-              user_comments, itemsLookup, add_user, threadPost, newComments, items, commentTree})
+              user_comments, itemsLookup, add_user, threadPost, newComments, items, commentTree, userPageSort, userPageTime})
             let add_user_for_preserve
             if (forceUrlUpdate) {
               // passing an empty itemsLookup allows the url to update even when removed or new comments are not found
               // this reruns one of the functions encapsulated above but it's short and only happens when user clicks
-              add_user_for_preserve = addUserComments_and_updateURL(user_comments, {}, new_add_user || add_user)
+              add_user_for_preserve = addUserComments_and_updateURL(user_comments, {}, new_add_user || add_user, userPageSort, userPageTime)
             }
             copyToClipboard(window.location.href)
             if (isMounted.current) {

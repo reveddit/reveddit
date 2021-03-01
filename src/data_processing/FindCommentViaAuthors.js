@@ -1,14 +1,36 @@
-import React, {useRef, useState} from 'react'
-import {ifNumParseInt, isCommentID, validAuthor} from 'utils'
+import React, {useRef, useState, useEffect} from 'react'
+import {ifNumParseInt, isCommentID, validAuthor, now} from 'utils'
 import {connect, urlParamKeys, create_qparams_and_adjust, updateURL} from 'state'
 import { kindsReverse, queryUserPage } from 'api/reddit'
 import { Spin, QuestionMarkModal, Help, NewWindowLink } from 'components/Misc'
 import { copyFields, initializeComment, retrieveRedditComments_and_combineWithPushshiftComments } from 'data_processing/comments'
 import { createCommentTree } from 'data_processing/thread'
 import { RefreshIcon } from 'pages/common/svg'
+import { getAuth } from 'api/reddit/auth'
 
 const MAX_AUTHORS_NEARBY_BY_DATE = 4
 const MAX_AUTHORS_TO_SEARCH = 15
+
+const ONE_MONTH_IN_SECONDS = 30*60*60*24
+const ONE_YEAR_IN_SECONDS = 365*60*60*24
+const MAX_TIME_FOR_NEW_SORT = 5*ONE_MONTH_IN_SECONDS
+const MAX_SCORE_FOR_NEW_SORT = 5
+
+export const get_userPageSortAndTime = ({created_utc, score, controversiality}) => {
+  let userPageSort = 'new', userPageTime = ''
+  const created_seconds_ago = now - created_utc
+  if (created_seconds_ago > MAX_TIME_FOR_NEW_SORT) {
+    if (score < 2 || controversiality > 0) {
+      userPageSort = 'controversial'
+    } else if (score >= MAX_SCORE_FOR_NEW_SORT) {
+      userPageSort = 'top'
+    }
+    if (userPageSort !== 'new' && created_seconds_ago < ONE_YEAR_IN_SECONDS) {
+      userPageTime = 'year'
+    }
+  }
+  return {userPageSort, userPageTime}
+}
 
 const addAuthorIfExists = (comment, set) => {
   if (comment && validAuthor(comment.author)) {
@@ -40,7 +62,7 @@ const search_comment_help = <Help title={unarchived_search_button_word+' Comment
 
 const Wrap = ({children}) => <div style={{padding: '15px 0', minHeight: '25px'}}>{children}</div>
 
-const getAddUserMeta = (props, distance) => {
+const getAddUserMeta = (props, distance, userPageSort, userPageTime) => {
   const {itemsLookup, alreadySearchedAuthors, threadPost,
    itemsSortedByDate, add_user, loading} = props.global.state
    const grandparentComment = getAncestor(props, itemsLookup, 2)
@@ -63,7 +85,7 @@ const getAddUserMeta = (props, distance) => {
      }
    }
    // END nearby authors
-   const aug = new AddUserGroup({alreadySearchedAuthors})
+   const aug = new AddUserGroup({alreadySearchedAuthors, sort: userPageSort, time: userPageTime})
    const aup = new AddUserParam({string: add_user})
    aug.add(grandparentComment.author,
            grandchildComment.author,
@@ -88,8 +110,9 @@ const FindCommentViaAuthors = (props) => {
   //TODO: check that distance updates properly
   //      -
   const loading = localLoading || globalLoading
+  const {userPageSort, userPageTime} = get_userPageSortAndTime(props)
   if (! augRef.current && ! loading) {
-    const [new_augRef, new_distanceRef] = getAddUserMeta(props, distanceRef)
+    const [new_augRef, new_distanceRef] = getAddUserMeta(props, distanceRef, userPageSort, userPageTime)
     augRef.current = new_augRef
     distanceRef.current = new_distanceRef
   }
@@ -107,15 +130,15 @@ const FindCommentViaAuthors = (props) => {
     //    (only runs if first didn't find the result or first has no authors)
     // is_mod LAST
 
-    const {authors, promises} = aug.query()
+    const {authors, promises} = await aug.query()
     const {user_comments, newComments} = await Promise.all(promises).then(
       getUserCommentsForPost.bind(null, threadPost, itemsLookup))
     Object.assign(alreadySearchedAuthors, authors)
     const {new_commentTree, new_add_user} = await addUserComments_updateURL_createTreeIfNeeded({
-      user_comments, itemsLookup, add_user, threadPost, newComments, items, commentTree})
+      user_comments, itemsLookup, add_user, threadPost, newComments, items, commentTree, userPageSort, userPageTime})
     //TODO: If failed for clicked item, change messaging
     //         authors remain: "try again" or show % complete (# authors searched / total # authors)
-    const [new_augRef, new_distanceRef] = getAddUserMeta(props, distanceRef)
+    const [new_augRef, new_distanceRef] = getAddUserMeta(props, distanceRef, userPageSort, userPageTime)
     augRef.current = new_augRef
     distanceRef.current = new_distanceRef
     await setLocalLoading(false)
@@ -150,9 +173,10 @@ const FindCommentViaAuthors = (props) => {
 }
 
 class AddUserGroup {
-  constructor({alreadySearchedAuthors = {}, max = MAX_AUTHORS_TO_SEARCH} = {}) {
+  constructor({alreadySearchedAuthors = {}, max = MAX_AUTHORS_TO_SEARCH, sort} = {}) {
     this.alreadySearchedAuthors = alreadySearchedAuthors
     this.max = max
+    this.sort = sort
     this.authorsToSearch = {}
     this.itemsToSearch = []
   }
@@ -169,7 +193,7 @@ class AddUserGroup {
           && ! (author in this.alreadySearchedAuthors)
           && ! (author in this.authorsToSearch)
           && this.itemsToSearch.length < this.max) {
-        this.itemsToSearch.push(new AddUserItem({author, kind: 'c', sort: 'new'}))
+        this.itemsToSearch.push(new AddUserItem({author, kind: 'c', sort: this.sort}))
         this.authorsToSearch[author] = true
       } else {
         allAdded = false
@@ -177,7 +201,8 @@ class AddUserGroup {
     }
     return allAdded
   }
-  query() {
+  async query() {
+    await getAuth()
     return {
       promises: this.itemsToSearch.map(i => i.query()),
       authors: this.authorsToSearch,
@@ -292,11 +317,15 @@ export const addUserComments = (user_comments, commentsLookup) => {
   return {changed, changedAuthors}
 }
 
-const updateUrlFromChangedAuthors = (changedAuthors, add_user) => {
+const updateUrlFromChangedAuthors = (changedAuthors, add_user, userPageSort, userPageTime) => {
   if (Object.keys(changedAuthors).length) {
     const aup = new AddUserParam({string: add_user})
     for (const [author, comment] of Object.entries(changedAuthors)) {
-      const item = new AddUserItem({author, kind: 'c', sort: 'new', ...comment.before_after})
+      const item = new AddUserItem({author, kind: 'c',
+                                    sort: userPageSort,
+                                    time: userPageTime,
+                                    ...(userPageSort === 'new' ? comment.before_after : {}),
+                                  })
       const item_str = item.toString()
 //      if (! add_user.match(new RegExp('(^|,)'+author+'\\b'))) {
 
@@ -311,9 +340,9 @@ const updateUrlFromChangedAuthors = (changedAuthors, add_user) => {
   return undefined
 }
 
-export const addUserComments_and_updateURL = (user_comments, itemsLookup, add_user) => {
+export const addUserComments_and_updateURL = (user_comments, itemsLookup, add_user, userPageSort = 'new', userPageTime = 'all') => {
   const {changed, changedAuthors} = addUserComments(user_comments, itemsLookup)
-  const new_add_user = updateUrlFromChangedAuthors(changedAuthors, add_user)
+  const new_add_user = updateUrlFromChangedAuthors(changedAuthors, add_user, userPageSort, userPageTime)
   return new_add_user
 }
 
@@ -359,8 +388,8 @@ export const getUserCommentsForPost = (post, existingIDs, userPages) => {
 }
 
 export const addUserComments_updateURL_createTreeIfNeeded = async ({user_comments, itemsLookup, add_user,
-  threadPost, newComments, items, commentTree}) => {
-  const new_add_user = addUserComments_and_updateURL(user_comments, itemsLookup, add_user)
+  threadPost, newComments, items, commentTree, userPageSort, userPageTime}) => {
+  const new_add_user = addUserComments_and_updateURL(user_comments, itemsLookup, add_user, userPageSort, userPageTime)
   let new_commentTree
   if (Object.keys(newComments).length) {
     const combinedComments = await retrieveRedditComments_and_combineWithPushshiftComments(newComments)
