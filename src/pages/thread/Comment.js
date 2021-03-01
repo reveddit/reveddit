@@ -17,7 +17,7 @@ import {AddUserItem, getUserCommentsForPost, addUserComments_and_updateURL,
 } from 'data_processing/FindCommentViaAuthors'
 import { QuestionMarkModal, Help, ExtensionLink } from 'components/Misc'
 import { getSortFn } from './common'
-import { RefreshIcon } from 'pages/common/svg'
+import { RestoreIcon } from 'pages/common/svg'
 
 const contextDefault = 3
 const MIN_COMMENT_DEPTH = 4
@@ -367,7 +367,7 @@ const PreserveButton = connect(({global, post, author, deleted, loading, setLoca
             global.setError('')
           })
         }
-      }}>{text}{addIcon && <> <RefreshIcon wh='12' fill={loading ? '#4c4949': '#828282'}/></>}
+      }}>{text}{addIcon && <> <RestoreIcon wh='12' fill={loading ? '#4c4949': '#828282'}/></>}
       </Button_noHref>}
     />)
 })

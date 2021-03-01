@@ -5,7 +5,7 @@ import { kindsReverse, queryUserPage } from 'api/reddit'
 import { Spin, QuestionMarkModal, Help, NewWindowLink } from 'components/Misc'
 import { copyFields, initializeComment, retrieveRedditComments_and_combineWithPushshiftComments } from 'data_processing/comments'
 import { createCommentTree } from 'data_processing/thread'
-import { RefreshIcon } from 'pages/common/svg'
+import { RestoreIcon } from 'pages/common/svg'
 import { getAuth } from 'api/reddit/auth'
 
 const MAX_AUTHORS_NEARBY_BY_DATE = 4
@@ -38,7 +38,7 @@ const addAuthorIfExists = (comment, set) => {
   }
 }
 
-export const unarchived_search_button_word = 'Refresh'
+export const unarchived_search_button_word = 'Restore'
 
 export const unarchived_search_see_more = <>
   See <NewWindowLink reddit={'/r/removeddit/comments/hy5z7g/_/g4xlrne/'}>search for unarchived comments</NewWindowLink> and <NewWindowLink reddit='/ih86wk'>restored via user page</NewWindowLink> for more information.
@@ -163,7 +163,7 @@ const FindCommentViaAuthors = (props) => {
       searchButton = (
         <Wrap>
           <a className='pointer bubble medium lightblue' onClick={search}
-          ><RefreshIcon/> {unarchived_search_button_word}<span className='desktop-only'> ({numAuthorsRemaining.toLocaleString()} users left)</span></a>
+          ><RestoreIcon/> {unarchived_search_button_word}<span className='desktop-only'> ({numAuthorsRemaining.toLocaleString()} users left)</span></a>
           <QuestionMarkModal modalContent={{content:search_comment_help}} fill='white'/>
         </Wrap>
       )
