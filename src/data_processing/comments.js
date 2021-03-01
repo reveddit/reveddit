@@ -14,7 +14,9 @@ import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED,
          AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
 import { combinedGetItemsBySubredditOrDomain } from 'data_processing/subreddit_posts'
 
-export const retrieveRedditComments_and_combineWithPushshiftComments = (pushshiftComments, useProxy = false) => {
+export let useProxy = false
+
+export const retrieveRedditComments_and_combineWithPushshiftComments = (pushshiftComments) => {
   return getRedditComments({objects: pushshiftComments, useProxy})
   .then(redditComments => {
     return combinePushshiftAndRedditComments(pushshiftComments, redditComments)
@@ -157,7 +159,7 @@ const setupCommentMeta = (archiveComment, redditComment) => {
 }
 
 // Using Pushshift may be faster, but it is missing the quarantine field in submissions data
-export const getPostDataForComments = ({comments = undefined, link_ids_set = undefined, source = 'reddit', useProxy}) => {
+export const getPostDataForComments = ({comments = undefined, link_ids_set = undefined, source = 'reddit'}) => {
   if (! link_ids_set) {
     link_ids_set = Object.values(comments).reduce((map, obj) => (map[obj.link_id] = true, map), {})
   }
@@ -207,9 +209,9 @@ export const applyPostAndParentDataToComment = (postData, comment, applyPostLabe
   }
 }
 
-export const getRevdditComments = ({pushshiftComments, subreddit_about_promise = Promise.resolve({}), useProxy}) => {
+export const getRevdditComments = ({pushshiftComments, subreddit_about_promise = Promise.resolve({})}) => {
   const postDataPromise = getPostDataForComments({comments: pushshiftComments, useProxy})
-  const combinePromise = retrieveRedditComments_and_combineWithPushshiftComments(pushshiftComments, useProxy)
+  const combinePromise = retrieveRedditComments_and_combineWithPushshiftComments(pushshiftComments)
   return Promise.all([postDataPromise, combinePromise, subreddit_about_promise])
   .then(values => {
     const show_comments = []
@@ -264,7 +266,7 @@ export const combinedGetCommentsBySubreddit = (args) => {
 export const setSubredditMeta = async (subreddit, global) => {
   let moderators_promise = getModerators(subreddit)
   let subreddit_about_promise = getSubredditAbout(subreddit)
-  let over18 = false, useProxy = false
+  let over18 = false
   const subreddit_lc = subreddit.toLowerCase()
   await Promise.all([moderators_promise, subreddit_about_promise])
   .catch((e) => {
@@ -282,7 +284,7 @@ export const setSubredditMeta = async (subreddit, global) => {
     over18 = subreddit_about.over18
     global.setState({moderators: {[subreddit_lc]: moderators}, over18})
   })
-  return {subreddit_about_promise, useProxy}
+  return {subreddit_about_promise}
 }
 
 export const getRevdditCommentsBySubreddit = async (subreddit, global) => {
@@ -291,11 +293,11 @@ export const getRevdditCommentsBySubreddit = async (subreddit, global) => {
   if (subreddit === 'all') {
     subreddit = ''
   }
-  const {subreddit_about_promise, useProxy} = await setSubredditMeta(subreddit, global)
+  const {subreddit_about_promise} = await setSubredditMeta(subreddit, global)
   const modlogs_promise = getModlogsComments(subreddit)
 
   return combinedGetCommentsBySubreddit({subreddit, n, before, before_id, global,
-    subreddit_about_promise, modlogs_promise, useProxy})
+    subreddit_about_promise, modlogs_promise})
   .then(() => {
     global.setSuccess()
   })

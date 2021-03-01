@@ -34,10 +34,10 @@ export const getRevdditPostsBySubreddit = async (subreddit, global) => {
     })
     .catch(global.setError)
   } else {
-    const {subreddit_about_promise, useProxy} = await setSubredditMeta(subreddit, global)
+    const {subreddit_about_promise} = await setSubredditMeta(subreddit, global)
     const modlogs_promise = getModlogsPosts(subreddit)
     return combinedGetPostsBySubredditOrDomain({subreddit, n, before, before_id, global,
-      subreddit_about_promise, modlogs_promise, useProxy})
+      subreddit_about_promise, modlogs_promise})
     .then(() => {
       global.setSuccess()
     })
@@ -66,7 +66,6 @@ export const combinedGetItemsBySubredditOrDomain = (args) => {
     pushshiftQueryFn,
     postProcessCombine_Fn, postProcessCombine_Args,
     postProcessCombine_ItemsArgName,
-    useProxy,
   } = args
   return pushshiftQueryFn({subreddit, domain, n, before, before_id})
   .catch(error => {return []}) // if ps is down, can still return modlog results
@@ -108,7 +107,7 @@ export const combinedGetItemsBySubredditOrDomain = (args) => {
         })
         copyModlogItemsToArchiveItems(modlogsItems, pushshiftItems)
         return postProcessCombine_Fn(
-          {[postProcessCombine_ItemsArgName]: pushshiftItems, subreddit_about_promise, useProxy})
+          {[postProcessCombine_ItemsArgName]: pushshiftItems, subreddit_about_promise})
         .then(combinedItems => {
           const allItems = items.concat(combinedItems)
           return global.setState({items: allItems, itemsLookup, oldestTimestamp, newestTimestamp})

@@ -11,7 +11,7 @@ import { itemIsRemovedOrDeleted, postIsDeleted, display_post,
          PATHS_STR_SUB, stripHTTP, stripRedditLikeDomain_noHTTP,
          sortCreatedAsc,
 } from 'utils'
-import { modlogSaysBotRemoved, copyFields } from 'data_processing/comments'
+import { modlogSaysBotRemoved, copyFields, useProxy } from 'data_processing/comments'
 import { REMOVAL_META, ANTI_EVIL_REMOVED, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
          MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED, USER_REMOVED,
          AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
@@ -19,7 +19,7 @@ import { combinedGetPostsBySubredditOrDomain } from 'data_processing/subreddit_p
 
 export const retrieveRedditPosts_and_combineWithPushshiftPosts = (
   {pushshiftPosts, pushshiftPostsObj, includePostsWithZeroComments = false, existingRedditPosts = {},
-   subreddit_about_promise = Promise.resolve({}), useProxy,
+   subreddit_about_promise = Promise.resolve({}),
   }) => {
   const ids = []
   if (! pushshiftPosts) {
