@@ -175,7 +175,7 @@ const getLoadDataFunctionAndParam = (
 const MAX_COLLAPSED_VISIBLE = 1
 const MAX_ORPHANED_VISIBLE = 1
 
-export const textMatch = (gs, item, globalVarName, fields) => {
+export const textMatch = (gs, item, [globalVarName, fields]) => {
   const searchString = gs[globalVarName]
   const keywords = searchString.toString().replace(/\s\s+/g, ' ').trim().toLocaleLowerCase().match(/(-?"[^"]+"|[^"\s]+)/g) || []
   for (let i = 0; i < keywords.length; i++) {
@@ -199,7 +199,15 @@ export const textMatch = (gs, item, globalVarName, fields) => {
   return true
 }
 
-const minMaxMatch = (gs, item, globalVarBase, field, isAge=false, isLength=false) => {
+//don't check the value for quarantined items when this function is called
+const minMaxMatch_quarantine = (gs, item, args) => {
+  if (item.quarantine) {
+    return true
+  }
+  return minMaxMatch(gs, item, args)
+}
+
+const minMaxMatch = (gs, item, [globalVarBase, field, isAge=false, isLength=false]) => {
   if (field in item) {
     const min = gs[globalVarBase+'_min']
     const max = gs[globalVarBase+'_max']
@@ -379,7 +387,7 @@ export const withFetch = (WrappedComponent) =>
   }
 
 const baseMatchFuncAndParams = [
-  [minMaxMatch, ['num_subscribers', 'subreddit_subscribers']],
+  [minMaxMatch_quarantine, ['num_subscribers', 'subreddit_subscribers']],
   [minMaxMatch, ['num_comments', 'num_comments']],
   [minMaxMatch, ['score', 'score']],
   [minMaxMatch, ['link_score', 'link_score']],
@@ -443,7 +451,7 @@ const GenericPostProcessor = connect((props) => {
         for (const funcAndParams of matchFuncAndParams) {
           if (match) {
             const fn = funcAndParams[0]
-            match = fn(gs, item, ...funcAndParams[1])
+            match = fn(gs, item, funcAndParams[1])
           } else {
             break
           }
