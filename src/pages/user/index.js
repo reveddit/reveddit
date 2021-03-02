@@ -95,7 +95,7 @@ const User = ({match, global, page_type, viewableItems, selections, summary, not
     />
   } else if (! hasClickedRemovedUserCommentContext) {
     instructionalNotice = <Notice message={
-      <div><span class="quarantined">Tip</span> The context links of removed comments now show the comment in context even if the comment was not archived.</div>
+      <div><span className="quarantined">Tip</span> The context links of removed comments now show the comment in context even if the comment was not archived.</div>
     }/>
   } else if (! get(hidePinPostNotice_var, false)) {
     instructionalNotice = <Notice title='share reveddit'
