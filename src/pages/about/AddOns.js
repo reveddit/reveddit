@@ -28,20 +28,28 @@ const textContent = {
   },
   'linker': {
     title: rev+'Linker',
-    description: 'One click icon to jump between viewing content on reddit and reveddit.'
+    description: <p>One click icon to jump between viewing content on reddit and reveddit.</p>
   },
   'q': {
     title: rev+'Quarantined',
-    description: 'Allows quarantined content to be viewed on reveddit.'
+    description: <p>Allows quarantined content to be viewed on reveddit.</p>
+  },
+  'rager': {
+    title: 'rAger',
+    description: <p>Shows the account age and karma for all accounts on reddit pages.</p>
   }
 }
 
 const extensionLink = (browser='chrome', extension) => {
-  return (
-    <a className='white' target="_blank" href={ext_urls[extension][meta[browser].att]} style={{marginRight:'35px'}}>
-      <img alt={`Add to ${browser}`} src={meta[browser].img}/>
-    </a>
-  )
+  const href = ext_urls[extension][meta[browser].att]
+  if (href) {
+    return (
+      <a className='white' target="_blank" href={href} style={{marginRight:'35px'}}>
+        <img alt={`Add to ${browser}`} src={meta[browser].img}/>
+      </a>
+    )
+  }
+  return null
 }
 
 const linkWrap = (extension) => {
@@ -75,6 +83,7 @@ export default () => {
     <InternalPage>
       {linkWrap('rt')}
       {linkWrap('linker')}
+      {linkWrap('rager')}
       {linkWrap('q')}
     </InternalPage>
   )

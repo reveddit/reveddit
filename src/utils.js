@@ -20,6 +20,9 @@ export const ext_urls = {
   q: {
     c: chrome_base+'revddit-quarantined/cmfgeilnphkjendelakiniceinhjonfh',
     f: ff_base+'reveddit-quarantined/'
+  },
+  rager: {
+    c: chrome_base+'rager/fohlpjahcdbkpcckapphhpahbiajccmj'
   }
 }
 
