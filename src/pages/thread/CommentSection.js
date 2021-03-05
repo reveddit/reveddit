@@ -103,10 +103,10 @@ const CommentSection = (props) => {
     filterFunctions.push(exclude_tag ? not(tag_func) : tag_func)
   }
   if (keywords) {
-    filterFunctions.push((item) => textMatch(global.state, item, 'keywords', ['body']))
+    filterFunctions.push((item) => textMatch(global.state, item, ['keywords', ['body']]))
   }
   if (user_flair) {
-    filterFunctions.push((item) => textMatch(global.state, item, 'user_flair', ['author_flair_text']))
+    filterFunctions.push((item) => textMatch(global.state, item, ['user_flair', ['author_flair_text']]))
   }
   if (/^\d+$/.test(thread_before)) {
     filterFunctions.push((item) => item.created_utc <= parseInt(thread_before))
