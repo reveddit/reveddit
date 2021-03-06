@@ -14,14 +14,13 @@ import { ShareLink } from 'components/Misc'
 const SubredditPosts = (props) => {
   const { subreddit } = props.match.params
   const { page_type, viewableItems, selections, summary, archiveDelayMsg,
-          oldestTimestamp, newestTimestamp, global,
+          global,
         } = props
   const {items, loading, localSort,
          hasVisitedUserPage, hasVisitedTopRemovedPage,
         } = global.state
   const noItemsFound = items.length === 0 && ! loading
-  const pagination = <Pagination oldestTimestamp={oldestTimestamp} newestTimestamp={newestTimestamp}
-                                 bottom={true} subreddit={subreddit}/>
+  const pagination = <Pagination {...{page_type}} bottom={true} subreddit={subreddit}/>
   let instructionalNotice = ''
   if (! hasVisitedUserPage) {
     instructionalNotice =

@@ -145,7 +145,7 @@ export const getRevdditSearch = (global) => {
     return Promise.all(nextPromises)
   })
   .then(async results => {
-    let childCounts = {}
+    let childCounts = {}, oldestTimestamp, newestTimestamp
     if (commentChildrenPromise) {
       const commentChildren = await commentChildrenPromise
       childCounts = Object.values(commentChildren).reduce((acc, comment) => {
@@ -159,7 +159,11 @@ export const getRevdditSearch = (global) => {
     })
     if (Object.keys(notAuthors).length || commentChildrenPromise) {
       const newItems = []
-      items.forEach(item => {
+      items.sort(sortCreatedAsc).forEach(item => {
+        if (! oldestTimestamp) {
+          oldestTimestamp = item.created_utc
+        }
+        newestTimestamp = item.created_utc
         if (commentChildrenPromise) {
           if (isPostID(item.name)) {
             item.num_replies = item.num_comments
@@ -174,6 +178,6 @@ export const getRevdditSearch = (global) => {
       items = newItems
     }
     items.sort(sortCreatedAsc)
-    global.setSuccess({items, itemsSortedByDate: items})
+    global.setSuccess({items, itemsSortedByDate: items, oldestTimestamp, newestTimestamp})
   })
 }

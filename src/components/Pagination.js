@@ -41,11 +41,11 @@ const setNextParams = (current_searchParams, next_searchParams, param_name, time
   next_searchParams.set(prev_param_name, (prev_val ? prev_val + ',' : '') + current_searchParams.get(param_name))
 }
 
-const Pagination = ({paginationMeta,
-                     bottom, subreddit, page_type, global, children}) => {
+const Pagination = ({bottom, subreddit, page_type, global, children}) => {
   let content = <>{children}</>
   let prev, next
   const {loading, frontPage, items, oldestTimestamp, newestTimestamp,
+         paginationMeta,
         } = global.state
   const current_searchParams = create_qparams()
   const useTimestampPagination = oldestTimestamp &&

@@ -22,7 +22,7 @@ const Info = (props) => {
 
   let pagination = ''
   if (page_type === 'search') {
-    pagination = <Pagination oldestTimestamp={oldestTimestamp} newestTimestamp={newestTimestamp}
+    pagination = <Pagination {...{page_type, oldestTimestamp, newestTimestamp}}
                              bottom={true}/>
   }
 

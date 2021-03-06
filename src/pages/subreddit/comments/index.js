@@ -18,12 +18,10 @@ const SubredditComments = (props) => {
           notShownMsg, archiveDelayMsg, global,
         } = props
   const {items, loading, localSort, hasVisitedUserPage,
-         paginationMeta, oldestTimestamp, newestTimestamp,
         } = global.state
   const noItemsFound = items.length === 0 && ! loading
 
-  const pagination = <Pagination oldestTimestamp={oldestTimestamp} newestTimestamp={newestTimestamp}
-                                 paginationMeta={paginationMeta} bottom={true} subreddit={subreddit}/>
+  const pagination = <Pagination {...{page_type}} bottom={true} subreddit={subreddit}/>
 
   return (
     <React.Fragment>
