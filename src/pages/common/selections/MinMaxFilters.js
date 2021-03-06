@@ -45,17 +45,12 @@ const MinMaxFilters = ({page_type, global}) => {
   const [visibleFilters, setVisibleFilters] = useState({})
   const [minMax, setMinMax] = useState({})
 
-  const addFilter = (e) => {
+  const addThisFilter = (e) => {
     e.preventDefault()
-    for (const [key, type] of Object.entries(filters)) {
-      if (! visibleFilters[key]) {
-        setVisibleFilters({
-          ...visibleFilters,
-          [key]: {...type}
-        })
-        break
-      }
-    }
+    setVisibleFilters({
+      ...visibleFilters,
+      [e.target.value]: {...filters[e.target.value]}
+    })
   }
   // set displayed # filters on page load
   useEffect(() => {
@@ -71,6 +66,7 @@ const MinMaxFilters = ({page_type, global}) => {
       setVisibleFilters(onPageLoad_visibleFilters)
     }
   }, [])
+  const hiddenFilters = Object.keys(filters).filter(x => ! visibleFilters[x])
   return (
     <div className='selection numeric'>
       {Object.entries(visibleFilters).map(([key, value]) =>
@@ -79,7 +75,10 @@ const MinMaxFilters = ({page_type, global}) => {
       )}
       {Object.keys(visibleFilters).length < Object.keys(filters).length ?
         <div className='selection'>
-          <a className='pointer colorLink' onClick={addFilter}>[+] add # filter</a>
+          <select value='' onChange={addThisFilter}>
+            <option className='default' value=''>[+] add # filter</option>
+            {hiddenFilters.map(x => <option key={x} value={x}>{filters[x].text}</option>)}
+          </select>
         </div>
       : null}
     </div>
