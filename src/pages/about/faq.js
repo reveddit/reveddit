@@ -53,8 +53,8 @@ const About_faq = () => {
       <ContentWithHeader header='Does reveddit show user-deleted content?' id='user-deleted'>
         <p>No, user-deleted content does not appear on reveddit.</p>
       </ContentWithHeader>
-      <ContentWithHeader header='Why are removed comments sometimes not visible in threads?' id='unarchived'>
-        <p>Thread pages rely on an archive service called Pushshift which sometimes falls behind. If a comment is removed before it is archived then it may not appear on reveddit.</p>
+      <ContentWithHeader header='Why are removed comments or posts sometimes not visible?' id='unarchived'>
+        <p>Viewing removed content for subreddits and threads relies on an archive service called Pushshift which can fall behind. If a comment is removed before it is archived then it may not appear on reveddit. It may be possible to <a href={'#'+unarchived_search_button_word_lc}>restore</a> it from a user page.</p>
         <p>Your /user page will always be up to date since that only relies on data from reddit.</p>
       </ContentWithHeader>
       <ContentWithHeader header={'What does the "'+unarchived_search_button_word+'" button on removed comments in thread pages do?'} id={unarchived_search_button_word_lc}>
