@@ -47,10 +47,9 @@ const from_help = <Help title='From filter' content={<>
   <p>The from filter is only available when <b>Sort by</b> is 'top' or 'controversial'.</p>
 </>
 }/>
-const beforeAfter_help = <Help title='History filter' content={<>
-  <p>seconds, minutes, hours, days (default), weeks, years, timestamp</p>
-  <p>"show me the most recent posts created before exactly 1 day ago (24 hours)"</p>
-  <p>Note: archive may have a delay</p>
+const beforeAfter_help = <Help title='Time filter' content={<>
+  <p>Jumps to a point in time. For example, <b>before 1 day ago</b> shows the most recent items created before exactly 24 hours ago. Any <NewWindowLink href='/info/'>archive delay</NewWindowLink> may impact results.</p>
+  <p>Select timestamp to use an epoch timestamp.</p>
 </>
 }/>
 
