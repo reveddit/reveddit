@@ -19,6 +19,10 @@ const maxNumItems = 1000
 const maxNumCommentsByID = 900
 const waitInterval = 400
 
+// PUSHSHIFT_MAX_COUNT_PER_QUERY is max count items returned by pushshift per query
+// need to know this in order to use 'after' param while avoiding making extra pushshift calls
+export const PUSHSHIFT_MAX_COUNT_PER_QUERY = 100
+
 // retrieved_on will become retrieved_utc
 // https://reddit.com/r/pushshift/comments/ap6vx5/changelog_changes_to_the_retrieved_on_key/
 const update_retrieved_field = (item) => {
@@ -39,6 +43,9 @@ const queryItems = ({q, author, subreddit, n = 500, sort='desc', before, after, 
                        url, selftext, parent_id, stickied, title, distinguished},
                      apiURL, fields, prefix, key = 'name') => {
   const results = {}
+  if (after && ! before) {
+    sort = 'asc'
+  }
   const queryParams = {
     size: n,
     sort,
@@ -46,7 +53,7 @@ const queryItems = ({q, author, subreddit, n = 500, sort='desc', before, after, 
     ...(q && {q}),
     ...(author && {author}),
     ...(subreddit && {subreddit}),
-    ...(after && {after}),
+    ...(after && {after: ifNumParseAndAdd(after, -1)}),
     ...(before && {before: ifNumParseAndAdd(before, 1)}),
     ...(domain && {domain}),
     ...(parent_id && {parent_id}),
@@ -156,7 +163,7 @@ const ifNumParseAndAdd = (n, add) => {
 }
 
 export const getItemsBySubredditOrDomain = function(
-  {subreddit:subreddits_str, domain:domains_str, n=maxNumItems, before='',
+  {subreddit:subreddits_str, domain:domains_str, n=maxNumItems, before='', after='',
    ps_url, fields}
 ) {
   const queryParams = {
@@ -166,6 +173,9 @@ export const getItemsBySubredditOrDomain = function(
   }
   if (before) {
     queryParams['before'] = ifNumParseAndAdd(before, 1)
+  } else if (after) {
+    queryParams['after'] = ifNumParseAndAdd(after, -1)
+    queryParams['sort'] = 'asc'
   }
   if (subreddits_str) {
     queryParams['subreddit'] = subreddits_str.toLowerCase().replace(/\+/g,',')

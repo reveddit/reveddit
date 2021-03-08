@@ -151,13 +151,13 @@ const reduceDomain = (map, e) => {
 }
 
 export const getRevdditPostsByDomain = async (domain, global) => {
-  const {n, before, before_id, selfposts} = global.state
+  const {n, before, before_id, after, selfposts} = global.state
   const domains = Object.keys(domain.split('+').reduce(reduceDomain, {}))
   if (domains.length) {
-    const linkpost_promise = combinedGetPostsBySubredditOrDomain({domain:domains.join('+'), n, before, before_id, global})
+    const linkpost_promise = combinedGetPostsBySubredditOrDomain({global, domain:domains.join('+'), n, before, before_id, after})
     let selfpost_promise = Promise.resolve([])
     if (selfposts && domains.length) {
-      selfpost_promise = pushshiftQueryPosts({selftext:domains.join('|'), n, before})
+      selfpost_promise = pushshiftQueryPosts({selftext:domains.join('|'), n, before, after})
         .then(pushshiftPosts => retrieveRedditPosts_and_combineWithPushshiftPosts({pushshiftPosts}))
     }
     const promises = [ linkpost_promise, selfpost_promise ]

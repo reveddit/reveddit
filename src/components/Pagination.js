@@ -4,41 +4,18 @@ import { Spin } from 'components/Misc'
 import { connect, create_qparams } from 'state'
 
 
-const before_param = 'before'
-const prev_before_param = 'prev_before'
-const params = [before_param, prev_before_param]
+const before_param = 'before', after_param = 'after'
+const opposite = {[after_param]: before_param, [before_param]: after_param}
+const params = [before_param, after_param]
 
 const timestampPagination_page_types =
   ['search', 'subreddit_posts', 'subreddit_comments', 'duplicate_posts', 'domain_posts']
 
-const clearParams = (searchParams) => {
-  for (const name of params) searchParams.delete(name)
-  return searchParams
-}
-
-const getLastAndRemainder = (searchParams, param_name) => {
-  const val = searchParams.get(param_name) || ''
-  const list = val.split(',')
-  return [list.slice(-1)[0], list.slice(0,-1).join(',')]
-}
-
-const getPrevParamName = (param_name) => 'prev_'+param_name
-
-const setPrevParams = (current_searchParams, prev_searchParams, param_name) => {
-  const prev_param_name = getPrevParamName(param_name)
-  const [last, remainder] = getLastAndRemainder(current_searchParams, prev_param_name)
-  if (last) {
-    prev_searchParams.set(param_name, last)
-    if (remainder) {
-      prev_searchParams.set(prev_param_name, remainder)
-    }
-  }
-}
-
-const setNextParams = (current_searchParams, next_searchParams, param_name, timestamp) => {
-  const prev_param_name = getPrevParamName(param_name)
-  const prev_val = current_searchParams.get(prev_param_name) || ''
-  next_searchParams.set(prev_param_name, (prev_val ? prev_val + ',' : '') + current_searchParams.get(param_name))
+const createNavHref = (param, value) => {
+  const queryParams = create_qparams()
+  queryParams.delete(opposite[param])
+  queryParams.set(param, value)
+  return queryParams.toString()
 }
 
 const Pagination = ({bottom, subreddit, page_type, global, children}) => {
@@ -67,19 +44,10 @@ const Pagination = ({bottom, subreddit, page_type, global, children}) => {
         }
       }
     } else if (useTimestampPagination) {
-      const next_searchParams = clearParams(create_qparams())
-      const prev_searchParams = clearParams(create_qparams())
-      next_searchParams.set(before_param, oldestTimestamp)
-      if (current_searchParams.get(before_param)) {
-        setPrevParams(current_searchParams, prev_searchParams, before_param)
-        prev = window.location.pathname+prev_searchParams.toString()
-        setNextParams(current_searchParams, next_searchParams, before_param, oldestTimestamp)
-      }
-      next_searchParams.delete('after')
-      next = window.location.pathname+next_searchParams.toString()
+      next = createNavHref(before_param, oldestTimestamp)
+      prev = createNavHref(after_param, newestTimestamp)
     }
-    const prevOrNext = prev || next
-    const buttons = prevOrNext ?
+    const buttons = prev || next ?
       <div className={`non-item pagination ${bottom ? 'bottom' : ''}`}>
         <a href={prev} className={`prev ${! prev ? 'disabled': 'lightblue bubble'}`}>&lt;- prev</a>
         {children}

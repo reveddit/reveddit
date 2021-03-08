@@ -1,5 +1,6 @@
 import {
   getPostsBySubredditOrDomain as pushshiftGetPostsBySubredditOrDomain,
+  PUSHSHIFT_MAX_COUNT_PER_QUERY,
 } from 'api/pushshift'
 import { getRemovedPostIDs } from 'api/removeddit'
 import { getPosts as getRedditPosts,
@@ -11,7 +12,7 @@ import { copyModlogItemsToArchiveItems, setSubredditMeta } from 'data_processing
 import { PATHS_STR_SUB, sortCreatedAsc } from 'utils'
 
 export const getRevdditPostsBySubreddit = async (subreddit, global) => {
-  const {n, before, before_id, frontPage, page} = global.state
+  const {n, before, before_id, after, frontPage, page} = global.state
   // /r/sub/new , /r/sub/controversial etc. are not implemented, so change path to indicate that
   if (window.location.pathname.match(new RegExp('^/['+PATHS_STR_SUB+']/([^/]*)/.+'))) {
     window.history.replaceState(null,null,`/v/${subreddit}/`+window.location.search)
@@ -36,7 +37,7 @@ export const getRevdditPostsBySubreddit = async (subreddit, global) => {
   } else {
     const {subreddit_about_promise} = await setSubredditMeta(subreddit, global)
     const modlogs_promise = getModlogsPosts(subreddit)
-    return combinedGetPostsBySubredditOrDomain({subreddit, n, before, before_id, global,
+    return combinedGetPostsBySubredditOrDomain({global, subreddit, n, before, before_id, after,
       subreddit_about_promise, modlogs_promise})
     .then(() => {
       global.setSuccess()
@@ -57,7 +58,7 @@ const empty_obj_promise = Promise.resolve({})
 const empty_modlogs_promise = empty_obj_promise
 
 export const combinedGetItemsBySubredditOrDomain = (args) => {
-  const {subreddit, domain, n, before, before_id, global,
+  const {global, subreddit, domain, n, before, before_id, after,
     numItemsQueried = 0,
     combinePromise = empty_arr_promise,
     subreddit_about_promise = empty_obj_promise,
@@ -67,7 +68,8 @@ export const combinedGetItemsBySubredditOrDomain = (args) => {
     postProcessCombine_Fn, postProcessCombine_Args,
     postProcessCombine_ItemsArgName,
   } = args
-  return pushshiftQueryFn({subreddit, domain, n, before, before_id})
+  const usingAfter = after && ! before
+  return pushshiftQueryFn({subreddit, domain, n, before, before_id, after})
   .catch(error => {return []}) // if ps is down, can still return modlog results
   .then(pushshiftItemsUnfiltered => {
     // make sure previous promise completes b/c it sets state
@@ -87,11 +89,22 @@ export const combinedGetItemsBySubredditOrDomain = (args) => {
           if (! before_id || foundStartingPoint) {
             pushshiftItems[item.id] = item
             itemsLookup[item.id] = item
-            if (! newestTimestamp) {
-              newestTimestamp = item.created_utc
-            }
           }
-          oldestTimestamp = item.created_utc
+        }
+      }
+      if (pushshiftItemsUnfiltered.length) {
+        const first_created_utc = pushshiftItemsUnfiltered[0].created_utc
+        const last_created_utc = pushshiftItemsUnfiltered[pushshiftItemsUnfiltered.length-1].created_utc
+        if (! usingAfter) {
+          if (! newestTimestamp) {
+            newestTimestamp = first_created_utc
+          }
+          oldestTimestamp = last_created_utc
+        } else {
+          newestTimestamp = first_created_utc
+          if (! oldestTimestamp) {
+            oldestTimestamp = last_created_utc
+          }
         }
       }
       if (before_id && ! foundStartingPoint) {
@@ -115,6 +128,7 @@ export const combinedGetItemsBySubredditOrDomain = (args) => {
         })
       })
     })
+    const newNumItemsQueried = numItemsQueried+pushshiftItemsUnfiltered.length
     // need the prev_last_id condition b/c of the way
     // querying pushshift by date works. must query by the timestamp, and to get all results,
     // you end up at least including the last result from the previous set.
@@ -126,14 +140,22 @@ export const combinedGetItemsBySubredditOrDomain = (args) => {
         ! (pushshiftItemsUnfiltered.length === 1 &&
            prev_last_id && pushshiftItemsUnfiltered[0].id === prev_last_id
           ) &&
-        (numItemsQueried+pushshiftItemsUnfiltered.length) < n) {
-      const last = pushshiftItemsUnfiltered[pushshiftItemsUnfiltered.length - 1]
+        ! (after && pushshiftItemsUnfiltered.length < PUSHSHIFT_MAX_COUNT_PER_QUERY) &&
+        newNumItemsQueried < n) {
+        const first = pushshiftItemsUnfiltered[0]
+        const last = pushshiftItemsUnfiltered[pushshiftItemsUnfiltered.length - 1]
       // unset before_id and modlogs_promise: they only need to be used once.
       // if pushshift supports before_id in the future, duplicate checking above is not needed
+      const beforeAfter = {}
+      if (! usingAfter) {
+        beforeAfter.before = last.created_utc
+      } else {
+        beforeAfter.after = first.created_utc
+      }
       return combinedGetItemsBySubredditOrDomain({...args,
-        before:last.created_utc,
+        ...beforeAfter,
         before_id: undefined,
-        numItemsQueried: numItemsQueried+pushshiftItemsUnfiltered.length,
+        numItemsQueried: newNumItemsQueried,
         combinePromise: newCombinePromise, subreddit_about_promise,
         modlogs_promise: empty_modlogs_promise,
         prev_last_id: last.id,

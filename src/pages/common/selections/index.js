@@ -16,6 +16,7 @@ import Selfposts from './Selfposts'
 import { SimpleURLSearchParams } from 'utils'
 import { NewWindowLink } from 'components/Misc'
 import { QuestionMarkModal, Help } from 'components/Misc'
+import BeforeAfter from './BeforeAfter'
 
 const UpvoteRemovalRateHistory = lazy(() => import('pages/common/selections/UpvoteRemovalRateHistory'))
 
@@ -44,6 +45,12 @@ const as_of_help = <Help title='As of' content={<>
 </>}/>
 const from_help = <Help title='From filter' content={<>
   <p>The from filter is only available when <b>Sort by</b> is 'top' or 'controversial'.</p>
+</>
+}/>
+const beforeAfter_help = <Help title='History filter' content={<>
+  <p>seconds, minutes, hours, days (default), weeks, years, timestamp</p>
+  <p>"show me the most recent posts created before exactly 1 day ago (24 hours)"</p>
+  <p>Note: archive may have a delay</p>
 </>
 }/>
 
@@ -110,6 +117,8 @@ const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter,
     <TextFilter page_type={page_type} globalVarName='filter_url' placeholder='url' key='url'
                 title='URL' titleHelpModal={{content:url_help}} />,
   ]
+  const beforeAfter = <BeforeAfter page_type={page_type}
+                       title='Time' titleHelpModal={{content:beforeAfter_help}} />
   if (showFilters) {
     const save_reset_help = <Help title='Save/Reset' content={
       <>
@@ -151,6 +160,7 @@ const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter,
                     <div>
                       <RemovedFilter page_type={page_type} />
                       <ItemsPerPage/>
+                      {! ['duplicate_posts', 'info'].includes(page_type) && beforeAfter}
                     </div>
                     <RemovedByFilter page_type={page_type}/>
                     <div>
@@ -172,6 +182,7 @@ const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter,
                     <div>
                       <RemovedFilter page_type={page_type} />
                       <ItemsPerPage/>
+                      {page_type !== 'missing_comments' && beforeAfter}
                     </div>
                     <RemovedByFilter page_type={page_type} />
                     <div>

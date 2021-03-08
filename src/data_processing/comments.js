@@ -288,7 +288,7 @@ export const setSubredditMeta = async (subreddit, global) => {
 }
 
 export const getRevdditCommentsBySubreddit = async (subreddit, global) => {
-  const {n, before, before_id} = global.state
+  const {n, before, before_id, after} = global.state
 
   if (subreddit === 'all') {
     subreddit = ''
@@ -296,7 +296,7 @@ export const getRevdditCommentsBySubreddit = async (subreddit, global) => {
   const {subreddit_about_promise} = await setSubredditMeta(subreddit, global)
   const modlogs_promise = getModlogsComments(subreddit)
 
-  return combinedGetCommentsBySubreddit({subreddit, n, before, before_id, global,
+  return combinedGetCommentsBySubreddit({global, subreddit, n, before, before_id, after,
     subreddit_about_promise, modlogs_promise})
   .then(() => {
     global.setSuccess()
