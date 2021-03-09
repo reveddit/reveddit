@@ -3,6 +3,7 @@ import { Selection } from './SelectionBase'
 import {SimpleURLSearchParams} from 'utils'
 import DayPickerInput from 'react-day-picker/DayPickerInput'
 import { DateUtils } from 'react-day-picker'
+import { useIsMobile } from 'hooks/mobile'
 
 const B = 'before', A = 'after'
 
@@ -28,8 +29,11 @@ const parseNumberAndUnit = (paramValue) => {
 const dateToEpoch = (date) => Math.floor(date/1000)
 
 const parseDateISOString = (s) => {
-  let ds = s.match(/[^\D]+/g)
-  if (ds.length > 1) {
+  let ds = s.match(/\d{1,4}/g)
+  if (ds.length > 1 && ds[1] > 0) {
+    if (ds[1].length > 2) {
+      ds = [ds[0], ...ds[1].match(/\d{1,2}/g)]
+    }
     ds[1] = ds[1] - 1 // adjust month
   }
   const date = new Date(...ds)
@@ -55,12 +59,14 @@ const convertToEpoch = (number, unit) => {
 }
 
 const inputLooksLikeDate = (s) => s.match(DATE_UNIT) || s.match(/[./]/)
-
+const defaultSize = 5, extraSize = 2
 const BeforeAfter = ({...selectionProps}) => {
   const queryParams = new SimpleURLSearchParams(window.location.search)
   const [meta, setMeta] = useState({ beforeOrAfter: B, number: '', unit: DATE_UNIT })
   const dayPickerRef = useRef(null)
   const agoInputRef = useRef(null)
+  const isMobile = useIsMobile()
+
   useEffect(() => {
     let beforeOrAfter, number, unit = ''
     const param_b = queryParams.get(B)
@@ -97,7 +103,7 @@ const BeforeAfter = ({...selectionProps}) => {
     }
   }
   const sharedInputProps = {
-    size: meta.number && meta.number.length > 5 ? meta.number.length-2 : '3',
+    size: meta.number && meta.number.length > (defaultSize+extraSize) ? meta.number.length-extraSize : defaultSize,
     style: {...marginLeft, textAlign:'right'},
     onKeyPress,
   }
@@ -108,6 +114,11 @@ const BeforeAfter = ({...selectionProps}) => {
       agoInputRef.current.focus()
     }
   }, [dayPickerRef, agoInputRef, meta.number, meta.unit])
+  useEffect(() => {
+    if (isMobile && dayPickerRef.current !== null) {
+      dayPickerRef.current.input.readOnly = true
+    }
+  }, [isMobile, dayPickerRef])
   return (
     <Selection className='beforeAfter' isFilter={true} isSet={isSet} {...selectionProps}>
       <form onSubmit={onSubmit}>
