@@ -21,7 +21,7 @@ const associatedValues = {
 }
 const anyNoneOpposite = { any: 'none', none: 'any' }
 
-const TextFilter = connect(({global, page_type, globalVarName, placeholder, minMax, anyNone, ...selectionProps }) => {
+const TextFilter = connect(({global, page_type, globalVarName, placeholder, minMax, anyNone, removeFilter, ...selectionProps }) => {
   const queryParams = new SimpleURLSearchParams(window.location.search)
   let adjusted_globalVarName = globalVarName
   let selectMinDefault = true
@@ -119,7 +119,7 @@ const TextFilter = connect(({global, page_type, globalVarName, placeholder, minM
     )
   }
   if (minMax) {
-    size = 7
+    size = 6
     select = (
       <select value={selectMin ? MIN : MAX} onChange = {(e) => {
         setSelectMin(e.target.value === MIN)
@@ -143,6 +143,12 @@ const TextFilter = connect(({global, page_type, globalVarName, placeholder, minM
           name={globalVarName+suffix} value={inputValue} placeholder={placeholder}
           onChange={(e) => setInputValue(e.target.value)}
         />
+        {minMax && <span className='pointer' onClick={() => {
+          removeFilter()
+          if (inputValue) {
+            updateStateAndURL('')
+          }
+        }} style={{marginLeft: '3px'}}>x</span>}
         {checkboxes}
       </div>
     </Selection>

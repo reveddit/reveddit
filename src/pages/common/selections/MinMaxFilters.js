@@ -52,6 +52,11 @@ const MinMaxFilters = ({page_type, global}) => {
       [e.target.value]: {...filters[e.target.value]}
     })
   }
+  const removeFilter = (key) => {
+    const newFilters = {...visibleFilters}
+    delete newFilters[key]
+    setVisibleFilters(newFilters)
+  }
   // set displayed # filters on page load
   useEffect(() => {
     const queryParams = new SimpleURLSearchParams(window.location.search)
@@ -71,7 +76,7 @@ const MinMaxFilters = ({page_type, global}) => {
     <div className='selection numeric'>
       {Object.entries(visibleFilters).map(([key, value]) =>
         <TextFilter key={key} page_type={page_type} globalVarName={value.globalVarBase} placeholder={value.placeholder}
-                    title={value.text} minMax={true}/>
+                    title={value.text} minMax={true} removeFilter={() => removeFilter(key)}/>
       )}
       {Object.keys(visibleFilters).length < Object.keys(filters).length ?
         <div className='selection'>
