@@ -30,6 +30,7 @@
     "github-fork-ribbon-css": "^0.2.3",
     "js-detect-incognito-private-browsing": "https://github.com/Maykonn/js-detect-incognito-private-browsing-paywall#v2.5.1",
     "react": "^16.12.0",
+    "react-day-picker": "^7.4.8",
     "react-dom": "^16.12.0",
     "react-modal": "^3.8.2",
     "react-router": "^5.1.2",

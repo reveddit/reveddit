@@ -47,8 +47,8 @@ const from_help = <Help title='From filter' content={<>
   <p>The from filter is only available when <b>Sort by</b> is 'top' or 'controversial'.</p>
 </>
 }/>
-const beforeAfter_help = <Help title='Time filter' content={<>
-  <p>Jumps to a point in time. For example, <b>before 1 day ago</b> shows the most recent items created before exactly 24 hours ago. Any <NewWindowLink href='/info/'>archive delay</NewWindowLink> may impact results.</p>
+const beforeAfter_help = <Help title='Date filter' content={<>
+  <p>Jumps to a point in time such as <b>before 2020-1-1</b>. Or, <b>before 1 day ago</b> shows the most recent items created before exactly 24 hours ago. Any <NewWindowLink href='/info/'>archive delay</NewWindowLink> may impact results.</p>
   <p>Select timestamp to use an epoch timestamp.</p>
 </>
 }/>
@@ -117,7 +117,7 @@ const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter,
                 title='URL' titleHelpModal={{content:url_help}} />,
   ]
   const beforeAfter = <BeforeAfter page_type={page_type}
-                       title='Time' titleHelpModal={{content:beforeAfter_help}} />
+                       title='Date' titleHelpModal={{content:beforeAfter_help}} />
   if (showFilters) {
     const save_reset_help = <Help title='Save/Reset' content={
       <>
