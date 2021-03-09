@@ -114,11 +114,6 @@ const BeforeAfter = ({...selectionProps}) => {
       agoInputRef.current.focus()
     }
   }, [dayPickerRef, agoInputRef, meta.number, meta.unit])
-  useEffect(() => {
-    if (isMobile && dayPickerRef.current !== null) {
-      dayPickerRef.current.input.readOnly = true
-    }
-  }, [isMobile, dayPickerRef])
   return (
     <Selection className='beforeAfter' isFilter={true} isSet={isSet} {...selectionProps}>
       <form onSubmit={onSubmit}>
@@ -155,6 +150,7 @@ const BeforeAfter = ({...selectionProps}) => {
             parseDate={parseDateISOString}
             inputProps={{
               ...sharedInputProps,
+              readOnly: isMobile,
               placeholder: 'Y-m-d',
             }}
             style={meta.unit !== '-' ? {display:'none'} : {}}
