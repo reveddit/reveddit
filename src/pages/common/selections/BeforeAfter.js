@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react'
+import React, {useState, useEffect, useRef, useLayoutEffect} from 'react'
 import { Selection } from './SelectionBase'
 import {SimpleURLSearchParams} from 'utils'
 import DayPickerInput from 'react-day-picker/DayPickerInput'
@@ -9,8 +9,8 @@ const B = 'before', A = 'after'
 
 const beforeAndAfter = [B, A]
 const opposite = {[B]: A, [A]: [B]}
-const DATE_UNIT = '-'
-const units = { [DATE_UNIT]: 'date', '': 'timestamp', s: 'seconds', m: 'minutes', h: 'hours', d: 'days', w: 'weeks', M: 'months', y: 'years' }
+const DATE_UNIT = '-', TIMESTAMP_UNIT = ''
+const units = { [DATE_UNIT]: 'date', [TIMESTAMP_UNIT]: 'timestamp', s: 'seconds', m: 'minutes', h: 'hours', d: 'days', w: 'weeks', M: 'months', y: 'years' }
 const unitInSeconds = { s: 1, m: 60, h: 3600, d: 86400, w: 604800, M: 2628000, y: 31536000 }
 
 const marginLeft = {marginLeft: '3px'}
@@ -60,27 +60,78 @@ const convertToEpoch = (number, unit) => {
 
 const inputLooksLikeDate = (s) => s.match(DATE_UNIT) || s.match(/[./]/)
 const defaultSize = 5, extraSize = 2
+// from https://itnext.io/reusing-the-ref-from-forwardref-with-react-hooks-4ce9df693dd
+function useCombinedRefs(ref) {
+  const targetRef = useRef()
+  useEffect(() => {
+    if (!ref) return
+
+    if (typeof ref === 'function') {
+      ref(targetRef.current)
+    } else {
+      ref.current = targetRef.current
+    }
+  }, [ref])
+
+  return targetRef
+}
+
+const CustomOverlay = React.forwardRef(({classNames, selectedDay, children, ...props}, ref) => {
+  const combinedRef = useCombinedRefs(ref)
+  const [marginLeft, setMarginLeft] = useState(0)
+  useLayoutEffect(() => {
+    const rect = combinedRef.current.getBoundingClientRect()
+    const widthOfRightNotVisible = rect.right - document.documentElement.clientWidth
+    if (widthOfRightNotVisible > 0 && rect.left - widthOfRightNotVisible > 0 ) {
+      setMarginLeft(-widthOfRightNotVisible)
+    }
+  }, [ref])
+  return (
+    <div className={classNames.overlayWrapper} {...props}>
+      <div className={classNames.overlay} ref={combinedRef} style={{marginLeft}}>
+        {children}
+      </div>
+    </div>
+  )
+})
+
+const getDefaults = () => {
+  let beforeOrAfter = B, number = '', unit = DATE_UNIT
+  const param_b = queryParamsOnPageLoad.get(B)
+  const param_a = queryParamsOnPageLoad.get(A)
+  if (param_b) {
+    beforeOrAfter = B;
+    [number, unit] = parseNumberAndUnit(param_b)
+  } else if (param_a) {
+    beforeOrAfter = A;
+    [number, unit] = parseNumberAndUnit(param_a)
+  }
+  if (beforeOrAfter && number) {
+    if (number.match(/^\d{10,}$/) && unit === TIMESTAMP_UNIT) {
+      const d = new Date(0)
+      d.setUTCSeconds(number)
+      number = [d.getFullYear(),
+                d.getMonth()+1,
+                d.getDate()]
+                .join('-')+' '+
+                  [d.getHours(),
+                   d.getMinutes(),
+                   d.getSeconds()].join(':')
+      unit = DATE_UNIT
+    }
+  }
+  return {beforeOrAfter, number, unit}
+}
+
 const BeforeAfter = ({...selectionProps}) => {
   const queryParams = new SimpleURLSearchParams(window.location.search)
-  const [meta, setMeta] = useState({ beforeOrAfter: B, number: '', unit: DATE_UNIT })
+  const [meta, setMeta] = useState(getDefaults())
   const dayPickerRef = useRef(null)
   const agoInputRef = useRef(null)
+  const overlayRef = useRef(null)
   const isMobile = useIsMobile()
 
   useEffect(() => {
-    let beforeOrAfter, number, unit = ''
-    const param_b = queryParams.get(B)
-    const param_a = queryParams.get(A)
-    if (param_b) {
-      beforeOrAfter = B;
-      [number, unit] = parseNumberAndUnit(param_b)
-    } else if (param_a) {
-      beforeOrAfter = A;
-      [number, unit] = parseNumberAndUnit(param_a)
-    }
-    if (beforeOrAfter && number) {
-      setMeta({beforeOrAfter, number, unit})
-    }
   }, [])
   const reset = () => {
     queryParams.delete(B)
@@ -108,12 +159,13 @@ const BeforeAfter = ({...selectionProps}) => {
     onKeyPress,
   }
   useEffect(() => {
-    if (inputLooksLikeDate(meta.number)) {
+    if (! isSet && inputLooksLikeDate(meta.number)) {
       dayPickerRef.current.input.focus()
     } else if (meta.unit in unitInSeconds) {
       agoInputRef.current.focus()
     }
-  }, [dayPickerRef, agoInputRef, meta.number, meta.unit])
+  }, [meta.number, meta.unit])
+
   return (
     <Selection className='beforeAfter' isFilter={true} isSet={isSet} {...selectionProps}>
       <form onSubmit={onSubmit}>
@@ -134,7 +186,7 @@ const BeforeAfter = ({...selectionProps}) => {
                    }
                  }}
                  {...sharedInputProps}
-                 />
+           />
         :
           <DayPickerInput value={meta.number} ref={dayPickerRef}
             onDayChange={(day, modifiers, dayPickerInput) => {
@@ -143,17 +195,17 @@ const BeforeAfter = ({...selectionProps}) => {
               if (! unit) {
                 number = value
               } else if (inputLooksLikeDate(value)) {
-                unit = '-'
+                unit = DATE_UNIT
               }
               setMeta({...meta, number, ...(unit && {unit})})
             }}
+            overlayComponent={props => <CustomOverlay {...props} ref={overlayRef}/>}
             parseDate={parseDateISOString}
             inputProps={{
               ...sharedInputProps,
               readOnly: isMobile,
               placeholder: 'Y-m-d',
             }}
-            style={meta.unit !== '-' ? {display:'none'} : {}}
           />
         }
         <div style={{marginTop: '3px'}}>
@@ -162,7 +214,7 @@ const BeforeAfter = ({...selectionProps}) => {
             const number = [meta.unit, e.target.value].includes(DATE_UNIT) ? '' : meta.number
             setMeta({...meta, number, unit: e.target.value})
           }}>
-            {Object.entries(units).map(([k, v]) => <option key={k} value={k}>{v + (k && k !== DATE_UNIT ? ' ago':'')}</option>)}
+            {Object.entries(units).map(([k, v]) => <option key={k} value={k}>{v + (k in unitInSeconds ? ' ago':'')}</option>)}
           </select>
           <input type='submit' value='go' style={marginLeft} onClick={onSubmit}/>
         </div>
