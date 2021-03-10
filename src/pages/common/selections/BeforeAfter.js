@@ -60,7 +60,9 @@ const convertToEpoch = (number, unit) => {
 }
 
 const inputLooksLikeDate = (s) => s.match(DATE_UNIT) || s.match(/[./]/)
-const defaultSize = 5, extraSize = 2
+const pxPerChar = 8.875
+const defaultNumChars = 8
+const defaultPxWidth = pxPerChar*defaultNumChars
 // from https://itnext.io/reusing-the-ref-from-forwardref-with-react-hooks-4ce9df693dd
 function useCombinedRefs(ref) {
   const targetRef = useRef()
@@ -166,8 +168,12 @@ const BeforeAfter = ({...selectionProps}) => {
     }
   }
   const sharedInputProps = {
-    size: meta.number && meta.number.length > (defaultSize+extraSize) ? meta.number.length-extraSize : defaultSize,
-    style: {...marginLeft, textAlign:'right'},
+    style: {
+      ...marginLeft, textAlign:'right',
+      width: Math.ceil(
+        meta.number && meta.number.length > defaultNumChars ? meta.number.length*pxPerChar : defaultPxWidth
+      ).toString()+'px',
+    },
     onKeyPress,
   }
   useEffect(() => {
