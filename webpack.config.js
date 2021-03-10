@@ -105,6 +105,7 @@ module.exports = async (env, argv) => {
         // and not allow any straggling "old" SWs to hang around
         clientsClaim: true,
         skipWaiting: true,
+        mode: 'production', // hide debug messages
         ...(! IS_PRODUCTION && {maximumFileSizeToCacheInBytes: 8*1024*1024}),
       }),
     ],
