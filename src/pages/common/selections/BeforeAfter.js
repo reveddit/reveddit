@@ -15,7 +15,7 @@ const unitInSeconds = { s: 1, m: 60, h: 3600, d: 86400, w: 604800, M: 2628000, y
 
 const marginLeft = {marginLeft: '3px'}
 const queryParamsOnPageLoad = new SimpleURLSearchParams(window.location.search)
-const isSet = queryParamsOnPageLoad.get(B) || queryParamsOnPageLoad.get(A)
+const valueOnPageLoad = queryParamsOnPageLoad.get(B) || queryParamsOnPageLoad.get(A)
 
 const validUnit = (u) => u in units
 
@@ -32,6 +32,7 @@ const parseDateISOString = (s) => {
   let ds = s.match(/\d{1,4}/g)
   if (ds.length > 1 && ds[1] > 0) {
     if (ds[1].length > 2) {
+      //e.g. 20100304 where ds = ['2010', '0304']
       ds = [ds[0], ...ds[1].match(/\d{1,2}/g)]
     }
     ds[1] = ds[1] - 1 // adjust month
@@ -95,6 +96,25 @@ const CustomOverlay = React.forwardRef(({classNames, selectedDay, children, ...p
   )
 })
 
+const zpad_time = (t) => ('0'+t).slice(-2)
+
+const convertEpochToDateString = (epoch) => {
+  const d = new Date(0)
+  d.setUTCSeconds(epoch)
+  const ymd_string = [
+    d.getFullYear(),
+    d.getMonth()+1,
+    d.getDate()].join('-')
+  const [hours, mins, seconds] = [d.getHours(), d.getMinutes(), d.getSeconds()]
+  let time_string = ''
+  if (hours || mins || seconds) {
+    const times = [hours, mins]
+    if (seconds) times.push(seconds)
+    time_string = ' '+times.map(zpad_time).join(':')
+  }
+  return ymd_string + time_string
+}
+
 const getDefaults = () => {
   let beforeOrAfter = B, number = '', unit = DATE_UNIT
   const param_b = queryParamsOnPageLoad.get(B)
@@ -108,15 +128,7 @@ const getDefaults = () => {
   }
   if (beforeOrAfter && number) {
     if (number.match(/^\d{10,}$/) && unit === TIMESTAMP_UNIT) {
-      const d = new Date(0)
-      d.setUTCSeconds(number)
-      number = [d.getFullYear(),
-                d.getMonth()+1,
-                d.getDate()]
-                .join('-')+' '+
-                  [d.getHours(),
-                   d.getMinutes(),
-                   d.getSeconds()].join(':')
+      number = convertEpochToDateString(number)
       unit = DATE_UNIT
     }
   }
@@ -144,7 +156,7 @@ const BeforeAfter = ({...selectionProps}) => {
       queryParams.delete(opposite[meta.beforeOrAfter])
       queryParams.set(meta.beforeOrAfter, convertToEpoch(meta.number,meta.unit))
       window.location.href = queryParams.toString()
-    } else if (isSet && (meta.number == 0 || meta.number == '')) {
+    } else if (valueOnPageLoad && (meta.number == 0 || meta.number == '')) {
       reset()
     }
   }
@@ -159,7 +171,10 @@ const BeforeAfter = ({...selectionProps}) => {
     onKeyPress,
   }
   useEffect(() => {
-    if (! isSet && inputLooksLikeDate(meta.number)) {
+    if (inputLooksLikeDate(meta.number) &&
+          (! valueOnPageLoad ||
+           valueOnPageLoad != dateToEpoch(parseDateISOString(meta.number)))
+    ) {
       dayPickerRef.current.input.focus()
     } else if (meta.unit in unitInSeconds) {
       agoInputRef.current.focus()
@@ -167,7 +182,7 @@ const BeforeAfter = ({...selectionProps}) => {
   }, [meta.number, meta.unit])
 
   return (
-    <Selection className='beforeAfter' isFilter={true} isSet={isSet} {...selectionProps}>
+    <Selection className='beforeAfter' isFilter={true} isSet={valueOnPageLoad} {...selectionProps}>
       <form onSubmit={onSubmit}>
         <select value={meta.beforeOrAfter} onChange={(e) => {
           setMeta({...meta, beforeOrAfter: e.target.value})
@@ -218,7 +233,7 @@ const BeforeAfter = ({...selectionProps}) => {
           </select>
           <input type='submit' value='go' style={marginLeft} onClick={onSubmit}/>
         </div>
-        {isSet && <div style={{textAlign:'center'}}><a className='pointer' onClick={reset}>[x] reset</a></div>}
+        {valueOnPageLoad && <div style={{textAlign:'center'}}><a className='pointer' onClick={reset}>[x] reset</a></div>}
       </form>
     </Selection>
   )
