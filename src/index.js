@@ -92,12 +92,21 @@ const routes = (
 </Switch>)
 
 class App extends React.Component {
-
   render() {
     return (
       <Provider>
         <BrowserRouter basename={__dirname}>
           <Route path='*' render={({location}) => {
+            if (location.pathname.match(/^\/+https?:\/\//)) {
+              return (
+                <Redirect
+                  to={{
+                    ...location,
+                    pathname: '/info/',
+                    search: '?url='+encodeURIComponent(location.pathname.replace(/^\/+/,'')+location.search),
+                  }} />
+              )
+            }
             const path = location.pathname.replace(/\/\/+|([^/])$/g, '$1/')
             if( path !== location.pathname ) {
               return <Redirect to={{
