@@ -4,6 +4,7 @@ import {SimpleURLSearchParams} from 'utils'
 import DayPickerInput from 'react-day-picker/DayPickerInput'
 import { DateUtils } from 'react-day-picker'
 import { useIsMobile } from 'hooks/mobile'
+import { usePrevious } from 'hooks/previous'
 
 const B = 'before', A = 'after'
 
@@ -140,11 +141,11 @@ const getDefaults = () => {
 const BeforeAfter = ({...selectionProps}) => {
   const queryParams = new SimpleURLSearchParams(window.location.search)
   const [meta, setMeta] = useState(getDefaults())
+  const prevMeta = usePrevious(meta)
   const dayPickerRef = useRef(null)
   const agoInputRef = useRef(null)
   const overlayRef = useRef(null)
   const isMobile = useIsMobile()
-
   useEffect(() => {
   }, [])
   const reset = () => {
@@ -177,12 +178,9 @@ const BeforeAfter = ({...selectionProps}) => {
     onKeyPress,
   }
   useEffect(() => {
-    if (inputLooksLikeDate(meta.number) &&
-          (! valueOnPageLoad ||
-           valueOnPageLoad != dateToEpoch(parseDateISOString(meta.number)))
-    ) {
+    if (prevMeta && prevMeta.unit !== DATE_UNIT && meta.unit === DATE_UNIT) {
       dayPickerRef.current.input.focus()
-    } else if (meta.unit in unitInSeconds) {
+    } else if (meta.unit in unitInSeconds || meta.unit === '') {
       agoInputRef.current.focus()
     }
   }, [meta.number, meta.unit])
