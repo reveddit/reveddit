@@ -213,7 +213,8 @@ class UpvoteRemovalRateHistory extends React.Component {
 
   render() {
     const {global, page_type, subreddit} = this.props
-    if (truthyOrUndefined(global.state.over18)) {
+    const {over18, threadPost} = global.state
+    if ((page_type !== 'thread' && truthyOrUndefined(over18)) || threadPost.over_18) {
       return null
     }
     const {clicked} = this.state
