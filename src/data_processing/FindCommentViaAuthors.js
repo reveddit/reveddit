@@ -1,4 +1,4 @@
-import React, {useRef, useState, useEffect} from 'react'
+import React, {useState, useEffect} from 'react'
 import {ifNumParseInt, isCommentID, validAuthor, now} from 'utils'
 import {connect, urlParamKeys, create_qparams_and_adjust, updateURL} from 'state'
 import { kindsReverse, queryUserPage } from 'api/reddit'
@@ -8,7 +8,7 @@ import { createCommentTree } from 'data_processing/thread'
 import { RestoreIcon } from 'pages/common/svg'
 import { getAuth } from 'api/reddit/auth'
 
-const MAX_AUTHORS_NEARBY_BY_DATE = 4
+const MAX_AUTHORS_NEARBY_BY_DATE = 5
 const MAX_AUTHORS_TO_SEARCH = 15
 
 const ONE_MONTH_IN_SECONDS = 30*60*60*24
@@ -32,8 +32,8 @@ export const get_userPageSortAndTime = ({created_utc, score, controversiality}) 
   return {userPageSort, userPageTime}
 }
 
-const addAuthorIfExists = (comment, set) => {
-  if (comment && validAuthor(comment.author)) {
+const addAuthorIfExists = (comment, set, alreadySearchedAuthors) => {
+  if (comment && validAuthor(comment.author) && ! alreadySearchedAuthors[comment.author]) {
     set.add(comment.author)
   }
 }
@@ -62,24 +62,24 @@ const search_comment_help = <Help title={unarchived_search_button_word+' Comment
 
 const Wrap = ({children}) => <div style={{padding: '15px 0', minHeight: '25px'}}>{children}</div>
 
-const getAddUserMeta = (props, distance, userPageSort, userPageTime) => {
+const getAddUserMeta = (props, distance_input, userPageSort, userPageTime) => {
   const {itemsLookup, alreadySearchedAuthors, threadPost,
    itemsSortedByDate, add_user, loading} = props.global.state
    const grandparentComment = getAncestor(props, itemsLookup, 2)
    const grandchildComment = ((props.replies[0] || {}).replies || [])[0] || {}
    // START nearby authors
    const authors_nearbyByDate = new Set()
-   let distance_from_start = distance.current
+   let distance = distance_input
    if (itemsSortedByDate.length > 1 && 'by_date_i' in props) {
      const comment_i = props.by_date_i
      while (authors_nearbyByDate.size < MAX_AUTHORS_NEARBY_BY_DATE) {
-       addAuthorIfExists(itemsSortedByDate[comment_i - distance_from_start], authors_nearbyByDate)
+       distance += 1
+       addAuthorIfExists(itemsSortedByDate[comment_i - distance], authors_nearbyByDate, alreadySearchedAuthors)
        if (authors_nearbyByDate.size < MAX_AUTHORS_NEARBY_BY_DATE) {
-         addAuthorIfExists(itemsSortedByDate[comment_i + distance_from_start], authors_nearbyByDate)
+         addAuthorIfExists(itemsSortedByDate[comment_i + distance], authors_nearbyByDate, alreadySearchedAuthors)
        }
-       distance_from_start += 1
-       if (   (comment_i+distance_from_start) >= itemsSortedByDate.length
-           && (comment_i-distance_from_start) < 0) {
+       if (   (comment_i+distance+1) >= itemsSortedByDate.length
+           && (comment_i-distance-1) < 0) {
          break
        }
      }
@@ -87,60 +87,49 @@ const getAddUserMeta = (props, distance, userPageSort, userPageTime) => {
    // END nearby authors
    const aug = new AddUserGroup({alreadySearchedAuthors, sort: userPageSort, time: userPageTime})
    const aup = new AddUserParam({string: add_user})
+   //TODO:  breadth first search for grandchildren
    aug.add(grandparentComment.author,
            grandchildComment.author,
            ...aup.getAuthors(),
            threadPost.author,
            ...Array.from(authors_nearbyByDate),
           )
-  return [aug, distance_from_start]
+  return {aug, distance}
 }
 
 const FindCommentViaAuthors = (props) => {
-  const distanceRef = useRef(1)
-  // if aug is null && ! loading, populate aug
-  // after finishing search, update aug
-  const augRef = useRef(null)
   const [localLoading, setLocalLoading] = useState(false)
+  const [meta, setMeta] = useState({distance: 0, aug: null})
   let searchButton = ''
   const {itemsLookup, alreadySearchedAuthors, threadPost,
          itemsSortedByDate, add_user, authors:globalAuthors,
          loading: globalLoading, items, commentTree,
         } = props.global.state
-  //TODO: check that distance updates properly
-  //      -
+  const {created_utc, score, controversiality} = props
+
   const loading = localLoading || globalLoading
-  const {userPageSort, userPageTime} = get_userPageSortAndTime(props)
-  if (! augRef.current && ! loading) {
-    const [new_augRef, new_distanceRef] = getAddUserMeta(props, distanceRef, userPageSort, userPageTime)
-    augRef.current = new_augRef
-    distanceRef.current = new_distanceRef
-  }
-  const aug = augRef.current
+
+  const get_userPageSortAndTime_this = () => get_userPageSortAndTime({created_utc, score, controversiality})
+  useEffect(() => {
+    if (! loading) {
+      const {userPageSort, userPageTime} = get_userPageSortAndTime_this();
+      setMeta(getAddUserMeta(props, meta.distance, userPageSort, userPageTime))
+    }
+  // the result of this effect changes each time it runs b/c the output is used as input (distance)
+  // it should only run once per comment per search
+  // do not add 'add_user' as a dependency: it causes a separate state update
+  }, [JSON.stringify(alreadySearchedAuthors), globalLoading])
+
   const search = async (targetComment) => {
     await setLocalLoading(true)
 
-    //distance.current = distance_from_start
-    //TODO: allow aug to allow a second query according to below
-
-    // 1st query: grandparent, grandchild, any author in URL Param, OP, highest karma
-           // only add these for search *if they are not in alreadySearchedAuthors*
-    // 2nd query:
-    //    authors who commented around the same time anywhere in the thread
-    //    (only runs if first didn't find the result or first has no authors)
-    // is_mod LAST
-
-    const {authors, promises} = await aug.query()
+    const {userPageSort, userPageTime} = get_userPageSortAndTime_this()
+    const {authors, promises} = await meta.aug.query()
     const {user_comments, newComments} = await Promise.all(promises).then(
       getUserCommentsForPost.bind(null, threadPost, itemsLookup))
     Object.assign(alreadySearchedAuthors, authors)
     const {new_commentTree, new_add_user} = await addUserComments_updateURL_createTreeIfNeeded({
       user_comments, itemsLookup, add_user, threadPost, newComments, items, commentTree, userPageSort, userPageTime})
-    //TODO: If failed for clicked item, change messaging
-    //         authors remain: "try again" or show % complete (# authors searched / total # authors)
-    const [new_augRef, new_distanceRef] = getAddUserMeta(props, distanceRef, userPageSort, userPageTime)
-    augRef.current = new_augRef
-    distanceRef.current = new_distanceRef
     await setLocalLoading(false)
     return props.global.setSuccess({alreadySearchedAuthors,
                                     add_user: new_add_user || add_user,
@@ -154,17 +143,19 @@ const FindCommentViaAuthors = (props) => {
   //  ! loading && hasAuthors => show button
   //  ! loading && noAuthors => show nothing
   if (loading) {
-    if (! aug || aug.length()) {
+    if (! meta.aug || meta.aug.length()) {
       searchButton = <Wrap><Spin width='20px'/></Wrap>
     }
-  } else if (aug.length()) {
+  } else if (meta.aug?.length()) {
     const numAuthorsRemaining = Object.keys(globalAuthors).length - Object.keys(alreadySearchedAuthors).length
     if (numAuthorsRemaining) {
       searchButton = (
         <Wrap>
-          <a className='pointer bubble medium lightblue' onClick={search}
-          ><RestoreIcon/> {unarchived_search_button_word}<span className='desktop-only'> ({numAuthorsRemaining.toLocaleString()} users left)</span></a>
-          <QuestionMarkModal modalContent={{content:search_comment_help}} fill='white'/>
+          <div>
+            <a className='pointer bubble medium lightblue' onClick={search}><RestoreIcon/> {unarchived_search_button_word}</a>
+            <QuestionMarkModal modalContent={{content:search_comment_help}} fill='white'/>
+          </div>
+          <div style={{marginTop:'5px'}}> ({numAuthorsRemaining.toLocaleString()} users left)</div>
         </Wrap>
       )
     }
