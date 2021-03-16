@@ -46,7 +46,7 @@ export const getWhatPeopleSay = async () => {
   const params = {
     c: getCount()
   }
-  return flaskQuery('what-people-say/?', params)
+  return flaskQuery('what-people-say/?', params, REVEDDIT_FLASK_HOST_LONG)
 }
 
 export const getArchiveTimes = async () => {
@@ -66,11 +66,11 @@ export const agg_defaults_for_page = {
 }
 
 export const getAggregations = ({subreddit, type = agg_defaults_for_page.type, limit = agg_defaults_for_page.limit, sort = agg_defaults_for_page.sort}) => {
-  return flaskQuery(aggregationsPath, {type, subreddit, limit, sort})
+  return flaskQuery(aggregationsPath, {type, subreddit, limit, sort}, REVEDDIT_FLASK_HOST_LONG)
 }
 
 export const getAggregationsURL = ({subreddit, type = agg_defaults_for_page.type, limit = agg_defaults_for_page.limit, sort = agg_defaults_for_page.sort}) => {
-  return REVEDDIT_FLASK_HOST + aggregationsPath + paramString({type, subreddit, limit, sort})
+  return REVEDDIT_FLASK_HOST_LONG + aggregationsPath + paramString({type, subreddit, limit, sort})
 }
 
 export const numGraphPointsParamKey = 'rr_ngp'
@@ -110,8 +110,8 @@ export const getAggregationsPeriodURL = ({subreddit, type, numGraphPoints, limit
   return `${PATH_STR_SUB}/${subreddit}/`+commentsPath+queryParams.toString()
 }
 
-export const flaskQuery = (path, params = {}) => {
-  const url = REVEDDIT_FLASK_HOST + path + paramString(params)
+const flaskQuery = (path, params = {}, host = REVEDDIT_FLASK_HOST_SHORT) => {
+  const url = host + path + paramString(params)
   return window.fetch(url)
   .then(response => response.json())
   .catch(errorHandler)

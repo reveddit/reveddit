@@ -43,9 +43,11 @@ module.exports = async (env, argv) => {
   const IS_PRODUCTION = argv.mode === 'production'
 
   let flask_host = 'https://rviewit.com/api/'
+  let short = 'short/', long = 'long/'
   let cors_anywhere_host = 'https://api.revddit.com/'
   if (! IS_PRODUCTION) {
     flask_host = LOCALHOST + ':5000/'
+    short = '', long = ''
   }
   return {
     entry: [
@@ -92,7 +94,8 @@ module.exports = async (env, argv) => {
       new webpack.DefinePlugin({
         LAMBDA_ENDPOINT: JSON.stringify(process.env.LAMBDA_ENDPOINT),
         STRIPE_PUBLISHABLE_KEY: JSON.stringify(process.env.STRIPE_PUBLISHABLE_KEY),
-        REVEDDIT_FLASK_HOST: JSON.stringify(flask_host),
+        REVEDDIT_FLASK_HOST_SHORT: JSON.stringify(flask_host+short),
+        REVEDDIT_FLASK_HOST_LONG: JSON.stringify(flask_host+long),
         REVEDDIT_CORS_ANWHERE_HOST: JSON.stringify(cors_anywhere_host),
       }),
       new LodashModuleReplacementPlugin,
