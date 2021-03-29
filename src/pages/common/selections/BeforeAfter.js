@@ -30,7 +30,7 @@ const parseNumberAndUnit = (paramValue) => {
 const dateToEpoch = (date) => Math.floor(date/1000)
 
 const parseDateISOString = (s) => {
-  let ds = s.match(/\d{1,4}/g)
+  let ds = s.match(/\d{1,4}/g) || []
   if (ds.length > 1 && ds[1] > 0) {
     if (ds[1].length > 2) {
       //e.g. 20100304 where ds = ['2010', '0304']
@@ -146,8 +146,6 @@ const BeforeAfter = ({...selectionProps}) => {
   const agoInputRef = useRef(null)
   const overlayRef = useRef(null)
   const isMobile = useIsMobile()
-  useEffect(() => {
-  }, [])
   const reset = () => {
     queryParams.delete(B)
     queryParams.delete(A)
