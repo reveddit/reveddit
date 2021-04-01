@@ -152,6 +152,22 @@ const Post = connect((props) => {
         </div>
       </div>
       {clear}
+      {page_type === 'thread' && media_metadata && ! props.over_18 && ! props.deleted &&
+        <div className='thread-media'>
+          { focusedImageList?.length ?
+            <BestImage list={focusedImageList} onClick={() => setFocusedMediaKey(null)} />
+            : Object.entries(media_metadata).map(([key, meta]) => {
+              if (meta.e !== 'Image' || ! meta.p.length) {
+                return null
+              }
+              const preview = meta.p[0]
+              return <Image key={key} {...preview}
+                            onClick={() => setFocusedMediaKey(key) } />
+            })
+          }
+        </div>
+      }
+      {clear}
       {selftext &&
         <div className='thread-selftext'>
           <div style={{display: 'table', tableLayout: 'fixed', width: '100%'}}>
@@ -178,22 +194,6 @@ const Post = connect((props) => {
               </>
             }
           </div>
-        </div>
-      }
-      {clear}
-      {page_type === 'thread' && media_metadata && ! props.over_18 && ! props.deleted &&
-        <div className='thread-media'>
-          { focusedImageList?.length ?
-            <BestImage list={focusedImageList} onClick={() => setFocusedMediaKey(null)} />
-            : Object.entries(media_metadata).map(([key, meta]) => {
-              if (meta.e !== 'Image' || ! meta.p.length) {
-                return null
-              }
-              const preview = meta.p[0]
-              return <Image key={key} {...preview}
-                            onClick={() => setFocusedMediaKey(key) } />
-            })
-          }
         </div>
       }
     </div>
