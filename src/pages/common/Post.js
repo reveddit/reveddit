@@ -18,7 +18,12 @@ import {AuthorFocus} from 'pages/thread/Comment'
 import {get_userPageSortAndTime} from 'data_processing/FindCommentViaAuthors'
 const max_selftext_length = 100
 
-
+const decodeHtml = (html) => {
+    var txt = document.createElement("textarea")
+    txt.innerHTML = html
+    return txt.value || html
+}
+const clear = <div className='clearBoth' style={{flexBasis:'100%', height: '0'}}></div>
 const Post = connect((props) => {
   const {
     global, rev_position, page_type,
@@ -72,7 +77,7 @@ const Post = connect((props) => {
       </a>
     )
   }
-  let selftext = props.selftext
+  let selftext = decodeHtml(props.selftext)
   let selftext_snippet = ''
   let snippet_is_set = false
   if (selftext) {
@@ -146,7 +151,7 @@ const Post = connect((props) => {
           </span>
         </div>
       </div>
-      <div className='clearBoth' style={{flexBasis:'100%', height: '0'}}></div>
+      {clear}
       {selftext &&
         <div className='thread-selftext'>
           <div style={{display: 'table', tableLayout: 'fixed', width: '100%'}}>
@@ -175,6 +180,7 @@ const Post = connect((props) => {
           </div>
         </div>
       }
+      {clear}
       {page_type === 'thread' && media_metadata && ! props.over_18 && ! props.deleted &&
         <div className='thread-media'>
           { focusedImageList?.length ?
