@@ -229,7 +229,7 @@ const SelftextInParts = ({selftext, media_metadata}) => {
       const [ , caption, url, id] = match
       const list = getImageList({media_metadata, id})
       if (list) {
-        const marginTop = caption ? '5px' : ''
+        const marginTop = caption ? '' : '5px'
         result.push(
           <div key={i} style={{textAlign:'center', marginTop}}>
             {caption && <h4>{caption}</h4>}
