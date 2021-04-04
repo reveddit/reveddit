@@ -97,8 +97,8 @@ const per_mod_logs = <h4>Details from <LinkWithCloseModal to='/about/faq/#which-
 const RemovedBy = (props) => {
   let displayTag = '', details = '', meta = undefined, withinText = '', fill = undefined,
       allActionsExceptLocked = '', lockedTag = '', temporarilyVisible = ''
-  let {removedby, orphaned_label = '', style, locked, removed, deleted, modlog} = props
-  const is_post = isPost(props)
+  let {removedby, orphaned_label = '', style, locked, removed, deleted, modlog, name} = props
+  const is_post = name && isPost(props)
   if (removed && ! removedby) {
     removedby = UNKNOWN_REMOVED
   }
