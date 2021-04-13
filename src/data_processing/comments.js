@@ -245,7 +245,8 @@ export const copyModlogItemsToArchiveItems = (modlogsItems, archiveItems) => {
       link_id,
       created_utc: ml_item.created_utc,
       mod: ml_item.mod,
-      details: ml_item.details
+      details: ml_item.details,
+      log_source: ml_item.log_source,
     }
     if (archive_item) {
       archive_item.modlog = modlog

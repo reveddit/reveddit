@@ -12,6 +12,8 @@ const crypto = require('crypto')
 const fs = require('fs')
 
 const LOCALHOST = 'http://localhost'
+const RVIEWIT = 'https://rviewit.com/api/'
+const MODLOGS_API = RVIEWIT+'short/modlogs/api/'
 
 const createHashFromFile = filePath => new Promise(resolve => {
   const hash = crypto.createHash('sha1');
@@ -42,7 +44,7 @@ module.exports = async (env, argv) => {
   }
   const IS_PRODUCTION = argv.mode === 'production'
 
-  let flask_host = 'https://rviewit.com/api/'
+  let flask_host = RVIEWIT
   let short = 'short/', long = 'long/'
   let cors_anywhere_host = 'https://api.revddit.com/'
   if (! IS_PRODUCTION) {
@@ -97,6 +99,7 @@ module.exports = async (env, argv) => {
         REVEDDIT_FLASK_HOST_SHORT: JSON.stringify(flask_host+short),
         REVEDDIT_FLASK_HOST_LONG: JSON.stringify(flask_host+long),
         REVEDDIT_CORS_ANWHERE_HOST: JSON.stringify(cors_anywhere_host),
+        U_MODLOGS_API: JSON.stringify(MODLOGS_API),
       }),
       new LodashModuleReplacementPlugin,
       new HtmlWebpackPlugin({

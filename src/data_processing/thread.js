@@ -14,7 +14,7 @@ import {
 } from 'api/reddit'
 import { getAuth } from 'api/reddit/auth'
 import {
-  submitMissingComments
+  submitMissingComments, getUmodlogs
 } from 'api/reveddit'
 import { itemIsRemovedOrDeleted, postIsDeleted, postIsRemoved, jumpToHash,
          convertPathSub, sortCreatedAsc, validAuthor, commentIsRemoved,
@@ -74,7 +74,9 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
   })
   .then(async ({post: reddit_post, comments: redditComments, moreComments, oldestComment}) => {
     const moderators_promise = getModerators(reddit_post.subreddit, useProxy)
-    const modlogs_comments_promise = getModlogsComments(reddit_post.subreddit, reddit_post.id)
+    const modlogs_comments_promises = [getModlogsComments(reddit_post.subreddit, reddit_post.id),
+                                       getUmodlogs(reddit_post.subreddit, reddit_post.id),
+                                      ]
     let modlogs_posts_promise = Promise.resolve({})
     if (postIsRemoved(reddit_post) && (reddit_post.is_self || reddit_post.is_gallery)) {
       pushshift_post_promise = getPushshiftPost(threadID).catch(ignoreArchiveErrors)
@@ -135,7 +137,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
       })
     }
     return {reddit_post, root_commentID, reddit_comments_promise, pushshift_comments_promise, resetPath,
-            moderators_promise, modlogs_comments_promise, modlogs_posts_promise}
+            moderators_promise, modlogs_comments_promises, modlogs_posts_promise}
   })
 
   reddit_pwc_promise.then(async ({reddit_post, modlogs_posts_promise}) => {
@@ -160,15 +162,16 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
 
   const combined_comments_promise = reddit_pwc_promise
   .then(async ({reddit_post, root_commentID, reddit_comments_promise, resetPath,
-          moderators_promise, modlogs_comments_promise}) => {
+          moderators_promise, modlogs_comments_promises}) => {
     const {redditComments, moreComments} = await reddit_comments_promise
     const pushshiftComments = await pushshift_comments_promise
-    const modlogsComments = await modlogs_comments_promise
+    const [modlogsComments, uModlogsItems] = await Promise.all(modlogs_comments_promises)
     const rootComment = await root_comment_promise
     if (rootComment && rootComment[commentID] && ! redditComments[commentID]) {
       redditComments[commentID] = rootComment[commentID]
     }
     copyModlogItemsToArchiveItems(modlogsComments, pushshiftComments)
+    copyModlogItemsToArchiveItems(uModlogsItems.comments, pushshiftComments)
     const focusComment_pushshift = pushshiftComments[commentID]
     const focusComment_reddit = redditComments[commentID]
     let new_add_user

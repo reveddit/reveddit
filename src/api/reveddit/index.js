@@ -31,7 +31,7 @@ export const getMissingComments = async ({subreddit, limit=100, page=1}) => {
     ...(page && {page}),
     c: getCount()
   }
-  return flaskQuery('missing-comments/get/?', params)
+  return flaskQuery('missing-comments/get/', params)
 }
 
 export const submitMissingComments = async (ids) => {
@@ -39,24 +39,24 @@ export const submitMissingComments = async (ids) => {
     ids: ids.join(','),
     c: getCount()
   }
-  return flaskQuery('missing-comments/post/?', params)
+  return flaskQuery('missing-comments/post/', params)
 }
 
 export const getWhatPeopleSay = async () => {
   const params = {
     c: getCount()
   }
-  return flaskQuery('what-people-say/?', params, REVEDDIT_FLASK_HOST_LONG)
+  return flaskQuery('what-people-say/', params, REVEDDIT_FLASK_HOST_LONG)
 }
 
 export const getArchiveTimes = async () => {
   const params = {
     c: getCount(120)
   }
-  return flaskQuery('archive-times/?', params)
+  return flaskQuery('archive-times/', params)
 }
 
-const aggregationsPath = 'aggregations/?'
+const aggregationsPath = 'aggregations/'
 
 //default values for aggregations query via r/subreddit/top
 export const agg_defaults_for_page = {
@@ -70,7 +70,7 @@ export const getAggregations = ({subreddit, type = agg_defaults_for_page.type, l
 }
 
 export const getAggregationsURL = ({subreddit, type = agg_defaults_for_page.type, limit = agg_defaults_for_page.limit, sort = agg_defaults_for_page.sort}) => {
-  return REVEDDIT_FLASK_HOST_LONG + aggregationsPath + paramString({type, subreddit, limit, sort})
+  return REVEDDIT_FLASK_HOST_LONG + aggregationsPath + '?' + paramString({type, subreddit, limit, sort})
 }
 
 export const numGraphPointsParamKey = 'rr_ngp'
@@ -110,8 +110,53 @@ export const getAggregationsPeriodURL = ({subreddit, type, numGraphPoints, limit
   return `${PATH_STR_SUB}/${subreddit}/`+commentsPath+queryParams.toString()
 }
 
+export const getUmodlogs = async (subreddit, thread_id) => {
+  const params = { c: getCount() }
+  const empty = {comments: {}, submissions: {}}
+  return flaskQuery('modlogs-subreddits/', params)
+  .then(list => {
+    const set = new Set(list.map(x => x.toLowerCase()))
+    if (set.has(subreddit.toLowerCase())) {
+      params.limit = 100
+      params.link = `/r/comments/${thread_id}`
+      params.actions = 'removelink,spamlink,removecomment,spamcomment'
+      return flaskQuery('r/Libertarian/logs/', params, U_MODLOGS_API)
+      .then(result => postProcessUmodlogs(result.logs, thread_id))
+    }
+    return empty
+  })
+  .catch(() => {
+    return empty
+  })
+  return empty
+}
+
+const postProcessUmodlogs = (list, thread_id) => {
+  const comments = {}, submissions = {}
+  for (const item of list) {
+    if (thread_id && thread_id !== item.submissionId) {
+      continue
+    }
+    item.log_source = 'u_modlogs'
+    item.id = item.commentId || item.submissionId
+    item.target_author = item.author
+    item.target_body = item.content
+    item.target_permalink = item.link
+    item.created_utc = Math.floor(item.timestamp/1000)
+    item.link_id = 't3_'+item.submissionId
+    item.details = (item.details || '') + ' ' + item.automodActionReason
+    if (item.isComment) {
+      comments[item.id] = item
+    } else {
+      submissions[item.id] = item
+    }
+  }
+  return {comments, submissions}
+}
+
 const flaskQuery = (path, params = {}, host = REVEDDIT_FLASK_HOST_SHORT) => {
-  const url = host + path + paramString(params)
+  const param_str = (params && Object.keys(params).length) ? '?' + paramString(params) : ''
+  const url = host + path + param_str
   return window.fetch(url)
   .then(response => response.json())
   .catch(errorHandler)

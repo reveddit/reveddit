@@ -468,20 +468,28 @@ export const postProcessModlogsListings = (listings, link_id = '') => {
   const items = {}
   for (const listing of listings) {
     if (listing && listing.data) {
-      for (const item of listing.data.children) {
-        let data = item // coronavirus log items have no 'data' item
-        if (item.data) {
-          data = item.data
-        }
-        data.target_permalink = data.target_permalink.replace(/^https?:\/\/[^/]*/,'')
-        data.link_id = 't3_'+data.target_permalink.split('/')[4]
-        if (link_id && data.link_id !== 't3_'+link_id) {
-          continue
-        }
-        data.id = data.target_fullname.slice(3)
-        items[data.id] = data
-      }
+      postProcessModlogsList(listing.data.children, link_id, items)
     }
+  }
+  return items
+}
+
+//input: list, link_id
+//output: items
+const postProcessModlogsList = (list, link_id = '', items = {}) => {
+  for (const item of list) {
+    let data = item // coronavirus log items have no 'data' item
+    if (item.data) {
+      data = item.data
+    }
+    data.target_permalink = data.target_permalink.replace(/^https?:\/\/[^/]*/,'')
+    data.link_id = 't3_'+data.target_permalink.split('/')[4]
+    if (link_id && data.link_id !== 't3_'+link_id) {
+      continue
+    }
+    data.id = data.target_fullname.slice(3)
+    data.log_source = 'u_publicmodlogs'
+    items[data.id] = data
   }
   return items
 }

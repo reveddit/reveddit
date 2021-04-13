@@ -113,7 +113,7 @@ const RemovedBy = (props) => {
     } else if (removedby === AUTOMOD_REMOVED_MOD_APPROVED) {
       fill = 'white'
     }
-    if (modlog && props.archive_body_removed_before_modlog_copy) {
+    if (modlog && props.archive_body_removed_before_modlog_copy && modlog.log_source !== 'u_modlogs') {
       temporarilyVisible =
         <LabelWithModal content={temp_vis_help}>
           <span title={temp_vis_txt} className='removedby'>temporarily visible <QuestionMark/></span>
