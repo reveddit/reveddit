@@ -293,6 +293,7 @@ export const addUserComments = (user_comments, commentsLookup) => {
     const comment = commentsLookup[user_comment.id]
     user_comment.from_add_user = true
     if (comment) {
+      comment.also_in_add_user = true
       if (comment.body !== user_comment.body) {
         comment.from_add_user = true
         changed.push(user_comment)
