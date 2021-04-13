@@ -23,13 +23,17 @@ const About_faq = () => {
         <ol>
           {shuffle(reasons)}
         </ol>
+      </ContentWithHeader>
+      <ContentWithHeader header='Is that true?' id='true'>
         <p>
-          Try it! Visit <NewWindowLink reddit='/r/CantSayAnything/about/sticky'>r/CantSayAnything</NewWindowLink> and write any comment.
+          Yes, try it! Visit <NewWindowLink reddit='/r/CantSayAnything/about/sticky'>r/CantSayAnything</NewWindowLink> and write any comment.
           It will be removed, you will not receive a message, and it will appear to you as if it is not removed while you are logged in.
         </p>
         <p>
           You can verify this by opening the above link in an incognito window or while logged out. Your comment will not appear.
         </p>
+      </ContentWithHeader>
+      <ContentWithHeader header='Any limitations?' id='limits'>
         <p>The following content is unavailable on reddit user pages and therefore cannot be tracked with reveddit user pages,</p>
         <ul>
           <li>Content from banned subreddits. The <Link to='/r/?contentType=top'>subreddit top page</Link> may display some content.</li>
@@ -65,7 +69,7 @@ const About_faq = () => {
       </ContentWithHeader>
       <ContentWithHeader header='What does the "unknown removed" label mean?' id='unknown-removed'>
         <p>The "unknown" label is applied when reveddit cannot determine if something was removed by a mod or by automod. Pushshift, a database that captures reddit data as it is created, and which reveddit queries, can fall behind retrieving data. When that happens, any removed items are marked as removed by "unknown." When Pushshift captures content soon after creation, and the content has already been removed, then it is marked as removed by automod.</p>
-        <p>Note, when an account is suspended by reddit, all the posts and comments for that account are removed. The reddit API does indicate where suspension-related removals occur and so reveddit cannot see or mark where this happens. You can check if an account has been suspended on its reddit or reveddit user page. Temporary suspensions may also remove content created before the suspension.</p>
+        <p>Note, when an account is suspended by reddit, all the posts and comments for that account may be removed. The reddit API does not indicate where suspension-related removals occur and so reveddit cannot see or mark where this happens. You can check if an account has been suspended on its reddit or reveddit user page. Temporary suspensions may also remove content created before the suspension.</p>
       </ContentWithHeader>
       <ContentWithHeader header='How can I find out which mod removed something?' id='which-mod'>
         <p>Reddit does not provide this information by default. Some subreddits expose it through feeds from <NewWindowLink reddit='/user/publicmodlogs'>u/publicmodlogs</NewWindowLink> or <NewWindowLink reddit='/user/modlogs'>u/modlogs</NewWindowLink>. Reveddit fills in details from these feeds where possible.</p>
