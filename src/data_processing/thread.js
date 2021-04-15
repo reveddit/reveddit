@@ -34,7 +34,8 @@ const ignoreArchiveErrors = () => {
 }
 let useProxy = false
 
-export const getRevdditThreadItems = async (threadID, commentID, context, add_user, user_kind, user_sort, user_time, before, after,
+export const getRevdditThreadItems = async (threadID, commentID, context, add_user, user_kind, user_sort, user_time,
+                                            before, after, subreddit,
                                             global) => {
   let pushshift_comments_promise = Promise.resolve({})
   if (! commentID) {
@@ -62,6 +63,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
   if (commentID) {
     root_comment_promise = getRedditComments({ids: [commentID]})
   }
+  const uModlogs_promise = getUmodlogs(subreddit, threadID)
   const reddit_pwc_baseArgs = {threadID, commentID, context, limit: numCommentsWithPost}
   const reddit_pwc_baseArgs_firstQuery = {...reddit_pwc_baseArgs, sort: 'old'}
   const reddit_pwc_promise = getRedditPostWithComments(reddit_pwc_baseArgs_firstQuery)
@@ -74,9 +76,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
   })
   .then(async ({post: reddit_post, comments: redditComments, moreComments, oldestComment}) => {
     const moderators_promise = getModerators(reddit_post.subreddit, useProxy)
-    const modlogs_comments_promises = [getModlogsComments(reddit_post.subreddit, reddit_post.id),
-                                       getUmodlogs(reddit_post.subreddit, reddit_post.id),
-                                      ]
+    const modlogs_comments_promise = getModlogsComments(reddit_post.subreddit, reddit_post.id)
     let modlogs_posts_promise = Promise.resolve({})
     if (postIsRemoved(reddit_post) && (reddit_post.is_self || reddit_post.is_gallery)) {
       pushshift_post_promise = getPushshiftPost(threadID).catch(ignoreArchiveErrors)
@@ -137,12 +137,13 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
       })
     }
     return {reddit_post, root_commentID, reddit_comments_promise, pushshift_comments_promise, resetPath,
-            moderators_promise, modlogs_comments_promises, modlogs_posts_promise}
+            moderators_promise, modlogs_comments_promise, modlogs_posts_promise}
   })
 
   reddit_pwc_promise.then(async ({reddit_post, modlogs_posts_promise}) => {
     const modlogsPosts = await modlogs_posts_promise
     const ps_post = await pushshift_post_promise
+    const uModlogsItems = await uModlogs_promise
     const combined_post = combineRedditAndPushshiftPost(reddit_post, ps_post)
     let modlog
     if (combined_post.id in modlogsPosts) {
@@ -150,22 +151,25 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
       combined_post.modlog = modlog
     }
     if (combined_post.removed && combined_post.is_self) {
+      const uModlogsSubmission = uModlogsItems.submissions[threadID]
       if (modlog) {
         combined_post.selftext = modlog.target_body
+      } else if (uModlogsSubmission) {
+        combined_post.selftext = uModlogsSubmission.target_body
       } else if (ps_post && 'selftext' in ps_post) {
         combined_post.selftext = ps_post.selftext
       }
     }
-    global.setState({threadPost: combined_post})
-    return combined_post
+    return global.setState({threadPost: combined_post})
+    .then(() => combined_post)
   })
-
   const combined_comments_promise = reddit_pwc_promise
   .then(async ({reddit_post, root_commentID, reddit_comments_promise, resetPath,
-          moderators_promise, modlogs_comments_promises}) => {
+          moderators_promise, modlogs_comments_promise}) => {
     const {redditComments, moreComments} = await reddit_comments_promise
     const pushshiftComments = await pushshift_comments_promise
-    const [modlogsComments, uModlogsItems] = await Promise.all(modlogs_comments_promises)
+    const modlogsComments = await modlogs_comments_promise
+    const uModlogsItems = await uModlogs_promise
     const rootComment = await root_comment_promise
     if (rootComment && rootComment[commentID] && ! redditComments[commentID]) {
       redditComments[commentID] = rootComment[commentID]

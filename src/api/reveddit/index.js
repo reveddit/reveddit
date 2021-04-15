@@ -120,7 +120,7 @@ export const getUmodlogs = async (subreddit, thread_id) => {
       params.limit = 100
       params.link = `/r/comments/${thread_id}`
       params.actions = 'removelink,spamlink,removecomment,spamcomment'
-      return flaskQuery('r/Libertarian/logs/', params, U_MODLOGS_API)
+      return flaskQuery(`r/${subreddit}/logs/`, params, U_MODLOGS_API)
       .then(result => postProcessUmodlogs(result.logs, thread_id))
     }
     return empty

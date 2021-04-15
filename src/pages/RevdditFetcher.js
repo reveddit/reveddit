@@ -151,7 +151,10 @@ const getLoadDataFunctionAndParam = (
       break
     }
     case 'thread': {
-      return [getRevdditThreadItems, [threadID, commentID, context, add_user, user_kind, user_sort, user_time, before, after]]
+      return [getRevdditThreadItems, [threadID, commentID, context,
+                                      add_user, user_kind, user_sort, user_time,
+                                      before, after, subreddit,
+                                     ]]
       break
     }
     case 'user': {
