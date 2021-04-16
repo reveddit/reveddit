@@ -139,12 +139,13 @@ const postProcessUmodlogs = (list, thread_id) => {
     }
     item.log_source = 'u_modlogs'
     item.id = item.commentId || item.submissionId
-    item.target_author = item.author
-    item.target_body = item.content
-    item.target_permalink = item.link
-    item.created_utc = Math.floor(item.timestamp/1000)
+    item.target_author = item.author || ''
+    item.target_body = item.content || ''
+    item.target_permalink = item.link || ''
+    item.created_utc = Math.floor(item.timestamp/1000) || 0
     item.link_id = 't3_'+item.submissionId
     item.details = (item.details || '') + ' ' + (item.automodActionReason || '')
+    item.mod = item.mod || ''
     if (item.isComment) {
       comments[item.id] = item
     } else {
