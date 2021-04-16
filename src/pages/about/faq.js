@@ -55,7 +55,11 @@ const About_faq = () => {
         </p>
       </ContentWithHeader>
       <ContentWithHeader header='Does reveddit show user-deleted content?' id='user-deleted'>
-        <p>No, user-deleted content does not appear on reveddit.</p>
+        <p>No, user-deleted content does not appear on reveddit. Please note,</p>
+        <ul>
+          <li>Only reddit's <code>delete</code> button removes content from reveddit. A moderator can also use the <code>remove</code> button on their own content in subs they moderate. In that case the content will still appear on reveddit.</li>
+          <li>If a moderator removes a comment, and then later the author deletes the comment, that comment will not appear on reveddit user pages and may still appear in reveddit threads. The reddit API does not have a way to show when authors delete mod-removed comments.</li>
+        </ul>
       </ContentWithHeader>
       <ContentWithHeader header='Why are removed comments or posts sometimes not visible?' id='unarchived'>
         <p>Viewing removed content for subreddits and threads relies on an archive service called Pushshift which can fall behind. If a comment is removed before it is archived then it may not appear on reveddit. It may be possible to <a href={'#'+unarchived_search_button_word_lc}>restore</a> it from a user page.</p>
