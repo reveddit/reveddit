@@ -144,14 +144,14 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     const modlogsPosts = await modlogs_posts_promise
     const ps_post = await pushshift_post_promise
     const uModlogsItems = await uModlogs_promise
+    const uModlogsSubmission = uModlogsItems.submissions[threadID]
     const combined_post = combineRedditAndPushshiftPost(reddit_post, ps_post)
     let modlog
-    if (combined_post.id in modlogsPosts) {
-      modlog = modlogsPosts[combined_post.id]
+    if (combined_post.id in modlogsPosts || uModlogsSubmission) {
+      modlog = modlogsPosts[combined_post.id] || uModlogsSubmission
       combined_post.modlog = modlog
     }
     if (combined_post.removed && combined_post.is_self) {
-      const uModlogsSubmission = uModlogsItems.submissions[threadID]
       if (modlog) {
         combined_post.selftext = modlog.target_body
       } else if (uModlogsSubmission) {

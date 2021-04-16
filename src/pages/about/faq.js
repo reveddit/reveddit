@@ -65,15 +65,15 @@ const About_faq = () => {
         {unarchived_search_help_content}
       </ContentWithHeader>
       <ContentWithHeader header='What does it mean when a removed comment has been "restored via user page"?' id='restored'>
-        <p>It means the comment was not archived but able to be copied from the author's /user page. For more information, see the answer about the <a href={'#'+unarchived_search_button_word_lc}>"{unarchived_search_button_word}" button</a>.</p>
+        <p>It means the comment was not archived but able to be copied from the author's /user page. For more information, see the answer about the <a href={'#'+unarchived_search_button_word_lc}><code>{unarchived_search_button_word}</code> button</a>.</p>
       </ContentWithHeader>
       <ContentWithHeader header='What does the "unknown removed" label mean?' id='unknown-removed'>
-        <p>The "unknown" label is applied when reveddit cannot determine if something was removed by a mod or by automod. Pushshift, a database that captures reddit data as it is created, and which reveddit queries, can fall behind retrieving data. When that happens, any removed items are marked as removed by "unknown." When Pushshift captures content soon after creation, and the content has already been removed, then it is marked as removed by automod.</p>
         <p>Note, when an account is suspended by reddit, all the posts and comments for that account may be removed. The reddit API does not indicate where suspension-related removals occur and so reveddit cannot see or mark where this happens. You can check if an account has been suspended on its reddit or reveddit user page. Temporary suspensions may also remove content created before the suspension.</p>
+        <p>The <code>unknown</code> label is applied when reveddit cannot determine if something was removed by a mod or by automod. Pushshift, a database that captures reddit data as it is created, and which reveddit queries, can fall behind retrieving data. When that happens, any removed items are marked as <code>[removed] by unknown</code>. When Pushshift captures content soon after creation, and the content has already been removed, then it is marked as <code>[removed] by automod</code>. If Pushshift has a record of a removed comment's body then the comment is labeled <code>[removed] by mod</code>. More detail can be found in the <a href='https://github.com/reveddit/reveddit/blob/60a34a28c5133fd54777d189fc9997afe89a2f39/src/data_processing/comments.js#L131'>source code</a>.</p>
       </ContentWithHeader>
       <ContentWithHeader header='How can I find out which mod removed something?' id='which-mod'>
-        <p>Reddit does not provide this information by default. Some subreddits expose it through feeds from <NewWindowLink reddit='/user/publicmodlogs'>u/publicmodlogs</NewWindowLink> or <NewWindowLink reddit='/user/modlogs'>u/modlogs</NewWindowLink>. Reveddit fills in details from these feeds where possible.</p>
-        <p>You can use the <code>message mods</code> button to send a message to the relevant subreddit's moderators regarding the post.</p>
+        <p>Click the <code>[removed] by</code> label to see more details. If the subreddit's moderators subscribe to <NewWindowLink reddit='/user/publicmodlogs'>u/publicmodlogs</NewWindowLink> or <NewWindowLink reddit='/user/modlogs'>u/modlogs</NewWindowLink> then a mod's name and reason may appear here.</p>
+        <p>You can also use the <code>message mods</code> button to send a question with a pre-filled link.</p>
       </ContentWithHeader>
     </InternalPage>
   )

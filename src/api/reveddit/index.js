@@ -144,7 +144,7 @@ const postProcessUmodlogs = (list, thread_id) => {
     item.target_permalink = item.link
     item.created_utc = Math.floor(item.timestamp/1000)
     item.link_id = 't3_'+item.submissionId
-    item.details = (item.details || '') + ' ' + item.automodActionReason
+    item.details = (item.details || '') + ' ' + (item.automodActionReason || '')
     if (item.isComment) {
       comments[item.id] = item
     } else {
