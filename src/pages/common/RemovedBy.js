@@ -155,9 +155,10 @@ const RemovedBy = (props) => {
       } else if (props.retrieved_on) {
         const prettyTimeLength = getPrettyTimeLength(props.retrieved_on-props.created_utc)
         const removedWithinText = 'Removed within '+prettyTimeLength
-        if (! is_post && ! commentIsRemoved(props) && ! props.from_add_user) {
-          // an archived comment that was later removed
-          // that is: removed, no mod log, is a comment, body exists, and not restored from add_user logic
+        if ( (! is_post && ! commentIsRemoved(props) && ! props.from_add_user)
+             || (is_post && removedby === MOD_OR_AUTOMOD_REMOVED)) {
+          // a comment or post that was removed after archival
+          // comment criteria: removed, no mod log, is a comment, body exists, and not restored from add_user logic
           modalDetailsItems.push('Removed after archival. Archived '+prettyTimeLength+' after creation.')
         } else if (is_post || commentIsRemoved(props)) {
           modalDetailsItems.push(removedWithinText)
