@@ -160,7 +160,8 @@ const RemovedBy = (props) => {
           // a comment or post that was removed after archival
           // comment criteria: removed, no mod log, is a comment, body exists, and not restored from add_user logic
           modalDetailsItems.push('Removed after archival. Archived '+prettyTimeLength+' after creation.')
-        } else if (is_post || commentIsRemoved(props)) {
+        } else if (   (is_post && [AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED].includes(removedby))
+                   || (! is_post && commentIsRemoved(props))) {
           modalDetailsItems.push(removedWithinText)
         }
       }
