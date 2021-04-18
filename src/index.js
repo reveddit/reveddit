@@ -29,6 +29,7 @@ const About_donate = lazy(() => import('pages/about/donate'))
 const AddOns = lazy(() => import('pages/about/AddOns'))
 const Info = lazy(() => import('pages/info'))
 const SubredditPosts = lazy(() => import('pages/subreddit'))
+const SubredditSticky = lazy(() => import('pages/subreddit/sticky'))
 const SubredditComments = lazy(() => import('pages/subreddit/comments'))
 const Aggregations = lazy(() => import('pages/subreddit/aggregations'))
 const Thread = lazy(() => import('pages/thread'))
@@ -71,6 +72,7 @@ const routes = (
   <DefaultLayout path='/random' component={Random} />
   <DefaultLayout path={PATH_STR_SUB+'/:subreddit/top'} page_type={pageTypes.aggregations} component={Aggregations} />
   <DefaultLayout path={PATH_STR_SUB+'/:subreddit/missing-comments'} page_type={pageTypes.missing_comments} component={SubredditComments} />
+  <DefaultLayout path={PATH_STR_SUB+'/:subreddit/about/sticky'} page_type='sticky' component={SubredditSticky} />
   <DefaultLayout path={PATH_STR_SUB+'/:subreddit/comments/:threadID/:urlTitle/:commentID'} page_type='thread' component={Thread} />
   <DefaultLayout path={PATH_STR_SUB+'/:subreddit/comments/:threadID/:urlTitle'} page_type='thread' component={Thread} />
   <DefaultLayout path={PATH_STR_SUB+'/:subreddit/comments/:threadID'} page_type='thread' component={Thread} />

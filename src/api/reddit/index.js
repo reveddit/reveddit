@@ -494,10 +494,19 @@ const postProcessModlogsList = (list, link_id = '', items = {}) => {
   return items
 }
 
-export const getJson = (url, options) => {
+export const getSticky = async (subreddit, num) => {
+  const param_string = '?'+paramString({ ...(num && {num})})
+  const url = oauth_reddit+`r/${subreddit}/about/sticky`+ param_string
+  const auth = await getAuth()
+  return getJson(url, auth, '')
+  .then(data => data[0].data.children[0].data.permalink)
+  .catch(error => '')
+}
+
+export const getJson = (url, options, valueOnError = {}) => {
   return window.fetch(url, options)
   .then(response => response.json())
   .catch(error => {
-    return {}
+    return valueOnError
   })
 }
