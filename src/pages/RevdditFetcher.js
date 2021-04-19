@@ -210,7 +210,7 @@ const minMaxMatch_quarantine = (gs, item, args) => {
   return minMaxMatch(gs, item, args)
 }
 
-const minMaxMatch = (gs, item, [globalVarBase, field, isAge=false, isLength=false]) => {
+const minMaxMatch = (gs, item, [globalVarBase, field, isAge=false, isLength=false, isAccountAge=false]) => {
   if (field in item) {
     const min = gs[globalVarBase+'_min']
     const max = gs[globalVarBase+'_max']
@@ -219,6 +219,11 @@ const minMaxMatch = (gs, item, [globalVarBase, field, isAge=false, isLength=fals
       value = (now - item[field])/60
     } else if (isLength) {
       value = typeof(item[field]) === 'string' ? item[field].length : 0
+    } else if (isAccountAge) {
+      const authorCreatedUTC = gs.author_fullnames[item[field]]?.created_utc
+      if (authorCreatedUTC) {
+        value = (item.created_utc - authorCreatedUTC)/86400
+      }
     } else {
       value = item[field]
     }
@@ -254,11 +259,12 @@ const filterMatches = (filterIsUnset, fn, exclude) => {
 export const withFetch = (WrappedComponent) =>
   class extends React.Component {
     componentDidMount() {
-      let subreddit = (this.props.match.params.subreddit || '').toLowerCase()
-      const domain = (this.props.match.params.domain || '').toLowerCase()
-      const user = (this.props.match.params.user || '' ).toLowerCase()
-      const { threadID, commentID, kind = '' } = this.props.match.params
-      const { userSubreddit } = (this.props.match.params.userSubreddit || '').toLowerCase()
+      const {match, global} = this.props
+      let subreddit = (match.params.subreddit || '').toLowerCase()
+      const domain = (match.params.domain || '').toLowerCase()
+      const user = (match.params.user || '' ).toLowerCase()
+      const { threadID, commentID, kind = '' } = match.params
+      const { userSubreddit } = (match.params.userSubreddit || '').toLowerCase()
       if (userSubreddit) {
         subreddit = 'u_'+userSubreddit
       }
@@ -270,31 +276,31 @@ export const withFetch = (WrappedComponent) =>
       if (page_type === 'user') {
         setTimeout(this.maybeShowSubscribeUserModal, 3000)
       } else {
-        getArchiveTimes().then(archiveTimes => this.props.global.setState({archiveTimes}))
+        getArchiveTimes().then(archiveTimes => global.setState({archiveTimes}))
       }
-      this.props.global.setQueryParamsFromSavedDefaults(page_type)
+      global.setQueryParamsFromSavedDefaults(page_type)
       const allQueryParams = create_qparams()
-      this.props.global.setStateFromQueryParams(
+      global.setStateFromQueryParams(
                       page_type,
                       allQueryParams,
                       getExtraGlobalStateVars(page_type, allQueryParams.get('sort') ))
       .then(result => {
         if (page_type === 'info' && allQueryParams.toString() === '') {
-          return this.props.global.setSuccess()
+          return global.setSuccess()
         }
         getAuth().then(() => {
           const {context, add_user, user_sort, user_kind, user_time, before, after,
-                } = this.props.global.state
+                } = global.state
           const [loadDataFunction, params] = getLoadDataFunctionAndParam(
             {page_type, subreddit, user, kind, threadID, commentID, context, domain,
              add_user, user_kind, user_sort, user_time, before, after})
-          loadDataFunction(...params, this.props.global)
+          loadDataFunction(...params, global)
           .then(() => {
-            const {commentTree, items, threadPost} = this.props.global.state
+            const {commentTree, items, threadPost} = global.state
             if (items.length === 0 && ['subreddit_posts', 'subreddit_comments'].includes(page_type)) {
               throw "no results"
             }
-            const focusComment = this.props.global.state.itemsLookup[commentID]
+            const focusComment = global.state.itemsLookup[commentID]
             if ((commentID && focusComment) || commentTree.length === 1) {
               document.querySelectorAll('.threadComments .collapseToggle.hidden').forEach(toggle => {
                 const comment = toggle.closest('.comment')
@@ -306,7 +312,8 @@ export const withFetch = (WrappedComponent) =>
               })
             }
             window.scrollY === 0 && jumpToHash(window.location.hash)
-            if ((showAccountInfo_global || threadPost) && items.length) {
+            const lookupAccountAge = showAccountInfo_global || global.accountAgeMinOrMaxIsSet()
+            if ((lookupAccountAge || threadPost) && items.length) {
               const authorIDs = new Set()
               const authorNames = new Set()
               let itemsAndPost = items
@@ -321,13 +328,13 @@ export const withFetch = (WrappedComponent) =>
                   authorNames.add(item.author)
                 }
               }
-              if (showAccountInfo_global) {
+              if (lookupAccountAge) {
                 getAuthorInfoByName(Array.from(authorIDs))
-                .then(authors => {
-                  this.props.global.setState({authors})
+                .then(({authors, author_fullnames}) => {
+                  global.setState({authors, author_fullnames})
                 })
               } else {
-                this.props.global.setState({authors: Array.from(authorNames).reduce((map, val) => (map[val] = {}, map), {})})
+                global.setState({authors: Array.from(authorNames).reduce((map, val) => (map[val] = {}, map), {})})
               }
             }
           })
@@ -397,6 +404,7 @@ const baseMatchFuncAndParams = [
   [minMaxMatch, ['age', 'created_utc', true]],
   [minMaxMatch, ['link_age', 'link_created_utc', true]],
   [minMaxMatch, ['comment_length', 'body', false, true]],
+  [minMaxMatch, ['account_age', 'author_fullname', false, false, true]],
   [textMatch, ['post_flair', ['link_flair_text']]],
   [textMatch, ['user_flair', ['author_flair_text']]],
   [textMatch, ['filter_url', ['url']]],
@@ -535,6 +543,7 @@ const GenericPostProcessor = connect((props) => {
       gs.add_user, gs.add_user_on_page_load,
       showAllOrphaned, showAllCollapsed,
       gs.localSort, gs.localSortReverse,
+      gs.author_fullnames,
     ))
   const visibleItemsWithoutCategoryFilter_meta = useMemo(
     getVisibleItemsWithoutCategoryFilter,

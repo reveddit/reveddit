@@ -430,7 +430,10 @@ export const getAuthorInfoByName = (ids) => {
   const results = {}
   return groupRequests(getAuthorInfo, ids, [results], 500)
   .then(() => {
-    return Object.values(results).reduce((map, obj) => (map[obj.name] = obj, map), {})
+    return {
+      authors: Object.values(results).reduce((map, obj) => (map[obj.name] = obj, map), {}),
+      author_fullnames: results,
+    }
   })
   .catch(errorHandler)
 }

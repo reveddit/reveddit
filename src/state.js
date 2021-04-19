@@ -43,6 +43,7 @@ const urlParamKeys_max_min_base = {
   link_age: 'link_age',
   link_score: 'link_score',
   comment_length: 'comment_length',
+  account_age: 'account_age',
 }
 const MIN = '_min', MAX = '_max'
 export const urlParamKeys_max_min = Object.keys(urlParamKeys_max_min_base)
@@ -228,7 +229,7 @@ const initialState = {
   limitCommentDepth: true,
   moderators: {},
   moderated_subreddits: {},
-  authors: {},
+  authors: {}, author_fullnames: {},
   archiveTimes: null,
   add_user: '',
   alreadySearchedAuthors: {},
@@ -473,7 +474,12 @@ class GlobalState extends Container {
     }
     return this.updateURLandState(queryParams, page_type)
   }
-
+  accountAgeMinOrMaxIsSet = () => this.state.account_age_min !== '' || this.state.account_age_max !== ''
+  accountAgeQueryParamIsSet = () => {
+    const qparams = create_qparams()
+    const base = urlParamKeys_max_min_base.account_age
+    return qparams.has(base+MIN) || qparams.has(base+MAX)
+  }
   setSuccess = (other = {}) => {
     if (! this.state.error) {
       return this.setState({statusText: '', statusImage: '/images/success.png', loading:false, ...other})

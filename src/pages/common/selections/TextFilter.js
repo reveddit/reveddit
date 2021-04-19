@@ -20,8 +20,9 @@ const associatedValues = {
   [EXCLUDE_TEXT]: EXCLUDE,
 }
 const anyNoneOpposite = { any: 'none', none: 'any' }
-
+const marginLeft = {marginLeft:'3px'}
 const TextFilter = connect(({global, page_type, globalVarName, placeholder, minMax, anyNone, removeFilter, ...selectionProps }) => {
+  const {loading, author_fullnames} = global.state
   const queryParams = new SimpleURLSearchParams(window.location.search)
   let adjusted_globalVarName = globalVarName
   let selectMinDefault = true
@@ -29,6 +30,7 @@ const TextFilter = connect(({global, page_type, globalVarName, placeholder, minM
     selectMinDefault = false
   }
   const [selectMin, setSelectMin] = useState(selectMinDefault)
+  const [accountAgeWasSetOnPageLoad, setAccountAgeWasSetOnPageLoad] = useState(false)
   let valueFromQueryParam = decodeURIComponent(queryParams.get(urlParamKeys[globalVarName]) || '')
   let suffix = ''
   if (minMax) {
@@ -39,6 +41,13 @@ const TextFilter = connect(({global, page_type, globalVarName, placeholder, minM
   const [inputValue, setInputValue] = useState(valueFromQueryParam)
   const [checkedMeta, setCheckedMeta] = useState({})
   const oldSelectMinRef = useRef()
+  const is_account_age = globalVarName === 'account_age'
+  // check if account age was set on page load
+  useEffect(() => {
+    if (is_account_age && global.accountAgeQueryParamIsSet()) {
+      setAccountAgeWasSetOnPageLoad(true)
+    }
+  }, [])
   useEffect(() => {
     // make checkbox reflect what's in the text input box
     for (const [text, associatedValue] of Object.entries(associatedValues)) {
@@ -148,7 +157,13 @@ const TextFilter = connect(({global, page_type, globalVarName, placeholder, minM
           if (inputValue) {
             updateStateAndURL('')
           }
-        }} style={{marginLeft: '3px'}}>x</span>}
+        }} style={marginLeft}>x</span>}
+        {is_account_age
+         && inputValue !== ''
+         && ! accountAgeWasSetOnPageLoad
+         && Object.keys(author_fullnames).length === 0
+         && <button onClick={() => window.location.reload()} style={marginLeft}>go</button>
+        }
         {checkboxes}
       </div>
     </Selection>

@@ -2,44 +2,69 @@ import React, { useState, useEffect } from 'react'
 import TextFilter from './TextFilter'
 import { connect, urlParamKeys } from 'state'
 import { SimpleURLSearchParams } from 'utils'
+import { QuestionMarkModal, Help } from 'components/Misc'
+
+const appears = " of the post in which the comment appears"
 
 const filters = {
   'subscribers': {
     globalVarBase: 'num_subscribers',
     text: '# Subscribers',
     placeholder: '1000',
+    desc: 'Number of subreddit subscribers',
   },
   'num_comments': {
     globalVarBase: 'num_comments',
     text: '# Comments',
     placeholder: '100',
+    desc: 'Number of comments on the post',
   },
   'score': {
     globalVarBase: 'score',
     text: 'Score',
     placeholder: '10',
+    desc: 'Score of the item',
   },
   'link_score': {
     globalVarBase: 'link_score',
     text: 'Link score',
     placeholder: '10',
+    desc: `Score${appears}`,
   },
   'age': {
     globalVarBase: 'age',
     text: 'Age (mins.)',
     placeholder: '10',
+    desc: 'Age in minutes of the item',
   },
   'link_age': {
     globalVarBase: 'link_age',
     text: 'Link age (mins.)',
     placeholder: '10',
+    desc: `Age in minutes${appears}`,
   },
   'comment_length': {
     globalVarBase: 'comment_length',
     text: 'Comment length',
     placeholder: '100',
+    desc: 'Number of characters in the comment',
+  },
+  'account_age': {
+    globalVarBase: 'account_age',
+    text: 'Account age (days)',
+    placeholder: '10',
+    desc: "Account age in days at the time of posting. Click 'go' after setting if not set on initial page load",
   }
 }
+
+const HelpEntry = ({text, desc}) => <p><span style={{fontWeight:'bold'}}>{text}: </span>{desc}.</p>
+
+
+const minMax_help = <Help title='Min/Max numeric filter' content={<>
+  <p>Set a minimum or maximum for numeric fields,</p>
+  {Object.values(filters).map(filter => <HelpEntry key={filter.globalVarBase} {...filter}/>)}
+</>}/>
+
 
 const MinMaxFilters = ({page_type, global}) => {
   const [visibleFilters, setVisibleFilters] = useState({})
@@ -84,6 +109,7 @@ const MinMaxFilters = ({page_type, global}) => {
             <option className='default' value=''>[+] add # filter</option>
             {hiddenFilters.map(x => <option key={x} value={x}>{filters[x].text}</option>)}
           </select>
+          <QuestionMarkModal modalContent={{content:minMax_help}}/>
         </div>
       : null}
     </div>

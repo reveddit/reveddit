@@ -6,10 +6,10 @@ import Flair from './Flair'
 
 const now = Math.floor(new Date()/1000)
 
-const Author = ({author, is_op, deleted, distinguished, subreddit, name,
-                 author_flair_text, page_type, className='', global,
+const Author = ({author, author_fullname, is_op, deleted, distinguished, subreddit, name,
+                 author_flair_text, created_utc, page_type, className='', global,
                }) => {
-  const {moderators, moderated_subreddits, authors} = global.state
+  const {moderators, moderated_subreddits, authors, author_fullnames} = global.state
   const subreddit_lc = subreddit.toLowerCase()
   let link = `${PATH_STR_USER}/${author}/`
   if (deleted || author === '[deleted]') {
@@ -19,9 +19,9 @@ const Author = ({author, is_op, deleted, distinguished, subreddit, name,
   }
   const kind = name.slice(0,2)
   let age = ''
-  const info = authors[author]
-  if (showAccountInfo_global && info) {
-    age = ' ['+getPrettyTimeLength(now-info.created_utc)+' | '
+  const info = authors[author] || author_fullnames[author_fullname]
+  if ((showAccountInfo_global || Object.keys(author_fullnames).length) && info) {
+    age = ' ['+getPrettyTimeLength(created_utc-info.created_utc)+' | '
     const num = kind === 't1' ? info.comment_karma : info.link_karma
     age += Intl.NumberFormat('en-US').format(num)+']'
   }
