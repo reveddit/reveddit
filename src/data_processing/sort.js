@@ -94,6 +94,20 @@ const items_byControversiality = (a, b) => {
   }
 }
 
+const getAccountAge = (item, gs) => {
+  const authorCreatedUTC = gs.author_fullnames[item.author_fullname]?.created_utc
+  if (authorCreatedUTC) {
+    return item.created_utc - authorCreatedUTC
+  }
+  return Infinity
+}
+
+const items_byAccountAge = (gs) => {
+  return (a, b) => {
+    return (getAccountAge(a, gs) - getAccountAge(b, gs)) || b.created_utc - a.created_utc
+  }
+}
+
 
 const COMMENTS = 'c', POSTS = 'p', ITEMS = 'i'
 const sortFnMap = {
@@ -106,6 +120,7 @@ const sortFnMap = {
     [localSort_types.comment_length]: comments_byCommentLength,
     [localSort_types.num_comments]: items_byNumComments,
     [localSort_types.subreddit_subscribers]: items_bySubredditSubscribers,
+    [localSort_types.account_age]: items_byAccountAge,
   },
   [POSTS]: {
     [localSort_types.date]: posts_byDate,
@@ -113,6 +128,7 @@ const sortFnMap = {
     [localSort_types.score]: posts_byScore,
     [localSort_types.controversiality]: posts_byControversiality,
     [localSort_types.num_crossposts]: posts_byNumCrossposts,
+    [localSort_types.account_age]: items_byAccountAge,
   },
   [ITEMS]: {
     [localSort_types.date]: items_byDate,
@@ -122,6 +138,7 @@ const sortFnMap = {
     [localSort_types.num_crossposts]: posts_byNumCrossposts,
     [localSort_types.num_replies]: items_byNumReplies,
     [localSort_types.subreddit_subscribers]: items_bySubredditSubscribers,
+    [localSort_types.account_age]: items_byAccountAge,
   }
 }
 const page_type_map = {

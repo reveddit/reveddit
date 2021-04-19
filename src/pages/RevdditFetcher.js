@@ -422,7 +422,10 @@ const GenericPostProcessor = connect((props) => {
   const [showAllCollapsed, setShowAllCollapsed] = useState(false)
   const [showAllOrphaned, setShowAllOrphaned] = useState(false)
 
-  const sortFn = getSortFn(page_type, localSort)
+  let sortFn = getSortFn(page_type, localSort)
+  if (localSort === 'account_age') {
+    sortFn = sortFn(gs)
+  }
 
   const getVisibleItemsWithoutCategoryFilter = () => {
     const visibleItems = []

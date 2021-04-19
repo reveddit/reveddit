@@ -126,6 +126,7 @@ export const localSort_types = {
   num_replies: 'num_replies',
   subreddit_subscribers: 'subreddit_subscribers',
   date_observed: 'date_observed',
+  account_age: 'account_age',
 }
 // These defaults are for the URL
 export const filter_pageType_defaults = {
