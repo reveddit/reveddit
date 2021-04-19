@@ -4,6 +4,7 @@ import { SimpleURLSearchParams } from 'utils'
 import debounce from 'lodash/debounce'
 import { Selection } from './SelectionBase'
 import { urlParamKeys, updateURL } from 'state'
+import { showAccountInfo_global } from 'pages/modals/Settings'
 
 const MIN = 'min', MAX = 'max'
 
@@ -160,6 +161,7 @@ const TextFilter = connect(({global, page_type, globalVarName, placeholder, minM
         }} style={marginLeft}>x</span>}
         {is_account_age
          && inputValue !== ''
+         && ! showAccountInfo_global
          && ! accountAgeWasSetOnPageLoad
          && Object.keys(author_fullnames).length === 0
          && <button onClick={() => window.location.reload()} style={marginLeft}>go</button>
