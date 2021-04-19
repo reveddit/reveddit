@@ -120,7 +120,7 @@ const CommentSection = (props) => {
     ...[showContext,limitCommentDepth,exclude_action,exclude_tag].map(x => x.toString()),
   ].join('|')
   const sortVisibleComments = (visibleComments) => {
-    const sortFn = getSortFn(localSort)
+    const sortFn = getSortFn(localSort, global.state)
     for (const list of Object.values(visibleComments)) {
       list.sort(reversible(sortFn, localSortReverse))
     }

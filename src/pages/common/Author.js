@@ -36,7 +36,6 @@ const Author = ({author, author_fullname, is_op, deleted, distinguished, subredd
         }
       >
         {author+age}
-        {deleted && kind === 't1' && ' (by user)'}
       </a>
       {
         author !== '[deleted]' && author_flair_text &&
