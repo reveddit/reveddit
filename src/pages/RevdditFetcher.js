@@ -210,27 +210,36 @@ const minMaxMatch_quarantine = (gs, item, args) => {
   return minMaxMatch(gs, item, args)
 }
 
-const minMaxMatch = (gs, item, [globalVarBase, field, isAge=false, isLength=false, isAccountAge=false]) => {
-  if (field in item) {
+const minMaxMatch = (gs, item, [globalVarBase, field, isAge=false,
+                                isLength=false, isAccountAge=false, isOtherAccountMeta = false]) => {
+  if ((field in item) || isAccountAge || isOtherAccountMeta) {
     const min = gs[globalVarBase+'_min']
     const max = gs[globalVarBase+'_max']
-    let value
-    if (isAge) {
-      value = (now - item[field])/60
-    } else if (isLength) {
-      value = typeof(item[field]) === 'string' ? item[field].length : 0
-    } else if (isAccountAge) {
-      const authorCreatedUTC = gs.author_fullnames[item[field]]?.created_utc
-      if (authorCreatedUTC) {
-        value = (item.created_utc - authorCreatedUTC)/86400
+    const isMin = min !== ''
+    const isMax = max !== ''
+    if (isMin || isMax) {
+      let value
+      if (isAge) {
+        value = (now - item[field])/60
+      } else if (isLength) {
+        value = typeof(item[field]) === 'string' ? item[field].length : 0
+      } else if (isAccountAge || isOtherAccountMeta) {
+        const accountFieldValue = (gs.author_fullnames[item['author_fullname']]?.[field]);
+        if (isAccountAge) {
+          if (accountFieldValue) {
+            value = (item.created_utc - accountFieldValue)/86400
+          }
+        } else {
+          value = accountFieldValue
+        }
+      } else {
+        value = item[field]
       }
-    } else {
-      value = item[field]
-    }
-    if (min !== '') {
-      return min <= value
-    } else if (max !== '') {
-      return value <= max
+      if (isMin) {
+        return min <= value
+      } else if (isMax) {
+        return value <= max
+      }
     }
   }
   return true
@@ -312,7 +321,7 @@ export const withFetch = (WrappedComponent) =>
               })
             }
             window.scrollY === 0 && jumpToHash(window.location.hash)
-            const lookupAccountAge = showAccountInfo_global || global.accountAgeMinOrMaxIsSet()
+            const lookupAccountAge = showAccountInfo_global || global.accountMinOrMaxIsSet()
             if ((lookupAccountAge || threadPost) && items.length) {
               const authorIDs = new Set()
               const authorNames = new Set()
@@ -404,7 +413,8 @@ const baseMatchFuncAndParams = [
   [minMaxMatch, ['age', 'created_utc', true]],
   [minMaxMatch, ['link_age', 'link_created_utc', true]],
   [minMaxMatch, ['comment_length', 'body', false, true]],
-  [minMaxMatch, ['account_age', 'author_fullname', false, false, true]],
+  [minMaxMatch, ['account_age', 'created_utc', false, false, true]],
+  [minMaxMatch, ['account_combined_karma', 'combined_karma', false, false, false, true]],
   [textMatch, ['post_flair', ['link_flair_text']]],
   [textMatch, ['user_flair', ['author_flair_text']]],
   [textMatch, ['filter_url', ['url']]],

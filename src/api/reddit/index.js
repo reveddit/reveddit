@@ -430,8 +430,13 @@ export const getAuthorInfoByName = (ids) => {
   const results = {}
   return groupRequests(getAuthorInfo, ids, [results], 500)
   .then(() => {
+    const authors = {}
+    Object.values(results).forEach(obj => {
+      obj.combined_karma = obj.link_karma + obj.comment_karma
+      authors[obj.name] = obj
+    })
     return {
-      authors: Object.values(results).reduce((map, obj) => (map[obj.name] = obj, map), {}),
+      authors,
       author_fullnames: results,
     }
   })

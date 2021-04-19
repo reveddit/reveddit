@@ -35,6 +35,11 @@ export const getExtraGlobalStateVars = (page_type, sort) => {
   return {...results, ...loadingVars}
 }
 
+export const urlParamKeys_account_max_min_base = {
+  account_age: 'account_age',
+  account_combined_karma: 'account_combined_karma',
+}
+
 const urlParamKeys_max_min_base = {
   num_subscribers: 'num_subscribers',
   score: 'score',
@@ -43,7 +48,7 @@ const urlParamKeys_max_min_base = {
   link_age: 'link_age',
   link_score: 'link_score',
   comment_length: 'comment_length',
-  account_age: 'account_age',
+  ...urlParamKeys_account_max_min_base,
 }
 const MIN = '_min', MAX = '_max'
 export const urlParamKeys_max_min = Object.keys(urlParamKeys_max_min_base)
@@ -127,6 +132,7 @@ export const localSort_types = {
   subreddit_subscribers: 'subreddit_subscribers',
   date_observed: 'date_observed',
   account_age: 'account_age',
+  account_combined_karma: 'account_combined_karma',
 }
 // These defaults are for the URL
 export const filter_pageType_defaults = {
@@ -475,11 +481,22 @@ class GlobalState extends Container {
     }
     return this.updateURLandState(queryParams, page_type)
   }
-  accountAgeMinOrMaxIsSet = () => this.state.account_age_min !== '' || this.state.account_age_max !== ''
-  accountAgeQueryParamIsSet = () => {
+  accountMinOrMaxIsSet = () => {
+    for (const base of Object.keys(urlParamKeys_account_max_min_base)) {
+      if (this.state[base+MIN] !== '' || this.state[base+MAX] !== '') {
+        return true
+      }
+    }
+    return false
+  }
+  accountMetaQueryParamIsSet = () => {
     const qparams = create_qparams()
-    const base = urlParamKeys_max_min_base.account_age
-    return qparams.has(base+MIN) || qparams.has(base+MAX)
+    for (const base of Object.values(urlParamKeys_account_max_min_base)) {
+      if ( qparams.has(base+MIN) || qparams.has(base+MAX) ) {
+        return true
+      }
+    }
+    return false
   }
   setSuccess = (other = {}) => {
     if (! this.state.error) {

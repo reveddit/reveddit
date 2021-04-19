@@ -7,8 +7,9 @@ import { showAccountInfo_global } from 'pages/modals/Settings'
 const paramKey_sortType = 'localSort'
 const paramKey_reverse = 'localSortReverse'
 const sortby_help = <Help title='Sort by' content={<>
-  <p>Sorting by account age is only available when <code>show account age</code> is selected in settings (⚙). Reload the page after setting to start showing and sorting by account ages.</p>
+  <p>Sorting by account age and karma is only available when <code>show account age/karma</code> is selected in settings (⚙). Reload the page after setting to start showing account data and sorting by it.</p>
   <p>The account age shown next to an author name is the account's age at the time the post was created.</p>
+  <p>The account karma shown after the | is the account's karma for that type of content, posts or comments.</p>
 </>}/>
 
 const LocalSort = connect(({global, page_type}) => {
@@ -36,6 +37,7 @@ const LocalSort = connect(({global, page_type}) => {
       <span>{text}</span>
     </label>
   }
+  const accountInfoNotYetRetrieved = ! showAccountInfo_global && ! global.accountMinOrMaxIsSet()
   return (
       <Selection className='localSort' title='Sort By' isSort={true} titleHelpModal={{content: sortby_help}}>
         {['thread', 'subreddit_comments'].includes(page_type) ?
@@ -62,7 +64,8 @@ const LocalSort = connect(({global, page_type}) => {
           makeLabel('num_replies', 'number of replies')}
         {['search', 'info', 'domain_posts', 'duplicate_posts', 'missing_comments'].includes(page_type) &&
           makeLabel('subreddit_subscribers', 'subreddit subscribers')}
-        {makeLabel('account_age', 'account age (new)', ! showAccountInfo_global && ! global.accountAgeMinOrMaxIsSet())}
+        {makeLabel('account_age', 'account age (new)', accountInfoNotYetRetrieved)}
+        {makeLabel('account_combined_karma', 'combined karma', accountInfoNotYetRetrieved)}
         <label id='reverseSort'>
           <input type='checkbox'
             checked={localSortReverse}

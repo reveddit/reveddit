@@ -3,7 +3,7 @@ import { connect } from 'state'
 import { SimpleURLSearchParams } from 'utils'
 import debounce from 'lodash/debounce'
 import { Selection } from './SelectionBase'
-import { urlParamKeys, updateURL } from 'state'
+import { urlParamKeys, updateURL, urlParamKeys_account_max_min_base } from 'state'
 import { showAccountInfo_global } from 'pages/modals/Settings'
 
 const MIN = 'min', MAX = 'max'
@@ -31,7 +31,7 @@ const TextFilter = connect(({global, page_type, globalVarName, placeholder, minM
     selectMinDefault = false
   }
   const [selectMin, setSelectMin] = useState(selectMinDefault)
-  const [accountAgeWasSetOnPageLoad, setAccountAgeWasSetOnPageLoad] = useState(false)
+  const [accountMetaWasSetOnPageLoad, setAccountMetaWasSetOnPageLoad] = useState(false)
   let valueFromQueryParam = decodeURIComponent(queryParams.get(urlParamKeys[globalVarName]) || '')
   let suffix = ''
   if (minMax) {
@@ -42,11 +42,11 @@ const TextFilter = connect(({global, page_type, globalVarName, placeholder, minM
   const [inputValue, setInputValue] = useState(valueFromQueryParam)
   const [checkedMeta, setCheckedMeta] = useState({})
   const oldSelectMinRef = useRef()
-  const is_account_age = globalVarName === 'account_age'
-  // check if account age was set on page load
+  const is_account_meta = urlParamKeys_account_max_min_base[globalVarName]
+  // check if account meta was set on page load
   useEffect(() => {
-    if (is_account_age && global.accountAgeQueryParamIsSet()) {
-      setAccountAgeWasSetOnPageLoad(true)
+    if (is_account_meta && global.accountMetaQueryParamIsSet()) {
+      setAccountMetaWasSetOnPageLoad(true)
     }
   }, [])
   useEffect(() => {
@@ -159,10 +159,10 @@ const TextFilter = connect(({global, page_type, globalVarName, placeholder, minM
             updateStateAndURL('')
           }
         }} style={marginLeft}>x</span>}
-        {is_account_age
+        {is_account_meta
          && inputValue !== ''
          && ! showAccountInfo_global
-         && ! accountAgeWasSetOnPageLoad
+         && ! accountMetaWasSetOnPageLoad
          && Object.keys(author_fullnames).length === 0
          && <button onClick={() => window.location.reload()} style={marginLeft}>go</button>
         }

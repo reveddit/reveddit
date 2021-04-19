@@ -108,6 +108,20 @@ export const items_byAccountAge = (gs) => {
   }
 }
 
+const combineKarma = (item, gs) => {
+  const info = gs.author_fullnames[item.author_fullname]
+  if (info) {
+    return info.combined_karma
+  } else {
+    return 0
+  }
+}
+
+export const items_byAccountCombinedKarma = (gs) => {
+  return (a, b) => {
+    return (combineKarma(b, gs) - combineKarma(a, gs)) || b.score - a.score
+  }
+}
 
 const COMMENTS = 'c', POSTS = 'p', ITEMS = 'i'
 const sortFnMap = {
@@ -148,10 +162,16 @@ const page_type_map = {
   info: ITEMS,
 }
 
+const wrappedSortFunctions = {
+  [localSort_types.account_age]: items_byAccountAge,
+  [localSort_types.account_combined_karma]: items_byAccountCombinedKarma,
+}
+
 export const getSortFn = (page_type, localSort, gs) => {
-  if (page_type in page_type_map) {
+  const wrappedFn = wrappedSortFunctions[localSort]
+  if (wrappedFn) {
+    return wrappedFn(gs)
+  } else if (page_type in page_type_map) {
     return sortFnMap[page_type_map[page_type]][localSort]
-  } else if (localSort === 'account_age') {
-    return items_byAccountAge(gs)
   }
 }

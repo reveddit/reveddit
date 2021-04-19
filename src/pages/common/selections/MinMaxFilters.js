@@ -5,7 +5,7 @@ import { SimpleURLSearchParams } from 'utils'
 import { QuestionMarkModal, Help } from 'components/Misc'
 
 const appears = " of the post in which the comment appears"
-
+const go = " Click 'go' after setting if the button appears"
 const filters = {
   'subscribers': {
     globalVarBase: 'num_subscribers',
@@ -53,8 +53,14 @@ const filters = {
     globalVarBase: 'account_age',
     text: 'Account age (days)',
     placeholder: '10',
-    desc: "Account age in days at the time of posting. Click 'go' after setting if not set on initial page load",
-  }
+    desc: `Account age in days at the time of posting.${go}`,
+  },
+  'account_combined_karma': {
+    globalVarBase: 'account_combined_karma',
+    text: 'Combined karma',
+    placeholder: '100',
+    desc: `The account's current combined karma.${go}`,
+  },
 }
 
 const HelpEntry = ({text, desc}) => <p><span style={{fontWeight:'bold'}}>{text}: </span>{desc}.</p>
