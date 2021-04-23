@@ -156,6 +156,7 @@ const page_type_map = {
   missing_comments: COMMENTS,
   search: ITEMS,
   info: ITEMS,
+  //thread: not included, thread sort is implemented in pages/thread/common.js
 }
 
 const wrappedSortFunctions = {
@@ -167,12 +168,7 @@ export const getSortFn = (page_type, localSort, gs) => {
   const wrappedFn = wrappedSortFunctions[localSort]
   if (wrappedFn) {
     return wrappedFn(gs)
-  } else {
-    const contentType = page_type_map[page_type]
-    const sortFn = sortFnMap[contentType][localSort]
-    if (sortFn) {
-      return sortFnMap[contentType][localSort]
-    }
-    return sortFnMap[ITEMS][localSort]
+  } else if (page_type in page_type_map) {
+    return sortFnMap[page_type_map[page_type]][localSort] || sortFnMap[ITEMS][localSort]
   }
 }
