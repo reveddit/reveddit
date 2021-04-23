@@ -166,11 +166,11 @@ export const getRevdditPostsByDomain = async (domain, global) => {
       return results[0].concat(results[1])
     })
     .then(items => {
-      return global.setSuccess({items})
+      return global.returnSuccess({items})
       .then(() => items)
     })
   } else {
-    return global.setError('')
+    return global.returnError()
   }
 }
 
@@ -393,7 +393,6 @@ const searchRedditAndPushshiftPosts = (global, searchInput) => {
   })
   .then(items => {
     items.sort(sortCreatedAsc)
-    global.setSuccess({items, itemsSortedByDate: items})
-    return items
+    return global.returnSuccess({items, itemsSortedByDate: items})
   })
 }

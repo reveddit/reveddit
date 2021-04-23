@@ -300,7 +300,7 @@ export const getRevdditCommentsBySubreddit = async (subreddit, global) => {
   return combinedGetCommentsBySubreddit({global, subreddit, n, before, before_id, after,
     subreddit_about_promise, modlogs_promise})
   .then(() => {
-    global.setSuccess()
+    global.returnSuccess()
   })
 }
 

@@ -77,13 +77,13 @@ export const getRevdditItems = (global) => {
           // b/c a reddit comment may have author=[deleted] and setting is_op for a
           // removed comment depends on author info from pushshift
           setPostAndParentDataForComments(Object.values(combinedComments), postData)
-          combinePushshiftAndRedditPosts({
+          return combinePushshiftAndRedditPosts({
             pushshiftPosts,
             redditPosts,
             includePostsWithZeroComments: true,
             isInfoPage: true})
           .then(combinedPosts => {
-            global.setSuccess({items: Object.values(combinedComments).concat(combinedPosts)})
+            return global.returnSuccess({items: Object.values(combinedComments).concat(combinedPosts)})
           })
         })
       })
@@ -178,6 +178,6 @@ export const getRevdditSearch = (global) => {
       items = newItems
     }
     items.sort(sortCreatedAsc)
-    global.setSuccess({items, itemsSortedByDate: items, oldestTimestamp, newestTimestamp})
+    return global.returnSuccess({items, itemsSortedByDate: items, oldestTimestamp, newestTimestamp})
   })
 }

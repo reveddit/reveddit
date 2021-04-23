@@ -30,18 +30,16 @@ export const getRevdditPostsBySubreddit = async (subreddit, global) => {
           post.removed = true
         }
       })
-      global.setSuccess({items: posts_array, itemsSortedByDate:posts_array})
+      return global.returnSuccess({items: posts_array, itemsSortedByDate:posts_array})
       return posts
     })
-    .catch(global.setError)
+    .catch(global.returnError)
   } else {
     const {subreddit_about_promise} = await setSubredditMeta(subreddit, global)
     const modlogs_promise = getModlogsPosts(subreddit)
     return combinedGetPostsBySubredditOrDomain({global, subreddit, n, before, before_id, after,
       subreddit_about_promise, modlogs_promise})
-    .then(() => {
-      global.setSuccess()
-    })
+    .then(global.returnSuccess)
   }
 }
 

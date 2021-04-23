@@ -17,7 +17,7 @@ const SubredditSticky = connect((props) => {
         params.delete(NUM)
         window.location.href = permalink+params.toString()
       } else {
-        global.setError('')
+        global.setError()
       }
     })
   }, [])

@@ -13,7 +13,7 @@ export const ThreadRedirect = (props) => {
       if (post) {
         window.location.href = post.permalink+window.location.search+window.location.hash
       } else {
-        props.global.setError('')
+        props.global.setError()
       }
     })
   }, [])

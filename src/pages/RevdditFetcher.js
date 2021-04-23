@@ -304,7 +304,11 @@ export const withFetch = (WrappedComponent) =>
             {page_type, subreddit, user, kind, threadID, commentID, context, domain,
              add_user, user_kind, user_sort, user_time, before, after})
           loadDataFunction(...params, global)
-          .then(() => {
+          .then(async ([success, stateObj]) => {
+            const lookupAccountMeta = (showAccountInfo_global || global.accountFilterOrSortIsSet()) && (stateObj.items?.length || global.state.items?.length)
+            const successFn = (success ? global.setSuccess : global.setError).bind(global)
+            const setStateFn = lookupAccountMeta ? global.setState.bind(global) : successFn
+            await setStateFn(stateObj)
             const {commentTree, items, threadPost} = global.state
             if (items.length === 0 && ['subreddit_posts', 'subreddit_comments'].includes(page_type)) {
               throw "no results"
@@ -321,8 +325,8 @@ export const withFetch = (WrappedComponent) =>
               })
             }
             window.scrollY === 0 && jumpToHash(window.location.hash)
-            const lookupAccountAge = showAccountInfo_global || global.accountMinOrMaxIsSet()
-            if ((lookupAccountAge || threadPost) && items.length) {
+
+            if ((lookupAccountMeta || threadPost) && items.length) {
               const authorIDs = new Set()
               const authorNames = new Set()
               let itemsAndPost = items
@@ -337,10 +341,10 @@ export const withFetch = (WrappedComponent) =>
                   authorNames.add(item.author)
                 }
               }
-              if (lookupAccountAge) {
+              if (lookupAccountMeta) {
                 getAuthorInfoByName(Array.from(authorIDs))
                 .then(({authors, author_fullnames}) => {
-                  global.setState({authors, author_fullnames})
+                  successFn({authors, author_fullnames})
                 })
               } else {
                 global.setState({authors: Array.from(authorNames).reduce((map, val) => (map[val] = {}, map), {})})
@@ -397,7 +401,7 @@ export const withFetch = (WrappedComponent) =>
         }
         this.props.openGenericModal({content})
       }
-      this.props.global.setError('')
+      this.props.global.setError()
     }
 
     render () {

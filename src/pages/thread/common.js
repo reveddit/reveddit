@@ -1,6 +1,6 @@
 import {localSort_types} from 'state'
 import { reversible } from 'utils'
-import { items_byAccountAge } from 'data_processing/sort'
+import { wrappedSortFunctions } from 'data_processing/sort'
 
 const byScore = (a, b) => {
   return (b.stickied - a.stickied) || (b.score - a.score)
@@ -43,7 +43,7 @@ const sortFnMap = {
 export const getSortFn = (localSort, gs) => {
   if (localSort in sortFnMap) {
     return sortFnMap[localSort]
-  } else if (localSort === 'account_age') {
-    return items_byAccountAge(gs)
+  } else if (localSort in wrappedSortFunctions) {
+    return wrappedSortFunctions[localSort](gs)
   }
 }

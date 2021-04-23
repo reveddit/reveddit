@@ -364,7 +364,7 @@ const PreserveButton = connect(({global, post, author, deleted, loading, setLoca
           })
           .catch((e) => {
             console.error(e)
-            global.setError('')
+            global.setError()
           })
         }
       }}>{text}{addIcon && <> <RestoreIcon wh='12' fill={loading ? '#4c4949': '#828282'}/></>}

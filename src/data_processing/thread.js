@@ -264,9 +264,9 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
   return Promise.all([pushshift_post_promise, combined_comments_promise])
   .then(() => {
     if (! archiveError) {
-      return global.setSuccess(stateObj)
+      return global.returnSuccess(stateObj)
     } else {
-      return global.setError('', stateObj)
+      return global.returnError(stateObj)
     }
   })
 }
@@ -304,7 +304,7 @@ export const insertParent = (child_id, global) => {
           return global.setSuccess({items, itemsLookup, commentTree})
         })
       } else {
-        return global.setError('')
+        return global.setError()
       }
     })
   } else if (parent && ! parent.replies?.length) {

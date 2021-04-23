@@ -161,8 +161,7 @@ export const getRevdditUserItems = async (user, kind, global) => {
           })
         }
       }
-      global.setSuccess()
-      return result
+      return global.returnSuccess()
     })
   })
 }
@@ -178,27 +177,27 @@ function getItems (user, kind, global, sort, before = '', after = '', time, limi
         return usernameAvailable(user)
         .then(result => {
           if (result === true) {
-            global.setError(Error(''), {userIssueDescription: 'does not exist'})
+            global.setError({userIssueDescription: 'does not exist'})
           } else {
             return userPageHTML(user)
             .then(html_result => {
               const status = `You can also check account status at <a href="${www_reddit}/user/${user}" rel="noopener">/u/${user}</a> or <a href="${www_reddit}/r/ShadowBan" rel="noopener">/r/ShadowBan</a>.`
               if ('error' in html_result) {
                 console.error(html_result.error)
-                global.setError(Error(''), {userIssueDescription: deleted_shadowbanned_notexist+verify+status})
+                global.setError({userIssueDescription: deleted_shadowbanned_notexist+verify+status})
               } else if (html_result.html.match(/has deleted their account/)) {
-                global.setError(Error(''), {userIssueDescription: 'has deleted their account'})
+                global.setError({userIssueDescription: 'has deleted their account'})
               } else if (html_result.html.match(/must be 18/)) {
-                global.setError(Error(''), {userIssueDescription: deleted_shadowbanned_notexist+verify+status})
+                global.setError({userIssueDescription: deleted_shadowbanned_notexist+verify+status})
               } else {
-                global.setError(Error(''), {userIssueDescription: 'may be shadowbanned or may not exist. '+verify+status})
+                global.setError({userIssueDescription: 'may be shadowbanned or may not exist. '+verify+status})
               }
               return null
             })
           }
         })
       } else if ('message' in userPageData && userPageData.message.toLowerCase() == 'forbidden') {
-        global.setError(Error(''), {userIssueDescription: 'suspended'})
+        global.setError({userIssueDescription: 'suspended'})
       }
     }
     const {comments: missingComments} = await missing_comments_promise

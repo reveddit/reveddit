@@ -481,7 +481,10 @@ class GlobalState extends Container {
     }
     return this.updateURLandState(queryParams, page_type)
   }
-  accountMinOrMaxIsSet = () => {
+  accountFilterOrSortIsSet = () => {
+    if (this.state.localSort.startsWith('account_')) {
+      return true
+    }
     for (const base of Object.keys(urlParamKeys_account_max_min_base)) {
       if (this.state[base+MIN] !== '' || this.state[base+MAX] !== '') {
         return true
@@ -498,6 +501,8 @@ class GlobalState extends Container {
     }
     return false
   }
+  returnError = (stateObj = {}) => [false, stateObj]
+  returnSuccess = (stateObj = {}) => [true, stateObj]
   setSuccess = (other = {}) => {
     if (! this.state.error) {
       return this.setState({statusText: '', statusImage: '/images/success.png', loading:false, ...other})
@@ -505,8 +510,8 @@ class GlobalState extends Container {
       return this.setState({statusImage: '/images/error.png', loading:false, ...other})
     }
   }
-  setError = (error, other = {}) => {
-    return this.setState({statusText: error.message, statusImage: '/images/error.png', loading:false, error: true, ...other})
+  setError = (other = {}) => {
+    return this.setState({statusText: '', statusImage: '/images/error.png', loading:false, error: true, ...other})
   }
   setLoading = (text = '', other = {}) => this.setState({...loadingVars, statusText: text, ...other})
   clearStatus = () => this.setState({statusText: '', statusImage: undefined, loading:false})

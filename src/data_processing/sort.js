@@ -159,7 +159,7 @@ const page_type_map = {
   //thread: not included, thread sort is implemented in pages/thread/common.js
 }
 
-const wrappedSortFunctions = {
+export const wrappedSortFunctions = {
   [localSort_types.account_age]: items_byAccountAge,
   [localSort_types.account_combined_karma]: items_byAccountCombinedKarma,
 }

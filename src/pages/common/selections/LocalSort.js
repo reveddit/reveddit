@@ -37,7 +37,7 @@ const LocalSort = connect(({global, page_type}) => {
       <span>{text}</span>
     </label>
   }
-  const accountInfoNotYetRetrieved = ! showAccountInfo_global && ! global.accountMinOrMaxIsSet()
+  const accountInfoNotYetRetrieved = ! showAccountInfo_global && ! global.accountFilterOrSortIsSet()
   return (
       <Selection className='localSort' title='Sort By' isSort={true} titleHelpModal={{content: sortby_help}}>
         {['thread', 'subreddit_comments'].includes(page_type) ?

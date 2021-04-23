@@ -7,7 +7,7 @@ export const getRevdditAggregations = async (subreddit, global) => {
   const subredditAbout = await getSubredditAbout(subreddit)
   const over18 = subredditAbout.over18
   if (over18) {
-    return global.setSuccess({over18})
+    return global.returnSuccess({over18})
   }
   return getAggregations({subreddit, type, limit, sort})
   .then(temp_items => {
@@ -36,7 +36,7 @@ export const getRevdditAggregations = async (subreddit, global) => {
       for (const i of items) {
         i.created_utc = i.last_created_utc
       }
-      return global.setSuccess({items, itemsSortedByDate: [...items].sort(sortCreatedAsc), over18: false})
+      return global.returnSuccess({items, itemsSortedByDate: [...items].sort(sortCreatedAsc), over18: false})
     })
   })
 }
