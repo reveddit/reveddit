@@ -126,14 +126,10 @@ export const items_byAccountCombinedKarma = (gs) => {
 const COMMENTS = 'c', POSTS = 'p', ITEMS = 'i'
 const sortFnMap = {
   [COMMENTS]: {
-    [localSort_types.date]: items_byDate,
     [localSort_types.date_observed]: comments_byDateObserved,
-    [localSort_types.score]: items_byScore,
     [localSort_types.controversiality1]: comments_byControversiality1,
     [localSort_types.controversiality2]: comments_byControversiality2,
     [localSort_types.comment_length]: comments_byCommentLength,
-    [localSort_types.num_comments]: items_byNumComments,
-    [localSort_types.subreddit_subscribers]: items_bySubredditSubscribers,
   },
   [POSTS]: {
     [localSort_types.date]: posts_byDate,
@@ -171,7 +167,12 @@ export const getSortFn = (page_type, localSort, gs) => {
   const wrappedFn = wrappedSortFunctions[localSort]
   if (wrappedFn) {
     return wrappedFn(gs)
-  } else if (page_type in page_type_map) {
-    return sortFnMap[page_type_map[page_type]][localSort]
+  } else {
+    const contentType = page_type_map[page_type]
+    const sortFn = sortFnMap[contentType][localSort]
+    if (sortFn) {
+      return sortFnMap[contentType][localSort]
+    }
+    return sortFnMap[ITEMS][localSort]
   }
 }
