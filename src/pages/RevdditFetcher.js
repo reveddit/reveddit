@@ -615,7 +615,7 @@ const GenericPostProcessor = connect((props) => {
     if (submissionsMsg || commentsMsg) {
       const updated = getPrettyDate(archiveTimes.updated)
       archiveDelayMsg =
-        <Notice className='delay' title='archive delay' detail={'as of '+updated}
+        <Notice className='delay' title='archive delay' detail={'as of '+updated} help={archive_delay_help}
           message = {<div className='container'>{submissionsMsg}{commentsMsg}</div>} />
     }
   }
@@ -632,6 +632,10 @@ const GenericPostProcessor = connect((props) => {
     </React.Fragment>
   )
 })
+
+const archive_delay_help = (<>
+  <p>The archive service, called Pushshift, may fall behind due to a high volume of reddit content. <LinkWithCloseModal to='/about/faq/#unarchived'>more info</LinkWithCloseModal></p>
+</>)
 
 const gridLabel = (label, created_utc, updated) => {
   return <>

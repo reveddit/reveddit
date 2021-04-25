@@ -120,6 +120,10 @@ export const InternalPage = ({children}) => {
   )
 }
 
+export const HelpModal = ({title = '', content = '', fill}) => {
+  return <QuestionMarkModal fill={fill} modalContent={{content: <Help {...{title, content}}/>}} />
+}
+
 export const Help = ({title = '', content = ''}) => {
   return (
     <div>
