@@ -167,7 +167,6 @@ export const getRevdditPostsByDomain = async (domain, global) => {
     })
     .then(items => {
       return global.returnSuccess({items})
-      .then(() => items)
     })
   } else {
     return global.returnError()

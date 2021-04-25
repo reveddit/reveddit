@@ -22,7 +22,7 @@ export const getRevdditPostsBySubreddit = async (subreddit, global) => {
     .then(ids => getRedditPosts({ids}))
     .then(posts => {
       const posts_array = Object.values(posts)
-      posts_array.sort(sortCreatedAsc).forEach(post => {
+      posts_array.forEach(post => {
         post.selftext = ''
         if (postIsDeleted(post)) {
           post.deleted = true
@@ -31,7 +31,6 @@ export const getRevdditPostsBySubreddit = async (subreddit, global) => {
         }
       })
       return global.returnSuccess({items: posts_array, itemsSortedByDate:posts_array})
-      return posts
     })
     .catch(global.returnError)
   } else {
