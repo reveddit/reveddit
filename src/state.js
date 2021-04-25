@@ -501,8 +501,8 @@ class GlobalState extends Container {
     }
     return false
   }
-  returnError = (stateObj = {}) => [false, stateObj]
-  returnSuccess = (stateObj = {}) => [true, stateObj]
+  returnError = async (stateObj = {}) => [false, stateObj]
+  returnSuccess = async (stateObj = {}) => [true, stateObj]
   setSuccess = (other = {}) => {
     if (! this.state.error) {
       return this.setState({statusText: '', statusImage: '/images/success.png', loading:false, ...other})
