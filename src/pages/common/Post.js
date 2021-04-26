@@ -29,11 +29,12 @@ const clear = <div className='clearBoth' style={{flexBasis:'100%', height: '0'}}
 const Post = connect((props) => {
   const {
     global, rev_position, page_type,
-    kind, author, name, next, prev, title, media_metadata,
+    kind, author, name, next, prev, title,
   } = props
   if (! title) {
     return <div/>
   }
+  const {media_metadata} = props.over_18 ? {} : props
   const {sort, t, userCommentsByPost, initialFocusCommentID} = global.state
   let {add_user, loading:globalLoading} = global.state
   const url = stripRedditLikeDomain(props.url)
@@ -154,7 +155,7 @@ const Post = connect((props) => {
         </div>
       </div>
       {clear}
-      {page_type === 'thread' && media_metadata && ! props.over_18 && ! props.deleted &&
+      {page_type === 'thread' && media_metadata && ! props.deleted &&
         <div className='thread-media'>
           { focusedImageList?.length ?
             <BestImage list={focusedImageList} onClick={() => setFocusedMediaKey(null)} />
