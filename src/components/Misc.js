@@ -89,9 +89,9 @@ export const Spin = ({width}) => {
   return spin
 }
 
-export const MessageMods = ({permalink, subreddit = '', message_body = '', innerText = 'message mods'}) => {
+export const MessageMods = ({permalink, subreddit = '', message_body = '', innerText = 'message mods', message_title = ''}) => {
   const mods_message_body = message_body || '\n\n\n'+www_reddit+permalink
-  const mods_link = '/message/compose?to=/r/'+subreddit+'&message='+encodeURI(mods_message_body)
+  const mods_link = '/message/compose?to=/r/'+subreddit+'&message='+encodeURI(mods_message_body)+(message_title && '&title='+message_title)
   return <NewWindowLink reddit={mods_link} target="_blank">{innerText}</NewWindowLink>
 }
 

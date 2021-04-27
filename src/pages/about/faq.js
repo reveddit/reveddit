@@ -21,12 +21,14 @@ const control = 'gives more control over what is shared'
 const modlogs_example_string = `[${cantSayAnything_modlogConfig}](${www_reddit}${cantSayAnything_modlogConfig})`
 const modlogs_detail = `${add_mod}, give it wiki permissions, and create a /r/<subreddit>/wiki/modlog_config such as`
 const publicmodlogs_detail = `${add_mod} with no permissions`
-const add_modlogs_message = <MessageMods innerText='pre-filled message' message_body={
-  'Dear mods,\n\n'
-  +`Would you turn on mod logs so users can see the context of removed content? There are two options, u/modlogs and u/publicmodlogs. The former ${control},\n\n`
-  +`* for u/modlogs: ${modlogs_detail} ${modlogs_example_string}.\n`
-  +`* for u/publicmodlogs: ${publicmodlogs_detail}\n\n`
-  +'Thank you.'
+const add_modlogs_message = <MessageMods innerText='pre-filled message'
+  message_title='Will you show context for mod logs?'
+  message_body={
+    'Dear mods,\n\n'
+    +`Would you turn on mod logs so users can see the context of removed content? There are two options, u/modlogs and u/publicmodlogs. The former ${control},\n\n`
+    +`* for u/modlogs: ${modlogs_detail} ${modlogs_example_string}.\n`
+    +`* for u/publicmodlogs: ${publicmodlogs_detail}\n\n`
+    +'Thank you.'
 }/>
 
 const About_faq = () => {
@@ -93,7 +95,7 @@ const About_faq = () => {
       </ContentWithHeader>
       <ContentWithHeader header='How can I find out why something was removed?' id='removal-reason'>
         <p>Some subreddits publish their mod logs through {modlogs} or {publicmodlogs}. Reveddit merges information from these sources when possible. Clicking the <code>[removed] by</code> label on reveddit may show more details such as the mod's name and a reason.</p>
-        <p>Using this {add_modlogs_message}, you can ask mods to make logs available. {modlogs} {control},</p>
+        <p>Using this {add_modlogs_message}, you can ask mods to make logs available. {modlogs} {control}. To set it up on a subreddit you moderate,</p>
         <ul>
           <li>for {modlogs}: {modlogs_detail} {modlogs_example}</li>
           <li>for {publicmodlogs}: {publicmodlogs_detail}</li>
