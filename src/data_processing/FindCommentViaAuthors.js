@@ -271,7 +271,7 @@ export class AddUserParam {
     return this.items
   }
   getAuthors() {
-    return this.items.map(i => i.author)
+    return this.items.map(i => i.author.toString())
   }
   toString() {
     if (this.items) {
