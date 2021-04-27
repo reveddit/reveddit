@@ -89,10 +89,10 @@ export const Spin = ({width}) => {
   return spin
 }
 
-export const MessageMods = ({permalink, subreddit}) => {
-  const mods_message_body = '\n\n\n'+www_reddit+permalink
+export const MessageMods = ({permalink, subreddit = '', message_body = '', innerText = 'message mods'}) => {
+  const mods_message_body = message_body || '\n\n\n'+www_reddit+permalink
   const mods_link = '/message/compose?to=/r/'+subreddit+'&message='+encodeURI(mods_message_body)
-  return <NewWindowLink reddit={mods_link} target="_blank">message mods</NewWindowLink>
+  return <NewWindowLink reddit={mods_link} target="_blank">{innerText}</NewWindowLink>
 }
 
 //modalContent should be either {content: <>abc</>} or {hash: 'abc'}

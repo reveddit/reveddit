@@ -1,17 +1,33 @@
 import React from 'react'
 import { InternalPage, NewWindowLink } from 'components/Misc'
 import { Link } from 'react-router-dom'
-import {ExtensionLink} from 'components/Misc'
+import {ExtensionLink, MessageMods} from 'components/Misc'
 import {ContentWithHeader} from 'pages/about'
 import { unarchived_search_help_content, unarchived_search_button_word } from 'data_processing/FindCommentViaAuthors'
 import {shuffle} from 'utils'
+import {www_reddit} from 'api/reddit'
 
 const reasons = [
   <li key='m'>In many cases, reddit sends no message about removals. Messages can <i>optionally</i> be sent by subreddit moderators.</li>,
   <li key='i'>Reddit shows you your removed comments as if they are not removed.</li>
 ]
-
+const cantSayAnything_modlogConfig = '/r/CantSayAnything/wiki/modlog_config'
 const unarchived_search_button_word_lc = unarchived_search_button_word.toLowerCase()
+const publicmodlogs = <NewWindowLink reddit='/user/publicmodlogs'>u/publicmodlogs</NewWindowLink>
+const modlogs = <NewWindowLink reddit='/user/modlogs'>u/modlogs</NewWindowLink>
+const modlogs_example = <NewWindowLink reddit={cantSayAnything_modlogConfig}>{cantSayAnything_modlogConfig}</NewWindowLink>
+const add_mod = 'add this bot as a moderator'
+const control = 'gives more control over what is shared'
+const modlogs_example_string = `[${cantSayAnything_modlogConfig}](${www_reddit}${cantSayAnything_modlogConfig})`
+const modlogs_detail = `${add_mod}, give it wiki permissions, and create a /r/<subreddit>/wiki/modlog_config such as`
+const publicmodlogs_detail = `${add_mod} with no permissions`
+const add_modlogs_message = <MessageMods innerText='pre-filled message' message_body={
+  'Dear mods,\n\n'
+  +`Would you turn on mod logs so users can see the context of removed content? There are two options, u/modlogs and u/publicmodlogs. The former ${control},\n\n`
+  +`* for u/modlogs: ${modlogs_detail} ${modlogs_example_string}.\n`
+  +`* for u/publicmodlogs: ${publicmodlogs_detail}\n\n`
+  +'Thank you.'
+}/>
 
 const About_faq = () => {
   return (
@@ -75,9 +91,15 @@ const About_faq = () => {
         <p>Note, when an account is suspended by reddit, all the posts and comments for that account may be removed. The reddit API does not indicate where suspension-related removals occur and so reveddit cannot see or mark where this happens. You can check if an account has been suspended on its reddit or reveddit user page. Temporary suspensions may also remove content created before the suspension.</p>
         <p>The <code>unknown</code> label is applied when reveddit cannot determine if something was removed by a mod or by automod. Pushshift, a database that captures reddit data as it is created, and which reveddit queries, can fall behind retrieving data. When that happens, any removed items are marked as <code>[removed] by unknown</code>. When Pushshift captures content soon after creation, and the content has already been removed, then it is marked as <code>[removed] by automod</code>. If Pushshift has a record of a removed comment's body then the comment is labeled <code>[removed] by mod</code>. More detail can be found in the <a href='https://github.com/reveddit/reveddit/blob/60a34a28c5133fd54777d189fc9997afe89a2f39/src/data_processing/comments.js#L131'>source code</a>.</p>
       </ContentWithHeader>
-      <ContentWithHeader header='How can I find out which mod removed something?' id='which-mod'>
-        <p>Click the <code>[removed] by</code> label to see more details. If the subreddit's moderators subscribe to <NewWindowLink reddit='/user/publicmodlogs'>u/publicmodlogs</NewWindowLink> or <NewWindowLink reddit='/user/modlogs'>u/modlogs</NewWindowLink> then a mod's name and reason may appear here.</p>
-        <p>You can also use the <code>message mods</code> button to send a question with a pre-filled link.</p>
+      <ContentWithHeader header='How can I find out why something was removed?' id='removal-reason'>
+        <p>Some subreddits publish their mod logs through {modlogs} or {publicmodlogs}. Reveddit merges information from these sources when possible. Clicking the <code>[removed] by</code> label on reveddit may show more details such as the mod's name and a reason.</p>
+        <p>Using this {add_modlogs_message}, you can ask mods to make logs available. {modlogs} {control},</p>
+        <ul>
+          <li>for {modlogs}: {modlogs_detail} {modlogs_example}</li>
+          <li>for {publicmodlogs}: {publicmodlogs_detail}</li>
+        </ul>
+        <p>You can inquire about a specific post or comment using the <code>message mods</code> button. This prepares a pre-filled message to the subreddit's moderators.</p>
+        <p>Removal reasons also appear in flair or in a message on the new reddit layout.</p>
       </ContentWithHeader>
     </InternalPage>
   )

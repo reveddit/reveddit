@@ -455,7 +455,7 @@ export const getModlogsItems = async (subreddit, itemType, postProcessArgs = [])
     const baseUrl = oauth_reddit + `r/${subreddit}/about/log/.json?feed=${u_publicmodlogs_feed}&user=publicmodlogs`
     auth = await getAuth()
     urls.push(...[
-      baseUrl + remove + "&limit=500",
+      baseUrl + remove + "&limit=100",
       baseUrl + spam + "&limit=50"
     ])
   }

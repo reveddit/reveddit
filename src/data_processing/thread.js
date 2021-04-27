@@ -14,7 +14,7 @@ import {
 } from 'api/reddit'
 import { getAuth } from 'api/reddit/auth'
 import {
-  submitMissingComments, getUmodlogs
+  submitMissingComments, getUmodlogsThread
 } from 'api/reveddit'
 import { itemIsRemovedOrDeleted, postIsDeleted, postIsRemoved, jumpToHash,
          convertPathSub, sortCreatedAsc, validAuthor, commentIsRemoved,
@@ -63,7 +63,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
   if (commentID) {
     root_comment_promise = getRedditComments({ids: [commentID]})
   }
-  const uModlogs_promise = getUmodlogs(subreddit, threadID)
+  const uModlogs_promise = getUmodlogsThread(subreddit, threadID)
   const reddit_pwc_baseArgs = {threadID, commentID, context, limit: numCommentsWithPost}
   const reddit_pwc_baseArgs_firstQuery = {...reddit_pwc_baseArgs, sort: 'old'}
   const reddit_pwc_promise = getRedditPostWithComments(reddit_pwc_baseArgs_firstQuery)
@@ -144,18 +144,18 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     const modlogsPosts = await modlogs_posts_promise
     const ps_post = await pushshift_post_promise
     const uModlogsItems = await uModlogs_promise
-    const uModlogsSubmission = uModlogsItems.submissions[threadID]
+    const uModlogsPost = uModlogsItems.posts[threadID]
     const combined_post = combineRedditAndPushshiftPost(reddit_post, ps_post)
     let modlog
-    if (combined_post.id in modlogsPosts || uModlogsSubmission) {
-      modlog = modlogsPosts[combined_post.id] || uModlogsSubmission
+    if (combined_post.id in modlogsPosts || uModlogsPost) {
+      modlog = modlogsPosts[combined_post.id] || uModlogsPost
       combined_post.modlog = modlog
     }
     if (combined_post.removed && combined_post.is_self) {
       if (modlog) {
         combined_post.selftext = modlog.target_body
-      } else if (uModlogsSubmission) {
-        combined_post.selftext = uModlogsSubmission.target_body
+      } else if (uModlogsPost) {
+        combined_post.selftext = uModlogsPost.target_body
       } else if (ps_post && 'selftext' in ps_post) {
         combined_post.selftext = ps_post.selftext
       }
@@ -175,6 +175,10 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
       redditComments[commentID] = rootComment[commentID]
     }
     copyModlogItemsToArchiveItems(modlogsComments, pushshiftComments)
+    //copy uModlogs items last b/c:
+    // 1. these will overwrite any previous modlogs items
+    // 2. the content will probably be retrievable in the future, since lookup method is by link ID.
+    //    And, when log_source == u_modlogs, then 'temporarily visible' label is not shown
     copyModlogItemsToArchiveItems(uModlogsItems.comments, pushshiftComments)
     const focusComment_pushshift = pushshiftComments[commentID]
     const focusComment_reddit = redditComments[commentID]

@@ -6,6 +6,7 @@ import { getRemovedPostIDs } from 'api/removeddit'
 import { getPosts as getRedditPosts,
          getModerators, getSubredditAbout, getModlogsPosts
 } from 'api/reddit'
+import { getUmodlogsPosts } from 'api/reveddit'
 import { postIsDeleted } from 'utils'
 import { retrieveRedditPosts_and_combineWithPushshiftPosts } from 'data_processing/posts'
 import { copyModlogItemsToArchiveItems, setSubredditMeta } from 'data_processing/comments'
@@ -35,9 +36,9 @@ export const getRevdditPostsBySubreddit = async (subreddit, global) => {
     .catch(global.returnError)
   } else {
     const {subreddit_about_promise} = await setSubredditMeta(subreddit, global)
-    const modlogs_promise = getModlogsPosts(subreddit)
+    const modlogs_promises = [getModlogsPosts(subreddit), getUmodlogsPosts(subreddit)]
     return combinedGetPostsBySubredditOrDomain({global, subreddit, n, before, before_id, after,
-      subreddit_about_promise, modlogs_promise})
+      subreddit_about_promise, modlogs_promises})
     .then(global.returnSuccess)
   }
 }
@@ -52,14 +53,14 @@ export const combinedGetPostsBySubredditOrDomain = (args) => {
 
 const empty_arr_promise = Promise.resolve([])
 const empty_obj_promise = Promise.resolve({})
-const empty_modlogs_promise = empty_obj_promise
+const empty_modlogs_promises = [empty_obj_promise]
 
 export const combinedGetItemsBySubredditOrDomain = (args) => {
   const {global, subreddit, domain, n, before, before_id, after,
     numItemsQueried = 0,
     combinePromise = empty_arr_promise,
     subreddit_about_promise = empty_obj_promise,
-    modlogs_promise = empty_modlogs_promise,
+    modlogs_promises = empty_modlogs_promises,
     prev_last_id,
     pushshiftQueryFn,
     postProcessCombine_Fn, postProcessCombine_Args,
@@ -111,18 +112,19 @@ export const combinedGetItemsBySubredditOrDomain = (args) => {
           newestTimestamp = pushshiftItemsUnfiltered[0].created_utc
         }
       }
-      return modlogs_promise.then(modlogsItems => {
-        Object.values(modlogsItems).forEach(item => {
-          itemsLookup[item.id] = item
-        })
-        copyModlogItemsToArchiveItems(modlogsItems, pushshiftItems)
-        return postProcessCombine_Fn(
-          {[postProcessCombine_ItemsArgName]: pushshiftItems, subreddit_about_promise})
-        .then(combinedItems => {
-          const allItems = items.concat(combinedItems)
-          return global.setState({items: allItems, itemsLookup, oldestTimestamp, newestTimestamp})
-          .then(() => allItems)
-        })
+      return Promise.all(modlogs_promises)
+      .then(async results => {
+        for (const modlogsItems of results) {
+          if (Object.keys(modlogsItems).length)
+          Object.values(modlogsItems).forEach(item => {
+            itemsLookup[item.id] = item
+          })
+          copyModlogItemsToArchiveItems(modlogsItems, pushshiftItems)
+        }
+        const combinedItems = await postProcessCombine_Fn({[postProcessCombine_ItemsArgName]: pushshiftItems, subreddit_about_promise})
+        const allItems = items.concat(combinedItems)
+        return global.setState({items: items.concat(combinedItems), itemsLookup, oldestTimestamp, newestTimestamp})
+        .then(() => allItems) // need this return value here for posts.js -> getRevdditPostsByDomain()
       })
     })
     const newNumItemsQueried = numItemsQueried+pushshiftItemsUnfiltered.length
@@ -141,7 +143,7 @@ export const combinedGetItemsBySubredditOrDomain = (args) => {
         newNumItemsQueried < n) {
         const first = pushshiftItemsUnfiltered[0]
         const last = pushshiftItemsUnfiltered[pushshiftItemsUnfiltered.length - 1]
-      // unset before_id and modlogs_promise: they only need to be used once.
+      // unset before_id and modlogs_promises: they only need to be used once.
       // if pushshift supports before_id in the future, duplicate checking above is not needed
       const beforeAfter = {}
       if (! usingAfter) {
@@ -154,7 +156,7 @@ export const combinedGetItemsBySubredditOrDomain = (args) => {
         before_id: undefined,
         numItemsQueried: newNumItemsQueried,
         combinePromise: newCombinePromise, subreddit_about_promise,
-        modlogs_promise: empty_modlogs_promise,
+        modlogs_promises: empty_modlogs_promises,
         prev_last_id: last.id,
       })
     } else {

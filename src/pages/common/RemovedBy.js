@@ -92,7 +92,7 @@ const temp_vis_help = (<>
   <h3>{temp_vis_txt}</h3>
   <p>This comment is only visible {temp_vis_until}</p>
 </>)
-const per_mod_logs = <h4>Details from <LinkWithCloseModal to='/about/faq/#which-mod'>mod logs</LinkWithCloseModal></h4>
+const per_mod_logs = <h4>Details from <LinkWithCloseModal to='/about/faq/#removal-reason'>mod logs</LinkWithCloseModal></h4>
 
 const RemovedBy = (props) => {
   let displayTag = '', details = '', meta = undefined, withinText = '', fill = undefined,
@@ -141,12 +141,14 @@ const RemovedBy = (props) => {
     if (removed) {
       if (modlog) {
         const prettyTimeLength = getPrettyTimeLength(modlog.created_utc-props.created_utc)
+        const detailsText = (modlog.details && modlog.details !== 'remove') ? modlog.details
+                          : modlog.action.includes('spam') ? 'Spam' : ''
         modalDetailsItems.push(
           <>{per_mod_logs}<ul>
             <li>{'Removed '+prettyTimeLength+' after creation '}</li>
             <li>Mod: {modlog.mod}</li>
-            {modlog.details !== 'remove' &&
-            <li>Details: {modlog.details}</li>}
+            {detailsText &&
+              <li>Details: {detailsText}</li> }
           </ul></>
         )
         if (temporarilyVisible) {

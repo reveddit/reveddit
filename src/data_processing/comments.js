@@ -8,6 +8,7 @@ import {
   getPostsByIDForCommentData as getPushshiftPostsForCommentData,
   getCommentsBySubreddit as pushshiftGetCommentsBySubreddit
 } from 'api/pushshift'
+import { getUmodlogsComments } from 'api/reveddit'
 import { commentIsDeleted, commentIsRemoved, postIsDeleted, isEmptyObj } from 'utils'
 import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED,
          UNKNOWN_REMOVED, NOT_REMOVED,
@@ -247,6 +248,11 @@ export const copyModlogItemsToArchiveItems = (modlogsItems, archiveItems) => {
       mod: ml_item.mod,
       details: ml_item.details,
       log_source: ml_item.log_source,
+      action: ml_item.action || '',
+      automodActionReason: ml_item.automodActionReason || '',
+    }
+    if (ml_item.automodActionReason && ! modlog.mod) {
+      modlog.mod = 'AutoModerator'
     }
     if (archive_item) {
       archive_item.modlog = modlog
@@ -295,13 +301,11 @@ export const getRevdditCommentsBySubreddit = async (subreddit, global) => {
     subreddit = ''
   }
   const {subreddit_about_promise} = await setSubredditMeta(subreddit, global)
-  const modlogs_promise = getModlogsComments(subreddit)
+  const modlogs_promises = [getModlogsComments(subreddit), getUmodlogsComments(subreddit)]
 
   return combinedGetCommentsBySubreddit({global, subreddit, n, before, before_id, after,
-    subreddit_about_promise, modlogs_promise})
-  .then(() => {
-    global.returnSuccess()
-  })
+    subreddit_about_promise, modlogs_promises})
+  .then(global.returnSuccess)
 }
 
 export const modlogSaysBotRemoved = (modlog, item) => {

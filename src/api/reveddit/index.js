@@ -110,16 +110,29 @@ export const getAggregationsPeriodURL = ({subreddit, type, numGraphPoints, limit
   return `${PATH_STR_SUB}/${subreddit}/`+commentsPath+queryParams.toString()
 }
 
-export const getUmodlogs = async (subreddit, thread_id) => {
+export const getUmodlogsThread = (subreddit, thread_id) => {
+  return getUmodlogs({subreddit, thread_id, actions:'removelink,spamlink,removecomment,spamcomment'})
+}
+export const getUmodlogsPosts = (subreddit) => {
+  return getUmodlogs({subreddit, actions:'removelink,spamlink'})
+  .then(r => r.posts)
+}
+export const getUmodlogsComments = (subreddit) => {
+  return getUmodlogs({subreddit, actions:'removecomment,spamcomment'})
+  .then(r => r.comments)
+}
+export const getUmodlogs = async ({subreddit, thread_id, actions}) => {
   const params = { c: getCount() }
-  const empty = {comments: {}, submissions: {}}
+  const empty = {comments: {}, posts: {}}
   return flaskQuery('modlogs-subreddits/', params)
   .then(list => {
     const set = new Set(list.map(x => x.toLowerCase()))
     if (set.has(subreddit.toLowerCase())) {
       params.limit = 100
-      params.link = `/r/comments/${thread_id}`
-      params.actions = 'removelink,spamlink,removecomment,spamcomment'
+      if (thread_id) {
+        params.link = `/r/comments/${thread_id}`
+      }
+      params.actions = actions
       return flaskQuery(`r/${subreddit}/logs/`, params, U_MODLOGS_API)
       .then(result => postProcessUmodlogs(result.logs, thread_id))
     }
@@ -128,11 +141,10 @@ export const getUmodlogs = async (subreddit, thread_id) => {
   .catch(() => {
     return empty
   })
-  return empty
 }
 
 const postProcessUmodlogs = (list, thread_id) => {
-  const comments = {}, submissions = {}
+  const comments = {}, posts = {}
   for (const item of list) {
     if (thread_id && thread_id !== item.submissionId) {
       continue
@@ -144,15 +156,15 @@ const postProcessUmodlogs = (list, thread_id) => {
     item.target_permalink = item.link || ''
     item.created_utc = Math.floor(item.timestamp/1000) || 0
     item.link_id = 't3_'+item.submissionId
-    item.details = (item.details || '') + ' ' + (item.automodActionReason || '')
+    item.details = ((item.details || '') + ' ' + (item.automodActionReason || '')).trim()
     item.mod = item.mod || ''
     if (item.isComment) {
       comments[item.id] = item
     } else {
-      submissions[item.id] = item
+      posts[item.id] = item
     }
   }
-  return {comments, submissions}
+  return {comments, posts}
 }
 
 const flaskQuery = (path, params = {}, host = REVEDDIT_FLASK_HOST_SHORT) => {
