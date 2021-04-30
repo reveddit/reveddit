@@ -32,7 +32,7 @@ const TextFilter = connect(({global, page_type, globalVarName, placeholder, minM
   }
   const [selectMin, setSelectMin] = useState(selectMinDefault)
   const [accountMetaWasSetOnPageLoad, setAccountMetaWasSetOnPageLoad] = useState(false)
-  let valueFromQueryParam = decodeURIComponent(queryParams.get(urlParamKeys[globalVarName]) || '')
+  let valueFromQueryParam = queryParams.get(urlParamKeys[globalVarName]) || ''
   let suffix = ''
   if (minMax) {
     const suffix = selectMin ? SUFFIX_MIN : SUFFIX_MAX
