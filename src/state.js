@@ -367,6 +367,13 @@ class GlobalState extends Container {
           }
           break
         }
+        case 'after':
+        case 'before': {
+          if (! value.includes('_')) {
+            stateVar[param] = parseType(value)
+          }
+          break
+        }
         default: {
           stateVar[param] = parseType(value)
         }
