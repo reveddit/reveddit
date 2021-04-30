@@ -3,7 +3,7 @@ import { InternalPage, NewWindowLink } from 'components/Misc'
 import { Link } from 'react-router-dom'
 import {ExtensionLink, MessageMods} from 'components/Misc'
 import {ContentWithHeader} from 'pages/about'
-import { unarchived_search_help_content, unarchived_search_button_word } from 'data_processing/FindCommentViaAuthors'
+import { unarchived_search_help_content, unarchived_search_button_word, unarchived_search_button_word_code } from 'data_processing/FindCommentViaAuthors'
 import {shuffle} from 'utils'
 import {www_reddit} from 'api/reddit'
 
@@ -19,14 +19,15 @@ const modlogs_example = <NewWindowLink reddit={cantSayAnything_modlogConfig}>{ca
 const add_mod = 'add this bot as a moderator'
 const control = 'gives more control over what is shared'
 const modlogs_example_string = `[${cantSayAnything_modlogConfig}](${www_reddit}${cantSayAnything_modlogConfig})`
-const modlogs_detail = `${add_mod}, give it wiki permissions, and create a /r/<subreddit>/wiki/modlog_config such as`
+const modlogs_detail = `${add_mod}, give it wiki permissions, and create a config page such as`
+const modlogs_detail_suffix = 'The bot will not have access to the AutoModerator config as that requires the "Manage Settings" permission.'
 const publicmodlogs_detail = `${add_mod} with no permissions`
 const add_modlogs_message = <MessageMods innerText='pre-filled message'
   message_title='Will you show context for mod logs?'
   message_body={
     'Dear mods,\n\n'
     +`Would you turn on mod logs so users can see the context of removed content? There are two options, u/modlogs and u/publicmodlogs. The former ${control},\n\n`
-    +`* for u/modlogs: ${modlogs_detail} ${modlogs_example_string}.\n`
+    +`* for u/modlogs: ${modlogs_detail} ${modlogs_example_string}. ${modlogs_detail_suffix}\n`
     +`* for u/publicmodlogs: ${publicmodlogs_detail}\n\n`
     +'Thank you.'
 }/>
@@ -83,7 +84,7 @@ const About_faq = () => {
         <p>Viewing removed content for subreddits and threads relies on an archive service called Pushshift which can fall behind. If a comment is removed before it is archived then it may not appear on reveddit. It may be possible to <a href={'#'+unarchived_search_button_word_lc}>restore</a> it from a user page.</p>
         <p>Your /user page will always be up to date since that only relies on data from reddit.</p>
       </ContentWithHeader>
-      <ContentWithHeader header={'What does the "'+unarchived_search_button_word+'" button on removed comments in thread pages do?'} id={unarchived_search_button_word_lc}>
+      <ContentWithHeader header={<>What does {unarchived_search_button_word_code} on removed comments do?</>} id={unarchived_search_button_word_lc}>
         {unarchived_search_help_content}
       </ContentWithHeader>
       <ContentWithHeader header='What does it mean when a removed comment has been "restored via user page"?' id='restored'>
@@ -97,7 +98,7 @@ const About_faq = () => {
         <p>Some subreddits publish their mod logs through {modlogs} or {publicmodlogs}. Reveddit merges information from these sources when possible. Clicking the <code>[removed] by</code> label on reveddit may show more details such as the mod's name and a reason.</p>
         <p>Using this {add_modlogs_message}, you can ask mods to make logs available. {modlogs} {control}. To set it up on a subreddit you moderate,</p>
         <ul>
-          <li>for {modlogs}: {modlogs_detail} {modlogs_example}</li>
+          <li>for {modlogs}: {modlogs_detail} {modlogs_example}. {modlogs_detail_suffix}</li>
           <li>for {publicmodlogs}: {publicmodlogs_detail}</li>
         </ul>
         <p>You can inquire about a specific post or comment using the <code>message mods</code> button. This prepares a pre-filled message to the subreddit's moderators.</p>

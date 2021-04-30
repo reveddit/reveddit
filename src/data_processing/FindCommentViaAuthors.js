@@ -39,6 +39,7 @@ const addAuthorIfExists = (comment, set, alreadySearchedAuthors) => {
 }
 
 export const unarchived_search_button_word = 'Restore'
+export const unarchived_search_button_word_code = <code>{unarchived_search_button_word}</code>
 
 export const unarchived_search_see_more = <>
   See <NewWindowLink reddit={'/r/removeddit/comments/hy5z7g/_/g4xlrne/'}>search for unarchived comments</NewWindowLink> and <NewWindowLink reddit='/ih86wk'>restored via user page</NewWindowLink> for more information.
@@ -46,9 +47,9 @@ export const unarchived_search_see_more = <>
 
 export const unarchived_search_help_content = (
   <>
-    <p>Clicking '{unarchived_search_button_word}' searches for unarchived comments, adds them if they are found, and updates the URL to save their location so the results can be shared.</p>
+    <p>Clicking {unarchived_search_button_word_code} searches for unarchived comments, adds them if they are found, and updates the URL to save their location so the results can be shared.</p>
     <p>This is useful because sometimes the archive service, called "Pushshift", does not archive data in time. If something is removed before it can be archived then it can only be found on the author's /user page. To find it you need to know the author first. Reveddit can search /user pages of nearby authors, such as the grandparent comment's author, to fill in some of these comments.</p>
-    <p>Clicking '{unarchived_search_button_word}' performs this search once for a group of users who have successfully commented in the thread. If there is no result after the first click, clicking more times may yield a result.</p>
+    <p>Clicking {unarchived_search_button_word_code} performs this search once for a group of users who have successfully commented in the thread. If there is no result after the first click, clicking more times may yield a result.</p>
     <p>Clicking 'author-focus', 'op-focus', or 'preserve' automatically searches for missing comments from the given author.
        Some new comments that can only be found on user pages may appear.
        This happens when a comment has not yet been archived and it has no replies.
