@@ -300,6 +300,13 @@ export const updateURL = (queryParams) => {
   window.history.replaceState(null,null,to)
 }
 
+const queryParamsOnPageLoad = create_qparams()
+
+export const getPageType = (page_type) => {
+  return (page_type === 'info' && queryParamsOnPageLoad.get('url')) ?
+    'duplicate_posts' : page_type
+}
+
 class GlobalState extends Container {
   constructor(props) {
      super(props)
@@ -318,9 +325,7 @@ class GlobalState extends Container {
     if (! page_type) {
       console.error('page_type is undefined')
     }
-    if (page_type === 'info' && queryParams.get('url')) {
-      page_type = 'duplicate_posts'
-    }
+    page_type = getPageType(page_type)
     const stateVar = extraGlobalStateVars
     for (const [param, urlParamKey] of Object.entries(urlParamKeys)) {
       const paramValue = queryParams.get(urlParamKey)

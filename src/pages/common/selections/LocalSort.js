@@ -1,5 +1,5 @@
 import React from 'react'
-import { connect, localSort_types } from 'state'
+import { connect, localSort_types, getPageType } from 'state'
 import { Selection } from './SelectionBase'
 import { Help } from 'components/Misc'
 import { showAccountInfo_global } from 'pages/modals/Settings'
@@ -15,6 +15,7 @@ const sortby_help = <Help title='Sort by' content={<>
 const LocalSort = connect(({global, page_type}) => {
   const {localSort, localSortReverse, showContext, limitCommentDepth} = global.state
   const updateStateAndURL = global.selection_update
+  page_type = getPageType(page_type)
   const makeLabel = (value, text, disabled) => {
     return (
       <label>
