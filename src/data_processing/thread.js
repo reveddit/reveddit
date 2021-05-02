@@ -113,9 +113,9 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
       .catch(ignoreArchiveErrors)
     }
     const combinedComments = combinePushshiftAndRedditComments({}, redditComments, false, post_without_pushshift_data)
-    const commentTree = createCommentTree(threadID, root_commentID, combinedComments)
+    const [commentTree, itemsSortedByDate] = createCommentTree(threadID, root_commentID, combinedComments)
     await global.setState({threadPost: post_without_pushshift_data,
-                           items: Object.values(combinedComments),
+                           items: itemsSortedByDate, itemsSortedByDate,
                            itemsLookup: combinedComments,
                            commentTree,
                            initialFocusCommentID: commentID})
@@ -204,8 +204,9 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     }
     const origRedditComments = {...redditComments}
     const early_combinedComments = combinePushshiftAndRedditComments(pushshiftComments, redditComments, false, reddit_post)
-    const early_commentTree = createCommentTree(threadID, root_commentID, early_combinedComments)
-    await global.setState({items: Object.values(early_combinedComments),
+    const [early_commentTree, early_itemsSortedByDate] = createCommentTree(threadID, root_commentID, early_combinedComments)
+    await global.setState({items: early_itemsSortedByDate,
+               itemsSortedByDate: early_itemsSortedByDate,
                       itemsLookup: early_combinedComments,
                       commentTree: early_commentTree,
             initialFocusCommentID: commentID})
@@ -242,20 +243,20 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     //todo: check if pushshiftComments has any parent_ids that are not in combinedComments
     //      and do a reddit query for these. Possibly query twice if the result has items whose parent IDs
     //      are not in combinedComments after adding the result of the first query
-    const commentTree = createCommentTree(threadID, root_commentID, combinedComments, true)
+    const [commentTree, itemsSortedByDate] = createCommentTree(threadID, root_commentID, combinedComments, true)
     const missing = []
     markTreeMeta(missing, origRedditComments, moreComments, commentTree, reddit_post.num_comments, root_commentID, commentID)
     if (missing.length) {
       submitMissingComments(missing)
     }
     const moderators = await moderators_promise
-    return {combinedComments, commentTree, moderators,
+    return {combinedComments, commentTree, itemsSortedByDate, moderators,
             subreddit_lc: reddit_post.subreddit.toLowerCase(),
             new_add_user, add_user_on_page_load: changed.length,
            }
   })
-  const {combinedComments, commentTree, moderators, subreddit_lc, new_add_user, add_user_on_page_load} = await combined_comments_promise
-  const itemsSortedByDate = sortLookupByDate(combinedComments)
+  const {combinedComments, commentTree, itemsSortedByDate,
+         moderators, subreddit_lc, new_add_user, add_user_on_page_load} = await combined_comments_promise
   const stateObj = {items: itemsSortedByDate,
                     itemsLookup: combinedComments,
                     commentTree, itemsSortedByDate,
@@ -357,7 +358,8 @@ const markTreeMeta = (missing, origRedditComments, moreComments, comments, post_
 
 export const createCommentTree = (postID, root_commentID, commentsLookup, logErrors = false) => {
   const commentTree = []
-  for (const comment of Object.values(commentsLookup)) {
+  const commentsSortedByDate = Object.values(commentsLookup).sort(sortCreatedAsc)
+  for (const comment of commentsSortedByDate) {
     comment.replies = []
     const parentID = comment.parent_id
     const parentID_short = parentID.substr(3)
@@ -378,7 +380,7 @@ export const createCommentTree = (postID, root_commentID, commentsLookup, logErr
     }
   }
   setAncestors(commentTree)
-  return commentTree
+  return [commentTree, commentsSortedByDate]
 }
 
 const setAncestors = (commentTree, ancestors = {}) => {
@@ -387,12 +389,4 @@ const setAncestors = (commentTree, ancestors = {}) => {
     const ancestorsOfChild = {[comment.id]: true, ...ancestors}
     setAncestors(comment.replies, ancestorsOfChild)
   }
-}
-
-const sortLookupByDate = (lookup) => {
-  const itemsSortedByDate = Object.values(lookup).sort(sortCreatedAsc)
-  for (const [i, comment] of itemsSortedByDate.entries()) {
-    comment.by_date_i = i
-  }
-  return itemsSortedByDate
 }
