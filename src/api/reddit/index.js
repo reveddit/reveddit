@@ -431,10 +431,12 @@ export const getAuthorInfoByName = (ids) => {
   return groupRequests(getAuthorInfo, ids, [results], 500)
   .then(() => {
     const authors = {}
-    Object.values(results).forEach(obj => {
-      obj.combined_karma = obj.link_karma + obj.comment_karma
-      authors[obj.name] = obj
-    })
+    if (! ('error' in results) || ! ('message' in results)) {
+      Object.values(results).forEach(obj => {
+        obj.combined_karma = obj.link_karma + obj.comment_karma
+        authors[obj.name] = obj
+      })
+    }
     return {
       authors,
       author_fullnames: results,
