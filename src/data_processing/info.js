@@ -103,7 +103,16 @@ export const getRevdditSearch = (global) => {
   const {q, author, subreddit, n, before, after, domain, or_domain,
          content, url, stickied, title, selftext, distinguished} = global.state
   const promises = []
-  const notAuthors = author.split(',').filter(x => x.match(/^!/)).reduce((map, obj) => (map[obj.substr(1)] = 1, map), {});
+  const notAuthors = new Set(), authors = new Set()
+  author.toLowerCase().split(',').forEach(authorString => {
+    if (authorString) {
+      if (authorString.startsWith('!')) {
+        notAuthors.add(authorString.substr(1))
+      } else {
+        authors.add(authorString)
+      }
+    }
+  })
   let include_comments = false
   if ((content === 'comments' || content === 'all') && ! url) {
     include_comments = true
@@ -153,31 +162,28 @@ export const getRevdditSearch = (global) => {
         return acc
       }, {})
     }
-    let items = []
+    const allItems = [], items = []
     results.forEach(result => {
-      items.push(...result)
+      allItems.push(...result)
     })
-    if (Object.keys(notAuthors).length || commentChildrenPromise) {
-      const newItems = []
-      items.sort(sortCreatedAsc).forEach(item => {
-        if (! oldestTimestamp) {
-          oldestTimestamp = item.created_utc
+    allItems.sort(sortCreatedAsc).forEach(item => {
+      if (! oldestTimestamp) {
+        oldestTimestamp = item.created_utc
+      }
+      newestTimestamp = item.created_utc
+      if (commentChildrenPromise) {
+        if (isPostID(item.name)) {
+          item.num_replies = item.num_comments
+        } else if (item.name in childCounts) {
+          item.num_replies = childCounts[item.name]
         }
-        newestTimestamp = item.created_utc
-        if (commentChildrenPromise) {
-          if (isPostID(item.name)) {
-            item.num_replies = item.num_comments
-          } else if (item.name in childCounts) {
-            item.num_replies = childCounts[item.name]
-          }
-        }
-        if (! notAuthors[item.author]) {
-          newItems.push(item)
-        }
-      })
-      items = newItems
-    }
-    items.sort(sortCreatedAsc)
+      }
+      const isComment = isCommentID(item.name)
+      if (! notAuthors.has(item.author) && (! authors.size || ! item.deleted)
+                                        && (! q || ! item.deleted || (! isComment && ! item.is_self))) {
+        items.push(item)
+      }
+    })
     return global.returnSuccess({items, itemsSortedByDate: items, oldestTimestamp, newestTimestamp})
   })
 }
