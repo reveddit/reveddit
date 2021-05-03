@@ -247,6 +247,10 @@ export class SimpleURLSearchParams {
     this.params[param] = encodeURIComponent(value).replace(/[!()*]/g, escape)
     return this
   }
+  setParams(params) {
+    Object.entries(params).forEach(([k, v]) => this.set(k, v))
+    return this
+  }
   delete(param) {
     delete this.params[param]
     return this

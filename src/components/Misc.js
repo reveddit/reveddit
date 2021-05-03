@@ -3,7 +3,7 @@ import {www_reddit, old_reddit} from 'api/reddit'
 import { QuestionMark } from 'pages/common/svg'
 import ModalContext from 'contexts/modal'
 import Bowser from 'bowser'
-import {ext_urls, jumpToHash, copyLink} from 'utils'
+import {ext_urls, jumpToHash, copyLink, SimpleURLSearchParams} from 'utils'
 import {meta} from 'pages/about/AddOns'
 import { Link } from 'react-router-dom'
 
@@ -89,9 +89,14 @@ export const Spin = ({width}) => {
   return spin
 }
 
-export const MessageMods = ({permalink, subreddit = '', message_body = '', innerText = 'message mods', message_title = ''}) => {
+export const MessageMods = ({permalink, subreddit = '', message_body = '', innerText = 'message mods', message_subject = ''}) => {
   const mods_message_body = message_body || '\n\n\n'+www_reddit+permalink
-  const mods_link = '/message/compose?to=/r/'+subreddit+'&message='+encodeURI(mods_message_body)+(message_title && '&title='+message_title)
+  const search = new SimpleURLSearchParams().setParams({
+    to: '/r/'+subreddit,
+    message: mods_message_body,
+    ...(message_subject && {subject: message_subject}),
+  })
+  const mods_link = '/message/compose'+search.toString()
   return <NewWindowLink reddit={mods_link} target="_blank">{innerText}</NewWindowLink>
 }
 
