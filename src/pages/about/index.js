@@ -47,6 +47,9 @@ const NewsItem = ({to, title, created_utc, ...props}) => {
 }
 
 const news = [
+  {reddit:'/n3q106/',
+   title:'+ u/modlogs data, date picker',
+   created_utc:'1620025350'},
   {reddit:'/ki88o3/',
    title:'Author buttons and filters',
    created_utc:'1608653464'},
