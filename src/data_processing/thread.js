@@ -359,7 +359,8 @@ const markTreeMeta = (missing, origRedditComments, moreComments, comments, post_
 export const createCommentTree = (postID, root_commentID, commentsLookup, logErrors = false) => {
   const commentTree = []
   const commentsSortedByDate = Object.values(commentsLookup).sort(sortCreatedAsc)
-  for (const comment of commentsSortedByDate) {
+  for (const [i, comment] of commentsSortedByDate.entries()) {
+    comment.by_date_i = i
     comment.replies = []
     const parentID = comment.parent_id
     const parentID_short = parentID.substr(3)
