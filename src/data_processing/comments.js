@@ -301,7 +301,7 @@ export const getRevdditCommentsBySubreddit = async (subreddit, global) => {
     subreddit = ''
   }
   const {subreddit_about_promise} = await setSubredditMeta(subreddit, global)
-  const modlogs_promises = [getModlogsComments(subreddit), getUmodlogsComments(subreddit)]
+  const modlogs_promises = [getModlogsComments({subreddit, limit:100}), getUmodlogsComments(subreddit)]
 
   return combinedGetCommentsBySubreddit({global, subreddit, n, before, before_id, after,
     subreddit_about_promise, modlogs_promises})

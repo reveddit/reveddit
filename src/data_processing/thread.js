@@ -76,11 +76,11 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
   })
   .then(async ({post: reddit_post, comments: redditComments, moreComments, oldestComment}) => {
     const moderators_promise = getModerators(reddit_post.subreddit, useProxy)
-    const modlogs_comments_promise = getModlogsComments(reddit_post.subreddit, reddit_post.id)
+    const modlogs_comments_promise = getModlogsComments({subreddit: reddit_post.subreddit, link_id: reddit_post.id, limit: 500})
     let modlogs_posts_promise = Promise.resolve({})
     if (postIsRemoved(reddit_post) && (reddit_post.is_self || reddit_post.is_gallery)) {
       pushshift_post_promise = getPushshiftPost(threadID).catch(ignoreArchiveErrors)
-      modlogs_posts_promise = getModlogsPosts(reddit_post.subreddit)
+      modlogs_posts_promise = getModlogsPosts({subreddit: reddit_post.subreddit, link_id: reddit_post.id})
     }
     document.title = reddit_post.title
     const resetPath = (commentID) => {

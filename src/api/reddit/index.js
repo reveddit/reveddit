@@ -445,7 +445,7 @@ export const getAuthorInfoByName = (ids) => {
   .catch(errorHandler)
 }
 
-export const getModlogsItems = async (subreddit, itemType, postProcessArgs = []) => {
+const getModlogsItems = async ({subreddit, itemType, limit = 100, link_id}) => {
   const remove = '&type=remove'+itemType
   const spam = '&type=spam'+itemType
   let auth = {}
@@ -457,24 +457,24 @@ export const getModlogsItems = async (subreddit, itemType, postProcessArgs = [])
     const baseUrl = oauth_reddit + `r/${subreddit}/about/log/.json?feed=${u_publicmodlogs_feed}&user=publicmodlogs`
     auth = await getAuth()
     urls.push(...[
-      baseUrl + remove + "&limit=100",
+      baseUrl + remove + `&limit=${limit}`,
       baseUrl + spam + "&limit=50"
     ])
   }
   const promises = urls.map(u => getJson(u, auth))
   return Promise.all(promises)
-  .then(listings => postProcessModlogsListings(listings, ...postProcessArgs))
+  .then(listings => postProcessModlogsListings(listings, link_id))
 }
 
-export const getModlogsPosts = (subreddit) => {
-  return getModlogsItems(subreddit, 'link')
+export const getModlogsPosts = ({subreddit, limit = 100, link_id}) => {
+  return getModlogsItems({subreddit, itemType: 'link', limit, link_id})
 }
 
-export const getModlogsComments = (subreddit, link_id) => {
-  return getModlogsItems(subreddit, 'comment', [link_id])
+export const getModlogsComments = ({subreddit, limit = 500, link_id}) => {
+  return getModlogsItems({subreddit, itemType: 'comment', limit, link_id})
 }
 
-export const postProcessModlogsListings = (listings, link_id = '') => {
+const postProcessModlogsListings = (listings, link_id = '') => {
   const items = {}
   for (const listing of listings) {
     if (listing && listing.data) {

@@ -36,7 +36,7 @@ export const getRevdditPostsBySubreddit = async (subreddit, global) => {
     .catch(global.returnError)
   } else {
     const {subreddit_about_promise} = await setSubredditMeta(subreddit, global)
-    const modlogs_promises = [getModlogsPosts(subreddit), getUmodlogsPosts(subreddit)]
+    const modlogs_promises = [getModlogsPosts({subreddit}), getUmodlogsPosts(subreddit)]
     return combinedGetPostsBySubredditOrDomain({global, subreddit, n, before, before_id, after,
       subreddit_about_promise, modlogs_promises})
     .then(global.returnSuccess)
