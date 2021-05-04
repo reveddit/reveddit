@@ -78,7 +78,7 @@ export default () => {
         </button>
       </form>
       <div className='text'>
-        <LinkWithCloseModal to='/about/faq/#why'>F.A.Q. - Why do I need this?</LinkWithCloseModal>
+        <LinkWithCloseModal to='/about/faq/#need'>F.A.Q. - Why do I need this?</LinkWithCloseModal>
       </div>
     </div>
   )

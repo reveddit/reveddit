@@ -35,7 +35,7 @@ const add_modlogs_message = <MessageMods innerText='pre-filled message'
 const About_faq = () => {
   return (
     <InternalPage>
-      <ContentWithHeader header='Why do I need this?' id='message'>
+      <ContentWithHeader header='Why do I need this?' id='need'>
         <p>
           Two reasons,
         </p>
