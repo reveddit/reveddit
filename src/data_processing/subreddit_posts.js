@@ -31,6 +31,7 @@ export const getRevdditPostsBySubreddit = async (subreddit, global) => {
           post.removed = true
         }
       })
+      posts_array.sort(sortCreatedAsc)
       return global.returnSuccess({items: posts_array, itemsSortedByDate:posts_array})
     })
     .catch(global.returnError)
