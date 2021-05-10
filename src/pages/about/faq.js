@@ -52,17 +52,15 @@ const About_faq = () => {
           You can verify this by opening the above link in an incognito window or while logged out. Your comment will not appear.
         </p>
       </ContentWithHeader>
-      <ContentWithHeader header='Any limitations?' id='limits'>
-        <p>The following content is unavailable on reddit user pages and therefore cannot be tracked with reveddit user pages,</p>
+      <ContentWithHeader header='Can I be notified of removals?' id='extension'>
+        <p>Yes, <ExtensionLink/> notifies you when any of your content on reddit has been removed.</p>
+      </ContentWithHeader>
+      <ContentWithHeader header='How do people react?' id='react'>
+        <p>Here are some examples of how people react when they discover the way reddit handles removals:</p>
         <ul>
-          <li>Content from banned subreddits. The <Link to='/r/?contentType=top'>subreddit top page</Link> may display some content.</li>
-          <li>Reddit live/chat comments</li>
+          <li><NewWindowLink reddit='/r/technology/comments/jp4j76/google_admits_to_censoring_the_world_socialist/gbckafs/?sort=top&limit=500'>This thread</NewWindowLink></li>
+          <li><Link to='/about/#say'>What people say [about reveddit]</Link></li>
         </ul>
-      </ContentWithHeader>
-      <ContentWithHeader header='How can I receive a message about removals?' id='extension'>
-        <p><ExtensionLink/> notifies you when any of your content on reddit has been removed.</p>
-      </ContentWithHeader>
-      <ContentWithHeader header='Why does this site exist?' id='exist'>
         <p>
           Conversations are better when users <NewWindowLink reddit='/r/science/comments/duwdco/should_moderators_provide_removal_explanations/f79o1yr/'>receive feedback</NewWindowLink> about removed content.
         </p>
@@ -80,7 +78,7 @@ const About_faq = () => {
           <li>If a moderator removes a comment, and then later the author deletes the comment, that comment will not appear on reveddit user pages and may still appear in reveddit threads. The reddit API does not have a way to show when authors delete mod-removed comments.</li>
         </ul>
       </ContentWithHeader>
-      <ContentWithHeader header='Why are removed comments or posts sometimes not visible?' id='unarchived'>
+      <ContentWithHeader header='Why is removed content sometimes not visible?' id='unarchived'>
         <p>Viewing removed content for subreddits and threads relies on an archive service called Pushshift which can fall behind. If a comment is removed before it is archived then it may not appear on reveddit. It may be possible to <a href={'#'+unarchived_search_button_word_lc}>restore</a> it from a user page.</p>
         <p>Your /user page will always be up to date since that only relies on data from reddit.</p>
       </ContentWithHeader>
@@ -91,8 +89,8 @@ const About_faq = () => {
         <p>It means the comment was not archived but able to be copied from the author's /user page. For more information, see the answer about the <a href={'#'+unarchived_search_button_word_lc}><code>{unarchived_search_button_word}</code> button</a>.</p>
       </ContentWithHeader>
       <ContentWithHeader header='What does the "unknown removed" label mean?' id='unknown-removed'>
-        <p>Note, when an account is suspended by reddit, all the posts and comments for that account may be removed. The reddit API does not indicate where suspension-related removals occur and so reveddit cannot see or mark where this happens. You can check if an account has been suspended on its reddit or reveddit user page. Temporary suspensions may also remove content created before the suspension.</p>
         <p>The <code>unknown</code> label is applied when reveddit cannot determine if something was removed by a mod or by automod. Pushshift, a database that captures reddit data as it is created, and which reveddit queries, can fall behind retrieving data. When that happens, any removed items are marked as <code>[removed] by unknown</code>. When Pushshift captures content soon after creation, and the content has already been removed, then it is marked as <code>[removed] by automod</code>. If Pushshift has a record of a removed comment's body then the comment is labeled <code>[removed] by mod</code>. More detail can be found in the <a href='https://github.com/reveddit/reveddit/blob/60a34a28c5133fd54777d189fc9997afe89a2f39/src/data_processing/comments.js#L131'>source code</a>.</p>
+        <p>Note, when an account is suspended by reddit, all the posts and comments for that account may be removed. The reddit API does not indicate where suspension-related removals occur and so reveddit cannot see or mark where this happens. You can check if an account has been suspended on its reddit or reveddit user page. Temporary suspensions may also remove content created before the suspension.</p>
       </ContentWithHeader>
       <ContentWithHeader header='How can I find out why something was removed?' id='removal-reason'>
         <p>Some subreddits publish their mod logs through {modlogs} or {publicmodlogs}. Reveddit merges information from these sources when possible. Clicking the <code>[removed] by</code> label on reveddit may show more details such as the mod's name and a reason.</p>
@@ -102,7 +100,14 @@ const About_faq = () => {
           <li>for {publicmodlogs}: {publicmodlogs_detail}</li>
         </ul>
         <p>You can inquire about a specific post or comment using the <code>message mods</code> button. This prepares a pre-filled message to the subreddit's moderators.</p>
-        <p>Removal reasons also appear in flair or in a message on the new reddit layout.</p>
+        <p>Removal reasons may also appear in flair or in a message on the new reddit layout.</p>
+      </ContentWithHeader>
+      <ContentWithHeader header='Any limitations?' id='limits'>
+        <p>The following content is unavailable on reddit user pages and therefore cannot be tracked with reveddit user pages,</p>
+        <ul>
+          <li>Content from banned subreddits. The <Link to='/r/?contentType=top'>subreddit top page</Link> may display some content.</li>
+          <li>Reddit live/chat comments</li>
+        </ul>
       </ContentWithHeader>
     </InternalPage>
   )
