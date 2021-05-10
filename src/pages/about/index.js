@@ -111,6 +111,7 @@ export class About extends React.Component {
     </>
   }
   componentDidMount() {
+    jumpToHash(location.hash)
     makeDonateVisible()
     getWhatPeopleSay()
     .then(({reddit, pushshift, moderators}) => {
