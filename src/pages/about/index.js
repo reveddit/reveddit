@@ -161,7 +161,7 @@ export class About extends React.Component {
               <Highlight showMobile={true}/>
             </ContentWithHeader>
           </div>
-          <ContentWithHeader header='What people say' className='section'>
+          <ContentWithHeader header='What people say' className='section' id='say'>
             {this.state.comments.length ?
               singleDisplayComment ?
                 <React.Fragment>
