@@ -379,7 +379,7 @@ export const itemIsActioned = item =>
   itemIsCollapsed(item) || item.locked || commentIsOrphaned(item) || commentIsMissingInThread(item)
 
 export const itemIsCollapsed = (item) => {
-  return item.collapsed && item.score > 0 && ! item.removed && ! item.deleted
+  return item.collapsed && item.score > 0 && ! item.removed && ! item.deleted && ! item.locked
 }
 
 export const commentIsMissingInThread = (comment) => {

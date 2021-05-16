@@ -523,7 +523,7 @@ const GenericPostProcessor = connect((props) => {
         }
         if (orphaned) {
           numOrphaned += 1
-          if (! item.deleted && ! item.removed &&
+          if (! item.deleted && ! item.removed && ! item.locked &&
             ! showAllOrphaned &&
             ! (collapsed && showAllCollapsed) &&
             ! gs.removedByFilter[ORPHANED]) {
