@@ -83,6 +83,9 @@ const About_faq = () => {
         <p>Viewing removed content for subreddits and threads relies on an archive service called Pushshift which can fall behind. If a comment is removed before it is archived then it may not appear on reveddit. It may be possible to <a href={'#'+unarchived_search_button_word_lc}>restore</a> it from a user page.</p>
         <p>Your /user page will always be up to date since that only relies on data from reddit.</p>
       </ContentWithHeader>
+      <ContentWithHeader header='Reddit says my post is not removed. Why does reveddit say it is?' id='visible'>
+        <p>Reddit may not tell you when posts (links) are removed if a subreddit uses automod filtering. <NewWindowLink reddit='/r/reveddit/comments/ndbwag/reveddit_logs_me_out_winchromereveddit_realtime/gyaphsb/#thing_t1_gyaphsb'>See here</NewWindowLink> for more info.</p>
+      </ContentWithHeader>
       <ContentWithHeader header={<>What does {unarchived_search_button_word_code} on removed comments do?</>} id={unarchived_search_button_word_lc}>
         {unarchived_search_help_content}
       </ContentWithHeader>
