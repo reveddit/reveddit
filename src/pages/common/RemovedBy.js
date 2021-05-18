@@ -26,6 +26,8 @@ export const AUTOMOD_LATENCY_THRESHOLD = 25
 const AUTOMOD_LINK = '/wiki/automoderator'
 const faq = '/about/faq/'
 
+export const unarchived_label_text = 'restored via user page'
+
 export const REMOVAL_META = {
                  [ANTI_EVIL_REMOVED]: {filter_text: 'anti-evil ops removed',
                                          label: '[removed] by reddit anti-evil ops',
@@ -72,8 +74,8 @@ export const USER_REMOVED_META = {filter_text: 'user deleted',
                                          desc: 'The author of this content deleted it. Posts may have been first removed by a moderator.',
                                   reddit_link: '/r/removeddit/comments/ir1oyw/_/g5fgxgl/?context=3#thing_t1_g5fgxgl'}
 
-export const RESTORED_META = {filter_text: 'restored via user page',
-                                    label: 'restored via user page',
+export const RESTORED_META = {filter_text: unarchived_label_text,
+                                    label: unarchived_label_text,
                                      desc: "This comment or edit was not archived but could be copied from the author's /user page on reddit.",
                               local_link: '/about/faq/#restored'}
 

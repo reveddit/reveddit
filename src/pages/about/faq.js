@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import {ExtensionLink, MessageMods} from 'components/Misc'
 import {ContentWithHeader} from 'pages/about'
 import { unarchived_search_help_content, unarchived_search_button_word, unarchived_search_button_word_code } from 'data_processing/FindCommentViaAuthors'
+import { unarchived_label_text } from 'pages/common/RemovedBy'
 import {shuffle} from 'utils'
 import {www_reddit} from 'api/reddit'
 
@@ -83,14 +84,11 @@ const About_faq = () => {
         <p>Viewing removed content for subreddits and threads relies on an archive service called Pushshift which can fall behind. If a comment is removed before it is archived then it may not appear on reveddit. It may be possible to <a href={'#'+unarchived_search_button_word_lc}>restore</a> it from a user page.</p>
         <p>Your /user page will always be up to date since that only relies on data from reddit.</p>
       </ContentWithHeader>
-      <ContentWithHeader header='Reddit says my post is not removed. Why does reveddit say it is?' id='visible'>
+      <ContentWithHeader header='Reddit does not say my post is removed. Why does reveddit say it is?' id='reddit-does-not-say-post-removed'>
         <p>Reddit may not tell you when posts (links) are removed if a subreddit uses automod filtering. <NewWindowLink reddit='/r/reveddit/comments/ndbwag/reveddit_logs_me_out_winchromereveddit_realtime/gyaphsb/#thing_t1_gyaphsb'>See here</NewWindowLink> for more info.</p>
       </ContentWithHeader>
-      <ContentWithHeader header={<>What does {unarchived_search_button_word_code} on removed comments do?</>} id={unarchived_search_button_word_lc}>
+      <ContentWithHeader header={<>What does the {unarchived_search_button_word_code} button on removed comments do?</>} id={unarchived_search_button_word_lc}>
         {unarchived_search_help_content}
-      </ContentWithHeader>
-      <ContentWithHeader header='What does it mean when a removed comment has been "restored via user page"?' id='restored'>
-        <p>It means the comment was not archived but able to be copied from the author's /user page. For more information, see the answer about the <a href={'#'+unarchived_search_button_word_lc}><code>{unarchived_search_button_word}</code> button</a>.</p>
       </ContentWithHeader>
       <ContentWithHeader header='What does the "unknown removed" label mean?' id='unknown-removed'>
         <p>The <code>unknown</code> label is applied when reveddit cannot determine if something was removed by a mod or by automod. Pushshift, a database that captures reddit data as it is created, and which reveddit queries, can fall behind retrieving data. When that happens, any removed items are marked as <code>[removed] by unknown</code>. When Pushshift captures content soon after creation, and the content has already been removed, then it is marked as <code>[removed] by automod</code>. If Pushshift has a record of a removed comment's body then the comment is labeled <code>[removed] by mod</code>. More detail can be found in the <a href='https://github.com/reveddit/reveddit/blob/60a34a28c5133fd54777d189fc9997afe89a2f39/src/data_processing/comments.js#L131'>source code</a>.</p>
