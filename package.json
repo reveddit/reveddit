@@ -77,7 +77,7 @@
   },
   "scripts": {
     "start-all": "concurrently \"yarn start\" \"yarn lambda-serve\"",
-    "start": "yarn build-sass; webpack serve --mode development",
+    "start": "yarn build-sass; webpack serve --mode development --host 0.0.0.0",
     "build": "yarn clean && yarn build-sass; webpack --mode production && yarn lambda-build",
     "build-sass": "node-sass --style compressed src/sass/index.sass dist/main.css",
     "lambda-serve": "netlify-lambda serve lambda-src",
