@@ -505,11 +505,22 @@ const postProcessModlogsList = (list, link_id = '', items = {}) => {
 }
 
 export const getSticky = async (subreddit, num) => {
-  const param_string = '?'+paramString({ ...(num && {num})})
-  const url = oauth_reddit+`r/${subreddit}/about/sticky`+ param_string
+  const url = oauth_reddit+`r/${subreddit}/hot.json?limit=2`
   const auth = await getAuth()
   return getJson(url, auth, '')
-  .then(data => data[0].data.children[0].data.permalink)
+  .then(data => {
+    let count = 1, prevStickyPermalink
+    for (const child of data.data.children) {
+      if (child.data.stickied) {
+        if (count == num) {
+          return child.data.permalink
+        }
+        prevStickyPermalink = child.data.permalink
+        count += 1
+      }
+    }
+    return prevStickyPermalink
+  })
   .catch(error => '')
 }
 
