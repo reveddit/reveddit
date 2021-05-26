@@ -309,7 +309,7 @@ export const withFetch = (WrappedComponent) =>
             const successFn = (success ? global.setSuccess : global.setError).bind(global)
             const setStateFn = lookupAccountMeta ? global.setState.bind(global) : successFn
             await setStateFn(stateObj)
-            const {commentTree, items, threadPost} = global.state
+            const {commentTree, items, threadPost, initialFocusCommentID} = global.state
             if (items.length === 0 && ['subreddit_posts', 'subreddit_comments'].includes(page_type)) {
               throw "no results"
             }
@@ -324,8 +324,13 @@ export const withFetch = (WrappedComponent) =>
                 }
               })
             }
-            window.scrollY === 0 && jumpToHash(window.location.hash)
-
+            if (window.scrollY === 0) {
+              let hash = window.location.hash
+              if (! hash && initialFocusCommentID) {
+                hash = '#t1_'+initialFocusCommentID
+              }
+              jumpToHash(hash)
+            }
             if ((lookupAccountMeta || threadPost) && items.length) {
               const authorIDs = new Set()
               const authorNames = new Set()
