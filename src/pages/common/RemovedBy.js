@@ -77,7 +77,7 @@ export const USER_REMOVED_META = {filter_text: 'user deleted',
 export const RESTORED_META = {filter_text: unarchived_label_text,
                                     label: unarchived_label_text,
                                      desc: "This comment or edit was not archived but could be copied from the author's /user page on reddit.",
-                              local_link: '/about/faq/#restored'}
+                              local_link: '/about/faq/#restore'}
 
 export const ALL_ACTIONS_META = {
   ...REMOVAL_META,
