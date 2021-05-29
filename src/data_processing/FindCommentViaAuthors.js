@@ -393,7 +393,7 @@ export const addUserComments_updateURL_createTreeIfNeeded = async ({user_comment
     //itemsSortedByDate could also be resorted here to get accurate time summary
     //but it's not worth the cost for large threads
     const rootCommentID = window.location.pathname.split('/')[6] ? commentTree[0].id : undefined
-    [new_commentTree] = createCommentTree(threadPost.id, rootCommentID, itemsLookup)
+    new_commentTree = createCommentTree(threadPost.id, rootCommentID, itemsLookup)[0]
   }
   return {new_add_user, new_commentTree}
 }
