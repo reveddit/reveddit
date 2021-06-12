@@ -9,12 +9,12 @@ import {
 import {
   getComments as getRedditComments,
   getPostWithComments as getRedditPostWithComments,
-  getModerators, getModlogsComments, getModlogsPosts,
+  getModlogsComments, getModlogsPosts,
   queryUserPage,
 } from 'api/reddit'
 import { getAuth } from 'api/reddit/auth'
 import {
-  submitMissingComments, getUmodlogsThread
+  submitMissingComments, getUmodlogsThread, getModerators
 } from 'api/reveddit'
 import { itemIsRemovedOrDeleted, postIsDeleted, postIsRemoved, jumpToHash,
          convertPathSub, sortCreatedAsc, validAuthor, commentIsRemoved,

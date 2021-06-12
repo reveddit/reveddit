@@ -1,14 +1,14 @@
 import {
   getComments as getRedditComments,
   getItems as getRedditItems,
-  getModerators, getSubredditAbout,
+  getSubredditAbout,
   getModlogsComments, oauth_reddit
 } from 'api/reddit'
 import {
   getPostsByIDForCommentData as getPushshiftPostsForCommentData,
   getCommentsBySubreddit as pushshiftGetCommentsBySubreddit
 } from 'api/pushshift'
-import { getUmodlogsComments } from 'api/reveddit'
+import { getUmodlogsComments, getModerators } from 'api/reveddit'
 import { commentIsDeleted, commentIsRemoved, postIsDeleted, isEmptyObj } from 'utils'
 import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED,
          UNKNOWN_REMOVED, NOT_REMOVED,

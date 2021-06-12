@@ -4,7 +4,7 @@ import {
 } from 'api/pushshift'
 import { getRemovedPostIDs } from 'api/removeddit'
 import { getPosts as getRedditPosts,
-         getModerators, getSubredditAbout, getModlogsPosts
+         getSubredditAbout, getModlogsPosts
 } from 'api/reddit'
 import { getUmodlogsPosts } from 'api/reveddit'
 import { postIsDeleted } from 'utils'

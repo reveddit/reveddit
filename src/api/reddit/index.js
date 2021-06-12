@@ -43,16 +43,18 @@ export const getModerators = (subreddit, useProxy = false) => {
   .then(auth => window.fetch(url, auth))
   .then(response => response.json())
   .catch(error => {return {}})
-  .then(results => {
-    if (results.reason === 'quarantined') {
-      throw results
-    }
-    if (results.data) {
-      return results.data.children.reduce((map, obj) => (map[obj.name] = true, map), {})
-    } else {
-      return results
-    }
-  })
+  .then(getModeratorsPostProcess)
+}
+
+export const getModeratorsPostProcess = (results) => {
+  if (results.reason === 'quarantined') {
+    throw results
+  }
+  if (results.data) {
+    return results.data.children.reduce((map, obj) => (map[obj.name] = true, map), {})
+  } else {
+    return results
+  }
 }
 
 export const getModeratedSubreddits = (user) => {

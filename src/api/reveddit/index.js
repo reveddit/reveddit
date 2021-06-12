@@ -1,5 +1,5 @@
 import { paramString, SimpleURLSearchParams, PATH_STR_SUB } from 'utils'
-import { mapRedditObj } from 'api/reddit'
+import { mapRedditObj, getModeratorsPostProcess } from 'api/reddit'
 import { urlParamKeys, removedFilter_types, localSort_types } from 'state'
 import { AUTOMOD_REMOVED, MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED } from 'pages/common/RemovedBy'
 
@@ -165,6 +165,11 @@ const postProcessUmodlogs = (list, thread_id) => {
     }
   }
   return {comments, posts}
+}
+
+export const getModerators = (subreddit) => {
+  return flaskQuery('moderators/', {subreddit})
+  .then(getModeratorsPostProcess)
 }
 
 const flaskQuery = (path, params = {}, host = REVEDDIT_FLASK_HOST_SHORT) => {
