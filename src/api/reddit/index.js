@@ -8,7 +8,7 @@ let can_use_oauth_reddit_rev = true
 export const www_reddit = https+'www.reddit.com'
 export const old_reddit = https+'old.reddit.com'
 
-const revddit_q = REVEDDIT_CORS_ANWHERE_HOST + 'q/'
+const reveddit_cors = REVEDDIT_CORS_ANWHERE_HOST
 const u_publicmodlogs_feed = '7e9b27126097f51ae6c9cd5b049af34891da6ba6'
 const coronavirus_logs = https+'logs.mod.rcoronavirus.org/.json'
 const coronavirus_subs = ['coronavirus','covid19']
@@ -275,7 +275,7 @@ export const usernameAvailable = (user) => {
 }
 
 export const userPageHTML = (user) => {
-  const url = revddit_q+`old.reddit.com/user/${user}`
+  const url = reveddit_cors+`old.reddit.com/user/${user}`
   return fetchWithTimeout(url, {'Accept-Language': 'en'}, 3000)
   .then(response => response.text())
   .then(html => {

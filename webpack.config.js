@@ -46,7 +46,7 @@ module.exports = async (env, argv) => {
 
   let flask_host = API_REVEDDIT
   let short = 'short/', long = 'long/'
-  let cors_anywhere_host = 'https://cors.revddit.com/'
+  let cors_anywhere_host = API_REVEDDIT+short+'cors/'
   if (! IS_PRODUCTION) {
     flask_host = LOCALHOST + ':5000/'
     short = '', long = ''
