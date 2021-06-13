@@ -15,7 +15,7 @@
       style-src 'self';
       object-src 'none';
       base-uri 'self';
-      connect-src 'self' https://api.pushshift.io https://api.revddit.com https://oauth.reddit.com https://ored.reveddit.com https://rviewit.com https://www.reddit.com https://logs.mod.rcoronavirus.org https://removeddit.com https://www.google-analytics.com;
+      connect-src 'self' https://api.pushshift.io https://cors.revddit.com https://oauth.reddit.com https://ored.reveddit.com https://api.reveddit.com https://www.reddit.com https://logs.mod.rcoronavirus.org https://removeddit.com https://www.google-analytics.com;
       font-src 'self';
       frame-src 'self' https://js.stripe.com;
       img-src 'self' https://www.google-analytics.com data: https:;

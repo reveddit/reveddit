@@ -12,8 +12,8 @@ const crypto = require('crypto')
 const fs = require('fs')
 
 const LOCALHOST = 'http://localhost'
-const RVIEWIT = 'https://rviewit.com/api/'
-const MODLOGS_API = RVIEWIT+'short/modlogs/api/'
+const API_REVEDDIT = 'https://api.reveddit.com/'
+const MODLOGS_API = API_REVEDDIT+'short/modlogs/api/'
 
 const createHashFromFile = filePath => new Promise(resolve => {
   const hash = crypto.createHash('sha1');
@@ -44,9 +44,9 @@ module.exports = async (env, argv) => {
   }
   const IS_PRODUCTION = argv.mode === 'production'
 
-  let flask_host = RVIEWIT
+  let flask_host = API_REVEDDIT
   let short = 'short/', long = 'long/'
-  let cors_anywhere_host = 'https://api.revddit.com/'
+  let cors_anywhere_host = 'https://cors.revddit.com/'
   if (! IS_PRODUCTION) {
     flask_host = LOCALHOST + ':5000/'
     short = '', long = ''
