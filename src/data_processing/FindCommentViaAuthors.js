@@ -49,7 +49,8 @@ export const unarchived_search_see_more = <>
 export const unarchived_search_help_content = (
   <>
     <p>Clicking {unarchived_search_button_word_code} searches for unarchived comments, adds them if they are found, and updates the URL to save their location so the results can be shared. Comments restored in this manner come from /user pages and are labeled <code>{unarchived_label_text}</code>.</p>
-    <p>This is useful because sometimes the archive service, called "Pushshift", does not archive data in time. If something is removed before it can be archived then it can only be found on the author's /user page. To find it you need to know the author first. Reveddit can search /user pages of nearby authors, such as the grandparent comment's author, to fill in some of these comments.</p>
+    <p>Note, this works best when the page loads from a link to all comments rather than a specific comment. If a page loads from a direct link to a comment, then some authors may not be visible to the search process.</p>
+    <p>Restoring comments is useful because sometimes the archive service, called "Pushshift", does not archive data in time. If something is removed before it can be archived then it can only be found on the author's /user page. To find it you need to know the author first. Reveddit can search /user pages of nearby authors, such as the grandparent comment's author, to fill in some of these comments.</p>
     <p>Clicking {unarchived_search_button_word_code} performs this search once for a group of users who have successfully commented in the thread. If there is no result after the first click, clicking more times may yield a result.
        Clicking <code>author-focus</code>, <code>op-focus</code>, or <code>preserve</code> automatically searches for missing comments from the given author.</p>
     <p>Some new comments that can only be found on user pages may appear.
