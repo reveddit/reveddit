@@ -285,7 +285,7 @@ export const setSubredditMeta = async (subreddit, global) => {
     return Promise.all([moderators_promise, subreddit_about_promise])
   })
   .then(([moderators, subreddit_about]) => {
-    if ((isEmptyObj(moderators) && isEmptyObj(subreddit_about)) || subreddit_about.reason === 'banned') {
+    if ((isEmptyObj(moderators) && isEmptyObj(subreddit_about)) || [subreddit_about.reason, moderators.reason].some(w => /^\b(private|banned)\b$/.test(w))) {
       window.location.href = `/v/${subreddit}/top/#banned`
     }
     over18 = subreddit_about.over18

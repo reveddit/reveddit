@@ -169,6 +169,7 @@ const postProcessUmodlogs = (list, thread_id) => {
 
 export const getModerators = (subreddit) => {
   return flaskQuery('moderators/', {subreddit})
+  .catch(error => {return {}}) // ignore fetch errors, this is not critical data
   .then(getModeratorsPostProcess)
 }
 
