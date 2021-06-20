@@ -72,6 +72,11 @@ const About_faq = () => {
            The only way to fix this right now is to disable the feature. <NewWindowLink reddit='/r/technology/comments/jp4j76/_/gbfqdf2/?context=1'>more info</NewWindowLink>
         </p>
       </ContentWithHeader>
+      <ContentWithHeader header='Why is javascript required?' id='javascript'>
+        <p>Javascript is required so the site can operate with minimal costs.
+          See <NewWindowLink reddit='/r/reveddit/comments/n3q106/new_features_added_umodlogs_data_and_a_date/h2dmcrq?context=1'>reducing time and money</NewWindowLink>.
+        </p>
+      </ContentWithHeader>
       <ContentWithHeader header='Does reveddit show user-deleted content?' id='user-deleted'>
         <p>No, user-deleted content does not appear on reveddit. See <NewWindowLink reddit='/r/reveddit/comments/ih86wk/whats_it_mean_when_a_comment_has_been_restored/g75nxjx/'>this discussion on r/reveddit</NewWindowLink> and <NewWindowLink reddit='/r/removeddit/comments/ir1oyw/rip_removeddit_ceddit_reveddit/g5fgxgl/?context=3#thing_t1_g5fgxgl'>this one on r/removeddit</NewWindowLink> for more info.</p>
         <p>Please note,</p>
