@@ -30,24 +30,26 @@ const getStripe = () => {
 }
 
 const About_donate = () => {
-  const [stripe, setStripe] = useState(null)
-  useEffect(() => {
-    getStripe().then(setStripe)
-  }, [])
+  // const [stripe, setStripe] = useState(null)
+  // useEffect(() => {
+  //   getStripe().then(setStripe)
+  // }, [])
+  //
+  // const formSubmit = async (e) => {
+  //   e.preventDefault()
+  //   const data = new FormData(e.target)
+  //   const amount = data.get('amount')
+  //   const frequency = data.get('frequency')
+  //
+  //   if (amount < 0.5) {
+  //     return
+  //   }
+  //
+  //   const sessionId = await getSessionID(amount, frequency)
+  //   stripe.redirectToCheckout(sessionId)
+  // }
 
-  const formSubmit = async (e) => {
-    e.preventDefault()
-    const data = new FormData(e.target)
-    const amount = data.get('amount')
-    const frequency = data.get('frequency')
-
-    if (amount < 0.5) {
-      return
-    }
-
-    const sessionId = await getSessionID(amount, frequency)
-    stripe.redirectToCheckout(sessionId)
-  }
+  const stripe = undefined
 
   document.title = 'Donate to reveddit'
 
@@ -55,8 +57,8 @@ const About_donate = () => {
     <InternalPage>
       <Row>
         <ContentWithHeader header='Donate' half={true}>
-          {stripe &&
-            <div className="donate-form-container">
+          <div className="donate-form-container">
+            {stripe &&
               <form id="donate-form" onSubmit={formSubmit}>
                 <label htmlFor="amount">
                   <span>Donation amount</span>
@@ -81,13 +83,14 @@ const About_donate = () => {
                   <img src="/images/stripe.png"/>
                 </div>
               </form>
-              <hr style={{width:'100%'}}/>
-              <div className="more-ways">
-                <a href={`bitcoin:${btc}`}>BTC</a>
-                <a href={`bitcoincash:${bch}`}>BCH</a>
-                <a href={`ethereum:pay-${eth}`}>ETH</a>
-              </div>
-            </div>}
+            }
+            <hr style={{width:'100%'}}/>
+            <div className="more-ways">
+              <a href={`bitcoin:${btc}`}>BTC</a>
+              <a href={`bitcoincash:${bch}`}>BCH</a>
+              <a href={`ethereum:pay-${eth}`}>ETH</a>
+            </div>
+          </div>
         </ContentWithHeader>
       </Row>
     </InternalPage>
