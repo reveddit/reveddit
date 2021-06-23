@@ -6,7 +6,8 @@ import { Provider } from 'unstated'
 import DefaultLayout, {pageTypes} from 'pages/DefaultLayout'
 import ErrorBoundary from 'components/ErrorBoundary'
 import {PATH_STR_SUB, PATH_STR_USER,
-        PATHS_ALT_SUB, PATHS_ALT_USER
+        PATHS_ALT_SUB, PATHS_ALT_USER,
+        SimpleURLSearchParams,
 } from 'utils'
 import {ExtensionRedirect} from 'components/Misc'
 
@@ -109,11 +110,26 @@ class App extends React.Component {
                   }} />
               )
             }
-            const path = location.pathname.replace(/\/\/+|([^/])$/g, '$1/')
-            if( path !== location.pathname ) {
+            //replace double slashes // and paths that don't end in slash with a single slash
+            const pathname = location.pathname.replace(/\/\/+|([^/])$/g, '$1/')
+
+            //new reddit's fancy editor has a bug, when you write a URL w/out formatting and switch to markdown, it inserts a \ before all _
+            //so, remove \ from add_user param (don't want to remove \ from text filter params like keywords or flair)
+            let search = location.search
+            if (location.search.match(/\\|%5C/)) {
+              const params = new SimpleURLSearchParams(location.search)
+              const add_user = params.get('add\\_user') || params.get('add%5C_user')
+              if (add_user) {
+                params.delete('add\\_user').delete('add%5C_user')
+                params.set('add_user', add_user.replace(/\\|%5C/g, ''))
+                search = params.toString()
+              }
+            }
+            if (pathname !== location.pathname || search !== location.search) {
               return <Redirect to={{
                 ...location,
-                pathname: path}} />
+                search,
+                pathname}} />
             } else {
               return (
                 <ErrorBoundary>
