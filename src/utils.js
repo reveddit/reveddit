@@ -337,7 +337,11 @@ export const copyLink = (e, useHref = false) => {
 
 export const jumpToHash = (hash, offset = -10) => {
   if (hash) {
-    scrollToElement(hash, { offset });
+    try {
+      scrollToElement(hash.replace(/\\|%5C/g, ''), { offset });
+    } catch (err) {
+      console.warn('error in hash', hash)
+    }
   }
 }
 
