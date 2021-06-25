@@ -2,6 +2,7 @@ import SnuOwnd from 'snuownd'
 import { AUTOMOD_REMOVED_MOD_APPROVED, UNKNOWN_REMOVED } from 'pages/common/RemovedBy'
 import scrollToElement from 'scroll-to-element'
 import {useRef, useEffect} from 'react'
+import { DateUtils } from 'react-day-picker'
 
 const markdown = SnuOwnd.getParser()
 const chrome_base = 'https://chrome.google.com/webstore/detail/'
@@ -517,3 +518,39 @@ export const isEmptyObj = (x) => typeof(x) === 'object' && Object.keys(x).length
 export const escapeRegExp = (text) => text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')
 
 export const truthyOrUndefined = (value) => value || value === undefined
+
+const dateToEpoch = (date) => Math.floor(date/1000)
+
+export const unitInSeconds = { s: 1, m: 60, h: 3600, d: 86400, w: 604800, M: 2628000, y: 31536000 }
+export const DATE_UNIT = '-'
+
+export const parseDateISOString = (s) => {
+  let ds = s.match(/\d{1,4}/g) || []
+  if (ds.length > 1 && ds[1] > 0) {
+    if (ds[1].length > 2) {
+      //e.g. 20100304 where ds = ['2010', '0304']
+      ds = [ds[0], ...ds[1].match(/\d{1,2}/g)]
+    }
+    ds[1] = ds[1] - 1 // adjust month
+  }
+  const date = new Date(...ds)
+  if (DateUtils.isDate(date)) {
+    return date
+  }
+  return undefined
+}
+
+export const convertToEpoch = (number, unit) => {
+  const now = dateToEpoch(new Date())
+  if (! unit) {
+    return number
+  } else if (unit in unitInSeconds) {
+    return now - number*unitInSeconds[unit]
+  } else if (unit === DATE_UNIT) {
+    const validEpoch = dateToEpoch(parseDateISOString(number))
+    if (validEpoch) {
+      return validEpoch
+    }
+  }
+  return now
+}

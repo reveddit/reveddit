@@ -1,8 +1,9 @@
 import React, {useState, useEffect, useRef, useLayoutEffect} from 'react'
 import { Selection } from './SelectionBase'
-import {SimpleURLSearchParams} from 'utils'
+import {SimpleURLSearchParams,
+        unitInSeconds, parseDateISOString, convertToEpoch, DATE_UNIT,
+} from 'utils'
 import DayPickerInput from 'react-day-picker/DayPickerInput'
-import { DateUtils } from 'react-day-picker'
 import { useIsMobile } from 'hooks/mobile'
 import { usePrevious } from 'hooks/previous'
 
@@ -10,9 +11,8 @@ const B = 'before', A = 'after'
 
 const beforeAndAfter = [B, A]
 const opposite = {[B]: A, [A]: [B]}
-const DATE_UNIT = '-', TIMESTAMP_UNIT = ''
+const TIMESTAMP_UNIT = ''
 const units = { [DATE_UNIT]: 'date', [TIMESTAMP_UNIT]: 'timestamp', s: 'seconds', m: 'minutes', h: 'hours', d: 'days', w: 'weeks', M: 'months', y: 'years' }
-const unitInSeconds = { s: 1, m: 60, h: 3600, d: 86400, w: 604800, M: 2628000, y: 31536000 }
 
 const marginLeft = {marginLeft: '3px'}
 const queryParamsOnPageLoad = new SimpleURLSearchParams(window.location.search)
@@ -25,39 +25,6 @@ const parseNumberAndUnit = (paramValue) => {
     paramValue.replace(/[a-z]/gi,''),
     paramValue.replace(/[^a-z]/gi,'')
   ]
-}
-
-const dateToEpoch = (date) => Math.floor(date/1000)
-
-const parseDateISOString = (s) => {
-  let ds = s.match(/\d{1,4}/g) || []
-  if (ds.length > 1 && ds[1] > 0) {
-    if (ds[1].length > 2) {
-      //e.g. 20100304 where ds = ['2010', '0304']
-      ds = [ds[0], ...ds[1].match(/\d{1,2}/g)]
-    }
-    ds[1] = ds[1] - 1 // adjust month
-  }
-  const date = new Date(...ds)
-  if (DateUtils.isDate(date)) {
-    return date
-  }
-  return undefined
-}
-
-const convertToEpoch = (number, unit) => {
-  const now = dateToEpoch(new Date())
-  if (! unit) {
-    return number
-  } else if (unit in unitInSeconds) {
-    return now - number*unitInSeconds[unit]
-  } else if (unit === DATE_UNIT) {
-    const validEpoch = dateToEpoch(parseDateISOString(number))
-    if (validEpoch) {
-      return validEpoch
-    }
-  }
-  return now
 }
 
 const inputLooksLikeDate = (s) => s.match(DATE_UNIT) || s.match(/[./]/)
