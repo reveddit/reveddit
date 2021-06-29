@@ -87,7 +87,7 @@ export const ALL_ACTIONS_META = {
   [USER_REMOVED]: USER_REMOVED_META,
   [RESTORED]: RESTORED_META,
 }
-export const preserve_desc = <><b>preserve:</b> This stores the location of the comment in the URL and copies the new URL to the clipboard. If the comment is later removed by a moderator, or if the archive becomes unavailable, then it can be viewed with this URL.</>
+export const preserve_desc = <><b>preserve:</b> This attempts to lookup and store the location of the comment in the URL and copies the new URL to the clipboard. If the lookup succeeds and the comment is later removed by a moderator, or if the archive becomes unavailable, then it can be viewed with this URL.<p>The lookup succeeds if the comment can be found in the user's most recent 100 comments. Otherwise, it may be found via the context link on their reveddit user page.</p></>
 const temp_vis_txt = 'Temporarily visible'
 const temp_vis_until = <>here until it falls out of the most recent mod log items. To save it, click {preserve_desc}</>
 const temp_vis_help = (<>
@@ -115,7 +115,7 @@ const RemovedBy = (props) => {
     } else if (removedby === AUTOMOD_REMOVED_MOD_APPROVED) {
       fill = 'white'
     }
-    if (modlog && props.archive_body_removed_before_modlog_copy
+    if (removed && modlog && props.archive_body_removed_before_modlog_copy
                && modlog.log_source !== 'u_modlogs'
                && ! props.also_in_add_user) {
       temporarilyVisible =
