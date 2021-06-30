@@ -10,7 +10,7 @@ import {www_reddit} from 'api/reddit'
 
 const reasons = [
   <li key='m'>In many cases, reddit sends no message about removals. Messages can <i>optionally</i> be sent by subreddit moderators.</li>,
-  <li key='i'>Reddit shows you your removed comments as if they are not removed.</li>
+  <li key='i'>Reddit shows you your removed comments, and sometimes posts, as if they are not removed.</li>
 ]
 const cantSayAnything_modlogConfig = '/r/CantSayAnything/wiki/modlog_config'
 const unarchived_search_button_word_lc = unarchived_search_button_word.toLowerCase()
@@ -46,11 +46,11 @@ const About_faq = () => {
       </ContentWithHeader>
       <ContentWithHeader header='Is that true?' id='true'>
         <p>
-          Yes, try it! Visit <NewWindowLink reddit='/r/CantSayAnything/about/sticky'>r/CantSayAnything</NewWindowLink> and write any comment.
+          Yes, try it! Visit <NewWindowLink reddit='/r/CantSayAnything/about/sticky'>r/CantSayAnything</NewWindowLink> and write any comment or post.
           It will be removed, you will not receive a message, and it will appear to you as if it is not removed while you are logged in.
         </p>
         <p>
-          You can verify this by opening the above link in an incognito window or while logged out. Your comment will not appear.
+          You can verify this by opening the link to your content in an incognito window or while logged out. Your comment or post will not appear.
         </p>
       </ContentWithHeader>
       <ContentWithHeader header='Can I be notified of removals?' id='extension'>
@@ -91,7 +91,7 @@ const About_faq = () => {
         <p>Your /user page will always be up to date since that only relies on data from reddit.</p>
       </ContentWithHeader>
       <ContentWithHeader header='Reddit does not say my post is removed. Why does reveddit say it is?' id='reddit-does-not-say-post-removed'>
-        <p>Reddit may not tell you when posts (links) are removed if a subreddit uses automod filtering. <NewWindowLink reddit='/r/reveddit/comments/ndbwag/reveddit_logs_me_out_winchromereveddit_realtime/gyaphsb/#thing_t1_gyaphsb'>See here</NewWindowLink> for more info.</p>
+        <p>Reddit may not tell you when posts (links) are removed if a subreddit has set "spam filter strength" to remove all posts. <NewWindowLink reddit='/r/reveddit/comments/ndbwag/reveddit_logs_me_out_winchromereveddit_realtime/gyaphsb/#thing_t1_gyaphsb'>See here</NewWindowLink> for more info.</p>
       </ContentWithHeader>
       <ContentWithHeader header={<>What does the {unarchived_search_button_word_code} button on removed comments do?</>} id={unarchived_search_button_word_lc}>
         {unarchived_search_help_content}
