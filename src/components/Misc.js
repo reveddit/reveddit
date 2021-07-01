@@ -52,15 +52,16 @@ export const LinkWithCloseModal = ({children, to}) => {
   return <Link to={to} onClick={modal.closeModal}>{children}</Link>
 }
 
-export const ExtensionLink = ({image = false}) => {
-  let content = 'Reveddit Real-Time'
+export const ExtensionLink = ({image = false, extensionID = 'rt'}) => {
+  const extensionMeta = ext_urls[extensionID]
+  let content = extensionMeta.n
   if (image) {
     content = browserExtensionImage
   }
   if (chromelike_fullnames[browserName]) {
-    return <NewWindowLink href={ext_urls.rt.c}>{content}</NewWindowLink>
+    return <NewWindowLink href={extensionMeta.c}>{content}</NewWindowLink>
   } else if (Bowser.BROWSER_MAP['firefox'] == browserName) {
-    return <NewWindowLink href={ext_urls.rt.f}>{content}</NewWindowLink>
+    return <NewWindowLink href={extensionMeta.f}>{content}</NewWindowLink>
   }
   return <LinkWithCloseModal to='/add-ons/'>{content}</LinkWithCloseModal>
 }

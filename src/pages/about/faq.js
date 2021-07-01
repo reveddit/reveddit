@@ -56,6 +56,9 @@ const About_faq = () => {
       <ContentWithHeader header='Can I be notified of removals?' id='extension'>
         <p>Yes, <ExtensionLink/> notifies you when any of your content on reddit has been removed.</p>
       </ContentWithHeader>
+      <ContentWithHeader header='How can I switch between sites?' id='linker-extension'>
+        <p><ExtensionLink extensionID='linker'/> adds a button that lets you alternate between reddit and reveddit. The button is also accessible by right-clicking a link. Find <Link to='/add-ons/'>more add-ons here</Link>.</p>
+      </ContentWithHeader>
       <ContentWithHeader header='How do people react?' id='react'>
         <p>Here are some examples of how people react when they discover the way reddit handles removals:</p>
         <ul>
@@ -86,19 +89,8 @@ const About_faq = () => {
           <li>If a moderator removes a comment, and then later the author deletes the comment, that comment will not appear on reveddit user pages and may still appear in reveddit threads. The reddit API does not have a way to show when authors delete mod-removed comments.</li>
         </ul>
       </ContentWithHeader>
-      <ContentWithHeader header='Why is removed content sometimes not visible?' id='unarchived'>
-        <p>Viewing removed content for subreddits and threads relies on an archive service called Pushshift which can fall behind. If a comment is removed before it is archived then it may not appear on reveddit. It may be possible to <a href={'#'+unarchived_search_button_word_lc}>restore</a> it from a user page.</p>
-        <p>Your /user page will always be up to date since that only relies on data from reddit.</p>
-      </ContentWithHeader>
       <ContentWithHeader header='Reddit does not say my post is removed. Why does reveddit say it is?' id='reddit-does-not-say-post-removed'>
         <p>Reddit may not tell you when posts (links) are removed if a subreddit has set "spam filter strength" to remove all posts. <NewWindowLink reddit='/r/reveddit/comments/ndbwag/reveddit_logs_me_out_winchromereveddit_realtime/gyaphsb/#thing_t1_gyaphsb'>See here</NewWindowLink> for more info.</p>
-      </ContentWithHeader>
-      <ContentWithHeader header={<>What does the {unarchived_search_button_word_code} button on removed comments do?</>} id={unarchived_search_button_word_lc}>
-        {unarchived_search_help_content}
-      </ContentWithHeader>
-      <ContentWithHeader header='What does the "unknown removed" label mean?' id='unknown-removed'>
-        <p>The <code>unknown</code> label is applied when reveddit cannot determine if something was removed by a mod or by automod. Pushshift, a database that captures reddit data as it is created, and which reveddit queries, can fall behind retrieving data. When that happens, any removed items are marked as <code>[removed] by unknown</code>. When Pushshift captures content soon after creation, and the content has already been removed, then it is marked as <code>[removed] by automod</code>. If Pushshift has a record of a removed comment's body then the comment is labeled <code>[removed] by mod</code>. More detail can be found in the <a href='https://github.com/reveddit/reveddit/blob/60a34a28c5133fd54777d189fc9997afe89a2f39/src/data_processing/comments.js#L131'>source code</a>.</p>
-        <p>Note, when an account is suspended by reddit, all the posts and comments for that account may be removed. The reddit API does not indicate where suspension-related removals occur and so reveddit cannot see or mark where this happens. You can check if an account has been suspended on its reddit or reveddit user page. Temporary suspensions may also remove content created before the suspension.</p>
       </ContentWithHeader>
       <ContentWithHeader header='How can I find out why something was removed?' id='removal-reason'>
         <p>Some subreddits publish their mod logs through {modlogs} or {publicmodlogs}. Reveddit merges information from these sources when possible. Clicking the <code>[removed] by</code> label on reveddit may show more details such as the mod's name and a reason.</p>
@@ -109,6 +101,17 @@ const About_faq = () => {
         </ul>
         <p>You can inquire about a specific post or comment using the <code>message mods</code> button. This prepares a pre-filled message to the subreddit's moderators.</p>
         <p>Removal reasons may also appear in flair or in a message on the new reddit layout.</p>
+      </ContentWithHeader>
+      <ContentWithHeader header='Why is removed content sometimes not visible?' id='unarchived'>
+        <p>Viewing removed content for subreddits and threads relies on an archive service called Pushshift which can fall behind. If a comment is removed before it is archived then it may not appear on reveddit. It may be possible to <a href={'#'+unarchived_search_button_word_lc}>restore</a> it from a user page.</p>
+        <p>Your /user page will always be up to date since that only relies on data from reddit.</p>
+      </ContentWithHeader>
+      <ContentWithHeader header={<>What does the {unarchived_search_button_word_code} button on removed comments do?</>} id={unarchived_search_button_word_lc}>
+        {unarchived_search_help_content}
+      </ContentWithHeader>
+      <ContentWithHeader header='What does the "unknown removed" label mean?' id='unknown-removed'>
+        <p>The <code>unknown</code> label is applied when reveddit cannot determine if something was removed by a mod or by automod. Pushshift, a database that captures reddit data as it is created, and which reveddit queries, can fall behind retrieving data. When that happens, any removed items are marked as <code>[removed] by unknown</code>. When Pushshift captures content soon after creation, and the content has already been removed, then it is marked as <code>[removed] by automod</code>. If Pushshift has a record of a removed comment's body then the comment is labeled <code>[removed] by mod</code>. More detail can be found in the <a href='https://github.com/reveddit/reveddit/blob/60a34a28c5133fd54777d189fc9997afe89a2f39/src/data_processing/comments.js#L131'>source code</a>.</p>
+        <p>Note, when an account is suspended by reddit, all the posts and comments for that account may be removed. The reddit API does not indicate where suspension-related removals occur and so reveddit cannot see or mark where this happens. You can check if an account has been suspended on its reddit or reveddit user page. Temporary suspensions may also remove content created before the suspension.</p>
       </ContentWithHeader>
       <ContentWithHeader header='Any limitations?' id='limits'>
         <p>The following content is unavailable on reddit user pages and therefore cannot be tracked with reveddit user pages,</p>

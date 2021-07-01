@@ -11,18 +11,22 @@ export const now = Math.floor(new Date()/1000)
 
 export const ext_urls = {
   rt: {
+    n: 'Reveddit Real-Time',
     c: chrome_base+'reveddit-real-time/ickfhlplfbipnfahjbeongebnmojbnhm',
     f: ff_base+'reveddit-real-time/'
   },
   linker: {
+    n: 'Reveddit Linker',
     c: chrome_base+'revddit-linker/jgnigeenijnjlahckhfomimnjadmkmah',
     f: ff_base+'reveddit-linker/'
   },
   q: {
+    n: 'Reveddit Quarantined',
     c: chrome_base+'revddit-quarantined/cmfgeilnphkjendelakiniceinhjonfh',
     f: ff_base+'reveddit-quarantined/'
   },
   rager: {
+    n: 'rAger',
     c: chrome_base+'rager/fohlpjahcdbkpcckapphhpahbiajccmj'
   }
 }
