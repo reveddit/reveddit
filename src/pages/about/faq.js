@@ -46,11 +46,11 @@ const About_faq = () => {
       </ContentWithHeader>
       <ContentWithHeader header='Is that true?' id='true'>
         <p>
-          Yes, try it! Visit <NewWindowLink reddit='/r/CantSayAnything/about/sticky'>r/CantSayAnything</NewWindowLink> and write any comment or post.
+          Yes, try it! Visit <NewWindowLink reddit='/r/CantSayAnything/about/sticky'>r/CantSayAnything</NewWindowLink> and create any comment or post.
           It will be removed, you will not receive a message, and it will appear to you as if it is not removed while you are logged in.
         </p>
         <p>
-          You can verify this by opening the link to your content in an incognito window or while logged out. Your comment or post will not appear.
+          You can verify this by opening the link to your content in an incognito window or while logged out. Your comment (or post's body) will not appear.
         </p>
       </ContentWithHeader>
       <ContentWithHeader header='Can I be notified of removals?' id='extension'>
