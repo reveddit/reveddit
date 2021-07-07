@@ -12,12 +12,20 @@ export const getRevdditAggregations = async (subreddit, global) => {
   return getAggregations({subreddit, type, limit, sort})
   .then(temp_items => {
     const items = []
-    let info_promise = Promise.resolve({})
-    if (type === 'comments') {
-      info_promise = getComments({ids: temp_items.map(x => x.id_of_max_pos_removed_item)})
-    }
     for (const item of temp_items) {
       display_post(items, item)
+    }
+    let info_promise = Promise.resolve({})
+    if (type === 'comments') {
+      const lookup_ids = []
+      for (const item of temp_items) {
+        if (item.link_id) {
+          item.link_id_of_max_pos_removed_item = item.link_id
+        } else {
+          lookup_ids.push(item.id_of_max_pos_removed_item)
+        }
+      }
+      info_promise = getComments({ids: lookup_ids})
     }
     return info_promise.then(comments => {
       //post processing for comments
