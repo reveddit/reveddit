@@ -223,7 +223,7 @@ export const getPost = id => {
   })
 }
 
-async function fetchWithTimeout(resource, options = {}) {
+export const fetchWithTimeout = async (resource, options = {}) => {
   const { timeout = 8000 } = options
   const controller = new AbortController()
   const id = setTimeout(() => controller.abort(), timeout)

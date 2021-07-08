@@ -10,11 +10,12 @@ import {
   getComments as getRedditComments,
   getPostWithComments as getRedditPostWithComments,
   getModlogsComments, getModlogsPosts,
-  queryUserPage,
+  queryUserPage
 } from 'api/reddit'
 import { getAuth } from 'api/reddit/auth'
 import {
-  submitMissingComments, getUmodlogsThread, getModerators
+  submitMissingComments, getUmodlogsThread, getModerators,
+  getRemovedCommentsByThread,
 } from 'api/reveddit'
 import { itemIsRemovedOrDeleted, postIsDeleted, postIsRemoved, jumpToHash,
          convertPathSub, sortCreatedAsc, validAuthor, commentIsRemoved,
@@ -38,7 +39,9 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
                                             before, after, subreddit,
                                             global) => {
   let pushshift_comments_promise = Promise.resolve({})
+  let reveddit_comments_promise = Promise.resolve({})
   if (! commentID) {
+    reveddit_comments_promise = getRemovedCommentsByThread(threadID)
     pushshift_comments_promise = getPushshiftCommentsByThread(threadID)
     .catch(ignoreArchiveErrors)
   }
@@ -109,7 +112,9 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     let root_commentID
     if (commentID) {
       root_commentID = oldestComment.id
-      pushshift_comments_promise = getPushshiftCommentsByThread(threadID, oldestComment.created_utc - 1)
+      const after = oldestComment.created_utc - 1
+      reveddit_comments_promise = getRemovedCommentsByThread(threadID, after, root_commentID)
+      pushshift_comments_promise = getPushshiftCommentsByThread(threadID, after)
       .catch(ignoreArchiveErrors)
     }
     const combinedComments = combinePushshiftAndRedditComments({}, redditComments, false, post_without_pushshift_data)
@@ -136,7 +141,8 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
         return {redditComments, moreComments}
       })
     }
-    return {reddit_post, root_commentID, reddit_comments_promise, pushshift_comments_promise, resetPath,
+    return {reddit_post, root_commentID, reddit_comments_promise, resetPath,
+            reveddit_comments_promise, pushshift_comments_promise,
             moderators_promise, modlogs_comments_promise, modlogs_posts_promise}
   })
 
@@ -168,11 +174,18 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
           moderators_promise, modlogs_comments_promise}) => {
     const {redditComments, moreComments} = await reddit_comments_promise
     const pushshiftComments = await pushshift_comments_promise
+    const revedditComments = await reveddit_comments_promise
     const modlogsComments = await modlogs_comments_promise
     const uModlogsItems = await uModlogs_promise
     const rootComment = await root_comment_promise
     if (rootComment && rootComment[commentID] && ! redditComments[commentID]) {
       redditComments[commentID] = rootComment[commentID]
+    }
+    for (const c of Object.values(revedditComments)) {
+      const psComment = pushshiftComments[c.id]
+      if (! psComment || commentIsRemoved(psComment)) {
+        pushshiftComments[c.id] = c
+      }
     }
     copyModlogItemsToArchiveItems(modlogsComments, pushshiftComments)
     //copy uModlogs items last b/c:

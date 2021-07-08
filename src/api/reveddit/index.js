@@ -2,6 +2,7 @@ import { paramString, SimpleURLSearchParams, PATH_STR_SUB } from 'utils'
 import { mapRedditObj, getModeratorsPostProcess } from 'api/reddit'
 import { urlParamKeys, removedFilter_types, localSort_types } from 'state'
 import { AUTOMOD_REMOVED, MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED } from 'pages/common/RemovedBy'
+import { fetchWithTimeout } from 'api/pushshift'
 
 const errorHandler = (e) => {
   throw new Error(`Could not connect to Reveddit: ${e}`)
@@ -176,7 +177,18 @@ export const getModerators = (subreddit) => {
 const flaskQuery = (path, params = {}, host = REVEDDIT_FLASK_HOST_SHORT) => {
   const param_str = (params && Object.keys(params).length) ? '?' + paramString(params) : ''
   const url = host + path + param_str
-  return window.fetch(url)
+  return fetchWithTimeout(url)
   .then(response => response.json())
   .catch(errorHandler)
+}
+
+export const getRemovedCommentsByThread = (link_id, after, root_comment_id) => {
+  const params = {
+    link_id,
+    ...(after && {after}),
+    ...(root_comment_id && {root_comment_id}),
+    c: getCount(600),
+  }
+  return flaskQuery('removed-comments/', params)
+  .catch(error => {return {}}) // ignore fetch errors, this is not critical data
 }
