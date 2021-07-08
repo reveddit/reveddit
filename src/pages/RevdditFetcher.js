@@ -607,15 +607,16 @@ const GenericPostProcessor = connect((props) => {
   let archiveDelayMsg = ''
   if (archiveTimes && (archiveTimes_isCurrent(archiveTimes) || page_type === 'info') ) {
     let commentsMsg = '', submissionsMsg = ''
+    const archiveTime_comment = Math.max(archiveTimes.comment, archiveTimes.beta_comment)
     if (page_type === 'info' ||
           (archiveTimes.updated - archiveTimes.submission > normalArchiveDelay
           && ['search', 'subreddit_posts', 'duplicate_posts', 'domain_posts'].includes(page_type))) {
       submissionsMsg = gridLabel('submissions', archiveTimes.submission, archiveTimes.updated)
     }
     if (page_type === 'info' ||
-          (archiveTimes.updated - archiveTimes.comment > normalArchiveDelay
+          (archiveTimes.updated - archiveTime_comment > normalArchiveDelay
           && ['search', 'thread', 'subreddit_comments'].includes(page_type))) {
-      commentsMsg = gridLabel('comments', archiveTimes.comment, archiveTimes.updated)
+      commentsMsg = gridLabel('comments', archiveTime_comment, archiveTimes.updated)
     }
     if (submissionsMsg || commentsMsg) {
       const updated = getPrettyDate(archiveTimes.updated)
