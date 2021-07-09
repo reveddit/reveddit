@@ -46,11 +46,12 @@ const filterCommentTree = (commentTree, commentsLookup, visibleComments, filterF
   return hasOkComment
 }
 
-const countReplies = (comment, maxDepth, limitCommentDepth) => {
-  let sum = comment.replies.length
+const countReplies = (comment, maxDepth, limitCommentDepth, visibleComments) => {
+  const visibleReplies = visibleComments[comment.name] || []
+  let sum = visibleReplies.length
   if (! limitCommentDepth || comment.depth < maxDepth-1) {
-    comment.replies.forEach(c => {
-      sum += countReplies(c, maxDepth, limitCommentDepth)
+    visibleReplies.forEach(c => {
+      sum += countReplies(c, maxDepth, limitCommentDepth, visibleComments)
     })
   }
   return sum
@@ -184,9 +185,9 @@ const CommentSection = (props) => {
       break
     }
     //countReplies could be,
-    //   - computed in a hook & adjusted to use visibleComments, or
+    //   - computed in a hook, or
     //   - omitted by using react-window
-    numCommentsShown += showContext ? countReplies(comment, getMaxCommentDepth(), limitCommentDepth)+1 : 1
+    numCommentsShown += showContext ? countReplies(comment, getMaxCommentDepth(), limitCommentDepth, visibleComments)+1 : 1
     // any attributes added below must also be added to thread/Comment.js
     // in rest = {...}
     comments_render.push(<Comment
