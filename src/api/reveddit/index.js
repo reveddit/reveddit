@@ -183,6 +183,12 @@ const flaskQuery = (path, params = {}, host = REVEDDIT_FLASK_HOST_SHORT) => {
 }
 
 export const getRemovedCommentsByThread = (link_id, after, root_comment_id) => {
+  return Promise.all([getRemovedCommentsByThread_v1(link_id, after, root_comment_id),
+                       getRemainingCommentsByThread(link_id, after, root_comment_id)])
+  .then(results => Object.assign({}, ...results))
+}
+
+export const getRemovedCommentsByThread_v1 = (link_id, after, root_comment_id) => {
   const params = {
     link_id,
     ...(after && {after}),
@@ -190,5 +196,16 @@ export const getRemovedCommentsByThread = (link_id, after, root_comment_id) => {
     c: getCount(600),
   }
   return flaskQuery('removed-comments/', params)
+  .catch(error => {return {}}) // ignore fetch errors, this is not critical data
+}
+
+export const getRemainingCommentsByThread = (link_id, after, root_comment_id) => {
+  const params = {
+    link_id,
+    ...(after && {after}),
+    ...(root_comment_id && {root_comment_id}),
+    c: getCount(1200),
+  }
+  return flaskQuery('linkid-comments/', params)
   .catch(error => {return {}}) // ignore fetch errors, this is not critical data
 }
