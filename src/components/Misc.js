@@ -32,13 +32,15 @@ export const RedditOrLocalLink = ({children, reddit, to}) => {
   return null
 }
 
-export const NewWindowLink = ({children, reddit, old=false, ...props}) => {
+export const NewWindowLink = ({children, reddit, old=false, redesign=false, ...props}) => {
   let href
   if (reddit) {
-    if (! old) {
-      href = www_reddit
-    } else {
+    if (old) {
       href = old_reddit
+    } else if (redesign) {
+      href = 'https://new.reddit.com'
+    } else {
+      href = www_reddit
     }
     href += reddit
   } else {

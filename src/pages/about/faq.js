@@ -90,13 +90,18 @@ const About_faq = () => {
         </ul>
       </ContentWithHeader>
       <ContentWithHeader header='Reddit does not say my post is removed. Why does reveddit say it is?' id='reddit-does-not-say-post-removed'>
+        <p><ExtensionLink/> always shows post removal notices on both old and new reddit.</p>
         <p>Reddit does not tell you when posts (links) are removed if:</p>
           <ul>
-            <li>you visit the page using a link to a comment.</li>
-            <li>the subreddit has set "spam filter strength" to remove all posts. <NewWindowLink reddit='/r/reveddit/comments/ndbwag/reveddit_logs_me_out_winchromereveddit_realtime/gyaphsb/#thing_t1_gyaphsb'>See here</NewWindowLink> for more info.</li>
+            <li>you visit the page using a link to a comment, <NewWindowLink redesign={true} reddit='/r/CantSayAnything/comments/oiizmf/a_removed_post/h4vrp2v/'>here for example</NewWindowLink>.</li>
+            <li>the subreddit has set "spam filter strength" to remove all posts, and the post is less than 24 hours old.
+              <ul>
+                <li>You can <NewWindowLink reddit='/r/CantSayAnything/submit'>post in r/CantSayAnything</NewWindowLink> to see how this works.</li>
+                <li><NewWindowLink reddit='/r/reveddit/comments/ndbwag/reveddit_logs_me_out_winchromereveddit_realtime/gyaphsb/#thing_t1_gyaphsb'>See here</NewWindowLink> for more info.</li>
+              </ul>
+            </li>
             <li>you visit the page using <code>old.reddit.com</code>. Only <code>new.reddit.com</code> shows post removal notices.</li>
           </ul>
-        <p><ExtensionLink/> shows a post removal notice on both old and new reddit in all of these cases.</p>
       </ContentWithHeader>
       <ContentWithHeader header='How can I find out why something was removed?' id='removal-reason'>
         <p>Some subreddits publish their mod logs through {modlogs} or {publicmodlogs}. Reveddit merges information from these sources when possible. Clicking the <code>[removed] by</code> label on reveddit may show more details such as the mod's name and a reason.</p>
