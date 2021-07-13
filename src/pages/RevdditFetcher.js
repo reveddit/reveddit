@@ -178,6 +178,16 @@ const getLoadDataFunctionAndParam = (
 const MAX_COLLAPSED_VISIBLE = 1
 const MAX_ORPHANED_VISIBLE = 1
 
+const charsToNormalize = {'‘': "'",
+                        '’': "'",
+                        '“': '"',
+                        '”': '"',
+                       }
+
+const normalizeCharsRegex = new RegExp('['+Object.keys(charsToNormalize).join('')+']', 'g')
+
+const normalizeChars = (s) => s.replace(normalizeCharsRegex, (match) => charsToNormalize[match], 'g')
+
 export const textMatch = (gs, item, [globalVarName, fields]) => {
   const searchString = gs[globalVarName]
   const keywords = searchString.toString().replace(/\s\s+/g, ' ').trim().toLocaleLowerCase().match(/(-?"[^"]+"|[^"\s]+)/g) || []
@@ -190,7 +200,7 @@ export const textMatch = (gs, item, [globalVarName, fields]) => {
     }
     let word_in_item = false
     for (const field of fields) {
-      if (item[field] && matchOrIncludes(item[field].toLocaleLowerCase(), word, isPhraseRegex)) {
+      if (item[field] && matchOrIncludes(normalizeChars(item[field].toLocaleLowerCase()), normalizeChars(word), isPhraseRegex)) {
         word_in_item = true
         break
       }
