@@ -63,7 +63,7 @@ module.exports = async (env, argv) => {
         disableDotRule: true
       }
     },
-    devtool: IS_PRODUCTION ? 'source-map' : false,
+    devtool: 'source-map',
     output: {sourceMapFilename: '[file].map', publicPath: '/', filename: `[name].[contenthash].js`},
     module: {
       rules: [
