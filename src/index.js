@@ -87,6 +87,7 @@ const routes = (
   <DefaultLayout path={PATH_STR_USER+'/:userSubreddit/comments/:threadID/:urlTitle/:commentID'} page_type='thread' component={Thread} />
   <DefaultLayout path={PATH_STR_USER+'/:userSubreddit/comments/:threadID/:urlTitle'} page_type='thread' component={Thread} />
   <DefaultLayout path={PATH_STR_USER+'/:userSubreddit/comments/:threadID'} page_type='thread' component={Thread} />
+  <DefaultLayout path={PATH_STR_USER+'/:user/duplicates/:threadID'} page_type='duplicate_posts' component={Info} />
   <DefaultLayout path={PATH_STR_USER+'/:user/:kind'} page_type='user' component={User} />
   <DefaultLayout path={PATH_STR_USER+'/:user'} page_type='user' component={User} />
   <DefaultLayout path={PATH_STR_USER+'/'} page_type='blank_user' component={BlankUser} />
