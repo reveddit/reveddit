@@ -283,10 +283,6 @@ export const withFetch = (WrappedComponent) =>
       const domain = (match.params.domain || '').toLowerCase()
       const user = (match.params.user || '' ).toLowerCase()
       const { threadID, commentID, kind = '' } = match.params
-      const { userSubreddit } = (match.params.userSubreddit || '').toLowerCase()
-      if (userSubreddit) {
-        subreddit = 'u_'+userSubreddit
-      }
       const { page_type } = this.props
       const page_title = getPageTitle(page_type, subreddit || user || domain)
       if (page_title) {

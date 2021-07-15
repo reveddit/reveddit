@@ -6,8 +6,8 @@ import { get, put } from 'utils'
 import { Shuffle } from 'pages/common/svg'
 
 const getEntityName = (params) => {
-  const { user, subreddit = '', userSubreddit = '', domain = ''} = params
-  return (user || subreddit || userSubreddit || domain).toLowerCase()
+  const { user, subreddit = '', domain = ''} = params
+  return (user || subreddit || domain).toLowerCase()
 }
 
 class Header extends React.Component {
@@ -110,10 +110,7 @@ class Header extends React.Component {
     }
     const props = this.props
     const { page_type } = props
-    let { user, subreddit = '', userSubreddit = '', domain = ''} = props.match.params
-    if (userSubreddit) {
-      subreddit = 'u_'+userSubreddit
-    }
+    let { user, subreddit = '', domain = ''} = props.match.params
     let path_type = '', value = '', path_suffix = '', item_type = '', display = ''
     if (['subreddit_posts','thread'].includes(page_type)) {
       path_type = 'r'

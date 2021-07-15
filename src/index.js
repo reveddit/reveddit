@@ -53,6 +53,10 @@ const getAltRoutes = (alt_paths, replace_path) => {
   )
 }
 
+const profile_search = new RegExp('^'+PATH_STR_USER + '/')
+const profile_replace = PATH_STR_SUB + '/u_'
+
+
 const routes = (
 <Switch>
   <Redirect exact from='/' to='/about#welcome' />
@@ -84,10 +88,8 @@ const routes = (
   <DefaultLayout path='/comments/' page_type='blank_subreddit_comments' component={BlankSubreddit} is_comments_page={true} />
   <DefaultLayout path='/domain/all' component={NotFound} />
   <DefaultLayout path='/domain/:domain' page_type='domain_posts' component={SubredditPosts} />
-  <DefaultLayout path={PATH_STR_USER+'/:userSubreddit/comments/:threadID/:urlTitle/:commentID'} page_type='thread' component={Thread} />
-  <DefaultLayout path={PATH_STR_USER+'/:userSubreddit/comments/:threadID/:urlTitle'} page_type='thread' component={Thread} />
-  <DefaultLayout path={PATH_STR_USER+'/:userSubreddit/comments/:threadID'} page_type='thread' component={Thread} />
-  <DefaultLayout path={PATH_STR_USER+'/:user/duplicates/:threadID'} page_type='duplicate_posts' component={Info} />
+  <RouteRedirectWithParams path={PATH_STR_USER+'/:user/comments/:threadID'} search={profile_search} replace={profile_replace} />
+  <RouteRedirectWithParams path={PATH_STR_USER+'/:user/duplicates/:threadID'} search={profile_search} replace={profile_replace} />
   <DefaultLayout path={PATH_STR_USER+'/:user/:kind'} page_type='user' component={User} />
   <DefaultLayout path={PATH_STR_USER+'/:user'} page_type='user' component={User} />
   <DefaultLayout path={PATH_STR_USER+'/'} page_type='blank_user' component={BlankUser} />
