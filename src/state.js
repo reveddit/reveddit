@@ -261,7 +261,9 @@ const getMultiFilterSettings = (stringValue) => {
   return settings
 }
 
-export const create_qparams = () => new SimpleURLSearchParams(window.location.search)
+export const create_qparams = (path_and_search) => new SimpleURLSearchParams(path_and_search ?
+                                                                             new URL(path_and_search, window.location.origin).search
+                                                                             : window.location.search)
 
 export const create_qparams_and_adjust = (page_type, selection, value) => {
   const queryParams = create_qparams()
@@ -419,12 +421,16 @@ class GlobalState extends Container {
       updateURL(queryParams)
     }
   }
-  context_update = (context, page_type, history, url = '') => {
-    const queryParams = create_qparams_and_adjust(page_type, 'context', context)
+  context_update = (context, page_type, history, path_and_search = '') => {
+    const queryParams = create_qparams(path_and_search)
+    adjust_qparams_for_selection(page_type, queryParams, 'context', context)
     adjust_qparams_for_selection(page_type, queryParams, 'showContext', true)
-    const to = url ? url : `${window.location.pathname}${queryParams.toString()}`
-    if (url) {
+    const to = (path_and_search ? new URL(path_and_search, window.location.origin).pathname : window.location.pathname)
+               + queryParams.toString()
+    if (path_and_search) {
       history.push(to)
+    } else {
+      history.replace(to)
     }
     return this.setStateFromQueryParams(page_type, queryParams, {})
   }

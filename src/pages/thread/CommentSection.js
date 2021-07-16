@@ -72,6 +72,7 @@ const CommentSection = (props) => {
   const [showFilteredRootComments, setShowFilteredRootComments] = useState(false)
   const [showSingleRoot, setShowSingleRoot] = useState(false)
   const [visibleComments, setVisibleComments] = useState({})
+  const [numVisibleReplies, setNumVisibleReplies] = useState({})
   const removedByFilterIsUnset = global.removedByFilterIsUnset()
   const tagsFilterIsUnset = global.tagsFilterIsUnset()
   let numRootCommentsMatchOriginalCount = true
@@ -127,13 +128,31 @@ const CommentSection = (props) => {
     }
   }
   const rootFullID = root ? 't1_'+root : threadPost.name
+
+  const setAndCountVisibleComments = (visibleComments, showContext) => {
+    const numVisibleReplies = {}
+    if (showContext) {
+      const maxCommentDepth = getMaxCommentDepth()
+      for (const [parent_fullID, children] of Object.entries(visibleComments)) {
+        if (parent_fullID.substr(0,2) !== 't3') {
+          numVisibleReplies[parent_fullID] = 0
+          for (const comment of visibleComments[parent_fullID]) {
+            numVisibleReplies[parent_fullID] += countReplies(comment, maxCommentDepth, limitCommentDepth, visibleComments)
+          }
+        }
+      }
+    }
+    setNumVisibleReplies(numVisibleReplies)
+    setVisibleComments(visibleComments)
+  }
+
   // Sort Effect: This effect must appear first. When placed below the filter effect, this one
   // results in unsynced display, some items hidden on page load with no filters
   useEffect(() => {
     // since filters effect includes a sort, only need to run this when not loading
     if (! loading) {
       sortVisibleComments(visibleComments)
-      setVisibleComments(visibleComments)
+      setAndCountVisibleComments(visibleComments, showContext)
     }
   }, [localSort, localSortReverse, loading, items.length])
   // Filter effect
@@ -153,7 +172,7 @@ const CommentSection = (props) => {
       }
     }
     sortVisibleComments(visibleComments)
-    setVisibleComments(visibleComments)
+    setAndCountVisibleComments(visibleComments, showContext)
   }, [filters_str, showContext, items.length, context, focusCommentID, root, add_user, add_user_on_page_load])
 
   useEffect(() => {
@@ -161,7 +180,7 @@ const CommentSection = (props) => {
       const newRootComments = [...origRootComments]
       sortVisibleComments({[rootFullID]: newRootComments})
       visibleComments[rootFullID] = newRootComments
-      setVisibleComments({...visibleComments})
+      setAndCountVisibleComments({...visibleComments}, showContext)
     }
   }, [showFilteredRootComments, showSingleRoot, origRootComments.length])
   let comments_render = []
@@ -174,7 +193,8 @@ const CommentSection = (props) => {
   let rootComments
   if (! showContext && visibleComments[rootFullID]) {
     rootComments = visibleComments[rootFullID]
-  } else if (root && commentsLookup[root]) {
+  } //Below condition is for when a commentID is set. visibleComments only tracks replies and can't be used here
+  else if (root && commentsLookup[root]) {
     rootComments = [commentsLookup[root]]
   } else {
     rootComments = visibleComments[threadPost.name] || []
@@ -184,10 +204,7 @@ const CommentSection = (props) => {
       comments_render.push(<div key="load-more"><a className='pointer' onClick={() => setShowAllComments(true)}>load more comments</a></div>)
       break
     }
-    //countReplies could be,
-    //   - computed in a hook, or
-    //   - omitted by using react-window
-    numCommentsShown += showContext ? countReplies(comment, getMaxCommentDepth(), limitCommentDepth, visibleComments)+1 : 1
+    numCommentsShown += showContext ? (numVisibleReplies[comment.name] || 0)+1 : 1
     // any attributes added below must also be added to thread/Comment.js
     // in rest = {...}
     comments_render.push(<Comment
