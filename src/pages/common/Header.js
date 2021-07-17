@@ -1,7 +1,6 @@
 import React from 'react'
 import { Link, Redirect } from 'react-router-dom'
 import { connect } from 'state'
-import 'js-detect-incognito-private-browsing'
 import { get, put } from 'utils'
 import { Shuffle } from 'pages/common/svg'
 
@@ -22,15 +21,12 @@ class Header extends React.Component {
     const entity_name = getEntityName(this.props.match.params)
     this.setState({entity_name})
 
-    const bmd = window.BrowsingModeDetector()
     const hasVisitedSite = 'hasVisitedSite'
     setTimeout(() => {
-      bmd.do((isIncognito, bmdI) => {
-        if (! isIncognito && ! get('hasNotifierExtension', false) && ! get(hasVisitedSite, false)) {
-          this.welcome()
-        }
-        put(hasVisitedSite, true)
-      })
+      if (! get('hasNotifierExtension', false) && ! get(hasVisitedSite, false)) {
+        this.welcome()
+      }
+      put(hasVisitedSite, true)
     }, 1000)
   }
   componentDidUpdate(prevProps) {

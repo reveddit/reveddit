@@ -34,12 +34,13 @@ module.exports = async (env, argv) => {
           return parts.join('.').replace(omitPath, '')
         }
       }),
-      new CopyWebpackPlugin([
-        {
-          from: scriptPath,
-          to: `[name].${cssContentHash}.[ext]`
-        }
-      ])
+      new CopyWebpackPlugin({
+        patterns: [
+          {
+            from: scriptPath,
+            to: `[name].${cssContentHash}[ext]`
+          }
+      ]})
     ]
   }
   const IS_PRODUCTION = argv.mode === 'production'

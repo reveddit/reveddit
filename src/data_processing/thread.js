@@ -17,6 +17,9 @@ import {
   submitMissingComments, getUmodlogsThread, getModerators,
   getRemovedCommentsByThread,
 } from 'api/reveddit'
+import {
+  redditLimiter
+} from 'api/common'
 import { itemIsRemovedOrDeleted, postIsDeleted, postIsRemoved, jumpToHash,
          convertPathSub, sortCreatedAsc, validAuthor, commentIsRemoved,
 } from 'utils'
@@ -27,6 +30,7 @@ import {AddUserParam, AddUserItem, getUserCommentsForPost,
         addUserComments, addUserComments_and_updateURL,
 } from 'data_processing/FindCommentViaAuthors'
 
+const NumAddUserItemsToLoadAtFirst = 10
 const numCommentsWithPost = 500
 let archiveError = false
 const ignoreArchiveErrors = () => {
@@ -34,6 +38,8 @@ const ignoreArchiveErrors = () => {
   return {}
 }
 let useProxy = false
+
+const scheduleAddUserItems = (addUserItems) => addUserItems.map(item => redditLimiter.schedule(() => item.query()))
 
 export const getRevdditThreadItems = async (threadID, commentID, context, add_user, user_kind, user_sort, user_time,
                                             before, after, subreddit,
@@ -46,20 +52,15 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     .catch(ignoreArchiveErrors)
   }
   await getAuth()
-  const add_user_promises = []
+  const add_user_promises = [], add_user_promises_remainder = []
   const add_user_authors = {}
   if (add_user) {
-    if (! add_user.match(/\./)) {
-      //old format
-      add_user_promises.push(queryUserPage(add_user, user_kind || '', user_sort, before, after, user_time, 1))
-    } else {
-      //new format
-      const addUserItems = (new AddUserParam({string: add_user})).getItems().slice(0,10)
-      for (const aui of addUserItems) {
-        add_user_promises.push(aui.query())
-        add_user_authors[aui.author] = 1
-      }
-    }
+    const addUserItems = (new AddUserParam({string: add_user})).getItems()
+    const addUserItems_first = addUserItems.slice(0,NumAddUserItemsToLoadAtFirst)
+    add_user_promises.push(...scheduleAddUserItems(addUserItems_first))
+    const addUserItems_remainder = addUserItems.slice(NumAddUserItemsToLoadAtFirst)
+    add_user_promises_remainder.push(...scheduleAddUserItems(addUserItems_remainder))
+    Object.assign(add_user_authors, addUserItems.reduce((map,item) => (map[item.author] = 1, map), {}))
   }
   let root_comment_promise = Promise.resolve({})
   let pushshift_post_promise = Promise.resolve(undefined)
@@ -169,80 +170,78 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     return global.setState({threadPost: combined_post})
     .then(() => combined_post)
   })
-  const combined_comments_promise = reddit_pwc_promise
-  .then(async ({reddit_post, root_commentID, reddit_comments_promise, resetPath,
-          moderators_promise, modlogs_comments_promise}) => {
-    const {redditComments, moreComments} = await reddit_comments_promise
-    const pushshiftComments = await pushshift_comments_promise
-    const revedditComments = await reveddit_comments_promise
-    const modlogsComments = await modlogs_comments_promise
-    const uModlogsItems = await uModlogs_promise
-    const rootComment = await root_comment_promise
-    if (rootComment && rootComment[commentID] && ! redditComments[commentID]) {
-      redditComments[commentID] = rootComment[commentID]
+  const {reddit_post, reddit_comments_promise, resetPath,
+          moderators_promise, modlogs_comments_promise} = await reddit_pwc_promise
+  let {root_commentID} = await reddit_pwc_promise
+  const {redditComments, moreComments} = await reddit_comments_promise
+  const pushshiftComments = await pushshift_comments_promise
+  const revedditComments = await reveddit_comments_promise
+  const modlogsComments = await modlogs_comments_promise
+  const uModlogsItems = await uModlogs_promise
+  const rootComment = await root_comment_promise
+  if (rootComment && rootComment[commentID] && ! redditComments[commentID]) {
+    redditComments[commentID] = rootComment[commentID]
+  }
+  for (const c of Object.values(revedditComments)) {
+    const psComment = pushshiftComments[c.id]
+    if (! psComment || commentIsRemoved(psComment)) {
+      pushshiftComments[c.id] = c
     }
-    for (const c of Object.values(revedditComments)) {
-      const psComment = pushshiftComments[c.id]
-      if (! psComment || commentIsRemoved(psComment)) {
-        pushshiftComments[c.id] = c
+  }
+  copyModlogItemsToArchiveItems(modlogsComments, pushshiftComments)
+  //copy uModlogs items last b/c:
+  // 1. these will overwrite any previous modlogs items
+  // 2. the content will probably be retrievable in the future, since lookup method is by link ID.
+  //    And, when log_source == u_modlogs, then 'temporarily visible' label is not shown
+  copyModlogItemsToArchiveItems(uModlogsItems.comments, pushshiftComments)
+  const focusComment_pushshift = pushshiftComments[commentID]
+  const focusComment_reddit = redditComments[commentID]
+  let new_add_user
+  const add_user_promises_forURL = []
+  if (! focusComment_pushshift && ! focusComment_reddit) {
+    commentID = undefined
+    root_commentID = undefined
+    resetPath()
+  } else {
+    resetPath(commentID)
+    if (focusComment_pushshift) {
+      const focusCommentAuthor = focusComment_pushshift.author
+      if (focusComment_reddit &&
+        commentIsRemoved(focusComment_reddit) &&
+        validAuthor(focusCommentAuthor) && ! add_user_authors[focusCommentAuthor]) {
+        //if the focus comment is removed, and the author does not appear in the add_user parameter,
+        //check for edits on the author's user page. Any edits will cause the URL to update
+        const aui = new AddUserItem({author: focusCommentAuthor})
+        add_user_promises_forURL.push(aui.query())
       }
     }
-    copyModlogItemsToArchiveItems(modlogsComments, pushshiftComments)
-    //copy uModlogs items last b/c:
-    // 1. these will overwrite any previous modlogs items
-    // 2. the content will probably be retrievable in the future, since lookup method is by link ID.
-    //    And, when log_source == u_modlogs, then 'temporarily visible' label is not shown
-    copyModlogItemsToArchiveItems(uModlogsItems.comments, pushshiftComments)
-    const focusComment_pushshift = pushshiftComments[commentID]
-    const focusComment_reddit = redditComments[commentID]
-    let new_add_user
-    const add_user_promises_forURL = []
-    if (! focusComment_pushshift && ! focusComment_reddit) {
-      commentID = undefined
-      root_commentID = undefined
-      resetPath()
-    } else {
-      resetPath(commentID)
-      if (focusComment_pushshift) {
-        const focusCommentAuthor = focusComment_pushshift.author
-        if (focusComment_reddit &&
-          commentIsRemoved(focusComment_reddit) &&
-          validAuthor(focusCommentAuthor) && ! add_user_authors[focusCommentAuthor]) {
-          //if the focus comment is removed, and the author does not appear in the add_user parameter,
-          //check for edits on the author's user page. Any edits will cause the URL to update
-          const aui = new AddUserItem({author: focusCommentAuthor})
-          add_user_promises_forURL.push(aui.query())
-        }
-      }
+  }
+  const origRedditComments = {...redditComments}
+  const early_combinedComments = combinePushshiftAndRedditComments(pushshiftComments, redditComments, false, reddit_post)
+  const [early_commentTree, early_itemsSortedByDate] = createCommentTree(threadID, root_commentID, early_combinedComments)
+  await global.setState({items: early_itemsSortedByDate,
+             itemsSortedByDate: early_itemsSortedByDate,
+                    itemsLookup: early_combinedComments,
+                    commentTree: early_commentTree,
+          initialFocusCommentID: commentID})
+  const pass_userPages_to_getUserCommentsForPost = (userPages) => getUserCommentsForPost(reddit_post, early_combinedComments, userPages)
+  const {user_comments, newComments: remainingRedditIDs} = await Promise.all(add_user_promises)
+    .then(pass_userPages_to_getUserCommentsForPost)
+  const {user_comments: user_comments_forURL, newComments: remainingRedditIDs_2} = await Promise.all(add_user_promises_forURL)
+    .then(pass_userPages_to_getUserCommentsForPost)
+  Object.assign(remainingRedditIDs, remainingRedditIDs_2)
+  Object.keys(pushshiftComments).forEach(id => {
+    if (! (id in redditComments)) {
+      remainingRedditIDs[id] = 1
     }
-    const origRedditComments = {...redditComments}
-    const early_combinedComments = combinePushshiftAndRedditComments(pushshiftComments, redditComments, false, reddit_post)
-    const [early_commentTree, early_itemsSortedByDate] = createCommentTree(threadID, root_commentID, early_combinedComments)
-    await global.setState({items: early_itemsSortedByDate,
-               itemsSortedByDate: early_itemsSortedByDate,
-                      itemsLookup: early_combinedComments,
-                      commentTree: early_commentTree,
-            initialFocusCommentID: commentID})
-    const pass_userPages_to_getUserCommentsForPost = (userPages) => getUserCommentsForPost(reddit_post, early_combinedComments, userPages)
-    const {user_comments, newComments: remainingRedditIDs} = await Promise.all(add_user_promises)
-      .then(pass_userPages_to_getUserCommentsForPost)
-    const {user_comments: user_comments_forURL, newComments: remainingRedditIDs_2} = await Promise.all(add_user_promises_forURL)
-      .then(pass_userPages_to_getUserCommentsForPost)
-    Object.assign(remainingRedditIDs, remainingRedditIDs_2)
-    Object.keys(pushshiftComments).forEach(id => {
-      if (! (id in redditComments)) {
-        remainingRedditIDs[id] = 1
-      }
-    })
-    const remainingRedditIDs_arr = Object.keys(remainingRedditIDs)
-    let reddit_remaining_comments_promise = Promise.resolve([])
-    if (remainingRedditIDs_arr.length) {
-      reddit_remaining_comments_promise = getRedditComments({ids: remainingRedditIDs_arr, useProxy})
+  })
+  const addRemainingRedditComments_andCombine = async (ids, user_comments) => {
+    if (ids.length) {
+      const remainingRedditComments = await getRedditComments({ids, useProxy})
+      Object.values(remainingRedditComments).forEach(comment => {
+        redditComments[comment.id] = comment
+      })
     }
-    const remainingRedditComments = await reddit_remaining_comments_promise
-    Object.values(remainingRedditComments).forEach(comment => {
-      redditComments[comment.id] = comment
-    })
     // consider: change this logic to update combinedComments incrementally rather than recreating it from scratch
     // currently, combinePushshiftAndRedditComments() is called 3x:
     //     once with only reddit comments
@@ -252,24 +251,23 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     // To do that, would need to use early_combinedComments as the basis for a return value
     const combinedComments = combinePushshiftAndRedditComments(pushshiftComments, redditComments, false, reddit_post)
     const {changed} = addUserComments(user_comments, combinedComments)
-    new_add_user = addUserComments_and_updateURL(user_comments_forURL, combinedComments, add_user)
-    //todo: check if pushshiftComments has any parent_ids that are not in combinedComments
-    //      and do a reddit query for these. Possibly query twice if the result has items whose parent IDs
-    //      are not in combinedComments after adding the result of the first query
-    const [commentTree, itemsSortedByDate] = createCommentTree(threadID, root_commentID, combinedComments, true)
-    const missing = []
-    markTreeMeta(missing, origRedditComments, moreComments, commentTree, reddit_post.num_comments, root_commentID, commentID)
-    if (missing.length) {
-      submitMissingComments(missing)
-    }
-    const moderators = await moderators_promise
-    return {combinedComments, commentTree, itemsSortedByDate, moderators,
-            subreddit_lc: reddit_post.subreddit.toLowerCase(),
-            new_add_user, add_user_on_page_load: changed.length,
-           }
-  })
-  const {combinedComments, commentTree, itemsSortedByDate,
-         moderators, subreddit_lc, new_add_user, add_user_on_page_load} = await combined_comments_promise
+    return {combinedComments, changed}
+  }
+  const {combinedComments, changed} = await addRemainingRedditComments_andCombine(Object.keys(remainingRedditIDs), user_comments)
+  new_add_user = addUserComments_and_updateURL(user_comments_forURL, combinedComments, add_user)
+  //todo: check if pushshiftComments has any parent_ids that are not in combinedComments
+  //      and do a reddit query for these. Possibly query twice if the result has items whose parent IDs
+  //      are not in combinedComments after adding the result of the first query
+  const [commentTree, itemsSortedByDate] = createCommentTree(threadID, root_commentID, combinedComments, true)
+  const missing = []
+  markTreeMeta(missing, origRedditComments, moreComments, commentTree, reddit_post.num_comments, root_commentID, commentID)
+  if (missing.length) {
+    submitMissingComments(missing)
+  }
+  const moderators = await moderators_promise
+  const subreddit_lc = reddit_post.subreddit.toLowerCase()
+  const add_user_on_page_load = changed.length
+
   const stateObj = {items: itemsSortedByDate,
                     itemsLookup: combinedComments,
                     commentTree, itemsSortedByDate,
@@ -277,16 +275,27 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
                     add_user: new_add_user || add_user,
                     add_user_on_page_load,
                    }
+  if (add_user_promises_remainder.length) {
+    await global.setState(stateObj)
+    const {user_comments: user_comments_2, newComments: remainingRedditIDs_2} = await Promise.all(add_user_promises_remainder)
+      .then(userPages => getUserCommentsForPost(reddit_post, combinedComments, userPages))
+    const {combinedComments: combinedComments_2, changed: changed_2} =
+      await addRemainingRedditComments_andCombine(Object.keys(remainingRedditIDs_2), user_comments_2)
+    const [commentTree_2, itemsSortedByDate_2] = createCommentTree(threadID, root_commentID, combinedComments_2, true)
+    stateObj.items = itemsSortedByDate_2
+    stateObj.itemsLookup = combinedComments_2
+    stateObj.commentTree_2 = commentTree_2
+    stateObj.itemsSortedByDate = itemsSortedByDate_2
+    stateObj.add_user_on_page_load += changed_2.length
+  }
   //set success/failure after everything from the archive is returned,
   //pushshift_post_promise will time out, and it only sends a request for self posts, so it's okay to wait for this non-critical request
-  return Promise.all([pushshift_post_promise, combined_comments_promise])
-  .then(() => {
-    if (! archiveError) {
-      return global.returnSuccess(stateObj)
-    } else {
-      return global.returnError(stateObj)
-    }
-  })
+  await pushshift_post_promise
+  if (! archiveError) {
+    return global.returnSuccess(stateObj)
+  } else {
+    return global.returnError(stateObj)
+  }
 }
 
 export const insertParent = (child_id, global) => {
