@@ -114,7 +114,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     if (commentID) {
       root_commentID = oldestComment.id
       const after = oldestComment.created_utc - 1
-      reveddit_comments_promise = getRemovedCommentsByThread(threadID, after, root_commentID)
+      reveddit_comments_promise = getRemovedCommentsByThread(threadID, after, root_commentID, commentID)
       pushshift_comments_promise = getPushshiftCommentsByThread(threadID, after)
       .catch(ignoreArchiveErrors)
     }

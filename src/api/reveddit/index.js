@@ -182,17 +182,18 @@ const flaskQuery = (path, params = {}, host = REVEDDIT_FLASK_HOST_SHORT) => {
   .catch(errorHandler)
 }
 
-export const getRemovedCommentsByThread = (link_id, after, root_comment_id) => {
-  return Promise.all([getRemovedCommentsByThread_v1(link_id, after, root_comment_id),
+export const getRemovedCommentsByThread = (link_id, after, root_comment_id, comment_id) => {
+  return Promise.all([getRemovedCommentsByThread_v1(link_id, after, root_comment_id, comment_id),
                        getRemainingCommentsByThread(link_id, after, root_comment_id)])
   .then(results => Object.assign({}, ...results))
 }
 
-export const getRemovedCommentsByThread_v1 = (link_id, after, root_comment_id) => {
+export const getRemovedCommentsByThread_v1 = (link_id, after, root_comment_id, comment_id) => {
   const params = {
     link_id,
     ...(after && {after}),
     ...(root_comment_id && {root_comment_id}),
+    ...(comment_id && {comment_id}),
     c: getCount(600),
   }
   return flaskQuery('removed-comments/', params)
