@@ -622,7 +622,8 @@ const GenericPostProcessor = connect((props) => {
     if (page_type === 'info' ||
           (archiveTimes.updated - archiveTime_comment > normalArchiveDelay
           && ['search', 'thread', 'subreddit_comments'].includes(page_type))) {
-      commentsMsg = gridLabel('comments', archiveTime_comment, archiveTimes.updated)
+      const starred = (archiveTime_comment === archiveTimes.beta_comment && archiveTimes.updated - archiveTimes.comment > normalArchiveDelay)
+      commentsMsg = gridLabel('comments', archiveTime_comment, archiveTimes.updated, starred)
     }
     if (submissionsMsg || commentsMsg) {
       const updated = getPrettyDate(archiveTimes.updated)
@@ -647,10 +648,11 @@ const GenericPostProcessor = connect((props) => {
 
 const archive_delay_help = (<>
   <p>The archive service, called Pushshift, may fall behind due to a high volume of reddit content. <LinkWithCloseModal to='/about/faq/#unarchived'>more info</LinkWithCloseModal></p>
+  <p>* The comment delay comes from the status of Pushshift's beta API.</p>
 </>)
 
-const gridLabel = (label, created_utc, updated) => {
+const gridLabel = (label, created_utc, updated, starred=false) => {
   return <>
-    <div className='label'>{label}</div><Time noAgo={true} created_utc={created_utc} pretty={getPrettyTimeLength(updated - created_utc)}/>
+    <div className='label'>{label}</div><Time noAgo={true} created_utc={created_utc} pretty={getPrettyTimeLength(updated - created_utc) + (starred ? '*' : '')}/>
   </>
 }
