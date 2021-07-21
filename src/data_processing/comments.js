@@ -99,7 +99,7 @@ export const copyFields = (fields, source, target, if_value = false) => {
   }
 }
 
-const setupCommentMeta = (archiveComment, redditComment) => {
+export const setupCommentMeta = (archiveComment, redditComment) => {
   const retrievalLatency = archiveComment.retrieved_on ? archiveComment.retrieved_on - archiveComment.created_utc : 9999
   set_link_permalink(archiveComment, redditComment)
   copyFields(copy_fields, redditComment, archiveComment)

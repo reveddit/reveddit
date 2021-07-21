@@ -1,5 +1,5 @@
 import { combinePushshiftAndRedditComments, copyModlogItemsToArchiveItems,
-         copyFields,
+         copyFields, setupCommentMeta,
 } from 'data_processing/comments'
 import { combineRedditAndPushshiftPost } from 'data_processing/posts'
 import {
@@ -287,8 +287,12 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     if (removed_leaf_comments_promise) {
       const removedLeafComments = await removed_leaf_comments_promise
       for (const leafComment of Object.values(removedLeafComments)) {
-        copyFields(copy_fields_from_archive_to_combined, leafComment, combinedComments[leafComment.id], true)
-        delete combinedComments[leafComment.id].archive_body_removed
+        const combinedComment = combinedComments[leafComment.id]
+        copyFields(copy_fields_from_archive_to_combined, leafComment, combinedComment, true)
+        if (! commentIsRemoved(leafComment)) {
+          setupCommentMeta(combinedComment, redditComments[combinedComment.id])
+        }
+        delete combinedComment.archive_body_removed
         stateObj.add_user_on_page_load += 1 // update a var used as a useMemo dependency in RevdditFetcher.js
       }
     }
