@@ -1,4 +1,5 @@
 import { combinePushshiftAndRedditComments, copyModlogItemsToArchiveItems,
+         copyFields,
 } from 'data_processing/comments'
 import { combineRedditAndPushshiftPost } from 'data_processing/posts'
 import {
@@ -15,7 +16,7 @@ import {
 import { getAuth } from 'api/reddit/auth'
 import {
   submitMissingComments, getUmodlogsThread, getModerators,
-  getRemovedCommentsByThread,
+  getRemovedCommentsByThread, getArchivedCommentsByID,
 } from 'api/reveddit'
 import {
   redditLimiter
@@ -39,6 +40,7 @@ const ignoreArchiveErrors = () => {
 }
 let useProxy = false
 
+const copy_fields_from_archive_to_combined = ['author', 'author_flair_text', 'author_fullname', 'distinguished', 'body', 'retrieved_on', 'score', 'stickied']
 const scheduleAddUserItems = (addUserItems) => addUserItems.map(item => redditLimiter.schedule(() => item.query()))
 
 export const getRevdditThreadItems = async (threadID, commentID, context, add_user, user_kind, user_sort, user_time,
@@ -218,7 +220,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
   }
   const origRedditComments = {...redditComments}
   const early_combinedComments = combinePushshiftAndRedditComments(pushshiftComments, redditComments, false, reddit_post)
-  const [early_commentTree, early_itemsSortedByDate] = createCommentTree(threadID, root_commentID, early_combinedComments)
+  const [early_commentTree, early_itemsSortedByDate] = createCommentTree(threadID, root_commentID, early_combinedComments, false)
   await global.setState({items: early_itemsSortedByDate,
              itemsSortedByDate: early_itemsSortedByDate,
                     itemsLookup: early_combinedComments,
@@ -258,7 +260,12 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
   //todo: check if pushshiftComments has any parent_ids that are not in combinedComments
   //      and do a reddit query for these. Possibly query twice if the result has items whose parent IDs
   //      are not in combinedComments after adding the result of the first query
-  const [commentTree, itemsSortedByDate] = createCommentTree(threadID, root_commentID, combinedComments, true)
+  const [commentTree, itemsSortedByDate, removed_leaf_comment_ids] = createCommentTree(threadID, root_commentID, combinedComments, true, revedditComments)
+  let removed_leaf_comments_promise
+  if (removed_leaf_comment_ids.length) {
+    removed_leaf_comments_promise = getArchivedCommentsByID(removed_leaf_comment_ids)
+  }
+
   const missing = []
   markTreeMeta(missing, origRedditComments, moreComments, commentTree, reddit_post.num_comments, root_commentID, commentID)
   if (missing.length) {
@@ -275,18 +282,28 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
                     add_user: new_add_user || add_user,
                     add_user_on_page_load,
                    }
-  if (add_user_promises_remainder.length) {
+  if (add_user_promises_remainder.length || removed_leaf_comments_promise) {
     await global.setState(stateObj)
-    const {user_comments: user_comments_2, newComments: remainingRedditIDs_2} = await Promise.all(add_user_promises_remainder)
-      .then(userPages => getUserCommentsForPost(reddit_post, combinedComments, userPages))
-    const {combinedComments: combinedComments_2, changed: changed_2} =
-      await addRemainingRedditComments_andCombine(Object.keys(remainingRedditIDs_2), user_comments_2)
-    const [commentTree_2, itemsSortedByDate_2] = createCommentTree(threadID, root_commentID, combinedComments_2, true)
-    stateObj.items = itemsSortedByDate_2
-    stateObj.itemsLookup = combinedComments_2
-    stateObj.commentTree_2 = commentTree_2
-    stateObj.itemsSortedByDate = itemsSortedByDate_2
-    stateObj.add_user_on_page_load += changed_2.length
+    if (removed_leaf_comments_promise) {
+      const removedLeafComments = await removed_leaf_comments_promise
+      for (const leafComment of Object.values(removedLeafComments)) {
+        copyFields(copy_fields_from_archive_to_combined, leafComment, combinedComments[leafComment.id], true)
+        delete combinedComments[leafComment.id].archive_body_removed
+        stateObj.add_user_on_page_load += 1 // update a var used as a useMemo dependency in RevdditFetcher.js
+      }
+    }
+    if (add_user_promises_remainder.length) {
+      const {user_comments: user_comments_2, newComments: remainingRedditIDs_2} = await Promise.all(add_user_promises_remainder)
+        .then(userPages => getUserCommentsForPost(reddit_post, combinedComments, userPages))
+      const {combinedComments: combinedComments_2, changed: changed_2} =
+        await addRemainingRedditComments_andCombine(Object.keys(remainingRedditIDs_2), user_comments_2)
+      const [commentTree_2, itemsSortedByDate_2] = createCommentTree(threadID, root_commentID, combinedComments_2)
+      stateObj.items = itemsSortedByDate_2
+      stateObj.itemsLookup = combinedComments_2
+      stateObj.commentTree_2 = commentTree_2
+      stateObj.itemsSortedByDate = itemsSortedByDate_2
+      stateObj.add_user_on_page_load += changed_2.length
+    }
   }
   //set success/failure after everything from the archive is returned,
   //pushshift_post_promise will time out, and it only sends a request for self posts, so it's okay to wait for this non-critical request
@@ -378,24 +395,40 @@ const markTreeMeta = (missing, origRedditComments, moreComments, comments, post_
   })
 }
 
-export const createCommentTree = (postID, root_commentID, commentsLookup, logErrors = false) => {
+export const createCommentTree = (postID, root_commentID, commentsLookup, logErrors = false, revedditComments) => {
   const commentTree = []
+  const removed_leaf_comment_ids = new Set()
+  const parentsInTree = new Set()
   const commentsSortedByDate = Object.values(commentsLookup).sort(sortCreatedAsc)
+  const addLeaf = (comment) => {
+    if (! revedditComments[comment.id] && commentIsRemoved(comment)) {
+      removed_leaf_comment_ids.add(comment.id)
+    }
+  }
   for (const [i, comment] of commentsSortedByDate.entries()) {
     comment.by_date_i = i
     comment.replies = []
     const parentID = comment.parent_id
     const parentID_short = parentID.substr(3)
     const parentComment = commentsLookup[parentID_short]
+
     if ((! root_commentID && parentID === 't3_'+postID) ||
          comment.id === root_commentID) {
       //add root comment
       commentTree.push(comment)
+      if (revedditComments) {
+        parentsInTree.add(comment.id)
+        addLeaf(comment)
+      }
     } else if (parentComment === undefined && ! root_commentID && logErrors) {
       // don't show error if root_commentID is defined b/c in that case
       // the pushshift query may return results that can't be shown
       console.error('MISSING PARENT ID:', parentID, 'for comment', comment)
     } else if (parentComment) {
+      if (revedditComments && parentsInTree.has(parentID_short)) {
+        addLeaf(comment)
+      }
+      removed_leaf_comment_ids.delete(parentComment.id)
       if (! parentComment.replies) {
         parentComment.replies = []
       }
@@ -403,7 +436,7 @@ export const createCommentTree = (postID, root_commentID, commentsLookup, logErr
     }
   }
   setAncestors(commentTree)
-  return [commentTree, commentsSortedByDate]
+  return [commentTree, commentsSortedByDate, Array.from(removed_leaf_comment_ids)]
 }
 
 const setAncestors = (commentTree, ancestors = {}) => {

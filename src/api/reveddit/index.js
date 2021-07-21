@@ -210,3 +210,11 @@ export const getRemainingCommentsByThread = (link_id, after, root_comment_id) =>
   return flaskQuery('linkid-comments/', params)
   .catch(error => {return {}}) // ignore fetch errors, this is not critical data
 }
+
+export const getArchivedCommentsByID = (ids) => {
+  const params = {
+    ids,
+  }
+  return flaskQuery('comments-by-id/', params)
+  .catch(error => {return {}}) // ignore fetch errors, this is not critical data
+}
