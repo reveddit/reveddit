@@ -15,6 +15,8 @@ const period_in_seconds = period_in_minutes * 60
 const DEFAULT_SECONDS_UNTIL_INCREMENT = 60
 const offset = (new Date()).getTimezoneOffset()*60*1000
 
+const ARCHIVE_MAX_SIZE = 250
+
 const getCount = (seconds_until_increment = DEFAULT_SECONDS_UNTIL_INCREMENT) => {
   const date = new Date()
   //normalize hours across timezones
@@ -213,7 +215,7 @@ export const getRemainingCommentsByThread = (link_id, after, root_comment_id) =>
 
 export const getArchivedCommentsByID = (ids) => {
   const params = {
-    ids,
+    ids: ids.slice(0, ARCHIVE_MAX_SIZE),
   }
   return flaskQuery('comments-by-id/', params)
   .catch(error => {return {}}) // ignore fetch errors, this is not critical data
