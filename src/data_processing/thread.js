@@ -301,8 +301,6 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
         stateObj.commentTree = commentTree_2
         stateObj.itemsSortedByDate = itemsSortedByDate_2
       }
-
-      console.log(combinedComments['h5j3oc9'].removedby)
     }
     if (add_user_promises_remainder.length) {
       const {user_comments: user_comments_2, newComments: remainingRedditIDs_2} = await Promise.all(add_user_promises_remainder)
