@@ -408,6 +408,7 @@ export const createCommentTree = (postID, root_commentID, commentsLookup, logErr
     if (! revedditComments[comment.id] && commentIsRemoved(comment)) {
       removed_leaf_comment_ids.add(comment.id)
     }
+    parentsInTree.add(comment.id)
   }
   for (const [i, comment] of commentsSortedByDate.entries()) {
     comment.by_date_i = i
@@ -421,7 +422,6 @@ export const createCommentTree = (postID, root_commentID, commentsLookup, logErr
       //add root comment
       commentTree.push(comment)
       if (revedditComments) {
-        parentsInTree.add(comment.id)
         addLeaf(comment)
       }
     } else if (parentComment === undefined && ! root_commentID && logErrors) {
