@@ -34,7 +34,7 @@ export const getMissingComments = async ({subreddit, limit=100, page=1}) => {
     ...(page && {page}),
     c: getCount()
   }
-  return flaskQuery('missing-comments/get/', params)
+  return flaskQuery({path: 'missing-comments/get/', params})
 }
 
 export const submitMissingComments = async (ids) => {
@@ -42,21 +42,21 @@ export const submitMissingComments = async (ids) => {
     ids: ids.join(','),
     c: getCount()
   }
-  return flaskQuery('missing-comments/post/', params)
+  return flaskQuery({path: 'missing-comments/post/', params})
 }
 
 export const getWhatPeopleSay = async () => {
   const params = {
     c: getCount()
   }
-  return flaskQuery('what-people-say/', params, REVEDDIT_FLASK_HOST_LONG)
+  return flaskQuery({path: 'what-people-say/', params, host: REVEDDIT_FLASK_HOST_LONG})
 }
 
 export const getArchiveTimes = async () => {
   const params = {
     c: getCount(120)
   }
-  return flaskQuery('archive-times/', params)
+  return flaskQuery({path: 'archive-times/', params})
 }
 
 const aggregationsPath = 'aggregations/'
@@ -69,7 +69,7 @@ export const agg_defaults_for_page = {
 }
 
 export const getAggregations = ({subreddit, type = agg_defaults_for_page.type, limit = agg_defaults_for_page.limit, sort = agg_defaults_for_page.sort}) => {
-  return flaskQuery(aggregationsPath, {type, subreddit, limit, sort}, REVEDDIT_FLASK_HOST_LONG)
+  return flaskQuery({path: aggregationsPath, params: {type, subreddit, limit, sort}, host: REVEDDIT_FLASK_HOST_LONG})
 }
 
 export const getAggregationsURL = ({subreddit, type = agg_defaults_for_page.type, limit = agg_defaults_for_page.limit, sort = agg_defaults_for_page.sort}) => {
@@ -127,7 +127,7 @@ export const getUmodlogsComments = (subreddit) => {
 export const getUmodlogs = async ({subreddit, thread_id, actions}) => {
   const params = { c: getCount() }
   const empty = {comments: {}, posts: {}}
-  return flaskQuery('modlogs-subreddits/', params)
+  return flaskQuery({path: 'modlogs-subreddits/', params})
   .then(list => {
     const set = new Set(list.map(x => x.toLowerCase()))
     if (set.has(subreddit.toLowerCase())) {
@@ -136,7 +136,7 @@ export const getUmodlogs = async ({subreddit, thread_id, actions}) => {
         params.link = `/r/comments/${thread_id}`
       }
       params.actions = actions
-      return flaskQuery(`r/${subreddit}/logs/`, params, U_MODLOGS_API)
+      return flaskQuery({path: `r/${subreddit}/logs/`, params, host: U_MODLOGS_API})
       .then(result => postProcessUmodlogs(result.logs, thread_id))
     }
     return empty
@@ -171,15 +171,15 @@ const postProcessUmodlogs = (list, thread_id) => {
 }
 
 export const getModerators = (subreddit) => {
-  return flaskQuery('moderators/', {subreddit})
+  return flaskQuery({path: 'moderators/', params: {subreddit}})
   .catch(error => {return {}}) // ignore fetch errors, this is not critical data
   .then(getModeratorsPostProcess)
 }
 
-const flaskQuery = (path, params = {}, host = REVEDDIT_FLASK_HOST_SHORT) => {
+const flaskQuery = ({path, params = {}, host = REVEDDIT_FLASK_HOST_SHORT, options}) => {
   const param_str = (params && Object.keys(params).length) ? '?' + paramString(params) : ''
   const url = host + path + param_str
-  return fetchWithTimeout(url)
+  return fetchWithTimeout(url, options)
   .then(response => response.json())
   .catch(errorHandler)
 }
@@ -190,6 +190,8 @@ export const getRemovedCommentsByThread = (link_id, after, root_comment_id, comm
   .then(results => Object.assign({}, ...results))
 }
 
+const extendedTimeout = { timeout: 12000 }
+
 export const getRemovedCommentsByThread_v1 = (link_id, after, root_comment_id, comment_id) => {
   const params = {
     link_id,
@@ -198,7 +200,7 @@ export const getRemovedCommentsByThread_v1 = (link_id, after, root_comment_id, c
     ...(comment_id && {comment_id}),
     c: getCount(600),
   }
-  return flaskQuery('removed-comments/', params)
+  return flaskQuery({path: 'removed-comments/', params, options: extendedTimeout})
   .catch(error => {return {}}) // ignore fetch errors, this is not critical data
 }
 
@@ -209,7 +211,7 @@ export const getRemainingCommentsByThread = (link_id, after, root_comment_id) =>
     ...(root_comment_id && {root_comment_id}),
     c: getCount(1200),
   }
-  return flaskQuery('linkid-comments/', params)
+  return flaskQuery({path: 'linkid-comments/', params})
   .catch(error => {return {}}) // ignore fetch errors, this is not critical data
 }
 
@@ -217,6 +219,6 @@ export const getArchivedCommentsByID = (ids) => {
   const params = {
     ids: ids.slice(0, ARCHIVE_MAX_SIZE),
   }
-  return flaskQuery('comments-by-id/', params)
+  return flaskQuery({path: 'comments-by-id/', params, options: extendedTimeout})
   .catch(error => {return {}}) // ignore fetch errors, this is not critical data
 }
