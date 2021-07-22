@@ -1,5 +1,4 @@
 import { combinePushshiftAndRedditComments, copyModlogItemsToArchiveItems,
-         copyFields, setupCommentMeta,
 } from 'data_processing/comments'
 import { combineRedditAndPushshiftPost } from 'data_processing/posts'
 import {
@@ -40,7 +39,6 @@ const ignoreArchiveErrors = () => {
 }
 let useProxy = false
 
-const copy_fields_from_archive_to_combined = ['author', 'author_flair_text', 'author_fullname', 'distinguished', 'body', 'retrieved_on', 'score', 'stickied']
 const scheduleAddUserItems = (addUserItems) => addUserItems.map(item => redditLimiter.schedule(() => item.query()))
 
 export const getRevdditThreadItems = async (threadID, commentID, context, add_user, user_kind, user_sort, user_time,
@@ -257,7 +255,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
   }
   const {combinedComments, changed} = await addRemainingRedditComments_andCombine(Object.keys(remainingRedditIDs), user_comments)
   new_add_user = addUserComments_and_updateURL(user_comments_forURL, combinedComments, add_user)
-  //todo: check if pushshiftComments has any parent_ids that are not in combinedComments
+  //could: check if pushshiftComments has any parent_ids that are not in combinedComments
   //      and do a reddit query for these. Possibly query twice if the result has items whose parent IDs
   //      are not in combinedComments after adding the result of the first query
   const [commentTree, itemsSortedByDate, removed_leaf_comment_ids] = createCommentTree(threadID, root_commentID, combinedComments, true, revedditComments)
@@ -286,15 +284,25 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     await global.setState(stateObj)
     if (removed_leaf_comments_promise) {
       const removedLeafComments = await removed_leaf_comments_promise
-      for (const leafComment of Object.values(removedLeafComments)) {
-        const combinedComment = combinedComments[leafComment.id]
-        copyFields(copy_fields_from_archive_to_combined, leafComment, combinedComment, true)
-        if (! commentIsRemoved(leafComment)) {
-          setupCommentMeta(combinedComment, redditComments[combinedComment.id])
+      const newCombinedComments = combinePushshiftAndRedditComments(removedLeafComments, redditComments, true, reddit_post)
+      stateObj.add_user_on_page_load += Object.keys(newCombinedComments).length
+      for (const oldComment of Object.values(combinedComments)) {
+        if (! newCombinedComments[oldComment.id]) {
+          newCombinedComments[oldComment.id] = oldComment
         }
-        delete combinedComment.archive_body_removed
-        stateObj.add_user_on_page_load += 1 // update a var used as a useMemo dependency in RevdditFetcher.js
       }
+      stateObj.itemsLookup = newCombinedComments
+      if (! add_user_promises_remainder.length) {
+        // TODO: remove this createCommentTree()
+        //       To do that, instead of storing comment objects in replies array,
+        //       just store the IDs and use commentsLookup to retrieve them when used
+        //       The above code doesn't change reply IDs, it only changes the objects that represent them
+        const [commentTree_2, itemsSortedByDate_2] = createCommentTree(threadID, root_commentID, newCombinedComments)
+        stateObj.commentTree = commentTree_2
+        stateObj.itemsSortedByDate = itemsSortedByDate_2
+      }
+
+      console.log(combinedComments['h5j3oc9'].removedby)
     }
     if (add_user_promises_remainder.length) {
       const {user_comments: user_comments_2, newComments: remainingRedditIDs_2} = await Promise.all(add_user_promises_remainder)

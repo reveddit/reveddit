@@ -59,20 +59,19 @@ export const set_link_permalink = (revedditComment, redditComment) => {
 
 export const combinePushshiftAndRedditComments = (pushshiftComments, redditComments, requirePushshiftData=false, post=undefined) => {
   const combinedComments = {}
-  Object.values(redditComments).forEach(comment => {
-    if (! requirePushshiftData) {
-      initializeComment(comment, post)
-      combinedComments[comment.id] = comment
-      markRemoved(comment, comment, true)
-    }
-    const ps_comment = pushshiftComments[comment.id]
-    if (ps_comment) {
-      markRemoved(comment, ps_comment)
-    }
-  })
+  if (! requirePushshiftData) {
+    Object.values(redditComments).forEach(comment => {
+        initializeComment(comment, post)
+        combinedComments[comment.id] = comment
+        markRemoved(comment, comment, true)
+    })
+  }
   // Replace pushshift data with reddit and mark removedby
   Object.values(pushshiftComments).forEach(ps_comment => {
     const redditComment = redditComments[ps_comment.id]
+    if (redditComment) {
+      markRemoved(redditComment, ps_comment)
+    }
     ps_comment.name = 't1_'+ps_comment.id // name needed for info page render
     initializeComment(ps_comment, post)
     if (ps_comment.archive_processed) {
@@ -99,7 +98,7 @@ export const copyFields = (fields, source, target, if_value = false) => {
   }
 }
 
-export const setupCommentMeta = (archiveComment, redditComment) => {
+const setupCommentMeta = (archiveComment, redditComment) => {
   const retrievalLatency = archiveComment.retrieved_on ? archiveComment.retrieved_on - archiveComment.created_utc : 9999
   set_link_permalink(archiveComment, redditComment)
   copyFields(copy_fields, redditComment, archiveComment)
