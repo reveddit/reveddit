@@ -103,7 +103,7 @@ const About_faq = () => {
                 <li><NewWindowLink reddit='/r/reveddit/comments/ndbwag/reveddit_logs_me_out_winchromereveddit_realtime/gyaphsb/#thing_t1_gyaphsb'>See here</NewWindowLink> for more info.</li>
               </ul>
             </li>
-            <li>the post was removed prior to reddit's announcement of <NewWindowLink reddit='/r/changelog/comments/e66fql/post_removal_details_on_the_new_design_redesign/'>Post removal details</NewWindowLink> in December 2019. Here is an example of an old removed post <NewWindowLink reddit={old_removed_post}>on reddit</NewWindowLink> and on <a href={old_removed_post}>on reveddit</a>.</li>
+            <li>the post was removed prior to December 2019 when reddit announced <NewWindowLink reddit='/r/changelog/comments/e66fql/post_removal_details_on_the_new_design_redesign/'>Post removal details</NewWindowLink>. Here is an example of an old removed post <NewWindowLink reddit={old_removed_post}>on reddit</NewWindowLink> and on <a href={old_removed_post}>on reveddit</a>.</li>
             <li>you visit the page using <code>old.reddit.com</code>. Only <code>new.reddit.com</code> shows post removal notices.</li>
           </ul>
       </ContentWithHeader>
