@@ -62,8 +62,9 @@ const About_faq = () => {
       <ContentWithHeader header='How do people react?' id='react'>
         <p>Here are some examples of how people react when they discover the way reddit handles removals:</p>
         <ul>
-          <li><a href='/v/InternetIsBeautiful/comments/jp8xbg/you_can_see_which_commentsposts_of_yours_have/'>a post in r/InternetIsBeautiful</a></li>
-          <li><NewWindowLink reddit='/r/technology/comments/jp4j76/google_admits_to_censoring_the_world_socialist/gbckafs/?sort=top&limit=500'>a thread in r/technology</NewWindowLink></li>
+          <li><NewWindowLink reddit='/r/InternetIsBeautiful/comments/oqe6qy/tool_to_see_which_commentsposts_of_yours_have/'>2021/07/23: r/InternetIsBeautiful</NewWindowLink></li>
+          <li><a href='/v/InternetIsBeautiful/comments/jp8xbg/you_can_see_which_commentsposts_of_yours_have/'>2020/11/06: r/InternetIsBeautiful</a></li>
+          <li><NewWindowLink reddit='/r/technology/comments/jp4j76/google_admits_to_censoring_the_world_socialist/gbckafs/?sort=top&limit=500'>2020/11/06: r/technology</NewWindowLink></li>
           <li><Link to='/about/#say'>Selected comments: What people say</Link></li>
         </ul>
         <p>
