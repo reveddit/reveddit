@@ -155,6 +155,7 @@ export const getPostWithComments = ({threadID, commentID: comment, context = 0, 
   const params = {
     limit,
     sort,
+    depth: 10,
     threaded: false,
     showmore: true,
     ...(comment && {comment}),
