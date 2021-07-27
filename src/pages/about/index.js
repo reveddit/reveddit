@@ -90,7 +90,7 @@ const news = [
    title:'site launch',
    created_utc:'1539261445'},
 ]
-
+const sub = '<sub>'
 export class About extends React.Component {
   state = {
     comments: [],
@@ -199,14 +199,14 @@ export class About extends React.Component {
               <p>Insert <span className='v'>ve</span> into the URL of any reddit page.</p>
               <ul>
                 <li><a href={PATH_STR_USER+'/redditor_3975/'}>user/redditor_3975</a></li>
-                <li><a href={PATH_STR_SUB+'/all/'}>r/all</a></li>
-                <li><a href={PATH_STR_SUB+'/all/missing-comments/'}>r/all/missing-comments</a></li>
                 <li><a href={PATH_STR_SUB+'/CantSayAnything/'}>r/CantSayAnything</a></li>
-                <li><a href={PATH_STR_SUB+'/CantSayAnything/comments'}>r/.../comments</a></li>
-                <li><a href={PATH_STR_SUB+'/CantSayAnything/about/sticky'}>r/.../comments/link-id/</a></li>
+                <li><a href={PATH_STR_SUB+'/worldnews/duplicates/eb2hjw'}>other-discussions+</a></li>
+                <li><a href={PATH_STR_SUB+'/CantSayAnything/about/sticky'}>r/{sub}/comments/link-id/</a></li>
+                <li><a href={PATH_STR_SUB+'/CantSayAnything/comments'}>r/{sub}/comments</a></li>
                 <li><a href='/domain/cnn.com+edition.cnn.com'>domain/cnn.com+ edition.cnn.com</a></li>
                 <li><a href={PATH_STR_SUB+'/news+worldnews/'}>r/news+worldnews/</a></li>
-                <li><a href={PATH_STR_SUB+'/worldnews/duplicates/eb2hjw'}>other-discussions+</a></li>
+                <li><a href={PATH_STR_SUB+'/all/'}>r/all</a></li>
+                <li><a href={PATH_STR_SUB+'/all/missing-comments/'}>r/all/missing-comments</a></li>
               </ul>
             </ContentWithHeader>
           </Row>

@@ -38,7 +38,11 @@ const old_removed_post = '/r/ProgrammerHumor/comments/9emzhp/turk_tv_found_the_r
 const About_faq = () => {
   return (
     <InternalPage>
-      <ContentWithHeader header='Why do I need this?' id='need'>
+      <ContentWithHeader header='What is this?' id='description'>
+        <p>Reveddit shows content removed from reddit. It does not show user-deleted content.</p>
+        <p>Add <span class='v'>ve</span> to the URL of any page on reddit, including user pages, subreddits, threads and more.</p>
+      </ContentWithHeader>
+      <ContentWithHeader header='Why do I need it?' id='need'>
         <p>
           Two reasons,
         </p>
