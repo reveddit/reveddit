@@ -26,7 +26,9 @@ class LoadLink extends React.Component {
         .then(() => {
           getRevdditUserItems(this.props.user,
                               this.props.kind,
-                              this.props.global)
+                              this.props.global,
+                              false,
+                             )
         })
       }}>{text}</Link>
     } else {

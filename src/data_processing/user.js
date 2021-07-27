@@ -101,10 +101,15 @@ let missing_comments_promise = Promise.resolve(blankMissingComments)
 const acceptable_kinds = [OVERVIEW, COMMENTS, SUBMITTED, GILDED, '']
 const acceptable_sorts = ['new', 'top', 'controversial', 'hot']
 
-
-export const getRevdditUserItems = async (user, kind, global) => {
+//isFirstTimeLoading is true on page load, false when: 'load all' or 'view more' is clicked
+//  scrolling to load more is handled by calling getItems directly, so isFirstTimeLoading
+//  becomes irrelevant and incorrect there
+export const getRevdditUserItems = async (user, kind, global, isFirstTimeLoading = true) => {
   const gs = global.state
   let {sort, before, after, t, limit, all} = gs
+  if (all) {
+    limit = 100
+  }
   const pathParts = window.location.pathname.split('/')
   const badKind = ! acceptable_kinds.includes(kind)
   const badSort = ! acceptable_sorts.includes(sort)
@@ -134,35 +139,37 @@ export const getRevdditUserItems = async (user, kind, global) => {
       })
     }
   })
-
-  getModeratedSubreddits(user).then(moderated_subreddits => global.setState({moderated_subreddits}))
+  if (isFirstTimeLoading) {
+    getModeratedSubreddits(user).then(moderated_subreddits => global.setState({moderated_subreddits}))
+  }
   const params_pre_after = [user, kind, global, sort, before]
   const params_post_after = [t, limit, all]
   return getItems(...params_pre_after, after || gs.userNext, ...params_post_after)
-  .then(result => {
-    return lookupAndSetRemovedBy(global)
-    .then( tempres => {
-      window.onscroll = (ev) => {
-        const {loading, userNext, show} = global.state
-        if (userNext && ! loading && ! show && (window.innerHeight + window.pageYOffset) >= document.body.offsetHeight - 2) {
-          global.setLoading('')
+  .then( async (pageLoad_or_loadAll_or_viewMore_userPageNext) => {
+    if ((isFirstTimeLoading && ! all) || (all && ! pageLoad_or_loadAll_or_viewMore_userPageNext)) {
+      await lookupAndSetRemovedBy(global)
+    }
+    window.onscroll = (ev) => {
+      const {loading, userNext, show} = global.state
+      if (userNext && ! loading && ! show && (window.innerHeight + window.pageYOffset) >= document.body.offsetHeight - 2) {
+        global.setLoading('')
+        .then(() => {
+          getItems(...params_pre_after, userNext, ...params_post_after)
           .then(() => {
-            getItems(...params_pre_after, userNext, ...params_post_after)
-            .then(() => {
-              const {userNext: updated_userNext, items} = global.state
-              // on scroll load, call pushshift if page # is > 1 and there are no more pages
-              if (! updated_userNext && items.length > 100) {
-                return lookupAndSetRemovedBy(global)
-                .then(() => global.setSuccess())
-              } else {
-                return global.setSuccess()
-              }
-            })
+            const {userNext: updated_userNext, items} = global.state
+            // on scroll load, call pushshift if page # is > 1 and there are no more pages
+            if (! updated_userNext && items.length > 100) {
+              return lookupAndSetRemovedBy(global)
+              .then(() => global.setSuccess())
+            } else {
+              return global.setSuccess()
+            }
           })
-        }
+        })
       }
-      return global.returnSuccess()
-    })
+    }
+    const returnFunc = isFirstTimeLoading ? global.returnSuccess : global.setSuccess
+    return returnFunc()
   })
 }
 
