@@ -303,6 +303,10 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
       }
     }
     if (add_user_promises_remainder.length) {
+      // n.b. removed comments whose entries (1) were not discovered via reddit and pushshift normal + beta lookups, and
+      //                                     (2) are discovered here via add_user
+      //      may have incorrect removedby labels. 'beta' has the correct retrieved_utc but we never looked up those IDs there
+      //      this will be resolved in the future when pushshift updates its api
       const {user_comments: user_comments_2, newComments: remainingRedditIDs_2} = await Promise.all(add_user_promises_remainder)
         .then(userPages => getUserCommentsForPost(reddit_post, combinedComments, userPages))
       const {combinedComments: combinedComments_2, changed: changed_2} =
