@@ -204,15 +204,16 @@ export const getRemovedCommentsByThread_v1 = (link_id, after, root_comment_id, c
   .catch(error => {return {}}) // ignore fetch errors, this is not critical data
 }
 
-export const getRemainingCommentsByThread = (link_id, after, root_comment_id) => {
+export const getRemainingCommentsByThread = async (link_id, after, root_comment_id) => {
   const params = {
     link_id,
     ...(after && {after}),
     ...(root_comment_id && {root_comment_id}),
     c: getCount(1200),
   }
-  return flaskQuery({path: 'linkid-comments/', params})
-  .catch(error => {return {}}) // ignore fetch errors, this is not critical data
+  return {} // disable, too many failed requests
+  // return flaskQuery({path: 'linkid-comments/', params})
+  // .catch(error => {return {}}) // ignore fetch errors, this is not critical data
 }
 
 export const getArchivedCommentsByID = (ids) => {
