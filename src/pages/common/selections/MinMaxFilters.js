@@ -57,7 +57,7 @@ const filters = {
   },
   'account_combined_karma': {
     globalVarBase: 'account_combined_karma',
-    text: 'Combined karma',
+    text: 'Account karma',
     placeholder: '100',
     desc: `The account's current combined karma.${go}`,
   },

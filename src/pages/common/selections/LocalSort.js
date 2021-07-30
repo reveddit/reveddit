@@ -66,7 +66,7 @@ const LocalSort = connect(({global, page_type}) => {
         {['search', 'info', 'domain_posts', 'duplicate_posts', 'missing_comments'].includes(page_type) &&
           makeLabel('subreddit_subscribers', 'subreddit subscribers')}
         {makeLabel('account_age', 'account age (new)', accountInfoNotYetRetrieved)}
-        {makeLabel('account_combined_karma', 'combined karma', accountInfoNotYetRetrieved)}
+        {makeLabel('account_combined_karma', 'account karma', accountInfoNotYetRetrieved)}
         <label id='reverseSort'>
           <input type='checkbox'
             checked={localSortReverse}
