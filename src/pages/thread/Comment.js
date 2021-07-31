@@ -348,7 +348,7 @@ const PreserveButton = connect(({global, post, author, deleted, loading, setLoca
             if (forceUrlUpdate) {
               // passing an empty itemsLookup allows the url to update even when removed or new comments are not found
               // this reruns one of the functions encapsulated above but it's short and only happens when user clicks
-              add_user_for_preserve = addUserComments_and_updateURL(user_comments, {}, new_add_user || add_user, userPageSort, userPageTime)
+              ({new_add_user: add_user_for_preserve} = addUserComments_and_updateURL(user_comments, {}, new_add_user || add_user, userPageSort, userPageTime))
             }
             copyToClipboard(window.location.href)
             if (isMounted.current) {

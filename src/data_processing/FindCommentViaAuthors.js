@@ -65,9 +65,9 @@ const search_comment_help = <Help title={unarchived_search_button_word+' Comment
 
 const Wrap = ({children}) => <div style={{padding: '15px 0', minHeight: '25px'}}>{children}</div>
 
-const getAddUserMeta = (props, distance_input, userPageSort, userPageTime) => {
+export const getAddUserMeta = (props, distance_input, userPageSort, userPageTime, state = {}) => {
   const {itemsLookup, alreadySearchedAuthors, threadPost,
-   itemsSortedByDate, add_user, loading} = props.global.state
+   itemsSortedByDate, add_user} = props.global?.state || state
    const grandparentComment = getAncestor(props, itemsLookup, 2)
    const grandchildComment = ((props.replies[0] || {}).replies || [])[0] || {}
    // START nearby authors
@@ -337,7 +337,7 @@ const updateUrlFromChangedAuthors = (changedAuthors, add_user, userPageSort, use
 export const addUserComments_and_updateURL = (user_comments, itemsLookup, add_user, userPageSort = 'new', userPageTime = 'all') => {
   const {changed, changedAuthors} = addUserComments(user_comments, itemsLookup)
   const new_add_user = updateUrlFromChangedAuthors(changedAuthors, add_user, userPageSort, userPageTime)
-  return new_add_user
+  return {new_add_user, changed}
 }
 
 //existingIDs: IDs already looked up via api/info
@@ -383,7 +383,7 @@ export const getUserCommentsForPost = (post, existingIDs, userPages) => {
 
 export const addUserComments_updateURL_createTreeIfNeeded = async ({user_comments, itemsLookup, add_user,
   threadPost, newComments, items, commentTree, userPageSort, userPageTime}) => {
-  const new_add_user = addUserComments_and_updateURL(user_comments, itemsLookup, add_user, userPageSort, userPageTime)
+  const {new_add_user} = addUserComments_and_updateURL(user_comments, itemsLookup, add_user, userPageSort, userPageTime)
   let new_commentTree
   if (Object.keys(newComments).length) {
     const combinedComments = await retrieveRedditComments_and_combineWithPushshiftComments(newComments)

@@ -28,6 +28,7 @@ import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
          AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
 import {AddUserParam, AddUserItem, getUserCommentsForPost,
         addUserComments, addUserComments_and_updateURL,
+        getAddUserMeta,
 } from 'data_processing/FindCommentViaAuthors'
 
 const NumAddUserItemsToLoadAtFirst = 10
@@ -219,23 +220,51 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
   const origRedditComments = {...redditComments}
   const early_combinedComments = combinePushshiftAndRedditComments(pushshiftComments, redditComments, false, reddit_post)
   const [early_commentTree, early_itemsSortedByDate] = createCommentTree(threadID, root_commentID, early_combinedComments, false)
+  const {alreadySearchedAuthors} = global.state // should be empty on page load, getting in case that changes
+  // attempt to restore directly linked unarchived removed comment
+  // if a directly linked comment is removed, auto-click the 'restore' button once.
+  const restoreDirectlyLinkedUnarchivedRemovedComment = async (focusComment, state) => {
+    if (focusComment && commentIsRemoved(focusComment)) {
+      state.add_user = '' // set to blank b/c getAddUserMeta would search authors found here
+      state.threadPost = reddit_post // only need author from this
+      state.alreadySearchedAuthors = alreadySearchedAuthors
+      const {aug} = getAddUserMeta(focusComment, 0, 'new', 'all', state) // not guessing sort/time here makes combining the results easier
+      // waiting for aug.query(), which is async, to return its data. does not wait for the returned promises
+      const {authors, promises} = await aug.query()
+      Object.assign(alreadySearchedAuthors, authors)
+      return promises
+    }
+    return [] // return no promises
+  }
+  if (! add_user && commentID) {
+    // only run here if add_user is not set b/c add_user data hasn't been incorporated yet.
+    const promises = await restoreDirectlyLinkedUnarchivedRemovedComment(early_combinedComments[commentID], {
+      itemsLookup: early_combinedComments,
+      itemsSortedByDate: early_itemsSortedByDate,
+    })
+    add_user_promises_forURL.push(...promises)
+  }
   await global.setState({items: early_itemsSortedByDate,
              itemsSortedByDate: early_itemsSortedByDate,
-                    itemsLookup: early_combinedComments,
-                    commentTree: early_commentTree,
-          initialFocusCommentID: commentID})
-  const pass_userPages_to_getUserCommentsForPost = (userPages) => getUserCommentsForPost(reddit_post, early_combinedComments, userPages)
-  const {user_comments, newComments: remainingRedditIDs} = await Promise.all(add_user_promises)
-    .then(pass_userPages_to_getUserCommentsForPost)
-  const {user_comments: user_comments_forURL, newComments: remainingRedditIDs_2} = await Promise.all(add_user_promises_forURL)
-    .then(pass_userPages_to_getUserCommentsForPost)
+                   itemsLookup: early_combinedComments,
+                   commentTree: early_commentTree,
+         initialFocusCommentID: commentID,
+                                alreadySearchedAuthors,
+  })
+  const processAddUserPromises = async (promises, combinedComments) => {
+    return await Promise.all(promises)
+      .then(userPages => getUserCommentsForPost(reddit_post, combinedComments, userPages))
+  }
+  const {user_comments, newComments: remainingRedditIDs} = await processAddUserPromises(add_user_promises, early_combinedComments)
+  const {user_comments: user_comments_forURL, newComments: remainingRedditIDs_2} = await processAddUserPromises(add_user_promises_forURL, early_combinedComments)
   Object.assign(remainingRedditIDs, remainingRedditIDs_2)
   Object.keys(pushshiftComments).forEach(id => {
     if (! (id in redditComments)) {
       remainingRedditIDs[id] = 1
     }
   })
-  const addRemainingRedditComments_andCombine = async (ids, user_comments) => {
+
+  const addRemainingRedditComments_andCombine = async (ids, user_comments, add_user, updateURL = false) => {
     if (ids.length) {
       const remainingRedditComments = await getRedditComments({ids, useProxy})
       Object.values(remainingRedditComments).forEach(comment => {
@@ -243,22 +272,58 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
       })
     }
     // consider: change this logic to update combinedComments incrementally rather than recreating it from scratch
-    // currently, combinePushshiftAndRedditComments() is called 3x:
+    // currently, combinePushshiftAndRedditComments() is called 3x or 4x:
     //     once with only reddit comments
     //     once with all Pushshift comments and some reddit comments
     //     once with all Pushshift comments and remaining reddit comments
+    //     (depends..) once if we found any removed leaf comments
     // The third call, here, could simply update based on the remainingRedditComments
     // To do that, would need to use early_combinedComments as the basis for a return value
     const combinedComments = combinePushshiftAndRedditComments(pushshiftComments, redditComments, false, reddit_post)
-    const {changed} = addUserComments(user_comments, combinedComments)
-    return {combinedComments, changed}
+    let changed = [], new_add_user
+    if (updateURL) {
+      ({new_add_user, changed} = addUserComments_and_updateURL(user_comments, combinedComments, add_user))
+    } else {
+      ({changed} = addUserComments(user_comments, combinedComments))
+    }
+    return {combinedComments, changed, new_add_user}
   }
-  const {combinedComments, changed} = await addRemainingRedditComments_andCombine(Object.keys(remainingRedditIDs), user_comments)
-  new_add_user = addUserComments_and_updateURL(user_comments_forURL, combinedComments, add_user)
+  const {combinedComments} = await addRemainingRedditComments_andCombine(Object.keys(remainingRedditIDs), user_comments)
+  let changed
+  ({new_add_user, changed} = addUserComments_and_updateURL(user_comments_forURL, combinedComments, add_user))
   //could: check if pushshiftComments has any parent_ids that are not in combinedComments
   //      and do a reddit query for these. Possibly query twice if the result has items whose parent IDs
   //      are not in combinedComments after adding the result of the first query
   const [commentTree, itemsSortedByDate, removed_leaf_comment_ids] = createCommentTree(threadID, root_commentID, combinedComments, true, revedditComments)
+  const stateObj = {items: itemsSortedByDate,
+                    itemsLookup: combinedComments,
+                    commentTree, itemsSortedByDate,
+                    add_user: new_add_user || add_user,
+                    add_user_on_page_load: 0,
+  }
+
+  const processAUP_addRemaining_combine = async (promises, combinedComments_input, add_user, updateURL = false) => {
+    const {user_comments, newComments} = await processAddUserPromises(promises, combinedComments_input)
+    const {combinedComments, changed, new_add_user} = await addRemainingRedditComments_andCombine(Object.keys(newComments), user_comments, add_user, updateURL)
+    return {combinedComments, changed, new_add_user}
+  }
+
+  // when add_user is set, restoreDirectlyLinkedUnarchivedRemovedComment runs here instead of above
+  let num_changes_unarchivedRemovedComment = 0
+  if (add_user && commentID) {
+    const promises = await restoreDirectlyLinkedUnarchivedRemovedComment(combinedComments[commentID], stateObj)
+    if (promises.length) {
+      const updated_add_user = new_add_user || add_user
+      const {combinedComments: combinedComments_2,
+                      changed: changed_2,
+                 new_add_user: newer_add_user,
+      } = await processAUP_addRemaining_combine(promises, combinedComments, updated_add_user, true)
+      num_changes_unarchivedRemovedComment = changed_2.length
+      stateObj.itemsLookup = combinedComments_2
+      stateObj.add_user_on_page_load += num_changes_unarchivedRemovedComment
+      stateObj.add_user = newer_add_user || updated_add_user
+    }
+  }
   let removed_leaf_comments_promise
   if (removed_leaf_comment_ids.length) {
     removed_leaf_comments_promise = getArchivedCommentsByID(removed_leaf_comment_ids)
@@ -271,52 +336,48 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
   }
   const moderators = await moderators_promise
   const subreddit_lc = reddit_post.subreddit.toLowerCase()
-  const add_user_on_page_load = changed.length
-
-  const stateObj = {items: itemsSortedByDate,
-                    itemsLookup: combinedComments,
-                    commentTree, itemsSortedByDate,
-                    moderators: {[subreddit_lc]: moderators},
-                    add_user: new_add_user || add_user,
-                    add_user_on_page_load,
-                   }
-  if (add_user_promises_remainder.length || removed_leaf_comments_promise) {
-    await global.setState(stateObj)
+  stateObj.add_user_on_page_load += changed.length
+  const updateState = {
+    moderators: {[subreddit_lc]: moderators},
+  }
+  Object.assign(stateObj, updateState)
+  if (add_user_promises_remainder.length || removed_leaf_comments_promise || num_changes_unarchivedRemovedComment) {
+    if (! num_changes_unarchivedRemovedComment) {
+      // this logic changed combinedComments, but not the tree, so can't update the state until after the tree is recreated
+      await global.setState(stateObj)
+    }
     if (removed_leaf_comments_promise) {
       const removedLeafComments = await removed_leaf_comments_promise
       const newCombinedComments = combinePushshiftAndRedditComments(removedLeafComments, redditComments, true, reddit_post)
       stateObj.add_user_on_page_load += Object.keys(newCombinedComments).length
-      for (const oldComment of Object.values(combinedComments)) {
-        if (! newCombinedComments[oldComment.id]) {
+      for (const oldComment of Object.values(stateObj.itemsLookup)) {
+        // (newCombinedComments[oldComment.id] && ! commentIsRemoved(oldComment))
+        //     -> can be true when (num_changes_unarchivedRemovedComment > 0)
+        if (! newCombinedComments[oldComment.id] || ! commentIsRemoved(oldComment)) {
           newCombinedComments[oldComment.id] = oldComment
         }
       }
       stateObj.itemsLookup = newCombinedComments
-      if (! add_user_promises_remainder.length) {
-        // TODO: remove this createCommentTree()
-        //       To do that, instead of storing comment objects in replies array,
-        //       just store the IDs and use commentsLookup to retrieve them when used
-        //       The above code doesn't change reply IDs, it only changes the objects that represent them
-        const [commentTree_2, itemsSortedByDate_2] = createCommentTree(threadID, root_commentID, newCombinedComments)
-        stateObj.commentTree = commentTree_2
-        stateObj.itemsSortedByDate = itemsSortedByDate_2
-      }
     }
     if (add_user_promises_remainder.length) {
       // n.b. removed comments whose entries (1) were not discovered via reddit and pushshift normal + beta lookups, and
       //                                     (2) are discovered here via add_user
-      //      may have incorrect removedby labels. 'beta' has the correct retrieved_utc but we never looked up those IDs there
-      //      this will be resolved in the future when pushshift updates its api
-      const {user_comments: user_comments_2, newComments: remainingRedditIDs_2} = await Promise.all(add_user_promises_remainder)
-        .then(userPages => getUserCommentsForPost(reddit_post, combinedComments, userPages))
-      const {combinedComments: combinedComments_2, changed: changed_2} =
-        await addRemainingRedditComments_andCombine(Object.keys(remainingRedditIDs_2), user_comments_2)
-      const [commentTree_2, itemsSortedByDate_2] = createCommentTree(threadID, root_commentID, combinedComments_2)
-      stateObj.items = itemsSortedByDate_2
+      //      may have incorrect removedby labels. 'beta' has the correct retrieved_utc but we never looked up those IDs there.
+      //      This will be resolved in the future when pushshift updates its api
+      const {combinedComments: combinedComments_2, changed: changed_2} = await processAUP_addRemaining_combine(add_user_promises_remainder, stateObj.itemsLookup)
       stateObj.itemsLookup = combinedComments_2
-      stateObj.commentTree_2 = commentTree_2
-      stateObj.itemsSortedByDate = itemsSortedByDate_2
       stateObj.add_user_on_page_load += changed_2.length
+    }
+    // TODO: do not run this createCommentTree() when removed_leaf_comments_promise is set
+    //       To do that, instead of storing comment objects in replies array,
+    //       just store the IDs and use commentsLookup to retrieve them when used
+    //       The "if (removed_leaf_comments_promise) {" code above doesn't change reply IDs, it only changes the objects that represent them
+    const [commentTree_2, itemsSortedByDate_2] = createCommentTree(threadID, root_commentID, stateObj.itemsLookup)
+    stateObj.commentTree = commentTree_2
+    stateObj.itemsSortedByDate = itemsSortedByDate_2
+    stateObj.items = itemsSortedByDate_2
+    if (num_changes_unarchivedRemovedComment) {
+      await global.setState(stateObj)
     }
   }
   //set success/failure after everything from the archive is returned,
