@@ -60,6 +60,22 @@ export const urlParamKeys_max_min = Object.keys(urlParamKeys_max_min_base)
 
 const urlParamKeys_max_min_defaults = Object.keys(urlParamKeys_max_min).reduce((m, k) => (m[k] = '', m), {})
 
+// separate b/c I don't want to remove backslashes from the value of these on page load in src/index.js.
+// need to remove backslashes from other param values due to bug with reddit text editor
+// e.g.
+//    created on new reddit: ?localSort=num_comments
+//    appears on old reddit: ?localSort=num\_comments
+// also: unable to encode _ character in URL b/c history.replaceState and pushState decode it for some reason.
+//       so if someone creates a link on new reddit with a below filter that has a value containing _ then it will be wrong on old reddit.
+//       should rarely happen
+export const urlParamKeys_textFilters = {
+  keywords: 'keywords',
+  post_flair: 'post_flair',
+  user_flair: 'user_flair',
+  filter_url: 'filter_url',
+  thread_before: 'thread_before',
+}
+
 //everything except removedFilter can use the default value when resetting to show all items
 const urlParamKeys_filters_for_reset_to_show_all_items = {
   removedByFilter: 'removedby',
@@ -69,12 +85,8 @@ const urlParamKeys_filters_for_reset_to_show_all_items = {
   categoryFilter_domain: 'domain',
   categoryFilter_link_title: 'link_title',
   categoryFilter_author: 'author',
-  keywords: 'keywords',
-  post_flair: 'post_flair',
-  user_flair: 'user_flair',
-  filter_url: 'filter_url',
-  thread_before: 'thread_before',
   tagsFilter: 'tags',
+  ...urlParamKeys_textFilters,
   ...urlParamKeys_max_min,
 }
 

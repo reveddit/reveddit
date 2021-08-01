@@ -9,7 +9,10 @@ import {PATH_STR_SUB, PATH_STR_USER,
         PATHS_ALT_SUB, PATHS_ALT_USER,
         SimpleURLSearchParams,
 } from 'utils'
+import {urlParamKeys_textFilters} from 'state'
 import {ExtensionRedirect} from 'components/Misc'
+
+const PARAMKEYS_DONT_REMOVE_BACKSLASH = new Set(Object.values(urlParamKeys_textFilters))
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -121,12 +124,8 @@ class App extends React.Component {
             let search = location.search
             if (location.search.match(/\\|%5C/)) {
               const params = new SimpleURLSearchParams(location.search)
-              const add_user = params.get('add\\_user') || params.get('add%5C_user')
-              if (add_user) {
-                params.delete('add\\_user').delete('add%5C_user')
-                params.set('add_user', add_user.replace(/\\|%5C/g, ''))
-                search = params.toString()
-              }
+              params.removeBackslash(PARAMKEYS_DONT_REMOVE_BACKSLASH)
+              search = params.toString()
             }
             if (pathname !== location.pathname || search !== location.search) {
               return <Redirect to={{

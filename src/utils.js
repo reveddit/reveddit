@@ -248,6 +248,20 @@ export class SimpleURLSearchParams {
       return null
     }
   }
+  removeBackslash(exclude = new Set()) {
+    for (const key of Object.keys(this.params)) {
+      let value = this.get(key)
+      const newKey = key.replace(/\\|%5C/g, '')
+      if (! exclude.has(newKey)) {
+        value = value.replace(/\\|%5C/g, '')
+      }
+      if (key !== newKey) {
+        this.delete(key)
+      }
+      this.set(newKey, value)
+    }
+    return this
+  }
   set(param, value) {
     this.params[param] = encodeURIComponent(value).replace(/[!()*]/g, escape)
     return this
