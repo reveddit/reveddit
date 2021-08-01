@@ -68,18 +68,20 @@ export const ExtensionLink = ({image = false, extensionID = 'rt'}) => {
   return <LinkWithCloseModal to='/add-ons/'>{content}</LinkWithCloseModal>
 }
 
-const getExtensionURL = () => {
-  if (chromelike_fullnames[browserName]) {
-    return ext_urls.rt.c
-  } else if (Bowser.BROWSER_MAP['firefox'] == browserName) {
-    return ext_urls.rt.f
+const getExtensionURL = (extCode='rt') => {
+  if (extCode in ext_urls) {
+    if (chromelike_fullnames[browserName]) {
+      return ext_urls[extCode].c
+    } else if (Bowser.BROWSER_MAP['firefox'] == browserName) {
+      return ext_urls[extCode].f
+    }
   }
   return '/add-ons/'
 }
 
-export const ExtensionRedirect = () => {
+export const ExtensionRedirect = ({extCode = 'rt'}) => {
   useEffect(() => {
-    window.location.replace(getExtensionURL())
+    window.location.replace(getExtensionURL(extCode))
   }, [])
   return null
 }

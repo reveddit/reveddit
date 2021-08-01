@@ -74,6 +74,8 @@ const routes = (
   <DefaultLayout path='/about/donate' component={About_donate} title='Donate'/>
   <DefaultLayout path='/about' component={About} title='About reveddit'/>
   <DefaultLayout path='/add-ons/direct' component={ExtensionRedirect} />
+  <DefaultLayout path='/add-ons/linker' component={ExtensionRedirect} extCode='linker' />
+  <DefaultLayout path='/add-ons/real-time' component={ExtensionRedirect} extCode='rt' />
   <DefaultLayout path='/add-ons' component={AddOns} />
   <DefaultLayout path='/info' page_type='info' component={Info} />
   <DefaultLayout path='/search' page_type='search' component={Info} />
