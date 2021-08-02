@@ -217,11 +217,14 @@ function getItems (user, kind, global, sort, before = '', after = '', time, limi
       item.rev_position = items.length + i
       ids.push(item.name)
       if (! oldestTimestamp) {
-        oldestTimestamp = item.created_utc
+        if (! item.stickied || ! userPageData.after) {
+          oldestTimestamp = item.created_utc
+        }
         newestTimestamp = item.created_utc
       } else if (item.created_utc > newestTimestamp) {
         newestTimestamp = item.created_utc
       } else if (item.created_utc < oldestTimestamp) {
+        // item.stickied is never true here b/c stickied items appear first in the list
         oldestTimestamp = item.created_utc
       }
       if (isPost(item)) {
