@@ -258,8 +258,15 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
   const {user_comments, newComments: remainingRedditIDs} = await processAddUserPromises(add_user_promises, early_combinedComments)
   const {user_comments: user_comments_forURL, newComments: remainingRedditIDs_2} = await processAddUserPromises(add_user_promises_forURL, early_combinedComments)
   Object.assign(remainingRedditIDs, remainingRedditIDs_2)
-  Object.keys(pushshiftComments).forEach(id => {
-    if (! (id in redditComments)) {
+    // when commentID is set, do additional checking to see if added comments would be in the tree or not
+  Object.values(pushshiftComments).sort(sortCreatedAsc).forEach(archiveComment => {
+    const id = archiveComment.id
+    const parentID = archiveComment.parent_id?.substr(0,2) === 't1' ? archiveComment.parent_id.substr(3) : null
+    if (! (id in redditComments)
+          && (! commentID
+              || (parentID && (
+                parentID in redditComments || parentID in remainingRedditIDs
+              )))) {
       remainingRedditIDs[id] = 1
     }
   })
