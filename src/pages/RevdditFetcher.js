@@ -614,6 +614,7 @@ const GenericPostProcessor = connect((props) => {
   if (archiveTimes && (archiveTimes_isCurrent(archiveTimes) || page_type === 'info') ) {
     let commentsMsg = '', submissionsMsg = ''
     const archiveTime_comment = Math.max(archiveTimes.comment, archiveTimes.beta_comment)
+    const starred = (archiveTime_comment === archiveTimes.beta_comment && archiveTimes.updated - archiveTimes.comment > normalArchiveDelay)
     if (page_type === 'info' ||
           (archiveTimes.updated - archiveTimes.submission > normalArchiveDelay
           && ['search', 'subreddit_posts', 'duplicate_posts', 'domain_posts'].includes(page_type))) {
@@ -622,11 +623,14 @@ const GenericPostProcessor = connect((props) => {
     if (page_type === 'info' ||
           (archiveTimes.updated - archiveTime_comment > normalArchiveDelay
           && ['search', 'thread', 'subreddit_comments'].includes(page_type))) {
-      const starred = (archiveTime_comment === archiveTimes.beta_comment && archiveTimes.updated - archiveTimes.comment > normalArchiveDelay)
       commentsMsg = gridLabel('comments', archiveTime_comment, archiveTimes.updated, starred)
     }
     if (submissionsMsg || commentsMsg) {
       const updated = getPrettyDate(archiveTimes.updated)
+      const archive_delay_help = (<>
+        <p>The archive service, called Pushshift, may fall behind due to a high volume of reddit content. <LinkWithCloseModal to='/about/faq/#unarchived'>more info</LinkWithCloseModal></p>
+        {starred ? <p>* The comment delay comes from the status of Pushshift's beta API.</p> : <></>}
+      </>)
       archiveDelayMsg =
         <Notice className='delay' title='archive delay' detail={'as of '+updated} help={archive_delay_help}
           message = {<div className='container'>{submissionsMsg}{commentsMsg}</div>} />
@@ -646,10 +650,6 @@ const GenericPostProcessor = connect((props) => {
   )
 })
 
-const archive_delay_help = (<>
-  <p>The archive service, called Pushshift, may fall behind due to a high volume of reddit content. <LinkWithCloseModal to='/about/faq/#unarchived'>more info</LinkWithCloseModal></p>
-  <p>* The comment delay comes from the status of Pushshift's beta API.</p>
-</>)
 
 const gridLabel = (label, created_utc, updated, starred=false) => {
   return <>
