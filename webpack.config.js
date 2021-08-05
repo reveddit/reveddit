@@ -20,9 +20,11 @@ const createHashFromFile = filePath => new Promise(resolve => {
   fs.createReadStream(filePath).on('data', data => hash.update(data)).on('end', () => resolve(hash.digest('hex')));
 })
 
+const X_FILES_DIR = 'x-files'
+const GENERATED_CSS_FILE = `dist/${X_FILES_DIR}/main.css`
 
 module.exports = async (env, argv) => {
-  const cssContentHash = await createHashFromFile('dist/main.css')
+  const cssContentHash = await createHashFromFile(GENERATED_CSS_FILE)
   const injectScript = (scriptPath, omitPath) => {
     return [
       new HtmlWebpackTagsPlugin({
@@ -38,7 +40,7 @@ module.exports = async (env, argv) => {
         patterns: [
           {
             from: scriptPath,
-            to: `[name].${cssContentHash}[ext]`
+            to: `${X_FILES_DIR}/[name].${cssContentHash}[ext]`
           }
       ]})
     ]
@@ -65,7 +67,7 @@ module.exports = async (env, argv) => {
       }
     },
     devtool: 'source-map',
-    output: {sourceMapFilename: '[file].map', publicPath: '/', filename: `[name].[contenthash].js`},
+    output: {sourceMapFilename: '[file].map', publicPath: '/', filename: `${X_FILES_DIR}/[name].[contenthash].js`},
     module: {
       rules: [
         {
@@ -104,9 +106,10 @@ module.exports = async (env, argv) => {
       }),
       new LodashModuleReplacementPlugin,
       new HtmlWebpackPlugin({
-        template: path.resolve(__dirname, 'src/index.html')
+        template: path.resolve(__dirname, 'src/index.html'),
+        filename: path.resolve(__dirname, 'dist/index.html'),
       }),
-        ...injectScript('dist/main.css', 'dist/'),
+        ...injectScript(GENERATED_CSS_FILE, 'dist/'),
       new WorkboxPlugin.GenerateSW({
         // these options encourage the ServiceWorkers to get in there fast
         // and not allow any straggling "old" SWs to hang around

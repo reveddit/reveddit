@@ -9,6 +9,7 @@ dist/index.html
 dist/*js
 dist/*js.map
 dist/*css
+dist/x-files/
 lambda/
 
 # Log files
