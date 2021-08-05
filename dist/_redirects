@@ -54,5 +54,5 @@ https://fi.revddit.com/* https://www.reveddit.com/:splat 301!
 https://www.deleddit.com/* https://www.reveddit.com/:splat 301!
 https://deleddit.com/* https://www.reveddit.com/:splat 301!
 
-
+/assets/* /404.html 404
 /*    /index.html   200
