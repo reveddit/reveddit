@@ -14,7 +14,7 @@ const post_fields_for_comment_data = ['id', 'title', 'whitelist_status', 'url', 
 
 const postURL = 'https://api.pushshift.io/reddit/submission/search/'
 const commentURL = 'https://api.pushshift.io/reddit/comment/search/'
-
+const elastic_commentURL = 'https://elastic.pushshift.io/rc/comments/_search?source='
 const maxNumItems = 1000
 const maxNumCommentsByID = 900
 const waitInterval = 400
@@ -64,7 +64,7 @@ const queryItems = ({q, author, subreddit, n = 500, sort='desc', before, after, 
   if (selftext) queryParams.selftext = encodeURIComponent(selftext)
   if (url) queryParams.url = encodeURIComponent(url)
 
-  return window.fetch(apiURL+getQueryString(queryParams))
+  return fetchUrlWithParams(apiURL, queryParams)
     .then(response => response.json())
     .then(data => {
       data.data.forEach(item => {
@@ -78,6 +78,13 @@ const queryItems = ({q, author, subreddit, n = 500, sort='desc', before, after, 
         return data.data
       }
     })
+}
+
+const fetchUrlWithParams = (url, queryParams, fetchFn = window.fetch, options = {}) => {
+  if (! queryParams.q) {
+    queryParams.q = '*'
+  }
+  return fetchFn(url+getQueryString(queryParams), options)
 }
 
 // this expects short IDs in base36, without the t1_ prefix
@@ -101,7 +108,7 @@ export const getCommentsByID_chunk = (ids, field='ids', fields=comment_fields, r
     size: ids.length,
     [field]: ids.join(',')
   }
-  return window.fetch(commentURL+getQueryString(queryParams))
+  return fetchUrlWithParams(commentURL, queryParams)
     .then(response => response.json())
     .then(data => {
       data.data.forEach(item => {
@@ -182,9 +189,7 @@ export const getItemsBySubredditOrDomain = function(
   } else if (domains_str) {
     queryParams['domain'] = domains_str.toLowerCase().replace(/\+/g,',')
   }
-
-  const url = ps_url+getQueryString(queryParams)
-  return window.fetch(url)
+  return fetchUrlWithParams(ps_url, queryParams)
   .then(response => response.json())
   .then(data => data.data)
 }
@@ -197,8 +202,11 @@ export const getPostsByID = (ids, fields = post_fields) => {
 }
 
 export const getPostsByID_chunk = (ids, fields = post_fields) => {
-  const params = 'ids='+ids.join(',')+'&fields='+fields.join(',')
-  return window.fetch(postURL+'?'+params)
+  const params = {
+    ids: ids.join(','),
+    fields: fields.join(','),
+  }
+  return fetchUrlWithParams(postURL, params)
     .then(response => response.json())
     .then(data => {
       data.data.forEach(post => {
@@ -210,8 +218,8 @@ export const getPostsByID_chunk = (ids, fields = post_fields) => {
 }
 
 export const getPost = id => {
-  const params = 'ids='+id
-  return fetchWithTimeout(postURL+'?'+params)
+  const params = {ids: id}
+  return fetchUrlWithParams(postURL, params, fetchWithTimeout)
   .then(response => response.json())
   .then(data => {
     if (data.data.length) {
@@ -252,8 +260,7 @@ export const getAutoremovedItems = names => {
   }
   queryParams['ids'] = names.map(name => name.slice(3)).join(',')
 
-  const url = apiURL+getQueryString(queryParams)
-  return window.fetch(url)
+  return fetchUrlWithParams(apiURL, queryParams)
     .then(response => response.json())
     .then(data => {
       const items = []
@@ -273,26 +280,58 @@ export const getAutoremovedItems = names => {
     .catch(() => { throw new Error('Unable to access Pushshift, cannot load removed-by labels') })
 }
 
-
-export const getCommentsByThread = (link_id, after='') => {
-  const queryParams = {
-    link_id,
-    limit: 30000,
-    sort: 'asc',
-    fields: comment_fields.join(','),
-    ...(after && {after})
+export const getCommentsByThread = (threadID) => {
+  const elasticQuery = {
+    query: {
+      match: {
+        link_id: toBase10(threadID)
+      }
+    },
+    size: 20000,
+    _source: comment_fields
   }
-  return window.fetch(commentURL+getQueryString(queryParams))
-    .then(response => response.json())
-    .then(data => {
-      return data.data.reduce((map, comment) => {
-        update_retrieved_field(comment)
-        // Missing parent id === direct reply to thread
-        if ((! ('parent_id' in comment)) || ! comment.parent_id) {
-          comment.parent_id = 't3_'+threadID
-        }
-        map[comment.id] = comment
-        return map
-      }, {})
-    })
+  return window.fetch(elastic_commentURL + JSON.stringify(elasticQuery))
+  .then(response => response.json())
+  .then(result => {
+    return result.hits.hits.reduce((map, comment_meta) => {
+      const comment = comment_meta._source
+      comment.id = toBase36(comment_meta._id)
+      comment.link_id = 't3_'+toBase36(comment.link_id)
+      update_retrieved_field(comment)
+      // Missing parent id === direct reply to thread
+      if (! comment.parent_id) {
+        comment.parent_id = 't3_'+threadID
+      } else {
+        comment.parent_id = toBase36(comment.parent_id)
+      }
+      map[comment.id] = comment
+      return map
+    }, {})
+  })
+  .catch(() => { throw new Error('Could not get removed comments') })
 }
+
+
+// api.pushshift.io currently only returns results with q=* specified and that limits result size to 100
+// export const getCommentsByThread = (link_id, after='') => {
+//   const queryParams = {
+//     link_id,
+//     limit: 30000,
+//     sort: 'asc',
+//     fields: comment_fields.join(','),
+//     ...(after && {after})
+//   }
+//   return fetchUrlWithParams(commentURL, queryParams)
+//     .then(response => response.json())
+//     .then(data => {
+//       return data.data.reduce((map, comment) => {
+//         update_retrieved_field(comment)
+//         // Missing parent id === direct reply to thread
+//         if ((! ('parent_id' in comment)) || ! comment.parent_id) {
+//           comment.parent_id = 't3_'+threadID
+//         }
+//         map[comment.id] = comment
+//         return map
+//       }, {})
+//     })
+// }
