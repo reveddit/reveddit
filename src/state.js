@@ -1,10 +1,10 @@
 import React from 'react'
 import { Subscribe, Container } from 'unstated'
-import { SimpleURLSearchParams, get, put, ifNumParseInt } from 'utils'
+import { SimpleURLSearchParams, get, put, ifNumParseInt, swapKeysAndValues } from 'utils'
 import { limitCommentDepth_global } from 'pages/modals/Settings'
 import { agg_defaults_for_page } from 'api/reveddit'
 import { pageTypes } from 'pages/DefaultLayout'
-
+import {UNKNOWN_REMOVED, USER_REMOVED} from 'pages/common/RemovedBy'
 const defaultFilters_str = 'defaultFilters'
 
 export const hasClickedRemovedUserCommentContext = () => {
@@ -94,6 +94,8 @@ const excludeMaps = {
   exclude_action: 'removedByFilter',
   exclude_tag: 'tagsFilter',
 }
+
+const excludeMapsReversed = swapKeysAndValues(excludeMaps)
 
 export const urlParamKeys = {
   removedFilter: 'removal_status', // removedFilter should appear above removedByFilter
@@ -204,6 +206,23 @@ export const filter_pageType_defaults = {
   ...urlParamKeys_max_min_defaults,
 }
 
+const getMultiFilterSettings = (stringValue) => {
+  const settings = {}
+  stringValue.split(',').forEach(type => {
+    if (type.trim()) {
+      settings[type.trim()] = true
+    }
+  })
+  return settings
+}
+
+const siteDefaultsThatAddParamsToURL = {
+  subreddit_comments: {
+    removedByFilter: getMultiFilterSettings([UNKNOWN_REMOVED, USER_REMOVED].join(',')),
+    exclude_action: true,
+  }
+}
+
 const initialState = {
   n: 300,
   before: '',
@@ -260,18 +279,6 @@ const initialState = {
 
 // pushshift max per call is now 100 (previously was 1000)
 const maxN = 2000
-
-
-
-const getMultiFilterSettings = (stringValue) => {
-  const settings = {}
-  stringValue.split(',').forEach(type => {
-    if (type.trim()) {
-      settings[type.trim()] = true
-    }
-  })
-  return settings
-}
 
 export const create_qparams = (path_and_search) => new SimpleURLSearchParams(path_and_search ?
                                                                              new URL(path_and_search, window.location.origin).search
@@ -412,13 +419,27 @@ class GlobalState extends Container {
     put(defaultFilters_str, filters)
   }
   setQueryParamsFromSavedDefaults = (page_type) => {
-    const filters = get(defaultFilters_str, {})
-    if (filters[page_type]) {
+    const userFilters = get(defaultFilters_str, {})
+    let filters_pageType, defaultsAreFromSite = false
+    if (userFilters[page_type]) {
+      filters_pageType = userFilters[page_type]
+    } else {
+      filters_pageType = siteDefaultsThatAddParamsToURL[page_type]
+      defaultsAreFromSite = true
+    }
+    if (filters_pageType) {
       const origQueryParams = create_qparams()
       const queryParams = create_qparams()
-      for (let [selection, value] of Object.entries(filters[page_type])) {
+      for (let [selection, value] of Object.entries(filters_pageType)) {
         if (typeof(value) === 'object') {
           value = Object.keys(value).join()
+        }
+        // don't set site defaults for Action when user has applied a status that is not 'removed'
+        if (  ['removedByFilter',excludeMapsReversed.removedByFilter].includes(selection)
+              && defaultsAreFromSite
+              && origQueryParams.get(urlParamKeys.removedFilter)
+              && filter_pageType_defaults.removedFilter[page_type] === removedFilter_types.removed) {
+          continue
         }
         // set the query param to the user's saved default if it is not already set
         if (! queryParams.has(urlParamKeys[selection])) {

@@ -572,3 +572,5 @@ export const convertToEpoch = (number, unit) => {
   }
   return now
 }
+
+export const swapKeysAndValues = obj => Object.fromEntries(Object.entries(obj).map(a => a.reverse()))
