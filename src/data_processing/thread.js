@@ -3,7 +3,7 @@ import { combinePushshiftAndRedditComments, copyModlogItemsToArchiveItems,
 import { combineRedditAndPushshiftPost } from 'data_processing/posts'
 import {
   getPost as getPushshiftPost,
-  getCommentsByThread as getPushshiftCommentsByThread,
+  // getCommentsByThread as getPushshiftCommentsByThread,
   getCommentsByID as getPushshiftComments
 } from 'api/pushshift'
 import {
@@ -15,7 +15,7 @@ import {
 import { getAuth } from 'api/reddit/auth'
 import {
   submitMissingComments, getUmodlogsThread, getModerators,
-  getRemovedCommentsByThread, getArchivedCommentsByID,
+  getCommentsByThread,
 } from 'api/reveddit'
 import {
   redditLimiter
@@ -48,9 +48,8 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
   let pushshift_comments_promise = Promise.resolve({})
   let reveddit_comments_promise = Promise.resolve({})
   if (! commentID) {
-    reveddit_comments_promise = getRemovedCommentsByThread(threadID)
-    pushshift_comments_promise = getPushshiftCommentsByThread(threadID)
-    .catch(ignoreArchiveErrors)
+    reveddit_comments_promise = getCommentsByThread(threadID)
+    // pushshift_comments_promise = getPushshiftCommentsByThread(threadID).catch(ignoreArchiveErrors)
   }
   await getAuth()
   const add_user_promises = [], add_user_promises_remainder = []
@@ -115,9 +114,8 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     if (commentID) {
       root_commentID = oldestComment.id
       const after = oldestComment.created_utc - 1
-      reveddit_comments_promise = getRemovedCommentsByThread(threadID, after, root_commentID, commentID)
-      pushshift_comments_promise = getPushshiftCommentsByThread(threadID, after)
-      .catch(ignoreArchiveErrors)
+      reveddit_comments_promise = getCommentsByThread(threadID, after, root_commentID, commentID)
+      // pushshift_comments_promise = getPushshiftCommentsByThread(threadID, after).catch(ignoreArchiveErrors)
     }
     const combinedComments = combinePushshiftAndRedditComments({}, redditComments, false, post_without_pushshift_data)
     const [commentTree, itemsSortedByDate] = createCommentTree(threadID, root_commentID, combinedComments)
