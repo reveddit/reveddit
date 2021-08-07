@@ -280,58 +280,59 @@ export const getAutoremovedItems = names => {
     .catch(() => { throw new Error('Unable to access Pushshift, cannot load removed-by labels') })
 }
 
-export const getCommentsByThread = (threadID) => {
-  const elasticQuery = {
-    query: {
-      match: {
-        link_id: toBase10(threadID)
-      }
-    },
-    size: 20000,
-    _source: comment_fields
-  }
-  return window.fetch(elastic_commentURL + JSON.stringify(elasticQuery))
-  .then(response => response.json())
-  .then(result => {
-    return result.hits.hits.reduce((map, comment_meta) => {
-      const comment = comment_meta._source
-      comment.id = toBase36(comment_meta._id)
-      comment.link_id = 't3_'+toBase36(comment.link_id)
-      update_retrieved_field(comment)
-      // Missing parent id === direct reply to thread
-      if (! comment.parent_id) {
-        comment.parent_id = 't3_'+threadID
-      } else {
-        comment.parent_id = toBase36(comment.parent_id)
-      }
-      map[comment.id] = comment
-      return map
-    }, {})
-  })
-  .catch(() => { throw new Error('Could not get removed comments') })
-}
+// this is not currently working on reveddit due to missing access-control-allow-origin header
+// export const getCommentsByThread = (threadID) => {
+//   const elasticQuery = {
+//     query: {
+//       match: {
+//         link_id: toBase10(threadID)
+//       }
+//     },
+//     size: 20000,
+//     _source: comment_fields
+//   }
+//   return window.fetch(elastic_commentURL + JSON.stringify(elasticQuery))
+//   .then(response => response.json())
+//   .then(result => {
+//     return result.hits.hits.reduce((map, comment_meta) => {
+//       const comment = comment_meta._source
+//       comment.id = toBase36(comment_meta._id)
+//       comment.link_id = 't3_'+toBase36(comment.link_id)
+//       update_retrieved_field(comment)
+//       // Missing parent id === direct reply to thread
+//       if (! comment.parent_id) {
+//         comment.parent_id = 't3_'+threadID
+//       } else {
+//         comment.parent_id = toBase36(comment.parent_id)
+//       }
+//       map[comment.id] = comment
+//       return map
+//     }, {})
+//   })
+//   .catch(() => { throw new Error('Could not get removed comments') })
+// }
 
 
 // api.pushshift.io currently only returns results with q=* specified and that limits result size to 100
-// export const getCommentsByThread = (link_id, after='') => {
-//   const queryParams = {
-//     link_id,
-//     limit: 30000,
-//     sort: 'asc',
-//     fields: comment_fields.join(','),
-//     ...(after && {after})
-//   }
-//   return fetchUrlWithParams(commentURL, queryParams)
-//     .then(response => response.json())
-//     .then(data => {
-//       return data.data.reduce((map, comment) => {
-//         update_retrieved_field(comment)
-//         // Missing parent id === direct reply to thread
-//         if ((! ('parent_id' in comment)) || ! comment.parent_id) {
-//           comment.parent_id = 't3_'+threadID
-//         }
-//         map[comment.id] = comment
-//         return map
-//       }, {})
-//     })
-// }
+export const getCommentsByThread = (link_id, after='') => {
+  const queryParams = {
+    link_id,
+    limit: 30000,
+    sort: 'asc',
+    fields: comment_fields.join(','),
+    ...(after && {after})
+  }
+  return fetchUrlWithParams(commentURL, queryParams)
+    .then(response => response.json())
+    .then(data => {
+      return data.data.reduce((map, comment) => {
+        update_retrieved_field(comment)
+        // Missing parent id === direct reply to thread
+        if ((! ('parent_id' in comment)) || ! comment.parent_id) {
+          comment.parent_id = 't3_'+threadID
+        }
+        map[comment.id] = comment
+        return map
+      }, {})
+    })
+}
