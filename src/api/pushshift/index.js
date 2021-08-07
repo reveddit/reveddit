@@ -152,12 +152,14 @@ export const getCommentsBySubreddit = function(args) {
     ps_url: commentURL,
     fields: comment_fields,
   })
-  .then(items => {
-    return getCommentsByID(items.map(item => item.id))
-    .then(commentsObj => {
-      return Object.values(commentsObj).sort(sortCreatedDesc)
-    })
-  })
+  .then(items => items.sort(sortCreatedDesc))
+  // disabled below b/c pushshift disabled postgres, and the next result is now empty
+  // .then(items => {
+  //   return getCommentsByID(items.map(item => item.id))
+  //   .then(commentsObj => {
+  //     return Object.values(commentsObj).sort(sortCreatedDesc)
+  //   })
+  // })
 }
 
 const ifNumParseAndAdd = (n, add) => {
