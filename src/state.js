@@ -482,6 +482,7 @@ class GlobalState extends Container {
     const queryParams = create_qparams()
     if (value !== removedFilter_types.removed) {
       queryParams.delete(urlParamKeys.removedByFilter)
+      queryParams.delete(urlParamKeys.exclude_action)
     }
 
     adjust_qparams_for_selection(page_type, queryParams, 'removedFilter', value)
