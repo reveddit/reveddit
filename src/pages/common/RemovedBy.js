@@ -115,15 +115,20 @@ const RemovedBy = (props) => {
     } else if (removedby === AUTOMOD_REMOVED_MOD_APPROVED) {
       fill = 'white'
     }
-    if (removed && modlog && props.archive_body_removed_before_modlog_copy
-               && modlog.log_source !== 'u_modlogs'
-               && ! props.also_in_add_user) {
-      temporarilyVisible =
-        <LabelWithModal content={temp_vis_help}>
-          <span title={temp_vis_txt} className='removedby'>temporarily visible <QuestionMark/></span>
-        </LabelWithModal>
+    if (removed && modlog) {
+      if (props.archive_body_removed_before_modlog_copy
+                 && modlog.log_source !== 'u_modlogs'
+                 && ! props.also_in_add_user) {
+        temporarilyVisible =
+          <LabelWithModal content={temp_vis_help}>
+            <span title={temp_vis_txt} className='removedby'>temporarily visible <QuestionMark/></span>
+          </LabelWithModal>
+      }
+      if (modlog.mod && ! modlogSaysBotRemoved(modlog, props)) {
+        details += ` u/${modlog.mod}`
+      }
       if (modlog.details && modlog.details !== 'remove') {
-        details = ' | ' + modlog.details
+        details += ' | ' + modlog.details
       }
     }
   } else if (removedby === USER_REMOVED) {
