@@ -7,6 +7,8 @@ import { unarchived_search_help_content, unarchived_search_button_word, unarchiv
 import { unarchived_label_text } from 'pages/common/RemovedBy'
 import {shuffle} from 'utils'
 import {www_reddit} from 'api/reddit'
+import {NewsItem} from 'pages/about'
+import Time from 'pages/common/Time'
 
 const reasons = [
   <li key='m'>In many cases, reddit sends no message about removals. Messages can <i>optionally</i> be sent by subreddit moderators.</li>,
@@ -40,7 +42,7 @@ const About_faq = () => {
     <InternalPage>
       <ContentWithHeader header='What is this?' id='description'>
         <p>Reveddit shows content removed from reddit. It does not show user-deleted content.</p>
-        <p>Add <span class='v'>ve</span> to the URL of any page on reddit, including user pages, subreddits, threads and more.</p>
+        <p>Add <span className='v'>ve</span> or just <span className='v'>v</span> to the URL of any page on reddit, including user pages, subreddits, threads and more.</p>
       </ContentWithHeader>
       <ContentWithHeader header='Why do I need it?' id='need'>
         <p>
@@ -67,15 +69,16 @@ const About_faq = () => {
       </ContentWithHeader>
       <ContentWithHeader header='How do people react?' id='react'>
         <p>Here are some examples of how people react when they discover the way reddit handles removals:</p>
-        <ul>
-          <li><NewWindowLink reddit='/r/InternetIsBeautiful/comments/oqe6qy/tool_to_see_which_commentsposts_of_yours_have/'>2021/07/23: r/InternetIsBeautiful</NewWindowLink></li>
-          <li><a href='/v/InternetIsBeautiful/comments/jp8xbg/you_can_see_which_commentsposts_of_yours_have/'>2020/11/06: r/InternetIsBeautiful</a></li>
-          <li><NewWindowLink reddit='/r/technology/comments/jp4j76/google_admits_to_censoring_the_world_socialist/gbckafs/?sort=top&limit=500'>2020/11/06: r/technology</NewWindowLink></li>
+        <ul className='news'>
+          <NewsItem reddit='/r/InternetIsBeautiful/comments/oqe6qy/tool_to_see_which_commentsposts_of_yours_have/' created_utc='1627082942' title='r/InternetIsBeautiful'/>
+          <NewsItem href='/v/InternetIsBeautiful/comments/jp8xbg/you_can_see_which_commentsposts_of_yours_have/'created_utc='1604682454' title='r/InternetIsBeautiful'/>
+          <NewsItem reddit='/r/technology/comments/jp4j76/google_admits_to_censoring_the_world_socialist/gbckafs/?sort=top&limit=500' created_utc='1604673578' title='r/technology'/>
           <li><Link to='/about/#say'>Selected comments: What people say</Link></li>
         </ul>
-        <p>
+        <p></p><div>
           Conversations are better when users <NewWindowLink reddit='/r/science/comments/duwdco/should_moderators_provide_removal_explanations/f79o1yr/'>receive feedback</NewWindowLink> about removed content.
-        </p>
+          <ul className='news'><ul style={{paddingLeft:0}}><Time created_utc='1573496256'/></ul></ul>
+        </div>
       </ContentWithHeader>
       <ContentWithHeader header='Why should I disable tracking protection in Firefox?' id='firefox'>
         <p>A Firefox partner named disconnect.me maintains a list of domains that it calls trackers.

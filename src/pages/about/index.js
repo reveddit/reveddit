@@ -40,7 +40,7 @@ export const ContentWithHeader = ({header, children, half, id}) => {
   )
 }
 
-const NewsItem = ({to, title, created_utc, ...props}) => {
+export const NewsItem = ({to, title, created_utc, ...props}) => {
   const link = (props.href || props.reddit) ? <NewWindowLink {...props}>{title}</NewWindowLink> : <Link to={to}>{title}</Link>
   return <li>{link}
     <ul><li><Time created_utc={created_utc}/></li></ul></li>
