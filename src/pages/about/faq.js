@@ -70,15 +70,12 @@ const About_faq = () => {
       <ContentWithHeader header='How do people react?' id='react'>
         <p>Here are some examples of how people react when they discover the way reddit handles removals:</p>
         <ul className='news'>
-          <NewsItem reddit='/r/InternetIsBeautiful/comments/oqe6qy/tool_to_see_which_commentsposts_of_yours_have/' created_utc='1627082942' title='r/InternetIsBeautiful'/>
-          <NewsItem href='/v/InternetIsBeautiful/comments/jp8xbg/you_can_see_which_commentsposts_of_yours_have/'created_utc='1604682454' title='r/InternetIsBeautiful'/>
-          <NewsItem reddit='/r/technology/comments/jp4j76/google_admits_to_censoring_the_world_socialist/gbckafs/?sort=top&limit=500' created_utc='1604673578' title='r/technology'/>
-          <li><Link to='/about/#say'>Selected comments: What people say</Link></li>
+          <NewsItem reddit='/r/technology/comments/jp4j76/google_admits_to_censoring_the_world_socialist/gbckafs/?sort=top&limit=500' created_utc='1604673578' title='r/technology' newsText="Wow. Can they remove your comment and it still shows up on your side as if it wasn't removed?"/>
+          <NewsItem href='/v/InternetIsBeautiful/comments/jp8xbg/you_can_see_which_commentsposts_of_yours_have/'created_utc='1604682454' title='r/InternetIsBeautiful' newsText="Today I learned that the reason noone ever replies to my posts is because they all get removed."/>
+          <NewsItem reddit='/r/InternetIsBeautiful/comments/oqe6qy/tool_to_see_which_commentsposts_of_yours_have/' created_utc='1627082942' title='r/InternetIsBeautiful' newsText="I've got so many comments deleted and they aren't even controversial. That's bizarre."/>
+          <NewsItem reddit='/r/science/comments/duwdco/should_moderators_provide_removal_explanations/f79o1yr/' created_utc='1573496256' title='r/science' newsText="Isn't that a no brainer? Feedback makes you better, no feedback discourages you and you don't learn anything."/>
+          <NewsItem to='/about/#say' created_utc='1549684242' suffix=' — present' title='Selected comments: What people say'/>
         </ul>
-        <p></p><div>
-          Conversations are better when users <NewWindowLink reddit='/r/science/comments/duwdco/should_moderators_provide_removal_explanations/f79o1yr/'>receive feedback</NewWindowLink> about removed content.
-          <ul className='news'><ul style={{paddingLeft:0}}><Time created_utc='1573496256'/></ul></ul>
-        </div>
       </ContentWithHeader>
       <ContentWithHeader header='Why should I disable tracking protection in Firefox?' id='firefox'>
         <p>A Firefox partner named disconnect.me maintains a list of domains that it calls trackers.
