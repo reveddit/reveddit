@@ -1,6 +1,7 @@
 import { isCommentID, isPostID, getUniqueItems,
          commentIsDeleted, commentIsRemoved,
          itemIsRemovedOrDeleted, postIsDeleted, sortCreatedAsc,
+         authorDeleted,
 } from 'utils'
 import { getPostsByURL } from './posts'
 import {
@@ -179,8 +180,9 @@ export const getRevdditSearch = (global) => {
         }
       }
       const isComment = isCommentID(item.name)
-      if (! notAuthors.has(item.author) && (! authors.size || ! item.deleted)
-                                        && (! q || ! item.deleted || (! isComment && ! item.is_self))) {
+      if (! notAuthors.has(item.author)
+          && (! authors.size || ! authorDeleted(item))
+          && (! q || ! item.deleted || (! isComment && ! item.is_self))) {
         items.push(item)
       }
     })

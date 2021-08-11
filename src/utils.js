@@ -93,7 +93,7 @@ const bodyRemoved = (comment) => {
   return textSaysRemoved(comment.body)
 }
 
-const authorDeleted = (item) => {
+export const authorDeleted = (item) => {
   return textSaysDeleted(item.author)
 }
 
