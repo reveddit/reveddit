@@ -10,8 +10,6 @@ export const old_reddit = https+'old.reddit.com'
 
 const reveddit_cors = REVEDDIT_CORS_ANWHERE_HOST
 const u_publicmodlogs_feed = '7e9b27126097f51ae6c9cd5b049af34891da6ba6'
-const coronavirus_logs = https+'logs.mod.rcoronavirus.org/.json'
-const coronavirus_subs = ['coronavirus','covid19']
 const numRequestsBeforeWait = 100
 const waitInterval = 5000
 const maxNumItems = 100
@@ -454,16 +452,12 @@ const getModlogsItems = async ({subreddit, itemType, limit = 100, link_id}) => {
   let auth = {}
   const urls = []
   const subreddit_lower = subreddit.toLowerCase()
-  if (coronavirus_subs.includes(subreddit_lower)) {
-    urls.push(coronavirus_logs + "?limit=200" + `&subreddit=${subreddit}` + remove)
-  } else {
-    const baseUrl = oauth_reddit + `r/${subreddit}/about/log/.json?feed=${u_publicmodlogs_feed}&user=publicmodlogs`
-    auth = await getAuth()
-    urls.push(...[
-      baseUrl + remove + `&limit=${limit}`,
-      baseUrl + spam + "&limit=50"
-    ])
-  }
+  const baseUrl = oauth_reddit + `r/${subreddit}/about/log/.json?feed=${u_publicmodlogs_feed}&user=publicmodlogs`
+  auth = await getAuth()
+  urls.push(...[
+    baseUrl + remove + `&limit=${limit}`,
+    baseUrl + spam + "&limit=50"
+  ])
   const promises = urls.map(u => getJson(u, auth))
   return Promise.all(promises)
   .then(listings => postProcessModlogsListings(listings, link_id))
@@ -491,7 +485,7 @@ const postProcessModlogsListings = (listings, link_id = '') => {
 //output: items
 const postProcessModlogsList = (list, link_id = '', items = {}) => {
   for (const item of list) {
-    let data = item // coronavirus log items have no 'data' item
+    let data = item // coronavirus log items have no 'data' item -> that service is down now, but keep this just in case
     if (item.data) {
       data = item.data
     }
