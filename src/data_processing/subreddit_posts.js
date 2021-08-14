@@ -4,9 +4,9 @@ import {
 } from 'api/pushshift'
 import { getRemovedPostIDs } from 'api/removeddit'
 import { getPosts as getRedditPosts,
-         getSubredditAbout, getModlogsPosts
+         getSubredditAbout
 } from 'api/reddit'
-import { getUmodlogsPosts } from 'api/reveddit'
+import { getModlogsPromises } from 'api/common'
 import { postIsDeleted } from 'utils'
 import { retrieveRedditPosts_and_combineWithPushshiftPosts } from 'data_processing/posts'
 import { copyModlogItemsToArchiveItems, setSubredditMeta } from 'data_processing/comments'
@@ -37,7 +37,7 @@ export const getRevdditPostsBySubreddit = async (subreddit, global) => {
     .catch(global.returnError)
   } else {
     const {subreddit_about_promise} = await setSubredditMeta(subreddit, global)
-    const modlogs_promises = [getModlogsPosts({subreddit}), getUmodlogsPosts(subreddit)]
+    const modlogs_promises = await getModlogsPromises(subreddit, 'posts')
     return combinedGetPostsBySubredditOrDomain({global, subreddit, n, before, before_id, after,
       subreddit_about_promise, modlogs_promises})
     .then(global.returnSuccess)

@@ -2,13 +2,14 @@ import {
   getComments as getRedditComments,
   getItems as getRedditItems,
   getSubredditAbout,
-  getModlogsComments, oauth_reddit
+  oauth_reddit,
 } from 'api/reddit'
+import { getModerators } from 'api/reveddit'
 import {
   getPostsByIDForCommentData as getPushshiftPostsForCommentData,
   getCommentsBySubreddit as pushshiftGetCommentsBySubreddit
 } from 'api/pushshift'
-import { getUmodlogsComments, getModerators } from 'api/reveddit'
+import { getModlogsPromises } from 'api/common'
 import { commentIsDeleted, commentIsRemoved, postIsDeleted, isEmptyObj } from 'utils'
 import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED,
          UNKNOWN_REMOVED, NOT_REMOVED,
@@ -300,8 +301,7 @@ export const getRevdditCommentsBySubreddit = async (subreddit, global) => {
     subreddit = ''
   }
   const {subreddit_about_promise} = await setSubredditMeta(subreddit, global)
-  const modlogs_promises = [getModlogsComments({subreddit, limit:100}), getUmodlogsComments(subreddit)]
-
+  const modlogs_promises = await getModlogsPromises(subreddit, 'comments')
   return combinedGetCommentsBySubreddit({global, subreddit, n, before, before_id, after,
     subreddit_about_promise, modlogs_promises})
   .then(global.returnSuccess)

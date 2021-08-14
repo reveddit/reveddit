@@ -1,5 +1,7 @@
 import Bottleneck from "bottleneck"
 import { get, put, getNow, paramString } from 'utils'
+import { getModlogsPosts, getModlogsComments } from 'api/reddit'
+import { getUmodlogsPosts, getUmodlogsComments } from 'api/reveddit'
 
 export const redditLimiter = new Bottleneck({
   reservoir: 30, // 30 requests per minute for add_user calls in threads should keep api usage under 60 requests/minute
@@ -74,6 +76,12 @@ export const subredditHasModlogs = async (subreddit, type) => {
     console.error('bad modlogs code', type)
     return false
   }
+  const modlogs = await getAllSubredditsWithModlogs()
+  return modlogs[subreddit]?.[type]
+
+}
+
+export const getAllSubredditsWithModlogs = async () => {
   let modlogsStorage = get(MODLOGS_SUBREDDITS, {data: {}})
   const now = getNow()
   // only fetch modlogs-subreddits data if it's older than 10 minutes
@@ -85,5 +93,14 @@ export const subredditHasModlogs = async (subreddit, type) => {
       put(MODLOGS_SUBREDDITS, modlogsStorage)
     }
   }
-  return modlogsStorage.data[subreddit]?.[type]
+  return modlogsStorage.data
+}
+
+export const getModlogsPromises = async (subreddit, type = 'comments') => {
+  await getAllSubredditsWithModlogs() // cache the result prior to two function calls below. Saves 1 duplicate query
+  if (type === 'comments') {
+    return [getModlogsComments({subreddit, limit:100}), getUmodlogsComments(subreddit)]
+  } else {
+    return [getModlogsPosts({subreddit}), getUmodlogsPosts(subreddit)]
+  }
 }
