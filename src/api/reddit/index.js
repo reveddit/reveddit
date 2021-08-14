@@ -1,5 +1,8 @@
 import { chunk, flatten, fetchWithTimeout, promiseDelay, getRandomInt, paramString } from 'utils'
 import { getAuth } from './auth'
+import { mapRedditObj, getModeratorsPostProcess,
+         subredditHasModlogs, U_PUBLICMODLOGS_CODE,
+} from 'api/common'
 
 const https = 'https://'
 export const oauth_reddit = https+'oauth.reddit.com/'
@@ -42,17 +45,6 @@ export const getModerators = (subreddit, useProxy = false) => {
   .then(response => response.json())
   .catch(error => {return {}})
   .then(getModeratorsPostProcess)
-}
-
-export const getModeratorsPostProcess = (results) => {
-  if (results.reason === 'quarantined') {
-    throw results
-  }
-  if (results.data) {
-    return results.data.children.reduce((map, obj) => (map[obj.name] = true, map), {})
-  } else {
-    return results
-  }
 }
 
 export const getModeratedSubreddits = (user) => {
@@ -113,8 +105,6 @@ const getFullIDsForObjects = (objects, ids, prefix) => {
   }
   return full_ids
 }
-
-export const mapRedditObj = (map, obj, key = 'name') => (map[obj.data[key]] = obj.data, map)
 
 export const getItems = async (ids, key = 'name', auth = null, host = oauth_reddit, useProxy = false) => {
   const results = {}
@@ -447,6 +437,11 @@ export const getAuthorInfoByName = (ids) => {
 }
 
 const getModlogsItems = async ({subreddit, itemType, limit = 100, link_id}) => {
+  const hasModlogs = await subredditHasModlogs(subreddit, U_PUBLICMODLOGS_CODE)
+  if (! hasModlogs) {
+    return {}
+  }
+  const approved = (link_id && itemType == 'link') ? '&type=approvelink' : ''
   const remove = '&type=remove'+itemType
   const spam = '&type=spam'+itemType
   let auth = {}
@@ -458,6 +453,9 @@ const getModlogsItems = async ({subreddit, itemType, limit = 100, link_id}) => {
     baseUrl + remove + `&limit=${limit}`,
     baseUrl + spam + "&limit=50"
   ])
+  if (approved) {
+    urls.push(baseUrl + approved + "&limit=50")
+  }
   const promises = urls.map(u => getJson(u, auth))
   return Promise.all(promises)
   .then(listings => postProcessModlogsListings(listings, link_id))

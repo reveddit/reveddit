@@ -9,6 +9,7 @@ import ActionHelp from 'pages/modals/ActionHelp'
 import {modlogSaysBotRemoved} from 'data_processing/comments'
 import {LinkWithCloseModal} from 'components/Misc'
 
+const APPROVED = 'approved'
 export const ANTI_EVIL_REMOVED = 'anti_evil_ops'
 export const AUTOMOD_REMOVED = 'automod'
 export const AUTOMOD_REMOVED_MOD_APPROVED = 'automod-rem-mod-app'
@@ -55,6 +56,12 @@ export const REMOVAL_META = {
                                    reddit_link: '/brgr8i'}
                             }
 
+const APPROVED_META = {
+  filter_text: 'approved',
+        label: 'approved',
+         desc: 'The content was approved by a moderator.',
+}
+
 export const COLLAPSED_META = {filter_text: 'collapsed',
                                      label: 'collapsed',
                                       desc: 'The comment has a positive score and is collapsed in the thread.',
@@ -86,6 +93,7 @@ export const ALL_ACTIONS_META = {
   [ORPHANED]: ORPHANED_META,
   [USER_REMOVED]: USER_REMOVED_META,
   [RESTORED]: RESTORED_META,
+  [APPROVED]: APPROVED_META,
 }
 export const preserve_desc = <><b>preserve:</b> This attempts to lookup and store the location of the comment in the URL and copies the new URL to the clipboard. If the lookup succeeds and the comment is later removed by a moderator, or if the archive becomes unavailable, then it can be viewed with this URL.<p>The lookup succeeds if the comment can be found in the user's most recent 100 comments. Otherwise, it may be found via the context link on their reveddit user page.</p></>
 const temp_vis_txt = 'Temporarily visible'
@@ -94,7 +102,23 @@ const temp_vis_help = (<>
   <h3>{temp_vis_txt}</h3>
   <p>This comment is only visible {temp_vis_until}</p>
 </>)
-const per_mod_logs = <h4>Details from <LinkWithCloseModal to='/about/faq/#removal-reason'>mod logs</LinkWithCloseModal></h4>
+
+const ModlogDetails = ({modlog, text, created_utc}) => {
+  const prettyTimeLength = getPrettyTimeLength(modlog.created_utc-created_utc)
+  const detailsText = (modlog.details && modlog.details !== 'remove') ? modlog.details
+                    : modlog.action.includes('spam') ? 'Spam' : ''
+  return (
+    <>
+      <h4>Details from <LinkWithCloseModal to='/about/faq/#removal-reason'>mod logs</LinkWithCloseModal></h4>
+      <ul>
+        <li>{text+' '+prettyTimeLength+' after creation '}</li>
+        <li>Mod: {modlog.mod}</li>
+        {detailsText &&
+          <li>Details: {detailsText}</li> }
+      </ul>
+    </>
+  )
+}
 
 const RemovedBy = (props) => {
   let displayTag = '', details = '', meta = undefined, withinText = '', fill = undefined,
@@ -112,8 +136,6 @@ const RemovedBy = (props) => {
     if (removedby === UNKNOWN_REMOVED && is_post &&
         postRemovedUnknownWithin(props)) {
       withinText = ','+getRemovedWithinText(props)
-    } else if (removedby === AUTOMOD_REMOVED_MOD_APPROVED) {
-      fill = 'white'
     }
     if (removed && modlog) {
       if (props.archive_body_removed_before_modlog_copy
@@ -142,22 +164,18 @@ const RemovedBy = (props) => {
   } else if (deleted) {
     removedby = USER_REMOVED
     meta = USER_REMOVED_META
+  } else if (modlog && removedby == NOT_REMOVED) {
+    meta = APPROVED_META
+    removedby = APPROVED
+  }
+  if ([AUTOMOD_REMOVED_MOD_APPROVED,APPROVED].includes(removedby)) {
+    fill = 'white'
   }
   if (meta) {
     const modalDetailsItems = []
     if (removed) {
       if (modlog) {
-        const prettyTimeLength = getPrettyTimeLength(modlog.created_utc-props.created_utc)
-        const detailsText = (modlog.details && modlog.details !== 'remove') ? modlog.details
-                          : modlog.action.includes('spam') ? 'Spam' : ''
-        modalDetailsItems.push(
-          <>{per_mod_logs}<ul>
-            <li>{'Removed '+prettyTimeLength+' after creation '}</li>
-            <li>Mod: {modlog.mod}</li>
-            {detailsText &&
-              <li>Details: {detailsText}</li> }
-          </ul></>
-        )
+        modalDetailsItems.push( <ModlogDetails {...props} modlog={modlog} text='Removed'/> )
         if (temporarilyVisible) {
           modalDetailsItems.push(<p>{temp_vis_txt} {temp_vis_until}</p>)
         }
@@ -174,6 +192,8 @@ const RemovedBy = (props) => {
           modalDetailsItems.push(removedWithinText)
         }
       }
+    } else if (removedby === APPROVED) {
+      modalDetailsItems.push( <ModlogDetails {...props} modlog={modlog} text='Approved'/> )
     }
     const modalDetails = modalDetailsItems.map((x, i) => <div key={i}>{x}</div>)
     allActionsExceptLocked =

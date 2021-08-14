@@ -1,5 +1,5 @@
 import { toBase10, toBase36, chunk, flatten, getQueryString, promiseDelay } from 'utils'
-
+import { fetchWithTimeout } from 'api/common'
 const comment_fields = [
   'id', 'author', 'author_fullname', 'body', 'created_utc', 'parent_id', 'score',
   'subreddit', 'link_id', 'author_flair_text', 'retrieved_on', 'retrieved_utc',
@@ -231,19 +231,6 @@ export const getPost = id => {
       return {}
     }
   })
-}
-
-export const fetchWithTimeout = async (resource, options = {}) => {
-  const { timeout = 8000 } = options
-  const controller = new AbortController()
-  const id = setTimeout(() => controller.abort(), timeout)
-  const response = await fetch(resource, {
-    ...options,
-    signal: controller.signal
-  })
-  clearTimeout(id)
-
-  return response
 }
 
 // Function intended to be called with userpage-driven IDs

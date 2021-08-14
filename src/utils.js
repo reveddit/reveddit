@@ -8,6 +8,7 @@ const markdown = SnuOwnd.getParser()
 const chrome_base = 'https://chrome.google.com/webstore/detail/'
 const ff_base = 'https://addons.mozilla.org/en-US/firefox/addon/'
 export const now = Math.floor(new Date()/1000)
+export const getNow = () => Math.floor(new Date()/1000)
 
 export const ext_urls = {
   rt: {

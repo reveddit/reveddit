@@ -1,31 +1,12 @@
 import { paramString, SimpleURLSearchParams, PATH_STR_SUB } from 'utils'
-import { mapRedditObj, getModeratorsPostProcess } from 'api/reddit'
+import { mapRedditObj, getModeratorsPostProcess, flaskQuery,
+         getCount, subredditHasModlogs,
+         U_MODLOGS_CODE,
+} from 'api/common'
 import { urlParamKeys, removedFilter_types, localSort_types } from 'state'
 import { AUTOMOD_REMOVED, MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED } from 'pages/common/RemovedBy'
-import { fetchWithTimeout } from 'api/pushshift'
-
-const errorHandler = (e) => {
-  throw new Error(`Could not connect to Reveddit: ${e}`)
-}
-
-// cf cache is 2 hours, make the period longer than that
-const period_in_minutes = 300
-const period_in_seconds = period_in_minutes * 60
-// increment the count every `seconds_until_increment` seconds
-const DEFAULT_SECONDS_UNTIL_INCREMENT = 60
-const offset = (new Date()).getTimezoneOffset()*60*1000
 
 const ARCHIVE_MAX_SIZE = 250
-
-const getCount = (seconds_until_increment = DEFAULT_SECONDS_UNTIL_INCREMENT) => {
-  const date = new Date()
-  //normalize hours across timezones
-  date.setTime(date.getTime()+offset)
-  const seconds_since_day_began = date.getHours()*60*60+date.getMinutes()*60+date.getSeconds()
-  const seconds_since_beginning_of_current_period = seconds_since_day_began-Math.floor(seconds_since_day_began/(period_in_seconds))*period_in_seconds
-  const count_within_period = Math.floor(seconds_since_beginning_of_current_period / seconds_until_increment)
-  return 'mxc'+count_within_period.toString(36)
-}
 
 export const getMissingComments = async ({subreddit, limit=100, page=1}) => {
   const params = {
@@ -114,7 +95,7 @@ export const getAggregationsPeriodURL = ({subreddit, type, numGraphPoints, limit
 }
 
 export const getUmodlogsThread = (subreddit, thread_id) => {
-  return getUmodlogs({subreddit, thread_id, actions:'removelink,spamlink,removecomment,spamcomment'})
+  return getUmodlogs({subreddit, thread_id, actions:'approvelink,removelink,spamlink,removecomment,spamcomment'})
 }
 export const getUmodlogsPosts = (subreddit) => {
   return getUmodlogs({subreddit, actions:'removelink,spamlink'})
@@ -125,25 +106,18 @@ export const getUmodlogsComments = (subreddit) => {
   .then(r => r.comments)
 }
 export const getUmodlogs = async ({subreddit, thread_id, actions}) => {
-  const params = { c: getCount() }
   const empty = {comments: {}, posts: {}}
-  return flaskQuery({path: 'modlogs-subreddits/', params})
-  .then(list => {
-    const set = new Set(list.map(x => x.toLowerCase()))
-    if (set.has(subreddit.toLowerCase())) {
-      params.limit = 100
-      if (thread_id) {
-        params.link = `/r/comments/${thread_id}`
-      }
-      params.actions = actions
-      return flaskQuery({path: `r/${subreddit}/logs/`, params, host: U_MODLOGS_API})
-      .then(result => postProcessUmodlogs(result.logs, thread_id))
+  const hasModlogs = await subredditHasModlogs(subreddit, U_MODLOGS_CODE)
+  if (hasModlogs) {
+    const params = { c: getCount(), limit: 100 }
+    if (thread_id) {
+      params.link = `/r/comments/${thread_id}`
     }
-    return empty
-  })
-  .catch(() => {
-    return empty
-  })
+    params.actions = actions
+    return flaskQuery({path: `r/${subreddit}/logs/`, params, host: U_MODLOGS_API})
+    .then(result => postProcessUmodlogs(result.logs, thread_id))
+  }
+  return empty
 }
 
 const postProcessUmodlogs = (list, thread_id) => {
@@ -174,14 +148,6 @@ export const getModerators = (subreddit) => {
   return flaskQuery({path: 'moderators/', params: {subreddit}})
   .catch(error => {return {}}) // ignore fetch errors, this is not critical data
   .then(getModeratorsPostProcess)
-}
-
-const flaskQuery = ({path, params = {}, host = REVEDDIT_FLASK_HOST_SHORT, options}) => {
-  const param_str = (params && Object.keys(params).length) ? '?' + paramString(params) : ''
-  const url = host + path + param_str
-  return fetchWithTimeout(url, options)
-  .then(response => response.json())
-  .catch(errorHandler)
 }
 
 export const getCommentsByThread = (link_id, after, root_comment_id, comment_id) => {
