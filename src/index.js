@@ -119,7 +119,7 @@ class App extends React.Component {
               )
             }
             //replace double slashes // and paths that don't end in slash with a single slash
-            const pathname = location.pathname.replace(/\/\/+|([^/])$/g, '$1/')
+            let pathname = location.pathname.replace(/\/\/+|([^/])$/g, '$1/')
 
             //new reddit's fancy editor has a bug, when you write a URL w/out formatting and switch to markdown, it inserts a \ before all _
             //so, remove \ from add_user param (don't want to remove \ from text filter params like keywords or flair)
@@ -128,6 +128,9 @@ class App extends React.Component {
               const params = new SimpleURLSearchParams(location.search)
               params.removeBackslash(PARAMKEYS_DONT_REMOVE_BACKSLASH)
               search = params.toString()
+            } else if (pathname.match(/^\/(user|u|y)\//)) {
+              // remove ! from usernames. bot inserts them to avoid automod matches on usernames
+              pathname = pathname.replaceAll('!','')
             }
             if (pathname !== location.pathname || search !== location.search) {
               return <Redirect to={{
