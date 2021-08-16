@@ -45,6 +45,8 @@ const scheduleAddUserItems = (addUserItems) => addUserItems.map(item => redditLi
 export const getRevdditThreadItems = async (threadID, commentID, context, add_user, user_kind, user_sort, user_time,
                                             before, after, subreddit,
                                             global) => {
+  const {sort} = global.state
+  const sortsForRedditCommentThreadQuery = sort ? sort.split(',') : ['new']
   let pushshift_comments_promise = Promise.resolve({})
   let reveddit_comments_promise = Promise.resolve({})
   if (! commentID) {
@@ -69,7 +71,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
   }
   const uModlogs_promise = getUmodlogsThread(subreddit, threadID)
   const reddit_pwc_baseArgs = {threadID, commentID, context, limit: numCommentsWithPost}
-  const reddit_pwc_baseArgs_firstQuery = {...reddit_pwc_baseArgs, sort: 'old'}
+  const reddit_pwc_baseArgs_firstQuery = {...reddit_pwc_baseArgs, sort: 'top'}
   const reddit_pwc_promise = getRedditPostWithComments(reddit_pwc_baseArgs_firstQuery)
   .catch(e => {
     if (e.message === 'Forbidden') {
@@ -109,7 +111,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
       })
     }
     oldestComment = await oldest_comment_promise
-    let reddit_comments_promise = Promise.resolve({redditComments, moreComments})
+    const reddit_comments_promises = [Promise.resolve({comments: redditComments, moreComments})]
     let root_commentID
     if (commentID) {
       root_commentID = oldestComment.id
@@ -130,18 +132,9 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     // In that case you still need to call api/info, getting 100 items per request.
     // Needs more testing, setting numCommentsWithPost=500 seemed slower than 100
     if (reddit_post.num_comments > numCommentsWithPost+100 && ! commentID) {
-      reddit_comments_promise = getRedditPostWithComments({...reddit_pwc_baseArgs, sort:'new', useProxy})
-      .then(({comments: redditComments_new, moreComments: moreComments_new}) => {
-        Object.keys(redditComments_new).forEach(id => {
-          if (! redditComments[id]) {
-            redditComments[id] = redditComments_new[id]
-          }
-        })
-        Object.assign(moreComments, moreComments_new)
-        return {redditComments, moreComments}
-      })
+      reddit_comments_promises.push(...sortsForRedditCommentThreadQuery.map(sort => getRedditPostWithComments({...reddit_pwc_baseArgs, sort, useProxy})))
     }
-    return {reddit_post, root_commentID, reddit_comments_promise, resetPath,
+    return {reddit_post, root_commentID, reddit_comments_promises, resetPath,
             reveddit_comments_promise, pushshift_comments_promise,
             moderators_promise, modlogs_comments_promise, modlogs_posts_promise}
   })
@@ -169,10 +162,15 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     return global.setState({threadPost: combined_post})
     .then(() => combined_post)
   })
-  const {reddit_post, reddit_comments_promise, resetPath,
+  const {reddit_post, reddit_comments_promises, resetPath,
           moderators_promise, modlogs_comments_promise} = await reddit_pwc_promise
   let {root_commentID} = await reddit_pwc_promise
-  const {redditComments, moreComments} = await reddit_comments_promise
+  const redditCommentsResults = await Promise.all(reddit_comments_promises)
+  const redditComments = {}, moreComments = {}
+  for (const {comments: thisRC, moreComments: thisMC} of redditCommentsResults) {
+    Object.assign(redditComments, thisRC)
+    Object.assign(moreComments, thisMC)
+  }
   const pushshiftComments = await pushshift_comments_promise
   const revedditComments = await reveddit_comments_promise
   const modlogsComments = await modlogs_comments_promise
