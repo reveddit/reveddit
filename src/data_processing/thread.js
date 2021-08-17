@@ -30,6 +30,7 @@ import {AddUserParam, AddUserItem, getUserCommentsForPost,
         addUserComments, addUserComments_and_updateURL,
         getAddUserMeta,
 } from 'data_processing/FindCommentViaAuthors'
+import { localSort_types, filter_pageType_defaults } from 'state'
 
 const NumAddUserItemsToLoadAtFirst = 10
 const numCommentsWithPost = 500
@@ -40,12 +41,20 @@ const ignoreArchiveErrors = () => {
 }
 let useProxy = false
 
+// maps reddit sort value to reveddit sort
+const sortMap = {
+  controversial: {localSort: localSort_types.controversiality1},
+            new: {localSort: localSort_types.date},
+            old: {localSort: localSort_types.date, localSortReverse: true},
+}
+
 const scheduleAddUserItems = (addUserItems) => addUserItems.map(item => redditLimiter.schedule(() => item.query()))
 
 export const getRevdditThreadItems = async (threadID, commentID, context, add_user, user_kind, user_sort, user_time,
                                             before, after, subreddit,
                                             global) => {
-  const {sort} = global.state
+  const {sort, localSort, localSortReverse} = global.state
+  const localSortState = (sortMap[sort] && localSort === filter_pageType_defaults.localSort.thread && ! localSortReverse) ? sortMap[sort] : {}
   const sortsForRedditCommentThreadQuery = sort ? sort.split(',') : ['new']
   let pushshift_comments_promise = Promise.resolve({})
   let reveddit_comments_promise = Promise.resolve({})
@@ -121,11 +130,17 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     }
     const combinedComments = combinePushshiftAndRedditComments({}, redditComments, false, post_without_pushshift_data)
     const [commentTree, itemsSortedByDate] = createCommentTree(threadID, root_commentID, combinedComments)
-    await global.setState({threadPost: post_without_pushshift_data,
+    await global.setState({...localSortState,
+                           threadPost: post_without_pushshift_data,
                            items: itemsSortedByDate, itemsSortedByDate,
                            itemsLookup: combinedComments,
                            commentTree,
                            initialFocusCommentID: commentID})
+    .then(() => {
+      if (Object.keys(localSortState).length) {
+        global.updateURLFromGivenState('thread', localSortState)
+      }
+    })
     jumpToHash(window.location.hash)
     // Add 100 to threshhold b/c if post.num_comments <= numCommentsWithPost, first call could return
     // numCommentsWithPost and second call (sort by 'new') might return 50.

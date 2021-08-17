@@ -291,13 +291,16 @@ export const create_qparams_and_adjust = (page_type, selection, value) => {
 }
 
 const parseType = (value) => {
-  if (value === 'false') {
+  if (value !== null && typeof(value) === 'object') {
+    return Object.keys(value).join()
+  } else if (value === 'false') {
     return false
   } else if (value === 'true') {
     return true
   } else {
     return ifNumParseInt(value)
   }
+  return value
 }
 
 export const adjust_qparams_for_selection = (page_type, queryParams, selection, value) => {
@@ -341,8 +344,14 @@ class GlobalState extends Container {
   setStateFromCurrentURL = (page_type) => {
     return this.setStateFromQueryParams(page_type, create_qparams())
   }
-
-  setStateFromQueryParams(page_type, queryParams, extraGlobalStateVars = {}) {
+  updateURLFromGivenState = (page_type, state) => {
+    const queryParams = create_qparams()
+    for (const [key, value] of Object.entries(state)) {
+      adjust_qparams_for_selection(page_type, queryParams, key, value)
+    }
+    updateURL(queryParams)
+  }
+  getStateFromQueryParams(page_type, queryParams, extraGlobalStateVars = {}) {
     if (! page_type) {
       console.error('page_type is undefined')
     }
@@ -353,7 +362,10 @@ class GlobalState extends Container {
       const paramValue_decoded = paramValue === null ? paramValue : decodeURIComponent(paramValue)
       this.setValuesForParam(param, paramValue_decoded, stateVar, page_type)
     }
-    return this.setState(stateVar)
+    return stateVar
+  }
+  setStateFromQueryParams(page_type, queryParams, extraGlobalStateVars = {}) {
+    return this.setState(this.getStateFromQueryParams(page_type, queryParams, extraGlobalStateVars))
   }
   setValuesForParam(param, value, stateVar, page_type) {
     if (value === null) {
