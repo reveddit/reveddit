@@ -30,7 +30,7 @@ import {AddUserParam, AddUserItem, getUserCommentsForPost,
         addUserComments, addUserComments_and_updateURL,
         getAddUserMeta,
 } from 'data_processing/FindCommentViaAuthors'
-import { localSort_types, filter_pageType_defaults } from 'state'
+import { localSort_types, filter_pageType_defaults, create_qparams } from 'state'
 
 const NumAddUserItemsToLoadAtFirst = 10
 const numCommentsWithPost = 500
@@ -53,7 +53,8 @@ const scheduleAddUserItems = (addUserItems) => addUserItems.map(item => redditLi
 export const getRevdditThreadItems = async (threadID, commentID, context, add_user, user_kind, user_sort, user_time,
                                             before, after, subreddit,
                                             global) => {
-  const {sort, localSort, localSortReverse} = global.state
+  const {localSort, localSortReverse} = global.state
+  const sort = create_qparams().get('sort') // don't get this value from state. it's used elsewhere w/a default value 'new' which isn't desired here
   const localSortState = (sortMap[sort] && localSort === filter_pageType_defaults.localSort.thread && ! localSortReverse) ? sortMap[sort] : {}
   const sortsForRedditCommentThreadQuery = sort ? sort.split(',') : ['new']
   let pushshift_comments_promise = Promise.resolve({})
