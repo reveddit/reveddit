@@ -69,6 +69,7 @@ const routes = (
   {getAltRoutes(PATHS_ALT_SUB, PATH_STR_SUB)}
   <RouteRedirectWithParams path='/api/info/' search={/\/api\/info/} replace='/info'/>
   <RouteRedirectWithParams path='/gallery/' search={/\/gallery/} replace=''/>
+  <RouteRedirectWithParams path='/about/f.a.q.' search='/f.a.q.' replace='/faq'/>
   <DefaultLayout path='/about/faq' component={About_faq} title='Frequently Asked Questions'/>
   <DefaultLayout path='/about/contact' component={About_contact} title='Contact'/>
   <DefaultLayout path='/about/donate' component={About_donate} title='Donate'/>
