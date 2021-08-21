@@ -41,7 +41,7 @@ const About_faq = () => {
   return (
     <InternalPage>
       <ContentWithHeader header='What is this?' id='description'>
-        <p>Reveddit shows content removed from reddit by moderators. It does not show user-deleted content.</p>
+        <p>Reveddit reveals content removed from reddit by moderators. It does not show user-deleted content.</p>
         <p>To use it, insert <span className='v'>ve</span> or just <span className='v'>v</span> into the URL of any page on reddit, including user pages, subreddits, threads and more.</p>
       </ContentWithHeader>
       <ContentWithHeader header='Why do I need it?' id='need'>
