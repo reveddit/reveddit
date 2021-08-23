@@ -16,10 +16,27 @@ chromelike.forEach(name => {
 const bp = Bowser.getParser(window.navigator.userAgent)
 const browserName = bp.getBrowserName()
 
+const isChrome = !! chromelike_fullnames[browserName]
+const isFirefox = !! (Bowser.BROWSER_MAP['firefox'] == browserName)
+
+export const is_iOS = (
+  [
+    'iPad Simulator',
+    'iPhone Simulator',
+    'iPod Simulator',
+    'iPad',
+    'iPhone',
+    'iPod'
+  ].includes(navigator.platform)
+  || (navigator.userAgent.includes("Mac") && "ontouchend" in document)
+)
+
+export const iOS_shortcut_link = <a href='https://www.icloud.com/shortcuts/62bc7570613c42cb8b851fad264136df'>iOS shortcut</a>
+
 let browserExtensionImage = ''
-if (chromelike_fullnames[browserName]) {
+if (isChrome) {
   browserExtensionImage = <img alt="Add to Chrome" src={meta.chrome.img}/>
-} else if (Bowser.BROWSER_MAP['firefox'] == browserName) {
+} else if (isFirefox) {
   browserExtensionImage = <img alt="Add to Firefox" src={meta.firefox.img}/>
 }
 
@@ -60,9 +77,9 @@ export const ExtensionLink = ({image = false, extensionID = 'rt'}) => {
   if (image) {
     content = browserExtensionImage
   }
-  if (chromelike_fullnames[browserName]) {
+  if (isChrome) {
     return <NewWindowLink href={extensionMeta.c}>{content}</NewWindowLink>
-  } else if (Bowser.BROWSER_MAP['firefox'] == browserName) {
+  } else if (isFirefox) {
     return <NewWindowLink href={extensionMeta.f}>{content}</NewWindowLink>
   }
   return <LinkWithCloseModal to='/add-ons/'>{content}</LinkWithCloseModal>
@@ -70,9 +87,9 @@ export const ExtensionLink = ({image = false, extensionID = 'rt'}) => {
 
 const getExtensionURL = (extCode='rt') => {
   if (extCode in ext_urls) {
-    if (chromelike_fullnames[browserName]) {
+    if (isChrome) {
       return ext_urls[extCode].c
-    } else if (Bowser.BROWSER_MAP['firefox'] == browserName) {
+    } else if (isFirefox) {
       return ext_urls[extCode].f
     }
   }
@@ -85,6 +102,8 @@ export const ExtensionRedirect = ({extCode = 'rt'}) => {
   }, [])
   return null
 }
+
+export const Tip = ({children}) => <p><span className='quarantined'>Tip</span> {children}</p>
 
 export const Spin = ({width}) => {
   const spin = <img className='spin' alt='spin' width={width} src='/images/spin.gif'/>
