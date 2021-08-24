@@ -10,7 +10,7 @@ export const getRevdditAggregations = async (subreddit, global) => {
     return global.returnSuccess({over18})
   }
   return getAggregations({subreddit, type, limit, sort})
-  .then(temp_items => {
+  .then(({data: temp_items, meta}) => {
     const items = []
     for (const item of temp_items) {
       display_post(items, item)
@@ -44,7 +44,12 @@ export const getRevdditAggregations = async (subreddit, global) => {
       for (const i of items) {
         i.created_utc = i.last_created_utc
       }
-      return global.returnSuccess({items, itemsSortedByDate: [...items].sort(sortCreatedAsc), over18: false})
+      return global.returnSuccess({
+        agg_most_recent_created_utc: meta.most_recent_created_utc,
+        items,
+        itemsSortedByDate: [...items].sort(sortCreatedAsc),
+        over18: false,
+      })
     })
   })
 }

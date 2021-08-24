@@ -275,6 +275,7 @@ const initialState = {
   oldestTimestamp: undefined, newestTimestamp: undefined,
   stickied: undefined, distinguished: undefined,
   ...urlParamKeys_max_min_defaults,
+  agg_most_recent_created_utc: undefined,
 }
 
 // pushshift max per call is now 100 (previously was 1000)

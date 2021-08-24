@@ -6,10 +6,11 @@ import { getAggregationsPeriodURL } from 'api/reveddit'
 import Notice from 'pages/common/Notice'
 import { urr_help } from 'pages/common/selections/UpvoteRemovalRateHistory'
 import { QuestionMarkModal } from 'components/Misc'
+import { getPrettyDate } from 'utils'
 
 
 const Aggregations = ({global, selections, summary, viewableItems, ...props}) => {
-  const {content: type, n, sort} = global.state
+  const {content: type, n, sort, agg_most_recent_created_utc} = global.state
   const {subreddit} = props.match.params
   const reddit_content_type = type === 'comments' ? '1' : '3'
   return (
@@ -18,7 +19,15 @@ const Aggregations = ({global, selections, summary, viewableItems, ...props}) =>
       {summary}
       <Notice title={`top removed ${type}`} message={
         <>
-          This page shows highly upvoted removed {type} for the given subreddit. <QuestionMarkModal modalContent={{content: urr_help}} text='more info'/>
+          <div>
+            Highly upvoted removed {type} for the given subreddit. <QuestionMarkModal modalContent={{content: urr_help}} text='more info'/>
+          </div>
+          {agg_most_recent_created_utc ?
+            <ul style={{margin:0}}>
+              <li>Last updated: {getPrettyDate(agg_most_recent_created_utc)}</li>
+            </ul>
+            : <></>
+          }
         </>
       }/>
       {viewableItems.map((item, i) => {

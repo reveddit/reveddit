@@ -242,7 +242,7 @@ class UpvoteRemovalRateHistory extends React.Component {
           if (loading) return <p>Loading...</p>
           if (error) return <p>Error :(</p>
           // turn data into graph points: [{x: 0, y: item}, {x: 1, y: item}]
-          data = data.sort((a,b) => a.last_created_utc - b.last_created_utc).map((y, x) => { return {x, y} })
+          data = data.data.sort((a,b) => a.last_created_utc - b.last_created_utc).map((y, x) => { return {x, y} })
           const before_id = new SimpleURLSearchParams(window.location.search).get('before_id')
           if (! hovered && before_id) {
             data.forEach(point => {
