@@ -6,8 +6,7 @@ import { getAggregationsPeriodURL } from 'api/reveddit'
 import Notice from 'pages/common/Notice'
 import { urr_help } from 'pages/common/selections/UpvoteRemovalRateHistory'
 import { QuestionMarkModal } from 'components/Misc'
-import { getPrettyDate } from 'utils'
-
+import Time from 'pages/common/Time'
 
 const Aggregations = ({global, selections, summary, viewableItems, ...props}) => {
   const {content: type, n, sort, agg_most_recent_created_utc} = global.state
@@ -24,7 +23,7 @@ const Aggregations = ({global, selections, summary, viewableItems, ...props}) =>
           </div>
           {agg_most_recent_created_utc ?
             <ul style={{margin:0}}>
-              <li>Last updated: {getPrettyDate(agg_most_recent_created_utc)}</li>
+              <li>Last updated: <Time created_utc={agg_most_recent_created_utc}/></li>
             </ul>
             : <></>
           }
