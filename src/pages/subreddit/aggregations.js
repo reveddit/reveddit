@@ -12,6 +12,7 @@ const Aggregations = ({global, selections, summary, viewableItems, ...props}) =>
   const {content: type, n, sort, agg_most_recent_created_utc} = global.state
   const {subreddit} = props.match.params
   const reddit_content_type = type === 'comments' ? '1' : '3'
+  const last_updated = agg_most_recent_created_utc ? <>Last updated: <Time created_utc={agg_most_recent_created_utc}/></> : <></>
   return (
     <>
       {selections}
@@ -19,11 +20,11 @@ const Aggregations = ({global, selections, summary, viewableItems, ...props}) =>
       <Notice title={`top removed ${type}`} message={
         <>
           <div>
-            Highly upvoted removed {type} for the given subreddit. <QuestionMarkModal modalContent={{content: urr_help}} text='more info'/>
+            Highly upvoted removed {type} for the given subreddit. <QuestionMarkModal modalContent={{content: <><>{urr_help}</><>{last_updated}</></>}} text='more info'/>
           </div>
           {agg_most_recent_created_utc ?
             <ul style={{margin:0}}>
-              <li>Last updated: <Time created_utc={agg_most_recent_created_utc}/></li>
+              <li>{last_updated}</li>
             </ul>
             : <></>
           }
