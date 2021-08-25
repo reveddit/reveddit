@@ -394,7 +394,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
 
 export const insertParent = (child_id, global) => {
   let promise = Promise.resolve()
-  let { items, itemsLookup, commentTree, threadPost } = global.state
+  let { items, itemsLookup, commentTree, threadPost, initialFocusCommentID } = global.state
   const child = itemsLookup[child_id]
   const [parent_kind, parent_id] = child.parent_id.split('_')
   const parent = itemsLookup[parent_id]
@@ -428,11 +428,16 @@ export const insertParent = (child_id, global) => {
         return global.setError()
       }
     })
-  } else if (parent) {
+  } else if (parent && initialFocusCommentID) {
+
     //need this condition b/c when add_user is set on page load,
     //and top comment's context is clicked, the new ancestors might load w/out children
     //because although the current add_user logic does recreate the comment tree when adding new comments,
     //some 'inserted' comments might not connect until insertParent() runs a few times from successive clicks
+
+    // Only run this condition when initialFocusCommentID is set.
+    // In other cases, all comments should already have populated commentTree.
+    // If you set commentTree = [parent] when all comments are already loaded, then you're pruning the root-level comments
 
     //only add child if it doesn't exist
     if (! parent.replies.filter(c => c.id === child.id).length) {
