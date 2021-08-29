@@ -95,7 +95,7 @@ export const ALL_ACTIONS_META = {
   [RESTORED]: RESTORED_META,
   [APPROVED]: APPROVED_META,
 }
-export const preserve_desc = <><b>preserve:</b> This attempts to lookup and store the location of the comment in the URL and copies the new URL to the clipboard. If the lookup succeeds and the comment is later removed by a moderator, or if the archive becomes unavailable, then it can be viewed with this URL.<p>The lookup succeeds if the comment can be found in the user's most recent 100 comments. Otherwise, it may be found via the context link on their reveddit user page.</p></>
+export const preserve_desc = <><b>preserve:</b> This attempts to lookup and store the location of the comment in the URL and copies the new URL to the clipboard. If the lookup succeeds and the comment is later removed by a moderator, or if the archive becomes unavailable, then it can be viewed with this URL.<br/><br/>The lookup succeeds if the comment can be found in the user's most recent 100 comments. Otherwise, it may be found via the context link on their reveddit user page.</>
 const temp_vis_txt = 'Temporarily visible'
 const temp_vis_until = <>here until it falls out of the most recent mod log items. To save it, click {preserve_desc}</>
 const temp_vis_help = (<>
