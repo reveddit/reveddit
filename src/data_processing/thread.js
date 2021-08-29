@@ -263,6 +263,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
          initialFocusCommentID: commentID,
                                 alreadySearchedAuthors,
   })
+
   const processAddUserPromises = async (promises, combinedComments) => {
     return await Promise.all(promises)
       .then(userPages => getUserCommentsForPost(reddit_post, combinedComments, userPages))
@@ -328,18 +329,18 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
   }
 
   // when add_user is set, restoreDirectlyLinkedUnarchivedRemovedComment runs here instead of above
-  let num_changes_unarchivedRemovedComment = 0
+  let commentsUpdated_treeNotYetRebuilt = false
   if (add_user && commentID) {
     const promises = await restoreDirectlyLinkedUnarchivedRemovedComment(combinedComments[commentID], stateObj)
     if (promises.length) {
+      commentsUpdated_treeNotYetRebuilt = true
       const updated_add_user = new_add_user || add_user
       const {combinedComments: combinedComments_2,
                       changed: changed_2,
                  new_add_user: newer_add_user,
       } = await processAUP_addRemaining_combine(promises, combinedComments, updated_add_user, true)
-      num_changes_unarchivedRemovedComment = changed_2.length
       stateObj.itemsLookup = combinedComments_2
-      stateObj.add_user_on_page_load += num_changes_unarchivedRemovedComment
+      stateObj.add_user_on_page_load += changed_2.length
       stateObj.add_user = newer_add_user || updated_add_user
     }
   }
@@ -356,9 +357,9 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     moderators: {[subreddit_lc]: moderators},
   }
   Object.assign(stateObj, updateState)
-  if (add_user_promises_remainder.length || num_changes_unarchivedRemovedComment) {
-    if (! num_changes_unarchivedRemovedComment) {
-      // this logic changed combinedComments, but not the tree, so can't update the state until after the tree is recreated
+  if (add_user_promises_remainder.length || commentsUpdated_treeNotYetRebuilt) {
+    if (! commentsUpdated_treeNotYetRebuilt) {
+      // only update state earlier when tree has already been rebuilt
       await global.setState(stateObj)
     }
     if (add_user_promises_remainder.length) {
@@ -378,7 +379,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     stateObj.commentTree = commentTree_2
     stateObj.itemsSortedByDate = itemsSortedByDate_2
     stateObj.items = itemsSortedByDate_2
-    if (num_changes_unarchivedRemovedComment) {
+    if (commentsUpdated_treeNotYetRebuilt) {
       await global.setState(stateObj)
     }
   }
