@@ -196,7 +196,8 @@ export const getPrettyTimeLength = (seconds, conservative=false) => {
         time += 1
         prevUnitTime = 0
       }
-      if (Math.floor(time) > 1 || Math.floor(time) == 0) {
+      const mathFunc = i <= 1 && conservative ? Math.round : Math.floor
+      if (mathFunc(time) > 1 || mathFunc(time) == 0) {
         text = textPlural
       }
       if (i > 1 && prevUnitTime > 0) {
@@ -205,10 +206,6 @@ export const getPrettyTimeLength = (seconds, conservative=false) => {
           remainText = thresholds[i-1][2]
         }
         text += ', ' + String(prevUnitTime) + ' ' + remainText
-      }
-      let mathFunc = Math.floor
-      if (i <= 1 && conservative) {
-        mathFunc = Math.round
       }
       return String(mathFunc(time)) + ' ' + text
     }
