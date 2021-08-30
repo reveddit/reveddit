@@ -1,8 +1,10 @@
-import React, {useState, useEffect} from 'react'
-import {ifNumParseInt, isCommentID, validAuthor, now} from 'utils'
+import React, {useState, useEffect, useRef} from 'react'
+import {ifNumParseInt, isCommentID, validAuthor, now,
+        formatBytes, getPrettyTimeLength,
+} from 'utils'
 import {connect, urlParamKeys, create_qparams_and_adjust, updateURL} from 'state'
 import { kindsReverse, queryUserPage } from 'api/reddit'
-import { Spin, QuestionMarkModal, Help, NewWindowLink } from 'components/Misc'
+import { Spin, QuestionMarkModal, Help, NewWindowLink, ModalWithButton, buttonClasses } from 'components/Misc'
 import { copyFields, initializeComment, retrieveRedditComments_and_combineWithPushshiftComments } from 'data_processing/comments'
 import { createCommentTree } from 'data_processing/thread'
 import { RestoreIcon } from 'pages/common/svg'
@@ -16,6 +18,9 @@ const ONE_MONTH_IN_SECONDS = 30*60*60*24
 const ONE_YEAR_IN_SECONDS = 365*60*60*24
 const MAX_TIME_FOR_NEW_SORT = 5*ONE_MONTH_IN_SECONDS
 const MAX_SCORE_FOR_NEW_SORT = 5
+
+const RESTORE_ALL_MS_PER_AUTHOR_QUERY = 1500
+const MS_BETWEEN_AUTHOR_QUERIES = RESTORE_ALL_MS_PER_AUTHOR_QUERY*MAX_AUTHORS_NEARBY_BY_DATE
 
 export const get_userPageSortAndTime = ({created_utc, score, controversiality}) => {
   let userPageSort = 'new', userPageTime = ''
@@ -40,6 +45,7 @@ const addAuthorIfExists = (comment, set, alreadySearchedAuthors) => {
 }
 
 export const unarchived_search_button_word = 'Restore'
+const unarchived_search_button_word_plus_all = unarchived_search_button_word + ' All'
 export const unarchived_search_button_word_code = <code>{unarchived_search_button_word}</code>
 
 export const unarchived_search_see_more = <>
@@ -103,15 +109,30 @@ export const getAddUserMeta = (props, distance_input, userPageSort, userPageTime
 const FindCommentViaAuthors = (props) => {
   const [localLoading, setLocalLoading] = useState(false)
   const [meta, setMeta] = useState({distance: 0, aug: null})
+  const [searchAll, setSearchAll] = useState(false)
+
   let searchButton = ''
+  const {global} = props
   const {itemsLookup, alreadySearchedAuthors, threadPost,
          itemsSortedByDate, add_user, authors:globalAuthors,
          loading: globalLoading, items, commentTree,
-        } = props.global.state
+        } = global.state
   const {created_utc, score, controversiality} = props
 
   const loading = localLoading || globalLoading
   const get_userPageSortAndTime_this = () => get_userPageSortAndTime({created_utc, score, controversiality})
+  const isMounted = useRef(true)
+  useEffect(() => {
+    return () => {
+      isMounted.current = false
+    }
+  }, [])
+  const stopLocalLoading = async () => {
+    if (isMounted.current) {
+      return setLocalLoading(false)
+    }
+  }
+
   useEffect(() => {
     if (! loading) {
       const {userPageSort, userPageTime} = get_userPageSortAndTime_this();
@@ -121,10 +142,50 @@ const FindCommentViaAuthors = (props) => {
   // it should only run once per comment per search
   // do not add 'add_user' as a dependency: it causes a separate state update
   }, [JSON.stringify(alreadySearchedAuthors), globalLoading])
+  const countRemaining = ({alreadySearchedAuthors}) => Object.keys(global.state.authors).length - Object.keys(alreadySearchedAuthors).length
+  useEffect(() => {
+    let isCancelled = false
+    if (searchAll) {
+      const searchAllLoop = async () => {
+        const {userPageSort, userPageTime} = get_userPageSortAndTime_this()
+        let meta_var = meta
+        let numRemaining = countRemaining(global.state)
+        setLocalLoading(true)
+        let needToSetSuccess = false
+        // either numRemaining > 0 or meta_var.aug.length() > 0 would be enough without the other.
+        // doing both in case to avoid bugs causing an infinite loop
+        while (! isCancelled && numRemaining > 0 && meta_var.aug.length() > 0) {
+          const start = new Date().getTime()
+          const state = await searchFromMeta(meta_var)
+          numRemaining = countRemaining(state)
+          meta_var = getAddUserMeta(props, meta_var.distance, userPageSort, userPageTime)
+          if (numRemaining > 0 && meta_var.aug.length() > 0) {
+            needToSetSuccess = true
+            await global.setLoading('', state)
+            const elapsed = (new Date().getTime() - start)
+            if (elapsed < MS_BETWEEN_AUTHOR_QUERIES) {
+              const sleep = MS_BETWEEN_AUTHOR_QUERIES - elapsed
+              await new Promise(r => setTimeout(r, sleep))
+            }
+          } else {
+            needToSetSuccess = false
+            global.setSuccess(state)
+          }
+        }
+        await stopLocalLoading()
+        if (needToSetSuccess) {
+          await global.setSuccess()
+        }
+      }
+      searchAllLoop()
+    }
+    return () => {
+      isCancelled = true
+    }
+  }, [searchAll])
 
-  const search = async (targetComment) => {
-    await setLocalLoading(true)
-
+  const searchFromMeta = async (meta) => {
+    const {alreadySearchedAuthors, add_user} = global.state
     const {userPageSort, userPageTime} = get_userPageSortAndTime_this()
     const {authors, promises} = await meta.aug.query()
     const {user_comments, newComments} = await Promise.all(promises).then(
@@ -132,11 +193,20 @@ const FindCommentViaAuthors = (props) => {
     Object.assign(alreadySearchedAuthors, authors)
     const {new_commentTree, new_add_user} = await addUserComments_updateURL_createTreeIfNeeded({
       user_comments, itemsLookup, add_user, threadPost, newComments, items, commentTree, userPageSort, userPageTime})
-    await setLocalLoading(false)
-    return props.global.setSuccess({alreadySearchedAuthors,
-                                    add_user: new_add_user || add_user,
-                                    commentTree: new_commentTree || commentTree})
+    return {
+      alreadySearchedAuthors,
+      add_user: new_add_user || add_user,
+      commentTree: new_commentTree || commentTree
+    }
   }
+
+  const search = async () => {
+    await setLocalLoading(true)
+    const state = await searchFromMeta(meta)
+    await setLocalLoading(false)
+    return global.setSuccess(state)
+  }
+
   //states:
   //  loading && needToFindAuthors (! aug) => show spin
   //  loading && ! needToFindAuthors (aug)
@@ -144,20 +214,41 @@ const FindCommentViaAuthors = (props) => {
   //     noAuthors => show nothing
   //  ! loading && hasAuthors => show button
   //  ! loading && noAuthors => show nothing
+  const numAuthorsRemaining = countRemaining({alreadySearchedAuthors})
+  // Check for > 0 b/c globalAuthors is not populated until end of page load
+  const numAuthorsRemainingDiv = (
+    numAuthorsRemaining > 0 ?
+      <div style={{marginTop:'10px'}}>
+        <span> ({numAuthorsRemaining.toLocaleString()} users left)</span>
+        <QuestionMarkModal modalContent={{content:search_comment_help}} fill='white'/>
+      </div>
+    : <></>
+  )
   if (loading) {
+    const cancel = searchAll ? <a className={buttonClasses} style={{marginLeft:'5px'}} onClick={() => setSearchAll(false)}>cancel</a> : <></>
     if (! meta.aug || meta.aug.length()) {
-      searchButton = <Wrap><Spin width='20px'/></Wrap>
+      searchButton = <Wrap><Spin width='20px'/>{cancel}{numAuthorsRemainingDiv}</Wrap>
     }
   } else if (meta.aug?.length()) {
-    const numAuthorsRemaining = Object.keys(globalAuthors).length - Object.keys(alreadySearchedAuthors).length
     if (numAuthorsRemaining) {
       searchButton = (
         <Wrap>
           <div>
-            <a className='pointer bubble medium lightblue' onClick={search}><RestoreIcon/> {unarchived_search_button_word}</a>
-            <QuestionMarkModal modalContent={{content:search_comment_help}} fill='white'/>
+            <a className={buttonClasses} onClick={search}><RestoreIcon/> {unarchived_search_button_word}</a>
           </div>
-          <div style={{marginTop:'5px'}}> ({numAuthorsRemaining.toLocaleString()} users left)</div>
+          {numAuthorsRemainingDiv}
+          <ModalWithButton text={unarchived_search_button_word_plus_all} title='WARNING'
+            buttonText={unarchived_search_button_word_plus_all}
+            buttonFn={() => setSearchAll(true)}>
+            <>
+              <p>This query may use excessive bandwidth. Estimated usage for {numAuthorsRemaining} user queries:</p>
+              <ul>
+                <li>{formatBytes(30720*numAuthorsRemaining)}</li>
+                <li>{getPrettyTimeLength(numAuthorsRemaining*(RESTORE_ALL_MS_PER_AUTHOR_QUERY/1000))}</li>
+              </ul>
+              <p>To continue, click {unarchived_search_button_word_plus_all}.</p>
+            </>
+          </ModalWithButton>
         </Wrap>
       )
     }
@@ -166,10 +257,11 @@ const FindCommentViaAuthors = (props) => {
 }
 
 class AddUserGroup {
-  constructor({alreadySearchedAuthors = {}, max = MAX_AUTHORS_TO_SEARCH, sort} = {}) {
+  constructor({alreadySearchedAuthors = {}, max = MAX_AUTHORS_TO_SEARCH, sort, time} = {}) {
     this.alreadySearchedAuthors = alreadySearchedAuthors
     this.max = max
     this.sort = sort
+    this.time = time
     this.authorsToSearch = {}
     this.itemsToSearch = []
   }
@@ -186,7 +278,7 @@ class AddUserGroup {
           && ! (author in this.alreadySearchedAuthors)
           && ! (author in this.authorsToSearch)
           && this.itemsToSearch.length < this.max) {
-        this.itemsToSearch.push(new AddUserItem({author, kind: 'c', sort: this.sort}))
+        this.itemsToSearch.push(new AddUserItem({author, kind: 'c', sort: this.sort, time: this.time}))
         this.authorsToSearch[author] = true
       } else {
         allAdded = false

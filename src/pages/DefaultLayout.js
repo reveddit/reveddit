@@ -129,7 +129,7 @@ class DefaultLayout extends React.Component {
                   </div>
                 </div>
               </Modal>
-              <ModalProvider value={{openModal: this.openGenericModal}}>
+              <ModalProvider value={{openModal: this.openGenericModal, closeModal: this.closeGenericModal}}>
                 <Component {...matchProps} {...rest} openGenericModal={this.openGenericModal}/>
               </ModalProvider>
             </div>

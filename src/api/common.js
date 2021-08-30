@@ -3,9 +3,11 @@ import { get, put, getNow, paramString } from 'utils'
 import { getModlogsPosts, getModlogsComments } from 'api/reddit'
 import { getUmodlogsPosts, getUmodlogsComments } from 'api/reveddit'
 
+const reservoir = 30
+
 export const redditLimiter = new Bottleneck({
-  reservoir: 30, // 30 requests per minute for add_user calls in threads should keep api usage under 60 requests/minute
-  reservoirRefreshAmount: 30,
+  reservoir, // 30 requests per minute for add_user calls in threads should keep api usage under 60 requests/minute
+  reservoirRefreshAmount: reservoir,
   reservoirRefreshInterval: 60 * 1000, // ms, must be divisible by 250
   maxConcurrent: 10,
 })

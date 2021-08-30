@@ -135,6 +135,27 @@ export const QuestionMarkModal = ({modalContent, fill, text, wh='20'}) => {
     </a>
   )
 }
+export const buttonClasses = 'pointer bubble medium lightblue'
+
+export const ModalWithButton = ({text, title, buttonText, buttonFn, children}) => {
+  const modal = React.useContext(ModalContext)
+  return (
+    <a className='pointer' onClick={() => modal.openModal({content:
+      <StructuredContent {...{title: title || text,
+                              content:
+                              <>
+                                {children}
+                                <p style={{textAlign:'center'}}>
+                                  <a className={buttonClasses} onClick={() => {
+                                    modal.closeModal()
+                                    buttonFn()
+                                  }}>{buttonText}</a>
+                                </p>
+                              </>}}/>})}>
+      {text}
+    </a>
+  )
+}
 
 export const InternalPage = ({children}) => {
   useEffect(() => {
@@ -154,9 +175,13 @@ export const HelpModal = ({title = '', content = '', fill}) => {
 }
 
 export const Help = ({title = '', content = ''}) => {
+  return <StructuredContent {...{title: title + ' help', content}}/>
+}
+
+const StructuredContent = ({title = '', content = ''}) => {
   return (
     <div>
-      <h3>{title} help</h3>
+      <h3>{title}</h3>
       {content}
     </div>
   )
