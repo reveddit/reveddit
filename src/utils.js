@@ -179,11 +179,11 @@ export const get = (key, defaultValue) => {
 
 export const put = (key, value) => window.localStorage.setItem(key, JSON.stringify(value))
 
-export const getPrettyTimeLength = (seconds) => {
+export const getPrettyTimeLength = (seconds, conservative=false) => {
   const thresholds = [[60, 'second', 'seconds'], [60, 'minute', 'minutes'], [24, 'hour', 'hours'], [7, 'day', 'days'],
                    [365/12/7, 'week', 'weeks'], [12, 'month', 'months'], [10, 'year', 'years'],
                    [10, 'decade', 'decades'], [10, 'century', 'centuries'], [10, 'millenium', 'millenia']]
-  if (seconds < 60) return seconds + ' seconds'
+  if (seconds < 60) return Math.round(seconds) + ' seconds'
   let time = seconds
   for (var i=0; i<thresholds.length; i++) {
     let divisor = thresholds[i][0]
@@ -206,7 +206,11 @@ export const getPrettyTimeLength = (seconds) => {
         }
         text += ', ' + String(prevUnitTime) + ' ' + remainText
       }
-      return String(Math.floor(time)) + ' ' + text
+      let mathFunc = Math.floor
+      if (i <= 1 && conservative) {
+        mathFunc = Math.round
+      }
+      return String(mathFunc(time)) + ' ' + text
     }
     time = time / divisor
   }

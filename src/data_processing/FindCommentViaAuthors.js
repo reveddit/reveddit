@@ -244,7 +244,7 @@ const FindCommentViaAuthors = (props) => {
               <p>This query may use excessive bandwidth. Estimated usage for {numAuthorsRemaining} user queries:</p>
               <ul>
                 <li>{formatBytes(30720*numAuthorsRemaining)}</li>
-                <li>{getPrettyTimeLength(numAuthorsRemaining*(RESTORE_ALL_MS_PER_AUTHOR_QUERY/1000))}</li>
+                <li>{getPrettyTimeLength(numAuthorsRemaining*(RESTORE_ALL_MS_PER_AUTHOR_QUERY/1000), true)}</li>
               </ul>
               <p>To continue, click {unarchived_search_button_word_plus_all}.</p>
             </>
