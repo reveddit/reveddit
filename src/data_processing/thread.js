@@ -237,7 +237,6 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
   // if a directly linked comment is removed, auto-click the 'restore' button once.
   const restoreDirectlyLinkedUnarchivedRemovedComment = async (focusComment, state) => {
     if (focusComment && commentIsRemoved(focusComment)) {
-      state.add_user = '' // set to blank b/c getAddUserMeta would search authors found here
       state.threadPost = reddit_post // only need author from this
       state.alreadySearchedAuthors = alreadySearchedAuthors
       const {aug} = getAddUserMeta(focusComment, 0, 'new', 'all', state) // not guessing sort/time here makes combining the results easier

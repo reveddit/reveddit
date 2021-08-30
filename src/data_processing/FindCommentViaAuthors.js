@@ -73,7 +73,7 @@ const Wrap = ({children}) => <div style={{padding: '15px 0', minHeight: '25px'}}
 
 export const getAddUserMeta = (props, distance_input, userPageSort, userPageTime, state = {}) => {
   const {itemsLookup, alreadySearchedAuthors, threadPost,
-   itemsSortedByDate, add_user} = props.global?.state || state
+   itemsSortedByDate} = props.global?.state || state
    const grandparentComment = getAncestor(props, itemsLookup, 2)
    const grandchildComment = ((props.replies[0] || {}).replies || [])[0] || {}
    // START nearby authors
@@ -95,11 +95,11 @@ export const getAddUserMeta = (props, distance_input, userPageSort, userPageTime
    }
    // END nearby authors
    const aug = new AddUserGroup({alreadySearchedAuthors, sort: userPageSort, time: userPageTime})
-   const aup = new AddUserParam({string: add_user})
+   //NOTE: Some previous logic here would search users found in add_user param.
+   //      Removed this because it messed up rate limiting and was not likely to turn up new results
    //TODO:  breadth first search for grandchildren
    aug.add(grandparentComment.author,
            grandchildComment.author,
-           ...aup.getAuthors(),
            threadPost.author,
            ...Array.from(authors_nearbyByDate),
           )
@@ -215,11 +215,12 @@ const FindCommentViaAuthors = (props) => {
   //  ! loading && hasAuthors => show button
   //  ! loading && noAuthors => show nothing
   const numAuthorsRemaining = countRemaining({alreadySearchedAuthors})
+  const timeRemaining = getPrettyTimeLength(numAuthorsRemaining*(RESTORE_ALL_MS_PER_AUTHOR_QUERY/1000), true)
   // Check for > 0 b/c globalAuthors is not populated until end of page load
   const numAuthorsRemainingDiv = (
     numAuthorsRemaining > 0 ?
       <div style={{marginTop:'10px'}}>
-        <span> ({numAuthorsRemaining.toLocaleString()} users left)</span>
+        <span> ({numAuthorsRemaining.toLocaleString()} users left{loading && searchAll ? <>, {timeRemaining}</> : <></>})</span>
         <QuestionMarkModal modalContent={{content:search_comment_help}} fill='white'/>
       </div>
     : <></>
@@ -244,7 +245,7 @@ const FindCommentViaAuthors = (props) => {
               <p>This query may use excessive bandwidth. Estimated usage for {numAuthorsRemaining} user queries:</p>
               <ul>
                 <li>{formatBytes(30720*numAuthorsRemaining)}</li>
-                <li>{getPrettyTimeLength(numAuthorsRemaining*(RESTORE_ALL_MS_PER_AUTHOR_QUERY/1000), true)}</li>
+                <li>{timeRemaining}</li>
               </ul>
               <p>To continue, click {unarchived_search_button_word_plus_all}.</p>
             </>
