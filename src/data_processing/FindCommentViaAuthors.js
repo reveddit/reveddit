@@ -10,6 +10,7 @@ import { createCommentTree } from 'data_processing/thread'
 import { RestoreIcon } from 'pages/common/svg'
 import { getAuth } from 'api/reddit/auth'
 import { unarchived_label_text } from 'pages/common/RemovedBy'
+import { EXCLUDE_UNARCHIVED_REGEX } from 'pages/common/selections/TextFilter'
 
 const MAX_AUTHORS_NEARBY_BY_DATE = 5
 const MAX_AUTHORS_TO_SEARCH = 15
@@ -46,6 +47,7 @@ const addAuthorIfExists = (comment, set, alreadySearchedAuthors) => {
 
 export const unarchived_search_button_word = 'Restore'
 const unarchived_search_button_word_plus_all = unarchived_search_button_word + ' All'
+const code_button = <code>{unarchived_search_button_word_plus_all}</code>
 export const unarchived_search_button_word_code = <code>{unarchived_search_button_word}</code>
 
 export const unarchived_search_see_more = <>
@@ -112,10 +114,10 @@ const FindCommentViaAuthors = (props) => {
   const [searchAll, setSearchAll] = useState(false)
 
   let searchButton = ''
-  const {global} = props
+  const {global, id} = props
   const {itemsLookup, alreadySearchedAuthors, threadPost,
          itemsSortedByDate, add_user, authors:globalAuthors,
-         loading: globalLoading, items, commentTree,
+         loading: globalLoading, items, commentTree, initialFocusCommentID,
         } = global.state
   const {created_utc, score, controversiality} = props
 
@@ -238,23 +240,48 @@ const FindCommentViaAuthors = (props) => {
             <a className={buttonClasses} onClick={search}><RestoreIcon/> {unarchived_search_button_word}</a>
           </div>
           {numAuthorsRemainingDiv}
-          <ModalWithButton text={unarchived_search_button_word_plus_all} title='WARNING'
-            buttonText={unarchived_search_button_word_plus_all}
-            buttonFn={() => setSearchAll(true)}>
-            <>
-              <p>This query may use excessive bandwidth. Estimated usage for {numAuthorsRemaining} user queries:</p>
-              <ul>
-                <li>{formatBytes(30720*numAuthorsRemaining)}</li>
-                <li>{timeRemaining}</li>
-              </ul>
-              <p>To continue, click {unarchived_search_button_word_plus_all}.</p>
-            </>
-          </ModalWithButton>
+          <BodyButton>
+            <ModalWithButton text={unarchived_search_button_word_plus_all} title='WARNING'
+              buttonText={unarchived_search_button_word_plus_all}
+              buttonFn={() => setSearchAll(true)}>
+              <>
+                <p>{code_button} searches every known commenter's last 100 comments for this comment. It may use excessive bandwidth. Estimated usage for {numAuthorsRemaining} user queries:</p>
+                <ul>
+                  <li>{formatBytes(30720*numAuthorsRemaining)}</li>
+                  <li>{timeRemaining}</li>
+                </ul>
+                <p>{initialFocusCommentID ?
+                  <>This page was loaded through a comment's direct link. Loading the <a href={window.location.pathname.split('/',6).join('/')+'/'+ window.location.search + '#t1_' + id}>full comments page</a> first may yield more results. </>
+                  : <></>
+                }To continue, click {code_button}.</p>
+              </>
+            </ModalWithButton>
+          </BodyButton>
+          <HideUnarchivedComments global={global}/>
         </Wrap>
       )
     }
+  } else {
+    searchButton = <HideUnarchivedComments global={global}/>
   }
   return searchButton
+}
+
+export const HideUnarchivedComments = ({global}) => {
+  return <BodyButton>
+    <a className='pointer' onClick={() => {
+      global.selection_update('keywords', EXCLUDE_UNARCHIVED_REGEX, 'thread')
+    }}>Hide Unarchived</a>
+  </BodyButton>
+}
+
+//currently expects 1 child. use React.Children.map if a group is needed
+const BodyButton = ({children}) => {
+  return (
+    <code style={{marginRight:'10px', wordBreak:'break-all'}}>
+      {children}
+    </code>
+  )
 }
 
 class AddUserGroup {

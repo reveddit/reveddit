@@ -13,12 +13,13 @@ const SUFFIX_MAX = '_'+MAX
 
 const ANY = '"."', ANY_TEXT = 'any'
 const NONE = '-"."', NONE_TEXT = 'none'
-const EXCLUDE = '-"^\\[(removed|deleted)\\]$"', EXCLUDE_TEXT = 'exclude [removed]'
+export const EXCLUDE_UNARCHIVED_REGEX = '-"^\\[(removed|deleted)\\]$"'
+const EXCLUDE_TEXT = 'exclude [removed]'
 
 const associatedValues = {
   [ANY_TEXT]: ANY,
   [NONE_TEXT]: NONE,
-  [EXCLUDE_TEXT]: EXCLUDE,
+  [EXCLUDE_TEXT]: EXCLUDE_UNARCHIVED_REGEX,
 }
 const anyNoneOpposite = { any: 'none', none: 'any' }
 const marginLeft = {marginLeft:'3px'}

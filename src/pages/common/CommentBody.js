@@ -4,7 +4,7 @@ import { markdownToHTML, commentIsRemoved,
          getRemovedMessage, textSaysRemoved, getRemovedWithinText } from 'utils'
 import { connect } from 'state'
 import Notice from 'pages/common/Notice'
-import FindCommentViaAuthors from 'data_processing/FindCommentViaAuthors'
+import FindCommentViaAuthors, {HideUnarchivedComments} from 'data_processing/FindCommentViaAuthors'
 import { NewWindowLink } from 'components/Misc'
 import {LabelWithModal, RESTORED} from 'pages/common/RemovedBy'
 import {QuestionMark} from 'pages/common/svg'
@@ -23,7 +23,7 @@ const dismiss = (noticeType) => {
 }
 
 const CommentBody = (props) => {
-  let innerHTML = '', actionDescription = '', searchAuthorsForm = '', restoredTag = ''
+  let innerHTML = '', actionDescription = '', searchAuthorsForm = '', restoredTag = '', hideUnarchivedButton = ''
   const isThread = props.page_type === 'thread'
   const comment_Is_Removed = commentIsRemoved(props)
   if (! props.deleted) {
@@ -41,6 +41,9 @@ const CommentBody = (props) => {
           )
           innerHTML = markdownToHTML(props.body)
         }
+      }
+      if (comment_Is_Removed && ! searchAuthorsForm) {
+        hideUnarchivedButton = <HideUnarchivedComments global={props.global}/>
       }
     } else {
       if (props.page_type === 'user' && ! props.removed) {
@@ -66,6 +69,7 @@ const CommentBody = (props) => {
       {restoredTag}
       <div dangerouslySetInnerHTML={{ __html: innerHTML }} />
       {searchAuthorsForm}
+      {hideUnarchivedButton}
     </div>
   )
 }
