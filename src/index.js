@@ -64,7 +64,8 @@ const routes = (
 <Switch>
   <Redirect exact from='/' to='/about#welcome' />
   <RouteRedirectWithParams path={PATH_STR_USER+'/:user/posts/'} search={/\/posts/} replace='/submitted'/>
-  <RouteRedirectWithParams path={PATH_STR_SUB+'/:subreddit/controversial/'} search={/\/controversial/} replace='/top'/>
+  <RouteRedirectWithParams path={PATH_STR_SUB+'/:subreddit/controversial/'} search={/\/controversial/} replace='/history'/>
+  <RouteRedirectWithParams path={PATH_STR_SUB+'/:subreddit/top/'} search={/\/top/} replace='/history'/>
   {getAltRoutes(PATHS_ALT_USER, PATH_STR_USER)}
   {getAltRoutes(PATHS_ALT_SUB, PATH_STR_SUB)}
   <RouteRedirectWithParams path='/api/info/' search={/\/api\/info/} replace='/info'/>
@@ -81,7 +82,7 @@ const routes = (
   <DefaultLayout path='/info' page_type='info' component={Info} />
   <DefaultLayout path='/search' page_type='search' component={Info} />
   <DefaultLayout path='/random' component={Random} />
-  <DefaultLayout path={PATH_STR_SUB+'/:subreddit/top'} page_type={pageTypes.aggregations} component={Aggregations} />
+  <DefaultLayout path={PATH_STR_SUB+'/:subreddit/history'} page_type={pageTypes.aggregations} component={Aggregations} />
   <DefaultLayout path={PATH_STR_SUB+'/:subreddit/missing-comments'} page_type={pageTypes.missing_comments} component={SubredditComments} />
   <DefaultLayout path={PATH_STR_SUB+'/:subreddit/about/sticky'} page_type='sticky' component={SubredditSticky} />
   <DefaultLayout path={PATH_STR_SUB+'/:subreddit/comments/:threadID/:urlTitle/:commentID'} page_type='thread' component={Thread} />

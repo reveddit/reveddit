@@ -36,7 +36,7 @@ const SubredditPosts = (props) => {
         <>
           Check the archive for top removed content.
         </>
-      } htmlLink={<a href={PATH_STR_SUB+`/${subreddit}/top/`}>show top removed content</a>}
+      } htmlLink={<a href={PATH_STR_SUB+`/${subreddit}/history/`}>show top removed content</a>}
       />
   }
   return (

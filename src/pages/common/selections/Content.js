@@ -50,9 +50,9 @@ const content_help =
     <p>Recent posts {from}. {pushshift}</p>
     <h3>comments</h3>
     <p>Recent comments {from}. {pushshift}</p>
-    <h3>top posts</h3>
+    <h3>post history</h3>
     <p>Archived highly upvoted removed posts {from}. {out}</p>
-    <h3>top comments</h3>
+    <h3>comment history</h3>
     <p>Archived highly upvoted removed comments {from}. {out}</p>
     <h3>r/all posts</h3>
     <p>Archived removed posts that had hit r/all {from}. This page is up to date if the <NewWindowLink reddit={`/${un}`}>{un}</NewWindowLink> bot is running.</p>
@@ -79,9 +79,9 @@ const Content = ({global, subreddit, page_type}) => {
           <ContentLink expected_suffix='comments' description='comments'/>
           {subreddit !== 'all' && ! truthyOrUndefined(global.state.over18) &&
             <>
-              <ContentLink expected_suffix='top' description='top comments'
+              <ContentLink expected_suffix='history' description='comment history'
                            param_name='content'  expected_param_value='comments' page_type={pageTypes.aggregations}/>
-              <ContentLink expected_suffix='top' description='top posts'
+              <ContentLink expected_suffix='history' description='post history'
                            param_name='content'  expected_param_value='posts' page_type={pageTypes.aggregations}/>
             </>
           }

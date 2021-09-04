@@ -201,6 +201,7 @@ export class About extends React.Component {
               <ul>
                 <li><a href={PATH_STR_USER+'/redditor_3975/'}>user/redditor_3975</a></li>
                 <li><a href={PATH_STR_SUB+'/CantSayAnything/'}>r/CantSayAnything</a></li>
+                <li><a href={PATH_STR_SUB+'/worldnews/history/'}>r/worldnews/history</a></li>
                 <li><a href={PATH_STR_SUB+'/worldnews/duplicates/eb2hjw'}>other-discussions+</a></li>
                 <li><a href={PATH_STR_SUB+'/CantSayAnything/about/sticky'}>r/{sub}/comments/link-id/</a></li>
                 <li><a href={PATH_STR_SUB+'/CantSayAnything/comments'}>r/{sub}/comments</a></li>

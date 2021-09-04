@@ -42,7 +42,7 @@ export const getArchiveTimes = async () => {
 
 const aggregationsPath = 'aggregations/'
 
-//default values for aggregations query via r/subreddit/top
+//default values for aggregations query via r/subreddit/history
 export const agg_defaults_for_page = {
   limit: 100,
   sort: 'top',

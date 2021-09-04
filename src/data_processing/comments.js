@@ -286,7 +286,7 @@ export const setSubredditMeta = async (subreddit, global) => {
   })
   .then(([moderators, subreddit_about]) => {
     if (((isEmptyObj(moderators) || moderators.error) && isEmptyObj(subreddit_about)) || [subreddit_about.reason, moderators.reason].some(w => /^\b(private|banned)\b$/.test(w))) {
-      window.location.href = `/v/${subreddit}/top/#banned`
+      window.location.href = `/v/${subreddit}/history/#banned`
     }
     over18 = subreddit_about.over18
     global.setState({moderators: {[subreddit_lc]: moderators}, over18})

@@ -89,7 +89,7 @@ const getPageTitle = (page_type, string) => {
       break
     }
     case 'aggregations': {
-      return `${subreddit}/top`
+      return `${subreddit}/history`
       break
     }
     case 'missing_comments': {
