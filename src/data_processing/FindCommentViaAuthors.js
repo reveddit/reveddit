@@ -114,12 +114,11 @@ const FindCommentViaAuthors = (props) => {
   const [searchAll, setSearchAll] = useState(false)
 
   let searchButton = ''
-  const {global, id} = props
+  const {global, id, created_utc, score, controversiality} = props
   const {itemsLookup, alreadySearchedAuthors, threadPost,
          itemsSortedByDate, add_user, authors:globalAuthors,
          loading: globalLoading, items, commentTree, initialFocusCommentID,
         } = global.state
-  const {created_utc, score, controversiality} = props
 
   const loading = localLoading || globalLoading
   const get_userPageSortAndTime_this = () => get_userPageSortAndTime({created_utc, score, controversiality})
@@ -234,6 +233,7 @@ const FindCommentViaAuthors = (props) => {
     }
   } else if (meta.aug?.length()) {
     if (numAuthorsRemaining) {
+      const comment_age_in_seconds = now - created_utc
       searchButton = (
         <Wrap>
           <div>
@@ -250,6 +250,9 @@ const FindCommentViaAuthors = (props) => {
                   <li>{formatBytes(30720*numAuthorsRemaining)}</li>
                   <li>{timeRemaining}</li>
                 </ul>
+                {comment_age_in_seconds > ONE_MONTH_IN_SECONDS ?
+                  <p>This comment is {getPrettyTimeLength(comment_age_in_seconds)} old. It may not be recoverable if it is no longer among the author's most recent 100 comments.</p>
+                  : <></>}
                 <p>{initialFocusCommentID ?
                   <>This page was loaded through a comment's direct link. Loading the <a href={window.location.pathname.split('/',6).join('/')+'/'+ window.location.search + '#t1_' + id}>full comments page</a> first may yield more results. </>
                   : <></>
