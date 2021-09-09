@@ -135,7 +135,7 @@ const About_faq = () => {
       <ContentWithHeader header='Any limitations?' id='limits'>
         <p>The following content is unavailable on reddit user pages and therefore cannot be tracked with reveddit user pages,</p>
         <ul>
-          <li>Content from banned subreddits. The <Link to='/r/?contentType=top'>subreddit top page</Link> may display some content.</li>
+          <li>Content from banned subreddits. The <Link to='/r/?contentType=history'>subreddit history page</Link> may display some content.</li>
           <li>Reddit live/chat comments</li>
         </ul>
       </ContentWithHeader>

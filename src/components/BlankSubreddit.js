@@ -13,8 +13,8 @@ export default ({is_comments_page = false}) => {
       if (is_comments_page) {
         path += 'comments/?removedby=collapsed,locked,automod-rem-mod-app,mod'
       } else {
-        if (queryParams.get('contentType') === 'top') {
-          path += 'top/'
+        if (['top', 'history'].includes(queryParams.get('contentType'))) {
+          path += 'history/'
         } else {
           path += '?localSort=num_comments'
         }
