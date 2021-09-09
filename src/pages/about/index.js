@@ -48,6 +48,9 @@ export const NewsItem = ({to, title, created_utc, newsText = '', ...props}) => {
 }
 
 const news = [
+  {reddit:'/pkugyl/',
+   title:'History through 2021/06',
+   created_utc: '1631180038'},
   {reddit:'/n3q106/',
    title:'+ u/modlogs data, date picker',
    created_utc:'1620025350'},
