@@ -28,7 +28,7 @@ export const filterSelectedActions = (selectedActions) => {
   return [selectedOtherActions, selectedRemovedByActions]
 }
 
-export const itemIsOneOfSelectedActions = (item, selectedOtherActions, selectedRemovedByActions) => {
+export const itemIsOneOfSelectedActions = (item, selectedOtherActions, selectedRemovedByActions, exclude_action = None) => {
   for (const action of selectedOtherActions) {
     switch(action) {
       case USER_REMOVED:
@@ -44,7 +44,7 @@ export const itemIsOneOfSelectedActions = (item, selectedOtherActions, selectedR
         if (commentIsMissingInThread(item)) return true
         break
       case ORPHANED:
-        if (commentIsOrphaned(item)) return true
+        if (commentIsOrphaned(item) && (! exclude_action || ! item.removed) ) return true
         break
       case AUTOMOD_REMOVED:
         if (postRemovedUnknownWithin(item)) return true

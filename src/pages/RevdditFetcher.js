@@ -455,7 +455,7 @@ const GenericPostProcessor = connect((props) => {
     gs.items.forEach(item => {
       const actionMatch = filterMatches(
         global.removedByFilterIsUnset(),
-        () => itemIsOneOfSelectedActions(item, ...filteredActions),
+        () => itemIsOneOfSelectedActions(item, ...filteredActions, gs.exclude_action),
         gs.exclude_action
       )
       const tagMatch = filterMatches(
