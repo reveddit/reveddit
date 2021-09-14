@@ -223,7 +223,7 @@ const SelftextInParts = ({selftext, media_metadata}) => {
   const selftextParts = selftext.split(splitOnPreview_regexp)
   const result = []
   const maxImageSizeForScreen = calculateMaxImageSizeForScreen()
-  const maxWidth = maxImageSizeForScreen < maxWidth ? maxImageSizeForScreen : maxWidthInsideSelftextBox
+  const maxWidth = Math.min(maxImageSizeForScreen, maxWidthInsideSelftextBox)
   for (const [i, part] of selftextParts.entries()) {
     const match = part.match(new RegExp('(?:\\[([^\\]]*)\\]\\()?('+redditPreview_regexpString_noParen+')'))
     if (match) {
