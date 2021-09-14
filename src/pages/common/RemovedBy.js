@@ -36,19 +36,19 @@ export const REMOVAL_META = {
                                    reddit_link: '/9qf5ma'},
         [MOD_OR_AUTOMOD_REMOVED]: {filter_text: 'mod removed',
                                          label: '[removed] by mod',
-                                          desc: 'Likely removed by a moderator. There is also a chance it was removed by automod.',
+                                          desc: 'Likely removed by a moderator. There is also a chance it was removed automatically.',
                                    reddit_link: '/fifhp7'},
-               [AUTOMOD_REMOVED]: {filter_text: 'automod removed',
-                                         label: '[removed] by automod',
-                                          desc: 'Likely removed by automod.',
+               [AUTOMOD_REMOVED]: {filter_text: 'auto-removed',
+                                         label: '[removed] automatically',
+                                          desc: "Likely removed by a bot such as automod or reddit's spam filter.",
                                    reddit_link: AUTOMOD_LINK},
   [AUTOMOD_REMOVED_MOD_APPROVED]: {filter_text: 'auto-removed -> approved',
                                          label: '[approved] auto-removed, then approved',
-                                          desc: 'This content was initially auto-removed by automoderator and later manually approved by a moderator.',
+                                          desc: 'This content was initially auto-removed and later manually approved by a moderator.',
                                    reddit_link: AUTOMOD_LINK},
                [UNKNOWN_REMOVED]: {filter_text: 'unknown removed',
-                                         label: '[removed] unknown if by mod/automod',
-                                          desc: 'Cannot say with certainty whether this was removed by a mod or by automod.',
+                                         label: '[removed] unknown if by mod/auto',
+                                          desc: 'Cannot say with certainty whether this was removed by a mod or by a bot.',
                                     local_link: faq+'#unknown-removed'},
                         [LOCKED]: {filter_text: 'locked',
                                          label: 'locked',
@@ -122,8 +122,11 @@ const ModlogDetails = ({modlog, text, created_utc}) => {
 
 const RemovedBy = (props) => {
   let displayTag = '', details = '', meta = undefined, withinText = '', fill = undefined,
-      allActionsExceptLocked = '', lockedTag = '', temporarilyVisible = ''
-  let {removedby, orphaned_label = '', style, locked, removed, deleted, modlog, name} = props
+      allActionsExceptLocked = '', lockedTag = '', temporarilyVisible = '', alternateLabel = ''
+  let {removedby, orphaned_label = '', style,
+       locked, removed, deleted, modlog, name,
+       removed_by_category,
+      } = props
   const is_post = name && isPost(props)
   if (removed && ! removedby) {
     removedby = UNKNOWN_REMOVED
@@ -152,6 +155,9 @@ const RemovedBy = (props) => {
       if (modlog.details && modlog.details !== 'remove') {
         details += ' | ' + modlog.details
       }
+    }
+    if (! details && removed_by_category === 'reddit') {
+      alternateLabel = '[removed] by reddit (spam)'
     }
   } else if (removedby === USER_REMOVED) {
     meta = USER_REMOVED_META
@@ -198,7 +204,7 @@ const RemovedBy = (props) => {
     const modalDetails = modalDetailsItems.map((x, i) => <div key={i}>{x}</div>)
     allActionsExceptLocked =
       <LabelWithModal hash={'action_'+removedby+'_help'} details={modalDetails} removedby={removedby}>
-        <span title={meta.desc} data-removedby={removedby} className='removedby'>{orphaned_label+(meta.label || '')+withinText+details} <QuestionMark fill={fill}/></span>
+        <span title={meta.desc} data-removedby={removedby} className='removedby'>{orphaned_label+(alternateLabel || meta.label || '')+withinText+details} <QuestionMark fill={fill}/></span>
       </LabelWithModal>
   }
   if (locked) {
