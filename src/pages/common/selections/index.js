@@ -20,7 +20,7 @@ import BeforeAfter from './BeforeAfter'
 
 const UpvoteRemovalRateHistory = lazy(() => import('pages/common/selections/UpvoteRemovalRateHistory'))
 
-const paramKey = 'showFilters'
+const showFiltersParamKey = 'showFilters'
 
 const word_filter_help = (
   <>
@@ -64,8 +64,13 @@ const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter,
 
   useEffect(() => {
     const queryParams = new SimpleURLSearchParams(window.location.search)
-    if (queryParams.get(paramKey) === 'true') {
+    const paramValue = queryParams.get(showFiltersParamKey)
+    if (paramValue === 'true' || (paramValue !== 'false' && page_type === 'aggregations')) {
       setShowFiltersMeta({showFilters: true, filtersHaveBeenShown: true})
+      if (! paramValue) {
+        queryParams.set(showFiltersParamKey, 'true')
+        updateURL(queryParams)
+      }
     }
   }, [])
   const {showFilters, filtersHaveBeenShown} = showFiltersMeta
@@ -77,9 +82,9 @@ const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter,
     const queryParams = new SimpleURLSearchParams(window.location.search)
     if (newShowFiltersMeta.showFilters) {
       newShowFiltersMeta.filtersHaveBeenShown = true
-      queryParams.set(paramKey, true)
+      queryParams.set(showFiltersParamKey, true)
     } else {
-      queryParams.delete(paramKey)
+      queryParams.delete(showFiltersParamKey)
     }
     updateURL(queryParams)
     setShowFiltersMeta(newShowFiltersMeta)
@@ -232,13 +237,13 @@ const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter,
               case 'aggregations':
                 return (
                   <>
-                    <Content page_type={page_type} subreddit={subreddit}/>
+                    {upvoteRemovalRateHistory}
                     <div>
+                      {textFilter_content}
                       <RedditSortTimeBase page_type={page_type} globalVarName='sort' className='aggSort' title='Sort By'/>
                       <ItemsPerPage/>
                     </div>
-                    {textFilter_content}
-                    {upvoteRemovalRateHistory}
+                    <Content page_type={page_type} subreddit={subreddit}/>
                   </>)
               default: return ''
             }
