@@ -338,10 +338,6 @@ class GlobalState extends Container {
      this.state = initialState
   }
 
-  getInitialState() {
-    return
-  }
-
   setStateFromCurrentURL = (page_type) => {
     return this.setStateFromQueryParams(page_type, create_qparams())
   }
