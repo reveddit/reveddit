@@ -12,7 +12,7 @@ import Time from 'pages/common/Time'
 
 const reasons = [
   <li key='m'>In many cases, reddit sends no message about removals. Messages can <i>optionally</i> be sent by subreddit moderators.</li>,
-  <li key='i'>Reddit shows you your removed comments, and sometimes posts, as if they are not removed.<div style={{textAlign:'center'}}><img src="/images/removed-views.png"/></div></li>
+  <li key='i'>Reddit shows you your removed comments, and sometimes posts, as if they are not removed.<div style={{textAlign:'center'}}><img src="/images/removed-views.png" style={{maxWidth:'100%'}}/></div></li>
 ]
 const cantSayAnything_modlogConfig = '/r/CantSayAnything/wiki/modlog_config'
 const unarchived_search_button_word_lc = unarchived_search_button_word.toLowerCase()
