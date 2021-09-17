@@ -28,7 +28,7 @@ export const filterSelectedActions = (selectedActions) => {
   return [selectedOtherActions, selectedRemovedByActions]
 }
 
-export const itemIsOneOfSelectedActions = (item, selectedOtherActions, selectedRemovedByActions, exclude_action = None) => {
+export const itemIsOneOfSelectedActions = (item, selectedOtherActions, selectedRemovedByActions, exclude_action = undefined) => {
   for (const action of selectedOtherActions) {
     switch(action) {
       case USER_REMOVED:
