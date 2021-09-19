@@ -23,14 +23,14 @@ const dismiss = (noticeType) => {
 }
 
 const CommentBody = (props) => {
-  let innerHTML = '', actionDescription = '', searchAuthorsForm = '', restoredTag = '', hideUnarchivedButton = ''
+  let innerHTML = '', actionDescription = '', searchAuthorsForm = '', restoredTag = '', hideUnarchivedButton = '',
+      removedMessage = <></>
   const isThread = props.page_type === 'thread'
   const comment_Is_Removed = commentIsRemoved(props)
   if (! props.deleted) {
     const archiveRemoved_or_noArchive_or_fromAddUser = props.archive_body_removed || ! props.archive_processed || props.from_add_user
     if ( (comment_Is_Removed || (isThread && archiveRemoved_or_noArchive_or_fromAddUser))
          && props.removed) {
-      innerHTML = '<p>'+getRemovedMessage(props, 'comment')+'</p>'
       if (isThread) {
         if (comment_Is_Removed) {
           searchAuthorsForm = <FindCommentViaAuthors {...props}/>
@@ -41,6 +41,9 @@ const CommentBody = (props) => {
           )
           innerHTML = markdownToHTML(props.body)
         }
+      }
+      if (! innerHTML) {
+        removedMessage = <p>{getRemovedMessage(props, 'comment')}</p>
       }
       if (comment_Is_Removed && ! searchAuthorsForm) {
         hideUnarchivedButton = <HideUnarchivedComments global={props.global}/>
@@ -68,6 +71,7 @@ const CommentBody = (props) => {
       {actionDescription}
       {restoredTag}
       <div dangerouslySetInnerHTML={{ __html: innerHTML }} />
+      {removedMessage}
       {searchAuthorsForm}
       {hideUnarchivedButton}
     </div>

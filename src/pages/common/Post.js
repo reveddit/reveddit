@@ -81,12 +81,12 @@ const Post = connect((props) => {
     )
   }
   let selftext = decodeHtml(props.selftext)
-  let selftext_snippet = ''
+  let selftext_snippet = '', removedMessage = <></>
   let snippet_is_set = false
   if (selftext) {
     if (postIsRemovedAndSelftextSaysRemoved(props)) {
-      selftext = getRemovedMessage(props, 'submission')
-      selftext_snippet = selftext
+      selftext = ' ' // set to space so that it evaluates to true
+      removedMessage = getRemovedMessage(props, 'submission')
     } else if (selftext.length > max_selftext_length + 10) {
       snippet_is_set = true
       selftext_snippet = selftext.substring(0,max_selftext_length)+'...'
@@ -180,6 +180,7 @@ const Post = connect((props) => {
                   <a className='collapseToggle' onClick={hideFullSelftext} style={{float:'left',marginRight:'10px'}}>[–]</a>
                 }
                 <Selftext {...{selftext, media_metadata}}/>
+                {removedMessage}
                 {snippet_is_set &&
                   <p><a className='collapseToggle' onClick={hideFullSelftext} style={{float:'left',marginRight:'10px'}}>[–] view less</a></p>
                 }

@@ -1,8 +1,10 @@
+import React from 'react'
 import SnuOwnd from 'snuownd'
 import { AUTOMOD_REMOVED_MOD_APPROVED, UNKNOWN_REMOVED } from 'pages/common/RemovedBy'
 import scrollToElement from 'scroll-to-element'
 import {useRef, useEffect} from 'react'
 import { DateUtils } from 'react-day-picker'
+import { NewWindowLink } from 'components/Misc'
 
 const markdown = SnuOwnd.getParser()
 const chrome_base = 'https://chrome.google.com/webstore/detail/'
@@ -461,19 +463,24 @@ export const getRemovedMessage = (props, itemType) => {
   let removedMessage = ' before archival'
   const {archiveTimes, error, loading} = props.global.state
   if (props.retrieved_on) {
-    removedMessage = ' before archival,'+getRemovedWithinText(props)
+    // In August or September 2021, archive started overwriting comments after a day or two
+    if ('body' in props && props.created_utc > 1629248296) {
+      removedMessage = <>Click Restore to try an alternate source. This comment may not have been archived in time or <NewWindowLink reddit='/pgzdav'>may have been overwritten</NewWindowLink> after {getPrettyTimeLength(props.retrieved_on-props.created_utc)}.</>
+    } else {
+      removedMessage = ' before archival,'+getRemovedWithinText(props)
+    }
   } else if (loading) {
     removedMessage = ' content loading...'
   } else if (error) {
     return '[error connecting to archive, try again later]'
   } else if (archiveTimes) {
     if (archiveTimes_isCurrent(archiveTimes)) {
-      removedMessage += '. Current delay is '+getPrettyTimeLength(archiveTimes.updated - archiveTimes[itemType])
+      removedMessage += ' The current delay is '+getPrettyTimeLength(archiveTimes.updated - archiveTimes[itemType])
     } else {
       removedMessage = ', archive currently unavailable'
     }
   }
-  return `[removed${removedMessage}]`
+  return <>[removed] {removedMessage}</>
 }
 
 export const getRemovedWithinText = (props) => {
