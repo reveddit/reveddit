@@ -464,7 +464,7 @@ export const getRemovedMessage = (props, itemType) => {
   const {archiveTimes, error, loading} = props.global.state
   if (props.retrieved_on) {
     // In August or September 2021, archive started overwriting comments after a day or two
-    if ('body' in props && props.created_utc > 1629248296) {
+    if ('body' in props && props.created_utc > 1629248296 && props.retrieved_on-props.created_utc > 43200) {
       removedMessage = <>Click Restore to try an alternate source. This comment may not have been archived in time or <NewWindowLink reddit='/pgzdav'>may have been overwritten</NewWindowLink> after {getPrettyTimeLength(props.retrieved_on-props.created_utc)}.</>
     } else {
       removedMessage = ' before archival,'+getRemovedWithinText(props)
