@@ -159,7 +159,8 @@ export const ModalWithButton = ({text, title, buttonText, buttonFn, children}) =
 
 export const InternalPage = ({children}) => {
   useEffect(() => {
-    jumpToHash(window.location.hash, 0)
+    // Wait for images to render
+    setTimeout(() => jumpToHash(location.hash, 0), 500)
   }, [])
   return (
     <div id='main'>
