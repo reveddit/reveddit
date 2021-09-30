@@ -4,7 +4,7 @@ import { markdownToHTML, commentIsRemoved,
          getRemovedMessage, textSaysRemoved, getRemovedWithinText } from 'utils'
 import { connect } from 'state'
 import Notice from 'pages/common/Notice'
-import FindCommentViaAuthors, {HideUnarchivedComments} from 'data_processing/FindCommentViaAuthors'
+import RestoreComment, {HideUnarchivedComments} from 'data_processing/RestoreComment'
 import { NewWindowLink } from 'components/Misc'
 import {LabelWithModal, RESTORED} from 'pages/common/RemovedBy'
 import {QuestionMark} from 'pages/common/svg'
@@ -33,7 +33,7 @@ const CommentBody = (props) => {
          && props.removed) {
       if (isThread) {
         if (comment_Is_Removed) {
-          searchAuthorsForm = <FindCommentViaAuthors {...props}/>
+          searchAuthorsForm = <RestoreComment {...props}/>
         } else if (archiveRemoved_or_noArchive_or_fromAddUser) { // explicit for clarity, could be else { w/no condition
           const within = props.archive_body_removed ? getRemovedWithinText(props) : ''
           restoredTag = (

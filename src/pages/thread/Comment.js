@@ -14,7 +14,7 @@ import { insertParent } from 'data_processing/thread'
 import {MessageMods} from 'components/Misc'
 import {AddUserItem, getUserCommentsForPost, addUserComments_and_updateURL,
         addUserComments_updateURL_createTreeIfNeeded, get_userPageSortAndTime,
-} from 'data_processing/FindCommentViaAuthors'
+} from 'data_processing/RestoreComment'
 import { QuestionMarkModal, Help, ExtensionLink } from 'components/Misc'
 import { getSortFn } from './common'
 import { RestoreIcon } from 'pages/common/svg'

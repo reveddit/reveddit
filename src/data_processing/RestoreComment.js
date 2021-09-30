@@ -108,7 +108,7 @@ export const getAddUserMeta = (props, distance_input, userPageSort, userPageTime
   return {aug, distance}
 }
 
-const FindCommentViaAuthors = (props) => {
+const RestoreComment = (props) => {
   const [localLoading, setLocalLoading] = useState(false)
   const [meta, setMeta] = useState({distance: 0, aug: null})
   const [searchAll, setSearchAll] = useState(false)
@@ -524,4 +524,4 @@ export const addUserComments_updateURL_createTreeIfNeeded = async ({user_comment
 
 
 
-export default connect(FindCommentViaAuthors)
+export default connect(RestoreComment)

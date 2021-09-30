@@ -29,7 +29,7 @@ import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
 import {AddUserParam, AddUserItem, getUserCommentsForPost,
         addUserComments, addUserComments_and_updateURL,
         getAddUserMeta,
-} from 'data_processing/FindCommentViaAuthors'
+} from 'data_processing/RestoreComment'
 import { localSort_types, filter_pageType_defaults, create_qparams } from 'state'
 
 const NumAddUserItemsToLoadAtFirst = 10
