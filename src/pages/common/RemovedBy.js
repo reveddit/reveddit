@@ -7,7 +7,7 @@ import ModalContext from 'contexts/modal'
 import {QuestionMark} from 'pages/common/svg'
 import ActionHelp from 'pages/modals/ActionHelp'
 import {modlogSaysBotRemoved} from 'data_processing/comments'
-import {LinkWithCloseModal} from 'components/Misc'
+import {LinkWithCloseModal, NewWindowLink} from 'components/Misc'
 
 const APPROVED = 'approved'
 export const ANTI_EVIL_REMOVED = 'anti_evil_ops'
@@ -200,6 +200,9 @@ const RemovedBy = (props) => {
       }
     } else if (removedby === APPROVED) {
       modalDetailsItems.push( <ModlogDetails {...props} modlog={modlog} text='Approved'/> )
+    }
+    if (props.wayback_path) {
+      modalDetailsItems.push(<p>source: <NewWindowLink href={'https://web.archive.org'+props.wayback_path}>Wayback Machine</NewWindowLink></p>)
     }
     const modalDetails = modalDetailsItems.map((x, i) => <div key={i}>{x}</div>)
     allActionsExceptLocked =
