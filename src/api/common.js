@@ -79,7 +79,7 @@ export const subredditHasModlogs = async (subreddit, type) => {
     return false
   }
   const modlogs = await getAllSubredditsWithModlogs()
-  return modlogs[subreddit]?.[type]
+  return modlogs[subreddit.toLowerCase()]?.[type]
 
 }
 
