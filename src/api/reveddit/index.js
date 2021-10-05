@@ -54,7 +54,7 @@ export const getAggregations = ({subreddit, type = agg_defaults_for_page.type, l
 }
 
 export const getAggregationsURL = ({subreddit, type = agg_defaults_for_page.type, limit = agg_defaults_for_page.limit, sort = agg_defaults_for_page.sort}) => {
-  return REVEDDIT_FLASK_HOST_LONG + aggregationsPath + '?' + paramString({type, subreddit, limit, sort})
+  return REVEDDIT_FLASK_HOST_SHORT + aggregationsPath + '?' + paramString({type, subreddit, limit, sort})
 }
 
 export const numGraphPointsParamKey = 'rr_ngp'
@@ -203,4 +203,9 @@ export const getArchivedCommentsByID = (ids) => {
   }
   return flaskQuery({path: 'comments-by-id/', params, options: extendedTimeout})
   .catch(error => {return {}}) // ignore fetch errors, this is not critical data
+}
+
+// using REVEDDIT_FLASK_HOST_SHORT b/c wayback results will change for recent data
+export const getWaybackComments = (path, ids) => {
+  return flaskQuery({path: 'wayback/', params: {path, ids}})
 }
