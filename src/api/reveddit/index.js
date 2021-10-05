@@ -50,7 +50,7 @@ export const agg_defaults_for_page = {
 }
 
 export const getAggregations = ({subreddit, type = agg_defaults_for_page.type, limit = agg_defaults_for_page.limit, sort = agg_defaults_for_page.sort}) => {
-  return flaskQuery({path: aggregationsPath, params: {type, subreddit, limit, sort}, host: REVEDDIT_FLASK_HOST_LONG})
+  return flaskQuery({path: aggregationsPath, params: {type, subreddit, limit, sort}, host: REVEDDIT_FLASK_HOST_SHORT})
 }
 
 export const getAggregationsURL = ({subreddit, type = agg_defaults_for_page.type, limit = agg_defaults_for_page.limit, sort = agg_defaults_for_page.sort}) => {
