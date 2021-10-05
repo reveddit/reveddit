@@ -24,10 +24,11 @@ export const ORPHANED = 'orphaned'
 export const RESTORED = 'restored'
 export const AUTOMOD_LATENCY_THRESHOLD = 25
 
-const AUTOMOD_LINK = '/wiki/automoderator'
 const faq = '/about/faq/'
 
 export const unarchived_label_text = 'restored via user page'
+const AUTOMOD_LINK = <NewWindowLink reddit='/wiki/automoderator'>automod</NewWindowLink>
+const SPAM_FILTER_LINK = <NewWindowLink reddit='/r/modnews/comments/6bj5de/state_of_spam/'>spam filter</NewWindowLink>
 
 export const REMOVAL_META = {
                  [ANTI_EVIL_REMOVED]: {filter_text: 'anti-evil ops removed',
@@ -41,11 +42,11 @@ export const REMOVAL_META = {
                [AUTOMOD_REMOVED]: {filter_text: 'auto-removed',
                                          label: '[removed] automatically',
                                           desc: "Likely removed by a bot such as automod or reddit's spam filter.",
-                                   reddit_link: AUTOMOD_LINK},
+                                      jsx_desc: <>Likely removed by a bot such as {AUTOMOD_LINK} or reddit's {SPAM_FILTER_LINK}.</>},
   [AUTOMOD_REMOVED_MOD_APPROVED]: {filter_text: 'auto-removed -> approved',
                                          label: '[approved] auto-removed, then approved',
                                           desc: 'This content was initially auto-removed and later manually approved by a moderator.',
-                                   reddit_link: AUTOMOD_LINK},
+                                      jsx_link: <>See {AUTOMOD_LINK} and {SPAM_FILTER_LINK}</>},
                [UNKNOWN_REMOVED]: {filter_text: 'unknown removed',
                                          label: '[removed] unknown if by mod/auto',
                                           desc: 'Cannot say with certainty whether this was removed by a mod or by a bot.',
