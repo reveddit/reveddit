@@ -28,9 +28,9 @@ export const submitMissingComments = async (ids) => {
 
 export const getWhatPeopleSay = async () => {
   const params = {
-    c: getCount()
+    c: getCount(60*5)
   }
-  return flaskQuery({path: 'what-people-say/', params, host: REVEDDIT_FLASK_HOST_LONG})
+  return flaskQuery({path: 'what-people-say/', params})
 }
 
 export const getArchiveTimes = async () => {
