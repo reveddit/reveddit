@@ -26,11 +26,15 @@ noscript
 .toggleFilters
   margin-bottom: 15px
 
-.removed
-  background-color: $removed
+.removed, .comment.removed
+  background-image: $removed
+  border: 1px solid $red
+  border-radius: 3px
 
-.deleted
-  background-color: $deleted
+.deleted, .comment.deleted
+  background-image: $deleted
+  border: 1px solid $blue
+  border-radius: 3px
 
 .unknown
   background-color: $unknown
