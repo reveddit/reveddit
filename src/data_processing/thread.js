@@ -126,7 +126,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     if (commentID) {
       root_commentID = oldestComment.id
       const after = oldestComment.created_utc - 1
-      reveddit_comments_promise = getCommentsByThread(threadID, after, root_commentID, commentID)
+      reveddit_comments_promise = getCommentsByThread(threadID, after, root_commentID, commentID, reddit_post.num_comments)
       pushshift_comments_promise = getPushshiftCommentsByThread(threadID, after).catch(ignoreArchiveErrors)
     }
     const combinedComments = combinePushshiftAndRedditComments({}, redditComments, false, post_without_pushshift_data)
@@ -276,6 +276,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     const parentID = archiveComment.parent_id?.substr(0,2) === 't1' ? archiveComment.parent_id.substr(3) : null
     if (! (id in redditComments)
           && (! commentID
+              || archiveComment.wayback_path
               || (parentID && (
                 parentID in redditComments || parentID in remainingRedditIDs
               )))) {
