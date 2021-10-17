@@ -150,13 +150,17 @@ export const getModerators = (subreddit) => {
   .then(getModeratorsPostProcess)
 }
 
-export const getCommentsByThread = (link_id, after, root_comment_id, comment_id, num_comments = '') => {
+export const getCommentsByThread = ({
+    link_id, after, root_comment_id, comment_id,
+    num_comments = '', post_created_utc = '',
+  }) => {
   const params = {
     link_id,
     ...(after && {after}),
     ...(root_comment_id && {root_comment_id}),
     ...(comment_id && {comment_id}),
     ...(num_comments && {num_comments}), // number of comments reported by reddit post
+    ...(post_created_utc && {post_created_utc}),
     c: getCount(150),
   }
   return flaskQuery({path: 'thread-comments/', params, options: extendedTimeout})
