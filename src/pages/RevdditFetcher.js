@@ -620,12 +620,13 @@ const GenericPostProcessor = connect((props) => {
           && ['search', 'subreddit_posts', 'duplicate_posts', 'domain_posts'].includes(page_type))) {
       submissionsMsg = gridLabel('submissions', archiveTimes.submission, archiveTimes.updated)
     }
+    const isCommentsPageType = ['search', 'thread', 'subreddit_comments'].includes(page_type)
     if (page_type === 'info' ||
           (archiveTimes.updated - archiveTime_comment > normalArchiveDelay
-          && ['search', 'thread', 'subreddit_comments'].includes(page_type))) {
+          && isCommentsPageType)) {
       commentsMsg = gridLabel('comments', archiveTime_comment, archiveTimes.updated, starred)
     }
-    if (page_type === 'info' || archiveTimes.time_to_comment_overwrite) {
+    if (page_type === 'info' || (isCommentsPageType && archiveTimes.time_to_comment_overwrite)) {
       if (commentsMsg) {
         commentsMsg = <>{commentsMsg}<div></div></>
       } else {
