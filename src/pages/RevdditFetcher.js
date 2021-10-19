@@ -28,7 +28,7 @@ import { getArchiveTimes } from 'api/reveddit'
 import {meta} from 'pages/about/AddOns'
 import Notice from 'pages/common/Notice'
 import Time from 'pages/common/Time'
-import {LinkWithCloseModal} from 'components/Misc'
+import {RedditOrLocalLink} from 'components/Misc'
 
 const CAT_SUBREDDIT = {category: 'subreddit',
                        category_title: 'Subreddit',
@@ -395,7 +395,7 @@ export const withFetch = (WrappedComponent) =>
               <p>Error: unable to connect to reddit</p>
               <p>Tracking Protection on Firefox prevents this site from accessing reddit's API. <b>To fix this</b>, add an exception by clicking the shield icon next to the URL:</p>
               <img src="/images/etp.png"/>
-              <p><LinkWithCloseModal to='/about/faq/#firefox'>Why should I disable tracking protection?</LinkWithCloseModal></p>
+              <p><RedditOrLocalLink to='/about/faq/#firefox'>Why should I disable tracking protection?</RedditOrLocalLink></p>
               <p>If this does not resolve the issue, there may be a conflicting extension blocking connections to reddit from other websites.</p>
             </>
         } else {
@@ -625,14 +625,23 @@ const GenericPostProcessor = connect((props) => {
           && ['search', 'thread', 'subreddit_comments'].includes(page_type))) {
       commentsMsg = gridLabel('comments', archiveTime_comment, archiveTimes.updated, starred)
     }
+    if (page_type === 'info' || archiveTimes.time_to_comment_overwrite) {
+      if (commentsMsg) {
+        commentsMsg = <>{commentsMsg}<div></div></>
+      } else {
+        commentsMsg = <div className='label'>comments</div>
+      }
+      commentsMsg = <>{commentsMsg}<Time noAgo={true} pretty={getPrettyTimeLength(archiveTimes.time_to_comment_overwrite)} suffix=' until overwrite'/></>
+    }
     if (submissionsMsg || commentsMsg) {
       const updated = getPrettyDate(archiveTimes.updated)
       const archive_delay_help = (<>
-        <p>The archive service, called Pushshift, may fall behind due to a high volume of reddit content. <LinkWithCloseModal to='/about/faq/#unarchived'>more info</LinkWithCloseModal></p>
+        <p><strong>Delay</strong> indicates the archival process, called Pushshift, is behind due to a high volume of reddit content. <RedditOrLocalLink to='/about/faq/#unarchived'>more info</RedditOrLocalLink></p>
+        <p><strong>Time until overwrite</strong> indicates how long comments are visible until they may be overwritten. See <RedditOrLocalLink reddit='/pgzdav'>API rewrites</RedditOrLocalLink> for more info.</p>
         {starred ? <p>* The comment delay comes from the status of Pushshift's beta API.</p> : <></>}
       </>)
       archiveDelayMsg =
-        <Notice className='delay' title='archive delay' detail={'as of '+updated} help={archive_delay_help}
+        <Notice className='delay' title='archive status' detail={'as of '+updated} help={archive_delay_help}
           message = {<div className='container'>{submissionsMsg}{commentsMsg}</div>} />
     }
   }
@@ -653,6 +662,10 @@ const GenericPostProcessor = connect((props) => {
 
 const gridLabel = (label, created_utc, updated, starred=false) => {
   return <>
-    <div className='label'>{label}</div><Time noAgo={true} created_utc={created_utc} pretty={getPrettyTimeLength(updated - created_utc) + (starred ? '*' : '')}/>
+    <div className='label'>{label}</div>
+    <Time noAgo={true} created_utc={created_utc}
+          pretty={getPrettyTimeLength(updated - created_utc) + (starred ? '*' : '')}
+          suffix = ' delay'
+    />
   </>
 }
