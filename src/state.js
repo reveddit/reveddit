@@ -119,7 +119,7 @@ export const urlParamKeys = {
   user_sort: 'user_sort', // for legacy add_user code
   user_kind: 'user_kind', // for legacy add_user code
   user_time: 'user_time', // for legacy add_user code
-  t: 't', sort: 'sort', limit: 'limit', show: 'show', all:'all', stickied: 'stickied', distinguished: 'distinguished',
+  t: 't', sort: 'sort', sort_type: 'sort_type', limit: 'limit', show: 'show', all:'all', stickied: 'stickied', distinguished: 'distinguished',
   ...urlParamKeys_filters_for_reset_to_show_all_items
 }
 
@@ -187,6 +187,7 @@ export const filter_pageType_defaults = {
   content: {
     aggregations: agg_defaults_for_page.type,
   },
+  sort_type: '',
   before: '',
   before_id: '',
   keywords: '',
@@ -245,6 +246,7 @@ const initialState = {
   localSort: localSort_types.date,
   localSortReverse: false,
   sort: 'new',
+  sort_type: '',
   showContext: true,
   statusText: '',
   statusImage: undefined,

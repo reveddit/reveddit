@@ -102,7 +102,7 @@ export const setPostAndParentDataForComments = (comments, postData) => {
 
 export const getRevdditSearch = (global) => {
   const {q, author, subreddit, n, before, after, domain, or_domain,
-         content, url, stickied, title, selftext, distinguished} = global.state
+         content, url, stickied, title, selftext, distinguished, sort_type} = global.state
   const promises = []
   const notAuthors = new Set(), authors = new Set()
   author.toLowerCase().split(',').forEach(authorString => {
@@ -117,12 +117,12 @@ export const getRevdditSearch = (global) => {
   let include_comments = false
   if ((content === 'comments' || content === 'all') && ! url) {
     include_comments = true
-    promises.push(pushshiftQueryComments({q, author, subreddit, n, before, after, stickied, distinguished}))
+    promises.push(pushshiftQueryComments({q, author, subreddit, n, before, after, stickied, distinguished, sort_type}))
   }
   if (content === 'posts' || content === 'all') {
-    promises.push(pushshiftQueryPosts({q, author, subreddit, n, before, after, domain, url, stickied, title, selftext, distinguished}))
+    promises.push(pushshiftQueryPosts({q, author, subreddit, n, before, after, domain, url, stickied, title, selftext, distinguished, sort_type}))
     if (or_domain) {
-      promises.push(pushshiftQueryPosts({domain: or_domain, author, subreddit, n, before, after, stickied, title, selftext, distinguished}))
+      promises.push(pushshiftQueryPosts({domain: or_domain, author, subreddit, n, before, after, stickied, title, selftext, distinguished, sort_type}))
     }
   }
   let commentChildrenPromise = undefined
@@ -181,7 +181,7 @@ export const getRevdditSearch = (global) => {
       }
       const isComment = isCommentID(item.name)
       if (! notAuthors.has(item.author)
-          && (! authors.size || ! authorDeleted(item))
+          && (! authors.size || (isComment && ! commentIsDeleted(item)) || ! authorDeleted(item))
           && (! q || ! item.deleted || (! isComment && ! item.is_self))) {
         items.push(item)
       }
