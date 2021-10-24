@@ -308,6 +308,8 @@ export const replaceAmpGTLT = (string) => {
   return string.replace(/&amp;/g, '&').replace(/&gt;/g, '>').replace(/&lt;/g, '<')
 }
 
+export const normalizeTextForComparison = (text) => replaceAmpGTLT(text).replace(/\W/g,'')
+
 export const fetchWithTimeout = (url, options, timeout = 4000) => {
     return Promise.race([
         fetch(url, options),

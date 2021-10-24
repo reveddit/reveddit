@@ -1,6 +1,6 @@
 import React, {useState, useEffect, useRef} from 'react'
 import {ifNumParseInt, isCommentID, validAuthor, now,
-        formatBytes, getPrettyTimeLength,
+        formatBytes, getPrettyTimeLength, normalizeTextForComparison,
 } from 'utils'
 import {connect, urlParamKeys, create_qparams_and_adjust, updateURL} from 'state'
 import { kindsReverse, queryUserPage } from 'api/reddit'
@@ -419,7 +419,7 @@ export const addUserComments = (user_comments, commentsLookup) => {
     user_comment.from_add_user = true
     if (comment) {
       comment.also_in_add_user = true
-      if (comment.body !== user_comment.body) {
+      if (normalizeTextForComparison(comment.body) !== normalizeTextForComparison(user_comment.body)) {
         comment.from_add_user = true
         changed.push(user_comment)
         changedAuthors[user_comment.author] = user_comment
