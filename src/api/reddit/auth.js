@@ -1,10 +1,5 @@
 import {www_reddit} from 'api/reddit'
 
-// Change this to your own client ID: https://reddit.com/prefs/apps
-// The app NEEDS TO BE an installed app and NOT a web apps
-
-const clientID = 'z-DQ9qOxQc46aA'
-
 // Token for reddit API
 let token, expires
 
@@ -17,7 +12,7 @@ const getToken = () => {
   // Headers for getting reddit api token
   const tokenInit = {
     headers: {
-      Authorization: `Basic ${window.btoa(`${clientID}:`)}`,
+      Authorization: 'Basic '+window.btoa(REDDIT_API_CLIENT_ID+':'),
       'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
     },
     method: 'POST',

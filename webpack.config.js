@@ -97,6 +97,7 @@ module.exports = async (env, argv) => {
     },
     plugins: [
       new webpack.DefinePlugin({
+        REDDIT_API_CLIENT_ID: JSON.stringify(process.env.REDDIT_API_CLIENT_ID),
         LAMBDA_ENDPOINT: JSON.stringify(process.env.LAMBDA_ENDPOINT),
         STRIPE_PUBLISHABLE_KEY: JSON.stringify(process.env.STRIPE_PUBLISHABLE_KEY),
         REVEDDIT_FLASK_HOST_SHORT: JSON.stringify(flask_host+short),
