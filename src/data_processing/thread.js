@@ -125,8 +125,10 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     if (commentID) {
       root_comment_id = oldestComment.id
       const after = oldestComment.created_utc - 1
+      const focus_comment_removed = redditComments[commentID] && commentIsRemoved(redditComments[commentID])
       reveddit_comments_promise = getCommentsByThread({
         comment_id: commentID,
+        ...(focus_comment_removed && {focus_comment_removed}),
         link_id: threadID, after, root_comment_id,
         num_comments: reddit_post.num_comments,
         post_created_utc: reddit_post.created_utc,
