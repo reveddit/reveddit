@@ -49,6 +49,11 @@ export const RedditOrLocalLink = ({children, reddit, to}) => {
   return null
 }
 
+export const SamePageHashLink = ({id, children, ...props}) => {
+  const hash='#'+id
+  return <Link to={hash} onClick={() => jumpToHash(hash)} {...props}>{children}</Link>
+}
+
 export const NewWindowLink = ({children, reddit, old=false, redesign=false, ...props}) => {
   let href
   if (reddit) {

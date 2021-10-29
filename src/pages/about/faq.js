@@ -1,7 +1,7 @@
 import React from 'react'
 import { InternalPage, NewWindowLink } from 'components/Misc'
 import { Link } from 'react-router-dom'
-import {ExtensionLink, MessageMods} from 'components/Misc'
+import {ExtensionLink, MessageMods, SamePageHashLink} from 'components/Misc'
 import {ContentWithHeader} from 'pages/about'
 import { unarchived_search_help_content, unarchived_search_button_word, unarchived_search_button_word_code } from 'data_processing/RestoreComment'
 import { unarchived_label_text } from 'pages/common/RemovedBy'
@@ -41,7 +41,7 @@ const About_faq = () => {
   return (
     <InternalPage>
       <ContentWithHeader header='What is this?' id='description'>
-        <p>Reveddit reveals content removed from reddit by moderators. It does not show user-deleted content.</p>
+        <p>Reveddit reveals content removed from reddit by moderators. It does not show user-deleted content.<SamePageHashLink id='user-deleted'><sup>1</sup></SamePageHashLink></p>
         <p>To use it, insert <span className='v'>ve</span> or just <span className='v'>v</span> into the URL of any page on reddit, including user pages, subreddits, threads and more.</p>
       </ContentWithHeader>
       <ContentWithHeader header='Why do I need it?' id='need'>
@@ -133,11 +133,16 @@ const About_faq = () => {
         <p>Note, when an account is suspended by reddit, all the posts and comments for that account may be removed. The reddit API does not indicate where suspension-related removals occur and so reveddit cannot see or mark where this happens. You can check if an account has been suspended on its reddit or reveddit user page. Temporary suspensions may also remove content created before the suspension.</p>
       </ContentWithHeader>
       <ContentWithHeader header='Any limitations?' id='limits'>
+        <h3>I. Untracked content</h3>
         <p>The following content is unavailable on reddit user pages and therefore cannot be tracked with reveddit user pages,</p>
         <ul>
           <li>Content from banned subreddits. The <Link to='/r/?contentType=history'>subreddit history page</Link> may display some content.</li>
           <li>Reddit live/chat comments</li>
         </ul>
+        <h3>II. Archive overwrites</h3>
+        <p>The archive service on which reveddit relies changed its comment retention behavior around September 2021. As a result, now comments in threads may not be visible after about 1.5 days. <NewWindowLink reddit='/pgzf7g'>This post</NewWindowLink> explains what is going on. That change does not impact <ExtensionLink/> or user pages on reveddit.</p>
+        <h3>III. Collapsed comments on user pages</h3>
+        <p>Collapsed comments may or may not be marked on user pages. It seems to work for some accounts and not for others. See <NewWindowLink reddit='/qgajxq'>here</NewWindowLink> for more info.</p>
       </ContentWithHeader>
     </InternalPage>
   )

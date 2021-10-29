@@ -13,9 +13,8 @@ import { combinePushshiftAndRedditComments } from 'data_processing/comments'
 import { setPostAndParentDataForComments } from 'data_processing/info'
 import Highlight from 'pages/common/Highlight'
 import { Link } from 'react-router-dom'
-import { InternalPage } from 'components/Misc'
+import { InternalPage, NewWindowLink, SamePageHashLink } from 'components/Misc'
 import {jumpToHash} from 'utils'
-import { NewWindowLink } from 'components/Misc'
 
 const filterDeletedComments = (comments) => {
   const result = []
@@ -29,10 +28,9 @@ const filterDeletedComments = (comments) => {
 }
 
 export const ContentWithHeader = ({header, children, half, id}) => {
-  const hash = '#'+id
   return (
     <div id={id} className={'section ' + (half ? 'half' : '')}>
-      {id ? <Link to={hash} onClick={() => jumpToHash(hash)} style={{marginRight:'5px'}}>🔗</Link> : null}
+      {id ? <SamePageHashLink id={id} style={{marginRight:'5px'}}>🔗</SamePageHashLink> : null}
       <h2 className='about' style={{display:'inline'}}>{header}</h2>
       <p></p>
       {children}
