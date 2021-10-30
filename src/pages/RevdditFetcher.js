@@ -640,6 +640,7 @@ const GenericPostProcessor = connect((props) => {
         <p><strong>Delay</strong> indicates the archival process, called Pushshift, is behind due to a high volume of reddit content. <RedditOrLocalLink to='/about/faq/#unarchived'>more info</RedditOrLocalLink></p>
         <p><strong>Time until overwrite</strong> indicates how long comments are visible until they may be overwritten. See <RedditOrLocalLink reddit='/pgzdav'>API rewrites</RedditOrLocalLink> for more info.</p>
         {starred ? <p>* The comment delay comes from the status of Pushshift's beta API.</p> : <></>}
+        <p>See <a href='/info'>/info</a> for the complete status.</p>
       </>)
       archiveDelayMsg =
         <Notice className='delay' title='archive status' detail={'as of '+updated} help={archive_delay_help}
