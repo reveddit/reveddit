@@ -15,7 +15,7 @@ import {
 import { getAuth } from 'api/reddit/auth'
 import {
   submitMissingComments, getUmodlogsThread, getModerators,
-  getCommentsByThread,
+  getCommentsByThread, getArchivedCommentsByID,
 } from 'api/reveddit'
 import {
   redditLimiter
@@ -366,7 +366,20 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
       stateObj.add_user = newer_add_user || updated_add_user
     }
   }
-
+  // find remaining removed comments where: score != 1 && id not in revedditComments
+  // getArchivedCommentsByID
+  const remaining_removed_comment_ids = []
+  for (const c of Object.values(stateObj.itemsLookup)) {
+    if (c.score != 1 && ! revedditComments[c.id] && commentIsRemoved(c)) {
+      remaining_removed_comment_ids.push(c.id)
+    }
+  }
+  if (remaining_removed_comment_ids.length) {
+    const remainingRemovedComments = await getArchivedCommentsByID(remaining_removed_comment_ids)
+    combinePushshiftAndRedditComments(remainingRemovedComments, redditComments, true, reddit_post)
+    Object.assign(stateObj.itemsLookup, remainingRemovedComments)
+    commentsUpdated_treeNotYetRebuilt = true
+  }
   const missing = []
   markTreeMeta(missing, origRedditComments, moreComments, commentTree, reddit_post.num_comments, root_comment_id, commentID)
   if (missing.length) {

@@ -6,7 +6,7 @@ import { mapRedditObj, getModeratorsPostProcess, flaskQuery,
 import { urlParamKeys, removedFilter_types, localSort_types } from 'state'
 import { AUTOMOD_REMOVED, MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED } from 'pages/common/RemovedBy'
 
-const ARCHIVE_MAX_SIZE = 250
+const ARCHIVE_MAX_SIZE = 500
 
 export const getMissingComments = async ({subreddit, limit=100, page=1}) => {
   const params = {
