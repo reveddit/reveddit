@@ -288,10 +288,11 @@ export const withFetch = (WrappedComponent) =>
       if (page_title) {
         document.title = page_title
       }
+      let archive_times_promise = Promise.resolve({})
       if (page_type === 'user') {
         setTimeout(this.maybeShowSubscribeUserModal, 3000)
       } else {
-        getArchiveTimes().then(archiveTimes => global.setState({archiveTimes}))
+        archive_times_promise = getArchiveTimes().then(archiveTimes => global.setState({archiveTimes}))
       }
       global.setQueryParamsFromSavedDefaults(page_type)
       const allQueryParams = create_qparams()
@@ -309,7 +310,7 @@ export const withFetch = (WrappedComponent) =>
           const [loadDataFunction, params] = getLoadDataFunctionAndParam(
             {page_type, subreddit, user, kind, threadID, commentID, context, domain,
              add_user, user_kind, user_sort, user_time, before, after})
-          loadDataFunction(...params, global)
+          loadDataFunction(...params, global, archive_times_promise)
           .then(async ([success, stateObj]) => {
             const lookupAccountMeta = (showAccountInfo_global || global.accountFilterOrSortIsSet()) && (stateObj.items?.length || global.state.items?.length)
             const successFn = (success ? global.setSuccess : global.setError).bind(global)
