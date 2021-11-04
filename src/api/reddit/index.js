@@ -163,14 +163,13 @@ export const getPostWithComments = ({threadID, commentID: comment, context = 0, 
       }
       const items = results[1].data.children
       const comments = {}, moreComments = {}
-      let oldestComment = {}
+      let oldestComment = {}, newestComment = {}
       items.forEach(item => {
         const itemData = item.data
         if (item.kind === 't1') {
           comments[itemData.id] = itemData
-          if (! oldestComment.created_utc || itemData.created_utc < oldestComment.created_utc) {
-            oldestComment = itemData
-          }
+          oldestComment = get_by_op_on_created_utc('<', itemData, oldestComment)
+          //newestComment = get_by_op_on_created_utc('>', itemData, newestComment)
         } else if (item.kind === 'more') {
           // NOTE: This object is also used to make "continue this thread" links, per reddit.com/54qknz
           //       Those instances have itemData.count == 0
@@ -179,9 +178,23 @@ export const getPostWithComments = ({threadID, commentID: comment, context = 0, 
       })
       return {
         post: results[0].data.children[0].data,
-        comments, moreComments, oldestComment
+        comments, moreComments, oldestComment,
+        //newestComment, // not currently used
       }
     })
+}
+
+const operators = {
+  '<': (a,b)=>a<b,
+  '>': (a,b)=>a>b,
+}
+
+// compareComment < varComment, or compareComment > varComment
+const get_by_op_on_created_utc = (op, compareComment, varComment) => {
+  if (! varComment.created_utc || operators[op](compareComment.created_utc, varComment.created_utc)) {
+    return compareComment
+  }
+  return varComment
 }
 
 
