@@ -215,7 +215,7 @@ const RestoreComment = (props) => {
       // b/c it reuses existing logic for state update and commentTree creation.
       // Recreating commentTree b/c loading more archive comments may reveal more 'missing parent' IDs
       const new_commentTree = await updateArchiveComments(
-        {archiveComments: pushshiftComments, itemsLookup, items, threadPost, authors: globalAuthors})
+        {archiveComments: pushshiftComments, itemsLookup, items, threadPost, commentTree, authors: globalAuthors})
       state = {commentTree: new_commentTree || commentTree,
                itemsLookup, items, authors: globalAuthors,
                add_user_on_page_load: add_user_on_page_load+1, // triggers re-render
@@ -524,7 +524,7 @@ export const getUserCommentsForPost = (post, existingIDs, userPages) => {
   return {user_comments, newComments}
 }
 
-const updateArchiveComments = async ({archiveComments, itemsLookup, items, threadPost, authors = {}}) => {
+const updateArchiveComments = async ({archiveComments, itemsLookup, items, threadPost, commentTree, authors = {}}) => {
   let new_commentTree
   if (Object.keys(archiveComments).length) {
     const combinedComments = await retrieveRedditComments_and_combineWithPushshiftComments(archiveComments)
@@ -546,7 +546,7 @@ const updateArchiveComments = async ({archiveComments, itemsLookup, items, threa
 export const addUserComments_updateURL_createTreeIfNeeded = async ({user_comments, itemsLookup, add_user,
   threadPost, newComments, items, commentTree, userPageSort, userPageTime}) => {
   const {new_add_user} = addUserComments_and_updateURL(user_comments, itemsLookup, add_user, userPageSort, userPageTime)
-  const new_commentTree = await updateArchiveComments({archiveComments: newComments, itemsLookup, items, threadPost})
+  const new_commentTree = await updateArchiveComments({archiveComments: newComments, itemsLookup, items, threadPost, commentTree})
   return {new_add_user, new_commentTree}
 }
 
