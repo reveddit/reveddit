@@ -403,6 +403,8 @@ class GlobalState extends Container {
         case 'before': {
           if (! value.includes('_')) {
             stateVar[param] = parseType(value)
+          } else if (page_type === 'user') {
+            stateVar[param] = value
           }
           break
         }
