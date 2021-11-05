@@ -458,8 +458,12 @@ export const useFocus = () => {
 export const paramString = (params) => {
   return Object.keys(params).map(k => `${k}=${params[k]}`).join('&')
 }
-
-export const archiveTimes_isCurrent = (archiveTimes) => (now - archiveTimes.updated) < 60*15
+const ARCHIVE_CURRENT_MAX_AGE = 60*15
+export const archiveTimes_isCurrent = (archiveTimes) => (now - archiveTimes.updated) < ARCHIVE_CURRENT_MAX_AGE
+const OVERWRITE_BUFFER = 2*60*60
+export const comment_is_in_archive_storage_window = (created_utc, archiveTimes) =>
+  ( archiveTimes.comment > created_utc &&
+    created_utc > (now - archiveTimes.time_to_comment_overwrite - OVERWRITE_BUFFER))
 
 export const getRemovedMessage = (props, itemType) => {
   let removedMessage = ' before archival'
@@ -467,7 +471,7 @@ export const getRemovedMessage = (props, itemType) => {
   if (props.retrieved_on) {
     // In August or September 2021, archive started overwriting comments after a day or two
     if ('body' in props && props.created_utc > 1629248296 && props.retrieved_on-props.created_utc > 43200) {
-      removedMessage = <>Click Restore to try an alternate source. This comment may not have been archived in time or <NewWindowLink reddit='/pgzdav'>may have been overwritten</NewWindowLink> after {getPrettyTimeLength(props.retrieved_on-props.created_utc)}.</>
+      removedMessage = <> Click Restore to try an alternate source. This comment may not have been archived in time or <NewWindowLink reddit='/pgzdav'>may have been overwritten</NewWindowLink> after {getPrettyTimeLength(props.retrieved_on-props.created_utc)}.</>
     } else {
       removedMessage = ' before archival,'+getRemovedWithinText(props)
     }
@@ -476,13 +480,15 @@ export const getRemovedMessage = (props, itemType) => {
   } else if (error) {
     return '[error connecting to archive, try again later]'
   } else if (archiveTimes) {
-    if (archiveTimes_isCurrent(archiveTimes)) {
-      removedMessage += ' The current delay is '+getPrettyTimeLength(archiveTimes.updated - archiveTimes[itemType])
+    if (comment_is_in_archive_storage_window(props.created_utc, archiveTimes)) {
+      removedMessage = ' Click Restore to load more comments.'
+    } else if (archiveTimes_isCurrent(archiveTimes)) {
+      removedMessage += '. The current delay is '+getPrettyTimeLength(archiveTimes.updated - archiveTimes[itemType])
     } else {
       removedMessage = ', archive currently unavailable'
     }
   }
-  return <>[removed] {removedMessage}</>
+  return <>[removed]{removedMessage}</>
 }
 
 export const getRemovedWithinText = (props) => {

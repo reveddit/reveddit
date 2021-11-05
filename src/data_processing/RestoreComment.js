@@ -1,6 +1,7 @@
 import React, {useState, useEffect, useRef} from 'react'
 import {ifNumParseInt, isCommentID, validAuthor, now,
         formatBytes, getPrettyTimeLength, normalizeTextForComparison,
+        comment_is_in_archive_storage_window,
 } from 'utils'
 import {connect, urlParamKeys, create_qparams_and_adjust, updateURL} from 'state'
 import { kindsReverse, queryUserPage } from 'api/reddit'
@@ -9,6 +10,7 @@ import { copyFields, initializeComment, retrieveRedditComments_and_combineWithPu
 import { createCommentTree } from 'data_processing/thread'
 import { RestoreIcon } from 'pages/common/svg'
 import { getAuth } from 'api/reddit/auth'
+import { getCommentsByThread as getPushshiftCommentsByThread } from 'api/pushshift'
 import { unarchived_label_text } from 'pages/common/RemovedBy'
 import { EXCLUDE_UNARCHIVED_REGEX } from 'pages/common/selections/TextFilter'
 
@@ -112,12 +114,14 @@ const RestoreComment = (props) => {
   const [localLoading, setLocalLoading] = useState(false)
   const [meta, setMeta] = useState({distance: 0, aug: null})
   const [searchAll, setSearchAll] = useState(false)
+  const [archiveSearched, setArchiveSearched] = useState(false)
 
   let searchButton = ''
-  const {global, id, created_utc, score, controversiality} = props
+  const {global, id, created_utc, score, controversiality, retrieved_on} = props
   const {itemsLookup, alreadySearchedAuthors, threadPost,
          itemsSortedByDate, add_user, authors:globalAuthors,
          loading: globalLoading, items, commentTree, initialFocusCommentID,
+         archiveTimes, add_user_on_page_load,
         } = global.state
 
   const loading = localLoading || globalLoading
@@ -202,8 +206,24 @@ const RestoreComment = (props) => {
   }
 
   const search = async () => {
+    let state = {}
     await setLocalLoading(true)
-    const state = await searchFromMeta(meta)
+    // ! retrieved_on means it hasn't been looked up in the archive yet
+    if (! archiveSearched && ! retrieved_on && comment_is_in_archive_storage_window(created_utc, archiveTimes)) {
+      const pushshiftComments = await getPushshiftCommentsByThread(threadPost.id, created_utc - 1)
+      // updateArchiveComments retrieves reddit comments, which is not necessary, but simplifies code
+      // b/c it reuses existing logic for state update and commentTree creation.
+      // Recreating commentTree b/c loading more archive comments may reveal more 'missing parent' IDs
+      const new_commentTree = await updateArchiveComments(
+        {archiveComments: pushshiftComments, itemsLookup, items, threadPost, authors: globalAuthors})
+      state = {commentTree: new_commentTree || commentTree,
+               itemsLookup, items, authors: globalAuthors,
+               add_user_on_page_load: add_user_on_page_load+1, // triggers re-render
+              }
+      setArchiveSearched(true)
+    } else {
+      state = await searchFromMeta(meta)
+    }
     await setLocalLoading(false)
     return global.setSuccess(state)
   }
@@ -504,21 +524,29 @@ export const getUserCommentsForPost = (post, existingIDs, userPages) => {
   return {user_comments, newComments}
 }
 
-export const addUserComments_updateURL_createTreeIfNeeded = async ({user_comments, itemsLookup, add_user,
-  threadPost, newComments, items, commentTree, userPageSort, userPageTime}) => {
-  const {new_add_user} = addUserComments_and_updateURL(user_comments, itemsLookup, add_user, userPageSort, userPageTime)
+const updateArchiveComments = async ({archiveComments, itemsLookup, items, threadPost, authors = {}}) => {
   let new_commentTree
-  if (Object.keys(newComments).length) {
-    const combinedComments = await retrieveRedditComments_and_combineWithPushshiftComments(newComments)
+  if (Object.keys(archiveComments).length) {
+    const combinedComments = await retrieveRedditComments_and_combineWithPushshiftComments(archiveComments)
     for (const comment of Object.values(combinedComments)) {
       itemsLookup[comment.id] = comment
-      items.push(comment)
+      if (! itemsLookup[comment.id]) {
+        items.push(comment)
+      }
+      authors[comment.author] = comment.author_fullname
     }
     //itemsSortedByDate could also be resorted here to get accurate time summary
     //but it's not worth the cost for large threads
     const rootCommentID = window.location.pathname.split('/')[6] ? commentTree[0].id : undefined
     new_commentTree = createCommentTree(threadPost.id, rootCommentID, itemsLookup)[0]
   }
+  return new_commentTree
+}
+
+export const addUserComments_updateURL_createTreeIfNeeded = async ({user_comments, itemsLookup, add_user,
+  threadPost, newComments, items, commentTree, userPageSort, userPageTime}) => {
+  const {new_add_user} = addUserComments_and_updateURL(user_comments, itemsLookup, add_user, userPageSort, userPageTime)
+  const new_commentTree = await updateArchiveComments({archiveComments: newComments, itemsLookup, items, threadPost})
   return {new_add_user, new_commentTree}
 }
 
