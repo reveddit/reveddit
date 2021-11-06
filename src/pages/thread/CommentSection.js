@@ -160,16 +160,16 @@ const CommentSection = (props) => {
     const visibleComments = {}
     filterCommentTree(commentTree, commentsLookup, visibleComments, (item) => filterFunctions.every(f => f(item)))
     if (! showContext) {
-      if (! focusCommentID || ! commentsLookup[focusCommentID]) {
-        visibleComments[rootFullID] = viewableItems
-      } else {
-        //need to filter a second time here b/c an uptree comment might be marked visible due to something below it.
-        //in flat view, don't want to show unmatched uptree comments
+        //need to filter a second time here b/c
+        // (1) an uptree comment might be marked visible due to something below it.
+        //     in flat view, don't want to show unmatched uptree comments
+        // (2) comment body could be updated with new 'Restore' feature
+        //     Previously, there was a condition setting visibleComments[rootFullID] = viewableItems
+        //     That was meant to save time but it fails to re-render Restored bodies
         visibleComments[rootFullID] = flattenTree(rootFullID, visibleComments).filter(item => filterFunctions.every(f => f(item)))
         if (root && commentsLookup[root] && filterFunctions.every(f => f(commentsLookup[root]))) {
           visibleComments[rootFullID].push(commentsLookup[root])
         }
-      }
     }
     sortVisibleComments(visibleComments)
     setAndCountVisibleComments(visibleComments, showContext)
