@@ -109,6 +109,7 @@ export const urlParamKeys = {
   frontPage: 'frontPage',
   n: 'n',
   q: 'q', author: 'author', subreddit: 's_subreddit', after: 'after', domain: 's_domain', or_domain: 's_or_domain',
+  ps_after: 'ps_after',
   title: 'title', selftext: 'selftext',
   content: 'content',
   url: 'url',
@@ -196,6 +197,7 @@ export const filter_pageType_defaults = {
   context: '',
   frontPage: false,
   q: '', author: '', subreddit: '', after: '', domain: '', or_domain: '', title: '', selftext: '',
+  ps_after: '',
   url: '',
   selfposts: true,
   limitCommentDepth: limitCommentDepth_global,
@@ -257,6 +259,7 @@ const initialState = {
   context: '',
   frontPage: false,
   q: '', author: '', subreddit: '', after: '', domain: '', or_domain: '', title: '', selftext: '',
+  ps_after: '',
   content: 'all', url: '',
   over18: undefined,
   selfposts: true,
@@ -408,6 +411,11 @@ class GlobalState extends Container {
           }
           break
         }
+        case 'ps_after':
+          // don't parse type
+          // code expects a splittable string for value of '123456789'
+          stateVar[param] = value
+          break
         default: {
           stateVar[param] = parseType(value)
         }

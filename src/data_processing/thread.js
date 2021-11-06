@@ -18,10 +18,11 @@ import {
   getCommentsByThread, getArchivedCommentsByID,
 } from 'api/reveddit'
 import {
-  redditLimiter
+  redditLimiter, pushshiftLimiter,
 } from 'api/common'
 import { itemIsRemovedOrDeleted, postIsDeleted, postIsRemoved, jumpToHash,
          convertPathSub, sortCreatedAsc, validAuthor, commentIsRemoved,
+         time_is_in_archive_storage_window,
 } from 'utils'
 import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
          MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED,
@@ -53,14 +54,26 @@ const scheduleAddUserItems = (addUserItems) => addUserItems.map(item => redditLi
 export const getRevdditThreadItems = async (threadID, commentID, context, add_user, user_kind, user_sort, user_time,
                                             before, after, subreddit,
                                             global, archive_times_promise) => {
-  const {localSort, localSortReverse} = global.state
+  const {localSort, localSortReverse, ps_after} = global.state
+  const ps_after_list = ps_after ? ps_after.split(',').slice(0,10) : []
   const sort = create_qparams().get('sort') // don't get this value from state. it's used elsewhere w/a default value 'new' which isn't desired here
   const localSortState = (sortMap[sort] && localSort === filter_pageType_defaults.localSort.thread && ! localSortReverse) ? sortMap[sort] : {}
   const sortsForRedditCommentThreadQuery = sort ? sort.split(',') : ['new']
   let pushshift_comments_promise = Promise.resolve({})
   let reveddit_comments_promise = Promise.resolve({})
+  let pushshift_remaining_promises = []
   if (! commentID) {
     pushshift_comments_promise = getPushshiftCommentsByThread(threadID).catch(ignoreArchiveErrors)
+  }
+  if (ps_after) {
+    await archive_times_promise
+    const archiveTimes = global.state.archiveTimes
+    for (const this_ps_after of ps_after_list) {
+      if (time_is_in_archive_storage_window(this_ps_after, archiveTimes)) {
+        pushshift_remaining_promises.push(
+          pushshiftLimiter.schedule(() => getPushshiftCommentsByThread(threadID, this_ps_after).catch(ignoreArchiveErrors)))
+      }
+    }
   }
   await getAuth()
   const add_user_promises = [], add_user_promises_remainder = []
@@ -282,7 +295,13 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
   const {user_comments, newComments: remainingRedditIDs} = await processAddUserPromises(add_user_promises, early_combinedComments)
   const {user_comments: user_comments_forURL, newComments: remainingRedditIDs_2} = await processAddUserPromises(add_user_promises_forURL, early_combinedComments)
   Object.assign(remainingRedditIDs, remainingRedditIDs_2)
-    // when commentID is set, do additional checking to see if added comments would be in the tree or not
+
+  // await pushshift_remaining_promises, put the results into pushshiftComments
+  const remainingPushshiftResults = await Promise.all(pushshift_remaining_promises)
+  for (const remainingPushshift of remainingPushshiftResults) {
+    Object.assign(pushshiftComments, remainingPushshift)
+  }
+  // when commentID is set, do additional checking to see if added comments would be in the tree or not
   Object.values(pushshiftComments).sort(sortCreatedAsc).forEach(archiveComment => {
     const id = archiveComment.id
     const parentID = archiveComment.parent_id?.substr(0,2) === 't1' ? archiveComment.parent_id.substr(3) : null

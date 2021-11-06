@@ -12,6 +12,14 @@ export const redditLimiter = new Bottleneck({
   maxConcurrent: 10,
 })
 
+export const pushshiftLimiter = new Bottleneck({
+  reservoir, // 30 requests per minute
+  reservoirRefreshAmount: reservoir,
+  reservoirRefreshInterval: 60 * 1000, // ms, must be divisible by 250
+  maxConcurrent: 2,
+})
+
+
 export const mapRedditObj = (map, obj, key = 'name') => (map[obj.data[key]] = obj.data, map)
 
 export const getModeratorsPostProcess = (results) => {

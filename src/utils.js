@@ -461,7 +461,7 @@ export const paramString = (params) => {
 const ARCHIVE_CURRENT_MAX_AGE = 60*15
 export const archiveTimes_isCurrent = (archiveTimes) => (now - archiveTimes.updated) < ARCHIVE_CURRENT_MAX_AGE
 const OVERWRITE_BUFFER = 2*60*60
-export const comment_is_in_archive_storage_window = (created_utc, archiveTimes) =>
+export const time_is_in_archive_storage_window = (created_utc, archiveTimes) =>
   ( archiveTimes.comment > created_utc &&
     created_utc > (now - archiveTimes.time_to_comment_overwrite - OVERWRITE_BUFFER))
 
@@ -480,7 +480,7 @@ export const getRemovedMessage = (props, itemType) => {
   } else if (error) {
     return '[error connecting to archive, try again later]'
   } else if (archiveTimes) {
-    if (comment_is_in_archive_storage_window(props.created_utc, archiveTimes)) {
+    if (time_is_in_archive_storage_window(props.created_utc, archiveTimes)) {
       removedMessage = ' Click Restore to load more comments.'
     } else if (archiveTimes_isCurrent(archiveTimes)) {
       removedMessage += '. The current delay is '+getPrettyTimeLength(archiveTimes.updated - archiveTimes[itemType])

@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useRef} from 'react'
 import {ifNumParseInt, isCommentID, validAuthor, now,
         formatBytes, getPrettyTimeLength, normalizeTextForComparison,
-        comment_is_in_archive_storage_window,
+        time_is_in_archive_storage_window, commentIsRemoved,
 } from 'utils'
 import {connect, urlParamKeys, create_qparams_and_adjust, updateURL} from 'state'
 import { kindsReverse, queryUserPage } from 'api/reddit'
@@ -121,7 +121,7 @@ const RestoreComment = (props) => {
   const {itemsLookup, alreadySearchedAuthors, threadPost,
          itemsSortedByDate, add_user, authors:globalAuthors,
          loading: globalLoading, items, commentTree, initialFocusCommentID,
-         archiveTimes, add_user_on_page_load,
+         archiveTimes, add_user_on_page_load, ps_after,
         } = global.state
 
   const loading = localLoading || globalLoading
@@ -209,8 +209,24 @@ const RestoreComment = (props) => {
     let state = {}
     await setLocalLoading(true)
     // ! retrieved_on means it hasn't been looked up in the archive yet
-    if (! archiveSearched && ! retrieved_on && comment_is_in_archive_storage_window(created_utc, archiveTimes)) {
-      const pushshiftComments = await getPushshiftCommentsByThread(threadPost.id, created_utc - 1)
+    if (! archiveSearched && ! retrieved_on && time_is_in_archive_storage_window(created_utc, archiveTimes)) {
+      const this_query_ps_after = created_utc - 1
+      const pushshiftComments = await getPushshiftCommentsByThread(threadPost.id, this_query_ps_after)
+      let shouldUpdateURL = false
+      const ps_after_list = ps_after ? ps_after.split(',') : []
+      let new_ps_after = ps_after
+      for (const c of Object.values(pushshiftComments)) {
+        const currentCommentState = itemsLookup[c.id]
+        if (! currentCommentState || commentIsRemoved(currentCommentState) && ! commentIsRemoved(c)) {
+          shouldUpdateURL = true
+          break
+        }
+      }
+      if (shouldUpdateURL) {
+        ps_after_list.push(this_query_ps_after)
+        new_ps_after = ps_after_list.join(',')
+        updateURL(create_qparams_and_adjust('thread', 'ps_after', new_ps_after))
+      }
       // updateArchiveComments retrieves reddit comments, which is not necessary, but simplifies code
       // b/c it reuses existing logic for state update and commentTree creation.
       // Recreating commentTree b/c loading more archive comments may reveal more 'missing parent' IDs
@@ -218,6 +234,7 @@ const RestoreComment = (props) => {
         {archiveComments: pushshiftComments, itemsLookup, items, threadPost, commentTree, authors: globalAuthors})
       state = {commentTree: new_commentTree || commentTree,
                itemsLookup, items, authors: globalAuthors,
+               ps_after: new_ps_after,
                add_user_on_page_load: add_user_on_page_load+1, // triggers re-render
               }
       setArchiveSearched(true)
