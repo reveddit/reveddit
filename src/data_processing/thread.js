@@ -55,7 +55,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
                                             before, after, subreddit,
                                             global, archive_times_promise) => {
   const {localSort, localSortReverse, ps_after} = global.state
-  const ps_after_list = ps_after ? ps_after.split(',').slice(0,10) : []
+  const ps_after_list = ps_after ? [...new Set(ps_after.split(',').slice(0,20))] : []
   const sort = create_qparams().get('sort') // don't get this value from state. it's used elsewhere w/a default value 'new' which isn't desired here
   const localSortState = (sortMap[sort] && localSort === filter_pageType_defaults.localSort.thread && ! localSortReverse) ? sortMap[sort] : {}
   const sortsForRedditCommentThreadQuery = sort ? sort.split(',') : ['new']
