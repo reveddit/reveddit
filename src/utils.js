@@ -466,6 +466,7 @@ export const time_is_in_archive_storage_window = (created_utc, archiveTimes) =>
     created_utc > (now - archiveTimes.time_to_comment_overwrite - OVERWRITE_BUFFER))
 
 export const getRemovedMessage = (props, itemType) => {
+  let prefix = '[removed]'
   let removedMessage = ' before archival'
   const {archiveTimes, error, loading} = props.global.state
   if (props.retrieved_on) {
@@ -481,14 +482,15 @@ export const getRemovedMessage = (props, itemType) => {
     return '[error connecting to archive, try again later]'
   } else if (archiveTimes) {
     if (time_is_in_archive_storage_window(props.created_utc, archiveTimes)) {
-      removedMessage = ' Click Restore to load more comments.'
+      prefix = ''
+      removedMessage = 'Click Restore to load this comment.'
     } else if (archiveTimes_isCurrent(archiveTimes)) {
       removedMessage += '. The current delay is '+getPrettyTimeLength(archiveTimes.updated - archiveTimes[itemType])
     } else {
       removedMessage = ', archive currently unavailable'
     }
   }
-  return <>[removed]{removedMessage}</>
+  return <>{prefix + removedMessage}</>
 }
 
 export const getRemovedWithinText = (props) => {
