@@ -208,24 +208,19 @@ const RestoreComment = (props) => {
   const search = async () => {
     let state = {}
     await setLocalLoading(true)
+    const this_query_ps_after = (created_utc - 1).toString()
+    const ps_after_list = ps_after ? ps_after.split(',') : []
     // ! retrieved_on means it hasn't been looked up in the archive yet
-    if (! archiveSearched && ! retrieved_on && time_is_in_archive_storage_window(created_utc, archiveTimes)) {
-      const this_query_ps_after = created_utc - 1
+    if (! archiveSearched && ! retrieved_on && time_is_in_archive_storage_window(created_utc, archiveTimes)
+        && ! ps_after_list.includes(this_query_ps_after)) {
       const pushshiftComments = await getPushshiftCommentsByThread(threadPost.id, this_query_ps_after)
-      let shouldUpdateURL = false
-      const ps_after_list = ps_after ? ps_after.split(',') : []
       let new_ps_after = ps_after
       for (const c of Object.values(pushshiftComments)) {
         const currentCommentState = itemsLookup[c.id]
         if (! currentCommentState || commentIsRemoved(currentCommentState) && ! commentIsRemoved(c)) {
-          shouldUpdateURL = true
+          new_ps_after = global.get_updated_ps_after(this_query_ps_after)
           break
         }
-      }
-      if (shouldUpdateURL) {
-        ps_after_list.push(this_query_ps_after)
-        new_ps_after = ps_after_list.join(',')
-        updateURL(create_qparams_and_adjust('thread', 'ps_after', new_ps_after))
       }
       // updateArchiveComments retrieves reddit comments, which is not necessary, but simplifies code
       // b/c it reuses existing logic for state update and commentTree creation.

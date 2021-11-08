@@ -65,14 +65,17 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
   if (! commentID) {
     pushshift_comments_promise = getPushshiftCommentsByThread(threadID).catch(ignoreArchiveErrors)
   }
-  if (ps_after) {
+  const schedulePsAfter = async (this_ps_after) => {
     await archive_times_promise
     const archiveTimes = global.state.archiveTimes
+    if (time_is_in_archive_storage_window(this_ps_after, archiveTimes)) {
+      pushshift_remaining_promises.push(
+        pushshiftLimiter.schedule(() => getPushshiftCommentsByThread(threadID, this_ps_after).catch(ignoreArchiveErrors)))
+    }
+  }
+  if (ps_after) {
     for (const this_ps_after of ps_after_list) {
-      if (time_is_in_archive_storage_window(this_ps_after, archiveTimes)) {
-        pushshift_remaining_promises.push(
-          pushshiftLimiter.schedule(() => getPushshiftCommentsByThread(threadID, this_ps_after).catch(ignoreArchiveErrors)))
-      }
+      await schedulePsAfter(this_ps_after)
     }
   }
   await getAuth()
@@ -232,8 +235,31 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
   // 2. the content will probably be retrievable in the future, since lookup method is by link ID.
   //    And, when log_source == u_modlogs, then 'temporarily visible' label is not shown
   copyModlogItemsToArchiveItems(uModlogsItems.comments, pushshiftComments)
-  const focusComment_pushshift = pushshiftComments[commentID]
+  let focusComment_pushshift = pushshiftComments[commentID]
   const focusComment_reddit = redditComments[commentID]
+  let new_ps_after = ps_after
+  if (focusComment_reddit && commentIsRemoved(focusComment_reddit)
+      && (! focusComment_pushshift ||
+          (commentIsRemoved(focusComment_pushshift)
+            && ! focusComment_pushshift.retrieved_on))) {
+    const focusComment_ps_after = (focusComment_reddit.created_utc - 1).toString()
+    if (! ps_after_list.includes(focusComment_ps_after)) {
+      await schedulePsAfter(focusComment_ps_after)
+      new_ps_after = global.get_updated_ps_after(focusComment_ps_after)
+    }
+  }
+  // await pushshift_remaining_promises, put the results into pushshiftComments
+  // an alternate code location for this is after the next global.setState
+  // the reason to put it here is,
+  //     (a) the focus comment lookup may preempt user page lookups which often add to URL despite not finding target content
+  //     (b) these lookups are fast enough now
+  const remainingPushshiftResults = await Promise.all(pushshift_remaining_promises)
+  for (const remainingPushshift of remainingPushshiftResults) {
+    Object.assign(pushshiftComments, remainingPushshift)
+  }
+  // must update focusComment_pushshift b/c it will be overwritten when above code succeeds
+  focusComment_pushshift = pushshiftComments[commentID]
+
   let new_add_user
   const add_user_promises_forURL = []
   if (! focusComment_pushshift && ! focusComment_reddit) {
@@ -286,6 +312,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
                    commentTree: early_commentTree,
          initialFocusCommentID: commentID,
                                 alreadySearchedAuthors,
+                      ps_after: new_ps_after,
   })
 
   const processAddUserPromises = async (promises, combinedComments) => {
@@ -296,11 +323,8 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
   const {user_comments: user_comments_forURL, newComments: remainingRedditIDs_2} = await processAddUserPromises(add_user_promises_forURL, early_combinedComments)
   Object.assign(remainingRedditIDs, remainingRedditIDs_2)
 
-  // await pushshift_remaining_promises, put the results into pushshiftComments
-  const remainingPushshiftResults = await Promise.all(pushshift_remaining_promises)
-  for (const remainingPushshift of remainingPushshiftResults) {
-    Object.assign(pushshiftComments, remainingPushshift)
-  }
+  // <---- await pushshift_remaining_promises alternate code location ---->
+
   // when commentID is set, do additional checking to see if added comments would be in the tree or not
   Object.values(pushshiftComments).sort(sortCreatedAsc).forEach(archiveComment => {
     const id = archiveComment.id

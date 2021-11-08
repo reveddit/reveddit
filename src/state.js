@@ -535,6 +535,17 @@ class GlobalState extends Container {
     adjust_qparams_for_selection(page_type, queryParams, 'tagsFilter', value)
     return this.updateURLandState(queryParams, page_type)
   }
+  // updates URL with new ps_after and returns string value.
+  // then it can be included the next call to setState() or setSuccess()
+  get_updated_ps_after = (ps_after_entry, ps_after = this.state.ps_after) => {
+    const ps_after_list = ps_after ? ps_after.split(',') : []
+    if (ps_after_entry) {
+      ps_after_list.push(ps_after_entry)
+    }
+    const new_ps_after = ps_after_list.join(',')
+    updateURL(create_qparams_and_adjust('thread', 'ps_after', new_ps_after))
+    return new_ps_after
+  }
 
 
   removedByFilterIsUnset () {
