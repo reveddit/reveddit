@@ -481,7 +481,8 @@ export const getRemovedMessage = (props, itemType) => {
   } else if (error) {
     return '[error connecting to archive, try again later]'
   } else if (archiveTimes) {
-    if (time_is_in_archive_storage_window(props.created_utc, archiveTimes)) {
+    // comment overwrites began some time prior to 1630649330
+    if (props.created_utc < 1630649330 || time_is_in_archive_storage_window(props.created_utc, archiveTimes)) {
       prefix = ''
       removedMessage = 'Click Restore to load this comment.'
     } else if (archiveTimes_isCurrent(archiveTimes)) {

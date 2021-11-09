@@ -5,6 +5,7 @@ import {ifNumParseInt, isCommentID, validAuthor, now,
 } from 'utils'
 import {connect, urlParamKeys, create_qparams_and_adjust, updateURL} from 'state'
 import { kindsReverse, queryUserPage } from 'api/reddit'
+import { getWaybackComments } from 'api/reveddit'
 import { Spin, QuestionMarkModal, Help, NewWindowLink, ModalWithButton, buttonClasses } from 'components/Misc'
 import { copyFields, initializeComment, retrieveRedditComments_and_combineWithPushshiftComments } from 'data_processing/comments'
 import { createCommentTree } from 'data_processing/thread'
@@ -73,7 +74,7 @@ export const unarchived_search_help_content = (
 
 const search_comment_help = <Help title={unarchived_search_button_word+' Comment'} content={unarchived_search_help_content}/>
 
-const Wrap = ({children}) => <div style={{padding: '15px 0', minHeight: '25px'}}>{children}</div>
+const Wrap = ({children}) => <div style={{padding: '8px 0', minHeight: '25px'}}>{children}</div>
 
 export const getAddUserMeta = (props, distance_input, userPageSort, userPageTime, state = {}) => {
   const {itemsLookup, alreadySearchedAuthors, threadPost,
@@ -115,9 +116,10 @@ const RestoreComment = (props) => {
   const [meta, setMeta] = useState({distance: 0, aug: null})
   const [searchAll, setSearchAll] = useState(false)
   const [archiveSearched, setArchiveSearched] = useState(false)
+  const [waybackSearched, setWaybackSearched] = useState(false)
 
   let searchButton = ''
-  const {global, id, created_utc, score, controversiality, retrieved_on} = props
+  const {global, id, created_utc, score, controversiality, retrieved_on, link_id} = props
   const {itemsLookup, alreadySearchedAuthors, threadPost,
          itemsSortedByDate, add_user, authors:globalAuthors,
          loading: globalLoading, items, commentTree, initialFocusCommentID,
@@ -204,15 +206,21 @@ const RestoreComment = (props) => {
       commentTree: new_commentTree || commentTree
     }
   }
-
+  const comment_age_in_seconds = now - created_utc
+  const ps_after_list = ps_after ? ps_after.split(',') : []
+  const this_query_ps_after = (created_utc - 1).toString()
+  const canRunArchiveSearch = (
+      ! archiveSearched
+      && ! retrieved_on
+      // comment overwrites began some time prior to 1630649330
+      && (created_utc < 1630649330 || time_is_in_archive_storage_window(created_utc, archiveTimes))
+      && ! ps_after_list.includes(this_query_ps_after))
+  const canRunWaybackSearch = ! waybackSearched && comment_age_in_seconds > 172800 // 2 days
   const search = async () => {
     let state = {}
     await setLocalLoading(true)
-    const this_query_ps_after = (created_utc - 1).toString()
-    const ps_after_list = ps_after ? ps_after.split(',') : []
     // ! retrieved_on means it hasn't been looked up in the archive yet
-    if (! archiveSearched && ! retrieved_on && time_is_in_archive_storage_window(created_utc, archiveTimes)
-        && ! ps_after_list.includes(this_query_ps_after)) {
+    if (canRunArchiveSearch) {
       const pushshiftComments = await getPushshiftCommentsByThread(threadPost.id, this_query_ps_after)
       let new_ps_after = ps_after
       for (const c of Object.values(pushshiftComments)) {
@@ -222,17 +230,37 @@ const RestoreComment = (props) => {
           break
         }
       }
-      // updateArchiveComments retrieves reddit comments, which is not necessary, but simplifies code
-      // b/c it reuses existing logic for state update and commentTree creation.
-      // Recreating commentTree b/c loading more archive comments may reveal more 'missing parent' IDs
-      const new_commentTree = await updateArchiveComments(
-        {archiveComments: pushshiftComments, itemsLookup, items, threadPost, commentTree, authors: globalAuthors})
-      state = {commentTree: new_commentTree || commentTree,
-               itemsLookup, items, authors: globalAuthors,
-               ps_after: new_ps_after,
-               add_user_on_page_load: add_user_on_page_load+1, // triggers re-render
-              }
+      // only need to update global state if new data was found.
+      if (new_ps_after != ps_after) {
+        // updateArchiveComments retrieves reddit comments, which is not necessary, but simplifies code
+        // b/c it reuses existing logic for state update and commentTree creation.
+        // Recreating commentTree b/c loading more archive comments may reveal more 'missing parent' IDs
+        const new_commentTree = await updateArchiveComments(
+          {archiveComments: pushshiftComments, itemsLookup, items, threadPost, commentTree, authors: globalAuthors})
+        state = {commentTree: new_commentTree || commentTree,
+                 itemsLookup, items, authors: globalAuthors,
+                 ps_after: new_ps_after,
+                 add_user_on_page_load: add_user_on_page_load+1, // triggers re-render
+                }
+      }
       setArchiveSearched(true)
+    } else if (canRunWaybackSearch) {
+      const comments = await getWaybackComments({
+        link_id: link_id.substr(3),
+        ids: [id],
+        //known_removed_ids: [],
+      })
+      if (Object.keys(comments).length) {
+        for (const [id, comment] of Object.entries(comments)) {
+          Object.assign(itemsLookup[id], comment)
+          itemsLookup[id].archive_processed = true
+        }
+        state = {
+          itemsLookup,
+          add_user_on_page_load: add_user_on_page_load+1, // triggers re-render
+        }
+      }
+      setWaybackSearched(true)
     } else {
       state = await searchFromMeta(meta)
     }
@@ -254,7 +282,6 @@ const RestoreComment = (props) => {
     numAuthorsRemaining > 0 ?
       <div style={{marginTop:'10px'}}>
         <span> ({numAuthorsRemaining.toLocaleString()} users left{loading && searchAll ? <>, {timeRemaining}</> : <></>})</span>
-        <QuestionMarkModal modalContent={{content:search_comment_help}} fill='white'/>
       </div>
     : <></>
   )
@@ -263,39 +290,45 @@ const RestoreComment = (props) => {
     if (! meta.aug || meta.aug.length()) {
       searchButton = <Wrap><Spin width='20px'/>{cancel}{numAuthorsRemainingDiv}</Wrap>
     }
-  } else if (meta.aug?.length()) {
-    if (numAuthorsRemaining) {
-      const comment_age_in_seconds = now - created_utc
-      searchButton = (
-        <Wrap>
-          <div>
-            <a className={buttonClasses} onClick={search}><RestoreIcon/> {unarchived_search_button_word}</a>
-          </div>
-          {numAuthorsRemainingDiv}
-          <BodyButton>
-            <ModalWithButton text={unarchived_search_button_word_plus_all} title='WARNING'
-              buttonText={unarchived_search_button_word_plus_all}
-              buttonFn={() => setSearchAll(true)}>
-              <>
-                <p>{code_button} searches every known commenter's last 100 comments for this comment. It may use excessive bandwidth. Estimated usage for {numAuthorsRemaining} user queries:</p>
-                <ul>
-                  <li>{formatBytes(30720*numAuthorsRemaining)}</li>
-                  <li>{timeRemaining}</li>
-                </ul>
-                {comment_age_in_seconds > ONE_MONTH_IN_SECONDS ?
-                  <p>This comment is {getPrettyTimeLength(comment_age_in_seconds)} old. It may not be recoverable if it is no longer among the author's most recent 100 comments.</p>
-                  : <></>}
-                <p>{initialFocusCommentID ?
-                  <>This page was loaded through a comment's direct link. Loading the <a href={window.location.pathname.split('/',6).join('/')+'/'+ window.location.search + '#t1_' + id}>full comments page</a> first may yield more results. </>
-                  : <></>
-                }To continue, click {code_button}.</p>
-              </>
-            </ModalWithButton>
-          </BodyButton>
+  } else if ((meta.aug?.length() && numAuthorsRemaining)
+            || canRunArchiveSearch || canRunWaybackSearch) {
+    searchButton = (
+      <Wrap>
+        <div>
+          <a className={buttonClasses} onClick={search}><RestoreIcon/> {unarchived_search_button_word}</a>
+          <QuestionMarkModal modalContent={{content:search_comment_help}} fill='white'/>
+        </div>
+        <div style={{marginTop: '10px'}}>
+          {numAuthorsRemaining ?
+            <>
+              <>{numAuthorsRemainingDiv}</>
+              <BodyButton>
+                <ModalWithButton text={unarchived_search_button_word_plus_all} title='WARNING'
+                  buttonText={unarchived_search_button_word_plus_all}
+                  buttonFn={() => setSearchAll(true)}>
+                  <>
+                    <p>{code_button} searches every known commenter's last 100 comments for this comment. It may use excessive bandwidth. Estimated usage for {numAuthorsRemaining} user queries:</p>
+                    <ul>
+                      <li>{formatBytes(30720*numAuthorsRemaining)}</li>
+                      <li>{timeRemaining}</li>
+                    </ul>
+                    {comment_age_in_seconds > ONE_MONTH_IN_SECONDS ?
+                      <p>This comment is {getPrettyTimeLength(comment_age_in_seconds)} old. It may not be recoverable if it is no longer among the author's most recent 100 comments.</p>
+                      : <></>}
+                    <p>{initialFocusCommentID ?
+                      <>This page was loaded through a comment's direct link. Loading the <a href={window.location.pathname.split('/',6).join('/')+'/'+ window.location.search + '#t1_' + id}>full comments page</a> first may yield more results. </>
+                      : <></>
+                    }To continue, click {code_button}.</p>
+                  </>
+                </ModalWithButton>
+              </BodyButton>
+            </>
+          : <></>
+          }
           <HideUnarchivedComments global={global}/>
-        </Wrap>
-      )
-    }
+        </div>
+      </Wrap>
+    )
   } else {
     searchButton = <HideUnarchivedComments global={global}/>
   }

@@ -212,6 +212,13 @@ export const getArchivedCommentsByID = (ids) => {
 }
 
 // using REVEDDIT_FLASK_HOST_SHORT b/c wayback results will change for recent data
-export const getWaybackComments = (path, ids) => {
-  return flaskQuery({path: 'wayback/', params: {path, ids}})
+export const getWaybackComments = ({link_id, ids, known_removed_ids}) => {
+  return flaskQuery({path: 'wayback-proxy/',
+                   params: {
+                     link_id,
+                     ids: ids.join(','),
+                     ...(known_removed_ids && {known_removed_ids: known_removed_ids.join(',')}),
+                   }})
+  .then(result => result.data || {})
+  .catch(error => {return {}}) // ignore fetch errors, this is not critical data
 }
