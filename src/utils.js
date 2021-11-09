@@ -490,7 +490,7 @@ export const getRemovedMessage = (props, itemType) => {
       removedMessage = ', archive currently unavailable'
     }
   }
-  return <>{prefix + removedMessage}</>
+  return <>{prefix}{removedMessage}</>
 }
 
 export const getRemovedWithinText = (props) => {
