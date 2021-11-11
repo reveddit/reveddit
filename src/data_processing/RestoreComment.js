@@ -247,10 +247,16 @@ const RestoreComment = (props) => {
       setArchiveSearched(true)
     }
     if (targetNotFound() && canRunWaybackSearch) {
+      const known_removed_ids = []
+      for (const c of Object.values(itemsLookup)) {
+        if (c.score !== 1 && commentIsRemoved(c) && c.id !== id) {
+          known_removed_ids.push(c.id)
+        }
+      }
       const comments = await getWaybackComments({
         link_id: link_id.substr(3),
         ids: [id],
-        //known_removed_ids: [],
+        known_removed_ids,
       })
       if (Object.keys(comments).length) {
         for (const [id, comment] of Object.entries(comments)) {
