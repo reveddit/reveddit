@@ -219,6 +219,7 @@ const RestoreComment = (props) => {
   const search = async () => {
     let state = {}
     await setLocalLoading(true)
+    const targetNotFound = () => (! itemsLookup[id] || commentIsRemoved(itemsLookup[id]))
     // ! retrieved_on means it hasn't been looked up in the archive yet
     if (canRunArchiveSearch) {
       const pushshiftComments = await getPushshiftCommentsByThread(threadPost.id, this_query_ps_after)
@@ -244,7 +245,8 @@ const RestoreComment = (props) => {
                 }
       }
       setArchiveSearched(true)
-    } else if (canRunWaybackSearch) {
+    }
+    if (targetNotFound() && canRunWaybackSearch) {
       const comments = await getWaybackComments({
         link_id: link_id.substr(3),
         ids: [id],
@@ -261,7 +263,8 @@ const RestoreComment = (props) => {
         }
       }
       setWaybackSearched(true)
-    } else {
+    }
+    if (targetNotFound()) {
       state = await searchFromMeta(meta)
     }
     await setLocalLoading(false)
