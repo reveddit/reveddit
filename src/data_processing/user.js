@@ -249,7 +249,10 @@ function getItems (user, kind, global, sort, before = '', after = '', time, limi
         userCommentsByPost[item.link_id].push(item)
       }
       if (items.length > 0) {
-        item.prev = items[items.length-1].name
+        const prevItem = items[items.length-1]
+        if (! prevItem.stickied) {
+          item.prev = prevItem.name
+        }
       }
       items.push(item)
     })

@@ -95,10 +95,12 @@ const Post = connect((props) => {
     }
   }
   let directlink = '', paramString = ''
-  if (props.prev) {
-    directlink = `?after=${props.prev}&`
-  } else if (props.next) {
-    directlink = `?before=${props.next}&`
+  if (! props.stickied) {
+    if (props.prev) {
+      directlink = `?after=${props.prev}&`
+    } else if (props.next) {
+      directlink = `?before=${props.next}&`
+    }
   }
   if (directlink) {
     directlink += `limit=1&sort=${sort}&show=${props.name}&removal_status=all`
