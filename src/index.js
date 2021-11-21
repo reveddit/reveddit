@@ -133,10 +133,10 @@ class App extends React.Component {
               params.removeBackslash(PARAMKEYS_DONT_REMOVE_BACKSLASH)
               search = params.toString()
             } else {
-              const match = pathname.match(/^\/(user|u|y)\/([^/]+)/)
+              const match = pathname.match(/^\/(user|u|y)\/([^/]+)(.*)/)
               if (match) {
                 if (match[2] === 'me') {
-                  window.location.replace(old_reddit + pathname + window.location.search)
+                  window.location.replace(old_reddit + '/user/me' + match[3] + window.location.search)
                   return null
                 }
                 // remove ! from usernames. bot inserts them to avoid automod matches on usernames
