@@ -11,6 +11,7 @@ import {PATH_STR_SUB, PATH_STR_USER,
 } from 'utils'
 import {urlParamKeys_textFilters} from 'state'
 import {ExtensionRedirect} from 'components/Misc'
+import {old_reddit} from 'api/reddit'
 
 const PARAMKEYS_DONT_REMOVE_BACKSLASH = new Set(Object.values(urlParamKeys_textFilters))
 
@@ -131,9 +132,16 @@ class App extends React.Component {
               const params = new SimpleURLSearchParams(location.search)
               params.removeBackslash(PARAMKEYS_DONT_REMOVE_BACKSLASH)
               search = params.toString()
-            } else if (pathname.match(/^\/(user|u|y)\//)) {
-              // remove ! from usernames. bot inserts them to avoid automod matches on usernames
-              pathname = pathname.replaceAll('!','')
+            } else {
+              const match = pathname.match(/^\/(user|u|y)\/([^/]+)/)
+              if (match) {
+                if (match[2] === 'me') {
+                  window.location.replace(old_reddit + '/user/me/' + window.location.search)
+                  return null
+                }
+                // remove ! from usernames. bot inserts them to avoid automod matches on usernames
+                pathname = pathname.replaceAll('!','')
+              }
             }
             if (pathname !== location.pathname || search !== location.search) {
               return <Redirect to={{
