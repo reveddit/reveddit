@@ -136,7 +136,7 @@ class App extends React.Component {
               const match = pathname.match(/^\/(user|u|y)\/([^/]+)/)
               if (match) {
                 if (match[2] === 'me') {
-                  window.location.replace(old_reddit + '/user/me/' + window.location.search)
+                  window.location.replace(old_reddit + pathname + window.location.search)
                   return null
                 }
                 // remove ! from usernames. bot inserts them to avoid automod matches on usernames
