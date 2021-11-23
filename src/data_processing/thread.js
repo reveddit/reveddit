@@ -4,7 +4,8 @@ import { combineRedditAndPushshiftPost } from 'data_processing/posts'
 import {
   getPost as getPushshiftPost,
   getCommentsByThread as getPushshiftCommentsByThread,
-  getCommentsByID as getPushshiftComments
+  getCommentsByID as getPushshiftComments,
+  PUSHSHIFT_MAX_COUNT_PER_QUERY,
 } from 'api/pushshift'
 import {
   getComments as getRedditComments,
@@ -35,6 +36,7 @@ import { localSort_types, filter_pageType_defaults, create_qparams } from 'state
 
 const NumAddUserItemsToLoadAtFirst = 10
 const numCommentsWithPost = 500
+const NumPushshiftResultsConsideredAsFull = PUSHSHIFT_MAX_COUNT_PER_QUERY - 20
 let archiveError = false
 const ignoreArchiveErrors = () => {
   archiveError = true
@@ -55,7 +57,8 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
                                             before, after, subreddit,
                                             global, archive_times_promise) => {
   const {localSort, localSortReverse, ps_after} = global.state
-  const ps_after_list = ps_after ? [...new Set(ps_after.split(',').slice(0,20))] : []
+  const ps_after_set = new Set(ps_after.split(',').slice(0,20))
+  const ps_after_list = ps_after ? [...ps_after_set] : []
   const sort = create_qparams().get('sort') // don't get this value from state. it's used elsewhere w/a default value 'new' which isn't desired here
   const localSortState = (sortMap[sort] && localSort === filter_pageType_defaults.localSort.thread && ! localSortReverse) ? sortMap[sort] : {}
   const sortsForRedditCommentThreadQuery = sort ? sort.split(',') : ['new']
@@ -215,7 +218,9 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     Object.assign(redditComments, thisRC)
     Object.assign(moreComments, thisMC)
   }
-  const pushshiftComments = await pushshift_comments_promise
+  const pushshiftResult = await pushshift_comments_promise
+  const {comments: pushshiftComments} = pushshiftResult
+  let {last:last_ps_created_utc} = pushshiftResult
   const revedditComments = await reveddit_comments_promise
   const modlogsComments = await modlogs_comments_promise
   const uModlogsItems = await uModlogs_promise
@@ -238,27 +243,62 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
   let focusComment_pushshift = pushshiftComments[commentID]
   const focusComment_reddit = redditComments[commentID]
   let new_ps_after = ps_after
-  if (focusComment_reddit && commentIsRemoved(focusComment_reddit)
-      && (! focusComment_pushshift ||
-          (commentIsRemoved(focusComment_pushshift)
-            && ! focusComment_pushshift.retrieved_on))) {
-    const focusComment_ps_after = (focusComment_reddit.created_utc - 1).toString()
-    if (! ps_after_list.includes(focusComment_ps_after)) {
-      await schedulePsAfter(focusComment_ps_after)
-      new_ps_after = global.get_updated_ps_after(focusComment_ps_after)
-    }
-  }
+
+
+  // fill in focus comment: not needed when querying for all pushshift results
+  // if (focusComment_reddit && commentIsRemoved(focusComment_reddit)
+  //     && (! focusComment_pushshift ||
+  //         (commentIsRemoved(focusComment_pushshift)
+  //           && ! focusComment_pushshift.retrieved_on))) {
+  //   const focusComment_ps_after = (focusComment_reddit.created_utc - 1).toString()
+  //   if (! ps_after_list.includes(focusComment_ps_after)) {
+  //     await schedulePsAfter(focusComment_ps_after)
+  //     new_ps_after = global.get_updated_ps_after(focusComment_ps_after)
+  //   }
+  // }
+
+
+
+
   // await pushshift_remaining_promises, put the results into pushshiftComments
   // an alternate code location for this is after the next global.setState
   // the reason to put it here is,
   //     (a) the focus comment lookup may preempt user page lookups which often add to URL despite not finding target content
   //     (b) these lookups are fast enough now
   const remainingPushshiftResults = await Promise.all(pushshift_remaining_promises)
-  for (const remainingPushshift of remainingPushshiftResults) {
-    Object.assign(pushshiftComments, remainingPushshift)
+  let last_ps_comment_created_utc = last_ps_created_utc
+  let num_comments_in_last_ps_query = Object.keys(pushshiftComments).length
+  for (const {comments, last} of remainingPushshiftResults) {
+    Object.assign(pushshiftComments, comments)
+    if (last > last_ps_comment_created_utc) {
+      last_ps_comment_created_utc = last
+      num_comments_in_last_ps_query = Object.keys(comments).length
+    }
   }
-  // must update focusComment_pushshift b/c it will be overwritten when above code succeeds
+  // must update focusComment_pushshift b/c it will be overwritten if "fill in focus comment" code above succeeds
   focusComment_pushshift = pushshiftComments[commentID]
+
+  let this_psComments = undefined
+  let next_ps_after = (last_ps_created_utc - 1).toString()
+  // if the first next_ps_after was already queried, start from most recent ps comment
+  // (only if the last query had a nearly full result)
+  if (ps_after_set.has(next_ps_after) && num_comments_in_last_ps_query > NumPushshiftResultsConsideredAsFull) {
+    next_ps_after = (last_ps_comment_created_utc - 1).toString()
+  }
+  // loop for all comments until result is less than max response size (indicating there are no more results)
+  while (! ps_after_set.has(next_ps_after)) {
+    ps_after_set.add(next_ps_after)
+    const {comments, last} = await pushshiftLimiter.schedule(() =>
+      getPushshiftCommentsByThread(threadID, next_ps_after).catch(ignoreArchiveErrors))
+    this_psComments = comments
+    last_ps_created_utc = last
+    Object.assign(pushshiftComments, this_psComments)
+    new_ps_after = global.get_updated_ps_after(next_ps_after, new_ps_after)
+    if (Object.keys(this_psComments).length < NumPushshiftResultsConsideredAsFull) {
+      break
+    }
+    next_ps_after = (last_ps_created_utc - 1).toString()
+  }
 
   let new_add_user
   const add_user_promises_forURL = []

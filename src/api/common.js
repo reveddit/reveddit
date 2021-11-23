@@ -13,10 +13,10 @@ export const redditLimiter = new Bottleneck({
 })
 
 export const pushshiftLimiter = new Bottleneck({
-  reservoir, // 30 requests per minute
-  reservoirRefreshAmount: reservoir,
-  reservoirRefreshInterval: 60 * 1000, // ms, must be divisible by 250
-  maxConcurrent: 2,
+  reservoir: 5, // 5 requests per 7 seconds. pushshift allows 60 per minute
+  reservoirRefreshAmount: 5,
+  reservoirRefreshInterval: 7 * 1000, // ms, must be divisible by 250
+  maxConcurrent: 4,
 })
 
 

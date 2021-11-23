@@ -315,14 +315,17 @@ export const getCommentsByThread = (link_id, after='') => {
   return fetchUrlWithParams(commentURL, queryParams)
     .then(response => response.json())
     .then(data => {
-      return data.data.reduce((map, comment) => {
+      let last = undefined
+      const comments = data.data.reduce((map, comment) => {
         update_retrieved_field(comment)
         // Missing parent id === direct reply to thread
         if ((! ('parent_id' in comment)) || ! comment.parent_id) {
           comment.parent_id = 't3_'+threadID
         }
         map[comment.id] = comment
+        last = comment.created_utc
         return map
       }, {})
+      return {comments, last}
     })
 }
