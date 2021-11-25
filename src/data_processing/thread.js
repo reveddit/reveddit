@@ -270,9 +270,10 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
   let num_comments_in_last_ps_query = Object.keys(pushshiftComments).length
   for (const {comments, last} of remainingPushshiftResults) {
     Object.assign(pushshiftComments, comments)
-    if (last > last_ps_comment_created_utc) {
+    const comments_length = Object.keys(comments).length
+    if (last > last_ps_comment_created_utc && comments_length) {
       last_ps_comment_created_utc = last
-      num_comments_in_last_ps_query = Object.keys(comments).length
+      num_comments_in_last_ps_query = comments_length
     }
   }
   // must update focusComment_pushshift b/c it will be overwritten if "fill in focus comment" code above succeeds
