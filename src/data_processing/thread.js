@@ -228,38 +228,6 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
   if (rootComment && rootComment[commentID] && ! redditComments[commentID]) {
     redditComments[commentID] = rootComment[commentID]
   }
-  for (const c of Object.values(revedditComments)) {
-    const psComment = pushshiftComments[c.id]
-    if (! psComment || commentIsRemoved(psComment)) {
-      pushshiftComments[c.id] = c
-    }
-  }
-  copyModlogItemsToArchiveItems(modlogsComments, pushshiftComments)
-  //copy uModlogs items last b/c:
-  // 1. these will overwrite any previous modlogs items
-  // 2. the content will probably be retrievable in the future, since lookup method is by link ID.
-  //    And, when log_source == u_modlogs, then 'temporarily visible' label is not shown
-  copyModlogItemsToArchiveItems(uModlogsItems.comments, pushshiftComments)
-  let focusComment_pushshift = pushshiftComments[commentID]
-  const focusComment_reddit = redditComments[commentID]
-  let new_ps_after = ps_after
-
-
-  // fill in focus comment: not needed when querying for all pushshift results
-  // if (focusComment_reddit && commentIsRemoved(focusComment_reddit)
-  //     && (! focusComment_pushshift ||
-  //         (commentIsRemoved(focusComment_pushshift)
-  //           && ! focusComment_pushshift.retrieved_on))) {
-  //   const focusComment_ps_after = (focusComment_reddit.created_utc - 1).toString()
-  //   if (! ps_after_list.includes(focusComment_ps_after)) {
-  //     await schedulePsAfter(focusComment_ps_after)
-  //     new_ps_after = global.get_updated_ps_after(focusComment_ps_after)
-  //   }
-  // }
-
-
-
-
   // await pushshift_remaining_promises, put the results into pushshiftComments
   // an alternate code location for this is after the next global.setState
   // the reason to put it here is,
@@ -276,9 +244,8 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
       num_comments_in_last_ps_query = comments_length
     }
   }
-  // must update focusComment_pushshift b/c it will be overwritten if "fill in focus comment" code above succeeds
-  focusComment_pushshift = pushshiftComments[commentID]
 
+  let new_ps_after = ps_after
   let this_psComments = undefined
   let next_ps_after = (last_ps_created_utc - 1).toString()
   // if the first next_ps_after was already queried, start from most recent ps comment
@@ -300,6 +267,38 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     }
     next_ps_after = (last_ps_created_utc - 1).toString()
   }
+
+  for (const c of Object.values(revedditComments)) {
+    const psComment = pushshiftComments[c.id]
+    if (! psComment || commentIsRemoved(psComment)) {
+      pushshiftComments[c.id] = c
+    }
+  }
+  copyModlogItemsToArchiveItems(modlogsComments, pushshiftComments)
+  //copy uModlogs items last b/c:
+  // 1. these will overwrite any previous modlogs items
+  // 2. the content will probably be retrievable in the future, since lookup method is by link ID.
+  //    And, when log_source == u_modlogs, then 'temporarily visible' label is not shown
+  copyModlogItemsToArchiveItems(uModlogsItems.comments, pushshiftComments)
+  let focusComment_pushshift = pushshiftComments[commentID]
+  const focusComment_reddit = redditComments[commentID]
+
+
+  // fill in focus comment: not needed when querying for all pushshift results
+  // if (focusComment_reddit && commentIsRemoved(focusComment_reddit)
+  //     && (! focusComment_pushshift ||
+  //         (commentIsRemoved(focusComment_pushshift)
+  //           && ! focusComment_pushshift.retrieved_on))) {
+  //   const focusComment_ps_after = (focusComment_reddit.created_utc - 1).toString()
+  //   if (! ps_after_list.includes(focusComment_ps_after)) {
+  //     await schedulePsAfter(focusComment_ps_after)
+  //     new_ps_after = global.get_updated_ps_after(focusComment_ps_after)
+  //   }
+  // }
+
+  // must update focusComment_pushshift b/c it will be overwritten if "fill in focus comment" code above succeeds
+  focusComment_pushshift = pushshiftComments[commentID]
+
 
   let new_add_user
   const add_user_promises_forURL = []
