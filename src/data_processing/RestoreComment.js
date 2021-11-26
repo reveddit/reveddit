@@ -262,6 +262,7 @@ const RestoreComment = (props) => {
         for (const [id, comment] of Object.entries(comments)) {
           Object.assign(itemsLookup[id], comment)
           itemsLookup[id].archive_processed = true
+          delete itemsLookup[id].archive_body_removed
         }
         state = {
           itemsLookup,
