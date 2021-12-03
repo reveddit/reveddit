@@ -12,15 +12,14 @@ const Author = ({author, author_fullname, is_op, deleted, distinguished, subredd
   const {moderators, moderated_subreddits, authors, author_fullnames} = global.state
   const subreddit_lc = subreddit.toLowerCase()
   let link = `${PATH_STR_USER}/${author}/`
+  const kind = name.slice(0,2)
+  let age = ''
+  const info = authors[author] || author_fullnames[author_fullname]
   if (deleted || author === '[deleted]') {
     author = '[deleted]'
     link = undefined
     is_op = false
-  }
-  const kind = name.slice(0,2)
-  let age = ''
-  const info = authors[author] || author_fullnames[author_fullname]
-  if ((showAccountInfo_global || Object.keys(author_fullnames).length) && info) {
+  } else if ((showAccountInfo_global || Object.keys(author_fullnames).length) && info) {
     age = ' ['+getPrettyTimeLength(created_utc-info.created_utc)+' | '
     const num = kind === 't1' ? info.comment_karma : info.link_karma
     age += Intl.NumberFormat('en-US').format(num)+']'
