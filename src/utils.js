@@ -463,7 +463,7 @@ export const archiveTimes_isCurrent = (archiveTimes) => (now - archiveTimes.upda
 const OVERWRITE_BUFFER = 2*60*60
 export const time_is_in_archive_storage_window = (created_utc, archiveTimes) =>
   ( archiveTimes.comment > created_utc &&
-    created_utc > (now - archiveTimes.time_to_comment_overwrite - OVERWRITE_BUFFER))
+    created_utc > (archiveTimes.created_utc_of_most_recent_overwrite - OVERWRITE_BUFFER))
 
 export const getRemovedMessage = (props, itemType) => {
   let prefix = '[removed]'
