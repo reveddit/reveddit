@@ -71,10 +71,8 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
   const schedulePsAfter = async (this_ps_after) => {
     await archive_times_promise
     const archiveTimes = global.state.archiveTimes
-    if (time_is_in_archive_storage_window(this_ps_after, archiveTimes)) {
-      pushshift_remaining_promises.push(
-        pushshiftLimiter.schedule(() => getPushshiftCommentsByThread(threadID, this_ps_after).catch(ignoreArchiveErrors)))
-    }
+    pushshift_remaining_promises.push(
+      pushshiftLimiter.schedule(() => getPushshiftCommentsByThread(threadID, this_ps_after).catch(ignoreArchiveErrors)))
   }
   if (ps_after) {
     for (const this_ps_after of ps_after_list) {
