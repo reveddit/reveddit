@@ -31,7 +31,7 @@ const User = ({match, global, page_type, viewableItems, selections, summary, not
          hasVisitedUserPage_sortTop, hasVisitedSubredditPage, hasClickedRemovedUserCommentContext,
         } = global.state
   let loadAllLink = '', nextLink = '', pagesLoaded = ''
-  let error = '', status = '', instructionalNotice = ''
+  let error = '', status = '', instructionalNotice = '', removedCommentsLink = ''
   let totalPages = 10
   let selectedItems = null
   if (! userNext) {
@@ -101,7 +101,9 @@ const User = ({match, global, page_type, viewableItems, selections, summary, not
     instructionalNotice = <Notice title='share reveddit'
       htmlLink={<div><NewWindowLink old={true} reddit={pinPostLink} onClick={() => dismiss()}>create a post</NewWindowLink>, then select <a className='pointer' onClick={() => modal.openModal({content: <img style={{marginTop: '20px'}}src='/images/pin-profile.png'/>})}>pin to profile</a></div>}/>
   }
-
+  if (removedCommentIDs.length > 0) {
+    removedCommentsLink = '/api/info?id='+removedCommentIDs.join(',')
+  }
   return (
     <>
       <div className='userpage'>
@@ -117,9 +119,9 @@ const User = ({match, global, page_type, viewableItems, selections, summary, not
           <Highlight/>
           {instructionalNotice}
           {notShownMsg}
-          { removedCommentIDs.length > 0 &&
-            <Notice message="Some comments have been removed. To view this on reddit, open the below link in an incognito window or while logged out."
-              htmlLink={<NewWindowLink reddit={'/api/info?id='+removedCommentIDs.join(',')}>view removed comments on reddit</NewWindowLink>}
+          { removedCommentsLink &&
+            <Notice message={<>Some comments have been removed. To view that on reddit, open <NewWindowLink reddit={removedCommentsLink}>this link</NewWindowLink> in an incognito window or while logged out. Note: <Link to='/about/faq/#user-deleted'>user-deleted content</Link> does not appear on reveddit.</>}
+              htmlLink={<NewWindowLink reddit={removedCommentsLink}>view removed comments on reddit</NewWindowLink>}
             />
           }
           {selectedItems &&
