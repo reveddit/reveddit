@@ -26,10 +26,10 @@ const modlogs_detail = `${add_mod}, give it wiki permissions, and create a confi
 const modlogs_detail_suffix = 'The bot will not have access to the AutoModerator config as that requires the "Manage Settings" permission.'
 const publicmodlogs_detail = `${add_mod} with no permissions`
 const add_modlogs_message = <MessageMods innerText='pre-filled message'
-  message_subject='Will you show context for mod logs?'
+  message_subject='Will you show context for removed content?'
   message_body={
     'Dear mods,\n\n'
-    +`Would you turn on mod logs so users can see the context of removed content? There are two options, u/modlogs and u/publicmodlogs. The former ${control},\n\n`
+    +`Would you turn on mod logs so users can see the context of removed content? There are two ways to do this, u/modlogs and u/publicmodlogs. The former ${control},\n\n`
     +`* for u/modlogs: ${modlogs_detail} ${modlogs_example_string}. ${modlogs_detail_suffix}\n`
     +`* for u/publicmodlogs: ${publicmodlogs_detail}\n\n`
     +'Thank you.'
