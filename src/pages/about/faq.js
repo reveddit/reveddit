@@ -100,13 +100,14 @@ const About_faq = () => {
         <p><ExtensionLink/> always shows post removal notices on both old and new reddit.</p>
         <p>Reddit does not tell you when posts (links) are removed if:</p>
           <ul>
-            <li>you visit the page using a link to a comment, <NewWindowLink redesign={true} reddit='/r/CantSayAnything/comments/oiizmf/a_removed_post/h4vrp2v/'>here for example</NewWindowLink>.</li>
-            <li>the subreddit has set "spam filter strength" to remove all posts, and the post is less than 24 hours old.
+            <li><NewWindowLink reddit='/r/ModSupport/comments/e6llgl/sorry_this_post_was_removed_by_reddits_spam/f9rbryk/'>reddit's spam filter</NewWindowLink> removed the post, and the post is less than 24 hours old.
               <ul>
+                <li>A subreddit's "spam filter strength" setting may impact how often this occurs. Some subreddits set this to remove all posts up front.</li>
                 <li>You can <NewWindowLink reddit='/r/CantSayAnything/submit'>post in r/CantSayAnything</NewWindowLink> to see how this works.</li>
                 <li><NewWindowLink reddit='/r/reveddit/comments/ndbwag/reveddit_logs_me_out_winchromereveddit_realtime/gyaphsb/#thing_t1_gyaphsb'>See here</NewWindowLink> for more info.</li>
               </ul>
             </li>
+            <li>you visit the page using a link to a comment, <NewWindowLink redesign={true} reddit='/r/CantSayAnything/comments/oiizmf/a_removed_post/h4vrp2v/'>here for example</NewWindowLink>.</li>
             <li>the post was removed prior to December 2019 when reddit announced <NewWindowLink reddit='/r/changelog/comments/e66fql/post_removal_details_on_the_new_design_redesign/'>Post removal details</NewWindowLink>. Here is an example of an old removed post <NewWindowLink reddit={old_removed_post}>on reddit</NewWindowLink> and on <a href={old_removed_post}>on reveddit</a>.</li>
             <li>you visit the page using <code>old.reddit.com</code>. Only <code>new.reddit.com</code> shows post removal notices.</li>
           </ul>
