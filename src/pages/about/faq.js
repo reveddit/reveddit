@@ -34,7 +34,8 @@ const add_modlogs_message = <MessageMods innerText='pre-filled message'
     +`* for u/publicmodlogs: ${publicmodlogs_detail}\n\n`
     +'Thank you.'
 }/>
-
+const suppressedRemovalNoticeLink = '/r/ModSupport/comments/e6llgl/sorry_this_post_was_removed_by_reddits_spam/f9rbryk/'
+const id_doesntSayPostRemoved = 'reddit-does-not-say-post-removed'
 const old_removed_post = '/r/ProgrammerHumor/comments/9emzhp/turk_tv_found_the_reason_for_chromes_memory_usage/'
 
 const About_faq = () => {
@@ -96,14 +97,14 @@ const About_faq = () => {
           <li>If a moderator removes a comment, and then later the author deletes the comment, that comment will not appear on reveddit user pages and may still appear in reveddit threads. The reddit API does not have a way to show when authors delete mod-removed comments.</li>
         </ul>
       </ContentWithHeader>
-      <ContentWithHeader header='Reddit does not say my post is removed. Why does reveddit say it is?' id='reddit-does-not-say-post-removed'>
+      <ContentWithHeader header='Reddit does not say my post is removed. Why does reveddit say it is?' id={id_doesntSayPostRemoved}>
         <p><ExtensionLink/> always shows post removal notices on both old and new reddit.</p>
         <p>Reddit does not tell you when posts (links) are removed if:</p>
           <ul>
-            <li><NewWindowLink reddit='/r/ModSupport/comments/e6llgl/sorry_this_post_was_removed_by_reddits_spam/f9rbryk/'>reddit's spam filter</NewWindowLink> removed the post, and the post is less than 24 hours old.
+            <li>reddit's spam filter removed the post, and the post is <NewWindowLink reddit={suppressedRemovalNoticeLink}>less than 24 hours old.</NewWindowLink>
               <ul>
                 <li>A subreddit's "spam filter strength" setting may impact how often this occurs. Some subreddits set this to remove all posts up front.</li>
-                <li>You can <NewWindowLink reddit='/r/CantSayAnything/submit'>post in r/CantSayAnything</NewWindowLink> to see how this works.</li>
+                <li>You can <NewWindowLink reddit={'/r/CantSayAnything/submit?title=A post that will be auto-removed without showing a removal notice.'+'&text='+encodeURIComponent(`Reddit's removal notice will not appear on this post [for 24 hours](${www_reddit+suppressedRemovalNoticeLink}). No evidence of its removal will be presented to the logged-in author. For the author:\n\n* It will appear in r/CantSayAnything/new\n* Its contents will be visible. Other users would see `+"`[removed]` if they could find the link to the post."+`\n\nThis post was created via https://www.reveddit.com/about/faq/#${id_doesntSayPostRemoved}`)}>post in r/CantSayAnything</NewWindowLink> to see how this works.</li>
                 <li><NewWindowLink reddit='/r/reveddit/comments/ndbwag/reveddit_logs_me_out_winchromereveddit_realtime/gyaphsb/#thing_t1_gyaphsb'>See here</NewWindowLink> for more info.</li>
               </ul>
             </li>
