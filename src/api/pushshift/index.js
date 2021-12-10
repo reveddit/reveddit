@@ -1,5 +1,8 @@
-import { toBase10, toBase36, chunk, flatten, getQueryString, promiseDelay } from 'utils'
+import { toBase10, toBase36, chunk, flatten, getQueryString, promiseDelay,
+         convertToEpoch,
+} from 'utils'
 import { fetchWithTimeout } from 'api/common'
+
 const comment_fields = [
   'id', 'author', 'author_fullname', 'body', 'created_utc', 'parent_id', 'score',
   'subreddit', 'link_id', 'author_flair_text', 'retrieved_on', 'retrieved_utc',
@@ -15,6 +18,9 @@ const post_fields_for_comment_data = ['id', 'title', 'whitelist_status', 'url', 
 const postURL = 'https://api.pushshift.io/reddit/submission/search/'
 const commentURL = 'https://api.pushshift.io/reddit/comment/search/'
 const elastic_commentURL = 'https://elastic.pushshift.io/rc/comments/_search?source='
+const beta_commentURL = REVEDDIT_CORS_ANWHERE_HOST+'https://beta.pushshift.io/search/reddit/comments'
+
+const beta_maxNumItems = 250
 const maxNumItems = 1000
 const maxNumCommentsByID = 900
 const waitInterval = 400
@@ -39,12 +45,52 @@ export const queryPosts = (params) => {
   return queryItems(params, postURL, post_fields, 't3_', null)
 }
 
+export const queryTwoAPIsComments = (params, fields=comment_fields) => {
+  return Promise.all([queryItems(params, beta_commentURL, fields, 't1_', 'id'),
+                      queryItems(params,      commentURL, fields, 't1_', 'id')])
+  .then(([betaComments, comments]) => {
+    return Object.assign(comments, betaComments)
+  })
+}
+
+export const queryTwoAPIsPosts = (params) => {
+  return Promise.all([queryItems(params, beta_postURL, post_fields, 't3_', 'id'),
+                      queryItems(params, beta_postURL, post_fields, 't3_', 'id')])
+  .then(([betaPosts, posts]) => {
+    return Object.values(Object.assign(posts, betaPosts))
+  })
+}
+
+const getDateForAPI = ({apiURL, after, before}) => {
+  if (after && before) {
+    throw new Error('getDateForAPI: specify either after or before, not both')
+  }
+  const increment = after ? -1 : 1
+  const dateString = before || after
+  if (apiURL !== beta_commentURL) {
+    const paramName = after ? 'after' : 'before'
+    return {[paramName]: ifNumParseAndAdd(dateString, increment)}
+  } else {
+    const paramName = after ? 'min_created_utc' : 'max_created_utc'
+    return {[paramName]:
+      /^\d+$/.test(dateString) ?
+        ifNumParseAndAdd(dateString, increment) :
+        convertToEpoch(...dateString.split(/([a-z])/))
+    }
+  }
+}
+
 const queryItems = ({q, author, subreddit, n = 500, sort='desc', sort_type, before, after, domain,
                        url, selftext, parent_id, stickied, title, distinguished},
                      apiURL, fields, prefix, key = 'name') => {
   const results = {}
   if (after && ! before && ! sort_type) {
     sort = 'asc'
+  }
+  if (apiURL === beta_commentURL) {
+    n = Math.min(beta_maxNumItems,n)
+    author    =    author.replace(/![^,]*,?/g,'')
+    subreddit = subreddit.replace(/![^,]*,?/g,'')
   }
   const queryParams = {
     size: n,
@@ -53,8 +99,8 @@ const queryItems = ({q, author, subreddit, n = 500, sort='desc', sort_type, befo
     ...(q && {q}),
     ...(author && {author}),
     ...(subreddit && {subreddit}),
-    ...(after && {after: ifNumParseAndAdd(after, -1)}),
-    ...(before && {before: ifNumParseAndAdd(before, 1)}),
+    ...(after && getDateForAPI({apiURL, after})),
+    ...(before && getDateForAPI({apiURL, before})),
     ...(domain && {domain}),
     ...(parent_id && {parent_id}),
     ...(stickied !== undefined && {stickied}),
