@@ -138,6 +138,17 @@ a.white
   .mobile-only
     display: inline-block
 
+@media only screen and (min-width: 700px)
+  .toggleFilters, .revddit-sharing
+    position: sticky
+    top: 0
+  .toggleFilters
+    z-index: 3
+    background-color: $background
+  .revddit-sharing
+    z-index: 4
+
+
 #buttons-right
   float: right
   text-align: right

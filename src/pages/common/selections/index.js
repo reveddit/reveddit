@@ -141,7 +141,6 @@ const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter,
       <div className='toggleFilters'>
         <a onClick={toggleShowFilters} className='collapseToggle'>{showFiltersText}</a>
         {save_reset_buttons}
-      </div>
       <div style={{clear:'both'}}></div>
       {filtersHaveBeenShown &&
         <div className='selections' style={showFilters ? null : {display:'none'}}>
@@ -250,6 +249,7 @@ const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter,
           })()}
         </div>
       }
+      </div>
     </>
   )
 }
