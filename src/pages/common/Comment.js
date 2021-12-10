@@ -157,9 +157,9 @@ export const getAddUserParamString = (
   const samePost_lastComment = samePost_comments[samePost_comments.length -1] || {}
   const samePost_firstComment = samePost_comments[0] || {}
   const addUser_afterBefore = {}
-  if (rev_position - samePost_lastComment.rev_position < 100 && samePost_lastComment.next) {
+  if (samePost_lastComment.rev_position - rev_position < 100 && samePost_lastComment.next) {
     addUser_afterBefore.before = samePost_lastComment.next
-  } else if (samePost_firstComment.rev_position - rev_position < 100 && samePost_firstComment.prev) {
+  } else if (rev_position - samePost_firstComment.rev_position < 100 && samePost_firstComment.prev) {
     addUser_afterBefore.after = samePost_firstComment.prev
   } else if (next) {
     addUser_afterBefore.before = next
