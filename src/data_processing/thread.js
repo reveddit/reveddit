@@ -36,7 +36,7 @@ import { localSort_types, filter_pageType_defaults, create_qparams } from 'state
 
 const NumAddUserItemsToLoadAtFirst = 10
 const numCommentsWithPost = 500
-const NumPushshiftResultsConsideredAsFull = PUSHSHIFT_MAX_COUNT_PER_QUERY - 20
+const NumPushshiftResultsConsideredAsFull = PUSHSHIFT_MAX_COUNT_PER_QUERY - 3
 let archiveError = false
 const ignoreArchiveErrors = () => {
   archiveError = true
@@ -244,26 +244,30 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
   }
 
   let new_ps_after = ps_after
-  let this_psComments = undefined
-  let next_ps_after = (last_ps_created_utc - 1).toString()
-  // if the first next_ps_after was already queried, start from most recent ps comment
-  // (only if the last query had a nearly full result)
-  if (ps_after_set.has(next_ps_after) && num_comments_in_last_ps_query > NumPushshiftResultsConsideredAsFull) {
-    next_ps_after = (last_ps_comment_created_utc - 1).toString()
-  }
-  // loop for all comments until result is less than max response size (indicating there are no more results)
-  while (! ps_after_set.has(next_ps_after)) {
-    ps_after_set.add(next_ps_after)
-    const {comments, last} = await pushshiftLimiter.schedule(() =>
-      getPushshiftCommentsByThread(threadID, next_ps_after).catch(ignoreArchiveErrors))
-    this_psComments = comments
-    last_ps_created_utc = last
-    Object.assign(pushshiftComments, this_psComments)
-    new_ps_after = global.get_updated_ps_after(next_ps_after, new_ps_after)
-    if (Object.keys(this_psComments).length < NumPushshiftResultsConsideredAsFull) {
-      break
+  if (last_ps_created_utc
+      && reddit_post.num_comments > num_comments_in_last_ps_query
+      && num_comments_in_last_ps_query > NumPushshiftResultsConsideredAsFull) {
+    let this_psComments = undefined
+    let next_ps_after = (last_ps_created_utc - 1).toString()
+    // if the first next_ps_after was already queried, start from most recent ps comment
+    // (only if the last query had a nearly full result)
+    if (ps_after_set.has(next_ps_after)) {
+      next_ps_after = (last_ps_comment_created_utc - 1).toString()
     }
-    next_ps_after = (last_ps_created_utc - 1).toString()
+    // loop for all comments until result is less than max response size (indicating there are no more results)
+    while (! ps_after_set.has(next_ps_after)) {
+      ps_after_set.add(next_ps_after)
+      const {comments, last} = await pushshiftLimiter.schedule(() =>
+        getPushshiftCommentsByThread(threadID, next_ps_after).catch(ignoreArchiveErrors))
+      this_psComments = comments
+      last_ps_created_utc = last
+      Object.assign(pushshiftComments, this_psComments)
+      new_ps_after = global.get_updated_ps_after(next_ps_after, new_ps_after)
+      if (Object.keys(this_psComments).length < NumPushshiftResultsConsideredAsFull) {
+        break
+      }
+      next_ps_after = (last_ps_created_utc - 1).toString()
+    }
   }
 
   for (const c of Object.values(revedditComments)) {
