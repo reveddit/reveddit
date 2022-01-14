@@ -121,6 +121,7 @@ export const urlParamKeys = {
   user_kind: 'user_kind', // for legacy add_user code
   user_time: 'user_time', // for legacy add_user code
   t: 't', sort: 'sort', sort_type: 'sort_type', limit: 'limit', show: 'show', all:'all', stickied: 'stickied', distinguished: 'distinguished',
+  rate_less: 'rate_less', rate_more: 'rate_more',
   ...urlParamKeys_filters_for_reset_to_show_all_items
 }
 
@@ -279,6 +280,8 @@ const initialState = {
   all: false,
   oldestTimestamp: undefined, newestTimestamp: undefined,
   stickied: undefined, distinguished: undefined,
+  rate_less: undefined, rate_more: undefined,
+  rate_least: undefined, rate_most: undefined,
   ...urlParamKeys_max_min_defaults,
   agg_most_recent_created_utc: undefined,
 }

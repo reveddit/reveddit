@@ -49,8 +49,20 @@ export const agg_defaults_for_page = {
   type: 'comments',
 }
 
-export const getAggregations = ({subreddit, type = agg_defaults_for_page.type, limit = agg_defaults_for_page.limit, sort = agg_defaults_for_page.sort}) => {
-  return flaskQuery({path: aggregationsPath, params: {type, subreddit, limit, sort}, host: REVEDDIT_FLASK_HOST_SHORT})
+export const getAggregations = ({subreddit,
+                                 type = agg_defaults_for_page.type,
+                                 limit = agg_defaults_for_page.limit,
+                                 sort = agg_defaults_for_page.sort,
+                                 before, after, rate_less, rate_more,
+                               }) => {
+  const params = {
+    type, subreddit, limit, sort,
+    ...(before && {before}),
+    ...(after && {after}),
+    ...(rate_less && {rate_less}),
+    ...(rate_more && {rate_more}),
+  }
+  return flaskQuery({path: aggregationsPath, params, host: REVEDDIT_FLASK_HOST_SHORT})
 }
 
 export const getAggregationsURL = ({subreddit, type = agg_defaults_for_page.type, limit = agg_defaults_for_page.limit, sort = agg_defaults_for_page.sort}) => {

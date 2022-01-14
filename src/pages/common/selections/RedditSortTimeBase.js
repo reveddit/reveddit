@@ -1,6 +1,7 @@
 import React from 'react'
 import { connect, create_qparams, adjust_qparams_for_selection } from 'state'
 import { Selection } from './SelectionBase'
+import { clearPaginationParams } from 'components/Pagination'
 
 const types = {
   user: {
@@ -39,6 +40,8 @@ const RedditSortTimeBase = ({global, page_type, globalVarName, ...selectionProps
   const selectedValue = global.state[globalVarName]
   const sortIsHotOrControversial = ['top', 'controversial'].includes(global.state.sort)
   const queryParams = create_qparams()
+  // clear params for aggregations pages
+  clearPaginationParams(queryParams)
   return (
     <Selection {...selectionProps}>
       {

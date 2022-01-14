@@ -5,28 +5,38 @@ import { connect, create_qparams } from 'state'
 
 
 const before_param = 'before', after_param = 'after'
-const opposite = {[after_param]: before_param, [before_param]: after_param}
-const params = [before_param, after_param]
+const rate_less_param = 'rate_less', rate_more_param = 'rate_more'
+const params = [before_param, after_param, rate_less_param, rate_more_param]
+
 
 const timestampPagination_page_types =
-  ['search', 'subreddit_posts', 'subreddit_comments', 'duplicate_posts', 'domain_posts']
+  ['search', 'subreddit_posts', 'subreddit_comments', 'duplicate_posts', 'domain_posts', 'aggregations']
 
 const createNavHref = (param, value) => {
   const queryParams = create_qparams()
-  queryParams.delete(opposite[param])
+  clearPaginationParams(queryParams)
   queryParams.set(param, value)
   return queryParams.toString()
+}
+
+export const clearPaginationParams = (queryParams) => {
+  for (const p of params) {
+    queryParams.delete(p)
+  }
 }
 
 const Pagination = ({bottom, subreddit, page_type, global, children}) => {
   let content = <>{children}</>
   let prev, next
   const {loading, frontPage, items, oldestTimestamp, newestTimestamp,
-         paginationMeta,
+         paginationMeta, sort, rate_least, rate_most,
         } = global.state
   const current_searchParams = create_qparams()
-  const useTimestampPagination = oldestTimestamp &&
-    (timestampPagination_page_types.includes(page_type) || (page_type === 'info' && current_searchParams.has('url')))
+  const isAggregationsTopSort = page_type === 'aggregations' && sort === 'top' && rate_least != null
+  const useTimestampPagination = (
+    (oldestTimestamp || isAggregationsTopSort)
+    &&
+    (timestampPagination_page_types.includes(page_type) || (page_type === 'info' && current_searchParams.has('url'))))
   const usingRemovedditAPI = frontPage || subreddit === 'all'
   if (paginationMeta || useTimestampPagination || usingRemovedditAPI) {
     if (paginationMeta || usingRemovedditAPI) {
@@ -44,8 +54,13 @@ const Pagination = ({bottom, subreddit, page_type, global, children}) => {
         }
       }
     } else if (useTimestampPagination) {
-      next = createNavHref(before_param, oldestTimestamp)
-      prev = createNavHref(after_param, newestTimestamp)
+      if (isAggregationsTopSort) {
+        next = createNavHref(rate_less_param, rate_least)
+        prev = createNavHref(rate_more_param, rate_most)
+      } else {
+        next = createNavHref(before_param, oldestTimestamp)
+        prev = createNavHref(after_param, newestTimestamp)
+      }
     }
     const buttons = prev || next ?
       <div className={`non-item pagination ${bottom ? 'bottom' : ''}`}>
