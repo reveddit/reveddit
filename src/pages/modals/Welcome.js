@@ -1,6 +1,6 @@
 import React from 'react'
 import BlankUser from 'components/BlankUser'
-import {ExtensionLink} from 'components/Misc'
+import {ExtensionLink, SocialLinks } from 'components/Misc'
 import Highlight from 'pages/common/Highlight'
 
 export default () => {
@@ -11,6 +11,7 @@ export default () => {
         <ExtensionLink image={true}/>
       </div>
       <Highlight showMobile={true}/>
+      <SocialLinks/>
     </>
   )
 }

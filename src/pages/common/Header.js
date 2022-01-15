@@ -2,7 +2,7 @@ import React from 'react'
 import { Link, Redirect } from 'react-router-dom'
 import { connect } from 'state'
 import { get, put } from 'utils'
-import { Shuffle } from 'pages/common/svg'
+import { Shuffle, TwitterWhite } from 'pages/common/svg'
 
 const getEntityName = (params) => {
   const { user, subreddit = '', domain = ''} = params
@@ -143,6 +143,8 @@ class Header extends React.Component {
               <Link to="/about/faq/">F.A.Q.</Link>
               <span> | </span>
               <Link to="/add-ons/">add-ons</Link>
+              <span> | </span>
+              <TwitterWhite/>
             </div>
             {value &&
               <div id='subheading'>

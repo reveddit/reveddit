@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react'
 import {www_reddit, old_reddit} from 'api/reddit'
-import { QuestionMark } from 'pages/common/svg'
+import { QuestionMark, TwitterBlue } from 'pages/common/svg'
 import ModalContext from 'contexts/modal'
 import Bowser from 'bowser'
 import {ext_urls, jumpToHash, copyLink, SimpleURLSearchParams} from 'utils'
@@ -200,4 +200,13 @@ export const ShareLink = ({href, useHref=true}) => {
     </div>
   )
 
+}
+
+export const SocialLinks = () => {
+  return (
+    <div style={{textAlign:'center', marginTop:'10px'}}>
+      <TwitterBlue wh='20' style={{marginRight:'25px'}}/>
+      <NewWindowLink reddit='/r/reveddit'>r/reveddit</NewWindowLink>
+    </div>
+  )
 }

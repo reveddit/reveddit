@@ -8,6 +8,7 @@ import Settings from 'pages/modals/Settings'
 import ActionHelp from 'pages/modals/ActionHelp'
 import { Banned } from 'pages/modals/Misc'
 import { ModalProvider } from 'contexts/modal'
+import { SocialLinks } from 'components/Misc'
 
 Modal.setAppElement('#app')
 
@@ -132,6 +133,7 @@ class DefaultLayout extends React.Component {
               <ModalProvider value={{openModal: this.openGenericModal, closeModal: this.closeGenericModal}}>
                 <Component {...matchProps} {...rest} openGenericModal={this.openGenericModal}/>
               </ModalProvider>
+              <SocialLinks/>
             </div>
           </React.Fragment>
         )
