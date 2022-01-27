@@ -16,7 +16,7 @@ import { Spin } from 'components/Misc'
 import { NewWindowLink } from 'components/Misc'
 
 const hidePinPostNotice_var = 'hidePinPostNotice'
-const pinPostLink = '/user/me/submit?title=See+which+comments+of+yours+have+been+removed&url=https%3A%2F%2Fwww.reveddit.com%2Fabout%2F'
+export const pinPostLink = '/user/me/submit?title=See+which+comments+of+yours+have+been+removed&url=https%3A%2F%2Fwww.reveddit.com%2Fabout%2F'
 
 const dismiss = () => {
   put(hidePinPostNotice_var, true)

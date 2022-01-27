@@ -2,17 +2,19 @@ import React from 'react'
 import { InternalPage, NewWindowLink } from 'components/Misc'
 import { Link } from 'react-router-dom'
 import {ExtensionLink, MessageMods, SamePageHashLink} from 'components/Misc'
+import {TwitterLink} from 'pages/common/svg'
 import {ContentWithHeader} from 'pages/about'
 import { unarchived_search_help_content, unarchived_search_button_word, unarchived_search_button_word_code } from 'data_processing/RestoreComment'
 import { unarchived_label_text } from 'pages/common/RemovedBy'
 import {shuffle} from 'utils'
 import {www_reddit} from 'api/reddit'
 import {NewsItem} from 'pages/about'
+import {pinPostLink} from 'pages/user'
 import Time from 'pages/common/Time'
 
 const reasons = [
   <li key='m'>In many cases, reddit sends no message about removals. Messages can <i>optionally</i> be sent by subreddit moderators.</li>,
-  <li key='i'>Reddit shows you your removed comments, and sometimes posts, as if they are not removed.<div style={{textAlign:'center'}}><img src="/images/removed-views.png" style={{maxWidth:'100%'}}/></div></li>
+  <li key='i'>Reddit shows you your removed comments, and sometimes posts<SamePageHashLink id='reddit-does-not-say-post-removed'><sup>2</sup></SamePageHashLink>, as if they are not removed.<div style={{textAlign:'center'}}><img src="/images/removed-views.png" style={{maxWidth:'100%'}}/></div></li>
 ]
 const cantSayAnything_modlogConfig = '/r/CantSayAnything/wiki/modlog_config'
 const unarchived_search_button_word_lc = unarchived_search_button_word.toLowerCase()
@@ -154,6 +156,11 @@ const About_faq = () => {
         <p>The archive service on which reveddit relies changed its comment retention behavior around September 2021. As a result, now comments in threads may not be visible after about 1.5 days. <NewWindowLink reddit='/pgzf7g'>This post</NewWindowLink> explains what is going on. That change does not impact <ExtensionLink/> or user pages on reveddit.</p>
         <h3>III. Collapsed comments on user pages</h3>
         <p>Collapsed comments may or may not be marked on user pages. It seems to work for some accounts and not for others. See <NewWindowLink reddit='/qgajxq'>here</NewWindowLink> for more info.</p>
+      </ContentWithHeader>
+      <ContentWithHeader header='How can I share it?' id='share'>
+        <p>
+          Tell people that <em>reviewable moderation</em> is important. You can <TwitterLink>tweet</TwitterLink> about it, <NewWindowLink old={true} reddit={pinPostLink}>pin it</NewWindowLink> to your reddit profile, and post or comment in a subreddit as <SamePageHashLink id='react'>many others have done</SamePageHashLink>.
+        </p>
       </ContentWithHeader>
     </InternalPage>
   )
