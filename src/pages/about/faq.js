@@ -66,11 +66,9 @@ const About_faq = () => {
         <p>
           Moderators may also silently ban users from a subreddit using what Reddit's Automoderator docs call a <NewWindowLink reddit='/r/AutoModerator/wiki/library#wiki_user_bot_ban_list'>"bot ban"</NewWindowLink>:
         </p>
-        <p>
-          <blockquote>
-            With a bot ban, <em>some</em> users won't realize they've been banned.
-          </blockquote>
-        </p>
+        <blockquote>
+          With a bot ban, <em>some</em> users won't realize they've been banned.
+        </blockquote>
       </ContentWithHeader>
       <ContentWithHeader header='Can I be notified of removals?' id='extension'>
         <p>Yes, <ExtensionLink/> notifies you when any of your content on reddit has been removed.</p>
