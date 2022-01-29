@@ -155,6 +155,17 @@ const About_faq = () => {
         <h3>III. Collapsed comments on user pages</h3>
         <p>Collapsed comments may or may not be marked on user pages. It seems to work for some accounts and not for others. See <NewWindowLink reddit='/qgajxq'>here</NewWindowLink> for more info.</p>
       </ContentWithHeader>
+      <ContentWithHeader header="Why haven't I heard about this?" id='share'>
+        <p>
+          Subreddits such as LifeProTips, todayilearned, and YouShouldKnow <NewWindowLink href='/info/?id=t3_peya4z,t3_jzyx2t,t3_eulr25,t3_eovmxf,t3_dbad5a,t3_cullyo,t3_cs9hsb,t3_crrf7u,t3_fr65qj,t3_gdxli5,t3_gnt7vc,t3_geravh,t3_h0lp80,t3_hl4mj7,t3_f7sbyx,t3_evedjn,t3_bdauo6,t3_ak4m28,t3_a7nnxs,t3_9ikef8,t3_5l8ls1,t3_5jum2v'>rarely approve</NewWindowLink> posts about sites like reveddit because of rules against posts related to software, social media, or self-promotion. And, in most subreddits the site is considered off-topic as a top-level post.
+        </p>
+        <p>
+          Sometimes reddit's spam filter <NewWindowLink href='/info/?id=t3_oqwg44,t3_rr0z7x,t3_see2yw,t3_or2hru,t3_o5d5yg,t3_lh6ghm'>marks such posts as spam</NewWindowLink>.
+        </p>
+        <p>
+          Places where reveddit has been successfully shared are <SamePageHashLink id='react'>listed here</SamePageHashLink>.
+        </p>
+      </ContentWithHeader>
       <ContentWithHeader header='How can I share it?' id='share'>
         <p>
           Tell people that <em>reviewable moderation</em> is important. You can <TwitterLink>tweet</TwitterLink> about it, <NewWindowLink old={true} reddit={pinPostLink}>pin it</NewWindowLink> to your reddit profile, and post or comment in a subreddit as <SamePageHashLink id='react'>many others have done</SamePageHashLink>.
