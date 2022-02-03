@@ -1,6 +1,7 @@
 import React, {useEffect} from 'react'
 import {ext_urls, makeDonateVisible, copyLink} from 'utils'
-import { iOS_shortcut_link, InternalPage, abcd} from 'components/Misc'
+import { iOS_shortcut_link, InternalPage} from 'components/Misc'
+
 
 export const meta = {
   'chrome': {
@@ -15,6 +16,8 @@ export const meta = {
     img: '/images/ext-subscribe.png',
   }
 }
+
+export const bookmarklet = <a ref={node => node && node.setAttribute('href', 'javascript: if (location.hostname.match(/reddit\.com$/)) {location.host = "reveddit.com";}')}>reveddit</a>
 
 const rev = 'Reveddit '
 
@@ -41,8 +44,8 @@ export default () => {
       description: <p>Shows the account age and karma for all accounts on reddit pages.</p>
     },
     ios_shortcut: {
-      title: 'iOS Shortcut',
-      description: iOS_shortcut_link,
+      title: 'Miscellaneous',
+      description: <ul><li>{iOS_shortcut_link}</li><li>{bookmarklet} bookmarklet</li></ul>,
       not_an_extension: true,
     },
   }

@@ -11,6 +11,7 @@ import {www_reddit} from 'api/reddit'
 import {NewsItem} from 'pages/about'
 import {pinPostLink} from 'pages/user'
 import Time from 'pages/common/Time'
+import { bookmarklet } from 'pages/about/AddOns'
 
 const reasons = [
   <li key='m'>In many cases, reddit sends no message about removals. Messages can <i>optionally</i> be sent by subreddit moderators.</li>,
@@ -39,6 +40,7 @@ const add_modlogs_message = <MessageMods innerText='pre-filled message'
 const suppressedRemovalNoticeLink = '/r/ModSupport/comments/e6llgl/sorry_this_post_was_removed_by_reddits_spam/f9rbryk/'
 const id_doesntSayPostRemoved = 'reddit-does-not-say-post-removed'
 const old_removed_post = '/r/ProgrammerHumor/comments/9emzhp/turk_tv_found_the_reason_for_chromes_memory_usage/'
+
 
 const About_faq = () => {
   return (
@@ -74,7 +76,7 @@ const About_faq = () => {
         <p>Yes, <ExtensionLink/> notifies you when any of your content on reddit has been removed.</p>
       </ContentWithHeader>
       <ContentWithHeader header='How can I switch between sites?' id='linker-extension'>
-        <p><ExtensionLink extensionID='linker'/> adds a button that lets you alternate between reddit and reveddit. The button is also accessible by right-clicking a link. Find <Link to='/add-ons/'>more add-ons here</Link>.</p>
+        <p><ExtensionLink extensionID='linker'/> adds buttons that let you alternate between reddit and reveddit. Alternatively, you can drag the bookmarklet {bookmarklet} to your bookmarks bar. Find <Link to='/add-ons/'>more add-ons here</Link>.</p>
       </ContentWithHeader>
       <ContentWithHeader header='How do people react?' id='react'>
         <p>Here are some examples of how people react when they discover the way reddit handles removals:</p>
