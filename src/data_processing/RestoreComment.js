@@ -282,7 +282,7 @@ const RestoreComment = (props) => {
   //  loading && needToFindAuthors (! aug) => show spin
   //  loading && ! needToFindAuthors (aug)
   //     hasAuthors => show spin
-  //     noAuthors => show nothing
+  //     noAuthors => show spin (used to be "show nothing", but new logic may also search ps again)
   //  ! loading && hasAuthors => show button
   //  ! loading && noAuthors => show nothing
   const numAuthorsRemaining = countRemaining({alreadySearchedAuthors})
@@ -297,9 +297,9 @@ const RestoreComment = (props) => {
   )
   if (loading) {
     const cancel = searchAll ? <a className={buttonClasses} style={{marginLeft:'5px'}} onClick={() => setSearchAll(false)}>cancel</a> : <></>
-    if (! meta.aug || meta.aug.length()) {
-      searchButton = <Wrap><Spin width='20px'/>{cancel}{numAuthorsRemainingDiv}</Wrap>
-    }
+//    if (! meta.aug || meta.aug.length()) {
+    searchButton = <Wrap><Spin width='20px'/>{cancel}{numAuthorsRemainingDiv}</Wrap>
+//    }
   } else if ((meta.aug?.length() && numAuthorsRemaining)
             || canRunArchiveSearch || canRunWaybackSearch) {
     searchButton = (
