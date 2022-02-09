@@ -14,9 +14,9 @@ import Highlight from 'pages/common/Highlight'
 import ModalContext from 'contexts/modal'
 import { Spin } from 'components/Misc'
 import { NewWindowLink } from 'components/Misc'
+import {pinPostLink} from 'pages/about/faq'
 
 const hidePinPostNotice_var = 'hidePinPostNotice'
-export const pinPostLink = '/user/me/submit?title=See+which+comments+of+yours+have+been+removed&url=https%3A%2F%2Fwww.reveddit.com%2Fabout%2F'
 
 const dismiss = () => {
   put(hidePinPostNotice_var, true)

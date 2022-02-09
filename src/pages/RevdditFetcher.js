@@ -29,6 +29,7 @@ import {meta} from 'pages/about/AddOns'
 import Notice from 'pages/common/Notice'
 import Time from 'pages/common/Time'
 import {RedditOrLocalLink} from 'components/Misc'
+import {FaqLink} from 'pages/about/faq'
 
 const CAT_SUBREDDIT = {category: 'subreddit',
                        category_title: 'Subreddit',
@@ -638,7 +639,7 @@ const GenericPostProcessor = connect((props) => {
     if (submissionsMsg || commentsMsg) {
       const updated = getPrettyDate(archiveTimes.updated)
       const archive_delay_help = (<>
-        <p><strong>Delay</strong> indicates the archival process, called Pushshift, is behind due to a high volume of reddit content. <RedditOrLocalLink to='/about/faq/#unarchived'>more info</RedditOrLocalLink></p>
+        <p><strong>Delay</strong> indicates the archival process, called Pushshift, is behind due to a high volume of reddit content. Pushshift may also fail to archive some content. See <FaqLink id='unarchived'></FaqLink></p>
         <p><strong>Time until overwrite</strong> indicates how long comments are visible until they may be overwritten. See <RedditOrLocalLink reddit='/pgzdav'>API rewrites</RedditOrLocalLink> for more info.</p>
         {starred ? <p>* The comment delay comes from the status of Pushshift's beta API.</p> : <></>}
         <p>See <a href='/info'>/info</a> for the complete status.</p>
