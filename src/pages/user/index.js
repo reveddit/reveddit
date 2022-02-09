@@ -121,7 +121,7 @@ const User = ({match, global, page_type, viewableItems, selections, summary, not
           {notShownMsg}
           { removedCommentsLink &&
             <Notice message={<>Some comments have been removed. To view that on reddit, open <NewWindowLink reddit={removedCommentsLink}>this link</NewWindowLink> in an incognito window or while logged out. Note: <Link to='/about/faq/#user-deleted'>user-deleted content</Link> does not appear on reveddit.</>}
-              htmlLink={<NewWindowLink reddit={removedCommentsLink}>view removed comments on reddit</NewWindowLink>}
+              htmlLink={<NewWindowLink old={true} reddit={removedCommentsLink}>view removed comments on reddit</NewWindowLink>}
             />
           }
           {selectedItems &&
