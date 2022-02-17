@@ -38,11 +38,11 @@ export const ContentWithHeader = ({header, children, half, id}) => {
   )
 }
 
-export const NewsItem = ({to, title, created_utc, newsText = '', ...props}) => {
+export const NewsItem = ({to, title, created_utc, newsText = '', timePrefix = '', ...props}) => {
   const link = (props.href || props.reddit) ? <NewWindowLink {...props}>{title}</NewWindowLink> : <Link to={to}>{title}</Link>
   const blurb = newsText ? <li><span style={{fontStyle:'italic'}}>...{newsText}</span></li> : <></>
   return <li>{link}
-    <ul>{blurb}<li><Time created_utc={created_utc} {...props}/></li></ul></li>
+    <ul>{blurb}<li>{timePrefix}<Time created_utc={created_utc} {...props}/></li></ul></li>
 }
 
 const news = [

@@ -204,6 +204,22 @@ const questions = {
         Tell people that <em>reviewable moderation</em> is important. You can <TwitterLink>tweet</TwitterLink> about it, <NewWindowLink old={true} reddit={pinPostLink}>pin it</NewWindowLink> to your reddit profile, and post or comment in a subreddit as <SamePageHashLink id='react'>many others have done</SamePageHashLink>.
       </p>
   </>},
+  altered: {
+    header: "How else does reddit appear differently for me?",
+    content: <>
+      <p>As of January 2022, "blocking" allows users to prevent other users from seeing or replying to their content. See the following posts for more information:</p>
+      <ul className='news'>
+        <NewsItem created_utc='1642523415' timePrefix='r/blog ' title='Announcing Blocking Updates' reddit='/r/blog/comments/s71g03/announcing_blocking_updates'/>
+        <NewsItem created_utc='1643221832' timePrefix='r/TheoryOfReddit ' title="Reddit's new block feature and its effects on spreading misinformation and propaganda." reddit='/r/TheoryOfReddit/comments/sdcsx3/testing_reddits_new_block_feature_and_its_effects'/>
+        <NewsItem created_utc='1643209440' timePrefix='r/ModSupport ' title='We need to talk about people weaponizing the block feature.' reddit='/r/ModSupport/comments/sd7zsa/we_need_to_talk_about_people_weaponizing_the'/>
+        <NewsItem created_utc='1643777017' timePrefix='r/bestof ' title="...a major flaw" reddit='r/bestof/comments/sifqkr/uconversationcold8641_tests_out_reddits_new'/>
+        <NewsItem created_utc='1643073643' timePrefix='r/Austin ' title="...it's easily abusable by trolls and misinformation spreaders" reddit='/r/Austin/comments/sc18ob/dear_mods_please_complain_about_the_new_blocking'/>
+        <NewsItem created_utc='1643583564' timePrefix='r/help ' title='...it gives trolls and users spreading harmful misinformation an enormous amount of power.' reddit='/r/help/comments/sglh3q/block_feature_constantly_being_abused_how_do_we'/>
+        <NewsItem created_utc='1643818294' timePrefix='r/skeptic ' title="...reddit's new block feature is a nightmare that trolls can use" reddit='/r/skeptic/comments/sisg8l/given_reddits_new_block_feature_is_a_nightmare'/>
+        <NewsItem created_utc='1642972951' timePrefix='r/Scotland ' title='This sub is about to devolve into two echo Chambers' reddit='/r/Scotland/comments/sb49rj/this_sub_is_about_to_devolve_into_two_echo'/>
+        <NewsItem created_utc='1643319787' timePrefix='r/mormon ' title='...I think it will destroy reddit communities' reddit='/r/mormon/comments/se9ixe/new_blocking_function_for_reddit'/>
+      </ul>
+    </>},
 }
 
 export const FaqLink = ({id, children}) => <RedditOrLocalLink to={'/about/faq/#'+id}>{children ? children : <em>{questions[id].header}</em>}</RedditOrLocalLink>
