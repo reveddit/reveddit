@@ -614,7 +614,7 @@ const GenericPostProcessor = connect((props) => {
   const notShownMsg = <>{numOrphanedNotShownMsg}{numCollapsedNotShownMsg}</>
   let archiveDelayMsg = ''
   if (archiveTimes && (archiveTimes_isCurrent(archiveTimes) || page_type === 'info') ) {
-    let commentsMsg = '', submissionsMsg = ''
+    let commentsMsg = '', submissionsMsg = '', offlineMsg = ''
     const archiveTime_comment = Math.max(archiveTimes.comment, archiveTimes.beta_comment)
     const starred = (archiveTime_comment === archiveTimes.beta_comment && archiveTimes.updated - archiveTimes.comment > normalArchiveDelay)
     if (page_type === 'info' ||
@@ -636,6 +636,16 @@ const GenericPostProcessor = connect((props) => {
       }
       commentsMsg = <>{commentsMsg}<Time noAgo={true} pretty={getPrettyTimeLength(archiveTimes.time_to_comment_overwrite)} suffix=' until overwrite'/></>
     }
+    if (! archiveTimes_isCurrent(archiveTimes)) {
+      offlineMsg = <>
+        <div className='container offlineMsg'>
+          <div className='label'>OFFLINE</div>
+          <Time prefix='last seen ' created_utc={archiveTimes.updated}/>
+          {submissionsMsg}
+        </div>
+        <div></div>
+      </>
+    }
     if (submissionsMsg || commentsMsg) {
       const updated = getPrettyDate(archiveTimes.updated)
       const archive_delay_help = (<>
@@ -646,7 +656,7 @@ const GenericPostProcessor = connect((props) => {
       </>)
       archiveDelayMsg =
         <Notice className='delay' title='archive status' detail={'as of '+updated} help={archive_delay_help}
-          message = {<div className='container'>{submissionsMsg}{commentsMsg}</div>} />
+          message = {<>{offlineMsg}<div className={'container ' + (offlineMsg ? 'offline' : '')}>{submissionsMsg}{commentsMsg}</div></>} />
     }
   }
   return (
@@ -666,8 +676,8 @@ const GenericPostProcessor = connect((props) => {
 
 const gridLabel = (label, created_utc, updated, starred=false) => {
   return <>
-    <div className='label'>{label}</div>
-    <Time noAgo={true} created_utc={created_utc}
+    <div className={'label '+label}>{label}</div>
+    <Time className={label} noAgo={true} created_utc={created_utc}
           pretty={getPrettyTimeLength(updated - created_utc) + (starred ? '*' : '')}
           suffix = ' delay'
     />
