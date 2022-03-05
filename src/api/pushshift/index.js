@@ -304,6 +304,7 @@ export const getAutoremovedItems = names => {
 
 
 // api.pushshift.io currently only returns results with q=* specified and that limits result size to 100
+export const commentsByThreadReturnValueDefaults = { comments: {}, last: undefined }
 export const getCommentsByThread = (link_id, after='') => {
   const queryParams = {
     link_id,
@@ -326,6 +327,6 @@ export const getCommentsByThread = (link_id, after='') => {
         last = comment.created_utc
         return map
       }, {})
-      return {comments, last}
+      return {comments, last} // if this changes, update commentsByThreadReturnValueDefaults above
     })
 }

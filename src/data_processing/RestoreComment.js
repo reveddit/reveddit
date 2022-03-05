@@ -8,7 +8,7 @@ import { kindsReverse, queryUserPage } from 'api/reddit'
 import { getWaybackComments } from 'api/reveddit'
 import { Spin, QuestionMarkModal, Help, NewWindowLink, ModalWithButton, buttonClasses } from 'components/Misc'
 import { copyFields, initializeComment, retrieveRedditComments_and_combineWithPushshiftComments } from 'data_processing/comments'
-import { createCommentTree } from 'data_processing/thread'
+import { createCommentTree, ignoreArchiveErrors_comments } from 'data_processing/thread'
 import { RestoreIcon } from 'pages/common/svg'
 import { getAuth } from 'api/reddit/auth'
 import { getCommentsByThread as getPushshiftCommentsByThread } from 'api/pushshift'
@@ -222,7 +222,7 @@ const RestoreComment = (props) => {
     const targetNotFound = () => (! itemsLookup[id] || commentIsRemoved(itemsLookup[id]))
     // ! retrieved_on means it hasn't been looked up in the archive yet
     if (canRunArchiveSearch) {
-      const {comments: pushshiftComments} = await getPushshiftCommentsByThread(threadPost.id, this_query_ps_after)
+      const {comments: pushshiftComments} = await getPushshiftCommentsByThread(threadPost.id, this_query_ps_after).catch(ignoreArchiveErrors_comments)
       let new_ps_after = ps_after
       for (const c of Object.values(pushshiftComments)) {
         const currentCommentState = itemsLookup[c.id]
