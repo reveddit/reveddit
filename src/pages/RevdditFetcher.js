@@ -410,6 +410,7 @@ export const withFetch = (WrappedComponent) =>
                 <li>temporary network outage</li>
                 <li>the page contains <span className='quarantined'>quarantined</span> content that requires a <a href={ext_urls.rt.c}>Chrome</a> or <a href={ext_urls.rt.f}>Firefox</a> extension to view accurately.</li>
               </ul>
+              <p>See <a href='/info'>/info</a> for the archive status.</p>
             </>
         }
         this.props.openGenericModal({content})
