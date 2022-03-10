@@ -649,7 +649,22 @@ const GenericPostProcessor = connect((props) => {
     }
     if (submissionsMsg || commentsMsg) {
       const updated = getPrettyDate(archiveTimes.updated)
+      let modal_status_summary = <></>
+      if (archiveTimes.last_down_time) {
+        const modal_status_items = []
+        if (archiveTimes.last_down_time < archiveTimes.updated) {
+          modal_status_items.push(<>online since <Time created_utc={archiveTimes.last_down_time}/></>)
+          if (archiveTimes.last_up_time_before_down_time) {
+            modal_status_items.push(<>duration of last outage: <Time noAgo={true}
+              pretty={getPrettyTimeLength(archiveTimes.last_down_time - archiveTimes.last_up_time_before_down_time)}/></>)
+          }
+        } else {
+          modal_status_items.push(<Time prefix='inaccessible since ' created_utc={archiveTimes.updated}/>)
+        }
+        modal_status_summary = <><strong>status</strong><ul>{modal_status_items.map((el, i) => <li key={i}>{el}</li>)}</ul></>
+      }
       const archive_delay_help = (<>
+        {modal_status_summary}
         <p><strong>Delay</strong> indicates the archival process, called Pushshift, is behind due to a high volume of reddit content. Pushshift may also fail to archive some content. See <FaqLink id='unarchived'></FaqLink></p>
         <p><strong>Time until overwrite</strong> indicates how long comments are visible until they may be overwritten. See <RedditOrLocalLink reddit='/pgzdav'>API rewrites</RedditOrLocalLink> for more info.</p>
         {starred ? <p>* The comment delay comes from the status of Pushshift's beta API.</p> : <></>}
