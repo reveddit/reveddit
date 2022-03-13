@@ -25,19 +25,19 @@ const publicmodlogs = <NewWindowLink reddit='/user/publicmodlogs'>u/publicmodlog
 const modlogs = <NewWindowLink reddit='/user/modlogs'>u/modlogs</NewWindowLink>
 const modlogs_example = <NewWindowLink reddit={cantSayAnything_modlogConfig}>{cantSayAnything_modlogConfig}</NewWindowLink>
 const add_mod = 'add this bot as a moderator'
-const control = 'gives more control over what is shared'
+const control = 'lets you fine-tune what is shared'
 const modlogs_example_string = `[${cantSayAnything_modlogConfig}](${www_reddit}${cantSayAnything_modlogConfig})`
 const modlogs_detail = `${add_mod}, give it wiki permissions, and create a config page such as`
 const modlogs_detail_suffix = 'The bot will not have access to the AutoModerator config as that requires the "Manage Settings" permission.'
-const publicmodlogs_detail = `${add_mod} with no permissions. Note that this option also exposes modmail in publicly accessible json/rss feeds via the inbox of u/publicmodlogs.`
+const publicmodlogs_detail = `${add_mod} with no permissions.`
 const add_modlogs_message = <MessageMods innerText='pre-filled message'
   message_subject='Will you show context for removed content?'
   message_body={
     'Dear mods,\n\n'
-    +`Would you turn on mod logs so users can see the context of removed content? There are two ways to do this, u/modlogs and u/publicmodlogs. The former ${control},\n\n`
+    +`Would you turn on mod logs so users can see the context of removed content? There are two ways to do this, u/publicmodlogs and u/modlogs. The latter ${control},\n\n`
+    +`* for u/publicmodlogs: ${publicmodlogs_detail}\n`
     +`* for u/modlogs: ${modlogs_detail} ${modlogs_example_string}. ${modlogs_detail_suffix}\n`
-    +`* for u/publicmodlogs: ${publicmodlogs_detail}\n\n`
-    +'Thank you.'
+    +'\nThank you.'
 }/>
 const suppressedRemovalNoticeLink = '/r/ModSupport/comments/e6llgl/sorry_this_post_was_removed_by_reddits_spam/f9rbryk/'
 const id_doesntSayPostRemoved = 'reddit-does-not-say-post-removed'
@@ -149,8 +149,8 @@ const questions = {
       <p>Some subreddits publish their mod logs through {modlogs} or {publicmodlogs}. Reveddit merges information from these sources when possible. Clicking the <code>[removed] by</code> label on reveddit may show more details such as the mod's name and a reason.</p>
       <p>Using this {add_modlogs_message}, you can ask mods to make logs available. {modlogs} {control}. To set it up on a subreddit you moderate,</p>
       <ul>
-        <li>for {modlogs}: {modlogs_detail} {modlogs_example}. {modlogs_detail_suffix}</li>
         <li>for {publicmodlogs}: {publicmodlogs_detail}</li>
+        <li>for {modlogs}: {modlogs_detail} {modlogs_example}. {modlogs_detail_suffix}</li>
       </ul>
       <p>You can inquire about a specific post or comment using the <code>message mods</code> button. This prepares a pre-filled message to the subreddit's moderators.</p>
       <p>Removal reasons may also appear in flair or in a message on the new reddit layout.</p>
