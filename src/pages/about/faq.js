@@ -146,14 +146,13 @@ const questions = {
   'removal-reason': {
     header: 'How can I find out why something was removed?',
     content: <>
-      <p>Some subreddits publish their mod logs through {modlogs} or {publicmodlogs}. Reveddit merges information from these sources when possible. Clicking the <code>[removed] by</code> label on reveddit may show more details such as the mod's name and a reason.</p>
+      <p>You can inquire about a specific post or comment using the <code>message mods</code> button. This prepares a pre-filled message to the subreddit's moderators. A post's removal reason may appear in its flair or in a message on the new reddit layout.</p>
+      <p>In addition, some subreddits publish their mod logs through {modlogs} or {publicmodlogs}. Reveddit merges information from these sources when possible. Clicking the <code>[removed] by</code> label on reveddit may show more details such as the mod's name and a reason.</p>
       <p>Using this {add_modlogs_message}, you can ask mods to make logs available. {modlogs} {control}. To set it up on a subreddit you moderate,</p>
       <ul>
         <li>for {publicmodlogs}: {publicmodlogs_detail}</li>
         <li>for {modlogs}: {modlogs_detail} {modlogs_example}. {modlogs_detail_suffix}</li>
       </ul>
-      <p>You can inquire about a specific post or comment using the <code>message mods</code> button. This prepares a pre-filled message to the subreddit's moderators.</p>
-      <p>Removal reasons may also appear in flair or in a message on the new reddit layout.</p>
   </>},
   unarchived: {
     header: 'Why is removed content sometimes not visible?',
