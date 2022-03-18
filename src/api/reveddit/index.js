@@ -38,6 +38,7 @@ export const getArchiveTimes = async () => {
     c: getCount(120)
   }
   return flaskQuery({path: 'archive-times/', params})
+  .catch(() => null)
 }
 
 const aggregationsPath = 'aggregations/'
