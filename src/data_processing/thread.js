@@ -156,7 +156,6 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
         post_created_utc: reddit_post.created_utc,
       })
       pushshift_comments_promise = getPushshiftCommentsByThread(threadID, after).catch(ignoreArchiveErrors_comments)
-      ps_after_set.add(after.toString())
     } else {
       reveddit_comments_promise = getCommentsByThread({
         link_id: threadID, after, root_comment_id,
@@ -249,7 +248,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     }
   }
 
-  let new_ps_after = Array.from(ps_after_set).join(',')
+  let new_ps_after = ps_after
   if (last_ps_created_utc
       && reddit_post.num_comments > num_comments_in_last_ps_query
       && num_comments_in_last_ps_query > NumPushshiftResultsConsideredAsFull) {
@@ -298,7 +297,6 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
   //         (commentIsRemoved(focusComment_pushshift)
   //           && ! focusComment_pushshift.retrieved_on))) {
   //   const focusComment_ps_after = (focusComment_reddit.created_utc - 1).toString()
-  //    ps_after_list deprecated. use ps_after_set if reimplementing this code
   //   if (! ps_after_list.includes(focusComment_ps_after)) {
   //     await schedulePsAfter(focusComment_ps_after)
   //     new_ps_after = global.get_updated_ps_after(focusComment_ps_after)
