@@ -4,7 +4,7 @@ import { sortCreatedAsc, display_post } from 'utils'
 
 export const getRevdditAggregations = async (subreddit, global) => {
   const {content: type, n: limit, sort, before, after, rate_less, rate_more} = global.state
-  const subredditAbout = await getSubredditAbout(subreddit)
+  const subredditAbout = await getSubredditAbout(subreddit).catch(() => {return {}})
   const over18 = subredditAbout.over18
   if (over18) {
     return global.returnSuccess({over18})
