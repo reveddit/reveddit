@@ -67,7 +67,7 @@
     "html-webpack-tags-plugin": "^2.0.17",
     "lodash-webpack-plugin": "^0.11.6",
     "netlify-lambda": "^1.4.13",
-    "node-sass": "^6.0.1",
+    "node-sass": "^7.0.1",
     "rimraf": "^3.0.2",
     "scroll-to-element": "^2.0.2",
     "standard": "^11.0.1",
@@ -78,12 +78,12 @@
   },
   "scripts": {
     "start-all": "concurrently \"yarn start\" \"yarn lambda-serve\"",
-    "start": "yarn build-sass; webpack serve --mode development --host 0.0.0.0",
-    "build": "yarn clean; yarn build-sass; webpack --mode production && yarn lambda-build",
+    "start": "yarn build-sass; NODE_OPTIONS=--openssl-legacy-provider webpack serve --mode development --host 0.0.0.0",
+    "build": "yarn clean; yarn build-sass; NODE_OPTIONS=--openssl-legacy-provider webpack --mode production && yarn lambda-build",
     "build-sass": "node-sass --style compressed src/sass/index.sass dist/x-files/main.css",
-    "lambda-serve": "netlify-lambda serve lambda-src",
-    "lambda-build": "netlify-lambda build lambda-src",
+    "lambda-serve": "NODE_OPTIONS=--openssl-legacy-provider netlify-lambda serve lambda-src",
+    "lambda-build": "NODE_OPTIONS=--openssl-legacy-provider netlify-lambda build lambda-src",
     "clean": "rimraf dist/x-files dist/index.html dist/*.css dist/*.js dist/*.js.map"
   },
-  "packageManager": "yarn@3.0.0"
+  "packageManager": "yarn@3.2.0"
 }
