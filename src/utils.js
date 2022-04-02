@@ -462,7 +462,7 @@ const ARCHIVE_CURRENT_MAX_AGE = 60*15
 export const archiveTimes_isCurrent = (archiveTimes) => (now - archiveTimes.updated) < ARCHIVE_CURRENT_MAX_AGE
 const OVERWRITE_BUFFER = 2*60*60
 export const time_is_in_archive_storage_window = (created_utc, archiveTimes) =>
-  ( archiveTimes.comment > created_utc &&
+  ( archiveTimes && archiveTimes.comment > created_utc &&
     created_utc > (archiveTimes.created_utc_of_most_recent_overwrite - OVERWRITE_BUFFER))
 
 export const getRemovedMessage = (props, itemType) => {

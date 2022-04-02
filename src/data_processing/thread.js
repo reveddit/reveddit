@@ -467,7 +467,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
   }
   if (remaining_removed_comment_ids.length) {
     await archive_times_promise
-    if (global.state.archiveTimes.beta_comment > oldestRemainingRemovedComment.created_utc) {
+    if (global.state.archiveTimes?.beta_comment > oldestRemainingRemovedComment.created_utc) {
       const remainingRemovedComments = await getArchivedCommentsByID(remaining_removed_comment_ids)
       combinePushshiftAndRedditComments(remainingRemovedComments, redditComments, true, reddit_post)
       Object.assign(stateObj.itemsLookup, remainingRemovedComments)
