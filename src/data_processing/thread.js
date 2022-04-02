@@ -24,7 +24,6 @@ import {
 } from 'api/common'
 import { itemIsRemovedOrDeleted, postIsDeleted, postIsRemoved, jumpToHash,
          convertPathSub, sortCreatedAsc, validAuthor, commentIsRemoved,
-         time_is_in_archive_storage_window,
 } from 'utils'
 import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
          MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED,
