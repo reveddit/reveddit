@@ -423,7 +423,14 @@ export class AddUserItem {
     }
   }
   query() {
-    return queryUserPage(this.author, this.kind || '', this.sort, this.before, this.after, this.time, this.limit || 100)
+    return queryUserPage({
+      user: this.author,
+      kind: this.kind || '',
+      sort: this.sort,
+      before: this.before,
+      after: this.after,
+      t: this.time,
+      limit: this.limit || 100})
   }
   toString() {
     return this.getOrderedProps().join(ADDUSERITEM_SEPARATOR)

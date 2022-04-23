@@ -12,7 +12,6 @@ import {
   getComments as getRedditComments,
   getPostWithComments as getRedditPostWithComments,
   getModlogsComments, getModlogsPosts,
-  queryUserPage
 } from 'api/reddit'
 import { getAuth } from 'api/reddit/auth'
 import {

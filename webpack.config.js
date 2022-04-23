@@ -14,7 +14,7 @@ const fs = require('fs')
 const LOCALHOST = 'http://localhost'
 const API_REVEDDIT = 'https://api.reveddit.com/'
 const MODLOGS_API = API_REVEDDIT+'short/modlogs/api/'
-
+let OAUTH_REDDIT_REV_USER = 'https://cred2.reveddit.com/'
 const createHashFromFile = filePath => new Promise(resolve => {
   const hash = crypto.createHash('sha1');
   fs.createReadStream(filePath).on('data', data => hash.update(data)).on('end', () => resolve(hash.digest('hex')));
@@ -53,6 +53,7 @@ module.exports = async (env, argv) => {
   if (! IS_PRODUCTION) {
     flask_host = LOCALHOST + ':5000/'
     short = '', long = ''
+    OAUTH_REDDIT_REV_USER = LOCALHOST + ':8787/'
   }
   return {
     entry: [
@@ -104,6 +105,7 @@ module.exports = async (env, argv) => {
         REVEDDIT_FLASK_HOST_LONG: JSON.stringify(flask_host+long),
         REVEDDIT_CORS_ANWHERE_HOST: JSON.stringify(cors_anywhere_host),
         U_MODLOGS_API: JSON.stringify(MODLOGS_API),
+        OAUTH_REDDIT_REV_USER: JSON.stringify(OAUTH_REDDIT_REV_USER),
       }),
       new LodashModuleReplacementPlugin,
       new HtmlWebpackPlugin({

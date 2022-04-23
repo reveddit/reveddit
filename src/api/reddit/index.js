@@ -226,45 +226,94 @@ export const kindsReverse = {
   '': '',
 }
 
-export const queryUserPage = async (user, kind, sort, before, after, t, limit = 100, host = oauth_reddit) => {
-  var params = {
+export const queryUserPageCombined = async (params) => {
+  return queryUserPage({
+    host: OAUTH_REDDIT_REV_USER,
+    include_info:true,
+    include_parents:true,
+    ...params,
+  })
+}
+
+export const queryUserPage = async ({user, kind, sort, before, after, t, limit = 100,
+  host = oauth_reddit, include_info=false, include_parents=false}) => {
+  if (! can_use_oauth_reddit_rev) {
+   host = oauth_reddit
+ }
+  const params = {
     ...(sort && {sort}),
     ...(limit && {limit}),
     ...(t && {t}),
     ...(after && {after}),
     ...(before && {before}),
   }
-  const auth = await getAuth()
-  if (! can_use_oauth_reddit_rev) {
-    host = oauth_reddit
+  if (host === OAUTH_REDDIT_REV_USER) {
+    params.include_info = include_info
+    params.include_parents = include_parents
   }
-  const fetchForHost = (host) =>
-    window.fetch(host + `user/${user}/${kinds[kind]}.json` + '?'+paramString(params), auth)
-    .then(response => response.json())
-  return fetchForHost(host)
-  .catch(e => {
+  const auth = await getAuth()
+  let response
+  try {
+    response = await window.fetch(host + `user/${user}/${kinds[kind]}.json` + '?'+paramString(params), auth)
+  } catch (e) {
     if (host !== oauth_reddit) {
       can_use_oauth_reddit_rev = false
-      return fetchForHost(oauth_reddit)
-      .catch(errorHandler)
+      return queryUserPageCombined({user, kind, ...params}) // host will be oauth_reddit for this query
     }
     errorHandler(e)
-  })
-  .then(results => {
-    if (!('data' in results)) {
-      let empty = {items: [], after: null}
-      if ('message' in results && 'error' in results) {
-        empty.message = results.message
-        empty.error = results.error
+  }
+  const json = await response.json()
+  if (host === OAUTH_REDDIT_REV_USER) {
+    return json
+  } else if (json.data?.children) {
+    let result = {}
+    let items = []
+    if (! include_info && ! include_parents) {
+      items = json.data.children.map(item => item.data)
+      result = {
+        items,
+        after: json.data.after,
       }
-      return empty
     } else {
-      return {
-        items: results.data.children.map(item => item.data),
-        after: results.data.after
+      const commentIDs = []
+      const parents_set = new Set()
+      for (const item_listing of json.data.children) {
+        const item = item_listing.data
+        items.push(item)
+        if (item.parent_id) {
+          commentIDs.push(item.name)
+          parents_set.add(item.parent_id)
+          parents_set.add(item.link_id)
+        }
+      }
+      const promises = []
+      if (include_info) {
+        promises.push(getItems(commentIDs)
+        .then(info => {
+          result.info = info
+        }))
+      }
+      if (include_parents) {
+        promises.push(getItems(Array.from(parents_set))
+        .then(parents => {
+          result.parents = parents
+        }))
+      }
+      await Promise.all(promises)
+      result.user = {
+        items,
+        after: json.data.after,
       }
     }
-  })
+    return result
+  } else {
+    let empty = {items: [], after: null}
+    if ('message' in results && 'error' in results) {
+      empty.message = results.message
+      empty.error = results.error
+    }
+    return empty
+  }
 }
 
 export const usernameAvailable = (user) => {

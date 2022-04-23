@@ -1,5 +1,5 @@
 import {
-  queryUserPage,
+  queryUserPageCombined,
   getItems as getRedditItemsByID,
   usernameAvailable,
   userPageHTML,
@@ -173,122 +173,108 @@ export const getRevdditUserItems = async (user, kind, global, isFirstTimeLoading
   })
 }
 
-function getItems (user, kind, global, sort, before = '', after = '', time, limit, all = false) {
+const getItems = async (user, kind, global, sort, before = '', after = '', time, limit, all = false) => {
   const gs = global.state
   const {commentParentsAndPosts, userCommentsByPost} = gs
   let {oldestTimestamp, newestTimestamp} = gs
-  return queryUserPage(user, kind, sort, before, after, time, limit, oauth_reddit_rev)
-  .then(async (userPageData) => {
-    if ('error' in userPageData) {
-      if (userPageData.error == 404) {
-        return usernameAvailable(user)
-        .then(result => {
-          if (result === true) {
-            global.setError({userIssueDescription: 'does not exist'})
-          } else {
-            return userPageHTML(user)
-            .then(html_result => {
-              const status = `You can also check account status at <a href="${www_reddit}/user/${user}" rel="noopener">/u/${user}</a> or <a href="${www_reddit}/r/ShadowBan" rel="noopener">/r/ShadowBan</a>.`
-              if ('error' in html_result) {
-                console.error(html_result.error)
-                global.setError({userIssueDescription: deleted_shadowbanned_notexist+verify+status})
-              } else if (html_result.html.match(/has deleted their account/)) {
-                global.setError({userIssueDescription: 'has deleted their account'})
-              } else if (html_result.html.match(/must be 18/)) {
-                global.setError({userIssueDescription: deleted_shadowbanned_notexist+verify+status})
-              } else {
-                global.setError({userIssueDescription: 'may be shadowbanned or may not exist. '+verify+status})
-              }
-              return null
-            })
-          }
-        })
-      } else if ('message' in userPageData && userPageData.message.toLowerCase() == 'forbidden') {
-        global.setError({userIssueDescription: 'suspended'})
-      }
-    }
-    const {comments: missingComments} = await missing_comments_promise
-    const num_pages = gs.num_pages+1
-    const userPage_item_lookup = {}
-    const ids = [], comment_parent_and_post_ids = {}, comments = []
-    const items = gs.items
-    userPageData.items.forEach((item, i) => {
-      userPage_item_lookup[item.name] = item
-      item.rev_position = items.length + i
-      ids.push(item.name)
-      if (! oldestTimestamp) {
-        if (! item.stickied || ! userPageData.after) {
-          oldestTimestamp = item.created_utc
+  const data = await queryUserPageCombined({user, kind, sort, before, after, t: time, limit})
+  const userPageData = data.user
+  if ('error' in data) {
+    if (data.error == 404) {
+      const avail = await usernameAvailable(user)
+      if (avail === true) {
+        global.setError({userIssueDescription: 'does not exist'})
+      } else {
+        const html_result = await userPageHTML(user)
+        const status = `You can also check account status at <a href="${www_reddit}/user/${user}" rel="noopener">/u/${user}</a> or <a href="${www_reddit}/r/ShadowBan" rel="noopener">/r/ShadowBan</a>.`
+        if ('error' in html_result) {
+          console.error(html_result.error)
+          global.setError({userIssueDescription: deleted_shadowbanned_notexist+verify+status})
+        } else if (html_result.html.match(/has deleted their account/)) {
+          global.setError({userIssueDescription: 'has deleted their account'})
+        } else if (html_result.html.match(/must be 18/)) {
+          global.setError({userIssueDescription: deleted_shadowbanned_notexist+verify+status})
+        } else {
+          global.setError({userIssueDescription: 'may be shadowbanned or may not exist. '+verify+status})
         }
-        newestTimestamp = item.created_utc
-      } else if (item.created_utc > newestTimestamp) {
-        newestTimestamp = item.created_utc
-      } else if (item.created_utc < oldestTimestamp) {
-        // item.stickied is never true here b/c stickied items appear first in the list
+      }
+      return null
+    } else if ('message' in data && data.message.toLowerCase() == 'forbidden') {
+      return global.setError({userIssueDescription: 'suspended'})
+    }
+  }
+  const {comments: missingComments} = await missing_comments_promise
+  const num_pages = gs.num_pages+1
+  const userPage_item_lookup = {}
+  const ids = [], comment_parent_and_post_ids = {}, comments = []
+  const items = gs.items
+  userPageData.items.forEach((item, i) => {
+    userPage_item_lookup[item.name] = item
+    item.rev_position = items.length + i
+    ids.push(item.name)
+    if (! oldestTimestamp) {
+      if (! item.stickied || ! userPageData.after) {
         oldestTimestamp = item.created_utc
       }
-      if (isPost(item)) {
-        item.selftext = ''
-      } else {
-        comments.push(item)
-        if (! commentParentsAndPosts[item.link_id]) {
-          comment_parent_and_post_ids[item.link_id] = true
-        }
-        if (! commentParentsAndPosts[item.parent_id]) {
-          comment_parent_and_post_ids[item.parent_id] = true
-        }
-        if (item.link_author === item.author) {
-          item.is_op = true
-        }
-        if (item.id in missingComments) {
-          setMissingCommentMeta(item, missingComments)
-        }
-        if (! userCommentsByPost[item.link_id]) {
-          userCommentsByPost[item.link_id] = []
-        }
-        userCommentsByPost[item.link_id].push(item)
+      newestTimestamp = item.created_utc
+    } else if (item.created_utc > newestTimestamp) {
+      newestTimestamp = item.created_utc
+    } else if (item.created_utc < oldestTimestamp) {
+      // item.stickied is never true here b/c stickied items appear first in the list
+      oldestTimestamp = item.created_utc
+    }
+    if (isPost(item)) {
+      item.selftext = ''
+    } else {
+      comments.push(item)
+      if (! commentParentsAndPosts[item.link_id]) {
+        comment_parent_and_post_ids[item.link_id] = true
       }
-      if (items.length > 0) {
-        const prevItem = items[items.length-1]
-        if (! prevItem.stickied) {
-          item.prev = prevItem.name
-        }
+      if (! commentParentsAndPosts[item.parent_id]) {
+        comment_parent_and_post_ids[item.parent_id] = true
       }
-      items.push(item)
-    })
-    // [...items] would be more clear here than slice() but it gives syntax error for some reason
-    items.slice().reverse().forEach((item, index, array) => {
-      if (index > 0) {
-        item.next = array[index-1].name
+      if (item.link_author === item.author) {
+        item.is_op = true
       }
-    })
-    return getAuth()
-    .then(auth => {
-      const params = ['name', auth, oauth_reddit_rev]
-      const comment_parent_and_post_promise = getRedditItemsByID(
-        Object.keys(comment_parent_and_post_ids), ...params)
-      return getRedditItemsByID(ids, ...params)
-      .then(redditInfoItems => {
-        Object.values(redditInfoItems).forEach(item => {
-          if (itemIsRemovedOrDeleted(item, false)) {
-            userPage_item_lookup[item.name].removed = true
-          }
-          userPage_item_lookup[item.name].collapsed = item.collapsed
-        })
-        return comment_parent_and_post_promise.then(commentParentsAndPosts_new => {
-          Object.assign(commentParentsAndPosts, commentParentsAndPosts_new)
-          setPostAndParentDataForComments(comments, commentParentsAndPosts)
-          return global.setState({items, num_pages, userNext: userPageData.after,
-            commentParentsAndPosts, oldestTimestamp, newestTimestamp
-          })
-          .then(() => {
-            if (userPageData.after && all) {
-              return getItems(user, kind, global, sort, '', userPageData.after, time, limit, all)
-            }
-            return userPageData.after
-          })
-        })
-      })
-    })
+      if (item.id in missingComments) {
+        setMissingCommentMeta(item, missingComments)
+      }
+      if (! userCommentsByPost[item.link_id]) {
+        userCommentsByPost[item.link_id] = []
+      }
+      userCommentsByPost[item.link_id].push(item)
+    }
+    if (items.length > 0) {
+      const prevItem = items[items.length-1]
+      if (! prevItem.stickied) {
+        item.prev = prevItem.name
+      }
+    }
+    items.push(item)
   })
+  // [...items] would be more clear here than slice() but it gives syntax error for some reason
+  items.slice().reverse().forEach((item, index, array) => {
+    if (index > 0) {
+      item.next = array[index-1].name
+    }
+  })
+  const auth = await getAuth()
+  const params = ['name', auth, oauth_reddit_rev]
+  const redditInfoItems = data.info
+  Object.values(redditInfoItems).forEach(item => {
+    if (itemIsRemovedOrDeleted(item, false)) {
+      userPage_item_lookup[item.name].removed = true
+    }
+    userPage_item_lookup[item.name].collapsed = item.collapsed
+  })
+  const commentParentsAndPosts_new = data.parents
+  Object.assign(commentParentsAndPosts, commentParentsAndPosts_new)
+  setPostAndParentDataForComments(comments, commentParentsAndPosts)
+  await global.setState({items, num_pages, userNext: userPageData.after,
+    commentParentsAndPosts, oldestTimestamp, newestTimestamp
+  })
+  if (userPageData.after && all) {
+    return getItems(user, kind, global, sort, '', userPageData.after, time, limit, all)
+  }
+  return userPageData.after
 }
