@@ -308,9 +308,9 @@ export const queryUserPage = async ({user, kind, sort, before, after, t, limit =
     return result
   } else {
     let empty = {items: [], after: null}
-    if ('message' in results && 'error' in results) {
-      empty.message = results.message
-      empty.error = results.error
+    if ('message' in json && 'error' in json) {
+      empty.message = json.message
+      empty.error = json.error
     }
     return empty
   }
