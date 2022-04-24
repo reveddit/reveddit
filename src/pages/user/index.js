@@ -102,7 +102,10 @@ const User = ({match, global, page_type, viewableItems, selections, summary, not
       htmlLink={<div><NewWindowLink old={true} reddit={pinPostLink} onClick={() => dismiss()}>create a post</NewWindowLink>, then select <a className='pointer' onClick={() => modal.openModal({content: <img style={{marginTop: '20px'}}src='/images/pin-profile.png'/>})}>pin to profile</a></div>}/>
   }
   if (removedCommentIDs.length > 0) {
-    removedCommentsLink = '/api/info?id='+removedCommentIDs.join(',')
+    removedCommentsLink = '/api/info?id='+removedCommentIDs.slice(0,100).join(',')
+  }
+  const createRemovedCommentsLink = (text) => {
+    return <NewWindowLink old={true} reddit={removedCommentsLink}>{text}</NewWindowLink>
   }
   return (
     <>
@@ -120,8 +123,8 @@ const User = ({match, global, page_type, viewableItems, selections, summary, not
           {instructionalNotice}
           {notShownMsg}
           { removedCommentsLink &&
-            <Notice message={<>Some comments have been removed. To view that on reddit, open <NewWindowLink reddit={removedCommentsLink}>this link</NewWindowLink> in an incognito window or while logged out. Note: <Link to='/about/faq/#user-deleted'>user-deleted content</Link> does not appear on reveddit.</>}
-              htmlLink={<NewWindowLink old={true} reddit={removedCommentsLink}>view removed comments on reddit</NewWindowLink>}
+            <Notice message={<>Some comments have been removed. To view that on reddit, open {createRemovedCommentsLink('this link')} in an incognito window or while logged out. Note: <Link to='/about/faq/#user-deleted'>user-deleted content</Link> does not appear on reveddit.</>}
+              htmlLink={createRemovedCommentsLink('view removed comments on reddit')}
             />
           }
           {selectedItems &&
