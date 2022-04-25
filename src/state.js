@@ -122,6 +122,7 @@ export const urlParamKeys = {
   user_time: 'user_time', // for legacy add_user code
   t: 't', sort: 'sort', sort_type: 'sort_type', limit: 'limit', show: 'show', all:'all', stickied: 'stickied', distinguished: 'distinguished',
   rate_less: 'rate_less', rate_more: 'rate_more',
+  x_subreddit: 'x_subreddit',
   ...urlParamKeys_filters_for_reset_to_show_all_items
 }
 
@@ -284,6 +285,7 @@ const initialState = {
   rate_least: undefined, rate_most: undefined,
   ...urlParamKeys_max_min_defaults,
   agg_most_recent_created_utc: undefined,
+  x_subreddit: '',
 }
 
 // pushshift max per call is now 100 (previously was 1000)

@@ -82,7 +82,8 @@ const routes = (
   <DefaultLayout path='/add-ons' component={AddOns} />
   <DefaultLayout path='/info' page_type='info' component={Info} />
   <DefaultLayout path='/search' page_type='search' component={Info} />
-  <DefaultLayout path='/random' component={Random} />
+  <DefaultLayout path='/random' component={Random} title='Find Random User'/>
+  <DefaultLayout path={PATH_STR_SUB+'/:subreddit/x'} component={Random} title='Find Random User'/>
   <DefaultLayout path={PATH_STR_SUB+'/:subreddit/history'} page_type={pageTypes.aggregations} component={Aggregations} />
   <DefaultLayout path={PATH_STR_SUB+'/:subreddit/missing-comments'} page_type={pageTypes.missing_comments} component={SubredditComments} />
   <DefaultLayout path={PATH_STR_SUB+'/:subreddit/about/sticky'} page_type='sticky' component={SubredditSticky} />

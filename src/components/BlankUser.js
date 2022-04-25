@@ -1,17 +1,23 @@
 import React, {useState} from 'react'
-import { Link, Redirect } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { SimpleURLSearchParams, useFocus } from 'utils'
 import { Shuffle } from 'pages/common/svg'
 import { LinkWithCloseModal } from 'components/Misc'
+import { useHistory } from 'react-router-dom'
 
-
+const sub_regex = /^\/?r\/([^/]+)(\/c[^/]*)?(\/[^/]+)?/
 export default () => {
   const [random, setRandom] = useState(false)
   const [input, setInput] = useState('')
   const [inputRef, setInputFocus] = useFocus()
-
+  const history = useHistory()
   if (random) {
-    return <Redirect to='/random'/>
+    const sub = input.match(sub_regex)
+    let path = '/r/all/x'
+    if (sub) {
+      path = `/r/${sub[1]}/x`
+    }
+    history.push(path)
   }
   const handleSubmitUser = (e) => {
     e.preventDefault()
@@ -26,7 +32,7 @@ export default () => {
     if (val === '') {
       setRandom(true)
     } else {
-      const sub = val.match(/^\/?r\/([^/]+)(\/c[^/]*)?(\/[^/]+)?/)
+      const sub = val.match(sub_regex)
       const domain = val.match(/^(?!https?:\/\/)([^./ ]+\.[^/ ]+)\/*$/i)
       const link = val_noamp.match(/^(?:https?:\/\/)?([^./]+\.[^/]+)\/?(.+)/i)
       if (sub) {

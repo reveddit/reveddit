@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link, Redirect } from 'react-router-dom'
+import { Link, withRouter } from 'react-router-dom'
 import { connect } from 'state'
 import { get, put } from 'utils'
 import { Shuffle, TwitterWhite } from 'pages/common/svg'
@@ -101,11 +101,14 @@ class Header extends React.Component {
     this.props.openGenericModal({hash: 'settings'})
   }
   render() {
-    if (this.state.random) {
-      return <Redirect to='/random'/>
-    }
     const props = this.props
     const { page_type } = props
+    const { x_subreddit } = props.global.state
+    if (this.state.random) {
+      const sub = x_subreddit || 'all'
+      const path = `/r/${sub}/x/`
+      props.history.push(path)
+    }
     let { user, subreddit = '', domain = ''} = props.match.params
     let path_type = '', value = '', path_suffix = '', item_type = '', display = ''
     if (['subreddit_posts','thread'].includes(page_type)) {
@@ -164,4 +167,4 @@ class Header extends React.Component {
   }
 }
 
-export default connect(Header)
+export default connect(withRouter(Header))

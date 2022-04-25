@@ -3,6 +3,7 @@ import { getAuth } from './auth'
 import { mapRedditObj, getModeratorsPostProcess,
          subredditHasModlogs, U_PUBLICMODLOGS_CODE,
 } from 'api/common'
+import { getModerators } from 'api/reveddit'
 
 const https = 'https://'
 export const oauth_reddit = https+'oauth.reddit.com/'
@@ -32,19 +33,6 @@ export const getComments = ({objects = undefined, ids = [], auth = null, useProx
 export const getPosts = ({objects = undefined, ids = [], auth = null, useProxy = false}) => {
   const full_ids = getFullIDsForObjects(objects, ids, 't3_')
   return getItems(full_ids, 'id', auth, oauth_reddit, useProxy)
-}
-
-export const getModerators = (subreddit, useProxy = false) => {
-  let host = oauth_reddit
-  if (useProxy) {
-    host = oauth_reddit_rev
-  }
-  const url = host + `r/${subreddit}/about/moderators/.json`
-  return getAuth()
-  .then(auth => window.fetch(url, auth))
-  .then(response => response.json())
-  .catch(error => {return {}})
-  .then(getModeratorsPostProcess)
 }
 
 export const getModeratedSubreddits = (user) => {
@@ -264,17 +252,26 @@ export const queryUserPage = async ({user, kind, sort, before, after, t, limit =
   }
   const json = await response.json()
   if (host === OAUTH_REDDIT_REV_USER) {
-    return json
+    if (! include_info && ! include_parents) {
+      return json.user
+    } else {
+      return json
+    }
   } else if (json.data?.children) {
-    let result = {}
     let items = []
     if (! include_info && ! include_parents) {
       items = json.data.children.map(item => item.data)
-      result = {
+      return {
         items,
         after: json.data.after,
       }
     } else {
+      const result = {
+        user: {
+          items,
+          after: json.data.after,
+        }
+      }
       const commentIDs = []
       const parents_set = new Set()
       for (const item_listing of json.data.children) {
@@ -300,10 +297,7 @@ export const queryUserPage = async ({user, kind, sort, before, after, t, limit =
         }))
       }
       await Promise.all(promises)
-      result.user = {
-        items,
-        after: json.data.after,
-      }
+      return result
     }
     return result
   } else {
@@ -415,18 +409,27 @@ export const querySearch = ({selftexts = [], urls = []}) => {
 
 }
 
-export const randomRedditor = async () => {
+const NUM_TOP_POSTS_TO_CONSIDER = 10
+export const randomRedditor = async (sub = 'all') => {
   const auth = await getAuth()
-  return get_rAll_posts(auth)
-    .then(data => data.posts[getRandomInt(data.posts.length)])
-    .then(post => selectRandomCommenter(auth, post, commentSortOptions[getRandomInt(commentSortOptions.length)]))
+  const mods_promise = getModerators(sub)
+  return querySubredditPage(sub, 'top', '', 'month', auth)
+  .then(data => {
+    const posts_with_most_comments = data.posts
+      .sort((a,b) => b.num_comments - a.num_comments)
+      .slice(0,NUM_TOP_POSTS_TO_CONSIDER)
+    const post = posts_with_most_comments[getRandomInt(posts_with_most_comments.length)]
+    return selectRandomCommenter(
+      auth,
+      post,
+      commentSortOptions[getRandomInt(commentSortOptions.length)],
+      mods_promise
+    )
+  })
 }
 
-export const get_rAll_posts = async (auth = null) => {
-  return querySubredditPage('all', 'top', '', 'day', auth)
-}
-
-export const selectRandomCommenter = async (auth, post, sort = 'new') => {
+const NUM_AUTHORS_WHEN_COMMENT_KARMA_IS_LOW = 20
+export const selectRandomCommenter = async (auth, post, sort = 'new', mods_promise) => {
   const url = oauth_reddit + `r/${post.subreddit}/comments/${post.id}.json?sort=${sort}&limit=200`
   if (! auth) {
     auth = await getAuth()
@@ -436,20 +439,19 @@ export const selectRandomCommenter = async (auth, post, sort = 'new') => {
   .then(result => result[1].data.children)
   .then(traverseComments_collectAuthors)
   .then(authors => getAuthorInfo(Object.keys(authors)))
-  .then(authorInfo => {
-    const author_keys = Object.keys(authorInfo).sort(() => Math.random() - 0.5);
-    let maxKarma = 0
-    let maxKarmaAuthor = ''
-    for (let i = 0; i < author_keys.length; i++) {
-      const author = authorInfo[author_keys[i]]
-      if (author.comment_karma >= MIN_COMMENT_KARMA) {
-        return author.name
-      } else if (author.comment_karma > maxKarma) {
-        maxKarma = author.comment_karma
-        maxKarmaAuthor = author.name
-      }
+  .then(async (authorInfo) => {
+    const mods = await Promise.resolve(mods_promise)
+    const authorsWithoutMods = Object.values(authorInfo)
+      .filter(x => ! mods[x.name])
+    let authors_with_most_comment_karma = authorsWithoutMods
+      .filter(x => x.comment_karma >= MIN_COMMENT_KARMA)
+    if (authors_with_most_comment_karma.length < 5) {
+      authors_with_most_comment_karma = authorsWithoutMods
+        .sort((a,b) => b.comment_karma - a.comment_karma)
+        .slice(0,NUM_AUTHORS_WHEN_COMMENT_KARMA_IS_LOW)
     }
-    return maxKarmaAuthor
+    const author = authors_with_most_comment_karma[getRandomInt(authors_with_most_comment_karma.length)]
+    return author.name
   })
 
 }
@@ -457,7 +459,7 @@ export const selectRandomCommenter = async (auth, post, sort = 'new') => {
 const traverseComments_collectAuthors = (comments, authors = {}) => {
   comments.forEach(child => {
     const c = child.data
-    if (c && c.author_fullname) {
+    if (c && c.author_fullname && ! c.distinguished) {
       authors[c.author_fullname] = c.author
     }
     if (c.replies && typeof c.replies === 'object' && c.replies.kind === 'Listing' && c.replies.data.children) {
