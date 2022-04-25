@@ -124,7 +124,9 @@ class App extends React.Component {
             }
             //replace double slashes // and paths that don't end in slash with a single slash
             //also convert paths ending in /.compact to /
-            let pathname = location.pathname.replace(/\/\/+|([^/])$|\/\.compact$/g, '$1/')
+            let pathname = location.pathname
+              .replace(/\/\/+|([^/])$|\/\.compact$/g, '$1/')
+              .replaceAll('\\','')
 
             //new reddit's fancy editor has a bug, when you write a URL w/out formatting and switch to markdown, it inserts a \ before all _
             //so, remove \ from add_user param (don't want to remove \ from text filter params like keywords or flair)
