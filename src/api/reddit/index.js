@@ -216,18 +216,30 @@ export const kindsReverse = {
 
 export const queryUserPageCombined = async (params) => {
   return queryUserPage({
-    host: OAUTH_REDDIT_REV_USER,
+    useProxy: true,
     include_info:true,
     include_parents:true,
     ...params,
   })
 }
 
+const getHost = (useProxy = false) => {
+  if (! useProxy || ! can_use_oauth_reddit_rev) {
+    return oauth_reddit
+  } else {
+    return OAUTH_REDDIT_REV_USER
+  }
+}
+
+const addQuarantineParam = (host, params) => {
+  if (host === OAUTH_REDDIT_REV_USER) {
+    params.quarantined = true
+  }
+}
+
 export const queryUserPage = async ({user, kind, sort, before, after, t, limit = 100,
-  host = oauth_reddit, include_info=false, include_parents=false}) => {
-  if (! can_use_oauth_reddit_rev) {
-   host = oauth_reddit
- }
+  useProxy=false, include_info=false, include_parents=false}) => {
+  const host = getHost(useProxy)
   const params = {
     ...(sort && {sort}),
     ...(limit && {limit}),
@@ -357,11 +369,11 @@ const query = async (url, auth, key, results = {}) => {
 
 // Results must include a post w/created_utc less than encompass_created_utc
 // reference on async recursion w/promises: https://blog.scottlogic.com/2017/09/14/asynchronous-recursion.html#asynchronous-recursion-with-promises
-export const querySubredditPageUntil = (sub, encompass_created_utc, after = '') => {
-  return querySubredditPage(sub, 'new', after)
+export const querySubredditPageUntil = (subreddit, encompass_created_utc, after = '') => {
+  return querySubredditPage({subreddit, sort: 'new', after})
   .then(data => {
     if (data.posts.slice(-1)[0].created_utc > encompass_created_utc && data.after) {
-      return querySubredditPageUntil(sub, encompass_created_utc, data.after)
+      return querySubredditPageUntil(subreddit, encompass_created_utc, data.after)
       .then(nextData => data.posts.concat(nextData))
     } else {
       return data.posts
@@ -369,21 +381,29 @@ export const querySubredditPageUntil = (sub, encompass_created_utc, after = '') 
   })
 }
 
-export const querySubredditPage = async (subreddit, sort, after = '', t = '', auth = null) => {
-  var params = {
+export const querySubredditPage = async ({subreddit, sort, after = '', t = '', useProxy = false}) => {
+  const host = getHost(useProxy)
+  const params = {
     ...(after && {after}),
     ...(t && {t}),
     limit: 100,
     raw_json:1}
-  const url = oauth_reddit + `r/${subreddit}/${sort}.json` + '?'+paramString(params)
-  if (! auth) {
-    auth = await getAuth()
-  }
+  addQuarantineParam(host, params)
+  const url = host + `r/${subreddit}/${sort}.json` + '?'+paramString(params)
+  const auth = await getAuth()
   return window.fetch(url, auth)
     .then(response => response.json())
     .then(results => {
-      return {posts: results.data.children.map(post => post.data),
-              after: results.data.after} })
+      if (results.data) {
+        return {
+          posts: results.data.children.map(post => post.data),
+          after: results.data.after,
+          useProxy: host === OAUTH_REDDIT_REV_USER,
+        }
+      } else if (results.reason === 'quarantined' && host !== OAUTH_REDDIT_REV_USER) {
+        return querySubredditPage({subreddit, sort, after, t, useProxy:true})
+      }
+    })
     .catch(errorHandler)
 }
 
@@ -410,30 +430,33 @@ export const querySearch = ({selftexts = [], urls = []}) => {
 }
 
 const NUM_TOP_POSTS_TO_CONSIDER = 10
-export const randomRedditor = async (sub = 'all') => {
-  const auth = await getAuth()
-  const mods_promise = getModerators(sub)
-  return querySubredditPage(sub, 'top', '', 'month', auth)
+export const randomRedditor = async (subreddit = 'all') => {
+  const mods_promise = getModerators(subreddit)
+  return querySubredditPage({subreddit, sort: 'top', t: 'month'})
   .then(data => {
     const posts_with_most_comments = data.posts
       .sort((a,b) => b.num_comments - a.num_comments)
       .slice(0,NUM_TOP_POSTS_TO_CONSIDER)
     const post = posts_with_most_comments[getRandomInt(posts_with_most_comments.length)]
     return selectRandomCommenter(
-      auth,
       post,
       commentSortOptions[getRandomInt(commentSortOptions.length)],
-      mods_promise
+      mods_promise,
+      data.useProxy,
     )
   })
 }
 
 const NUM_AUTHORS_WHEN_COMMENT_KARMA_IS_LOW = 20
-export const selectRandomCommenter = async (auth, post, sort = 'new', mods_promise) => {
-  const url = oauth_reddit + `r/${post.subreddit}/comments/${post.id}.json?sort=${sort}&limit=200`
-  if (! auth) {
-    auth = await getAuth()
+export const selectRandomCommenter = async (post, sort = 'new', mods_promise, useProxy = false) => {
+  const host = getHost(useProxy)
+  const params = {
+    sort,
+    limit: 200,
   }
+  addQuarantineParam(host, params)
+  const url = host + `r/${post.subreddit}/comments/${post.id}.json`+'?'+paramString(params)
+  const auth = await getAuth()
   return window.fetch(url, auth)
   .then(response => response.json())
   .then(result => result[1].data.children)
