@@ -14,9 +14,9 @@ export const Random = (props) => {
     randomRedditor(subreddit)
     .then(author => {
       if (author && ! isCancelled) {
-        const sub_param = subreddit !== 'all' ? `&x_subreddit=${subreddit}` : ''
+        const sub_param = subreddit !== 'all' ? `?x_subreddit=${subreddit}` : ''
         // can't use history.push here b/c it won't reset state
-        window.location.href = `${PATH_STR_USER+'/'+author}/?all=true${sub_param}` // prev: &sort=top&t=year
+        window.location.href = `${PATH_STR_USER+'/'+author}/${sub_param}` // prev: all=true prev-prev: &sort=top&t=year
       }
     })
     return () => {
