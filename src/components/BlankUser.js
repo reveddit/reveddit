@@ -17,7 +17,8 @@ export default () => {
     if (sub) {
       path = `/r/${sub[1]}/x`
     }
-    history.push(path)
+    // can't use history.push here b/c it won't reset state
+    window.location.href = path
   }
   const handleSubmitUser = (e) => {
     e.preventDefault()

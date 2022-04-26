@@ -15,7 +15,8 @@ export const Random = (props) => {
     .then(author => {
       if (author && ! isCancelled) {
         const sub_param = subreddit !== 'all' ? `&x_subreddit=${subreddit}` : ''
-        history.push(`${PATH_STR_USER+'/'+author}/?all=true${sub_param}`) // prev: &sort=top&t=year
+        // can't use history.push here b/c it won't reset state
+        window.location.href = `${PATH_STR_USER+'/'+author}/?all=true${sub_param}` // prev: &sort=top&t=year
       }
     })
     return () => {
