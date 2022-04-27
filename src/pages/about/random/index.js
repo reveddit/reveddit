@@ -15,7 +15,7 @@ export const Random = (props) => {
     .then(author => {
       if (author && ! isCancelled) {
         const searchParams = new SimpleURLSearchParams(window.location.search)
-        const params = [] // prev: ['all=true'] prev-prev: ['sort=top','t=year']
+        // prev: all=true prev-prev: sort=top,t=year
         if (subreddit !== 'all') {
           searchParams.set('x_subreddit', subreddit)
         }
