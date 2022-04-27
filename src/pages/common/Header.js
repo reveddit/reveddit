@@ -107,7 +107,7 @@ class Header extends React.Component {
     if (this.state.random) {
       const sub = x_subreddit || 'all'
       // can't use history.push here b/c it won't reset state
-      window.location.href = `/r/${sub}/x/`
+      window.location.href = `/r/${sub}/x/`+window.location.search
     }
     let { user, subreddit = '', domain = ''} = props.match.params
     let path_type = '', value = '', path_suffix = '', item_type = '', display = ''

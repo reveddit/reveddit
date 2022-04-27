@@ -15,7 +15,7 @@ export default () => {
     const sub = input.match(sub_regex)
     let path = '/r/all/x'
     if (sub) {
-      path = `/r/${sub[1]}/x`
+      path = `/r/${sub[1]}/x/`+window.location.search
     }
     // can't use history.push here b/c it won't reset state
     window.location.href = path

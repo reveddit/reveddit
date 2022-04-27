@@ -3,7 +3,7 @@ import { useHistory } from 'react-router-dom'
 import { randomRedditor } from 'api/reddit'
 import { connect } from 'state'
 import { Spin } from 'components/Misc'
-import {PATH_STR_USER} from 'utils'
+import {PATH_STR_USER, SimpleURLSearchParams} from 'utils'
 
 export const Random = (props) => {
   const subreddit = props.match.params.subreddit || 'all'
@@ -14,9 +14,13 @@ export const Random = (props) => {
     randomRedditor(subreddit)
     .then(author => {
       if (author && ! isCancelled) {
-        const sub_param = subreddit !== 'all' ? `?x_subreddit=${subreddit}` : ''
+        const searchParams = new SimpleURLSearchParams(window.location.search)
+        const params = [] // prev: ['all=true'] prev-prev: ['sort=top','t=year']
+        if (subreddit !== 'all') {
+          searchParams.set('x_subreddit', subreddit)
+        }
         // can't use history.push here b/c it won't reset state
-        window.location.href = `${PATH_STR_USER+'/'+author}/${sub_param}` // prev: all=true prev-prev: &sort=top&t=year
+        window.location.href = `${PATH_STR_USER+'/'+author}/` + searchParams.toString()
       }
     })
     return () => {
