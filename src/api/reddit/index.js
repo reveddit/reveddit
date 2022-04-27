@@ -238,7 +238,7 @@ const addQuarantineParam = (host, params) => {
 }
 
 export const queryUserPage = async ({user, kind, sort, before, after, t, limit = 100,
-  after_subreddit,
+  quarantined_subreddits,
   useProxy=false, include_info=false, include_parents=false}) => {
   const host = getHost(useProxy)
   const params = {
@@ -247,7 +247,7 @@ export const queryUserPage = async ({user, kind, sort, before, after, t, limit =
     ...(t && {t}),
     ...(after && {after}),
     ...(before && {before}),
-    ...(after_subreddit && {after_subreddit}),
+    ...(quarantined_subreddits && {quarantined_subreddits}),
   }
   if (host === OAUTH_REDDIT_REV_USER) {
     params.include_info = include_info
