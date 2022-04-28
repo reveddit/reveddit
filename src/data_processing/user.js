@@ -1,10 +1,8 @@
 import {
   queryUserPageCombined,
-  getItems as getRedditItemsByID,
   usernameAvailable,
   userPageHTML,
   getModeratedSubreddits,
-  oauth_reddit_rev,
   www_reddit,
   OVERVIEW, SUBMITTED, COMMENTS, GILDED,
 } from 'api/reddit'
@@ -213,7 +211,7 @@ const getItems = async (user, kind, global, sort, before = '', after = '', time,
   const {comments: missingComments} = await missing_comments_promise
   const num_pages = gs.num_pages+1
   const userPage_item_lookup = {}
-  const ids = [], comment_parent_and_post_ids = {}, comments = []
+  const ids = [], comments = []
   const items = gs.items
   userPageData.items.forEach((item, i) => {
     userPage_item_lookup[item.name] = item
@@ -234,12 +232,6 @@ const getItems = async (user, kind, global, sort, before = '', after = '', time,
       item.selftext = ''
     } else {
       comments.push(item)
-      if (! commentParentsAndPosts[item.link_id]) {
-        comment_parent_and_post_ids[item.link_id] = true
-      }
-      if (! commentParentsAndPosts[item.parent_id]) {
-        comment_parent_and_post_ids[item.parent_id] = true
-      }
       if (item.link_author === item.author) {
         item.is_op = true
       }
@@ -266,7 +258,6 @@ const getItems = async (user, kind, global, sort, before = '', after = '', time,
     }
   })
   const auth = await getAuth()
-  const params = ['name', auth, oauth_reddit_rev]
   const redditInfoItems = data.info
   Object.values(redditInfoItems).forEach(item => {
     if (itemIsRemovedOrDeleted(item, false)) {

@@ -3,9 +3,7 @@ import { connect } from 'state'
 import BlankUser from 'components/BlankUser'
 import Comment from 'pages/common/Comment'
 import Time from 'pages/common/Time'
-import { getComments } from 'api/reddit'
 import { getWhatPeopleSay } from 'api/reveddit'
-import { getCommentsByID as getPushshiftComments } from 'api/pushshift'
 import { itemIsRemovedOrDeleted, SimpleURLSearchParams, makeDonateVisible,
          PATH_STR_USER, PATH_STR_SUB,
 } from 'utils'
