@@ -1,5 +1,5 @@
-import { chunk, flatten, fetchWithTimeout, promiseDelay, getRandomInt, paramString,
-         redirectToHistory,
+import { chunk, flatten, fetchWithTimeout, promiseDelay,
+         getRandomInt, paramString,
 } from 'utils'
 import { getAuth } from './auth'
 import { mapRedditObj, getModeratorsPostProcess,
@@ -155,12 +155,8 @@ export const getPostWithComments = ({
     .then(auth => window.fetch(url, auth))
     .then(response => response.json())
     .then(results => {
-      if (results.message === 'Forbidden') {
-        if (host === OAUTH_REDDIT_REV_USER && subreddit) {
-          redirectToHistory(subreddit)
-        } else {
-          throw results
-        }
+      if (! Array.isArray(results)) {
+        throw results
       }
       const items = results[1].data.children
       const comments = {}, moreComments = {}

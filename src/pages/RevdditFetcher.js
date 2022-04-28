@@ -21,6 +21,7 @@ import { jumpToHash, get, put, ext_urls,
          itemIsActioned, itemIsCollapsed, commentIsOrphaned,
          commentIsMissingInThread, getPrettyDate, getPrettyTimeLength,
          archiveTimes_isCurrent, matchOrIncludes, now, reversible,
+         redirectToHistory,
 } from 'utils'
 import { getAuthorInfoByName } from 'api/reddit'
 import { getAuth } from 'api/reddit/auth'
@@ -387,7 +388,9 @@ export const withFetch = (WrappedComponent) =>
 
     handleError = (error) => {
       console.error(error)
-      if (this.props.global.state.items.length === 0) {
+      if (error.message === 'Forbidden') {
+        redirectToHistory(this.props.match.params.subreddit)
+      } else if (this.props.global.state.items.length === 0) {
         document.querySelector('#donate-ribbon').style.display = 'none'
         let content = undefined
         var isFirefox = typeof InstallTrigger !== 'undefined';

@@ -609,5 +609,7 @@ export const formatBytes = (bytes, decimals = 1) => {
 }
 
 export const redirectToHistory = (subreddit) => {
-  window.location.href = `/v/${subreddit}/history/#banned`
+  if (subreddit) {
+    window.location.href = `/v/${subreddit}/history/#banned`
+  }
 }
