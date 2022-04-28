@@ -99,7 +99,10 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     root_comment_promise = getRedditComments({ids: [commentID]})
   }
   const uModlogs_promise = getUmodlogsThread(subreddit, threadID)
-  const reddit_pwc_baseArgs = {threadID, commentID, context, limit: numCommentsWithPost}
+  const reddit_pwc_baseArgs = {
+    threadID, commentID, context, limit: numCommentsWithPost,
+    subreddit
+  }
   const reddit_pwc_baseArgs_firstQuery = {...reddit_pwc_baseArgs, sort: 'top'}
   const reddit_pwc_promise = getRedditPostWithComments(reddit_pwc_baseArgs_firstQuery)
   .catch(e => {
@@ -110,7 +113,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     throw new Error('unable to retrieve data from reddit')
   })
   .then(async ({post: reddit_post, comments: redditComments, moreComments, oldestComment}) => {
-    const moderators_promise = getModerators(reddit_post.subreddit, useProxy)
+    const moderators_promise = getModerators(reddit_post.subreddit)
     const modlogs_comments_promise = getModlogsComments({subreddit: reddit_post.subreddit, link_id: reddit_post.id, limit: 500})
     let modlogs_posts_promise = Promise.resolve({})
     if (postIsRemoved(reddit_post) && (reddit_post.is_self || reddit_post.is_gallery)) {

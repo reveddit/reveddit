@@ -607,3 +607,7 @@ export const formatBytes = (bytes, decimals = 1) => {
 
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
 }
+
+export const redirectToHistory = (subreddit) => {
+  window.location.href = `/v/${subreddit}/history/#banned`
+}

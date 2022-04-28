@@ -10,7 +10,9 @@ import {
   getCommentsBySubreddit as pushshiftGetCommentsBySubreddit
 } from 'api/pushshift'
 import { getModlogsPromises } from 'api/common'
-import { commentIsDeleted, commentIsRemoved, postIsDeleted, isEmptyObj } from 'utils'
+import { commentIsDeleted, commentIsRemoved, postIsDeleted, isEmptyObj,
+  redirectToHistory,
+} from 'utils'
 import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED,
          UNKNOWN_REMOVED, NOT_REMOVED,
          AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
@@ -288,7 +290,7 @@ export const setSubredditMeta = async (subreddit, global) => {
   })
   .then(([moderators, subreddit_about]) => {
     if (((isEmptyObj(moderators) || moderators.error) && isEmptyObj(subreddit_about)) || [subreddit_about.reason, moderators.reason].some(w => /^\b(private|banned)\b$/.test(w))) {
-      window.location.href = `/v/${subreddit}/history/#banned`
+      redirectToHistory(subreddit)
     }
     over18 = subreddit_about.over18
     global.setState({moderators: {[subreddit_lc]: moderators}, over18})

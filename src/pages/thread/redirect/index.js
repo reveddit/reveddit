@@ -1,21 +1,30 @@
 import React, {useEffect} from 'react'
 import { connect } from 'state'
 import {
-  getItems
+  getPostWithComments
 } from 'api/reddit'
 
 export const ThreadRedirect = (props) => {
   useEffect(() => {
     props.global.setLoading('')
-    getItems([`t3_${props.match.params.threadID}`])
-    .then(posts => {
-      const post = Object.values(posts)[0]
-      if (post) {
-        window.location.href = post.permalink+window.location.search+window.location.hash
+    const threadID = props.match.params.threadID
+    const cannotRedirect = (e) => {
+      console.error('unable to redirect for post id', threadID)
+      if (e) {
+        console.error(e)
+      }
+      props.global.setError()
+    }
+    getPostWithComments({threadID, limit:0})
+    .catch(e => getPostWithComments({threadID, limit:0, useProxy:true}))
+    .then(result => {
+      if (result.post) {
+        window.location.href = result.post.permalink+window.location.search+window.location.hash
       } else {
-        props.global.setError()
+        cannotRedirect(result)
       }
     })
+    .catch(cannotRedirect)
   }, [])
 
   return (

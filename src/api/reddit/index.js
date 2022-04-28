@@ -1,4 +1,6 @@
-import { chunk, flatten, fetchWithTimeout, promiseDelay, getRandomInt, paramString } from 'utils'
+import { chunk, flatten, fetchWithTimeout, promiseDelay, getRandomInt, paramString,
+         redirectToHistory,
+} from 'utils'
 import { getAuth } from './auth'
 import { mapRedditObj, getModeratorsPostProcess,
          subredditHasModlogs, U_PUBLICMODLOGS_CODE,
@@ -127,7 +129,10 @@ const groupRequests = async (func, items, params, localMaxNumItems) => {
   return Promise.all(promises)
 }
 
-export const getPostWithComments = ({threadID, commentID: comment, context = 0, sort = 'old', limit=500, useProxy = false}) => {
+export const getPostWithComments = ({
+  threadID, commentID: comment, context = 0, sort = 'old', limit=500, useProxy = false,
+  subreddit,
+}) => {
   const params = {
     limit,
     sort,
@@ -137,9 +142,13 @@ export const getPostWithComments = ({threadID, commentID: comment, context = 0, 
     ...(comment && {comment}),
     ...(context && {context})
   }
-  let host = oauth_reddit
-  if (useProxy) {
-    host = oauth_reddit_rev
+  const thisQueryParams = {
+    ...params,
+    subreddit: subreddit,
+  }
+  const host = getHost(useProxy)
+  if (host === OAUTH_REDDIT_REV_USER && subreddit) {
+    params.quarantined_subreddits = subreddit
   }
   const url = host + `comments/${threadID}.json`+'?'+paramString(params)
   return getAuth()
@@ -147,7 +156,11 @@ export const getPostWithComments = ({threadID, commentID: comment, context = 0, 
     .then(response => response.json())
     .then(results => {
       if (results.message === 'Forbidden') {
-        throw results
+        if (host === OAUTH_REDDIT_REV_USER && subreddit) {
+          redirectToHistory(subreddit)
+        } else {
+          throw results
+        }
       }
       const items = results[1].data.children
       const comments = {}, moreComments = {}
