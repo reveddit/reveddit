@@ -27,14 +27,14 @@ const errorHandler = (e) => {
   throw new Error(`Could not connect to Reddit: ${e}`)
 }
 
-export const getComments = ({objects = undefined, ids = [], auth = null, useProxy = false}) => {
+export const getComments = ({objects = undefined, ids = [], useProxy = false}) => {
   const full_ids = getFullIDsForObjects(objects, ids, 't1_')
-  return getItems(full_ids, 'id', auth, oauth_reddit, useProxy)
+  return getItems(full_ids, 'id', useProxy)
 }
 
-export const getPosts = ({objects = undefined, ids = [], auth = null, useProxy = false}) => {
+export const getPosts = ({objects = undefined, ids = [], useProxy = false}) => {
   const full_ids = getFullIDsForObjects(objects, ids, 't3_')
-  return getItems(full_ids, 'id', auth, oauth_reddit, useProxy)
+  return getItems(full_ids, 'id', useProxy)
 }
 
 export const getModeratedSubreddits = (user) => {
@@ -96,18 +96,14 @@ const getFullIDsForObjects = (objects, ids, prefix) => {
   return full_ids
 }
 
-export const getItems = async (ids, key = 'name', auth = null, host = oauth_reddit, useProxy = false) => {
+export const getItems = async (ids, key = 'name', useProxy = false) => {
   const results = {}
   if (! ids.length) {
     return results
   }
-  if (! auth) {
-    auth = await getAuth()
-  }
-  if (useProxy) {
-    host = oauth_reddit_rev
-  }
-  return groupRequests(queryByID, ids, [auth, key, results, host], maxNumItems)
+  const host = getHost(useProxy)
+  await getAuth()
+  return groupRequests(queryByID, ids, [key, results, host], maxNumItems)
   .then(() => {
     return results
   })
@@ -354,11 +350,12 @@ export const userPageHTML = (user) => {
   })
 }
 
-const queryByID = (ids, auth, key = 'name', results = {}, host = oauth_reddit) => {
+const queryByID = async (ids, key = 'name', results = {}, host = oauth_reddit) => {
   var params = {id: ids.join(), raw_json:1}
   if (! can_use_oauth_reddit_rev) {
     host = oauth_reddit
   }
+  const auth = await getAuth()
   const queryForHost = (host) => query(host + 'api/info' + '?'+paramString(params),
                                        auth, key, results)
   return queryForHost(host)

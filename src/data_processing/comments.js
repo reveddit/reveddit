@@ -170,7 +170,7 @@ export const getPostDataForComments = ({comments = undefined, link_ids_set = und
   if (source === 'pushshift') {
     queryFunction = getPushshiftPostsForCommentData
   }
-  return queryFunction(Object.keys(link_ids_set), 'name', null, oauth_reddit, useProxy)
+  return queryFunction(Object.keys(link_ids_set), 'name', useProxy)
   .catch(() => { console.error(`Unable to retrieve full titles from ${source}`) })
 }
 

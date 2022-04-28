@@ -7,7 +7,6 @@ import {
   OVERVIEW, SUBMITTED, COMMENTS, GILDED,
 } from 'api/reddit'
 import { getMissingComments } from 'api/reveddit'
-import { getAuth } from 'api/reddit/auth'
 import {
   getAutoremovedItems
 } from 'api/pushshift'
@@ -257,7 +256,6 @@ const getItems = async (user, kind, global, sort, before = '', after = '', time,
       item.next = array[index-1].name
     }
   })
-  const auth = await getAuth()
   const redditInfoItems = data.info
   Object.values(redditInfoItems).forEach(item => {
     if (itemIsRemovedOrDeleted(item, false)) {

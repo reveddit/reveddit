@@ -1,7 +1,6 @@
 import { getPosts as getRedditPosts,
          getPostsForURLs as getRedditPostsForURLs,
          querySearch as queryRedditSearch } from 'api/reddit'
-import { getAuth } from 'api/reddit/auth'
 import {
   queryPosts as pushshiftQueryPosts,
   getPost as getPushshiftPost
@@ -245,9 +244,8 @@ class SearchInput {
 }
 
 export const getRevdditDuplicatePosts = async (threadID, global) => {
-  const auth = await getAuth()
   const drivingPosts_ids = threadID.split('+')
-  return await getRedditPosts({ids: drivingPosts_ids, auth})
+  return await getRedditPosts({ids: drivingPosts_ids})
   .then(async redditPosts => {
     const searchInput = new SearchInput()
     const secondary_lookup_ids_set = {}
@@ -294,7 +292,7 @@ export const getRevdditDuplicatePosts = async (threadID, global) => {
     }
     const secondary_lookup_ids = Object.keys(secondary_lookup_ids_set)
     if (secondary_lookup_ids.length) {
-      Object.values(await getRedditPosts({ids: secondary_lookup_ids, auth})).forEach(secondary_post => {
+      Object.values(await getRedditPosts({ids: secondary_lookup_ids})).forEach(secondary_post => {
         const meta = getUrlMeta(secondary_post.url)
         if (meta.isRedditPostURL) {
           searchInput.pushshift_urls.push(...meta.pushshift_urls)
