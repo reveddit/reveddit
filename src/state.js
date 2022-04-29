@@ -123,6 +123,8 @@ export const urlParamKeys = {
   t: 't', sort: 'sort', sort_type: 'sort_type', limit: 'limit', show: 'show', all:'all', stickied: 'stickied', distinguished: 'distinguished',
   rate_less: 'rate_less', rate_more: 'rate_more',
   x_subreddit: 'x_subreddit',
+  quarantined: 'quarantined',
+  quarantined_subreddits: 'quarantined_subreddits',
   ...urlParamKeys_filters_for_reset_to_show_all_items
 }
 
@@ -264,6 +266,7 @@ const initialState = {
   ps_after: '',
   content: 'all', url: '',
   over18: undefined,
+  quarantined: undefined,
   selfposts: true,
   itemsLookup: {},
   commentTree: [],
@@ -286,6 +289,7 @@ const initialState = {
   ...urlParamKeys_max_min_defaults,
   agg_most_recent_created_utc: undefined,
   x_subreddit: '',
+  quarantined_subreddits: '',
 }
 
 // pushshift max per call is now 100 (previously was 1000)

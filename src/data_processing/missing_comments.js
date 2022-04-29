@@ -6,17 +6,23 @@ import {
   getPostDataForComments,
   applyPostAndParentDataToComment,
   combinePushshiftAndRedditComments,
-  set_link_permalink
+  set_link_permalink,
+  setSubredditMeta,
 } from 'data_processing/comments'
 import { setPostAndParentDataForComments } from 'data_processing/info'
 import { sortCreatedAsc } from 'utils'
 
 const maxN = 100
-export const getRevdditMissingComments = (subreddit, global) => {
-  const {page, n} = global.state
-
+export const getRevdditMissingComments = async (subreddit, global) => {
+  const {page, n, quarantined} = global.state
+  let quarantined_subreddits
   if (subreddit === 'all') {
     subreddit = ''
+  } else {
+    await setSubredditMeta(subreddit, global)
+    if (quarantined) {
+      quarantined_subreddits = subreddit
+    }
   }
   let limit = n
   if (n && n > maxN) {
@@ -24,8 +30,8 @@ export const getRevdditMissingComments = (subreddit, global) => {
   }
   return getMissingComments({subreddit, limit, page})
   .then(({comments: missingComments, meta: missingCommentsMeta}) => {
-    const postDataPromise = getPostDataForComments({comments: missingComments})
-    const redditCommentsPromise = getRedditComments({ids: Object.keys(missingComments)})
+    const postDataPromise = getPostDataForComments({comments: missingComments, quarantined_subreddits})
+    const redditCommentsPromise = getRedditComments({ids: Object.keys(missingComments), quarantined_subreddits})
     return Promise.all([postDataPromise, redditCommentsPromise])
     .then(([postData, redditComments]) => {
       const combinedComments_array = Object.values(combinePushshiftAndRedditComments({}, redditComments, false))

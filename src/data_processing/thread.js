@@ -60,10 +60,16 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
                                             before, after, subreddit,
                                             global, archive_times_promise) => {
   const {localSort, localSortReverse, ps_after} = global.state
+  let { quarantined } = global.state
+  let quarantined_subreddits
+  if (quarantined) {
+    useProxy = true
+    quarantined_subreddits = subreddit
+  }
   const ps_after_set = ps_after ? new Set(ps_after.split(',').slice(0,20)) : new Set()
   const ps_after_list = ps_after ? [...ps_after_set] : []
   const sort = create_qparams().get('sort') // don't get this value from state. it's used elsewhere w/a default value 'new' which isn't desired here
-  const localSortState = (sortMap[sort] && localSort === filter_pageType_defaults.localSort.thread && ! localSortReverse) ? sortMap[sort] : {}
+  const localStateForURLUpdate = (sortMap[sort] && localSort === filter_pageType_defaults.localSort.thread && ! localSortReverse) ? sortMap[sort] : {}
   const sortsForRedditCommentThreadQuery = sort ? sort.split(',') : ['new']
   let pushshift_comments_promise = Promise.resolve({})
   let reveddit_comments_promise = Promise.resolve({})
@@ -96,17 +102,17 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
   let root_comment_promise = Promise.resolve({})
   let pushshift_post_promise = Promise.resolve(undefined)
   if (commentID) {
-    root_comment_promise = getRedditComments({ids: [commentID]})
+    root_comment_promise = getRedditComments({ids: [commentID], quarantined_subreddits})
   }
   const uModlogs_promise = getUmodlogsThread(subreddit, threadID)
   const reddit_pwc_baseArgs = {
     threadID, commentID, context, limit: numCommentsWithPost,
     subreddit
   }
-  const reddit_pwc_baseArgs_firstQuery = {...reddit_pwc_baseArgs, sort: 'top'}
+  const reddit_pwc_baseArgs_firstQuery = {...reddit_pwc_baseArgs, sort: 'top', useProxy}
   const reddit_pwc_promise = getRedditPostWithComments(reddit_pwc_baseArgs_firstQuery)
   .catch(e => {
-    if (e.message === 'Forbidden') {
+    if (e.message === 'Forbidden' && ! useProxy) {
       useProxy = true
       return getRedditPostWithComments({...reddit_pwc_baseArgs_firstQuery, useProxy})
     }
@@ -121,6 +127,16 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     }
     modlogs_posts_promise = getModlogsPosts({subreddit: reddit_post.subreddit, link_id: reddit_post.id})
     document.title = reddit_post.title
+    if (reddit_post.quarantine && ! quarantined) {
+      quarantined = true
+      quarantined_subreddits = reddit_post.subreddit
+      root_comment_promise = getRedditComments({ids: [commentID], quarantined_subreddits})
+      //      Update URL to mark thread as quarantined so future add_user params,
+      //      which will be saved below, then potentially shared, will, when queried
+      //      among the first requests of getRevdditThreadItems(), know up front that the subreddit
+      //      is quarantined
+      localStateForURLUpdate.quarantined = true
+    }
     const resetPath = (commentID) => {
       const commentPath = commentID ? commentID + '/' : ''
       window.history.replaceState(null,null,convertPathSub(reddit_post.permalink)+commentPath+window.location.search+window.location.hash)
@@ -135,7 +151,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     // lookup can make use of its created_utc
     let oldest_comment_promise = Promise.resolve(oldestComment)
     if (! Object.keys(oldestComment).length && commentID) {
-      oldest_comment_promise = getRedditComments({ids: [commentID], useProxy})
+      oldest_comment_promise = getRedditComments({ids: [commentID], quarantined_subreddits, useProxy})
       .then(oldestComments => {
         oldestComment = oldestComments[commentID] || {}
         Object.assign(redditComments, oldestComments)
@@ -166,15 +182,17 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     }
     const combinedComments = combinePushshiftAndRedditComments({}, redditComments, false, post_without_pushshift_data)
     const [commentTree, itemsSortedByDate] = createCommentTree(threadID, root_comment_id, combinedComments)
-    await global.setState({...localSortState,
+    await global.setState({...localStateForURLUpdate,
                            threadPost: post_without_pushshift_data,
                            items: itemsSortedByDate, itemsSortedByDate,
                            itemsLookup: combinedComments,
                            commentTree,
-                           initialFocusCommentID: commentID})
+                           initialFocusCommentID: commentID,
+                           quarantined, quarantined_subreddits,
+                         })
     .then(() => {
-      if (Object.keys(localSortState).length) {
-        global.updateURLFromGivenState('thread', localSortState)
+      if (Object.keys(localStateForURLUpdate).length) {
+        global.updateURLFromGivenState('thread', {...localStateForURLUpdate})
       }
     })
     jumpToHash(window.location.hash)
@@ -323,7 +341,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
         validAuthor(focusCommentAuthor) && ! add_user_authors[focusCommentAuthor]) {
         //if the focus comment is removed, and the author does not appear in the add_user parameter,
         //check for edits on the author's user page. Any edits will cause the URL to update
-        const aui = new AddUserItem({author: focusCommentAuthor})
+        const aui = new AddUserItem({author: focusCommentAuthor, quarantined_subreddits})
         add_user_promises_forURL.push(aui.query())
       }
     }
@@ -399,7 +417,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
 
   const addRemainingRedditComments_andCombine = async (ids, user_comments, add_user, updateURL = false) => {
     if (ids.length) {
-      const remainingRedditComments = await getRedditComments({ids, useProxy})
+      const remainingRedditComments = await getRedditComments({ids, quarantined_subreddits, useProxy})
       Object.values(remainingRedditComments).forEach(comment => {
         redditComments[comment.id] = comment
       })
@@ -526,12 +544,15 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
 
 export const insertParent = (child_id, global) => {
   let promise = Promise.resolve()
-  let { items, itemsLookup, commentTree, threadPost, initialFocusCommentID } = global.state
+  let { items, itemsLookup, commentTree,
+        threadPost, initialFocusCommentID,
+        quarantined_subreddits,
+  } = global.state
   const child = itemsLookup[child_id]
   const [parent_kind, parent_id] = child.parent_id.split('_')
   const parent = itemsLookup[parent_id]
   if (! parent && parent_kind === 't1') {
-    promise = getRedditComments({ids: [parent_id], useProxy})
+    promise = getRedditComments({ids: [parent_id], quarantined_subreddits, useProxy})
     .then(redditComments => {
       const comment = redditComments[parent_id]
       if (comment) {

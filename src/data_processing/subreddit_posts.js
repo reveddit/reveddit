@@ -3,13 +3,17 @@ import {
   PUSHSHIFT_MAX_COUNT_PER_QUERY,
 } from 'api/pushshift'
 import { getRemovedPostIDs } from 'api/removeddit'
-import { getPosts as getRedditPosts,
-         getSubredditAbout
+import {
+  getPosts as getRedditPosts,
 } from 'api/reddit'
 import { getModlogsPromises } from 'api/common'
 import { postIsDeleted } from 'utils'
 import { retrieveRedditPosts_and_combineWithPushshiftPosts } from 'data_processing/posts'
-import { copyModlogItemsToArchiveItems, setSubredditMeta } from 'data_processing/comments'
+import {
+  copyModlogItemsToArchiveItems,
+  setSubredditMeta,
+  useProxy,
+} from 'data_processing/comments'
 import { PATHS_STR_SUB, sortCreatedAsc } from 'utils'
 
 export const getRevdditPostsBySubreddit = async (subreddit, global) => {
@@ -122,7 +126,12 @@ export const combinedGetItemsBySubredditOrDomain = (args) => {
           })
           copyModlogItemsToArchiveItems(modlogsItems, pushshiftItems)
         }
-        const combinedItems = await postProcessCombine_Fn({[postProcessCombine_ItemsArgName]: pushshiftItems, subreddit_about_promise})
+        const quarantined_subreddits = useProxy ? subreddit : null
+        const combinedItems = await postProcessCombine_Fn({
+          [postProcessCombine_ItemsArgName]: pushshiftItems,
+          subreddit_about_promise,
+          quarantined_subreddits,
+        })
         const allItems = items.concat(combinedItems)
         return global.setState({items: items.concat(combinedItems), itemsLookup, oldestTimestamp, newestTimestamp})
         .then(() => allItems) // need this return value here for posts.js -> getRevdditPostsByDomain()

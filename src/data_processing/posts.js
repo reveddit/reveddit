@@ -16,9 +16,9 @@ import { REMOVAL_META, ANTI_EVIL_REMOVED, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_A
          AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
 import { combinedGetPostsBySubredditOrDomain } from 'data_processing/subreddit_posts'
 
-export const retrieveRedditPosts_and_combineWithPushshiftPosts = (
+export const retrieveRedditPosts_and_combineWithPushshiftPosts = async (
   {pushshiftPosts, pushshiftPostsObj, includePostsWithZeroComments = false, existingRedditPosts = {},
-   subreddit_about_promise = Promise.resolve({}),
+   subreddit_about_promise = Promise.resolve({}), quarantined_subreddits,
   }) => {
   const ids = []
   if (! pushshiftPosts) {
@@ -29,7 +29,8 @@ export const retrieveRedditPosts_and_combineWithPushshiftPosts = (
       ids.push(post.id)
     }
   })
-  return getRedditPosts({ids, useProxy})
+
+  return getRedditPosts({ids, quarantined_subreddits, useProxy})
   .then(redditPosts => {
     Object.values(existingRedditPosts).forEach(post => {
       redditPosts[post.id] = post
@@ -204,7 +205,7 @@ const getUrlMeta = (url) => {
   const isRedditDomain = redditlikeDomainStripped.match(/^\//)
   const isRedditPostURL = redditlikeDomainStripped.match(new RegExp('^/['+PATHS_STR_SUB+']/[^/]*/comments/[a-z0-9]', 'i'))
   let pushshift_urls = [url_nohttp]
-  let reddit_info_url = [url]
+  let reddit_info_urls = [url]
   let reddit_search_selftext = [url_nohttp]
   let reddit_search_url = [url_nohttp]
   const isYoutubeURL = url.match(/^https?:\/\/(?:www\.|m\.)?(youtube\.com|youtu\.be)\/(.+)/i)
@@ -224,20 +225,20 @@ const getUrlMeta = (url) => {
     if (id) {
       pushshift_urls = [getYoutubeURL_pushshift(id)]
       const full_yt_urls = getYoutubeURLs(id)
-      reddit_info_url.push(...full_yt_urls)
+      reddit_info_urls.push(...full_yt_urls)
       reddit_search_selftext.push(...full_yt_urls)
     }
   }
   const postURL_ID = redditlikeDomainStripped.split('/')[4]
   return {isRedditDomain, isRedditPostURL, pushshift_urls, postURL_ID,
-          reddit_info_url, reddit_search_selftext, reddit_search_url}
+          reddit_info_urls, reddit_search_selftext, reddit_search_url}
 }
 
 class SearchInput {
   constructor(meta = {}) {
     this.pushshift_urls = [...meta.pushshift_urls || []]
     this.pushshift_selftext_urls = [...meta.pushshift_urls || []] // using same value as pushshift_urls is intentional
-    this.reddit_info_url = [...meta.reddit_info_url || []] // api/info?url=
+    this.reddit_info_urls = [...meta.reddit_info_urls || []] // api/info?url=
     this.reddit_search_selftext = [...meta.reddit_search_selftext || []] // /search?q=selftext:
     this.reddit_search_url = [...meta.reddit_search_url || []] // /search?url=
   }
@@ -272,7 +273,7 @@ export const getRevdditDuplicatePosts = async (threadID, global) => {
         meta = getUrlMeta(drivingPost.url)
       }
       searchInput.pushshift_urls.push(...meta.pushshift_urls)
-      searchInput.reddit_info_url.push(...meta.reddit_info_url)
+      searchInput.reddit_info_urls.push(...meta.reddit_info_urls)
       searchInput.reddit_search_selftext.push(...meta.reddit_search_selftext)
       searchInput.reddit_search_url.push(...meta.reddit_search_url)
       if (meta.isRedditPostURL) {
@@ -296,12 +297,12 @@ export const getRevdditDuplicatePosts = async (threadID, global) => {
         const meta = getUrlMeta(secondary_post.url)
         if (meta.isRedditPostURL) {
           searchInput.pushshift_urls.push(...meta.pushshift_urls)
-          searchInput.reddit_info_url.push(...meta.reddit_info_url)
+          searchInput.reddit_info_urls.push(...meta.reddit_info_urls)
           searchInput.reddit_search_selftext.push(...meta.reddit_search_selftext)
           searchInput.reddit_search_url.push(...meta.reddit_search_url)
         } else {
           searchInput.pushshift_urls.push(secondary_post.url)
-          searchInput.reddit_info_url.push(secondary_post.url)
+          searchInput.reddit_info_urls.push(secondary_post.url)
           searchInput.reddit_search_selftext.push(secondary_post.url)
         }
       })
@@ -333,12 +334,12 @@ const getPushshiftURLString = (urls) => {
 
 const searchRedditAndPushshiftPosts = (global, searchInput) => {
   const pushshift_promises = [], reddit_promises = []
-  const {reddit_info_url, reddit_search_selftext, reddit_search_url,
+  const {reddit_info_urls, reddit_search_selftext, reddit_search_url,
   pushshift_urls, pushshift_selftext_urls} = searchInput
   const {before} = global.state
   if (! before) {
-    if (reddit_info_url.length) {
-      reddit_promises.push(getRedditPostsForURLs(reddit_info_url))
+    if (reddit_info_urls.length) {
+      reddit_promises.push(getRedditPostsForURLs(reddit_info_urls))
     }
     if (reddit_search_selftext.length) {
       reddit_promises.push(queryRedditSearch({selftexts: reddit_search_selftext}))

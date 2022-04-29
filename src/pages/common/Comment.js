@@ -37,7 +37,11 @@ const Comment = (props) => {
   } else {
     classNames.push('comment-even')
   }
-  quarantine && classNames.push('quarantine')
+  let quarantined_subreddits
+  if (quarantine) {
+    classNames.push('quarantine')
+    quarantined_subreddits = subreddit
+  }
   locked && classNames.push('locked')
 
   let directlink = ''
@@ -53,7 +57,13 @@ const Comment = (props) => {
   // after_before only has a value for user pages
   if (after_before) {
     directlink = '?'+after_before+`limit=1&sort=${sort}&show=${name}&removal_status=all`
-    add_user = getAddUserParamString({rev_position, author, userCommentsByPost, link_id, kind, sort, t, next, prev})
+    add_user = getAddUserParamString({
+      rev_position,
+      author,
+      userCommentsByPost,
+      link_id,
+      quarantined_subreddits,
+      kind, sort, t, next, prev})
   }
   let post_parent_removed = []
   if (parent_removed_label) {
@@ -151,7 +161,7 @@ const Comment = (props) => {
 
 export const getAddUserParamString = (
   {rev_position, author, userCommentsByPost, link_id,
-   kind, sort, t, next, prev}) => {
+   kind, sort, t, next, prev, quarantined_subreddits}) => {
   const addUserParam = new AddUserParam()
   const samePost_comments = userCommentsByPost[link_id] || []
   const samePost_lastComment = samePost_comments[samePost_comments.length -1] || {}
@@ -172,6 +182,7 @@ export const getAddUserParamString = (
     ...(sort && {sort}),
     ...(t && {time: t}),
     ...addUser_afterBefore,
+    quarantined_subreddits,
   })
   return addUserParam.toString()
 }

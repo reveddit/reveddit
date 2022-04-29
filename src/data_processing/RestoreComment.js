@@ -75,38 +75,45 @@ export const unarchived_search_help_content = (
 const search_comment_help = <Help title={unarchived_search_button_word+' Comment'} content={unarchived_search_help_content}/>
 
 const Wrap = ({children}) => <div style={{padding: '8px 0', minHeight: '25px'}}>{children}</div>
-
+let local_quarantined_subreddits = ''
 export const getAddUserMeta = (props, distance_input, userPageSort, userPageTime, state = {}) => {
   const {itemsLookup, alreadySearchedAuthors, threadPost,
-   itemsSortedByDate} = props.global?.state || state
-   const grandparentComment = getAncestor(props, itemsLookup, 2)
-   const grandchildComment = ((props.replies[0] || {}).replies || [])[0] || {}
-   // START nearby authors
-   const authors_nearbyByDate = new Set()
-   let distance = distance_input
-   if (itemsSortedByDate.length > 1 && 'by_date_i' in props) {
-     const comment_i = props.by_date_i
-     while (authors_nearbyByDate.size < MAX_AUTHORS_NEARBY_BY_DATE) {
-       distance += 1
-       addAuthorIfExists(itemsSortedByDate[comment_i - distance], authors_nearbyByDate, alreadySearchedAuthors)
-       if (authors_nearbyByDate.size < MAX_AUTHORS_NEARBY_BY_DATE) {
-         addAuthorIfExists(itemsSortedByDate[comment_i + distance], authors_nearbyByDate, alreadySearchedAuthors)
-       }
-       if (   (comment_i+distance+1) >= itemsSortedByDate.length
-           && (comment_i-distance-1) < 0) {
-         break
-       }
-     }
-   }
-   // END nearby authors
-   const aug = new AddUserGroup({alreadySearchedAuthors, sort: userPageSort, time: userPageTime})
-   //NOTE: Some previous logic here would search users found in add_user param.
-   //      Removed this because it messed up rate limiting and was not likely to turn up new results
-   //TODO:  breadth first search for grandchildren
-   aug.add(grandparentComment.author,
-           grandchildComment.author,
-           threadPost.author,
-           ...Array.from(authors_nearbyByDate),
+   itemsSortedByDate, quarantined
+  } = props.global?.state || state
+  const grandparentComment = getAncestor(props, itemsLookup, 2)
+  const grandchildComment = ((props.replies[0] || {}).replies || [])[0] || {}
+  // START nearby authors
+  const authors_nearbyByDate = new Set()
+  let distance = distance_input
+  if (itemsSortedByDate.length > 1 && 'by_date_i' in props) {
+    const comment_i = props.by_date_i
+    while (authors_nearbyByDate.size < MAX_AUTHORS_NEARBY_BY_DATE) {
+      distance += 1
+      addAuthorIfExists(itemsSortedByDate[comment_i - distance], authors_nearbyByDate, alreadySearchedAuthors)
+      if (authors_nearbyByDate.size < MAX_AUTHORS_NEARBY_BY_DATE) {
+        addAuthorIfExists(itemsSortedByDate[comment_i + distance], authors_nearbyByDate, alreadySearchedAuthors)
+      }
+      if (   (comment_i+distance+1) >= itemsSortedByDate.length
+          && (comment_i-distance-1) < 0) {
+        break
+      }
+    }
+  }
+  local_quarantined_subreddits = quarantined ? threadPost.subreddit : ''
+  // END nearby authors
+  const aug = new AddUserGroup({
+    alreadySearchedAuthors,
+    sort: userPageSort,
+    time: userPageTime,
+    quarantined_subreddits: local_quarantined_subreddits,
+  })
+  //NOTE: Some previous logic here would search users found in add_user param.
+  //      Removed this because it messed up rate limiting and was not likely to turn up new results
+  //TODO:  breadth first search for grandchildren
+  aug.add(grandparentComment.author,
+          grandchildComment.author,
+          threadPost.author,
+          ...Array.from(authors_nearbyByDate),
           )
   return {aug, distance}
 }
@@ -363,13 +370,20 @@ const BodyButton = ({children}) => {
 }
 
 class AddUserGroup {
-  constructor({alreadySearchedAuthors = {}, max = MAX_AUTHORS_TO_SEARCH, sort, time} = {}) {
+  constructor({
+    alreadySearchedAuthors = {},
+    max = MAX_AUTHORS_TO_SEARCH,
+    sort,
+    time,
+    quarantined_subreddits,
+  } = {}) {
     this.alreadySearchedAuthors = alreadySearchedAuthors
     this.max = max
     this.sort = sort
     this.time = time
     this.authorsToSearch = {}
     this.itemsToSearch = []
+    this.quarantined_subreddits = quarantined_subreddits
   }
   length() {
     return this.itemsToSearch.length
@@ -384,7 +398,13 @@ class AddUserGroup {
           && ! (author in this.alreadySearchedAuthors)
           && ! (author in this.authorsToSearch)
           && this.itemsToSearch.length < this.max) {
-        this.itemsToSearch.push(new AddUserItem({author, kind: 'c', sort: this.sort, time: this.time}))
+        this.itemsToSearch.push(new AddUserItem({
+          author,
+          kind: 'c',
+          sort: this.sort,
+          time: this.time,
+          quarantined_subreddits: this.quarantined_subreddits,
+        }))
         this.authorsToSearch[author] = true
       } else {
         allAdded = false
@@ -403,7 +423,7 @@ class AddUserGroup {
 
 //AddUserItem represents properties used on thread pages to load data from a user page
 const ADDUSERITEM_SEPARATOR = '.'
-const ADDUSER_PROPS = ['author', 'limit', 'kind', 'sort', 'time', 'before', 'after']
+const ADDUSER_PROPS = ['author', 'limit', 'kind', 'sort', 'time', 'before', 'after', 'quarantined_subreddits']
 export class AddUserItem {
   constructor({string = '', ...props}) {
     if (string) {
@@ -430,10 +450,19 @@ export class AddUserItem {
       before: this.before,
       after: this.after,
       t: this.time,
-      limit: this.limit || 100})
+      limit: this.limit || 100,
+      ...getQuarantinedParams(this.quarantined_subreddits),
+    })
   }
   toString() {
     return this.getOrderedProps().join(ADDUSERITEM_SEPARATOR)
+  }
+}
+const getQuarantinedParams = (quarantined_subreddits) => {
+  if (quarantined_subreddits) {
+    return {quarantined_subreddits, useProxy: true}
+  } else {
+    return {}
   }
 }
 
@@ -520,11 +549,13 @@ const updateUrlFromChangedAuthors = (changedAuthors, add_user, userPageSort, use
   if (Object.keys(changedAuthors).length) {
     const aup = new AddUserParam({string: add_user})
     for (const [author, comment] of Object.entries(changedAuthors)) {
-      const item = new AddUserItem({author, kind: 'c',
-                                    sort: userPageSort,
-                                    time: userPageTime,
-                                    ...(userPageSort === 'new' ? comment.before_after : {}),
-                                  })
+      const item = new AddUserItem({
+        author, kind: 'c',
+        sort: userPageSort,
+        time: userPageTime,
+        ...(userPageSort === 'new' ? comment.before_after : {}),
+        quarantined_subreddits: local_quarantined_subreddits,
+      })
       const item_str = item.toString()
 //      if (! add_user.match(new RegExp('(^|,)'+author+'\\b'))) {
 

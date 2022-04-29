@@ -6,7 +6,6 @@ import {
 } from 'api/reddit'
 import { getModerators } from 'api/reveddit'
 import {
-  getPostsByIDForCommentData as getPushshiftPostsForCommentData,
   getCommentsBySubreddit as pushshiftGetCommentsBySubreddit
 } from 'api/pushshift'
 import { getModlogsPromises } from 'api/common'
@@ -21,7 +20,15 @@ import { combinedGetItemsBySubredditOrDomain } from 'data_processing/subreddit_p
 export let useProxy = false
 
 export const retrieveRedditComments_and_combineWithPushshiftComments = (pushshiftComments) => {
-  return getRedditComments({objects: pushshiftComments, useProxy})
+  let quarantined_subreddits
+  if (useProxy) {
+    const comments_array = Object.values(pushshiftComments)
+    if (comments_array.length) {
+      // when useProxy=true, all comments are from the same subreddit
+      quarantined_subreddits = comments_array[0].subreddit
+    }
+  }
+  return getRedditComments({objects: pushshiftComments, quarantined_subreddits, useProxy})
   .then(redditComments => {
     return combinePushshiftAndRedditComments(pushshiftComments, redditComments)
   })
@@ -161,16 +168,19 @@ const setupCommentMeta = (archiveComment, redditComment) => {
   archiveComment.archive_processed = true
 }
 
-// Using Pushshift may be faster, but it is missing the quarantine field in submissions data
-export const getPostDataForComments = ({comments = undefined, link_ids_set = undefined, source = 'reddit'}) => {
+// Using Pushshift (getPushshiftPostsForCommentData) may be faster, but it is missing the quarantine field in submissions data
+export const getPostDataForComments = ({comments = undefined, link_ids_set = undefined, quarantined_subreddits}) => {
   if (! link_ids_set) {
     link_ids_set = Object.values(comments).reduce((map, obj) => (map[obj.link_id] = true, map), {})
   }
-  let queryFunction = getRedditItems
-  if (source === 'pushshift') {
-    queryFunction = getPushshiftPostsForCommentData
+  if (comments) {
+    const comments_array = Object.values(comments)
+    if (useProxy && comments_array.length && ! quarantined_subreddits) {
+      // when useProxy=true, all comments are from the same subreddit
+      quarantined_subreddits = comments_array[0].subreddit
+    }
   }
-  return queryFunction(Object.keys(link_ids_set), 'name', useProxy)
+  return getRedditItems({ids: Object.keys(link_ids_set), quarantined_subreddits, key: 'name', useProxy})
   .catch(() => { console.error(`Unable to retrieve full titles from ${source}`) })
 }
 
@@ -215,7 +225,7 @@ export const applyPostAndParentDataToComment = (postData, comment, applyPostLabe
 }
 
 export const getRevdditComments = ({pushshiftComments, subreddit_about_promise = Promise.resolve({})}) => {
-  const postDataPromise = getPostDataForComments({comments: pushshiftComments, useProxy})
+  const postDataPromise = getPostDataForComments({comments: pushshiftComments})
   const combinePromise = retrieveRedditComments_and_combineWithPushshiftComments(pushshiftComments)
   return Promise.all([postDataPromise, combinePromise, subreddit_about_promise])
   .then(values => {
@@ -278,12 +288,16 @@ export const setSubredditMeta = async (subreddit, global) => {
   let moderators_promise = getModerators(subreddit)
   let subreddit_about_promise = getSubredditAbout(subreddit)
   let over18 = false
+  let quarantined = false
+  const setQuarantined = (value) => {
+    quarantined = value
+  }
   const subreddit_lc = subreddit.toLowerCase()
   await Promise.all([moderators_promise, subreddit_about_promise])
   .catch((e) => {
     if (e.reason === 'quarantined') {
       useProxy = true
-      moderators_promise = getModerators(subreddit, true)
+      setQuarantined(true)
       subreddit_about_promise = getSubredditAbout(subreddit, true)
     }
     return Promise.all([moderators_promise, subreddit_about_promise])
@@ -293,7 +307,14 @@ export const setSubredditMeta = async (subreddit, global) => {
       redirectToHistory(subreddit)
     }
     over18 = subreddit_about.over18
-    global.setState({moderators: {[subreddit_lc]: moderators}, over18})
+    if (! quarantined && subreddit_about.hasOwnProperty('quarantine')) {
+      setQuarantined(subreddit_about.quarantine)
+    }
+    global.setState({
+      moderators: {[subreddit_lc]: moderators},
+      over18,
+      quarantined,
+    })
   })
   return {subreddit_about_promise}
 }

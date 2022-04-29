@@ -20,6 +20,7 @@ import { combinePushshiftAndRedditPosts, getRevdditPosts } from 'data_processing
 
 export const getRevdditItems = (global) => {
   const gs = global.state
+  const { quarantined_subreddits } = gs
   if (gs.url && gs.url.split('.').length > 1) {
     const url = decodeURI(gs.url)
     return getPostsByURL(global, url)
@@ -31,7 +32,7 @@ export const getRevdditItems = (global) => {
     else if (isPostID(id)) postIDs.push(id.slice(3))
   })
   // query PS twice, reddit in chunks, all at the same time
-  const reddit_promise = getRedditItems(ids)
+  const reddit_promise = getRedditItems({ids, quarantined_subreddits})
   const pushshift_promises = [getPushshiftComments(commentIDs),
                               getPushshiftPosts(postIDs)]
   return reddit_promise
@@ -64,7 +65,7 @@ export const getRevdditItems = (global) => {
       }
     })
     global.setState({items: redditItemsArray})
-    return getPostDataForComments({link_ids_set})
+    return getPostDataForComments({link_ids_set, quarantined_subreddits})
     .then(postData => {
       setPostAndParentDataForComments(Object.values(redditComments), postData)
       return global.setState({items: redditItemsArray})
