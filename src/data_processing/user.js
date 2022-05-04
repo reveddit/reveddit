@@ -67,7 +67,7 @@ function setRemovedBy(items_removedBy_undefined, ps_items) {
     const ps_item = ps_items[item.id]
     if (ps_item) {
       const retrievalLatency = ps_item.retrieved_on-ps_item.created_utc
-      const archiveRemoved = itemIsRemovedOrDeleted(ps_item)
+      const archiveRemoved = itemIsRemovedOrDeleted(ps_item, false)
       if (item.removed) {
         if (archiveRemoved) {
           if (retrievalLatency <= AUTOMOD_LATENCY_THRESHOLD) {
