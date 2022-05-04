@@ -73,7 +73,7 @@ const Post = connect((props) => {
 
   if (redditThumbnails.includes(props.thumbnail)) {
     thumbnail = <a href={url} className={`thumbnail thumbnail-${props.thumbnail}`} />
-  } else if (props.thumbnail !== '' && props.thumbnail !== 'spoiler') {
+  } else if (props.thumbnail && props.thumbnail !== 'spoiler') {
     thumbnail = (
       <a href={url}>
         <img className='thumbnail' src={props.thumbnail} width={thumbnailWidth} height={thumbnailHeight} alt='Thumbnail' />
