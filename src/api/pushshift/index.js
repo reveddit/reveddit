@@ -1,14 +1,16 @@
 import { toBase10, toBase36, chunk, flatten, getQueryString, promiseDelay } from 'utils'
 import { fetchWithTimeout } from 'api/common'
+
+export const comment_fields_for_user_page_lookup = ['id', 'retrieved_on' ,'created_utc' ,'author', 'retrieved_utc']
+export const post_fields_for_user_page_lookup = [
+  'id', 'retrieved_on' ,'created_utc' , 'is_robot_indexable', 'is_crosspostable', 'retrieved_utc']
+
+const post_fields = [...post_fields_for_user_page_lookup, 'thumbnail', 'author_fullname']
 const comment_fields = [
-  'id', 'author', 'author_fullname', 'body', 'created_utc', 'parent_id', 'score',
-  'subreddit', 'link_id', 'author_flair_text', 'retrieved_on', 'retrieved_utc',
+  ...comment_fields_for_user_page_lookup,
+  'author_fullname', 'body', 'parent_id', 'score',
+  'subreddit', 'link_id', 'author_flair_text',
   'distinguished', 'stickied' ]
-
-const comment_fields_for_user_page_lookup = ['id', 'retrieved_on' ,'created_utc' ,'author', 'retrieved_utc']
-const post_fields_for_user_page_lookup = ['id', 'retrieved_on' ,'created_utc' , 'is_robot_indexable', 'retrieved_utc']
-
-const post_fields = ['id', 'retrieved_on', 'created_utc', 'is_robot_indexable', 'is_crosspostable', 'retrieved_utc', 'thumbnail', 'author_fullname']
 
 const post_fields_for_comment_data = ['id', 'title', 'whitelist_status', 'url', 'author',
                                       'num_comments', 'quarantine', 'subreddit_subscribers']
