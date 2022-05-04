@@ -120,7 +120,14 @@ export const itemIsRemovedOrDeleted = (item, checkCommentBody=true) => {
       return removeBackslash(item.author).match(/^\[/)
     }
   } else if (item.name.slice(0,2) === 't3') {
-    return ! item.is_robot_indexable
+    // older archives may not have these properties
+    if (item.hasOwnProperty('is_robot_indexable')) {
+      return ! item.is_robot_indexable
+    } else if (item.hasOwnProperty('is_crosspostable')) {
+      return ! item.is_crosspostable
+    } else {
+      return false
+    }
   }
 }
 

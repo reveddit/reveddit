@@ -559,7 +559,7 @@ export const insertParent = (child_id, global) => {
         let combined = combinePushshiftAndRedditComments({}, redditComments, false, threadPost)
         let ps_promise = Promise.resolve(combined)
         if (comment.removed) {
-          ps_promise = getPushshiftComments([parent_id])
+          ps_promise = getPushshiftComments({ids: [parent_id]})
           .then(pushshiftComments => {
             if (pushshiftComments[parent_id]) {
               combined = combinePushshiftAndRedditComments(pushshiftComments, redditComments, false, threadPost)

@@ -33,8 +33,8 @@ export const getRevdditItems = (global) => {
   })
   // query PS twice, reddit in chunks, all at the same time
   const reddit_promise = getRedditItems({ids, quarantined_subreddits})
-  const pushshift_promises = [getPushshiftComments(commentIDs),
-                              getPushshiftPosts(postIDs)]
+  const pushshift_promises = [getPushshiftComments({ids: commentIDs}),
+                              getPushshiftPosts({ids: postIDs})]
   return reddit_promise
   .then(redditItems => {
     const redditComments = {}
@@ -80,7 +80,7 @@ export const getRevdditItems = (global) => {
           // removed comment depends on author info from pushshift
           setPostAndParentDataForComments(Object.values(combinedComments), postData)
           return combinePushshiftAndRedditPosts({
-            pushshiftPosts,
+            pushshiftPosts: Object.values(pushshiftPosts),
             redditPosts,
             includePostsWithZeroComments: true,
             isInfoPage: true})
@@ -151,7 +151,7 @@ export const getRevdditSearch = (global) => {
     }
     if (include_comments) {
       const commentIDs = Object.keys(results[0])
-      commentChildrenPromise = getPushshiftComments(commentIDs, 'parent_id', ['parent_id', 'id'])
+      commentChildrenPromise = getPushshiftComments({ids: commentIDs, field: 'parent_id', fields: ['parent_id', 'id']})
     }
     return Promise.all(nextPromises)
   })

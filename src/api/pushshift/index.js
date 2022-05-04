@@ -5,9 +5,10 @@ const comment_fields = [
   'subreddit', 'link_id', 'author_flair_text', 'retrieved_on', 'retrieved_utc',
   'distinguished', 'stickied' ]
 
-const comment_fields_for_autoremoved = ['id', 'retrieved_on' ,'created_utc' ,'author', 'retrieved_utc']
+const comment_fields_for_user_page_lookup = ['id', 'retrieved_on' ,'created_utc' ,'author', 'retrieved_utc']
+const post_fields_for_user_page_lookup = ['id', 'retrieved_on' ,'created_utc' , 'is_robot_indexable', 'retrieved_utc']
 
-const post_fields = ['id', 'retrieved_on', 'created_utc', 'is_robot_indexable', 'retrieved_utc', 'thumbnail', 'author_fullname']
+const post_fields = ['id', 'retrieved_on', 'created_utc', 'is_robot_indexable', 'is_crosspostable', 'retrieved_utc', 'thumbnail', 'author_fullname']
 
 const post_fields_for_comment_data = ['id', 'title', 'whitelist_status', 'url', 'author',
                                       'num_comments', 'quarantine', 'subreddit_subscribers']
@@ -16,7 +17,8 @@ const postURL = 'https://api.pushshift.io/reddit/submission/search/'
 const commentURL = 'https://api.pushshift.io/reddit/comment/search/'
 const elastic_commentURL = 'https://elastic.pushshift.io/rc/comments/_search?source='
 const maxNumItems = 1000
-const maxNumCommentsByID = 900
+const maxNumCommentsByID = 500
+const maxNumPostsByID = 500
 const waitInterval = 400
 
 // PUSHSHIFT_MAX_COUNT_PER_QUERY is max count items returned by pushshift per query
@@ -90,7 +92,7 @@ const fetchUrlWithParams = (url, queryParams, fetchFn = window.fetch, options = 
 
 // this expects short IDs in base36, without the t1_ prefix
 // fields must include 'id'
-export const getCommentsByID = async (ids, field='ids', fields=comment_fields) => {
+export const getCommentsByID = async ({ids, field='ids', fields=comment_fields}) => {
   const results = {}
   let i = 0
   for (const ids_chunk of chunk(ids, maxNumCommentsByID)) {
@@ -103,7 +105,7 @@ export const getCommentsByID = async (ids, field='ids', fields=comment_fields) =
   return results
 }
 
-export const getCommentsByID_chunk = (ids, field='ids', fields=comment_fields, results={}) => {
+const getCommentsByID_chunk = (ids, field='ids', fields=comment_fields, results={}) => {
   const queryParams = {
     fields: fields.join(','),
     size: ids.length,
@@ -114,6 +116,7 @@ export const getCommentsByID_chunk = (ids, field='ids', fields=comment_fields, r
     .then(data => {
       data.data.forEach(item => {
         update_retrieved_field(item)
+        item.name = 't1_'+item.id // don't need to retrieve name from archive, but itemIsRemovedOrDeleted() expects it
         results[item.id] = item
       })
       return results
@@ -121,8 +124,7 @@ export const getCommentsByID_chunk = (ids, field='ids', fields=comment_fields, r
 }
 
 export const getPostsByIDForCommentData = (ids) => {
-  const fields = post_fields_for_comment_data
-  return getPostsByID(ids.map(id => id.slice(3)), fields)
+  return getPostsByID({ids: ids.map(id => id.slice(3)), fields: post_fields_for_comment_data})
   .then(posts => {
     return posts.reduce((map, obj) => (map[obj.name] = obj, map), {})
   })
@@ -198,13 +200,19 @@ export const getItemsBySubredditOrDomain = function(
 }
 
 
-export const getPostsByID = (ids, fields = post_fields) => {
-  return Promise.all(chunk(ids, maxNumItems)
+export const getPostsByID = ({ids, fields = post_fields}) => {
+  return Promise.all(chunk(ids, maxNumPostsByID)
     .map(ids => getPostsByID_chunk(ids, fields)))
-    .then(flatten)
+    .then(dictionaries => {
+      const results = {}
+      for (const dict of dictionaries) {
+        Object.assign(results, dict)
+      }
+      return results
+    })
 }
 
-export const getPostsByID_chunk = (ids, fields = post_fields) => {
+const getPostsByID_chunk = (ids, fields = post_fields) => {
   const params = {
     ids: ids.join(','),
     fields: fields.join(','),
@@ -212,11 +220,13 @@ export const getPostsByID_chunk = (ids, fields = post_fields) => {
   return fetchUrlWithParams(postURL, params)
     .then(response => response.json())
     .then(data => {
+      const result = {}
       data.data.forEach(post => {
         update_retrieved_field(post)
         post.name = 't3_'+post.id
+        result[post.id] = post
       })
-      return data.data
+      return result
     })
 }
 
@@ -232,42 +242,6 @@ export const getPost = id => {
       return {}
     }
   })
-}
-
-// Function intended to be called with userpage-driven IDs
-// note: if a post is old, pushshift will not have the is_robot_indexable field..
-//       technically, this should be marked as removedby='unknown'
-//       to simplify logic, in pages/user/index.js, marking this as removed by 'mod (or automod)'
-export const getAutoremovedItems = names => {
-  const queryParams = {}
-  let isPostQuery = true
-  let apiURL = postURL
-  queryParams['fields'] = post_fields.join(',')
-  if (names[0].slice(0,2) === 't1') {
-    isPostQuery = false
-    apiURL = commentURL
-    queryParams['fields'] = comment_fields_for_autoremoved.join(',')
-  }
-  queryParams['ids'] = names.map(name => name.slice(3)).join(',')
-
-  return fetchUrlWithParams(apiURL, queryParams)
-    .then(response => response.json())
-    .then(data => {
-      const items = []
-      data.data.forEach(item => {
-        update_retrieved_field(item)
-        if (isPostQuery) {
-          if ('is_robot_indexable' in item &&
-              ! item.is_robot_indexable) {
-            items.push(item)
-          }
-        } else if (item.author.replace(/\\/g,'') === '[deleted]') {
-          items.push(item)
-        }
-      })
-      return items
-    })
-    .catch(() => { throw new Error('Unable to access Pushshift, cannot load removed-by labels') })
 }
 
 // this is not currently working on reveddit due to missing access-control-allow-origin header

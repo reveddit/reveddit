@@ -8,12 +8,16 @@ import {
 } from 'api/reddit'
 import { getMissingComments } from 'api/reveddit'
 import {
-  getAutoremovedItems
+  getCommentsByID, getPostsByID,
+  post_fields_for_user_page_lookup,
+  comment_fields_for_user_page_lookup,
 } from 'api/pushshift'
 import { REMOVAL_META, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
          MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED,
          AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
-import { itemIsRemovedOrDeleted, isComment, isPost, SimpleURLSearchParams,
+import {
+  itemIsRemovedOrDeleted,
+  isComment, isPost, SimpleURLSearchParams,
 } from 'utils'
 import { setPostAndParentDataForComments } from 'data_processing/info'
 import { setMissingCommentMeta } from 'data_processing/missing_comments'
@@ -22,8 +26,8 @@ const verify = 'Verify the url and reload this page to double check. '
 const deleted_shadowbanned_notexist = 'may be deleted, shadowbanned, or may not exist. '
 
 function lookupAndSetRemovedBy(global) {
-  const comment_names = []
-  const post_names = []
+  const comment_ids = []
+  const post_ids = []
   const comments_removedBy_undefined = []
   const posts_removedBy_undefined = []
   const gs = global.state
@@ -31,26 +35,24 @@ function lookupAndSetRemovedBy(global) {
     if (item.removedby === undefined && ! item.unknown) {
       if (isComment(item)) {
         comments_removedBy_undefined.push(item)
-        comment_names.push(item.name)
+        comment_ids.push(item.id)
       } else if (isPost(item)) {
         posts_removedBy_undefined.push(item)
-        post_names.push(item.name)
+        post_ids.push(item.id)
       }
     }
   })
   let comments_promise = Promise.resolve()
   if (comments_removedBy_undefined.length) {
-      comments_promise = getAutoremovedItems(comment_names).then(ps_comments_autoremoved => {
-      const removed_meta = setRemovedBy(comments_removedBy_undefined, ps_comments_autoremoved)
-    })
-    .catch(global.setError)
+      comments_promise = getCommentsByID({ids: comment_ids, fields: comment_fields_for_user_page_lookup}).then(ps_comments => {
+        setRemovedBy(comments_removedBy_undefined, ps_comments)
+      })
   }
   let posts_promise = Promise.resolve()
   if (posts_removedBy_undefined.length) {
-      posts_promise = getAutoremovedItems(post_names).then(ps_posts_autoremoved => {
-      const removed_meta = setRemovedBy(posts_removedBy_undefined, ps_posts_autoremoved)
-    })
-    .catch(global.setError)
+      posts_promise = getPostsByID({ids: post_ids, fields: post_fields_for_user_page_lookup}).then(ps_posts => {
+        setRemovedBy(posts_removedBy_undefined, ps_posts)
+      })
   }
 
   return Promise.all([comments_promise, posts_promise])
@@ -60,37 +62,35 @@ function lookupAndSetRemovedBy(global) {
 // should change ps_autoremoved_map key if want to do both at same time
 // - the fix: check for existence of a field that's always existed in one
 //      but not the other, e.g. link_id is in all PS comments and not in submissions
-function setRemovedBy(items_removedBy_undefined, ps_items_autoremoved) {
-  const removed_meta = {}
-  const ps_autoremoved_map = {}
-  ps_items_autoremoved.forEach(c => {
-    ps_autoremoved_map[c.id] = c
-  })
+function setRemovedBy(items_removedBy_undefined, ps_items) {
   items_removedBy_undefined.forEach(item => {
-    const ps_item = ps_autoremoved_map[item.id]
+    const ps_item = ps_items[item.id]
     if (ps_item) {
       const retrievalLatency = ps_item.retrieved_on-ps_item.created_utc
+      const archiveRemoved = itemIsRemovedOrDeleted(ps_item)
       if (item.removed) {
-        if (retrievalLatency <= AUTOMOD_LATENCY_THRESHOLD) {
-          item.removedby = AUTOMOD_REMOVED
-          removed_meta[name] = AUTOMOD_REMOVED
+        if (archiveRemoved) {
+          if (retrievalLatency <= AUTOMOD_LATENCY_THRESHOLD) {
+            item.removedby = AUTOMOD_REMOVED
+          } else {
+            item.removedby = UNKNOWN_REMOVED
+          }
         } else {
-          item.removedby = UNKNOWN_REMOVED
-          removed_meta[name] = UNKNOWN_REMOVED
+          // when archive item is not removed, it's less likely to have been auto-removed.
+          // so, regardless of retrieval latency, can mark as mod removed
+          item.removedby = MOD_OR_AUTOMOD_REMOVED
         }
-      } else {
+      } else if (archiveRemoved) {
         item.removedby = AUTOMOD_REMOVED_MOD_APPROVED
-        removed_meta[name] = AUTOMOD_REMOVED_MOD_APPROVED
+      } else {
+        item.removedby = NOT_REMOVED
       }
     } else if (item.removed) {
       item.removedby = UNKNOWN_REMOVED
-      removed_meta[name] = UNKNOWN_REMOVED
     } else {
       item.removedby = NOT_REMOVED
-      removed_meta[name] = NOT_REMOVED
     }
   })
-  return removed_meta
 }
 const blankMissingComments = {comments: {}}
 let missing_comments_promise = Promise.resolve(blankMissingComments)
@@ -212,6 +212,7 @@ const getItems = async (user, kind, global, sort, before = '', after = '', time,
   const userPage_item_lookup = {}
   const ids = [], comments = []
   const items = gs.items
+
   userPageData.items.forEach((item, i) => {
     userPage_item_lookup[item.name] = item
     item.rev_position = items.length + i
@@ -229,6 +230,10 @@ const getItems = async (user, kind, global, sort, before = '', after = '', time,
     }
     if (isPost(item)) {
       item.selftext = ''
+      // posts do not appear in redditInfoItems
+      if (itemIsRemovedOrDeleted(item, false)) {
+        item.removed = true
+      }
     } else {
       comments.push(item)
       if (item.link_author === item.author) {
@@ -257,6 +262,7 @@ const getItems = async (user, kind, global, sort, before = '', after = '', time,
     }
   })
   const redditInfoItems = data.info
+  // posts do not appear in redditInfoItems
   Object.values(redditInfoItems).forEach(item => {
     if (itemIsRemovedOrDeleted(item, false)) {
       userPage_item_lookup[item.name].removed = true
