@@ -92,6 +92,8 @@ const questions = {
     content: <>
       <p>Here are some examples of how people react when they discover the way reddit handles removals:</p>
       <ul className='news'>
+        <NewsItem href='/r/dataisbeautiful/comments/uoz0dj/oc_graph_of_the_popularity_of_a_post_i_made_about/' created_utc='1652469129' title='r/dataisbeautiful' newsText="what is the supposed rationale for making you think a removed post is still live and visible?"/>
+        <NewsItem href='/r/InternetIsBeautiful/comments/uomt5z/revedditcom_this_clever_site_will_show_you_how/' created_utc='1652429251' title='r/InternetIsBeautiful' newsText="So the mods delete comments, but have them still visible to the writer. How sinister."/>
         <NewsItem reddit='/r/technology/comments/jp4j76/google_admits_to_censoring_the_world_socialist/gbckafs/?sort=top&limit=500' created_utc='1604673578' title='r/technology' newsText="Wow. Can they remove your comment and it still shows up on your side as if it wasn't removed?"/>
         <NewsItem href='/v/InternetIsBeautiful/comments/jp8xbg/you_can_see_which_commentsposts_of_yours_have/' created_utc='1604682454' title='r/InternetIsBeautiful' newsText="Today I learned that the reason noone ever replies to my posts is because they all get removed."/>
         <NewsItem href='/v/mildlyinfuriating/comments/owm7pj/i_posted_this_on_facebook_and_now_im_banned_for_3/h7ht06g/?ps_after=1627946797,1627966896,1627983960,1627999109,1628847752#t1_h7k144g' created_utc='1627950249' title='r/mildlyinfuriating' newsText="Wow. I’ve been on here 12 years and always thought it was a cool place where people could openly share ideas. Turns out it’s more censored than China. Being removed in 3,2,1…"/>
