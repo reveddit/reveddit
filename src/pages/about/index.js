@@ -36,10 +36,11 @@ export const ContentWithHeader = ({header, children, half, id}) => {
   )
 }
 
-export const NewsItem = ({to, title, created_utc, newsText = '', timePrefix = '', ...props}) => {
+export const NewsItem = ({to, title, created_utc, newsText = '', timePrefix = '', archive = '', ...props}) => {
+  const archiveLink = archive ? <> (<NewWindowLink href={archive}>archive</NewWindowLink>)</> : <></>
   const link = (props.href || props.reddit) ? <NewWindowLink {...props}>{title}</NewWindowLink> : <Link to={to}>{title}</Link>
   const blurb = newsText ? <li><span style={{fontStyle:'italic'}}>...{newsText}</span></li> : <></>
-  return <li>{link}
+  return <li>{link}{archiveLink}
     <ul>{blurb}<li>{timePrefix}<Time created_utc={created_utc} {...props}/></li></ul></li>
 }
 
