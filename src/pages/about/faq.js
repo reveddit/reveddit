@@ -42,7 +42,7 @@ const add_modlogs_message = <MessageMods innerText='pre-filled message'
 const suppressedRemovalNoticeLink = '/r/ModSupport/comments/e6llgl/sorry_this_post_was_removed_by_reddits_spam/f9rbryk/'
 const id_doesntSayPostRemoved = 'reddit-does-not-say-post-removed'
 const old_removed_post = '/r/ProgrammerHumor/comments/9emzhp/turk_tv_found_the_reason_for_chromes_memory_usage/'
-
+const botban = <NewWindowLink reddit='/r/AutoModerator/wiki/library#wiki_user_bot_ban_list'>"bot ban"</NewWindowLink>
 const questions = {
   description: {
     header: 'What is this?',
@@ -71,7 +71,7 @@ const questions = {
         You can verify this by opening the link to your content in an incognito window or while logged out. Your comment (or post's body) will not appear.
       </p>
       <p>
-        Moderators may also silently ban users from a subreddit using what Reddit's Automoderator docs call a <NewWindowLink reddit='/r/AutoModerator/wiki/library#wiki_user_bot_ban_list'>"bot ban"</NewWindowLink>:
+        Moderators may also silently ban users from a subreddit using what Reddit's Automoderator docs once called a "shadowban"<SamePageHashLink id='shadowban'><sup>3</sup></SamePageHashLink> and now call a {botban}:
       </p>
       <blockquote>
         With a bot ban, <em>some</em> users won't realize they've been banned.
@@ -102,6 +102,25 @@ const questions = {
         <NewsItem reddit='/r/science/comments/duwdco/should_moderators_provide_removal_explanations/f79o1yr/' created_utc='1573496256' title='r/science' newsText="Isn't that a no brainer? Feedback makes you better, no feedback discourages you and you don't learn anything."/>
         <NewsItem to='/about/#say' created_utc='1549684242' suffix=' — present' title='Selected comments: What people say'/>
       </ul>
+  </>},
+  shadowban: {
+    header: 'What is a shadowban?',
+    content: <>
+      <p>
+        A shadowban hides all of a user's content from public view without alerting them to the ban. It can be applied site-wide by admins, or only within a given subreddit by that group's moderators.
+      </p>
+      <p>
+        Reveddit can indicate both site-wide and subreddit-based shadowbans via a user's profile. <a href='/u/redditor_2912385'>u/redditor_2912385</a> has a site-wide shadowban.
+      </p>
+      <p>
+        A subreddit shadowban looks like <NewWindowLink href='https://archive.ph/ktKp1'>this</NewWindowLink>, where all content for one subreddit is removed. That may indicate moderators applied a {botban}, which users often refer to as a subreddit shadowban. Or, it may indicate the user does not meet subreddit requirements (karma, age, and verified email).
+      </p>
+      <p>
+        Reddit's Automoderator documentation now refers to subreddit shadowbans as bot bans. Up until 2020 they called it a <NewWindowLink reddit='/r/AutoModerator/wiki/library?v=acf57c63-a777-11ea-968c-0e74c30ff64f#wiki_user_shadowban_list'>shadowban</NewWindowLink>.
+      </p>
+      <p>
+        <NewWindowLink reddit='/r/ShadowBan/'>r/ShadowBan</NewWindowLink> may also indicate site-wide shadowbans.
+      </p>
   </>},
   firefox: {
     header: 'Why should I disable tracking protection in Firefox?',
