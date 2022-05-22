@@ -1,7 +1,7 @@
 import React from 'react'
 import {itemIsCollapsed, commentIsMissingInThread,
         isPost, getRemovedWithinText, postRemovedUnknownWithin,
-        commentIsRemoved, getPrettyTimeLength,
+        commentIsRemoved, getPrettyTimeLength, postDeletedFirstByAuthor,
 } from 'utils'
 import ModalContext from 'contexts/modal'
 import {QuestionMark} from 'pages/common/svg'
@@ -80,7 +80,7 @@ export const ORPHANED_META = {filter_text: 'orphaned',
 
 export const USER_REMOVED_META = {filter_text: 'user deleted',
                                         label: '[deleted] by user',
-                                         desc: 'The author of this content deleted it. Posts may have been first removed by a moderator.',
+                                         desc: 'The author of this content deleted it.',
                                   reddit_link: '/r/removeddit/comments/ir1oyw/_/g5fgxgl/?context=3#thing_t1_g5fgxgl'}
 
 export const RESTORED_META = {filter_text: unarchived_label_text,
@@ -126,7 +126,7 @@ const RemovedBy = (props) => {
   let displayTag = '', details = '', meta = undefined, withinText = '', fill = undefined,
       allActionsExceptLocked = '', lockedTag = '', temporarilyVisible = '', alternateLabel = ''
   let {removedby, orphaned_label = '', style,
-       locked, removed, deleted, modlog, name,
+       locked, removed, deleted, modlog, name, permalink,
        removed_by_category,
       } = props
   const is_post = name && isPost(props)
@@ -202,6 +202,8 @@ const RemovedBy = (props) => {
       }
     } else if (removedby === APPROVED) {
       modalDetailsItems.push( <ModlogDetails {...props} modlog={modlog} text='Approved'/> )
+    } else if (deleted && is_post && permalink && ! postDeletedFirstByAuthor(props)) {
+      modalDetailsItems.push(<p>It was originally removed by a moderator. <NewWindowLink reddit={permalink} redesign={true}>New reddit</NewWindowLink> may show more details.</p>)
     }
     if (props.wayback_path) {
       modalDetailsItems.push(<p>source: <NewWindowLink href={'https://web.archive.org'+props.wayback_path}>Wayback Machine</NewWindowLink></p>)

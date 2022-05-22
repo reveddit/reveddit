@@ -135,6 +135,10 @@ export const postIsDeleted = post => {
   return itemIsRemovedOrDeleted(post) && authorDeleted(post)
 }
 
+export const postDeletedFirstByAuthor = post => {
+  return ! post.removed_by_category || post.removed_by_category === 'author' || post.removed_by_category === 'deleted'
+}
+
 export const postIsRemoved = post => {
   return itemIsRemovedOrDeleted(post) && ! authorDeleted(post)
 }
