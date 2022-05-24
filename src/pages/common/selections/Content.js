@@ -39,7 +39,6 @@ const ContentLink = connect(({expected_suffix, description,
     </div>
   )
 })
-const from = 'from this subreddit'
 const out = 'May be several months out of date.'
 const un = 'r/undelete'
 const pushshift = <>This page is up to date according to the status shown on <a href='/info/'>/info</a>.</>
@@ -47,22 +46,22 @@ const pushshift = <>This page is up to date according to the status shown on <a 
 const content_help =
   <>
     <h3>posts</h3>
-    <p>Recent posts {from}. {pushshift}</p>
+    <p>Recent posts. {pushshift}</p>
     <h3>comments</h3>
-    <p>Recent comments {from}. {pushshift}</p>
+    <p>Recent comments. {pushshift}</p>
     <h3>post history</h3>
-    <p>Archived highly upvoted removed posts {from}. {out}</p>
+    <p>Archived highly upvoted removed posts. {out}</p>
     <h3>comment history</h3>
-    <p>Archived highly upvoted removed comments {from}. {out}</p>
+    <p>Archived highly upvoted removed comments. {out}</p>
     <h3>r/all posts</h3>
-    <p>Archived removed posts that had hit r/all {from}. This page is up to date if the <NewWindowLink reddit={`/${un}`}>{un}</NewWindowLink> bot is running.</p>
+    <p>Archived removed posts that had hit r/all. This page is up to date if the <NewWindowLink reddit={`/${un}`}>{un}</NewWindowLink> bot is running.</p>
     <h3>lost comments</h3>
-    <p>Comments {from} that do not appear in the thread unless directly linked. <NewWindowLink reddit='/gwzbxp'>more info</NewWindowLink></p>
+    <p>Comments that do not appear in the thread unless directly linked. <NewWindowLink reddit='/gwzbxp'>more info</NewWindowLink></p>
   </>
 
 const Content = ({global, subreddit, page_type}) => {
   return (
-    <Selection className='content' title='Content' titleHelpModal={{content: content_help}}>
+    <Selection className='content' title='Content' titleHelpModal={page_type !== 'user' ? {content: content_help} : null}>
       {page_type === 'user' &&
         <>
           <ContentLink expected_suffix='' description='comments and posts'/>
