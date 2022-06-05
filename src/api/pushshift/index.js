@@ -44,7 +44,9 @@ export const queryPosts = (params) => {
 }
 
 const queryItems = ({q, author, subreddit, n = 500, sort='desc', sort_type, before, after, domain,
-                       url, selftext, parent_id, stickied, title, distinguished},
+                     url, selftext, parent_id, stickied, title, distinguished,
+                     user_flair: author_flair_text,
+                     },
                      apiURL, fields, prefix, key = 'name') => {
   const results = {}
   if (after && ! before && ! sort_type) {
@@ -56,6 +58,7 @@ const queryItems = ({q, author, subreddit, n = 500, sort='desc', sort_type, befo
     fields: fields.join(','),
     ...(q && {q}),
     ...(author && {author}),
+    ...(author_flair_text && {author_flair_text}),
     ...(subreddit && {subreddit}),
     ...(after && {after: ifNumParseAndAdd(after, -1)}),
     ...(before && {before: ifNumParseAndAdd(before, 1)}),

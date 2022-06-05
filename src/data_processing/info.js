@@ -102,8 +102,11 @@ export const setPostAndParentDataForComments = (comments, postData) => {
 }
 
 export const getRevdditSearch = (global) => {
-  const {q, author, subreddit, n, before, after, domain, or_domain,
-         content, url, stickied, title, selftext, distinguished, sort_type} = global.state
+  const {
+    q, author, subreddit, n, before, after, domain, or_domain,
+    content, url, stickied, title, selftext, distinguished, sort_type,
+    s_user_flair,
+  } = global.state
   const promises = []
   const notAuthors = new Set(), authors = new Set()
   author.toLowerCase().split(',').forEach(authorString => {
@@ -116,14 +119,21 @@ export const getRevdditSearch = (global) => {
     }
   })
   let include_comments = false
+  const common_params = {
+    author, user_flair: s_user_flair, subreddit, n, before, after, stickied,
+    distinguished, sort_type,
+  }
   if ((content === 'comments' || content === 'all') && ! url) {
     include_comments = true
-    promises.push(pushshiftQueryComments({q, author, subreddit, n, before, after, stickied, distinguished, sort_type}))
+    promises.push(pushshiftQueryComments({...common_params, q}))
   }
   if (content === 'posts' || content === 'all') {
-    promises.push(pushshiftQueryPosts({q, author, subreddit, n, before, after, domain, url, stickied, title, selftext, distinguished, sort_type}))
+    const common_post_params = {
+      title, selftext, ...common_params,
+    }
+    promises.push(pushshiftQueryPosts({...common_post_params, q, domain, url }))
     if (or_domain) {
-      promises.push(pushshiftQueryPosts({domain: or_domain, author, subreddit, n, before, after, stickied, title, selftext, distinguished, sort_type}))
+      promises.push(pushshiftQueryPosts({...common_post_params, domain: or_domain }))
     }
   }
   let commentChildrenPromise = undefined

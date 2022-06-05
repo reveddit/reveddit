@@ -109,6 +109,7 @@ export const urlParamKeys = {
   frontPage: 'frontPage',
   n: 'n',
   q: 'q', author: 'author', subreddit: 's_subreddit', after: 'after', domain: 's_domain', or_domain: 's_or_domain',
+  s_user_flair: 's_user_flair',
   ps_after: 'ps_after',
   title: 'title', selftext: 'selftext',
   content: 'content',
