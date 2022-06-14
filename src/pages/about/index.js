@@ -82,10 +82,10 @@ const news = [
    title:'tip: /y and /v aliases for /user and /r',
    created_utc:'1569812523'},
   {reddit:'/r/shortcuts/comments/ct64s6/is_it_possible_to_modify_a_copied_link/exkas2j/?context=3',
-   title:'reveddit shortcut for iOS',
+   title:'Reveddit shortcut for iOS',
    created_utc:'1566381957'},
   {reddit:'/clwnxg/',
-   title:'reveddit linker extension',
+   title:'Reveddit linker extension',
    created_utc:'1564927561'},
   {reddit:'/9n9l45/',
    title:'site launch',
@@ -196,7 +196,7 @@ export class About extends React.Component {
               </ul>
             </ContentWithHeader>
             <ContentWithHeader header='Site usage' half={true}>
-              <p>Insert <span className='v'>ve</span> into the URL of any reddit page.</p>
+              <p>Insert <span className='v'>ve</span> into the URL of any Reddit page.</p>
               <ul>
                 <li><a href={PATH_STR_USER+'/redditor_3975/'}>user/redditor_3975</a></li>
                 <li><a href={PATH_STR_SUB+'/CantSayAnything/'}>r/CantSayAnything</a></li>
@@ -213,7 +213,7 @@ export class About extends React.Component {
           </Row>
           <Row>
             <ContentWithHeader header='Donate' half={true}>
-              <p>reveddit is free and ad-free. You can support work like this with a <Link to='donate'>donation</Link>, <Link to='contact'>feedback</Link>, or <NewWindowLink href='https://github.com/reveddit/reveddit'>pull requests</NewWindowLink>.</p>
+              <p>Reveddit is free and ad-free. You can support work like this with a <Link to='donate'>donation</Link>, <Link to='contact'>feedback</Link>, or <NewWindowLink href='https://github.com/reveddit/reveddit'>pull requests</NewWindowLink>.</p>
               <p>Thank you!</p>
             </ContentWithHeader>
           </Row>

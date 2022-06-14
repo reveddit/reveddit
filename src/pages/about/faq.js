@@ -16,7 +16,7 @@ export const pinPostLink = '/user/me/submit?title=See+which+comments+of+yours+ha
 
 
 const reasons = [
-  <li key='m'>In many cases, reddit sends no message about removals. Messages can <i>optionally</i> be sent by subreddit moderators.</li>,
+  <li key='m'>In many cases, Reddit sends no message about removals. Messages can <i>optionally</i> be sent by subreddit moderators.</li>,
   <li key='i'>Reddit shows you your removed comments, and sometimes posts<SamePageHashLink id='reddit-does-not-say-post-removed'><sup>2</sup></SamePageHashLink>, as if they are not removed.<div style={{textAlign:'center'}}><img src="/images/removed-views.png" style={{maxWidth:'100%'}}/></div></li>
 ]
 const cantSayAnything_modlogConfig = '/r/CantSayAnything/wiki/modlog_config'
@@ -47,8 +47,8 @@ const questions = {
   description: {
     header: 'What is this?',
     content: <>
-      <p>Reveddit reveals content removed from reddit by moderators. It does not show user-deleted content.<SamePageHashLink id='user-deleted'><sup>1</sup></SamePageHashLink></p>
-      <p>To use it, insert <span className='v'>ve</span> or just <span className='v'>v</span> into the URL of any page on reddit, including user pages, subreddits, threads and more.</p>
+      <p>Reveddit reveals content removed from Reddit by moderators. It does not show user-deleted content.<SamePageHashLink id='user-deleted'><sup>1</sup></SamePageHashLink></p>
+      <p>To use it, insert <span className='v'>ve</span> or just <span className='v'>v</span> into the URL of any page on Reddit, including user pages, subreddits, threads and more.</p>
   </>},
   need: {
     header: 'Why do I need it?',
@@ -80,17 +80,17 @@ const questions = {
   extension: {
     header: 'Can I be notified of removals?',
     content: <>
-      <p>Yes, <ExtensionLink/> notifies you when any of your content on reddit has been removed.</p>
+      <p>Yes, <ExtensionLink/> notifies you when any of your content on Reddit has been removed.</p>
   </>},
   'linker-extension': {
     header: 'How can I switch between sites?',
     content: <>
-      <p><ExtensionLink extensionID='linker'/> adds buttons that let you alternate between reddit and reveddit. Alternatively, you can drag the bookmarklet {bookmarklet} to your bookmarks bar. Find <Link to='/add-ons/'>more add-ons here</Link>.</p>
+      <p><ExtensionLink extensionID='linker'/> adds buttons that let you alternate between Reddit and Reveddit. Alternatively, you can drag the bookmarklet {bookmarklet} to your bookmarks bar. Find <Link to='/add-ons/'>more add-ons here</Link>.</p>
   </>},
   react: {
     header: 'How do people react?',
     content: <>
-      <p>Here are some examples of how people react when they discover the way reddit handles removals:</p>
+      <p>Here are some examples of how people react when they discover the way Reddit handles removals:</p>
       <ul className='news'>
         <NewsItem archive='https://archive.ph/2qThg' href='/v/dataisbeautiful/comments/uoz0dj/oc_graph_of_the_popularity_of_a_post_i_made_about/?ps_after=1652483097%2C1652496777%2C1652514012%2C1652611296&add_user=Spokker..c.new..t1_i8hkwxn..%2CAlaska_Jack..c.new..t1_i8hkreu..%2Cpastdecisions..c.new..t1_i8hr4pm..%2CSoDakZak..c.new..t1_i8hnmz9..%2Cboomer_stoke..c.new..t1_i8g55uw..%2Crhaksw..c.new..t1_i8h0rcz..%2CQueasy-Dingo-8586..c.new..t1_i8hfcx2..%2CKinexity..c.new..t1_i8ii8uk..%2Cdeath_of_gnats..c.new..t1_i8ipe62..%2CMason11987..c.new..t1_i8int54..%2CVenkman_P..c.new..t1_i8ih1sg..%2Creidmrdotcom..c.new..t1_i8dmamu..%2Cbradles0..c.new..t1_i8iv02z..%2Cgratefulyme..c.new..t1_i8csgpm..%2CMaxTHC..c.new..t1_i8jv0pl..%2CLanzus_Longus..c.new..t1_i8jx4j8..%2C4xTHESPEED..c.new..t1_i8k7nqm..%2COk-Hamster5571..c.new..t1_i8j40de..&keywords=-%22%5E%5C%5B%28removed%7Cdeleted%29%5C%5D%24%22&limitCommentDepth=false' created_utc='1652469129' title='r/dataisbeautiful' newsText="what is the supposed rationale for making you think a removed post is still live and visible?"/>
         <NewsItem reddit='/r/InternetIsBeautiful/comments/uomt5z/revedditcom_this_clever_site_will_show_you_how/' created_utc='1652429251' title='r/InternetIsBeautiful' newsText="So the mods delete comments, but have them still visible to the writer. How sinister."/>
@@ -126,7 +126,7 @@ const questions = {
     header: 'Why should I disable tracking protection in Firefox?',
     content: <>
       <p>A Firefox partner named disconnect.me maintains a list of domains that it calls trackers.
-         Reddit is <NewWindowLink href='https://github.com/disconnectme/disconnect-tracking-protection/blob/b3f9cdcea541ab876e63970daadc490f9de2befa/services.json#L10851'>on that list</NewWindowLink>, so requests to reddit are blocked.
+         Reddit is <NewWindowLink href='https://github.com/disconnectme/disconnect-tracking-protection/blob/b3f9cdcea541ab876e63970daadc490f9de2befa/services.json#L10851'>on that list</NewWindowLink>, so requests to Reddit are blocked.
          The only way to fix this right now is to disable the feature. <NewWindowLink reddit='/r/technology/comments/jp4j76/_/gbfqdf2/?context=1'>more info</NewWindowLink>
       </p>
   </>},
@@ -138,22 +138,22 @@ const questions = {
       </p>
   </>},
   'user-deleted': {
-    header: 'Does reveddit show user-deleted content?',
+    header: 'Does Reveddit show user-deleted content?',
     content: <>
-      <p>No, user-deleted content does not appear on reveddit. See <NewWindowLink reddit='/r/reveddit/comments/ih86wk/whats_it_mean_when_a_comment_has_been_restored/g75nxjx/'>this discussion on r/reveddit</NewWindowLink> and <NewWindowLink reddit='/r/removeddit/comments/ir1oyw/rip_removeddit_ceddit_reveddit/g5fgxgl/?context=3#thing_t1_g5fgxgl'>this one on r/removeddit</NewWindowLink> for more info.</p>
+      <p>No, user-deleted content does not appear on Reveddit. See <NewWindowLink reddit='/r/reveddit/comments/ih86wk/whats_it_mean_when_a_comment_has_been_restored/g75nxjx/'>this discussion on r/Reveddit</NewWindowLink> and <NewWindowLink reddit='/r/removeddit/comments/ir1oyw/rip_removeddit_ceddit_reveddit/g5fgxgl/?context=3#thing_t1_g5fgxgl'>this one on r/removeddit</NewWindowLink> for more info.</p>
       <p>Please note,</p>
       <ul>
-        <li>Only reddit's <code>delete</code> button removes content from reveddit. A moderator can also use the <code>remove</code> button on their own content in subs they moderate. In that case the content will still appear on reveddit.</li>
-        <li>If a moderator removes a comment, and then later the author deletes the comment, that comment will not appear on reveddit user pages and may still appear in reveddit threads. The reddit API does not have a way to show when authors delete mod-removed comments.</li>
+        <li>Only Reddit's <code>delete</code> button removes content from Reveddit. A moderator can also use the <code>remove</code> button on their own content in subs they moderate. In that case the content will still appear on Reveddit.</li>
+        <li>If a moderator removes a comment, and then later the author deletes the comment, that comment will not appear on Reveddit user pages and may still appear in Reveddit threads. The Reddit API does not have a way to show when authors delete mod-removed comments.</li>
       </ul>
   </>},
   [id_doesntSayPostRemoved]: {
-    header: 'Reddit does not say my post is removed. Why does reveddit say it is?',
+    header: 'Reddit does not tell me my post is removed. Why does Reveddit say it is?',
     content: <>
-      <p><ExtensionLink/> always shows post removal notices on both old and new reddit.</p>
-      <p>Reddit does not tell you when posts (links) are removed if:</p>
+      <p><ExtensionLink/> always shows post removal notices on both old and new Reddit.</p>
+      <p>Reddit does not ping authors when their posts (links) are removed. In addition, Reddit does not display the post removal notice on removed posts if:</p>
         <ul>
-          <li>reddit's spam filter removed the post, and the post is <NewWindowLink reddit={suppressedRemovalNoticeLink}>less than 24 hours old.</NewWindowLink>
+          <li>Reddit's spam filter removed the post, and the post is <NewWindowLink reddit={suppressedRemovalNoticeLink}>less than 24 hours old.</NewWindowLink>
             <ul>
               <li>A subreddit's "spam filter strength" setting may impact how often this occurs. Some subreddits set this to remove all posts up front.</li>
               <li>You can <NewWindowLink reddit={'/r/CantSayAnything/submit?title=A post that will be auto-removed without showing a removal notice.'+'&text='+encodeURIComponent(`Reddit's removal notice will not appear on this post [for 24 hours](${www_reddit+suppressedRemovalNoticeLink}). No evidence of its removal will be presented to the logged-in author. For the author:\n\n* It will appear in r/CantSayAnything/new\n* Its contents will be visible. Other users would see `+"`[removed]` if they could find the link to the post."+`\n\nThis post was created via https://www.reveddit.com/about/faq/#${id_doesntSayPostRemoved}`)}>post in r/CantSayAnything</NewWindowLink> to see how this works.</li>
@@ -161,15 +161,15 @@ const questions = {
             </ul>
           </li>
           <li>you visit the page using a link to a comment, <NewWindowLink redesign={true} reddit='/r/CantSayAnything/comments/oiizmf/a_removed_post/h4vrp2v/'>here for example</NewWindowLink>.</li>
-          <li>the post was removed prior to December 2019 when reddit announced <NewWindowLink reddit='/r/changelog/comments/e66fql/post_removal_details_on_the_new_design_redesign/'>Post removal details</NewWindowLink>. Here is an example of an old removed post <NewWindowLink reddit={old_removed_post}>on reddit</NewWindowLink> and on <a href={old_removed_post}>on reveddit</a>.</li>
+          <li>the post was removed prior to December 2019 when Reddit announced <NewWindowLink reddit='/r/changelog/comments/e66fql/post_removal_details_on_the_new_design_redesign/'>Post removal details</NewWindowLink>. Here is an example of an old removed post <NewWindowLink reddit={old_removed_post}>on Reddit</NewWindowLink> and on <a href={old_removed_post}>on Reveddit</a>.</li>
           <li>you visit the page using <code>old.reddit.com</code>. Only <code>new.reddit.com</code> shows post removal notices.</li>
         </ul>
   </>},
   'removal-reason': {
     header: 'How can I find out why something was removed?',
     content: <>
-      <p>You can inquire about a specific post or comment using the <code>message mods</code> button. This prepares a pre-filled message to the subreddit's moderators. A post's removal reason may appear in its flair or in a message on the new reddit layout.</p>
-      <p>In addition, some subreddits publish their mod logs through {modlogs} or {publicmodlogs}. Reveddit merges information from these sources when possible. Clicking the <code>[removed] by</code> label on reveddit may show more details such as the mod's name and a reason.</p>
+      <p>You can inquire about a specific post or comment using the <code>message mods</code> button. This prepares a pre-filled message to the subreddit's moderators. A post's removal reason may appear in its flair or in a message on the new Reddit layout.</p>
+      <p>In addition, some subreddits publish their mod logs through {modlogs} or {publicmodlogs}. Reveddit merges information from these sources when possible. Clicking the <code>[removed] by</code> label on Reveddit may show more details such as the mod's name and a reason.</p>
       <p>Using this {add_modlogs_message}, you can ask mods to make logs available. {modlogs} {control}. To set it up on a subreddit you moderate,</p>
       <ul>
         <li>for {publicmodlogs}: {publicmodlogs_detail}</li>
@@ -179,8 +179,8 @@ const questions = {
   unarchived: {
     header: 'Why is removed content sometimes not visible?',
     content: <>
-      <p>Viewing removed content for subreddits and threads relies on an archive service called Pushshift which can fall behind, fail to archive content, or go offline. If a comment is removed before it is archived then it may not appear on reveddit. It may be possible to <a href={'#'+unarchived_search_button_word_lc}>restore</a> comments from a user page. Your /user page will always be up to date since that only relies on data from reddit.</p>
-      <p>Pushshift may also completely miss content resulting in <NewWindowLink reddit='/r/pushshift/comments/jplcs1/growing_pains_and_moving_forward_to_bigger_and'>data gaps</NewWindowLink>. If a subreddit exposes <a href='#removal-reason'>mod logs</a>, reveddit may be able to surface removed content that does not exist within Pushshift.</p>
+      <p>Viewing removed content for subreddits and threads relies on an archive service called Pushshift which can fall behind, fail to archive content, or go offline. If a comment is removed before it is archived then it may not appear on Reveddit. It may be possible to <a href={'#'+unarchived_search_button_word_lc}>restore</a> comments from a user page. Your /user page will always be up to date since that only relies on data from Reddit.</p>
+      <p>Pushshift may also completely miss content resulting in <NewWindowLink reddit='/r/pushshift/comments/jplcs1/growing_pains_and_moving_forward_to_bigger_and'>data gaps</NewWindowLink>. If a subreddit exposes <a href='#removal-reason'>mod logs</a>, Reveddit may be able to surface removed content that does not exist within Pushshift.</p>
   </>},
   [unarchived_search_button_word_lc]: {
     header: <>What does the {unarchived_search_button_word_code} button on removed comments do?</>,
@@ -190,20 +190,20 @@ const questions = {
   'unknown-removed': {
     header: 'What does the "unknown removed" label mean?',
     content: <>
-      <p>The <code>unknown</code> label is applied when reveddit cannot determine if something was removed manually by a mod or removed automatically by automod, reddit's spam filter, or another bot. Pushshift, a database that captures reddit data as it is created, and which reveddit queries, can fall behind or fail to retrieve data. When that happens, any removed items are marked as <code>[removed] by unknown</code>. When Pushshift captures content soon after creation, and the content has already been removed, then it is marked as <code>[removed] automatically</code>. If Pushshift has a record of a removed comment's body then the comment is labeled <code>[removed] by mod</code>. More detail can be found in the <a href='https://github.com/reveddit/reveddit/blob/60a34a28c5133fd54777d189fc9997afe89a2f39/src/data_processing/comments.js#L131'>source code</a>.</p>
-      <p>Note, when an account is suspended by reddit, all the posts and comments for that account may be removed. The reddit API does not indicate where suspension-related removals occur and so reveddit cannot see or mark where this happens. You can check if an account has been suspended on its reddit or reveddit user page. Temporary suspensions may also remove content created before the suspension.</p>
+      <p>The <code>unknown</code> label is applied when Reveddit cannot determine if something was removed manually by a mod or removed automatically by automod, Reddit's spam filter, or another bot. Pushshift, a database that captures Reddit data as it is created, and which Reveddit queries, can fall behind or fail to retrieve data. When that happens, any removed items are marked as <code>[removed] by unknown</code>. When Pushshift captures content soon after creation, and the content has already been removed, then it is marked as <code>[removed] automatically</code>. If Pushshift has a record of a removed comment's body then the comment is labeled <code>[removed] by mod</code>. More detail can be found in the <a href='https://github.com/reveddit/reveddit/blob/60a34a28c5133fd54777d189fc9997afe89a2f39/src/data_processing/comments.js#L131'>source code</a>.</p>
+      <p>Note, when an account is suspended by Reddit, all the posts and comments for that account may be removed. The Reddit API does not indicate where suspension-related removals occur and so Reveddit cannot see or mark where this happens. You can check if an account has been suspended on its Reddit or Reveddit user page. Temporary suspensions may also remove content created before the suspension.</p>
   </>},
   limits: {
     header: 'Any limitations?',
     content: <>
       <h3>I. Untracked content</h3>
-      <p>The following content is unavailable on reddit user pages and therefore cannot be tracked with reveddit user pages,</p>
+      <p>The following content is unavailable on Reddit user pages and therefore cannot be tracked with Reveddit user pages,</p>
       <ul>
         <li>Content from banned subreddits. The <Link to='/r/?contentType=history'>subreddit history page</Link> may display some content.</li>
         <li>Reddit live/chat comments</li>
       </ul>
       <h3>II. Archive overwrites</h3>
-      <p>The archive service on which reveddit relies changed its comment retention behavior around September 2021. As a result, now comments in threads may not be visible after about 1.5 days. <NewWindowLink reddit='/pgzf7g'>This post</NewWindowLink> explains what is going on. That change does not impact <ExtensionLink/> or user pages on reveddit.</p>
+      <p>The archive service on which Reveddit relies changed its comment retention behavior around September 2021. As a result, now comments in threads may not be visible after about 1.5 days. <NewWindowLink reddit='/pgzf7g'>This post</NewWindowLink> explains what is going on. That change does not impact <ExtensionLink/> or user pages on Reveddit.</p>
       <h3>III. Collapsed comments on user pages</h3>
       <p>Collapsed comments may or may not be marked on user pages. It seems to work for some accounts and not for others. See <NewWindowLink reddit='/qgajxq'>here</NewWindowLink> for more info.</p>
   </>},
@@ -211,22 +211,25 @@ const questions = {
     header: "Why haven't I heard about this?",
     content: <>
       <p>
-        Subreddits such as LifeProTips, todayilearned, and YouShouldKnow <NewWindowLink href='/info/?id=t3_peya4z,t3_jzyx2t,t3_eulr25,t3_eovmxf,t3_dbad5a,t3_cullyo,t3_cs9hsb,t3_crrf7u,t3_fr65qj,t3_gdxli5,t3_gnt7vc,t3_geravh,t3_h0lp80,t3_hl4mj7,t3_f7sbyx,t3_evedjn,t3_bdauo6,t3_ak4m28,t3_a7nnxs,t3_9ikef8,t3_5l8ls1,t3_5jum2v'>rarely approve</NewWindowLink> submissions about reveddit because of rules against posts related to software, social media, or self-promotion. And, most subreddits <NewWindowLink reddit='/r/assholedesign/wiki/common_topics'>forbid posts about reddit</NewWindowLink>, including AssholeDesign, MildlyInfuriating, and CrappyDesign.
+        Subreddits such as LifeProTips, todayilearned, and YouShouldKnow rarely approve submissions about Reveddit because of rules against posts related to software, social media, or self-promotion. Other times, a submitter's intuition about what is on-topic may not align with moderators' rules. And, most subreddits <NewWindowLink reddit='/r/assholedesign/wiki/common_topics'>forbid posts about Reddit</NewWindowLink>, including AssholeDesign, MildlyInfuriating, and CrappyDesign. A submission about Reveddit may be removed when:
       </p>
+      <ul>
+        <li><NewWindowLink href='/info/?id=t3_v9hr8j,t3_peya4z,t3_jzyx2t,t3_eulr25,t3_eovmxf,t3_dbad5a,t3_cullyo,t3_cs9hsb,t3_crrf7u,t3_fr65qj,t3_gdxli5,t3_gnt7vc,t3_geravh,t3_h0lp80,t3_hl4mj7,t3_f7sbyx,t3_evedjn,t3_bdauo6,t3_ak4m28,t3_a7nnxs,t3_9ikef8,t3_5l8ls1,t3_5jum2v'>Moderators remove it</NewWindowLink></li>
+        <li>Reddit's spam filter <NewWindowLink href='/info/?id=t3_oqwg44,t3_rr0z7x,t3_see2yw,t3_or2hru,t3_o5d5yg,t3_lh6ghm'>marks it as spam</NewWindowLink></li>
+      </ul>
       <p>
-        Sometimes reddit's spam filter <NewWindowLink href='/info/?id=t3_oqwg44,t3_rr0z7x,t3_see2yw,t3_or2hru,t3_o5d5yg,t3_lh6ghm'>marks such posts as spam</NewWindowLink>.
-        Places where reveddit has been successfully shared are <SamePageHashLink id='react'>listed here</SamePageHashLink>.
+        Places where Reveddit has been successfully shared are <SamePageHashLink id='react'>listed here</SamePageHashLink>.
       </p>
   </>},
   share: {
     header: 'How can I share it?',
     content: <>
       <p>
-        Tell people that <em>reviewable moderation</em> is important. You can <TwitterLink>tweet</TwitterLink> about it, <NewWindowLink old={true} reddit={pinPostLink}>pin it</NewWindowLink> to your reddit profile, and post or comment in a subreddit as <SamePageHashLink id='react'>many others have done</SamePageHashLink>.
+        Tell people that <em>reviewable moderation</em> is important. You can <TwitterLink>tweet</TwitterLink> about it, <NewWindowLink old={true} reddit={pinPostLink}>pin it</NewWindowLink> to your Reddit profile, and post or comment in a subreddit as <SamePageHashLink id='react'>many others have done</SamePageHashLink>.
       </p>
   </>},
   altered: {
-    header: "How else does reddit appear differently for me?",
+    header: "How else does Reddit appear differently for me?",
     content: <>
       <p>As of January 2022, "blocking" allows users to prevent other users from seeing or replying to their content. See the following posts for more information:</p>
       <ul className='news'>
@@ -239,7 +242,7 @@ const questions = {
         <NewsItem created_utc='1643583564' timePrefix='r/help ' title='...it gives trolls and users spreading harmful misinformation an enormous amount of power.' reddit='/r/help/comments/sglh3q/block_feature_constantly_being_abused_how_do_we'/>
         <NewsItem created_utc='1643818294' timePrefix='r/skeptic ' title="...reddit's new block feature is a nightmare that trolls can use" reddit='/r/skeptic/comments/sisg8l/given_reddits_new_block_feature_is_a_nightmare'/>
         <NewsItem created_utc='1642972951' timePrefix='r/Scotland ' title='This sub is about to devolve into two echo Chambers' reddit='/r/Scotland/comments/sb49rj/this_sub_is_about_to_devolve_into_two_echo?sort=top'/>
-        <NewsItem created_utc='1643319787' timePrefix='r/mormon ' title='...I think it will destroy reddit communities' reddit='/r/mormon/comments/se9ixe/new_blocking_function_for_reddit'/>
+        <NewsItem created_utc='1643319787' timePrefix='r/mormon ' title='...I think it will destroy Reddit communities' reddit='/r/mormon/comments/se9ixe/new_blocking_function_for_reddit'/>
       </ul>
     </>},
 }
