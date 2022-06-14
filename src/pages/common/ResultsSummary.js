@@ -1,5 +1,5 @@
-import React from 'react'
-import { getPrettyTimeLength, getPrettyDate } from 'utils'
+import React, {useEffect} from 'react'
+import { getPrettyTimeLength, getPrettyDate, sortCreatedAsc } from 'utils'
 import Time from 'pages/common/Time'
 import { connect } from 'state'
 
@@ -9,10 +9,17 @@ const ConditionalWrapper = ({ condition, wrapper, children }) =>
   condition ? wrapper(<>▾ {children}</>) : children
 
 const ResultsSummary = ({global, num_showing, page_type}) => {
-  const {before, before_id, items, paginationMeta,
-         itemsSortedByDate = []
-        } = global.state
+  const {
+    before, before_id, items, paginationMeta,
+  } = global.state
+  let { itemsSortedByDate = [] } = global.state
   let {oldestTimestamp, newestTimestamp} = global.state
+  useEffect(() => {
+    if (! oldestTimestamp && ! itemsSortedByDate.length && items.length) {
+      itemsSortedByDate = [...items].sort(sortCreatedAsc)
+      global.setState({itemsSortedByDate})
+    }
+  }, [])
   if (! oldestTimestamp && itemsSortedByDate.length) {
     oldestTimestamp = itemsSortedByDate[0].created_utc
     newestTimestamp = itemsSortedByDate[itemsSortedByDate.length-1].created_utc
