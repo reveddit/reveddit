@@ -80,7 +80,7 @@ const Comment = withRouter(connect((props) => {
   })
   const {showHiddenReplies, hideReplies} = repliesMeta
   const [displayBody, setDisplayBody] = useState(
-    ! stickied ||
+    ! stickied || ! limitCommentDepth ||
       contextAncestors[id] ||
       id === focusCommentID)
   const {userPageSort, userPageTime} = get_userPageSortAndTime(props)
