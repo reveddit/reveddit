@@ -63,7 +63,7 @@ const profile_replace = PATH_STR_SUB + '/u_'
 
 const routes = (
 <Switch>
-  <Redirect exact from='/' to='/about#welcome' />
+  <Redirect exact from='/about' to='/' />
   <RouteRedirectWithParams path={PATH_STR_USER+'/:user/posts/'} search={/\/posts/} replace='/submitted'/>
   <RouteRedirectWithParams path={PATH_STR_SUB+'/:subreddit/controversial/'} search={/\/controversial/} replace='/history'/>
   <RouteRedirectWithParams path={PATH_STR_SUB+'/:subreddit/top/'} search={/\/top/} replace='/history'/>
@@ -72,10 +72,10 @@ const routes = (
   <RouteRedirectWithParams path='/api/info/' search={/\/api\/info/} replace='/info'/>
   <RouteRedirectWithParams path='/gallery/' search={/\/gallery/} replace=''/>
   <RouteRedirectWithParams path='/about/f.a.q.' search='/f.a.q.' replace='/faq'/>
+  <DefaultLayout exact path='/' component={About} title='About reveddit'/>
   <DefaultLayout path='/about/faq' component={About_faq} title='Frequently Asked Questions'/>
   <DefaultLayout path='/about/contact' component={About_contact} title='Contact'/>
   <DefaultLayout path='/about/donate' component={About_donate} title='Donate'/>
-  <DefaultLayout path='/about' component={About} title='About reveddit'/>
   <DefaultLayout path='/add-ons/direct' component={ExtensionRedirect} />
   <DefaultLayout path='/add-ons/linker' component={ExtensionRedirect} extCode='linker' />
   <DefaultLayout path='/add-ons/real-time' component={ExtensionRedirect} extCode='rt' />
