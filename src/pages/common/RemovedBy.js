@@ -1,7 +1,7 @@
 import React from 'react'
 import {itemIsCollapsed, commentIsMissingInThread,
         isPost, getRemovedWithinText, postRemovedUnknownWithin,
-        commentIsRemoved, getPrettyTimeLength, postDeletedFirstByAuthor,
+        commentIsRemoved, getPrettyTimeLength, postDeletedByAuthor,
 } from 'utils'
 import ModalContext from 'contexts/modal'
 import {QuestionMark} from 'pages/common/svg'
@@ -202,7 +202,9 @@ const RemovedBy = (props) => {
       }
     } else if (removedby === APPROVED) {
       modalDetailsItems.push( <ModlogDetails {...props} modlog={modlog} text='Approved'/> )
-    } else if (deleted && is_post && permalink && ! postDeletedFirstByAuthor(props)) {
+    } else if (deleted && is_post && permalink && ! postDeletedByAuthor(props)) {
+      // This condition is impossible to detect. At one point I thought it was
+      // Leaving the logic here as a note to remember that "it would be nice to be able to discover this condition"
       modalDetailsItems.push(<p>It was originally removed by a moderator. <NewWindowLink reddit={permalink} redesign={true}>New reddit</NewWindowLink> may show more details.</p>)
     }
     if (props.wayback_path) {

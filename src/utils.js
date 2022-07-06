@@ -132,15 +132,15 @@ export const itemIsRemovedOrDeleted = (item, checkCommentBody=true) => {
 }
 
 export const postIsDeleted = post => {
-  return itemIsRemovedOrDeleted(post) && authorDeleted(post)
+  return itemIsRemovedOrDeleted(post) && authorDeleted(post) && postDeletedByAuthor(post)
 }
 
-export const postDeletedFirstByAuthor = post => {
+export const postDeletedByAuthor = post => {
   return ! post.removed_by_category || post.removed_by_category === 'author' || post.removed_by_category === 'deleted'
 }
 
 export const postIsRemoved = post => {
-  return itemIsRemovedOrDeleted(post) && ! authorDeleted(post)
+  return itemIsRemovedOrDeleted(post) && (! authorDeleted(post) || ! postDeletedByAuthor(post))
 }
 
 export const postIsRemovedAndSelftextSaysRemoved = post => {
