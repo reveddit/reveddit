@@ -147,7 +147,8 @@ const Post = connect((props) => {
             <QuarantinedLabel {...props}/>
             <a href={convertPathSub(props.permalink)+paramString} className='nowrap'>{props.num_comments} comments</a>
             <NewWindowLink reddit={props.permalink}>reddit</NewWindowLink>
-              <a href={`${rev_subreddit}/duplicates/${props.id}`}>other-discussions{props.num_crossposts ? ` (${props.num_crossposts}+)`:''}</a>
+            <a href={`${rev_subreddit}/duplicates/${props.id}`}>other-discussions{props.num_crossposts ? ` (${props.num_crossposts}+)`:''}</a>
+            { page_type !== 'subreddit_posts' && <a href={`${rev_subreddit}/?removal_status=all&before=${props.created_utc+1}#t3_${props.id}`}>subreddit-index</a>}
             { directlink && <a href={directlink}>directlink</a>}
             <MessageMods {...props}/>
             {page_type === 'thread' && <AuthorFocus post={props} author={author} deleted={props.deleted}
