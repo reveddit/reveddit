@@ -5,6 +5,7 @@ import Time from 'pages/common/Time'
 import Comment from 'pages/common/Comment'
 import Selections from 'pages/common/selections'
 import ResultsSummary from 'pages/common/ResultsSummary'
+import {UserPageTip} from 'pages/common/Notice'
 import { REMOVAL_META, NOT_REMOVED, USER_REMOVED } from 'pages/common/RemovedBy'
 import { withFetch } from 'pages/RevdditFetcher'
 import { reversible, getUrlWithTimestamp, PATH_STR_USER } from 'utils'
@@ -29,10 +30,7 @@ const SubredditComments = (props) => {
       {selections}
       {summary}
       {! hasVisitedUserPage &&
-        <div className='notice-with-link userpage-note'>
-          <div>{"Check if you have any removed comments."}</div>
-          <Link to={PATH_STR_USER+'/'}>view my removed comments</Link>
-        </div>
+        <UserPageTip/>
       }
       <Highlight/>
       {archiveDelayMsg}

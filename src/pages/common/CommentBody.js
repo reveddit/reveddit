@@ -3,7 +3,7 @@ import { markdownToHTML, commentIsRemoved,
          commentIsOrphaned, commentIsMissingInThread, get, put,
          getRemovedMessage, textSaysRemoved, getRemovedWithinText } from 'utils'
 import { connect } from 'state'
-import Notice from 'pages/common/Notice'
+import {Notice} from 'pages/common/Notice'
 import RestoreComment, {HideUnarchivedComments} from 'data_processing/RestoreComment'
 import { NewWindowLink } from 'components/Misc'
 import {LabelWithModal, RESTORED} from 'pages/common/RemovedBy'

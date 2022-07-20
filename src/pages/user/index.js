@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import Post from 'pages/common/Post'
 import Comment from 'pages/common/Comment'
 import LoadLink from './LoadLink'
-import Notice from 'pages/common/Notice'
+import {Notice, TipWithBackground} from 'pages/common/Notice'
 import Selections from 'pages/common/selections'
 import scrollToElement from 'scroll-to-element'
 import { connect, removedFilter_types } from 'state'
@@ -86,19 +86,19 @@ const User = ({match, global, page_type, viewableItems, selections, summary, not
   const shareLink = window.location.pathname.replace(/^\/user/,'/y')+window.location.search+window.location.hash
 
   if (! hasVisitedUserPage_sortTop) {
-    instructionalNotice = <Notice message="Sorting by top may show more results."
+    instructionalNotice = <TipWithBackground message="Sorting by top may show more results."
       htmlLink={<a href={'?sort=top&all=true'}>sort by top</a>}
     />
   } else if (! hasVisitedSubredditPage) {
-    instructionalNotice = <Notice message="Subreddit pages work too."
+    instructionalNotice = <TipWithBackground message="Subreddit pages work too."
       htmlLink={<Link to={PATH_STR_SUB+'/'}>view a subreddit</Link>}
     />
   } else if (! hasClickedRemovedUserCommentContext) {
-    instructionalNotice = <Notice message={
+    instructionalNotice = <TipWithBackground message={
       <div><span className="quarantined">Tip</span> The context links of removed comments now show the comment in context even if the comment was not archived.</div>
     }/>
   } else if (! get(hidePinPostNotice_var, false)) {
-    instructionalNotice = <Notice title='share reveddit'
+    instructionalNotice = <TipWithBackground title='share reveddit'
       htmlLink={<div><NewWindowLink old={true} reddit={pinPostLink} onClick={() => dismiss()}>create a post</NewWindowLink>, then select <a className='pointer' onClick={() => modal.openModal({content: <img style={{marginTop: '20px'}}src='/images/pin-profile.png'/>})}>pin to profile</a></div>}/>
   }
   if (removedCommentIDs.length > 0) {

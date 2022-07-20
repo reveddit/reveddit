@@ -8,7 +8,7 @@ import { reversible, getUrlWithTimestamp, PATH_STR_USER,
 } from 'utils'
 import Highlight from 'pages/common/Highlight'
 import Pagination from 'components/Pagination'
-import Notice from 'pages/common/Notice'
+import {TipWithBackground, UserPageTip} from 'pages/common/Notice'
 import { ShareLink } from 'components/Misc'
 
 const SubredditPosts = (props) => {
@@ -24,15 +24,10 @@ const SubredditPosts = (props) => {
   let instructionalNotice = ''
   if (! hasVisitedUserPage) {
     instructionalNotice =
-      <Notice className='userpage-note' message={
-        <>
-          Check if you have any removed comments.
-        </>
-      } htmlLink={<Link to={PATH_STR_USER+'/'}>view my removed comments</Link>}
-      />
+      <UserPageTip/>
   } else if (! hasVisitedTopRemovedPage) {
     instructionalNotice =
-      <Notice className='top-removed-note' message={
+      <TipWithBackground className='top-removed-note' message={
         <>
           Check the archive for top removed content.
         </>

@@ -3,12 +3,12 @@ import { Link, withRouter } from 'react-router-dom'
 import scrollToElement from 'scroll-to-element'
 import { connect, localSort_types, urlParamKeys } from 'state'
 import Post from 'pages/common/Post'
-import Notice from 'pages/common/Notice'
+import {Notice, UserPageTip} from 'pages/common/Notice'
 import CommentSection from './CommentSection'
 import Selections from 'pages/common/selections'
 import { withFetch } from 'pages/RevdditFetcher'
 import { SimpleURLSearchParams, jumpToHash,
-         PATH_STR_USER, PATH_STR_SUB,
+         PATH_STR_SUB,
 } from 'utils'
 import Highlight from 'pages/common/Highlight'
 import { ShareLink } from 'components/Misc'
@@ -66,10 +66,7 @@ const Thread = connect(withFetch(withRouter(({global, ...props}) => {
       <Highlight/>
       {archiveDelayMsg}
       {! hasVisitedUserPage &&
-        <div className='notice-with-link userpage-note'>
-          <div>{"Check if you have any removed comments."}</div>
-          <Link to={PATH_STR_USER+'/'}>view my removed comments</Link>
-        </div>
+        <UserPageTip/>
       }
       {(numComments !== 0 && (commentID || id)) &&
         <>
