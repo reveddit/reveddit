@@ -116,7 +116,7 @@ const questions = {
         A subreddit shadowban looks like <NewWindowLink href='https://archive.ph/ktKp1'>this</NewWindowLink>, where all content for one subreddit is removed. That may indicate moderators applied a {botban}, which users often refer to as a subreddit shadowban. Or, it may indicate the user does not meet subreddit requirements (karma, age, and verified email).
       </p>
       <p>
-        Reddit's Automoderator documentation now refers to subreddit shadowbans as bot bans. Up until 2020 they called it a <NewWindowLink reddit='/r/AutoModerator/wiki/library?v=acf57c63-a777-11ea-968c-0e74c30ff64f#wiki_user_shadowban_list'>shadowban</NewWindowLink>.
+        Reddit's Automoderator documentation now refers to subreddit shadowbans as bot bans. Up until 2020 they called it a shadowban. For more details, see <NewWindowLink reddit='/r/reveddit/comments/sxpk15/fyi_my_thoughts_on_the_new_true_block_and_the/ieozb29/'>the history of automoderator and subreddit shadowbans</NewWindowLink>.
       </p>
       <p>
         <NewWindowLink reddit='/r/ShadowBan/'>r/ShadowBan</NewWindowLink> may also indicate site-wide shadowbans.
