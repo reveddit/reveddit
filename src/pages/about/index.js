@@ -43,7 +43,8 @@ export const NewsItem = ({to, title, created_utc, newsText = '', timePrefix = ''
   return <li>{link}{archiveLink}
     <ul>{blurb}<li>{timePrefix}<Time created_utc={created_utc} {...props}/></li></ul></li>
 }
-
+const contact = '/about/contact/'
+const donate = '/about/donate/'
 const news = [
   {reddit:'/pkugyl/',
    title:'History through 2021/06',
@@ -213,14 +214,14 @@ export class About extends React.Component {
           </Row>
           <Row>
             <ContentWithHeader header='Donate' half={true}>
-              <p>Reveddit is free and ad-free. You can support work like this with a <Link to='donate'>donation</Link>, <Link to='contact'>feedback</Link>, or <NewWindowLink href='https://github.com/reveddit/reveddit'>pull requests</NewWindowLink>.</p>
+              <p>Reveddit is free and ad-free. You can support work like this with a <Link to={donate}>donation</Link>, <Link to={contact}>feedback</Link>, or <NewWindowLink href='https://github.com/reveddit/reveddit'>pull requests</NewWindowLink>.</p>
               <p>Thank you!</p>
             </ContentWithHeader>
           </Row>
           <footer>
-            <Link to='contact'>contact</Link>
-            <Link to='contact#privacy'>privacy</Link>
-            <Link to='donate'>donate</Link>
+            <Link to={contact}>contact</Link>
+            <Link to={contact+'#privacy'}>privacy</Link>
+            <Link to={donate}>donate</Link>
           </footer>
         </InternalPage>
     )
