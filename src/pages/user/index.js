@@ -94,11 +94,9 @@ const User = ({match, global, page_type, viewableItems, selections, summary, not
       htmlLink={<Link to={PATH_STR_SUB+'/'}>view a subreddit</Link>}
     />
   } else if (! hasClickedRemovedUserCommentContext) {
-    instructionalNotice = <TipWithBackground message={
-      <div><span className="quarantined">Tip</span> The context links of removed comments now show the comment in context even if the comment was not archived.</div>
-    }/>
+    instructionalNotice = <TipWithBackground message="The context links of removed comments now show the comment in context even if the comment was not archived."/>
   } else if (! get(hidePinPostNotice_var, false)) {
-    instructionalNotice = <TipWithBackground title='share reveddit'
+    instructionalNotice = <Notice title='share reveddit'
       htmlLink={<div><NewWindowLink old={true} reddit={pinPostLink} onClick={() => dismiss()}>create a post</NewWindowLink>, then select <a className='pointer' onClick={() => modal.openModal({content: <img style={{marginTop: '20px'}}src='/images/pin-profile.png'/>})}>pin to profile</a></div>}/>
   }
   if (removedCommentIDs.length > 0) {
