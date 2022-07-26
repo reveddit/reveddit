@@ -28,7 +28,7 @@ const CommentBody = (props) => {
   const isThread = props.page_type === 'thread'
   const comment_Is_Removed = commentIsRemoved(props)
   if (! props.deleted) {
-    const archiveRemoved_or_noArchive_or_fromAddUser = props.archive_body_removed || ! props.archive_processed || props.from_add_user
+    const archiveRemoved_or_noArchive_or_fromAddUser = (props.archive_body_removed || ! props.archive_processed || props.from_add_user) && ! props.removal_reason
     if ( (comment_Is_Removed || (isThread && archiveRemoved_or_noArchive_or_fromAddUser))
          && props.removed) {
       if (isThread) {

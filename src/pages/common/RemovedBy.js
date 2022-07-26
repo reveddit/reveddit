@@ -32,9 +32,9 @@ const SPAM_FILTER_LINK = <NewWindowLink reddit='/r/modnews/comments/6bj5de/state
 const CROWD_CONTROL_LINK = <NewWindowLink reddit='/r/reveddit/comments/qi1r55/fyi_crowd_control_can_now_remove_comments/higolif/'>crowd control</NewWindowLink>
 
 export const REMOVAL_META = {
-                 [ANTI_EVIL_REMOVED]: {filter_text: 'anti-evil ops removed',
-                                         label: '[removed] by reddit anti-evil ops',
-                                          desc: 'Removed by an admin.',
+                 [ANTI_EVIL_REMOVED]: {filter_text: 'admin removed',
+                                         label: '[removed] by Reddit',
+                                          desc: 'Removed by a Reddit admin.',
                                    reddit_link: '/9qf5ma'},
         [MOD_OR_AUTOMOD_REMOVED]: {filter_text: 'mod removed',
                                          label: '[removed] by mod',
@@ -124,13 +124,14 @@ const ModlogDetails = ({modlog, text, created_utc}) => {
 
 const RemovedBy = (props) => {
   let displayTag = '', details = '', meta = undefined, withinText = '', fill = undefined,
-      allActionsExceptLocked = '', lockedTag = '', temporarilyVisible = '', alternateLabel = ''
+      allActionsExceptLockedAndEvil = '', lockedTag = '', temporarilyVisible = '', alternateLabel = '',
+      evilTag = ''
   let {removedby, orphaned_label = '', style,
        locked, removed, deleted, modlog, name, permalink,
-       removed_by_category,
+       removed_by_category, removal_reason,
       } = props
   const is_post = name && isPost(props)
-  if (removed && ! removedby) {
+  if (removed && ! removedby && ! removal_reason) {
     removedby = UNKNOWN_REMOVED
   }
   if (removedby === ORPHANED) {
@@ -211,7 +212,7 @@ const RemovedBy = (props) => {
       modalDetailsItems.push(<p>source: <NewWindowLink href={'https://web.archive.org'+props.wayback_path}>Wayback Machine</NewWindowLink></p>)
     }
     const modalDetails = modalDetailsItems.map((x, i) => <div key={i}>{x}</div>)
-    allActionsExceptLocked =
+    allActionsExceptLockedAndEvil =
       <LabelWithModal hash={'action_'+removedby+'_help'} details={modalDetails} removedby={removedby}>
         <span title={meta.desc} data-removedby={removedby} className='removedby'>{orphaned_label+(alternateLabel || meta.label || '')+withinText+details} <QuestionMark fill={fill}/></span>
       </LabelWithModal>
@@ -222,11 +223,20 @@ const RemovedBy = (props) => {
         <span className='lockedTag'>locked <QuestionMark fill='black'/></span>
       </LabelWithModal>
   }
-  if (allActionsExceptLocked || lockedTag) {
+  if (removal_reason) {
+    const evil_meta = REMOVAL_META[ANTI_EVIL_REMOVED]
+    evilTag =
+      <LabelWithModal hash={'action_'+ANTI_EVIL_REMOVED+'_help'}>
+        <span title={evil_meta.desc} data-removedby={ANTI_EVIL_REMOVED} className='removedby'>{evil_meta.label} {removal_reason} <QuestionMark/></span>
+      </LabelWithModal>
+  }
+
+  if (allActionsExceptLockedAndEvil || lockedTag || evilTag) {
     displayTag =
       <div style={style}>
-        {allActionsExceptLocked}
+        {allActionsExceptLockedAndEvil}
         {lockedTag}
+        {evilTag}
         {temporarilyVisible}
       </div>
   }

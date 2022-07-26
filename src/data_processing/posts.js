@@ -106,7 +106,7 @@ export const combineRedditAndPushshiftPost = (post, ps_post) => {
     } else {
       post.removed = true
       if (post.removed_by_category === 'anti_evil_ops') {
-        post.removedby = ANTI_EVIL_REMOVED
+        post.removedby_evil = ANTI_EVIL_REMOVED
       } else if (modlog_says_bot_removed) {
         post.removedby = AUTOMOD_REMOVED
       } else if (ps_post && 'is_robot_indexable' in ps_post && ! ps_post.is_robot_indexable) {
@@ -129,6 +129,9 @@ export const combineRedditAndPushshiftPost = (post, ps_post) => {
     } else {
       post.removedby = NOT_REMOVED
     }
+  }
+  if (post.removal_reason) {
+    post.removedby_evil = ANTI_EVIL_REMOVED
   }
   return post
 }

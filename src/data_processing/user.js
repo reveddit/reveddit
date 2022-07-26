@@ -13,7 +13,7 @@ import {
   comment_fields_for_user_page_lookup,
 } from 'api/pushshift'
 import { REMOVAL_META, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
-         MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED,
+         MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED, ANTI_EVIL_REMOVED,
          AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
 import {
   itemIsRemovedOrDeleted,
@@ -33,7 +33,10 @@ function lookupAndSetRemovedBy(global) {
   const gs = global.state
   gs.items.forEach(item => {
     if (item.removedby === undefined && ! item.unknown) {
-      if (isComment(item)) {
+      if (item.removal_reason) {
+        item.removed = true
+        item.removedby_evil = ANTI_EVIL_REMOVED
+      } else if (isComment(item)) {
         comments_removedBy_undefined.push(item)
         comment_ids.push(item.id)
       } else if (isPost(item)) {

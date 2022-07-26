@@ -13,7 +13,7 @@ import { commentIsDeleted, commentIsRemoved, postIsDeleted, isEmptyObj,
   redirectToHistory,
 } from 'utils'
 import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED,
-         UNKNOWN_REMOVED, NOT_REMOVED,
+         UNKNOWN_REMOVED, NOT_REMOVED, ANTI_EVIL_REMOVED,
          AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
 import { combinedGetItemsBySubredditOrDomain } from 'data_processing/subreddit_posts'
 
@@ -42,7 +42,7 @@ const copy_fields = ['permalink', 'score', 'controversiality',
                      // and were added to the pushshiftComments object
                      'subreddit', 'created_utc', 'parent_id']
 
-const copy_if_value_fields = ['distinguished', 'stickied', 'author_fullname']
+const copy_if_value_fields = ['distinguished', 'stickied', 'author_fullname', 'removal_reason']
 
 export const initializeComment = (comment, post) => {
   if (post && post.author === comment.author && comment.author !== '[deleted]') {
@@ -53,9 +53,11 @@ export const initializeComment = (comment, post) => {
 }
 
 const markRemoved = (redditComment, commentToMark, is_reddit = false) => {
-  if (commentIsRemoved(redditComment)) {
+  if (commentIsRemoved(redditComment) || redditComment.removal_reason) {
     commentToMark.removed = true
-    if (is_reddit) {
+    if (redditComment.removal_reason) {
+      commentToMark.removedby_evil = ANTI_EVIL_REMOVED
+    } else if (is_reddit) {
       commentToMark.removedby = UNKNOWN_REMOVED
     }
   } else if (commentIsDeleted(redditComment)) {
@@ -139,10 +141,12 @@ const setupCommentMeta = (archiveComment, redditComment) => {
     const archive_body_removed = commentIsRemoved(archiveComment)
     archiveComment.archive_body_removed = archive_body_removed
     if (! commentIsRemoved(redditComment)) {
-      if (archive_body_removed || modlog_says_bot_removed) {
-        archiveComment.removedby = AUTOMOD_REMOVED_MOD_APPROVED
-      } else {
-        archiveComment.removedby = NOT_REMOVED
+      if (! archiveComment.removed) {
+        if (archive_body_removed || modlog_says_bot_removed) {
+          archiveComment.removedby = AUTOMOD_REMOVED_MOD_APPROVED
+        } else {
+          archiveComment.removedby = NOT_REMOVED
+        }
       }
       archiveComment.author = redditComment.author
       archiveComment.body = redditComment.body

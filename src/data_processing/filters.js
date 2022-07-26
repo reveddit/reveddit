@@ -1,6 +1,6 @@
 import { REMOVAL_META, USER_REMOVED, LOCKED, COLLAPSED,
          MISSING_IN_THREAD, ORPHANED, AUTOMOD_REMOVED,
-         MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED,
+         MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, ANTI_EVIL_REMOVED,
        } from 'pages/common/RemovedBy'
 import { TAG_META, QUARANTINE, MOD, ADMIN } from 'pages/common/selections/TagsFilter'
 import { itemIsCollapsed, commentIsOrphaned, commentIsMissingInThread,
@@ -12,6 +12,7 @@ const otherActions = {
   [COLLAPSED]: 1,
   [MISSING_IN_THREAD]: 1,
   [ORPHANED]: 1,
+  [ANTI_EVIL_REMOVED]: 1,
 }
 
 const actions_that_are_other_and_removedBy = {[AUTOMOD_REMOVED]: 1}
@@ -48,6 +49,9 @@ export const itemIsOneOfSelectedActions = (item, selectedOtherActions, selectedR
         break
       case AUTOMOD_REMOVED:
         if (postRemovedUnknownWithin(item)) return true
+        break
+      case ANTI_EVIL_REMOVED:
+        return item.removedby_evil
         break
     }
   }
