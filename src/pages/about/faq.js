@@ -210,6 +210,7 @@ const questions = {
   heard: {
     header: "Why haven't I heard about this?",
     content: <>
+      <p>See my post, <NewWindowLink reddit='/r/revddit/comments/c5i000/state_of_marketing/'>State of Marketing</NewWindowLink>, from <Time created_utc='1561507743' className='white'/>.</p>
       <p>
         Subreddits such as LifeProTips, todayilearned, and YouShouldKnow rarely approve submissions about Reveddit because of rules against posts related to software, social media, or self-promotion. Other times, a submitter's intuition about what is on-topic may not align with moderators' rules. And, most subreddits <NewWindowLink reddit='/r/assholedesign/wiki/common_topics'>forbid posts about Reddit</NewWindowLink>, including AssholeDesign, MildlyInfuriating, and CrappyDesign. A submission about Reveddit may be removed when:
       </p>
