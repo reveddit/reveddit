@@ -109,7 +109,7 @@ export const getRevdditSearch = (global) => {
   } = global.state
   const promises = []
   const notAuthors = new Set(), authors = new Set()
-  author.toLowerCase().split(',').forEach(authorString => {
+  author.toString().toLowerCase().split(',').forEach(authorString => {
     if (authorString) {
       if (authorString.startsWith('!')) {
         notAuthors.add(authorString.substr(1))
