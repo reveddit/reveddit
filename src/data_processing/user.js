@@ -32,11 +32,8 @@ function lookupAndSetRemovedBy(global) {
   const posts_removedBy_undefined = []
   const gs = global.state
   gs.items.forEach(item => {
-    if (item.removedby === undefined && ! item.unknown) {
-      if (item.removal_reason) {
-        item.removed = true
-        item.removedby_evil = ANTI_EVIL_REMOVED
-      } else if (isComment(item)) {
+    if (item.removedby === undefined && ! item.unknown && ! item.removedby_evil) {
+      if (isComment(item)) {
         comments_removedBy_undefined.push(item)
         comment_ids.push(item.id)
       } else if (isPost(item)) {
@@ -220,6 +217,10 @@ const getItems = async (user, kind, global, sort, before = '', after = '', time,
     userPage_item_lookup[item.name] = item
     item.rev_position = items.length + i
     ids.push(item.name)
+    if (item.removal_reason) {
+      item.removed = true
+      item.removedby_evil = ANTI_EVIL_REMOVED
+    }
     if (! oldestTimestamp) {
       if (! item.stickied || ! userPageData.after) {
         oldestTimestamp = item.created_utc
