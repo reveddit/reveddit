@@ -30,12 +30,13 @@ export const unarchived_label_text = 'restored via user page'
 const AUTOMOD_LINK = <NewWindowLink reddit='/wiki/automoderator'>automod</NewWindowLink>
 const SPAM_FILTER_LINK = <NewWindowLink reddit='/r/modnews/comments/6bj5de/state_of_spam/'>spam filter</NewWindowLink>
 const CROWD_CONTROL_LINK = <NewWindowLink reddit='/r/reveddit/comments/qi1r55/fyi_crowd_control_can_now_remove_comments/higolif/'>crowd control</NewWindowLink>
+const REVEDDIT_POST_ON_ADMIN_REMOVED_CONTENT = '/r/reveddit/comments/w8i11a/good_news_admins_are_being_more_transparent_by/'
 
 export const REMOVAL_META = {
                  [ANTI_EVIL_REMOVED]: {filter_text: 'admin removed',
                                          label: '[removed] by Reddit',
-                                          desc: 'Removed by a Reddit admin.',
-                                   reddit_link: '/9qf5ma'},
+                                          desc: <>Removed by a Reddit admin. <NewWindowLink reddit='/9qf5ma'>More info</NewWindowLink><p>See also: <NewWindowLink reddit={REVEDDIT_POST_ON_ADMIN_REMOVED_CONTENT}>Good news: Admins are being more transparent by labeling the content they remove. Bad news: Reveddit won't show this content.</NewWindowLink></p></>,
+                                      },
         [MOD_OR_AUTOMOD_REMOVED]: {filter_text: 'mod removed',
                                          label: '[removed] by mod',
                                           desc: 'Likely removed by a moderator. There is also a chance it was removed automatically.',
