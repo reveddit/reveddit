@@ -93,6 +93,7 @@ export const combineRedditAndPushshiftPost = (post, ps_post) => {
       post.retrievalLatency = retrievalLatency
     }
     copyFields(['modlog', 'media_metadata', 'author_fullname'], ps_post, post)
+    copyFields(['author_flair_text'], ps_post, post, true)
   }
   const modlog_says_bot_removed = modlogSaysBotRemoved(post.modlog, post)
   if (post.crosspost_parent_list) {

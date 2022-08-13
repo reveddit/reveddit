@@ -1,15 +1,15 @@
 import { toBase10, toBase36, chunk, flatten, getQueryString, promiseDelay } from 'utils'
 import { fetchWithTimeout } from 'api/common'
 
-export const comment_fields_for_user_page_lookup = ['id', 'retrieved_on' ,'created_utc' ,'author', 'retrieved_utc']
+export const comment_fields_for_user_page_lookup = ['id', 'retrieved_on' ,'created_utc' ,'author', 'retrieved_utc', 'author_flair_text']
 export const post_fields_for_user_page_lookup = [
-  'id', 'retrieved_on' ,'created_utc' , 'is_robot_indexable', 'is_crosspostable', 'retrieved_utc']
+  'id', 'retrieved_on' ,'created_utc' , 'is_robot_indexable', 'is_crosspostable', 'retrieved_utc', 'author_flair_text']
 
 const post_fields = [...post_fields_for_user_page_lookup, 'thumbnail', 'author_fullname']
 const comment_fields = [
   ...comment_fields_for_user_page_lookup,
   'author_fullname', 'body', 'parent_id', 'score',
-  'subreddit', 'link_id', 'author_flair_text',
+  'subreddit', 'link_id',
   'distinguished', 'stickied' ]
 
 const post_fields_for_comment_data = ['id', 'title', 'whitelist_status', 'url', 'author',

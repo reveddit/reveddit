@@ -68,6 +68,9 @@ function setRemovedBy(items_removedBy_undefined, ps_items) {
     if (ps_item) {
       const retrievalLatency = ps_item.retrieved_on-ps_item.created_utc
       const archiveRemoved = itemIsRemovedOrDeleted(ps_item, false)
+      if (ps_item.author_flair_text) {
+        item.author_flair_text = ps_item.author_flair_text
+      }
       if (item.removed) {
         if (archiveRemoved) {
           if (retrievalLatency <= AUTOMOD_LATENCY_THRESHOLD) {
