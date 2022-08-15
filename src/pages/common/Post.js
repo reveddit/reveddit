@@ -112,12 +112,22 @@ const Post = connect((props) => {
     const queryParams = new SimpleURLSearchParams()
     paramString = queryParams.set(urlParamKeys.add_user, add_user).toString()
   }
-
   let domain = props.domain
+  let domain_link = ''
   if (! domain.match(/^self\.[^.]+$/)) {
-    domain = <a href={`/domain/${props.domain}/`}>{props.domain}</a>
+    domain_link = `/domain/${props.domain}/`
+    domain = <a href={domain_link}>{props.domain}</a>
   }
   const rev_subreddit = PATH_STR_SUB+'/'+props.subreddit
+  let subreddit_index = '', domain_index = ''
+  if (page_type !== 'subreddit_posts' && page_type !== 'domain_posts') {
+    const index_queryParams = `?removal_status=all&before=${props.created_utc+1}#t3_${props.id}`
+    subreddit_index = <a href={rev_subreddit+'/'+index_queryParams}>subreddit-index</a>
+    if (domain_link) {
+      domain_index = <a href={domain_link+index_queryParams}>domain-index</a>
+    }
+  }
+
   return (
     <div id={props.name} className={`post thread
           ${props.locked ? 'locked':''}
@@ -148,12 +158,13 @@ const Post = connect((props) => {
             <a href={convertPathSub(props.permalink)+paramString} className='nowrap'>{props.num_comments} comments</a>
             <NewWindowLink reddit={props.permalink}>reddit</NewWindowLink>
             <a href={`${rev_subreddit}/duplicates/${props.id}`}>other-discussions{props.num_crossposts ? ` (${props.num_crossposts}+)`:''}</a>
-            { page_type !== 'subreddit_posts' && <a href={`${rev_subreddit}/?removal_status=all&before=${props.created_utc+1}#t3_${props.id}`}>subreddit-index</a>}
+            {subreddit_index}
             { directlink && <a href={directlink}>directlink</a>}
             <MessageMods {...props}/>
             {page_type === 'thread' && <AuthorFocus post={props} author={author} deleted={props.deleted}
                                                     {...{loading, setLocalLoading, userPageSort, userPageTime}}
                                                     text='op-focus' addIcon={true}/>}
+            {domain_index}
           </span>
         </div>
       </div>
