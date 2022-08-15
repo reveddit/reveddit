@@ -5,7 +5,7 @@ export const comment_fields_for_user_page_lookup = ['id', 'retrieved_on' ,'creat
 export const post_fields_for_user_page_lookup = [
   'id', 'retrieved_on' ,'created_utc' , 'is_robot_indexable', 'is_crosspostable', 'retrieved_utc', 'author_flair_text']
 
-const post_fields = [...post_fields_for_user_page_lookup, 'thumbnail', 'author_fullname']
+const post_fields = [...post_fields_for_user_page_lookup, 'thumbnail', 'author_fullname', 'url', 'domain', 'title']
 const comment_fields = [
   ...comment_fields_for_user_page_lookup,
   'author_fullname', 'body', 'parent_id', 'score',

@@ -141,6 +141,7 @@ const questions = {
     header: 'Does Reveddit show user-deleted content?',
     content: <>
       <p>No, user-deleted content does not appear on Reveddit. See <NewWindowLink reddit='/r/reveddit/comments/ih86wk/whats_it_mean_when_a_comment_has_been_restored/g75nxjx/'>this discussion on r/Reveddit</NewWindowLink> and <NewWindowLink reddit='/r/removeddit/comments/ir1oyw/rip_removeddit_ceddit_reveddit/g5fgxgl/?context=3#thing_t1_g5fgxgl'>this one on r/removeddit</NewWindowLink> for more info.</p>
+      <p>An exception is made for titles and links of user-deleted submissions. Titles and links provide basic context necessary to review discussions. These are now restored via the archive service because at some point in early 2022 Reddit began overwriting the titles and links of three-month-old user-deleted posts.</p>
       <p>Please note,</p>
       <ul>
         <li>Only Reddit's <code>delete</code> button removes content from Reveddit. A moderator can also use the <code>remove</code> button on their own content in subs they moderate. In that case the content will still appear on Reveddit.</li>
