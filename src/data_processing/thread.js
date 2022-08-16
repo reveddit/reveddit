@@ -214,6 +214,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     const uModlogsItems = await uModlogs_promise
     const uModlogsPost = uModlogsItems.posts[threadID]
     const combined_post = combineRedditAndPushshiftPost(reddit_post, ps_post)
+    document.title = combined_post.title
     let modlog
     if (combined_post.id in modlogsPosts || uModlogsPost) {
       modlog = modlogsPosts[combined_post.id] || uModlogsPost
