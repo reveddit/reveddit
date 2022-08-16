@@ -21,13 +21,13 @@ class Header extends React.Component {
     const entity_name = getEntityName(this.props.match.params)
     this.setState({entity_name})
 
-    const hasVisitedSite = 'hasVisitedSite'
-    setTimeout(() => {
-      if (! get('hasNotifierExtension', false) && ! get(hasVisitedSite, false)) {
-        this.welcome()
-      }
-      put(hasVisitedSite, true)
-    }, 1000)
+    // const hasVisitedSite = 'hasVisitedSite'
+    // setTimeout(() => {
+    //   if (! get('hasNotifierExtension', false) && ! get(hasVisitedSite, false)) {
+    //     this.welcome()
+    //   }
+    //   put(hasVisitedSite, true)
+    // }, 1000)
   }
   componentDidUpdate(prevProps) {
     const entity_name = getEntityName(this.props.match.params)
