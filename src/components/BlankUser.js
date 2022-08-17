@@ -76,7 +76,7 @@ export default ({message}) => {
         <input ref={inputRef} id='search' type='text' name='username' placeholder='user, r/sub or url' autoFocus='autoFocus'
           value={input} onChange={(e) => setInput(e.target.value)}/>
         <input type='submit' id='button_u' value='go' />
-        <div><a href='/random'>random</a></div>
+        <div><a href='/r/all/x/'>random</a></div>
         <button title="Look up a random redditor" id='button_shuffle'
           onClick={(e) => {
             e.preventDefault()
