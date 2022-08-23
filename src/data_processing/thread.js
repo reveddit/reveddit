@@ -23,6 +23,7 @@ import {
 } from 'api/common'
 import { itemIsRemovedOrDeleted, postIsDeleted, postIsRemoved, jumpToHash,
          convertPathSub, sortCreatedAsc, validAuthor, commentIsRemoved,
+         commentIsDeleted,
 } from 'utils'
 import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
          MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED,
@@ -297,7 +298,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
 
   for (const c of Object.values(revedditComments)) {
     const psComment = pushshiftComments[c.id]
-    if (! psComment || commentIsRemoved(psComment)) {
+    if (! psComment || commentIsRemoved(psComment) || commentIsDeleted(psComment)) {
       pushshiftComments[c.id] = c
     }
   }
