@@ -76,14 +76,16 @@ export default ({message}) => {
         <input ref={inputRef} id='search' type='text' name='username' placeholder='user, r/sub or url' autoFocus='autoFocus'
           value={input} onChange={(e) => setInput(e.target.value)}/>
         <input type='submit' id='button_u' value='go' />
-        <div><a href='/r/all/x/'>random</a></div>
-        <button title="Look up a random redditor" id='button_shuffle'
-          onClick={(e) => {
-            e.preventDefault()
-            setRandom(true)
-          }}>
-          <Shuffle/>
-        </button>
+        <div>
+          <button title="Look up a random redditor" id='button_shuffle'
+            onClick={(e) => {
+              e.preventDefault()
+              setRandom(true)
+            }}>
+            random
+          </button>
+        </div>
+
       </form>
       <div className='text'>
         <LinkWithCloseModal to='/about/faq/#need'>F.A.Q. - Why do I need this?</LinkWithCloseModal>
