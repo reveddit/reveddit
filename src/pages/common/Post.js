@@ -37,7 +37,7 @@ const Post = connect((props) => {
   const {media_metadata} = props.over_18 ? {} : props
   const {sort, t, userCommentsByPost, initialFocusCommentID} = global.state
   let {add_user, loading:globalLoading} = global.state
-  const url = stripRedditLikeDomain(props.url)
+  const url = stripRedditLikeDomain(props.url.replace(/&amp;/g, '&'))
   const [selftextMeta, setSelftextMeta] = useState({
     displayFullSelftext: true,
     manuallyDisplayedSelftext: false,
