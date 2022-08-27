@@ -51,7 +51,7 @@ export const itemIsOneOfSelectedActions = (item, selectedOtherActions, selectedR
         if (postRemovedUnknownWithin(item)) return true
         break
       case ANTI_EVIL_REMOVED:
-        return item.removedby_evil
+        if (item.removedby_evil) return true
         break
     }
   }
