@@ -92,9 +92,9 @@ export const combineRedditAndPushshiftPost = (post, ps_post) => {
       post.retrieved_on = ps_post.retrieved_on
       post.retrievalLatency = retrievalLatency
     }
-    copyFields(['modlog', 'media_metadata', 'author_fullname'], ps_post, post)
+    copyFields(['modlog', 'media_metadata', 'author_fullname'], ps_post, post, true)
     if (! post.removal_reason) {
-      copyFields(['url', 'domain', 'title'], ps_post, post)
+      copyFields(['url', 'domain', 'title'], ps_post, post, true)
     }
     copyFields(['author_flair_text'], ps_post, post, true)
   }
@@ -263,7 +263,7 @@ export const getRevdditDuplicatePosts = async (threadID, global) => {
       if (drivingPost.selftext) {
         let selftext = drivingPost.selftext
         if (drivingPost.is_robot_indexable === false) {
-          const ps_drivingPost = await getPushshiftPost(drivingPost.id)
+          const ps_drivingPost = await getPushshiftPost({id: drivingPost.id})
           .catch(() => {}) // this ps query may fail while later ps/reddit queries succeed
           if (ps_drivingPost) {
             selftext = ps_drivingPost.selftext

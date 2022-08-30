@@ -123,7 +123,8 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     const moderators_promise = getModerators(reddit_post.subreddit)
     const modlogs_comments_promise = getModlogsComments({subreddit: reddit_post.subreddit, link_id: reddit_post.id, limit: 500})
     let modlogs_posts_promise = Promise.resolve({})
-    pushshift_post_promise = getPushshiftPost(threadID).catch(ignoreArchiveErrors)
+    const use_fields_for_manually_approved_lookup = ! ((postIsRemoved(reddit_post) && (reddit_post.is_self || reddit_post.is_gallery)) || postIsDeleted(reddit_post))
+    pushshift_post_promise = getPushshiftPost({id: threadID, use_fields_for_manually_approved_lookup}).catch(ignoreArchiveErrors)
     modlogs_posts_promise = getModlogsPosts({subreddit: reddit_post.subreddit, link_id: reddit_post.id})
     document.title = reddit_post.title
     if (reddit_post.quarantine && ! quarantined) {
