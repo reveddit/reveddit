@@ -32,7 +32,7 @@ function lookupAndSetRemovedBy(global) {
   const posts_removedBy_undefined = []
   const gs = global.state
   gs.items.forEach(item => {
-    if (item.removedby === undefined && ! item.unknown && ! item.removedby_evil) {
+    if (item.removedby === undefined && ! item.unknown) {
       if (isComment(item)) {
         comments_removedBy_undefined.push(item)
         comment_ids.push(item.id)
@@ -221,7 +221,11 @@ const getItems = async (user, kind, global, sort, before = '', after = '', time,
     item.rev_position = items.length + i
     ids.push(item.name)
     if (item.removal_reason) {
-      item.removed = true
+      // Below ensures that posts removed only by admins do not receive a red background
+      // Comments are marked in red so that the thread view and user profile view are consistent.
+      if (isComment) {
+        item.removed = true
+      }
       item.removedby_evil = ANTI_EVIL_REMOVED
     }
     if (! oldestTimestamp) {
