@@ -34,6 +34,13 @@ export const getComments = ({objects = undefined, ids = [], quarantined_subreddi
 export const getPosts = ({objects = undefined, ids = [], quarantined_subreddits, useProxy = false}) => {
   const full_ids = getFullIDsForObjects(objects, ids, 't3_')
   return getItems({ids: full_ids, quarantined_subreddits, key: 'id', useProxy})
+  .then(posts => {
+    for (const p of Object.values(posts)) {
+      p.url = p.url || ''
+      p.domain = p.domain || ''
+    }
+    return posts
+  })
 }
 
 export const getModeratedSubreddits = (user) => {
@@ -153,6 +160,9 @@ export const getPostWithComments = ({
       if (! Array.isArray(results)) {
         throw results
       }
+      const post = results[0].data.children[0].data
+      post.url = post.url || ''
+      post.domain = post.domain || ''
       const items = results[1].data.children
       const comments = {}, moreComments = {}
       let oldestComment = {}, newestComment = {}
@@ -169,7 +179,7 @@ export const getPostWithComments = ({
         }
       })
       return {
-        post: results[0].data.children[0].data,
+        post,
         comments, moreComments, oldestComment,
         //newestComment, // not currently used
       }
