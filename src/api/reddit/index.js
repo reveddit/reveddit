@@ -78,7 +78,7 @@ export const getPostsForURLs = async (urls, auth = null) => {
   .catch(errorHandler)
 }
 
-export const getPostsByURL = (urlParam, auth = null, results) => {
+const getPostsByURL = (urlParam, auth = null, results) => {
   const params = {url: encodeURIComponent(urlParam), raw_json:1, limit:100}
   const url = oauth_reddit + 'api/info' + '?'+paramString(params)
   return query(url, auth, 'id', results)
