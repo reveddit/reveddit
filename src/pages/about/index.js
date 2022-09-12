@@ -46,6 +46,9 @@ export const NewsItem = ({to, title, created_utc, newsText = '', timePrefix = ''
 const contact = '/about/contact/'
 const donate = '/about/donate/'
 const news = [
+  {reddit: '/wxfjvy',
+  title: 'Podcast: What is shadow moderation?',
+  created_utc: '1661437289'},
   {reddit: '/w8i11a',
    title: 'Admin transparency',
    created_utc: '1658837092'},

@@ -391,7 +391,7 @@ export const withFetch = (WrappedComponent) =>
       if (error.message === 'Forbidden') {
         redirectToHistory(this.props.match.params.subreddit)
       } else if (this.props.global.state.items.length === 0) {
-        document.querySelector('#donate-ribbon').style.display = 'none'
+//        document.querySelector('#donate-ribbon').style.display = 'none'
         let content = undefined
         var isFirefox = typeof InstallTrigger !== 'undefined';
         if (navigator.doNotTrack == "1" && isFirefox) {
