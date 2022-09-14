@@ -260,7 +260,7 @@ export const getRevdditDuplicatePosts = async (threadID, global) => {
     for (const drivingPost of Object.values(redditPosts)) {
       let firstLink = ''
       let meta
-      if (drivingPost.selftext) {
+      if (drivingPost.selftext && ! (drivingPost.removal_reason || drivingPost.selftext[0] === '[')) {
         let selftext = drivingPost.selftext
         if (drivingPost.is_robot_indexable === false) {
           const ps_drivingPost = await getPushshiftPost({id: drivingPost.id})
