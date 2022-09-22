@@ -43,6 +43,17 @@ const suppressedRemovalNoticeLink = '/r/ModSupport/comments/e6llgl/sorry_this_po
 const id_doesntSayPostRemoved = 'reddit-does-not-say-post-removed'
 const old_removed_post = '/r/ProgrammerHumor/comments/9emzhp/turk_tv_found_the_reason_for_chromes_memory_usage/'
 const botban = <NewWindowLink reddit='/r/AutoModerator/wiki/library#wiki_user_bot_ban_list'>"bot ban"</NewWindowLink>
+
+const removed_replies_key = 'removed-replies'
+const removed_replies = {
+  header: 'How can I see replies to me that were removed?',
+  content: <>
+    <p>On <NewWindowLink reddit='/settings/emails'>reddit.com/settings/emails</NewWindowLink> turn on "Replies to your comments" and "Comments on your posts". You may need to first uncheck "Unsubscribe from all emails" at the bottom. Checking "Inbox messages" has no impact on this. That will send an email containing the content and author of every reply. As of September of 2022, this still includes auto-removed content*.</p>
+    <p>To stop getting notifications for a certain post, uncheck "Send Me Reply Notifications" under the "..." on new Reddit, or hit "disable inbox replies" on old Reddit. That stops both the emails and in-app notifications. Replies that aren't removed will still be recorded in your /message/inbox.</p>
+    <p>Regarding, Why do reply notifications link to pages that say "That Comment Is Missing" or "there doesn't seem to be anything here"? In such cases, the comment may have been removed before it was viewed, and subscribing to emails for replies may provide some insight.</p>
+    <p>*Around July-September 2022, some moderators asked Reddit to stop sending emails for auto-removed comments. I shared my opinion about that <NewWindowLink reddit='/r/ModSupport/comments/vsbspa/is_there_even_a_point_to_trying_to_moderate_a/if61wff/'>here</NewWindowLink> and <NewWindowLink reddit='/r/ModSupport/comments/x6brkx/its_been_two_months_and_people_are_still_being/iniyp0g/'>here</NewWindowLink>.</p>
+</>}
+const see_also_removed_replies = <p>See also: <SamePageHashLink id={removed_replies_key}>{removed_replies.header}</SamePageHashLink></p>
 const questions = {
   description: {
     header: 'What is this?',
@@ -182,6 +193,7 @@ const questions = {
     content: <>
       <p>Viewing removed content for subreddits and threads relies on an archive service called Pushshift which can fall behind, fail to archive content, or go offline. If a comment is removed before it is archived then it may not appear on Reveddit. It may be possible to <a href={'#'+unarchived_search_button_word_lc}>restore</a> comments from a user page. Your /user page will always be up to date since that only relies on data from Reddit.</p>
       <p>Pushshift may also completely miss content resulting in <NewWindowLink reddit='/r/pushshift/comments/jplcs1/growing_pains_and_moving_forward_to_bigger_and'>data gaps</NewWindowLink>. If a subreddit exposes <a href='#removal-reason'>mod logs</a>, Reveddit may be able to surface removed content that does not exist within Pushshift.</p>
+      {see_also_removed_replies}
   </>},
   [unarchived_search_button_word_lc]: {
     header: <>What does the {unarchived_search_button_word_code} button on removed comments do?</>,
@@ -194,6 +206,7 @@ const questions = {
       <p>The <code>unknown</code> label is applied when Reveddit cannot determine if something was removed manually by a mod or removed automatically by automod, Reddit's spam filter, or another bot. Pushshift, a database that captures Reddit data as it is created, and which Reveddit queries, can fall behind or fail to retrieve data. When that happens, any removed items are marked as <code>[removed] by unknown</code>. When Pushshift captures content soon after creation, and the content has already been removed, then it is marked as <code>[removed] automatically</code>. If Pushshift has a record of a removed comment's body then the comment is labeled <code>[removed] by mod</code>. More detail can be found in the <a href='https://github.com/reveddit/reveddit/blob/60a34a28c5133fd54777d189fc9997afe89a2f39/src/data_processing/comments.js#L131'>source code</a>.</p>
       <p>Note, when an account is suspended by Reddit, all the posts and comments for that account may be removed. The Reddit API does not indicate where suspension-related removals occur and so Reveddit cannot see or mark where this happens. You can check if an account has been suspended on its Reddit or Reveddit user page. Temporary suspensions may also remove content created before the suspension.</p>
   </>},
+  [removed_replies_key]: removed_replies,
   limits: {
     header: 'Any limitations?',
     content: <>
