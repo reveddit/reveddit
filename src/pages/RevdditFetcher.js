@@ -20,7 +20,7 @@ import { NOT_REMOVED, COLLAPSED, ORPHANED } from 'pages/common/RemovedBy'
 import { jumpToHash, get, put, ext_urls,
          itemIsActioned, itemIsCollapsed, commentIsOrphaned,
          commentIsMissingInThread, getPrettyDate, getPrettyTimeLength,
-         archiveTimes_isCurrent, matchOrIncludes, now, reversible,
+         archiveTimes_isCurrent, archive_isOnline, matchOrIncludes, now, reversible,
          redirectToHistory,
 } from 'utils'
 import { getAuthorInfoByName } from 'api/reddit'
@@ -640,7 +640,7 @@ const GenericPostProcessor = connect((props) => {
       }
       commentsMsg = <>{commentsMsg}<Time noAgo={true} pretty={getPrettyTimeLength(archiveTimes.time_to_comment_overwrite)} suffix=' until overwrite'/></>
     }
-    if (! archiveTimes_isCurrent(archiveTimes)) {
+    if (! archive_isOnline(archiveTimes)) {
       offlineMsg = <>
         <div className='container offlineMsg'>
           <div className='label'>OFFLINE</div>
@@ -651,7 +651,7 @@ const GenericPostProcessor = connect((props) => {
       </>
     }
     if (submissionsMsg || commentsMsg) {
-      const updated = getPrettyDate(archiveTimes.updated)
+      const last_checked = getPrettyDate(archiveTimes.last_checked)
       let modal_status_summary = <></>
       if (archiveTimes.last_down_time) {
         const modal_status_items = []
@@ -674,7 +674,7 @@ const GenericPostProcessor = connect((props) => {
         <p>See <a href='/info'>/info</a> for the complete status.</p>
       </>)
       archiveDelayMsg =
-        <Notice className='delay' title='archive status' detail={'as of '+updated} help={archive_delay_help}
+        <Notice className='delay' title='archive status' detail={'as of '+last_checked} help={archive_delay_help}
           message = {<>{offlineMsg}<div className={'container ' + (offlineMsg ? 'offline' : '')}>{submissionsMsg}{commentsMsg}</div></>} />
     }
   }
