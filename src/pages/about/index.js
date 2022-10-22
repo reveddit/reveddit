@@ -46,6 +46,9 @@ export const NewsItem = ({to, title, created_utc, newsText = '', timePrefix = ''
 const contact = '/about/contact/'
 const donate = '/about/donate/'
 const news = [
+  {href: 'https://cantsayanything.win/2022-10-transparent-moderation/',
+  title: 'Talk: Improving online discourse with transparent moderation',
+  created_utc: '1665580500'},
   {reddit: '/wxfjvy',
   title: 'Podcast: What is shadow moderation?',
   created_utc: '1661437289'},
