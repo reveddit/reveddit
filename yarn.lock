@@ -10235,7 +10235,6 @@ __metadata:
     react-router-dom: "npm:^5.1.2"
     rimraf: "npm:^3.0.2"
     scroll-to-element: "npm:^2.0.2"
-    snuownd: "git+https://github.com/JordanMilne/snuownd.git"
     standard: "npm:^11.0.1"
     stripe: "npm:^8.131.1"
     svg-url-loader: "npm:^6.0.0"
@@ -10804,13 +10803,6 @@ __metadata:
     source-map-resolve: "npm:^0.5.0"
     use: "npm:^3.1.0"
   checksum: b110aefa2367ecfd85a874a10a1104e2e058613b51793b678e43c3e35a0e2c183f6b641c6e79f35a9f7150526ebce65dc5dc0102deaedd540c6cb334ed364250
-  languageName: node
-  linkType: hard
-
-"snuownd@git+https://github.com/JordanMilne/snuownd.git":
-  version: 1.1.1
-  resolution: "snuownd@git+https://github.com/JordanMilne/snuownd.git#commit=06a1abc16ad06a1a6eff14afb7f9bcdb34e8ad01"
-  checksum: 21a1a3b8d91aa270c1152d7a0f4abcc7e773fa03306d19c8ef0213675e1a96dc065b5a43e6318c417527c964c32b1f59795818bd2af50f621c199bee4a33344b
   languageName: node
   linkType: hard
 
