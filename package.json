@@ -85,5 +85,5 @@
     "lambda-build": "netlify-lambda build lambda-src",
     "clean": "rimraf dist/x-files dist/index.html dist/*.css dist/*.js dist/*.js.map"
   },
-  "packageManager": "yarn@3.2.4"
+  "packageManager": "yarn@4.0.0-rc.25"
 }
