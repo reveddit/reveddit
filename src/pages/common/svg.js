@@ -68,7 +68,7 @@ export const RestoreIcon = ({wh = '24', fill='white', ...props}) => {
 
 export const TwitterLink = ({children}) => {
   return (
-    <NewWindowLink href='https://twitter.com/reveddit/status/1482249796841009154'>
+    <NewWindowLink href='https://twitter.com/rhaksw'>
       {children}
     </NewWindowLink>
   )
