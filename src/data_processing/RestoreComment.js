@@ -529,13 +529,15 @@ export const addUserComments = (user_comments, commentsLookup) => {
     const comment = commentsLookup[user_comment.id]
     user_comment.from_add_user = true
     if (comment) {
-      comment.also_in_add_user = true
-      if (normalizeTextForComparison(comment.body) !== normalizeTextForComparison(user_comment.body)) {
-        comment.from_add_user = true
-        changed.push(user_comment)
-        changedAuthors[user_comment.author] = user_comment
+      if (! user_comment.removal_reason) {
+        comment.also_in_add_user = true
+        if (normalizeTextForComparison(comment.body) !== normalizeTextForComparison(user_comment.body)) {
+          comment.from_add_user = true
+          changed.push(user_comment)
+          changedAuthors[user_comment.author] = user_comment
+        }
+        copyFields(addUserFields, user_comment, comment)
       }
-      copyFields(addUserFields, user_comment, comment)
     } else {
       commentsLookup[user_comment.id] = user_comment
       changed.push(user_comment)
