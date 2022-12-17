@@ -16,14 +16,14 @@ const comment_fields = [
 const post_fields_for_comment_data = ['id', 'title', 'whitelist_status', 'url', 'author',
                                       'num_comments', 'quarantine', 'subreddit_subscribers']
 
-const postURL = 'https://api.pushshift.io/reddit/submission/search/'
-const commentURL = 'https://api.pushshift.io/reddit/comment/search/'
+const postURL = 'https://api.pushshift.io/reddit/submission/search'
+const commentURL = 'https://api.pushshift.io/reddit/comment/search'
 const elastic_commentURL = 'https://elastic.pushshift.io/rc/comments/_search?source='
 const maxNumItems = 1000
 const maxNumCommentsByID = 500
 const maxNumPostsByID = 500
 const waitInterval = 400
-
+const PUSHSHIFT_API_MAX_QUERY_SIZE = 1000
 // PUSHSHIFT_MAX_COUNT_PER_QUERY is max count items returned by pushshift per query
 // need to know this in order to use 'after' param while avoiding making extra pushshift calls
 export const PUSHSHIFT_MAX_COUNT_PER_QUERY = 100
@@ -291,13 +291,15 @@ export const getPost = ({id, use_fields_for_manually_approved_lookup = false}) =
 
 // api.pushshift.io currently only returns results with q=* specified and that limits result size to 100
 export const commentsByThreadReturnValueDefaults = { comments: {}, last: undefined }
-export const getCommentsByThread = (link_id, after='') => {
+export const getCommentsByThread = (link_id, since='') => {
   const queryParams = {
-    link_id,
-    limit: 30000,
-    sort: 'asc',
-    fields: comment_fields.join(','),
-    ...(after && {after})
+    link_id: toBase10(link_id),
+    limit: PUSHSHIFT_API_MAX_QUERY_SIZE,
+    sort: 'created_utc',
+    order: 'asc',
+    ...(since && {since})
+    // disable until field names in new Pushshift API are established
+    //fields: comment_fields.join(','),
   }
   return fetchUrlWithParams(commentURL, queryParams)
     .then(response => response.json())
@@ -307,7 +309,9 @@ export const getCommentsByThread = (link_id, after='') => {
         update_retrieved_field(comment)
         // Missing parent id === direct reply to thread
         if ((! ('parent_id' in comment)) || ! comment.parent_id) {
-          comment.parent_id = 't3_'+threadID
+          comment.parent_id = 't3_'+link_id
+        } else if (typeof comment.parent_id === 'number') {
+          comment.parent_id = 't1_'+toBase36(comment.parent_id)
         }
         map[comment.id] = comment
         last = comment.created_utc
