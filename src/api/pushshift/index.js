@@ -1,12 +1,12 @@
 import { toBase10, toBase36, chunk, flatten, getQueryString, promiseDelay } from 'utils'
 import { fetchWithTimeout } from 'api/common'
 
-export const comment_fields_for_user_page_lookup = ['id', 'retrieved_on' ,'created_utc' ,'author', 'retrieved_utc', 'author_flair_text']
+export const comment_fields_for_user_page_lookup = ['id', 'retrieved_utc' ,'created_utc' ,'author', 'author_flair_text']
 export const post_fields_for_user_page_lookup = [
-  'id', 'retrieved_on' ,'created_utc' , 'is_robot_indexable', 'is_crosspostable', 'retrieved_utc', 'author_flair_text']
+  'id', 'retrieved_utc' ,'created_utc' , 'is_robot_indexable', 'is_crosspostable', 'author_flair_text']
 
 const post_fields = [...post_fields_for_user_page_lookup, 'thumbnail', 'author_fullname', 'url', 'domain', 'title']
-const post_fields_for_manually_approved_lookup = ['id','retrieved_on','retrieved_utc','is_robot_indexable']
+const post_fields_for_manually_approved_lookup = ['id','retrieved_utc','is_robot_indexable']
 const comment_fields = [
   ...comment_fields_for_user_page_lookup,
   'author_fullname', 'body', 'parent_id', 'score',
@@ -44,31 +44,33 @@ export const queryPosts = (params) => {
   return queryItems(params, postURL, post_fields, 't3_', null)
 }
 
-const queryItems = ({q, author, subreddit, n = 500, sort='desc', sort_type, before, after, domain,
+//after=since
+//before=until
+const queryItems = ({q, author, subreddit, n = 500, sort:order='desc', sort_type:sort='created_utc', before:until, after:since, domain,
                      url, selftext, parent_id, stickied, title, distinguished,
                      user_flair: author_flair_text,
                      },
                      apiURL, fields, prefix, key = 'name') => {
   const results = {}
-  if (after && ! before && ! sort_type) {
-    sort = 'asc'
+  if (since && ! until && ! sort) {
+    order = 'asc'
   }
   const queryParams = {
     size: n,
-    sort,
+    order,
     fields: fields.join(','),
     ...(q && {q}),
     ...(author && {author}),
     ...(author_flair_text && {author_flair_text}),
     ...(subreddit && {subreddit}),
-    ...(after && {after: ifNumParseAndAdd(after, -1)}),
-    ...(before && {before: ifNumParseAndAdd(before, 1)}),
+    ...(since && {since: ifNumParseAndAdd(since, -1)}),
+    ...(until && {until: ifNumParseAndAdd(until, 1)}),
     ...(domain && {domain}),
     ...(parent_id && {parent_id}),
     ...(stickied !== undefined && {stickied}),
     ...(title && {title}),
     ...(distinguished && {distinguished}),
-    ...(sort_type && {sort_type}),
+    ...(sort && {sort}),
   }
   if (selftext) queryParams.selftext = encodeURIComponent(selftext)
   if (url) queryParams.url = encodeURIComponent(url)
@@ -90,9 +92,10 @@ const queryItems = ({q, author, subreddit, n = 500, sort='desc', sort_type, befo
 }
 
 const fetchUrlWithParams = (url, queryParams, fetchFn = window.fetch, options = {}) => {
-  if (! queryParams.q) {
-    queryParams.q = '*'
-  }
+  // (Dec 2022) Earlier in the year, this q=* was required to get results. Now it makes queries time out
+  // if (! queryParams.q) {
+  //   queryParams.q = '*'
+  // }
   return fetchFn(url+getQueryString(queryParams), options)
 }
 
@@ -184,19 +187,20 @@ const ifNumParseAndAdd = (n, add) => {
 }
 
 export const getItemsBySubredditOrDomain = function(
-  {subreddit:subreddits_str, domain:domains_str, n=maxNumItems, before='', after='',
+  {subreddit:subreddits_str, domain:domains_str, n=maxNumItems, before:until='', since:since='',
    ps_url, fields}
 ) {
   const queryParams = {
-    sort: 'desc',
+    order: 'desc',
     size: n,
-    fields,
+    // disable until field names in new Pushshift API are established
+    //fields,
   }
-  if (before) {
-    queryParams['before'] = ifNumParseAndAdd(before, 1)
-  } else if (after) {
-    queryParams['after'] = ifNumParseAndAdd(after, -1)
-    queryParams['sort'] = 'asc'
+  if (until) {
+    queryParams['until'] = ifNumParseAndAdd(until, 1)
+  } else if (since) {
+    queryParams['since'] = ifNumParseAndAdd(since, -1)
+    queryParams['order'] = 'asc'
   }
   if (subreddits_str) {
     queryParams['subreddit'] = subreddits_str.toLowerCase().replace(/\+/g,',')
