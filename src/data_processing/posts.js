@@ -356,15 +356,18 @@ const searchRedditAndPushshiftPosts = (global, searchInput) => {
     }
   }
   if (pushshift_urls.length) {
-    pushshift_promises.push(
-      pushshiftQueryPosts({url: getPushshiftURLString(pushshift_urls), before})
-      .catch(() => {}) // ignore intermittent ps errors
-    )
+    // DISABLE, api in 2022/12 does not support query by URL
+    // pushshift_promises.push(
+    //   pushshiftQueryPosts({url: getPushshiftURLString(pushshift_urls), before})
+    //   .catch(() => {}) // ignore intermittent ps errors
+    // )
   }
   if (pushshift_selftext_urls.length) {
     pushshift_promises.push(
       pushshiftQueryPosts(
-        {selftext: getPushshiftURLString(pushshift_selftext_urls), before})
+        // DISABLE. api in 2022/12 query by selftext does not work as expected
+        //{selftext: getPushshiftURLString(pushshift_selftext_urls), before})
+        {q: getPushshiftURLString(pushshift_selftext_urls), before})
       .catch(() => {}) // ignore intermittent ps errors
     )
   }

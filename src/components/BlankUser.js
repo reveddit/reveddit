@@ -65,15 +65,19 @@ export default ({message}) => {
       }
     }
   }
-
+  //const placeholder = 'user, r/sub or url'
+  const placeholder = 'user or r/sub'
   return (
     <div className='blank_page'>
       <div className='text'>
-        {message ? message : <>Reveal Reddit's removed content. Search by username, subreddit <a className='pointer' onClick={() => {setInput('r/'); setInputFocus()}}>(r/)</a>, link or domain:</>}
+        {message ? message :
+          //<>Reveal Reddit's removed content. Search by username, subreddit <a className='pointer' onClick={() => {setInput('r/'); setInputFocus()}}>(r/)</a>, link or domain:</>
+          <>Reveal Reddit's removed content. Search by username or subreddit <a className='pointer' onClick={() => {setInput('r/'); setInputFocus()}}>(r/)</a>:</>
+        }
       </div>
       <form id='user-form' onSubmit={handleSubmitUser}>
         <label htmlFor='search' className='hide-element'>search</label>
-        <input ref={inputRef} id='search' type='text' name='username' placeholder='user, r/sub or url' autoFocus='autoFocus'
+        <input ref={inputRef} id='search' type='text' name='username' placeholder={placeholder} autoFocus='autoFocus'
           value={input} onChange={(e) => setInput(e.target.value)}/>
         <input type='submit' id='button_u' value='go' />
         <div>
