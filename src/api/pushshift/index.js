@@ -1,4 +1,6 @@
-import { toBase10, toBase36, chunk, flatten, getQueryString, promiseDelay } from 'utils'
+import { toBase10, toBase36, chunk, flatten, getQueryString, promiseDelay,
+         convertToEpoch, parseNumberAndUnit,
+} from 'utils'
 import { fetchWithTimeout } from 'api/common'
 
 export const comment_fields_for_user_page_lookup = ['id', 'retrieved_utc' ,'created_utc' ,'author', 'author_flair_text']
@@ -44,6 +46,11 @@ export const queryPosts = (params) => {
   return queryItems(params, postURL, post_fields, 't3_', null)
 }
 
+const ifTimeUnitConvertToEpoch = (timeStringOrNumber) => {
+  const [number, unit] = parseNumberAndUnit(timeStringOrNumber.toString())
+  return convertToEpoch(number, unit)
+}
+
 //after=since
 //before=until
 const queryItems = ({q, author, subreddit, n = 500, sort:order='desc', sort_type:sort='created_utc', before:until, after:since, domain,
@@ -63,8 +70,8 @@ const queryItems = ({q, author, subreddit, n = 500, sort:order='desc', sort_type
     ...(author && {author}),
     ...(author_flair_text && {author_flair_text}),
     ...(subreddit && {subreddit}),
-    ...(since && {since: ifNumParseAndAdd(since, -1)}),
-    ...(until && {until: ifNumParseAndAdd(until, 1)}),
+    ...(since && {since: ifTimeUnitConvertToEpoch(ifNumParseAndAdd(since, -1))}),
+    ...(until && {until: ifTimeUnitConvertToEpoch(ifNumParseAndAdd(until, 1))}),
     ...(domain && {domain}),
     ...(parent_id && {parent_id}),
     ...(stickied !== undefined && {stickied}),

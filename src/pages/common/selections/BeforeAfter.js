@@ -2,6 +2,7 @@ import React, {useState, useEffect, useRef, useLayoutEffect} from 'react'
 import { Selection } from './SelectionBase'
 import {SimpleURLSearchParams,
         unitInSeconds, parseDateISOString, convertToEpoch, DATE_UNIT,
+        parseNumberAndUnit,
 } from 'utils'
 import DayPickerInput from 'react-day-picker/DayPickerInput'
 import { useIsMobile } from 'hooks/mobile'
@@ -19,13 +20,6 @@ const queryParamsOnPageLoad = new SimpleURLSearchParams(window.location.search)
 const valueOnPageLoad = queryParamsOnPageLoad.get(B) || queryParamsOnPageLoad.get(A)
 
 const validUnit = (u) => u in units
-
-const parseNumberAndUnit = (paramValue) => {
-  return [
-    paramValue.replace(/[a-z]/gi,''),
-    paramValue.replace(/[^a-z]/gi,'')
-  ]
-}
 
 const inputLooksLikeDate = (s) => s.match(DATE_UNIT) || s.match(/[./]/)
 const pxPerChar = 8.875

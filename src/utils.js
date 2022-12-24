@@ -607,6 +607,13 @@ export const convertToEpoch = (number, unit) => {
   return now
 }
 
+export const parseNumberAndUnit = (paramValue) => {
+  return [
+    paramValue.replace(/[a-z]/gi,''),
+    paramValue.replace(/[^a-z]/gi,'')
+  ]
+}
+
 export const swapKeysAndValues = obj => Object.fromEntries(Object.entries(obj).map(a => a.reverse()))
 
 export const formatBytes = (bytes, decimals = 1) => {
