@@ -101,23 +101,34 @@ export const setPostAndParentDataForComments = (comments, postData) => {
   })
 }
 
-export const getRevdditSearch = (global) => {
-  const {
-    q, author, subreddit, n, before, after, domain, or_domain,
-    content, url, stickied, title, selftext, distinguished, sort_type,
-    s_user_flair,
-  } = global.state
-  const promises = []
-  const notAuthors = new Set(), authors = new Set()
-  author.toString().toLowerCase().split(',').forEach(authorString => {
-    if (authorString) {
-      if (authorString.startsWith('!')) {
-        notAuthors.add(authorString.substr(1))
+const separateNotsFromIncludes = (allValues) => {
+  const notValues = new Set(), posValues = new Set()
+  allValues.toString().toLowerCase().split(',').forEach(value => {
+    if (value) {
+      if (value.startsWith('!')) {
+        notValues.add(value.substr(1))
       } else {
-        authors.add(authorString)
+        posValues.add(value)
       }
     }
   })
+  return [notValues, posValues]
+}
+
+export const getRevdditSearch = (global) => {
+  const {
+    q, n, before, after, domain, or_domain,
+    content, url, stickied, title, selftext, distinguished, sort_type,
+    s_user_flair,
+  } = global.state
+  let {author, subreddit} = global.state
+  const promises = []
+  const [notAuthors, authors] = separateNotsFromIncludes(author)
+  const [notSubreddits, subreddits] = separateNotsFromIncludes(subreddit)
+  // if Pushshift re-enables negation, can remove or comment out the next two lines which overwrite author and subreddit
+  author = Array.from(authors).join(',')
+  subreddit = Array.from(subreddits).join(',')
+
   let include_comments = false
   const common_params = {
     author, user_flair: s_user_flair, subreddit, n, before, after, stickied,
@@ -191,7 +202,7 @@ export const getRevdditSearch = (global) => {
         }
       }
       const isComment = isCommentID(item.name)
-      if (! notAuthors.has(item.author)
+      if (! notAuthors.has(item.author?.toLowerCase()) && ! notSubreddits.has(item.subreddit.toLowerCase())
           && (! authors.size || (isComment && ! commentIsDeleted(item)) || ! authorDeleted(item))
           && (! q || ! item.deleted || (! isComment && ! item.is_self))) {
         items.push(item)
