@@ -18,8 +18,8 @@ const comment_fields = [
 const post_fields_for_comment_data = ['id', 'title', 'whitelist_status', 'url', 'author',
                                       'num_comments', 'quarantine', 'subreddit_subscribers']
 
-const postURL = 'https://api.pushshift.io/reddit/submission/search'
-const commentURL = 'https://api.pushshift.io/reddit/comment/search'
+const postURL = 'https://api.pushshift.io/reddit/search/submission'
+const commentURL = 'https://api.pushshift.io/reddit/search/comment'
 const elastic_commentURL = 'https://elastic.pushshift.io/rc/comments/_search?source='
 const maxNumItems = 1000
 const maxNumCommentsByID = 500
