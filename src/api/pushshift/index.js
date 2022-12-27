@@ -127,7 +127,7 @@ const getCommentsByID_chunk = (ids, field='ids', fields=comment_fields, results=
     size: ids.length,
     [field]: ids.join(',')
   }
-  return fetchUrlWithParams(commentURL, queryParams)
+  return fetchUrlWithParams(commentURL, queryParams, fetchWithTimeout)
     .then(response => response.json())
     .then(data => {
       data.data.forEach(item => {
@@ -237,7 +237,7 @@ const getPostsByID_chunk = (ids, fields = post_fields) => {
     ids: ids.join(','),
     fields: fields.join(','),
   }
-  return fetchUrlWithParams(postURL, params)
+  return fetchUrlWithParams(postURL, params, fetchWithTimeout)
     .then(response => response.json())
     .then(data => {
       const result = {}
