@@ -191,7 +191,7 @@ const questions = {
   unarchived: {
     header: 'Why is removed content sometimes not visible?',
     content: <>
-      <p>Viewing removed content for subreddits and threads relies on an archive service called Pushshift which can fall behind, fail to archive content, or go offline. If a comment is removed before it is archived then it may not appear on Reveddit. It may be possible to <a href={'#'+unarchived_search_button_word_lc}>restore</a> comments from a user page. Your /user page will always be up to date since that only relies on data from Reddit.</p>
+      <p>Viewing removed content for subreddits and threads relies on an archive service called Pushshift which is <a href="https://networkcontagion.us/wp-content/uploads/NCRI-White-Paper-COVID-19-13-Apr-2020.pdf">part of NCRI</a>. Reveddit is unaffiliated. Pushshift can fall behind, fail to archive content, or go offline. If a comment is removed before it is archived then it may not appear on Reveddit. It may be possible to <a href={'#'+unarchived_search_button_word_lc}>restore</a> comments from a user page. Your /user page will always be up to date since that only relies on data from Reddit.</p>
       <p>Pushshift may also completely miss content resulting in <NewWindowLink reddit='/r/pushshift/comments/jplcs1/growing_pains_and_moving_forward_to_bigger_and'>data gaps</NewWindowLink>. If a subreddit exposes <a href='#removal-reason'>mod logs</a>, Reveddit may be able to surface removed content that does not exist within Pushshift.</p>
       {see_also_removed_replies}
   </>},
