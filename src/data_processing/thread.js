@@ -57,6 +57,37 @@ const sortMap = {
 
 const scheduleAddUserItems = (addUserItems) => addUserItems.map(item => redditLimiter.schedule(() => item.query()))
 
+const processAddUserPromises = async (promises, combinedComments, reddit_post) => {
+  return await Promise.all(promises)
+    .then(userPages => getUserCommentsForPost(reddit_post, combinedComments, userPages))
+}
+
+const addRemainingRedditComments_andCombine = async (quarantined_subreddits, reddit_post, pushshiftComments, redditComments, ids, user_comments, add_user, updateURL = false) => {
+  if (ids.length) {
+    const remainingRedditComments = await getRedditComments({ids, quarantined_subreddits, useProxy})
+    Object.values(remainingRedditComments).forEach(comment => {
+      redditComments[comment.id] = comment
+    })
+  }
+  // consider: change this logic to update combinedComments incrementally rather than recreating it from scratch
+  // currently, combinePushshiftAndRedditComments() is called 3x or 4x:
+  //     once with only reddit comments
+  //     once with all Pushshift comments and some reddit comments
+  //     once with all Pushshift comments and remaining reddit comments
+  //     (depends..) once if we found any removed leaf comments
+  // The third call, here, could simply update based on the remainingRedditComments
+  // To do that, would need to use early_combinedComments as the basis for a return value
+  const combinedComments = combinePushshiftAndRedditComments(pushshiftComments, redditComments, false, reddit_post)
+  let changed = [], new_add_user
+  if (updateURL) {
+    ({new_add_user, changed} = addUserComments_and_updateURL(user_comments, combinedComments, add_user))
+  } else {
+    ({changed} = addUserComments(user_comments, combinedComments))
+  }
+  return {combinedComments, changed, new_add_user}
+}
+
+
 export const getRevdditThreadItems = async (threadID, commentID, context, add_user, user_kind, user_sort, user_time,
                                             before, after, subreddit,
                                             global, archive_times_promise) => {
@@ -180,7 +211,9 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
         post_created_utc: reddit_post.created_utc,
       })
     }
-    const combinedComments = combinePushshiftAndRedditComments({}, redditComments, false, post_without_pushshift_data)
+    const {user_comments, newComments: remainingRedditIDs} = await processAddUserPromises(add_user_promises, redditComments, post_without_pushshift_data)
+    const {combinedComments} = await addRemainingRedditComments_andCombine(quarantined_subreddits, post_without_pushshift_data, {}, redditComments, Object.keys(remainingRedditIDs), user_comments)
+
     const [commentTree, itemsSortedByDate] = createCommentTree(threadID, root_comment_id, combinedComments)
     await global.setState({...localStateForURLUpdate,
                            threadPost: post_without_pushshift_data,
@@ -205,7 +238,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     }
     return {reddit_post, root_comment_id, reddit_comments_promises, resetPath,
             reveddit_comments_promise, pushshift_comments_promise,
-            moderators_promise, modlogs_comments_promise, modlogs_posts_promise}
+            moderators_promise, modlogs_comments_promise, modlogs_posts_promise, user_comments}
   })
 
   reddit_pwc_promise.then(async ({reddit_post, modlogs_posts_promise}) => {
@@ -233,7 +266,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     .then(() => combined_post)
   })
   const {reddit_post, reddit_comments_promises, resetPath,
-          moderators_promise, modlogs_comments_promise} = await reddit_pwc_promise
+          moderators_promise, modlogs_comments_promise, user_comments} = await reddit_pwc_promise
   let {root_comment_id} = await reddit_pwc_promise
   const redditCommentsResults = await Promise.all(reddit_comments_promises)
   const redditComments = {}, moreComments = {}
@@ -382,13 +415,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
                       ps_after: new_ps_after,
   })
 
-  const processAddUserPromises = async (promises, combinedComments) => {
-    return await Promise.all(promises)
-      .then(userPages => getUserCommentsForPost(reddit_post, combinedComments, userPages))
-  }
-  const {user_comments, newComments: remainingRedditIDs} = await processAddUserPromises(add_user_promises, early_combinedComments)
-  const {user_comments: user_comments_forURL, newComments: remainingRedditIDs_2} = await processAddUserPromises(add_user_promises_forURL, early_combinedComments)
-  Object.assign(remainingRedditIDs, remainingRedditIDs_2)
+  const {user_comments: user_comments_forURL, newComments: remainingRedditIDs} = await processAddUserPromises(add_user_promises_forURL, early_combinedComments, reddit_post)
 
   // <---- await pushshift_remaining_promises alternate code location ---->
 
@@ -416,31 +443,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     }
   })
 
-  const addRemainingRedditComments_andCombine = async (ids, user_comments, add_user, updateURL = false) => {
-    if (ids.length) {
-      const remainingRedditComments = await getRedditComments({ids, quarantined_subreddits, useProxy})
-      Object.values(remainingRedditComments).forEach(comment => {
-        redditComments[comment.id] = comment
-      })
-    }
-    // consider: change this logic to update combinedComments incrementally rather than recreating it from scratch
-    // currently, combinePushshiftAndRedditComments() is called 3x or 4x:
-    //     once with only reddit comments
-    //     once with all Pushshift comments and some reddit comments
-    //     once with all Pushshift comments and remaining reddit comments
-    //     (depends..) once if we found any removed leaf comments
-    // The third call, here, could simply update based on the remainingRedditComments
-    // To do that, would need to use early_combinedComments as the basis for a return value
-    const combinedComments = combinePushshiftAndRedditComments(pushshiftComments, redditComments, false, reddit_post)
-    let changed = [], new_add_user
-    if (updateURL) {
-      ({new_add_user, changed} = addUserComments_and_updateURL(user_comments, combinedComments, add_user))
-    } else {
-      ({changed} = addUserComments(user_comments, combinedComments))
-    }
-    return {combinedComments, changed, new_add_user}
-  }
-  const {combinedComments} = await addRemainingRedditComments_andCombine(Object.keys(remainingRedditIDs), user_comments)
+  const {combinedComments} = await addRemainingRedditComments_andCombine(quarantined_subreddits, reddit_post, pushshiftComments, redditComments, Object.keys(remainingRedditIDs), user_comments)
   let changed
   ({new_add_user, changed} = addUserComments_and_updateURL(user_comments_forURL, combinedComments, add_user))
   //could: check if pushshiftComments has any parent_ids that are not in combinedComments
@@ -455,8 +458,8 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
   }
 
   const processAUP_addRemaining_combine = async (promises, combinedComments_input, add_user, updateURL = false) => {
-    const {user_comments, newComments} = await processAddUserPromises(promises, combinedComments_input)
-    const {combinedComments, changed, new_add_user} = await addRemainingRedditComments_andCombine(Object.keys(newComments), user_comments, add_user, updateURL)
+    const {user_comments, newComments} = await processAddUserPromises(promises, combinedComments_input, reddit_post)
+    const {combinedComments, changed, new_add_user} = await addRemainingRedditComments_andCombine(quarantined_subreddits, reddit_post, pushshiftComments, redditComments, Object.keys(newComments), user_comments, add_user, updateURL)
     return {combinedComments, changed, new_add_user}
   }
 
