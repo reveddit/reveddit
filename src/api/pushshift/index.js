@@ -25,10 +25,12 @@ const maxNumItems = 1000
 const maxNumCommentsByID = 500
 const maxNumPostsByID = 500
 const waitInterval = 400
-const PUSHSHIFT_API_MAX_QUERY_SIZE = 1000
-// PUSHSHIFT_MAX_COUNT_PER_QUERY is max count items returned by pushshift per query
-// need to know this in order to use 'after' param while avoiding making extra pushshift calls
-export const PUSHSHIFT_MAX_COUNT_PER_QUERY = 100
+
+// PUSHSHIFT_MAX_COUNT_PER_QUERY is both:
+//  - the number of items requested by client, and
+//  - max count items returned by pushshift per query
+//      need to know this in order to use 'after' param while avoiding making extra pushshift calls
+export const PUSHSHIFT_MAX_COUNT_PER_QUERY = 1000
 
 // retrieved_on will become retrieved_utc
 // https://reddit.com/r/pushshift/comments/ap6vx5/changelog_changes_to_the_retrieved_on_key/
@@ -305,14 +307,14 @@ export const commentsByThreadReturnValueDefaults = { comments: {}, last: undefin
 export const getCommentsByThread = (link_id, since='') => {
   const queryParams = {
     link_id: toBase10(link_id),
-    limit: PUSHSHIFT_API_MAX_QUERY_SIZE,
+    limit: PUSHSHIFT_MAX_COUNT_PER_QUERY,
     sort: 'created_utc',
     order: 'asc',
     ...(since && {since})
     // disable until field names in new Pushshift API are established
     //fields: comment_fields.join(','),
   }
-  return fetchUrlWithParams(commentURL, queryParams)
+  return fetchUrlWithParams(commentURL, queryParams, fetchWithTimeout)
     .then(response => response.json())
     .then(data => {
       let last = undefined

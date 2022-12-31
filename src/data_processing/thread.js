@@ -107,7 +107,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
   let reveddit_comments_promise = Promise.resolve({})
   let pushshift_remaining_promises = []
   if (! commentID) {
-    pushshift_comments_promise = getPushshiftCommentsByThread(threadID).catch(ignoreArchiveErrors_comments)
+    pushshift_comments_promise = pushshiftLimiter.schedule(() => getPushshiftCommentsByThread(threadID).catch(ignoreArchiveErrors_comments))
   }
   const schedulePsAfter = async (this_ps_after) => {
     await archive_times_promise
@@ -155,7 +155,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     const modlogs_comments_promise = getModlogsComments({subreddit: reddit_post.subreddit, link_id: reddit_post.id, limit: 500})
     let modlogs_posts_promise = Promise.resolve({})
     const use_fields_for_manually_approved_lookup = ! ((postIsRemoved(reddit_post) && (reddit_post.is_self || reddit_post.is_gallery)) || postIsDeleted(reddit_post))
-    pushshift_post_promise = getPushshiftPost({id: threadID, use_fields_for_manually_approved_lookup}).catch(ignoreArchiveErrors)
+    pushshift_post_promise = pushshiftLimiter.schedule(() => getPushshiftPost({id: threadID, use_fields_for_manually_approved_lookup}).catch(ignoreArchiveErrors))
     modlogs_posts_promise = getModlogsPosts({subreddit: reddit_post.subreddit, link_id: reddit_post.id})
     document.title = reddit_post.title
     if (reddit_post.quarantine && ! quarantined) {
