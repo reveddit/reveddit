@@ -450,7 +450,7 @@ export const querySearch = ({selftexts = [], urls = []}) => {
 
 const NUM_TOP_POSTS_TO_CONSIDER = 10
 export const randomRedditor = async (subreddit = 'all') => {
-  const mods_promise = getModerators(subreddit)
+  const mods_promise = subreddit === 'all' ? Promise.resolve({}) : getModerators(subreddit)
   return querySubredditPage({subreddit, sort: 'top', t: 'month'})
   .then(data => {
     const posts_with_most_comments = data.posts
