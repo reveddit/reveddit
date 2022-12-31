@@ -53,7 +53,7 @@ export const initializeComment = (comment, post) => {
 }
 
 const markRemoved = (redditComment, commentToMark, is_reddit = false) => {
-  if (commentIsRemoved(redditComment) || redditComment.removal_reason) {
+  if (redditComment.removed || commentIsRemoved(redditComment) || redditComment.removal_reason) {
     commentToMark.removed = true
     if (redditComment.removal_reason) {
       commentToMark.removedby_evil = ANTI_EVIL_REMOVED
