@@ -207,6 +207,18 @@ const questions = {
       <p>Note, when an account is suspended by Reddit, all the posts and comments for that account may be removed. The Reddit API does not indicate where suspension-related removals occur and so Reveddit cannot see or mark where this happens. You can check if an account has been suspended on its Reddit or Reveddit user page. Temporary suspensions may also remove content created before the suspension.</p>
   </>},
   [removed_replies_key]: removed_replies,
+  'errors': {
+    header: 'An error appeared. What happened?',
+    content: <>
+      <p>Reveddit was unable to connect to reddit or pushshift. Possible causes include:</p>
+      <ul>
+        <li>conflicting extensions that block connections</li>
+        <li>strict privacy settings that block connections</li>
+        <li>temporary network outage</li>
+        <li>the page contains <span className='quarantined'>quarantined</span> content that requires <ExtensionLink/> to view accurately.</li>
+      </ul>
+      <p>See <a href='/info'>/info</a> for the archive status. During an archive outage, Reveddit's <Link to='/u'>/user</Link> pages still work, and links from /user pages will fill in removed comments in threads.</p>
+  </>},
   limits: {
     header: 'Any limitations?',
     content: <>

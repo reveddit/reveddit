@@ -5,14 +5,17 @@ import { Shuffle } from 'pages/common/svg'
 import { LinkWithCloseModal } from 'components/Misc'
 import { useHistory } from 'react-router-dom'
 
-const sub_regex = /^\/?r\/([^/]+)(\/c[^/]*)?(\/[^/]+)?/
-export default ({message}) => {
+const sub_regex = /^\/?[rv]\/([^/]+)(\/c[^/]*)?(\/[^/]+)?/
+//const defaultPlaceholder = 'user, r/sub or url'
+const defaultPlaceholder = 'user or r/sub'
+
+export default ({message, bottomMessage, placeholder}) => {
   const [random, setRandom] = useState(false)
   const [input, setInput] = useState('')
   const [inputRef, setInputFocus] = useFocus()
   const history = useHistory()
   if (random) {
-    const sub = input.match(sub_regex)
+    const sub = input.match(sub_regex) || window.location.pathname.match(sub_regex)
     let path = '/r/all/x'
     if (sub) {
       path = `/r/${sub[1]}/x/`+window.location.search
@@ -65,8 +68,6 @@ export default ({message}) => {
       }
     }
   }
-  //const placeholder = 'user, r/sub or url'
-  const placeholder = 'user or r/sub'
   return (
     <div className='blank_page'>
       <div className='text'>
@@ -77,7 +78,7 @@ export default ({message}) => {
       </div>
       <form id='user-form' onSubmit={handleSubmitUser}>
         <label htmlFor='search' className='hide-element'>search</label>
-        <input ref={inputRef} id='search' type='text' name='username' placeholder={placeholder} autoFocus='autoFocus'
+        <input ref={inputRef} id='search' type='text' name='username' placeholder={placeholder || defaultPlaceholder} autoFocus='autoFocus'
           value={input} onChange={(e) => setInput(e.target.value)}/>
         <input type='submit' id='button_u' value='go' />
         <div>
@@ -91,9 +92,11 @@ export default ({message}) => {
         </div>
 
       </form>
-      <div className='text'>
-        <LinkWithCloseModal to='/about/faq/#need'>F.A.Q. - Why do I need this?</LinkWithCloseModal>
-      </div>
+      {bottomMessage ? bottomMessage :
+        <div className='text'>
+          <LinkWithCloseModal to='/about/faq/#need'>F.A.Q. - Why do I need this?</LinkWithCloseModal>
+        </div>
+      }
     </div>
   )
 
