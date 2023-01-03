@@ -632,7 +632,7 @@ const GenericPostProcessor = connect((props) => {
     if (page_type === 'info' ||
           (archiveTimes.updated - archiveTime_comment > normalArchiveDelay
           && isCommentsPageType)) {
-      commentsMsg = gridLabel('comments', archiveTime_comment, archiveTimes.updated, starred)
+      commentsMsg = gridLabel('comments', archiveTime_comment, archiveTimes.last_checked, starred)
     }
     if (page_type === 'info' || (isCommentsPageType && archiveTimes.time_to_comment_overwrite)) {
       if (commentsMsg) {
