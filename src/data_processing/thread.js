@@ -203,7 +203,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
         num_comments: reddit_post.num_comments,
         post_created_utc: reddit_post.created_utc,
       })
-      pushshift_comments_promise = getPushshiftCommentsByThread(threadID, after).catch(ignoreArchiveErrors_comments)
+      pushshift_comments_promise = pushshiftLimiter.schedule(() => getPushshiftCommentsByThread(threadID, after).catch(ignoreArchiveErrors_comments))
     } else {
       reveddit_comments_promise = getCommentsByThread({
         link_id: threadID, after, root_comment_id,

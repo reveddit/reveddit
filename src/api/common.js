@@ -17,6 +17,7 @@ export const pushshiftLimiter = new Bottleneck({
   reservoirRefreshAmount: 1,
   reservoirRefreshInterval: 1500, // ms, must be divisible by 250
   maxConcurrent: 1,
+  minTime: 1000, // How long to wait after launching a job before launching another one.
   // PREVIOUS setup before api delays began @ end of 2022
   // reservoir: 5, // 5 requests per 7 seconds. pushshift allows 60 per minute
   // reservoirRefreshAmount: 5,
