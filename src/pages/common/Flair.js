@@ -6,7 +6,7 @@ const Flair = ({page_type, global, className = '', field, globalVarName, ...prop
   if (props[field]) {
     return <span className={className + ' pointer'}
       onClick={(e) => {
-        const escapedFlairRegex = '"^'+escapeRegExp(e.target.textContent).replaceAll('"', '.')+'$"'
+        const escapedFlairRegex = '"^'+escapeRegExp(e.target.textContent).replace(/"/g, '.')+'$"'
         return global.resetFilters(page_type, {[globalVarName]: escapedFlairRegex})
       }
     }>{replaceAmpGTLT(props[field])}</span>

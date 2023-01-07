@@ -126,7 +126,7 @@ class App extends React.Component {
             //also convert paths ending in /.compact to /
             let pathname = location.pathname
               .replace(/\/\/+|([^/])$|\/\.compact$/g, '$1/')
-              .replaceAll('\\','')
+              .replace(/\\/g,'')
 
             //new reddit's fancy editor has a bug, when you write a URL w/out formatting and switch to markdown, it inserts a \ before all _
             //so, remove \ from add_user param (don't want to remove \ from text filter params like keywords or flair)
@@ -143,7 +143,7 @@ class App extends React.Component {
                   return null
                 }
                 // remove ! from usernames. bot inserts them to avoid automod matches on usernames
-                pathname = pathname.replaceAll('!','')
+                pathname = pathname.replace(/!/g,'')
               }
             }
             if (pathname !== location.pathname || search !== location.search) {
