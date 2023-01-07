@@ -57,7 +57,6 @@ module.exports = async (env, argv) => {
   }
   return {
     entry: [
-      '@babel/polyfill',
       'whatwg-fetch',
       './src/index.js'
     ],

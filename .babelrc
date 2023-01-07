@@ -1,7 +1,15 @@
 {
-	"presets": ["@babel/preset-env", "@babel/preset-react"],
-	"plugins": [
+  "presets": [
+    ["@babel/preset-env",
+      {
+        "useBuiltIns": "usage",
+        "corejs": "3.27.1",
+        "targets": "defaults",
+      }
+    ],
+    "@babel/preset-react"],
+  "plugins": [
         "@babel/plugin-proposal-object-rest-spread",
         "@babel/plugin-proposal-class-properties"
-	]
+  ]
 }

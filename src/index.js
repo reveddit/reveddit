@@ -1,4 +1,4 @@
-import '@babel/polyfill'
+import "core-js/stable"
 import React, { Suspense, lazy } from 'react'
 import ReactDOM from 'react-dom'
 import { BrowserRouter, Switch, Route, Redirect } from 'react-router-dom'
