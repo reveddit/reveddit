@@ -120,6 +120,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/eslint-parser@npm:^7.19.1":
+  version: 7.19.1
+  resolution: "@babel/eslint-parser@npm:7.19.1"
+  dependencies:
+    "@nicolo-ribaudo/eslint-scope-5-internals": "npm:5.1.1-v1"
+    eslint-visitor-keys: "npm:^2.1.0"
+    semver: "npm:^6.3.0"
+  peerDependencies:
+    "@babel/core": ">=7.11.0"
+    eslint: ^7.5.0 || ^8.0.0
+  checksum: c30457892c481692f6871ae9102cc29a89d0ece90f8bc287de81dbfc757b517cdacfc29b773190600928f87c7d1278e7f4533141aff6c206adeef49b966451e7
+  languageName: node
+  linkType: hard
+
 "@babel/generator@npm:^7.12.10, @babel/generator@npm:^7.12.11":
   version: 7.12.11
   resolution: "@babel/generator@npm:7.12.11"
@@ -691,7 +705,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/parser@npm:^7.20.7, @babel/parser@npm:^7.7.0":
+"@babel/parser@npm:^7.20.7":
   version: 7.20.7
   resolution: "@babel/parser@npm:7.20.7"
   bin:
@@ -2366,7 +2380,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/traverse@npm:^7.20.10, @babel/traverse@npm:^7.20.12, @babel/traverse@npm:^7.20.5, @babel/traverse@npm:^7.20.7, @babel/traverse@npm:^7.7.0":
+"@babel/traverse@npm:^7.20.10, @babel/traverse@npm:^7.20.12, @babel/traverse@npm:^7.20.5, @babel/traverse@npm:^7.20.7":
   version: 7.20.12
   resolution: "@babel/traverse@npm:7.20.12"
   dependencies:
@@ -2395,7 +2409,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/types@npm:^7.18.6, @babel/types@npm:^7.18.9, @babel/types@npm:^7.19.0, @babel/types@npm:^7.20.0, @babel/types@npm:^7.20.2, @babel/types@npm:^7.20.5, @babel/types@npm:^7.20.7, @babel/types@npm:^7.7.0":
+"@babel/types@npm:^7.18.6, @babel/types@npm:^7.18.9, @babel/types@npm:^7.19.0, @babel/types@npm:^7.20.0, @babel/types@npm:^7.20.2, @babel/types@npm:^7.20.5, @babel/types@npm:^7.20.7":
   version: 7.20.7
   resolution: "@babel/types@npm:7.20.7"
   dependencies:
@@ -2578,6 +2592,15 @@ __metadata:
   version: 2.1.8-no-fsevents.3
   resolution: "@nicolo-ribaudo/chokidar-2@npm:2.1.8-no-fsevents.3"
   checksum: 4149e0e0b42962e1473c47641b8ed728ab2f87076602fa5ba88379f51c11d168ca0d8fbd5fae9eccc891db51317290deb67958746f2bbded504fa139e98be3a6
+  languageName: node
+  linkType: hard
+
+"@nicolo-ribaudo/eslint-scope-5-internals@npm:5.1.1-v1":
+  version: 5.1.1-v1
+  resolution: "@nicolo-ribaudo/eslint-scope-5-internals@npm:5.1.1-v1"
+  dependencies:
+    eslint-scope: "npm:5.1.1"
+  checksum: 69baea88d79087c16c562fbe857688584828ea2d375df2bfc797c7ab7ec59fa726953cf72c14ed14bb28567ce7a4675fa3c2b009417db6f3fc1aca48dcf4e72e
   languageName: node
   linkType: hard
 
@@ -3762,22 +3785,6 @@ __metadata:
     esutils: "npm:^2.0.2"
     js-tokens: "npm:^3.0.2"
   checksum: 9487af948c25dfd8995b1078ef9fd14a97b70bb3b7c17507a621b7201412e10301cbe86695d6954b8ba675dbc5485beefc5bf52067d60f7ac582ec040b2a41e7
-  languageName: node
-  linkType: hard
-
-"babel-eslint@npm:^10.1.0":
-  version: 10.1.0
-  resolution: "babel-eslint@npm:10.1.0"
-  dependencies:
-    "@babel/code-frame": "npm:^7.0.0"
-    "@babel/parser": "npm:^7.7.0"
-    "@babel/traverse": "npm:^7.7.0"
-    "@babel/types": "npm:^7.7.0"
-    eslint-visitor-keys: "npm:^1.0.0"
-    resolve: "npm:^1.12.0"
-  peerDependencies:
-    eslint: ">= 4.12.1"
-  checksum: 2070bec885c009380b7b884413ae650808f2989d1463f1d3fdad5b93fbb4833efc1faa95f7b04d6b4cf11c921b617cf5d5c592cd025ac3c3bb48319c45a6d982
   languageName: node
   linkType: hard
 
@@ -6265,7 +6272,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-visitor-keys@npm:^2.0.0":
+"eslint-visitor-keys@npm:^2.0.0, eslint-visitor-keys@npm:^2.1.0":
   version: 2.1.0
   resolution: "eslint-visitor-keys@npm:2.1.0"
   checksum: fba2e0be2450d1bc52c74b42008e3da7480fc38cb588b3e0474552c290ed0056465d8754cf579503bdb239d3001c91733e3ff26f659f2479e85baf6bf6559b84
@@ -11474,7 +11481,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"resolve@npm:^1.12.0, resolve@npm:^1.14.2":
+"resolve@npm:^1.14.2":
   version: 1.22.1
   resolution: "resolve@npm:1.22.1"
   dependencies:
@@ -11497,7 +11504,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"resolve@patch:resolve@npm%3A^1.12.0#optional!builtin<compat/resolve>, resolve@patch:resolve@npm%3A^1.14.2#optional!builtin<compat/resolve>":
+"resolve@patch:resolve@npm%3A^1.14.2#optional!builtin<compat/resolve>":
   version: 1.22.1
   resolution: "resolve@patch:resolve@npm%3A1.22.1#optional!builtin<compat/resolve>::version=1.22.1&hash=07638b"
   dependencies:
@@ -11547,6 +11554,7 @@ __metadata:
   dependencies:
     "@babel/cli": "npm:^7.20.7"
     "@babel/core": "npm:^7.20.12"
+    "@babel/eslint-parser": "npm:^7.19.1"
     "@babel/plugin-proposal-class-properties": "npm:^7.18.6"
     "@babel/plugin-proposal-object-rest-spread": "npm:^7.20.7"
     "@babel/plugin-proposal-optional-chaining": "npm:^7.20.7"
@@ -11556,7 +11564,6 @@ __metadata:
     "@babel/preset-react": "npm:^7.18.6"
     "@babel/runtime": "npm:^7.20.7"
     "@stripe/stripe-js": "npm:^1.11.0"
-    babel-eslint: "npm:^10.1.0"
     babel-loader: "npm:^9.1.2"
     babel-plugin-lodash: "npm:^3.3.4"
     bottleneck: "npm:^2.19.5"
