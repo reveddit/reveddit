@@ -125,10 +125,10 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
   const add_user_authors = {}
   if (add_user) {
     const addUserItems = (new AddUserParam({string: add_user})).getItems()
-    const addUserItems_first = addUserItems //.slice(0,NumAddUserItemsToLoadAtFirst)
+    const addUserItems_first = addUserItems.slice(0,NumAddUserItemsToLoadAtFirst)
     add_user_promises.push(...scheduleAddUserItems(addUserItems_first))
-    // const addUserItems_remainder = addUserItems.slice(NumAddUserItemsToLoadAtFirst)
-    // add_user_promises_remainder.push(...scheduleAddUserItems(addUserItems_remainder))
+    const addUserItems_remainder = addUserItems.slice(NumAddUserItemsToLoadAtFirst)
+    add_user_promises_remainder.push(...scheduleAddUserItems(addUserItems_remainder))
     Object.assign(add_user_authors, addUserItems.reduce((map,item) => (map[item.author] = 1, map), {}))
   }
   let root_comment_promise = Promise.resolve({})
