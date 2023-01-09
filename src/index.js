@@ -1,4 +1,5 @@
 import "core-js/stable"
+document.getElementById("javascript-root-error").style.display = 'none'
 import React, { Suspense, lazy } from 'react'
 import ReactDOM from 'react-dom'
 import { BrowserRouter, Switch, Route, Redirect } from 'react-router-dom'
