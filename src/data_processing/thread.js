@@ -30,7 +30,7 @@ import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
          AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
 import {AddUserParam, AddUserItem, getUserCommentsForPost,
         addUserComments, addUserComments_and_updateURL,
-        getAddUserMeta,
+        getAddUserMeta, get_userPageSortAndTime,
 } from 'data_processing/RestoreComment'
 import { localSort_types, filter_pageType_defaults, create_qparams } from 'state'
 
@@ -390,7 +390,10 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     if (focusComment && commentIsRemoved(focusComment)) {
       state.threadPost = reddit_post // only need author from this
       state.alreadySearchedAuthors = alreadySearchedAuthors
-      const {aug} = getAddUserMeta(focusComment, 0, 'new', 'all', state) // not guessing sort/time here makes combining the results easier
+      const {userPageSort, userPageTime} = get_userPageSortAndTime(focusComment)
+      // previously was setting sort = 'new' and time = 'all' w/note about that making combining results easier
+      // I don't remember why or how that impacted results, and things seem to work with the heuristic in place..
+      const {aug} = getAddUserMeta(focusComment, 0, userPageSort, userPageTime, state)
       // waiting for aug.query(), which is async, to return its data. does not wait for the returned promises
       const {authors, promises} = await aug.query()
       Object.assign(alreadySearchedAuthors, authors)
