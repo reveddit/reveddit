@@ -436,7 +436,7 @@ class GlobalState extends Container {
     const filters = get(defaultFilters_str, {})
     filters[page_type] = [
       'localSort', 'localSortReverse', 'removedFilter', 'removedByFilter', 'exclude_action', 'tagsFilter', 'exclude_tag',
-      'showContext', 'n', 'sort', 't',
+      'showContext', 'limitCommentDepth', 'n', 'sort', 't',
       'categoryFilter_subreddit', 'categoryFilter_domain', 'categoryFilter_link_title', 'categoryFilter_author',
       'num_subscribers_min', 'score_min', 'num_comments_min',
       'num_subscribers_max', 'score_max', 'num_comments_max',
