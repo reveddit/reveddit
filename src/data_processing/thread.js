@@ -361,6 +361,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
 
 
   let new_add_user
+  let forURL_timeSort_meta = {userPageSort: 'new', userPageTime: 'all'}
   const add_user_promises_forURL = []
   if (! focusComment_pushshift && ! focusComment_reddit) {
     commentID = undefined
@@ -390,10 +391,11 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     if (focusComment && commentIsRemoved(focusComment)) {
       state.threadPost = reddit_post // only need author from this
       state.alreadySearchedAuthors = alreadySearchedAuthors
-      const {userPageSort, userPageTime} = get_userPageSortAndTime(focusComment)
+      forURL_timeSort_meta = get_userPageSortAndTime(focusComment)
       // previously was setting sort = 'new' and time = 'all' w/note about that making combining results easier
-      // I don't remember why or how that impacted results, and things seem to work with the heuristic in place..
-      const {aug} = getAddUserMeta(focusComment, 0, userPageSort, userPageTime, state)
+      // I think that is fixed now by recording time/sort meta in forURL_timeSort_meta
+      const {aug} = getAddUserMeta(focusComment, 0,
+        forURL_timeSort_meta.userPageSort, forURL_timeSort_meta.userPageTime, state)
       // waiting for aug.query(), which is async, to return its data. does not wait for the returned promises
       const {authors, promises} = await aug.query()
       Object.assign(alreadySearchedAuthors, authors)
@@ -448,7 +450,8 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
 
   const {combinedComments} = await addRemainingRedditComments_andCombine(quarantined_subreddits, reddit_post, pushshiftComments, redditComments, Object.keys(remainingRedditIDs), user_comments)
   let changed
-  ({new_add_user, changed} = addUserComments_and_updateURL(user_comments_forURL, combinedComments, add_user))
+  ({new_add_user, changed} = addUserComments_and_updateURL(user_comments_forURL, combinedComments, add_user,
+    forURL_timeSort_meta.userPageSort, forURL_timeSort_meta.userPageTime))
   //could: check if pushshiftComments has any parent_ids that are not in combinedComments
   //      and do a reddit query for these. Possibly query twice if the result has items whose parent IDs
   //      are not in combinedComments after adding the result of the first query
