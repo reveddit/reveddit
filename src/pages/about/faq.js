@@ -118,20 +118,21 @@ const questions = {
     header: 'What is a shadowban?',
     content: <>
       <p>
-        A shadowban hides all of a user's content from public view without alerting them to the ban. It can be applied site-wide by admins, or only within a given subreddit by that group's moderators.
+        A shadowban hides all of a user's content from public view without alerting them to the ban. It can be applied within a given subreddit by that group's moderators, or site-wide by Reddit admins.
       </p>
       <p>
-        Reveddit can indicate both site-wide and subreddit-based shadowbans via a user's profile. <a href='/u/redditor_2912385'>u/redditor_2912385</a> has a site-wide shadowban.
+        Reveddit can indicate both subreddit-based and site-wide shadowbans via a user's profile. A subreddit shadowban looks like <NewWindowLink href='https://archive.ph/ktKp1'>this</NewWindowLink>, where all content for one subreddit is removed. In some cases it may indicate the user does not meet certain subreddit requirements, such as karma, age, and having a verified email.
       </p>
       <p>
-        A subreddit shadowban looks like <NewWindowLink href='https://archive.ph/ktKp1'>this</NewWindowLink>, where all content for one subreddit is removed. That may indicate moderators applied a {botban}, which users often refer to as a subreddit shadowban. Or, it may indicate the user does not meet subreddit requirements (karma, age, and verified email).
+        In 2020, Reddit's Automoderator documentation was changed to refer to the subreddit shadowban as a {botban}. For more details, see <NewWindowLink reddit='/r/reveddit/comments/sxpk15/fyi_my_thoughts_on_the_new_true_block_and_the/ieozb29/'>the history of automoderator and subreddit shadowbans</NewWindowLink>.
       </p>
       <p>
-        Reddit's Automoderator documentation now refers to subreddit shadowbans as bot bans. Up until 2020 they called it a shadowban. For more details, see <NewWindowLink reddit='/r/reveddit/comments/sxpk15/fyi_my_thoughts_on_the_new_true_block_and_the/ieozb29/'>the history of automoderator and subreddit shadowbans</NewWindowLink>.
+        Examples of site-wide shadowbanned users may be found in <NewWindowLink reddit='/r/ShadowBan'>r/ShadowBan</NewWindowLink>. After a period of time, Reddit may suspend shadowbanned accounts. Places where Reddit has addressed the topic include:
       </p>
-      <p>
-        <NewWindowLink reddit='/r/ShadowBan/'>r/ShadowBan</NewWindowLink> may also indicate site-wide shadowbans.
-      </p>
+      <ul>
+        <li>July, 2015: <NewWindowLink reddit='/r/announcements/comments/3sbrro/account_suspensions_a_transparent_alternative_to'>On shadowbans.</NewWindowLink></li>
+        <li>November, 2015: <NewWindowLink reddit='/r/self/comments/3ey0fv/on_shadowbans'>Account suspensions: A transparent alternative to shadowbans</NewWindowLink></li>
+      </ul>
   </>},
   firefox: {
     header: 'Why should I disable tracking protection in Firefox?',
