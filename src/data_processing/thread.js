@@ -36,7 +36,7 @@ import { localSort_types, filter_pageType_defaults, create_qparams } from 'state
 
 const NumAddUserItemsToLoadAtFirst = 10
 const numCommentsWithPost = 500
-const NumPushshiftResultsConsideredAsFull = PUSHSHIFT_MAX_COUNT_PER_QUERY - 3
+const NumPushshiftResultsConsideredAsFull = PUSHSHIFT_MAX_COUNT_PER_QUERY*.8
 let archiveError = false
 
 export const ignoreArchiveErrors_comments = () => ignoreArchiveErrors(commentsByThreadReturnValueDefaults)
