@@ -255,6 +255,7 @@ export const queryUserPage = async ({user, kind, sort, before, after, t, limit =
   quarantined_subreddits,
   useProxy=false, include_info=false, include_parents=false}) => {
   const host = getHost(useProxy)
+  const host_is_proxy = host === OAUTH_REDDIT_REV
   const params = {
     ...(sort && {sort}),
     ...(limit && {limit}),
@@ -262,14 +263,19 @@ export const queryUserPage = async ({user, kind, sort, before, after, t, limit =
     ...(after && {after}),
     ...(before && {before}),
   }
-  if (host === OAUTH_REDDIT_REV) {
+  if (host_is_proxy) {
     params.include_info = include_info
     params.include_parents = include_parents
     if (quarantined_subreddits) {
       params.quarantined_subreddits = quarantined_subreddits
     }
   }
-  const auth = await getAuth()
+  let auth = await getAuth()
+  if (host_is_proxy) {
+    auth.method = 'POST'
+    auth.body = auth.headers.Authorization
+    delete auth.headers.Authorization
+  }
   let response
   try {
     response = await window.fetch(host + `user/${user}/${kinds[kind]}.json` + '?'+paramString(params), auth)
