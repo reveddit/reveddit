@@ -62,6 +62,7 @@
     "copy-webpack-plugin": "^9.0.1",
     "crypto": "^1.0.1",
     "d3": "^5.9.2",
+    "del-cli": "^5.0.0",
     "dotenv": "^8.0.0",
     "eslint": "^8.31.0",
     "fs": "^0.0.1-security",
@@ -71,7 +72,6 @@
     "lodash-webpack-plugin": "^0.11.6",
     "netlify-lambda": "^1.4.13",
     "node-sass": "^7.0.1",
-    "rimraf": "^3.0.2",
     "scroll-to-element": "^2.0.2",
     "standard": "^11.0.1",
     "svg-url-loader": "^6.0.0",
@@ -86,7 +86,7 @@
     "build-sass": "node-sass --style compressed src/sass/index.sass dist/x-files/main.css",
     "lambda-serve": "netlify-lambda serve lambda-src",
     "lambda-build": "netlify-lambda build lambda-src",
-    "clean": "rimraf dist/x-files dist/index.html dist/*.css dist/*.js dist/*.js.map"
+    "clean": "del 'dist/x-files/*.js' 'dist/x-files/*.js.map' 'dist/x-files/*.css' 'dist/index.html' 'dist/*.js' 'dist/*.js.map'"
   },
   "packageManager": "yarn@4.0.0-rc.25"
 }
