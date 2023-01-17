@@ -16,15 +16,16 @@ import SubscribersCount from './SubscribersCount'
 
 const Comment = (props) => {
   const [displayBody, setDisplayBody] = useState(true)
-  const {t, sort, userCommentsByPost} = props.global.state
+  const {t, sort, userCommentsByPost, after: after_gs, before: before_gs} = props.global.state
   const {author, name, created_utc, locked, link_id, subreddit, score, permalink, //from reddit comment data
          quarantine, url, num_comments, //from reddit post data
          link_title, link_author, //from reddit post data, renamed
          removed, deleted, is_op, num_replies, //from reveddit post processing
          rev_position, //from reveddit post processing
-         prev, next, parent_context, parent_removed_label, post_removed_label, link_permalink, //from reveddit post processing
+         parent_context, parent_removed_label, post_removed_label, link_permalink, //from reveddit post processing
          kind, page_type, //from parent component
         } = props
+  let {prev, next} = props // from reveddit post processing
   let classNames = ['comment', 'user']
   let submitter = ''
   if (is_op) {
@@ -47,6 +48,12 @@ const Comment = (props) => {
   let directlink = ''
   let after_before = '', after = '', before = ''
   let add_user = ''
+  if (! prev && after_gs) {
+    prev = after_gs
+  }
+  if (! next && before_gs) {
+    next = before_gs
+  }
   if (prev) {
     after_before = `after=${prev}&`
     after = prev
