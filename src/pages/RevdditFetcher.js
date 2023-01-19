@@ -396,12 +396,12 @@ export const withFetch = (WrappedComponent) =>
       } else if (this.props.global.state.items.length === 0) {
 //        document.querySelector('#donate-ribbon').style.display = 'none'
         let content = undefined
-        var isFirefox = typeof InstallTrigger !== 'undefined';
+        var isFirefox = /firefox/i.test(navigator.userAgent) || typeof InstallTrigger !== 'undefined';
         if (navigator.doNotTrack == "1" && isFirefox) {
           content =
             <>
               <p>Error: unable to connect to reddit</p>
-              <p>Tracking Protection on Firefox prevents this site from accessing reddit's API. <b>To fix this</b>, add an exception by clicking the shield icon next to the URL:</p>
+              <p>Tracking Protection on Firefox may be preventing this site from accessing reddit's API. <b>To fix this</b>, add an exception by clicking the shield icon next to the URL:</p>
               <img src="/images/etp.png"/>
               <p><RedditOrLocalLink to='/about/faq/#firefox'>Why should I disable tracking protection?</RedditOrLocalLink></p>
               <p>If this does not resolve the issue, there may be a conflicting extension blocking connections to reddit from other websites.</p>
