@@ -206,9 +206,9 @@ export const getItemsBySubredditOrDomain = function(
     //fields,
   }
   if (until) {
-    queryParams['until'] = ifNumParseAndAdd(until, 1)
+    queryParams['until'] = ifTimeUnitConvertToEpoch(ifNumParseAndAdd(until, 1))
   } else if (since) {
-    queryParams['since'] = ifNumParseAndAdd(since, -1)
+    queryParams['since'] = ifTimeUnitConvertToEpoch(ifNumParseAndAdd(since, -1))
     queryParams['order'] = 'asc'
   }
   if (subreddits_str) {
