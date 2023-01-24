@@ -73,7 +73,7 @@ export default ({message, bottomMessage, placeholder}) => {
       <div className='text'>
         {message ? message :
           //<>Reveal Reddit's removed content. Search by username, subreddit <a className='pointer' onClick={() => {setInput('r/'); setInputFocus()}}>(r/)</a>, link or domain:</>
-          <>Reveal Reddit's removed content. Search by username or subreddit <a className='pointer' onClick={() => {setInput('r/'); setInputFocus()}}>(r/)</a>:</>
+          <>Reveal Reddit's secretly<LinkWithCloseModal to='/about/faq/#need'><sup>*</sup></LinkWithCloseModal> removed content. Search by username or subreddit <a className='pointer' onClick={() => {setInput('r/'); setInputFocus()}}>(r/)</a>:</>
         }
       </div>
       <form id='user-form' onSubmit={handleSubmitUser}>
