@@ -3,7 +3,8 @@ import { getPosts as getRedditPosts,
          querySearch as queryRedditSearch } from 'api/reddit'
 import {
   queryPosts as pushshiftQueryPosts,
-  getPost as getPushshiftPost
+  getPost as getPushshiftPost,
+  getPostsByID as pushshiftQueryPostsByID,
 } from 'api/pushshift'
 import { itemIsRemovedOrDeleted, postIsDeleted, display_post,
          getUniqueItems, SimpleURLSearchParams, parse, replaceAmpGTLT,
@@ -24,11 +25,22 @@ export const retrieveRedditPosts_and_combineWithPushshiftPosts = async (
   if (! pushshiftPosts) {
     pushshiftPosts = Object.values(pushshiftPostsObj)
   }
+  const idsNotInPushshift = [], idsInPushshift = new Set()
   pushshiftPosts.forEach(post => {
+    idsInPushshift.add(post.id)
     if (!(post.id in existingRedditPosts)) {
       ids.push(post.id)
     }
   })
+  for (const id of Object.keys(existingRedditPosts)) {
+    if (! idsInPushshift.has(id)) {
+      idsNotInPushshift.push(id)
+    }
+  }
+  if (idsNotInPushshift.length) {
+    const morePushshiftPosts = await pushshiftQueryPostsByID({ids: idsNotInPushshift})
+    pushshiftPosts.push(...Object.values(morePushshiftPosts))
+  }
 
   return getRedditPosts({ids, quarantined_subreddits, useProxy})
   .then(redditPosts => {
