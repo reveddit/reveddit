@@ -50,7 +50,7 @@ export const REMOVAL_META = {
                                           desc: 'This content was initially auto-removed and later manually approved by a moderator.',
                                       jsx_link: <>See {AUTOMOD_LINK} and {SPAM_FILTER_LINK}</>},
                [UNKNOWN_REMOVED]: {filter_text: 'unknown removed',
-                                         label: '[removed] unknown if by mod/auto',
+                                         label: '[removed] unknown if mod/auto',
                                           desc: 'Cannot say with certainty whether this was removed by a mod or by a bot.',
                                     local_link: faq+'#unknown-removed'},
                         [LOCKED]: {filter_text: 'locked',
