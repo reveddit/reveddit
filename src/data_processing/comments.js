@@ -42,7 +42,7 @@ const copy_fields = ['permalink', 'score', 'controversiality',
                      // and were added to the pushshiftComments object
                      'subreddit', 'created_utc', 'parent_id']
 
-const copy_if_value_fields = ['distinguished', 'stickied', 'author_fullname', 'removal_reason']
+const copy_if_value_fields = ['distinguished', 'stickied', 'author_fullname', 'removal_reason', 'from_add_user']
 
 export const initializeComment = (comment, post) => {
   if (post && post.author === comment.author && comment.author !== '[deleted]') {
@@ -118,7 +118,6 @@ const setupCommentMeta = (archiveComment, redditComment) => {
   if (! redditComment.link_title) {
     archiveComment.link_title = redditComment.permalink.split('/')[5].replace(/_/g, ' ')
   }
-
   if (typeof(redditComment.num_comments) !== 'undefined') {
     archiveComment.num_comments = redditComment.num_comments
   }
@@ -139,13 +138,13 @@ const setupCommentMeta = (archiveComment, redditComment) => {
       //handles case where the archive has no record of the comment
       archiveComment.archive_body_removed_before_modlog_copy = true
     }
-    if (modlog) {
+    if (modlog && ! archiveComment.from_add_user) {
       archiveComment.author = modlog.author
       archiveComment.body = modlog.body
     }
     const archive_body_removed = commentIsRemoved(archiveComment)
     archiveComment.archive_body_removed = archive_body_removed
-    if (! commentIsRemoved(redditComment)) {
+    if (! commentIsRemoved(redditComment) && ! redditComment.removed) {
       if (! archiveComment.removed) {
         if (archive_body_removed || modlog_says_bot_removed) {
           archiveComment.removedby = AUTOMOD_REMOVED_MOD_APPROVED
