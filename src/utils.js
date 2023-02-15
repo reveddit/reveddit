@@ -131,6 +131,13 @@ export const itemIsRemovedOrDeleted = (item, checkCommentBody=true) => {
   }
 }
 
+export const markSelftextRemoved = post => {
+  if (textSaysRemoved(post.selftext)) {
+    post.selftext_said_removed = true
+  }
+  post.selftext = ''
+}
+
 export const postIsDeleted = post => {
   return itemIsRemovedOrDeleted(post) && authorDeleted(post) && postDeletedByAuthor(post)
 }

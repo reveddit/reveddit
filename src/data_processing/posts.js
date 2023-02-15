@@ -9,7 +9,7 @@ import {
 import { itemIsRemovedOrDeleted, postIsDeleted, display_post,
          getUniqueItems, SimpleURLSearchParams, parse, replaceAmpGTLT,
          PATHS_STR_SUB, stripHTTP, stripRedditLikeDomain_noHTTP,
-         sortCreatedAsc,
+         sortCreatedAsc, markSelftextRemoved,
 } from 'utils'
 import { modlogSaysBotRemoved, copyFields, useProxy } from 'data_processing/comments'
 import { REMOVAL_META, ANTI_EVIL_REMOVED, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
@@ -117,7 +117,7 @@ export const combineRedditAndPushshiftPost = (post, ps_post) => {
   if (itemIsRemovedOrDeleted(post)) {
     if (postIsDeleted(post)) {
       post.deleted = true
-      post.selftext = ''
+      markSelftextRemoved(post)
       post.removedby = USER_REMOVED
     } else {
       post.removed = true

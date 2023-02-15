@@ -14,7 +14,7 @@ import {
   setSubredditMeta,
   useProxy,
 } from 'data_processing/comments'
-import { PATHS_STR_SUB, sortCreatedAsc } from 'utils'
+import { PATHS_STR_SUB, sortCreatedAsc, markSelftextRemoved } from 'utils'
 
 export const getRevdditPostsBySubreddit = async (subreddit, global) => {
   const {n, before, before_id, after, frontPage, page} = global.state
@@ -28,7 +28,7 @@ export const getRevdditPostsBySubreddit = async (subreddit, global) => {
     .then(posts => {
       const posts_array = Object.values(posts)
       posts_array.forEach(post => {
-        post.selftext = ''
+        markSelftextRemoved(post)
         if (postIsDeleted(post)) {
           post.deleted = true
         } else {

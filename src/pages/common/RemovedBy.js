@@ -1,7 +1,7 @@
 import React from 'react'
 import {itemIsCollapsed, commentIsMissingInThread,
         isPost, getRemovedWithinText, postRemovedUnknownWithin,
-        commentIsRemoved, getPrettyTimeLength, postDeletedByAuthor,
+        commentIsRemoved, getPrettyTimeLength,
 } from 'utils'
 import ModalContext from 'contexts/modal'
 import {QuestionMark} from 'pages/common/svg'
@@ -129,7 +129,7 @@ const RemovedBy = (props) => {
       evilTag = ''
   let {removedby, orphaned_label = '', style,
        locked, removed, deleted, modlog, name, permalink,
-       removed_by_category, removal_reason,
+       removed_by_category, removal_reason, selftext_said_removed
       } = props
   const is_post = name && isPost(props)
   if (removed && ! removedby && ! removal_reason) {
@@ -204,9 +204,8 @@ const RemovedBy = (props) => {
       }
     } else if (removedby === APPROVED) {
       modalDetailsItems.push( <ModlogDetails {...props} modlog={modlog} text='Approved'/> )
-    } else if (deleted && is_post && permalink && ! postDeletedByAuthor(props)) {
-      // This condition is impossible to detect. At one point I thought it was
-      // Leaving the logic here as a note to remember that "it would be nice to be able to discover this condition"
+    } else if (deleted && is_post && selftext_said_removed) {
+      alternateLabel = '[deleted] by mod & user'
       modalDetailsItems.push(<p>It was originally removed by a moderator. <NewWindowLink reddit={permalink} redesign={true}>New reddit</NewWindowLink> may show more details.</p>)
     }
     if (props.wayback_path) {

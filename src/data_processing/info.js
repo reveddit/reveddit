@@ -1,7 +1,7 @@
 import { isCommentID, isPostID, getUniqueItems,
          commentIsDeleted, commentIsRemoved,
          itemIsRemovedOrDeleted, postIsDeleted, sortCreatedAsc,
-         authorDeleted,
+         authorDeleted, markSelftextRemoved,
 } from 'utils'
 import { getPostsByURL } from './posts'
 import {
@@ -53,7 +53,7 @@ export const getRevdditItems = (global) => {
           item.deleted = true
         }
       } else if (isPostID(item.name)){
-        item.selftext = ''
+        markSelftextRemoved(item)
         redditPosts.push(item)
         if (itemIsRemovedOrDeleted(item)) {
           if (postIsDeleted(item)) {
