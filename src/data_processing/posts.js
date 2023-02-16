@@ -14,7 +14,8 @@ import { itemIsRemovedOrDeleted, postIsDeleted, display_post,
 import { modlogSaysBotRemoved, copyFields, useProxy } from 'data_processing/comments'
 import { REMOVAL_META, ANTI_EVIL_REMOVED, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
          MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED, USER_REMOVED,
-         AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
+         AUTOMOD_LATENCY_THRESHOLD, USER_DELETED_BUT_FIRST_REMOVED_BY,
+} from 'pages/common/RemovedBy'
 import { combinedGetPostsBySubredditOrDomain } from 'data_processing/subreddit_posts'
 
 export const retrieveRedditPosts_and_combineWithPushshiftPosts = async (
@@ -85,7 +86,9 @@ export const combinePushshiftAndRedditPosts = async (
     if (post.deleted || post.removed) {
       if (  (    post.num_comments > 0
               || includePostsWithZeroComments
-              || post.removed)
+              || post.removed
+              || post.selftext_said_removed
+              || post.user_deleted_archived_removed_by_category)
             && ! subredditAbout.over18) {
         display_post(show_posts, post, ps_post, isInfoPage)
       }
@@ -117,6 +120,9 @@ export const combineRedditAndPushshiftPost = (post, ps_post) => {
   if (itemIsRemovedOrDeleted(post)) {
     if (postIsDeleted(post)) {
       post.deleted = true
+      if (ps_post && USER_DELETED_BUT_FIRST_REMOVED_BY[ps_post.removed_by_category]) {
+        post.user_deleted_archived_removed_by_category = ps_post.removed_by_category
+      }
       markSelftextRemoved(post)
       post.removedby = USER_REMOVED
     } else {

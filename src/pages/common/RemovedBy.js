@@ -98,6 +98,18 @@ export const ALL_ACTIONS_META = {
   [RESTORED]: RESTORED_META,
   [APPROVED]: APPROVED_META,
 }
+
+// This should only contain keys that do not signify user deletion
+// That is, do not add 'deleted'
+export const USER_DELETED_BUT_FIRST_REMOVED_BY = {
+  'reddit': 'spam',
+  'automod_filtered': 'auto',
+  'moderator': 'mod',
+  'anti_evil_ops': 'admin-ae',
+  'community_ops': 'admin-co',
+  'legal_operations': 'admin-lo',
+}
+
 export const preserve_desc = <><b>preserve:</b> This attempts to lookup and store the location of the comment in the URL and copies the new URL to the clipboard. If the lookup succeeds and the comment is later removed by a moderator, or if the archive becomes unavailable, then it can be viewed with this URL.<br/><br/>The lookup succeeds if the comment can be found in the user's most recent 100 comments. Otherwise, it may be found via the context link on their reveddit user page.</>
 const temp_vis_txt = 'Temporarily visible'
 const temp_vis_until = <>here until it falls out of the most recent mod log items. To save it, click {preserve_desc}</>
@@ -129,8 +141,9 @@ const RemovedBy = (props) => {
       evilTag = ''
   let {removedby, orphaned_label = '', style,
        locked, removed, deleted, modlog, name, permalink,
-       removed_by_category, removal_reason, selftext_said_removed
+       removed_by_category, removal_reason, selftext_said_removed, user_deleted_archived_removed_by_category,
       } = props
+  const first_removed_by_other = USER_DELETED_BUT_FIRST_REMOVED_BY[user_deleted_archived_removed_by_category]
   const is_post = name && isPost(props)
   if (removed && ! removedby && ! removal_reason) {
     removedby = UNKNOWN_REMOVED
@@ -204,9 +217,11 @@ const RemovedBy = (props) => {
       }
     } else if (removedby === APPROVED) {
       modalDetailsItems.push( <ModlogDetails {...props} modlog={modlog} text='Approved'/> )
-    } else if (deleted && is_post && selftext_said_removed) {
-      alternateLabel = '[deleted] by mod & user'
-      modalDetailsItems.push(<p>It was originally removed by a moderator. <NewWindowLink reddit={permalink} redesign={true}>New reddit</NewWindowLink> may show more details.</p>)
+    } else if (deleted && is_post && (selftext_said_removed || first_removed_by_other)) {
+      alternateLabel = `[deleted] by ${first_removed_by_other || 'mod'} & user`
+      modalDetailsItems.push(
+        <p><>It was originally removed by {user_deleted_archived_removed_by_category || 'a moderator'}. </>
+          <NewWindowLink reddit={permalink} redesign={true}>New reddit</NewWindowLink> may show more details.</p>)
     }
     if (props.wayback_path) {
       modalDetailsItems.push(<p>source: <NewWindowLink href={'https://web.archive.org'+props.wayback_path}>Wayback Machine</NewWindowLink></p>)
