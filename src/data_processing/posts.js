@@ -109,7 +109,16 @@ export const combineRedditAndPushshiftPost = (post, ps_post) => {
     }
     copyFields(['modlog', 'media_metadata', 'author_fullname'], ps_post, post, true)
     if (! post.removal_reason) {
-      copyFields(['url', 'domain', 'title'], ps_post, post, true)
+      // Handle PS bug where domain is set to the permalink, e.g. t3_10scvaw
+      if (ps_post.domain && ps_post.domain[0] !== '/') {
+        post.domain = ps_post.domain
+      } else if (! post.domain && ps_post.url) {
+        const domain_match = ps_post.url.match(/^https?:\/\/([^/]+)/)
+        if (domain_match) {
+          post.domain = domain_match[1]
+        }
+      }
+      copyFields(['url', 'title'], ps_post, post, true)
     }
     copyFields(['author_flair_text'], ps_post, post, true)
   }
