@@ -1,7 +1,6 @@
 import React, {useState, useEffect} from 'react'
 import Comment, { getMaxCommentDepth } from './Comment'
 import {connect, removedFilter_types, removedFilter_text} from 'state'
-import { NOT_REMOVED, REMOVAL_META, USER_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED } from 'pages/common/RemovedBy'
 import { itemIsOneOfSelectedActions, itemIsOneOfSelectedTags, filterSelectedActions } from 'data_processing/filters'
 import { itemIsActioned, not, reversible } from 'utils'
 import { Spin } from 'components/Misc'

@@ -25,9 +25,6 @@ import { itemIsRemovedOrDeleted, postIsDeleted, postIsRemoved, jumpToHash,
          convertPathSub, sortCreatedAsc, validAuthor, commentIsRemoved,
          commentIsDeleted,
 } from 'utils'
-import { AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
-         MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED,
-         AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
 import {AddUserParam, AddUserItem, getUserCommentsForPost,
         addUserComments, addUserComments_and_updateURL,
         getAddUserMeta, get_userPageSortAndTime,

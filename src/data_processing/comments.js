@@ -155,7 +155,7 @@ const setupCommentMeta = (archiveComment, redditComment) => {
       archiveComment.author = redditComment.author
       archiveComment.body = redditComment.body
     } else {
-      if (archive_body_removed) {
+      if (archive_body_removed || ! archiveComment.retrieved_on) {
         if ( retrievalLatency <= AUTOMOD_LATENCY_THRESHOLD || modlog_says_bot_removed) {
           archiveComment.removedby = AUTOMOD_REMOVED
         } else {
