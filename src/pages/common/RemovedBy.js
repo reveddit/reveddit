@@ -224,6 +224,9 @@ const RemovedBy = (props) => {
           modalDetailsItems.push(removedWithinText)
           if (is_post && removedby === AUTOMOD_REMOVED && archived_removed_by_category === 'reddit' && removed_by_category !== archived_removed_by_category) {
             details +=' (spam)'
+            if (removed_by_category) {
+              modalDetailsItems.push(<p>Originally removed by Reddit's spam filter, later marked as removed by: {removed_by_category}</p>)
+            }
           }
         }
       }
@@ -232,8 +235,10 @@ const RemovedBy = (props) => {
     } else if (deleted && is_post && (selftext_said_removed || first_removed_by_other)) {
       alternateLabel = `[deleted] by ${first_removed_by_other || 'mod'} & user`
       modalDetailsItems.push(
-        <p><>It was originally removed by {archived_removed_by_category || 'a moderator'}. </>
-          <NewWindowLink reddit={permalink} redesign={true}>New reddit</NewWindowLink> may show more details.</p>)
+        <p>It was originally removed by {archived_removed_by_category || 'a moderator'}. <NewWindowLink reddit={permalink} redesign={true}>New reddit</NewWindowLink> may show more details.</p>)
+    }
+    if (removed_by_category === 'reddit') {
+      modalDetailsItems.push(<p>The author was likely not notified of the removal. See <LinkWithCloseModal to='/about/faq/#reddit-does-not-say-post-removed'>Why didn't Reddit tell me my post was removed?</LinkWithCloseModal></p>)
     }
     if (props.wayback_path) {
       modalDetailsItems.push(<p>source: <NewWindowLink href={'https://web.archive.org'+props.wayback_path}>Wayback Machine</NewWindowLink></p>)
