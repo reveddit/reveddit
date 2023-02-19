@@ -32,6 +32,12 @@ const SPAM_FILTER_LINK = <NewWindowLink reddit='/r/modnews/comments/6bj5de/state
 const CROWD_CONTROL_LINK = <NewWindowLink reddit='/r/reveddit/comments/qi1r55/fyi_crowd_control_can_now_remove_comments/higolif/'>crowd control</NewWindowLink>
 const REVEDDIT_POST_ON_ADMIN_REMOVED_CONTENT = '/r/reveddit/comments/w8i11a/good_news_admins_are_being_more_transparent_by/'
 
+const arma_custom = (label) => {
+  return `[approved] ${label}-removed, then approved`
+}
+
+const LABEL_SPAM_REMOVED_THEN_APPROVED = arma_custom('spam')
+
 export const REMOVAL_META = {
                  [ANTI_EVIL_REMOVED]: {filter_text: 'admin removed',
                                          label: '[removed] by Reddit',
@@ -46,7 +52,7 @@ export const REMOVAL_META = {
                                           desc: "Likely removed by a bot such as automod or reddit's spam filter.",
                                       jsx_desc: <>Likely removed by a bot such as {AUTOMOD_LINK}, or reddit's {CROWD_CONTROL_LINK} or {SPAM_FILTER_LINK}.</>},
   [AUTOMOD_REMOVED_MOD_APPROVED]: {filter_text: 'auto-removed -> approved',
-                                         label: '[approved] auto-removed, then approved',
+                                         label: arma_custom('auto'),
                                           desc: 'This content was initially auto-removed and later manually approved by a moderator.',
                                       jsx_link: <>See {AUTOMOD_LINK} and {SPAM_FILTER_LINK}</>},
                [UNKNOWN_REMOVED]: {filter_text: 'unknown removed',
@@ -141,9 +147,9 @@ const RemovedBy = (props) => {
       evilTag = ''
   let {removedby, orphaned_label = '', style,
        locked, removed, deleted, modlog, name, permalink,
-       removed_by_category, removal_reason, selftext_said_removed, user_deleted_archived_removed_by_category,
+       removed_by_category, removal_reason, selftext_said_removed, archived_removed_by_category,
       } = props
-  const first_removed_by_other = USER_DELETED_BUT_FIRST_REMOVED_BY[user_deleted_archived_removed_by_category]
+  const first_removed_by_other = USER_DELETED_BUT_FIRST_REMOVED_BY[archived_removed_by_category]
   const is_post = name && isPost(props)
   if (removed && ! removedby && ! removal_reason) {
     removedby = UNKNOWN_REMOVED
@@ -193,6 +199,9 @@ const RemovedBy = (props) => {
   }
   if ([AUTOMOD_REMOVED_MOD_APPROVED,APPROVED].includes(removedby)) {
     fill = 'white'
+    if (removedby === AUTOMOD_REMOVED_MOD_APPROVED && archived_removed_by_category === 'reddit') {
+      alternateLabel = LABEL_SPAM_REMOVED_THEN_APPROVED
+    }
   }
   if (meta) {
     const modalDetailsItems = []
@@ -213,6 +222,9 @@ const RemovedBy = (props) => {
         } else if (   (is_post && [AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED].includes(removedby))
                    || (! is_post && commentIsRemoved(props))) {
           modalDetailsItems.push(removedWithinText)
+          if (is_post && removedby === AUTOMOD_REMOVED && archived_removed_by_category === 'reddit' && removed_by_category !== archived_removed_by_category) {
+            details +=' (spam)'
+          }
         }
       }
     } else if (removedby === APPROVED) {
@@ -220,7 +232,7 @@ const RemovedBy = (props) => {
     } else if (deleted && is_post && (selftext_said_removed || first_removed_by_other)) {
       alternateLabel = `[deleted] by ${first_removed_by_other || 'mod'} & user`
       modalDetailsItems.push(
-        <p><>It was originally removed by {user_deleted_archived_removed_by_category || 'a moderator'}. </>
+        <p><>It was originally removed by {archived_removed_by_category || 'a moderator'}. </>
           <NewWindowLink reddit={permalink} redesign={true}>New reddit</NewWindowLink> may show more details.</p>)
     }
     if (props.wayback_path) {

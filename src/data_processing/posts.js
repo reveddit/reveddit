@@ -88,7 +88,7 @@ export const combinePushshiftAndRedditPosts = async (
               || includePostsWithZeroComments
               || post.removed
               || post.selftext_said_removed
-              || post.user_deleted_archived_removed_by_category)
+              || USER_DELETED_BUT_FIRST_REMOVED_BY[post.archived_removed_by_category])
             && ! subredditAbout.over18) {
         display_post(show_posts, post, ps_post, isInfoPage)
       }
@@ -107,6 +107,7 @@ export const combineRedditAndPushshiftPost = (post, ps_post) => {
       post.retrieved_on = ps_post.retrieved_on
       post.retrievalLatency = retrievalLatency
     }
+    post.archived_removed_by_category = ps_post.removed_by_category
     copyFields(['modlog', 'media_metadata', 'author_fullname'], ps_post, post, true)
     if (! post.removal_reason) {
       // Handle PS bug where domain is set to the permalink, e.g. t3_10scvaw
@@ -129,9 +130,6 @@ export const combineRedditAndPushshiftPost = (post, ps_post) => {
   if (itemIsRemovedOrDeleted(post)) {
     if (postIsDeleted(post)) {
       post.deleted = true
-      if (ps_post && USER_DELETED_BUT_FIRST_REMOVED_BY[ps_post.removed_by_category]) {
-        post.user_deleted_archived_removed_by_category = ps_post.removed_by_category
-      }
       markSelftextRemoved(post)
       post.removedby = USER_REMOVED
     } else {
