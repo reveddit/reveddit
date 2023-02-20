@@ -149,10 +149,11 @@ const RemovedBy = (props) => {
   let {removedby, orphaned_label = '', style,
        locked, removed, deleted, modlog, name, permalink,
        removed_by_category, removal_reason, selftext_said_removed, archived_removed_by_category,
+       rev_mod_removed,
       } = props
   const first_removed_by_other = USER_DELETED_BUT_FIRST_REMOVED_BY[archived_removed_by_category]
   const is_post = name && isPost(props)
-  if (removed && ! removedby && ! removal_reason) {
+  if (removed && ! removedby && (! removal_reason || rev_mod_removed)) {
     removedby = UNKNOWN_REMOVED
   }
   if (removedby === ORPHANED) {
