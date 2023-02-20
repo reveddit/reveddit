@@ -3,12 +3,12 @@ import { toBase10, toBase36, chunk, flatten, getQueryString, promiseDelay,
 } from 'utils'
 import { fetchWithTimeout } from 'api/common'
 
-export const comment_fields_for_user_page_lookup = ['id', 'retrieved_utc' ,'created_utc' ,'author', 'author_flair_text']
+export const comment_fields_for_user_page_lookup = ['id', 'retrieved_utc','created_utc', 'updated_utc', 'author', 'author_flair_text']
 export const post_fields_for_user_page_lookup = [
-  'id', 'retrieved_utc' ,'created_utc' , 'is_robot_indexable', 'is_crosspostable', 'author_flair_text']
+  'id', 'retrieved_utc','created_utc', 'updated_utc', 'is_robot_indexable', 'is_crosspostable', 'author_flair_text']
 
 const post_fields = [...post_fields_for_user_page_lookup, 'thumbnail', 'author_fullname', 'url', 'domain', 'title']
-const post_fields_for_manually_approved_lookup = ['id','retrieved_utc','is_robot_indexable']
+const post_fields_for_manually_approved_lookup = ['id', 'retrieved_utc', 'updated_utc', 'is_robot_indexable']
 const comment_fields = [
   ...comment_fields_for_user_page_lookup,
   'author_fullname', 'body', 'parent_id', 'score',
@@ -37,6 +37,9 @@ export const PUSHSHIFT_MAX_COUNT_PER_QUERY = 1000
 const update_retrieved_field = (item) => {
   if ('retrieved_utc' in item && item.retrieved_utc) {
     item.retrieved_on = item.retrieved_utc
+  }
+  if ('updated_utc' in item && (item.updated_utc > item.retrieved_on || ! item.retrieved_on)) {
+    item.retrieved_on = item.updated_utc
   }
 }
 
@@ -67,7 +70,7 @@ const queryItems = ({q, author, subreddit, n = 500, sort:order='desc', sort_type
   const queryParams = {
     size: n,
     order,
-    fields: fields.join(','),
+    filter: fields.join(','),
     ...(q && {q}),
     ...(author && {author}),
     ...(author_flair_text && {author_flair_text}),
@@ -125,7 +128,7 @@ export const getCommentsByID = async ({ids, field='ids', fields=comment_fields})
 
 const getCommentsByID_chunk = (ids, field='ids', fields=comment_fields, results={}) => {
   const queryParams = {
-    fields: fields.join(','),
+    filter: fields.join(','),
     size: ids.length,
     [field]: ids.join(',')
   }
@@ -195,15 +198,14 @@ const ifNumParseAndAdd = (n, add) => {
 
 }
 
-export const getItemsBySubredditOrDomain = function(
+const getItemsBySubredditOrDomain = function(
   {subreddit:subreddits_str, domain:domains_str, n=maxNumItems, before:until='', since:since='',
    ps_url, fields}
 ) {
   const queryParams = {
     order: 'desc',
     size: n,
-    // disable until field names in new Pushshift API are established
-    //fields,
+    filter: fields,
   }
   if (until) {
     queryParams['until'] = ifTimeUnitConvertToEpoch(ifNumParseAndAdd(until, 1))
@@ -237,7 +239,7 @@ export const getPostsByID = ({ids, fields = post_fields}) => {
 const getPostsByID_chunk = (ids, fields = post_fields) => {
   const params = {
     ids: ids.join(','),
-    fields: fields.join(','),
+    filter: fields.join(','),
   }
   return fetchUrlWithParams(postURL, params, fetchWithTimeout)
     .then(response => response.json())
@@ -310,9 +312,8 @@ export const getCommentsByThread = (link_id, since='') => {
     limit: PUSHSHIFT_MAX_COUNT_PER_QUERY,
     sort: 'created_utc',
     order: 'asc',
-    ...(since && {since})
-    // disable until field names in new Pushshift API are established
-    //fields: comment_fields.join(','),
+    ...(since && {since}),
+    filter: comment_fields.join(','),
   }
   return fetchUrlWithParams(commentURL, queryParams, fetchWithTimeout)
     .then(response => response.json())
