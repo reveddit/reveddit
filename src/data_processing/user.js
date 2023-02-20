@@ -14,10 +14,11 @@ import {
 } from 'api/pushshift'
 import { REMOVAL_META, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED,
          MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, NOT_REMOVED, ANTI_EVIL_REMOVED,
-         AUTOMOD_LATENCY_THRESHOLD } from 'pages/common/RemovedBy'
+         NO_LABEL, AUTOMOD_LATENCY_THRESHOLD
+} from 'pages/common/RemovedBy'
 import {
   itemIsRemovedOrDeleted,
-  isComment, isPost, SimpleURLSearchParams,
+  isComment, isPost, SimpleURLSearchParams, commentIsRemoved,
 } from 'utils'
 import { setPostAndParentDataForComments } from 'data_processing/info'
 import { setMissingCommentMeta } from 'data_processing/missing_comments'
@@ -92,6 +93,11 @@ function setRemovedBy(items_removedBy_undefined, ps_items) {
       item.removedby = UNKNOWN_REMOVED
     } else {
       item.removedby = NOT_REMOVED
+    }
+    if (item.removal_reason && isComment(item) && ! item.rev_mod_removed) {
+      // Reset the status for comments only removed by Reddit (that is, not also removed by moderators)
+      // Easier to overwrite this value here than modify above code.
+      item.removedby = NO_LABEL
     }
   })
 }
@@ -225,7 +231,7 @@ const getItems = async (user, kind, global, sort, before = '', after = '', time,
     if (item.removal_reason) {
       // Below ensures that posts removed only by admins do not receive a red background
       // Comments are marked in red so that the thread view and user profile view are consistent.
-      if (isComment) {
+      if (isComment(item)) {
         item.removed = true
       }
       item.removedby_evil = ANTI_EVIL_REMOVED
@@ -276,11 +282,15 @@ const getItems = async (user, kind, global, sort, before = '', after = '', time,
   })
   const redditInfoItems = data.info
   // posts do not appear in redditInfoItems
-  Object.values(redditInfoItems).forEach(item => {
-    if (itemIsRemovedOrDeleted(item, false)) {
-      userPage_item_lookup[item.name].removed = true
+  Object.values(redditInfoItems).forEach(info_item => {
+    const userPage_item = userPage_item_lookup[info_item.name]
+    if (itemIsRemovedOrDeleted(info_item, false)) {
+      userPage_item.removed = true
+      if (isComment(info_item)) {
+        userPage_item.rev_mod_removed = true
+      }
     }
-    userPage_item_lookup[item.name].collapsed = item.collapsed
+    userPage_item.collapsed = info_item.collapsed
   })
   const commentParentsAndPosts_new = data.parents
   Object.assign(commentParentsAndPosts, commentParentsAndPosts_new)

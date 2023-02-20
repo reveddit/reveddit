@@ -144,6 +144,8 @@ const setupCommentMeta = (archiveComment, redditComment) => {
     }
     const archive_body_removed = commentIsRemoved(archiveComment)
     archiveComment.archive_body_removed = archive_body_removed
+    //- redditComments with .from_add_user=true will have .removed=true and, unintuitively, ! commentIsRemoved()
+    //  so, ! commentIsRemoved() by itself is not sufficient to check removal status at this point
     if (! commentIsRemoved(redditComment) && ! redditComment.removed) {
       if (! archiveComment.removed) {
         if (archive_body_removed || modlog_says_bot_removed) {
@@ -155,16 +157,20 @@ const setupCommentMeta = (archiveComment, redditComment) => {
       archiveComment.author = redditComment.author
       archiveComment.body = redditComment.body
     } else {
-      if (archive_body_removed || ! archiveComment.retrieved_on) {
-        if ( retrievalLatency <= AUTOMOD_LATENCY_THRESHOLD || modlog_says_bot_removed) {
+      //- comments removed by reddit, but not by a moderator, will also have .removed=true and ! commentIsRemoved(),
+      //  which makes them land in this block. Do not add a mod/auto label for those
+      if (! redditComment.removal_reason || commentIsRemoved(redditComment)) {
+        if (archive_body_removed || ! archiveComment.retrieved_on) {
+          if ( retrievalLatency <= AUTOMOD_LATENCY_THRESHOLD || modlog_says_bot_removed) {
+            archiveComment.removedby = AUTOMOD_REMOVED
+          } else {
+            archiveComment.removedby = UNKNOWN_REMOVED
+          }
+        } else if (modlog_says_bot_removed) {
           archiveComment.removedby = AUTOMOD_REMOVED
         } else {
-          archiveComment.removedby = UNKNOWN_REMOVED
+          archiveComment.removedby = MOD_OR_AUTOMOD_REMOVED
         }
-      } else if (modlog_says_bot_removed) {
-        archiveComment.removedby = AUTOMOD_REMOVED
-      } else {
-        archiveComment.removedby = MOD_OR_AUTOMOD_REMOVED
       }
     }
   } else if (commentIsDeleted(redditComment)) {
