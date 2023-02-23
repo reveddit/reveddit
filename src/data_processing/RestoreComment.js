@@ -229,7 +229,7 @@ const RestoreComment = (props) => {
     const targetNotFound = () => (! itemsLookup[id] || commentIsRemoved(itemsLookup[id]))
     // ! retrieved_on means it hasn't been looked up in the archive yet
     if (canRunArchiveSearch) {
-      const {comments: pushshiftComments} = await getPushshiftCommentsByThread(threadPost.id, this_query_ps_after).catch(ignoreArchiveErrors_comments)
+      const {comments: pushshiftComments} = await getPushshiftCommentsByThread({link_id: threadPost.id, after: this_query_ps_after, options: {timeout: 8000}}).catch(ignoreArchiveErrors_comments)
       let new_ps_after = ps_after
       for (const c of Object.values(pushshiftComments)) {
         const currentCommentState = itemsLookup[c.id]

@@ -104,13 +104,13 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
   let reveddit_comments_promise = Promise.resolve({})
   let pushshift_remaining_promises = []
   if (! commentID) {
-    pushshift_comments_promise = pushshiftLimiter.schedule(() => getPushshiftCommentsByThread(threadID).catch(ignoreArchiveErrors_comments))
+    pushshift_comments_promise = pushshiftLimiter.schedule(() => getPushshiftCommentsByThread({link_id: threadID}).catch(ignoreArchiveErrors_comments))
   }
   const schedulePsAfter = async (this_ps_after) => {
     await archive_times_promise
     const archiveTimes = global.state.archiveTimes
     pushshift_remaining_promises.push(
-      pushshiftLimiter.schedule(() => getPushshiftCommentsByThread(threadID, this_ps_after).catch(ignoreArchiveErrors_comments)))
+      pushshiftLimiter.schedule(() => getPushshiftCommentsByThread({link_id: threadID, after: this_ps_after}).catch(ignoreArchiveErrors_comments)))
   }
   if (ps_after) {
     for (const this_ps_after of ps_after_list) {
@@ -200,7 +200,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
         num_comments: reddit_post.num_comments,
         post_created_utc: reddit_post.created_utc,
       })
-      pushshift_comments_promise = pushshiftLimiter.schedule(() => getPushshiftCommentsByThread(threadID, after).catch(ignoreArchiveErrors_comments))
+      pushshift_comments_promise = pushshiftLimiter.schedule(() => getPushshiftCommentsByThread({link_id: threadID, after: after}).catch(ignoreArchiveErrors_comments))
     } else {
       reveddit_comments_promise = getCommentsByThread({
         link_id: threadID, after, root_comment_id,
@@ -313,7 +313,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     while (! ps_after_set.has(next_ps_after)) {
       ps_after_set.add(next_ps_after)
       const {comments, last} = await pushshiftLimiter.schedule(() =>
-        getPushshiftCommentsByThread(threadID, next_ps_after).catch(ignoreArchiveErrors_comments))
+        getPushshiftCommentsByThread({link_id: threadID, after: next_ps_after}).catch(ignoreArchiveErrors_comments))
       this_psComments = comments
       last_ps_created_utc = last
       Object.assign(pushshiftComments, this_psComments)
