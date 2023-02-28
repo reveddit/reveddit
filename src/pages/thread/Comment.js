@@ -59,7 +59,7 @@ export const threadFiltersToReset = [
 const Comment = withRouter(connect((props) => {
   const {
     global, history, //from HOC withRouter(connect(Comment))
-    page_type, setShowSingleRoot, contextAncestors, focusCommentID, visibleComments, //from parent component
+    page_type, setShowSingleRoot, contextAncestors, focusCommentID, visibleComments, is_root, //from parent component
     id, parent_id, stickied, permalink, subreddit, link_id, score, created_utc, //from reddit comment data
     removed, deleted, locked, depth, //from reveddit post processing
     ancestors, replies, //from reveddit post processing
@@ -233,7 +233,15 @@ const Comment = withRouter(connect((props) => {
                     finishPromise_then_jumpToHash(
                       insertParent(id, global)
                       .then(stopLocalLoading)
-                      .then(() => context_update(0, page_type, history, parent_link))
+                      .then(() => {
+                        const to = window.location.pathname+window.location.search+'#'+parent_id
+                        if (! is_root) {
+                          history.replace(to)
+                          jumpToCurrentHash()
+                        } else {
+                          context_update(0, page_type, history, parent_link)
+                        }
+                      })
                     )
                   }}>parent</a>}
                 />

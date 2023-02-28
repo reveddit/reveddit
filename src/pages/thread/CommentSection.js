@@ -215,6 +215,7 @@ const CommentSection = (props) => {
       contextAncestors={contextAncestors}
       setShowSingleRoot={setShowSingleRoot}
       visibleComments={visibleComments}
+      is_root={root === comment.id}
     />)
   }
   if (! rootComments.length && removedFilter !== removedFilter_types.all) {

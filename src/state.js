@@ -489,11 +489,16 @@ class GlobalState extends Container {
     const queryParams = create_qparams(path_and_search)
     adjust_qparams_for_selection(page_type, queryParams, 'context', context)
     adjust_qparams_for_selection(page_type, queryParams, 'showContext', true)
-    const to = (path_and_search ? new URL(path_and_search, window.location.origin).pathname : window.location.pathname)
-               + queryParams.toString()
+    let queryParamsWithoutContextZero = queryParams
+    if (context === 0) {
+      queryParamsWithoutContextZero = create_qparams(queryParams.toString()).delete('context')
+    }
     if (path_and_search) {
+      const url = new URL(path_and_search, window.location.origin)
+      const to = url.pathname + queryParamsWithoutContextZero.toString() + url.hash
       history.push(to)
     } else {
+      const to = window.location.pathname + queryParamsWithoutContextZero.toString()
       history.replace(to)
     }
     return this.setStateFromQueryParams(page_type, queryParams, {})
