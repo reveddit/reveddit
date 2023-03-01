@@ -127,14 +127,15 @@ const Post = connect((props) => {
       domain_index = <a href={domain_link+index_queryParams}>domain-index</a>
     }
   }
+  const classes = ['post', 'thread']
+  for (const c of ['locked', 'stickied', 'removed', 'unknown', 'deleted', 'pinned']) {
+    if (props[c]) {
+      classes.push(c)
+    }
+  }
 
   return (
-    <div id={props.name} className={`post thread
-          ${props.locked ? 'locked':''}
-          ${props.stickied ? 'stickied':''}
-          ${props.removed ? 'removed':''}
-          ${props.unknown ? 'unknown':''}
-          ${props.deleted ? 'deleted' : ''}`}
+    <div id={props.name} className={classes.join(' ')}
           data-created_utc={props.created_utc} >
       {props.position &&
       <span className='post-rank'>{props.position}</span>}
