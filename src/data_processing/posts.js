@@ -19,7 +19,7 @@ import { REMOVAL_META, ANTI_EVIL_REMOVED, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_A
 import { combinedGetPostsBySubredditOrDomain } from 'data_processing/subreddit_posts'
 
 export const retrieveRedditPosts_and_combineWithPushshiftPosts = async (
-  {pushshiftPosts, pushshiftPostsObj, includePostsWithZeroComments = false, existingRedditPosts = {},
+  {pushshiftPosts, pushshiftPostsObj = {}, includePostsWithZeroComments = false, existingRedditPosts = {},
    subreddit_about_promise = Promise.resolve({}), quarantined_subreddits,
   }) => {
   const ids = []
@@ -40,6 +40,7 @@ export const retrieveRedditPosts_and_combineWithPushshiftPosts = async (
   }
   if (idsNotInPushshift.length) {
     const morePushshiftPosts = await pushshiftQueryPostsByID({ids: idsNotInPushshift})
+    .catch(() => {return {}}) // not critical, this only makes removed-by labels more accurate
     pushshiftPosts.push(...Object.values(morePushshiftPosts))
   }
 
