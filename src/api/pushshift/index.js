@@ -306,7 +306,7 @@ export const getPost = ({id, use_fields_for_manually_approved_lookup = false}) =
 
 // api.pushshift.io currently only returns results with q=* specified and that limits result size to 100
 export const commentsByThreadReturnValueDefaults = { comments: {}, last: undefined }
-export const getCommentsByThread = ({link_id, after='', options = {timeout: 20000}}) => {
+export const getCommentsByThread = ({link_id, after='', options = {timeout: 45000}}) => {
   const queryParams = {
     link_id: toBase10(link_id),
     limit: PUSHSHIFT_MAX_COUNT_PER_QUERY,
