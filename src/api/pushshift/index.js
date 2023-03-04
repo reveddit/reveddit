@@ -218,7 +218,7 @@ const getItemsBySubredditOrDomain = function(
   } else if (domains_str) {
     queryParams['domain'] = domains_str.toLowerCase().replace(/\+/g,',')
   }
-  return fetchUrlWithParams(ps_url, queryParams, fetchWithTimeout)
+  return fetchUrlWithParams(ps_url, queryParams, fetchWithTimeout, {timeout: 60000})
   .then(response => response.json())
   .then(data => data.data)
 }
