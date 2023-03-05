@@ -640,7 +640,10 @@ const GenericPostProcessor = connect((props) => {
       } else {
         commentsMsg = <div className='label'>comments</div>
       }
-      commentsMsg = <>{commentsMsg}<Time noAgo={true} pretty={getPrettyTimeLength(archiveTimes.time_to_comment_overwrite)} suffix=' until overwrite'/></>
+      commentsMsg = <>{commentsMsg}<Time noAgo={true}
+        title_prefix='last overwrite: '
+        created_utc={archiveTimes.created_utc_of_most_recent_overwrite}
+        pretty={getPrettyTimeLength(archiveTimes.time_to_comment_overwrite)} suffix=' until overwrite'/></>
     }
     if (! archive_isOnline(archiveTimes)) {
       offlineMsg = <>
