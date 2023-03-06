@@ -199,7 +199,7 @@ const ifNumParseAndAdd = (n, add) => {
 }
 
 const getItemsBySubredditOrDomain = function(
-  {subreddit:subreddits_str, domain:domains_str, n=maxNumItems, before:until='', since:since='',
+  {subreddit:subreddits_str, domain:domains_str, n=maxNumItems, before:until='', after:since='',
    ps_url, fields}
 ) {
   const queryParams = {
