@@ -638,24 +638,25 @@ const GenericPostProcessor = connect((props) => {
       if (commentsMsg) {
         commentsMsg = <>{commentsMsg}<div></div></>
       } else {
-        commentsMsg = <div className='label'>comments</div>
+        commentsMsg = <div className='label comments'>comments</div>
       }
-      commentsMsg = <>{commentsMsg}<Time noAgo={true}
+      commentsMsg = <>{commentsMsg}<Time noAgo={true} className='comments'
         title_prefix='last overwrite: '
         created_utc={archiveTimes.created_utc_of_most_recent_overwrite}
         pretty={getPrettyTimeLength(archiveTimes.time_to_comment_overwrite)} suffix=' until overwrite'/></>
     }
     if (! archive_isOnline(archiveTimes)) {
+      //text in {submissionsMsg || commentsMsg} gets hidden here, it's just an easy way to make space and keep columns aligned
       offlineMsg = <>
         <div className='container offlineMsg'>
           <div className='label'>OFFLINE</div>
           <Time prefix='last seen ' created_utc={archiveTimes.updated}/>
-          {submissionsMsg}
+          {submissionsMsg || commentsMsg}
         </div>
         <div></div>
       </>
     }
-    if (submissionsMsg || commentsMsg) {
+    if (submissionsMsg || commentsMsg || offlineMsg) {
       const last_checked = getPrettyDate(archiveTimes.last_checked)
       let modal_status_summary = <></>
       if (archiveTimes.last_down_time) {
