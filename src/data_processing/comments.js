@@ -267,6 +267,9 @@ export const getRevdditComments = ({pushshiftComments, subreddit_about_promise =
 export const copyModlogItemsToArchiveItems = (modlogsItems, archiveItems) => {
   for (const ml_item of Object.values(modlogsItems)) {
     const id = ml_item.id
+    if (! id) {
+      continue
+    }
     const link_id = ml_item.link_id
     const archive_item = archiveItems[id]
     const modlog = {
