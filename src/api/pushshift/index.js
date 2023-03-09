@@ -1,5 +1,5 @@
 import { toBase10, toBase36, chunk, flatten, getQueryString, promiseDelay,
-         convertToEpoch, parseNumberAndUnit,
+         convertToEpoch, parseNumberAndUnit, archive_isOffline_for_extendedPeriod,
 } from 'utils'
 import { fetchWithTimeout } from 'api/common'
 
@@ -200,8 +200,12 @@ const ifNumParseAndAdd = (n, add) => {
 
 const getItemsBySubredditOrDomain = function(
   {subreddit:subreddits_str, domain:domains_str, n=maxNumItems, before:until='', after:since='',
-   ps_url, fields}
+   ps_url, fields, archiveTimes}
 ) {
+  const options = {timeout: 60000}
+  if (archive_isOffline_for_extendedPeriod(archiveTimes)) {
+    options.timeout = 4000
+  }
   const queryParams = {
     order: 'desc',
     size: n,
@@ -218,7 +222,7 @@ const getItemsBySubredditOrDomain = function(
   } else if (domains_str) {
     queryParams['domain'] = domains_str.toLowerCase().replace(/\+/g,',')
   }
-  return fetchUrlWithParams(ps_url, queryParams, fetchWithTimeout, {timeout: 60000})
+  return fetchUrlWithParams(ps_url, queryParams, fetchWithTimeout, options)
   .then(response => response.json())
   .then(data => data.data)
 }
@@ -254,12 +258,16 @@ const getPostsByID_chunk = (ids, fields = post_fields) => {
     })
 }
 
-export const getPost = ({id, use_fields_for_manually_approved_lookup = false}) => {
+export const getPost = ({id, use_fields_for_manually_approved_lookup = false, archiveTimes}) => {
+  const options = {}
+  if (archive_isOffline_for_extendedPeriod(archiveTimes)) {
+    options.timeout = 4000
+  }
   const params = {ids: id}
   if (use_fields_for_manually_approved_lookup) {
     params.fields = post_fields_for_manually_approved_lookup.join(',')
   }
-  return fetchUrlWithParams(postURL, params, fetchWithTimeout)
+  return fetchUrlWithParams(postURL, params, fetchWithTimeout, options)
   .then(response => response.json())
   .then(data => {
     if (data.data.length) {
@@ -306,7 +314,10 @@ export const getPost = ({id, use_fields_for_manually_approved_lookup = false}) =
 
 // api.pushshift.io currently only returns results with q=* specified and that limits result size to 100
 export const commentsByThreadReturnValueDefaults = { comments: {}, last: undefined }
-export const getCommentsByThread = ({link_id, after='', options = {timeout: 45000}}) => {
+export const getCommentsByThread = ({link_id, after='', options = {timeout: 45000}, archiveTimes}) => {
+  if (archive_isOffline_for_extendedPeriod(archiveTimes)) {
+    options.timeout = 4000
+  }
   const queryParams = {
     link_id: toBase10(link_id),
     limit: PUSHSHIFT_MAX_COUNT_PER_QUERY,

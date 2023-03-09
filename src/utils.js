@@ -478,8 +478,9 @@ export const paramString = (params) => {
   return Object.keys(params).map(k => `${k}=${params[k]}`).join('&')
 }
 const ARCHIVE_CURRENT_MAX_AGE = 60*15
-export const archiveTimes_isCurrent = (archiveTimes) => (now - archiveTimes.last_checked) < ARCHIVE_CURRENT_MAX_AGE
-export const archive_isOnline = (archiveTimes) => (now - archiveTimes.updated) < ARCHIVE_CURRENT_MAX_AGE
+export const archiveTimes_isCurrent = (archiveTimes) => archiveTimes && (now - archiveTimes.last_checked) < ARCHIVE_CURRENT_MAX_AGE
+export const archive_isOnline = (archiveTimes, last_seen_x_seconds_ago = ARCHIVE_CURRENT_MAX_AGE) => (now - archiveTimes.updated) < last_seen_x_seconds_ago
+export const archive_isOffline_for_extendedPeriod = (archiveTimes) => archiveTimes_isCurrent(archiveTimes) && ! archive_isOnline(archiveTimes, 60*45)
 const OVERWRITE_BUFFER = 2*60*60
 export const time_is_in_archive_storage_window = (created_utc, archiveTimes) =>
   ( archiveTimes && archiveTimes.comment > created_utc &&

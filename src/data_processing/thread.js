@@ -107,7 +107,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     await archive_times_promise
     const archiveTimes = global.state.archiveTimes
     pushshift_remaining_promises.push(
-      pushshiftLimiter.schedule(() => getPushshiftCommentsByThread({link_id: threadID, after: this_ps_after}).catch(ignoreArchiveErrors_comments)))
+      pushshiftLimiter.schedule(() => getPushshiftCommentsByThread({link_id: threadID, after: this_ps_after, archiveTimes}).catch(ignoreArchiveErrors_comments)))
   }
   if (ps_after) {
     for (const this_ps_after of ps_after_list) {
@@ -185,6 +185,8 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     oldestComment = await oldest_comment_promise
     const reddit_comments_promises = [Promise.resolve({comments: redditComments, moreComments})]
     let root_comment_id
+    await archive_times_promise
+    const archiveTimes = global.state.archiveTimes
     if (commentID) {
       root_comment_id = oldestComment.id
       const after = oldestComment.created_utc - 1
@@ -196,16 +198,16 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
         num_comments: reddit_post.num_comments,
         post_created_utc: reddit_post.created_utc,
       })
-      pushshift_comments_promise = pushshiftLimiter.schedule(() => getPushshiftCommentsByThread({link_id: threadID, after: after}).catch(ignoreArchiveErrors_comments))
+      pushshift_comments_promise = pushshiftLimiter.schedule(() => getPushshiftCommentsByThread({link_id: threadID, after: after, archiveTimes}).catch(ignoreArchiveErrors_comments))
     } else {
-      pushshift_comments_promise = pushshiftLimiter.schedule(() => getPushshiftCommentsByThread({link_id: threadID, after: reddit_post.created_utc - 1}).catch(ignoreArchiveErrors_comments))
+      pushshift_comments_promise = pushshiftLimiter.schedule(() => getPushshiftCommentsByThread({link_id: threadID, after: reddit_post.created_utc - 1, archiveTimes}).catch(ignoreArchiveErrors_comments))
       reveddit_comments_promise = getCommentsByThread({
         link_id: threadID, after, root_comment_id,
         num_comments: reddit_post.num_comments,
         post_created_utc: reddit_post.created_utc,
       })
     }
-    pushshift_post_promise = pushshiftLimiter.schedule(() => getPushshiftPost({id: threadID, use_fields_for_manually_approved_lookup}).catch(ignoreArchiveErrors))
+    pushshift_post_promise = pushshiftLimiter.schedule(() => getPushshiftPost({id: threadID, use_fields_for_manually_approved_lookup, archiveTimes}).catch(ignoreArchiveErrors))
     const {user_comments, newComments: remainingRedditIDs} = await processAddUserPromises(add_user_promises, redditComments, post_without_pushshift_data)
     const {combinedComments} = await addRemainingRedditComments_andCombine(quarantined_subreddits, post_without_pushshift_data, {}, redditComments, Object.keys(remainingRedditIDs), user_comments)
 

@@ -16,7 +16,7 @@ import {
 } from 'data_processing/comments'
 import { PATHS_STR_SUB, sortCreatedAsc, markSelftextRemoved } from 'utils'
 
-export const getRevdditPostsBySubreddit = async (subreddit, global) => {
+export const getRevdditPostsBySubreddit = async (subreddit, global, archive_times_promise) => {
   const {n, before, before_id, after, frontPage, page} = global.state
   // /r/sub/new , /r/sub/controversial etc. are not implemented, so change path to indicate that
   if (window.location.pathname.match(new RegExp('^/['+PATHS_STR_SUB+']/([^/]*)/.+'))) {
@@ -42,8 +42,10 @@ export const getRevdditPostsBySubreddit = async (subreddit, global) => {
   } else {
     const {subreddit_about_promise} = await setSubredditMeta(subreddit, global)
     const modlogs_promises = await getModlogsPromises(subreddit, 'posts')
+    await archive_times_promise
+    const archiveTimes = global.state.archiveTimes
     return combinedGetPostsBySubredditOrDomain({global, subreddit, n, before, before_id, after,
-      subreddit_about_promise, modlogs_promises})
+      subreddit_about_promise, modlogs_promises, archiveTimes})
     .then(global.returnSuccess)
   }
 }
@@ -67,12 +69,12 @@ export const combinedGetItemsBySubredditOrDomain = (args) => {
     subreddit_about_promise = empty_obj_promise,
     modlogs_promises = empty_modlogs_promises,
     prev_last_id,
-    pushshiftQueryFn,
+    pushshiftQueryFn, archiveTimes,
     postProcessCombine_Fn, postProcessCombine_Args,
     postProcessCombine_ItemsArgName,
   } = args
   const usingAfter = after && ! before
-  return pushshiftQueryFn({subreddit, domain, n, before, before_id, after})
+  return pushshiftQueryFn({subreddit, domain, n, before, before_id, after, archiveTimes})
   .catch(error => {return []}) // if ps is down, can still return modlog results
   .then(pushshiftItemsUnfiltered => {
     // make sure previous promise completes b/c it sets state
