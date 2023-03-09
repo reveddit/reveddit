@@ -632,7 +632,7 @@ const GenericPostProcessor = connect((props) => {
     if (page_type === 'info' ||
           (archiveTimes.updated - archiveTime_comment > normalArchiveDelay
           && isCommentsPageType)) {
-      commentsMsg = gridLabel('comments', archiveTime_comment, archiveTimes.last_checked, starred)
+      commentsMsg = gridLabel('comments', archiveTime_comment, archiveTimes.updated, starred, archiveTimes.last_checked)
     }
     if (page_type === 'info' || (isCommentsPageType && archiveTimes.time_to_comment_overwrite)) {
       if (commentsMsg) {
@@ -698,11 +698,16 @@ const GenericPostProcessor = connect((props) => {
 })
 
 
-const gridLabel = (label, created_utc, updated, starred=false) => {
+const gridLabel = (label, created_utc, updated, starred=false, last_checked=undefined) => {
+  let time_difference = updated - created_utc
+  // If beta has more recent data and api is offline, time difference is negative without this adjustment
+  if (time_difference < 0 && last_checked) {
+    time_difference = last_checked - created_utc
+  }
   return <>
     <div className={'label '+label}>{label}</div>
     <Time className={label} noAgo={true} created_utc={created_utc}
-          pretty={getPrettyTimeLength(updated - created_utc) + (starred ? '*' : '')}
+          pretty={getPrettyTimeLength(time_difference) + (starred ? '*' : '')}
           suffix = ' delay'
     />
   </>
