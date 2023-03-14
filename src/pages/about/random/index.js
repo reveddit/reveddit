@@ -4,6 +4,7 @@ import { randomRedditor } from 'api/reddit'
 import { connect } from 'state'
 import { Spin } from 'components/Misc'
 import {PATH_STR_USER, SimpleURLSearchParams} from 'utils'
+import {handleRedditError} from 'pages/RevdditFetcher'
 
 export const Random = (props) => {
   const subreddit = props.match.params.subreddit || 'all'
@@ -22,6 +23,9 @@ export const Random = (props) => {
         // can't use history.push here b/c it won't reset state
         window.location.href = `${PATH_STR_USER+'/'+author}/` + searchParams.toString()
       }
+    })
+    .catch(error => {
+      handleRedditError(error, props)
     })
     return () => {
       isCancelled = true
