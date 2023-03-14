@@ -34,6 +34,12 @@ export const ext_urls = {
   }
 }
 
+export const media_links = {
+  podcast: 'https://podcasts.apple.com/us/podcast/what-is-shadow-moderation-how-is-it-silencing-speech/id837690450?i=1000577256568',
+  writing: 'https://meta.discourse.org/t/shadowbans-are-bad-for-discourse-and-heres-why/248903',
+  talk: 'https://shadowmoderation.com/2022-10-transparent-moderation/',
+}
+
 export const makeDonateVisible = () => {
   document.getElementById('donate-ribbon').style.visibility = 'visible'
 }

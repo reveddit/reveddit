@@ -21,7 +21,7 @@ import { jumpToHash, get, put,
          itemIsActioned, itemIsCollapsed, commentIsOrphaned,
          commentIsMissingInThread, getPrettyDate, getPrettyTimeLength,
          archiveTimes_isCurrent, archive_isOnline, matchOrIncludes, now, reversible,
-         redirectToHistory,
+         redirectToHistory, media_links,
 } from 'utils'
 import { getAuthorInfoByName } from 'api/reddit'
 import { getAuth } from 'api/reddit/auth'
@@ -370,7 +370,7 @@ export const withFetch = (WrappedComponent) =>
           })
           .catch(this.handleError)
         })
-        .catch(this.handleError)
+        .catch(this.handleRedditError)
       })
     }
     maybeShowSubscribeUserModal = () => {
@@ -388,7 +388,17 @@ export const withFetch = (WrappedComponent) =>
         })
       }
     }
-
+    handleRedditError = (error) => {
+      console.error(error)
+      const content = <>
+        <p>Error: unable to connect to reddit</p>
+        <p>In the mean time, check out this <a href={media_links.podcast}>podcast</a>, <a href={media_links.writing}>post</a>, or <a href={media_links.talk}>talk</a> about shadow moderation.</p>
+        <a href={media_links.talk}><img src="/images/talk-screenshot-1-1-ratio.png"/></a>
+        <SocialLinks/>
+      </>
+      this.props.openGenericModal({content})
+      this.props.global.setError()
+    }
     handleError = (error) => {
       console.error(error)
       if (error.message === 'Forbidden') {
