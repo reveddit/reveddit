@@ -1,6 +1,7 @@
 import { REMOVAL_META, USER_REMOVED, LOCKED, COLLAPSED,
          MISSING_IN_THREAD, ORPHANED, AUTOMOD_REMOVED,
          MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED, ANTI_EVIL_REMOVED,
+         AUTOMOD_REMOVED_MOD_APPROVED,
        } from 'pages/common/RemovedBy'
 import { TAG_META, QUARANTINE, MOD, ADMIN } from 'pages/common/selections/TagsFilter'
 import { itemIsCollapsed, commentIsOrphaned, commentIsMissingInThread,
@@ -30,22 +31,23 @@ export const filterSelectedActions = (selectedActions) => {
 }
 
 export const itemIsOneOfSelectedActions = (item, selectedOtherActions, selectedRemovedByActions, exclude_action = undefined) => {
+  const not_exclude_or_not_removed = ! exclude_action || (! item.removed && item.removedby !== AUTOMOD_REMOVED_MOD_APPROVED)
   for (const action of selectedOtherActions) {
     switch(action) {
       case USER_REMOVED:
         if (item.deleted) return true
         break
       case LOCKED:
-        if (item.locked) return true
+        if (item.locked && not_exclude_or_not_removed) return true
         break
       case COLLAPSED:
-        if (itemIsCollapsed(item)) return true
+        if (itemIsCollapsed(item) && not_exclude_or_not_removed) return true
         break
       case MISSING_IN_THREAD:
-        if (commentIsMissingInThread(item)) return true
+        if (commentIsMissingInThread(item) && not_exclude_or_not_removed) return true
         break
       case ORPHANED:
-        if (commentIsOrphaned(item) && (! exclude_action || ! item.removed) ) return true
+        if (commentIsOrphaned(item) && not_exclude_or_not_removed ) return true
         break
       case AUTOMOD_REMOVED:
         if (postRemovedUnknownWithin(item)) return true
