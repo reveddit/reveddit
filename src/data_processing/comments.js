@@ -102,9 +102,11 @@ export const combinePushshiftAndRedditComments = (pushshiftComments, redditComme
   return combinedComments
 }
 
-export const copyFields = (fields, source, target, if_value = false) => {
+// if dont_overwrite is true and target[field] is not '' or null, then the field's value won't be copied
+// this allows displaying the originally archived value, if one exists, and only showing the live value if it doesn't overwrite a previous one
+export const copyFields = (fields, source, target, if_value = false, dont_overwrite = false) => {
   for (const field of fields) {
-    if (! if_value || source[field]) {
+    if (! if_value || (source[field] && (! dont_overwrite || ! target[field]))) {
       target[field] = source[field]
     }
   }
@@ -115,6 +117,7 @@ const setupCommentMeta = (archiveComment, redditComment) => {
   set_link_permalink(archiveComment, redditComment)
   copyFields(copy_fields, redditComment, archiveComment)
   copyFields(copy_if_value_fields, redditComment, archiveComment, true)
+  copyFields(['author_flair_text'], redditComment, archiveComment, true, true)
   if (! redditComment.link_title) {
     archiveComment.link_title = redditComment.permalink.split('/')[5].replace(/_/g, ' ')
   }
