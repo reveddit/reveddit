@@ -242,7 +242,7 @@ export const getPostsByID = ({ids, fields = post_fields}) => {
 
 const getPostsByID_chunk = (ids, fields = post_fields) => {
   const params = {
-    ids: ids.join(','),
+    ids: ids.map(toBase10).join(','),
     filter: fields.join(','),
   }
   return fetchUrlWithParams(postURL, params, fetchWithTimeout)
@@ -263,7 +263,7 @@ export const getPost = ({id, use_fields_for_manually_approved_lookup = false, ar
   if (archive_isOffline_for_extendedPeriod(archiveTimes)) {
     options.timeout = 4000
   }
-  const params = {ids: id}
+  const params = {ids: toBase10(id)}
   if (use_fields_for_manually_approved_lookup) {
     params.fields = post_fields_for_manually_approved_lookup.join(',')
   }
