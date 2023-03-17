@@ -244,6 +244,7 @@ const getPostsByID_chunk = (ids, fields = post_fields) => {
   const params = {
     ids: ids.map(toBase10).join(','),
     filter: fields.join(','),
+    limit: ids.length, // must be explicitly set
   }
   return fetchUrlWithParams(postURL, params, fetchWithTimeout)
     .then(response => response.json())
