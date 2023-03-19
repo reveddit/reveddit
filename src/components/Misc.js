@@ -31,7 +31,7 @@ export const is_iOS = (
   || (navigator.userAgent.includes("Mac") && "ontouchend" in document)
 )
 
-export const iOS_shortcut_link = <a href='https://www.icloud.com/shortcuts/62bc7570613c42cb8b851fad264136df'>iOS shortcut</a>
+export const iOS_shortcut_link = <a href='https://www.icloud.com/shortcuts/d18cb266c9b6494faf8aef38ab60c607'>iOS shortcut</a>
 
 let browserExtensionImage = ''
 if (isChrome) {
