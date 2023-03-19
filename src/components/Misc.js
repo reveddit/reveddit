@@ -32,6 +32,7 @@ export const is_iOS = (
 )
 
 export const iOS_shortcut_link = <a href='https://www.icloud.com/shortcuts/62bc7570613c42cb8b851fad264136df'>iOS shortcut</a>
+export const iOS_old_reddit_shortcut_link = <a href='https://www.icloud.com/shortcuts/58cadd9977f442a7a9ab71626ee2300f'>iOS shortcut Old Reddit </a>
 
 let browserExtensionImage = ''
 if (isChrome) {

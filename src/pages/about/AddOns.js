@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react'
 import {ext_urls, makeDonateVisible, copyLink} from 'utils'
-import { iOS_shortcut_link, InternalPage} from 'components/Misc'
+import { iOS_shortcut_link, iOS_old_reddit_shortcut_link, InternalPage} from 'components/Misc'
 
 
 export const meta = {
@@ -46,6 +46,11 @@ export default () => {
     ios_shortcut: {
       title: 'Miscellaneous',
       description: <ul><li>{iOS_shortcut_link}</li><li>{bookmarklet} bookmarklet</li></ul>,
+      not_an_extension: true,
+    },
+    iOS_old_reddit_shortcut: {
+      title: 'Miscellaneous',
+      description: <ul><li>{iOS_old_reddit_shortcut_link}</li><li>{bookmarklet} bookmarklet</li></ul>,
       not_an_extension: true,
     },
   }
