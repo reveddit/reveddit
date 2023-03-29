@@ -176,6 +176,11 @@ const setupCommentMeta = (archiveComment, redditComment) => {
           archiveComment.removedby = MOD_OR_AUTOMOD_REMOVED
         }
       }
+      // comments from add_user should always override whatever is in the archive
+      if (redditComment.from_add_user && ! redditComment.removal_reason) {
+        archiveComment.author = redditComment.author
+        archiveComment.body = redditComment.body
+      }
     }
   } else if (commentIsDeleted(redditComment)) {
     // modlog entries that were later deleted by the user didn't have author and body fields,
@@ -183,6 +188,7 @@ const setupCommentMeta = (archiveComment, redditComment) => {
     archiveComment.author = redditComment.author
     archiveComment.body = redditComment.body
   }
+
   archiveComment.archive_processed = true
 }
 
