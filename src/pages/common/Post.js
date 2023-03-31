@@ -35,7 +35,7 @@ const Post = connect((props) => {
     return <div/>
   }
   const {media_metadata} = props.over_18 ? {} : props
-  const {sort, t, userCommentsByPost, initialFocusCommentID} = global.state
+  const {sort, t, userCommentsByPost, initialFocusCommentID, limitCommentDepth} = global.state
   let {add_user, loading:globalLoading} = global.state
   const url = stripRedditLikeDomain(props.url.replace(/&amp;/g, '&'))
   const [selftextMeta, setSelftextMeta] = useState({
@@ -56,16 +56,26 @@ const Post = connect((props) => {
     setSelftextMeta({...selftextMeta, displayFullSelftext: false, manuallyHiddenSelftext: true})
   }
   useEffect(() => {
-    if (! manuallyDisplayedSelftext && initialFocusCommentID && displayFullSelftext) {
+    if (limitCommentDepth && ! manuallyDisplayedSelftext && initialFocusCommentID && displayFullSelftext) {
       setSelftextMeta({...selftextMeta, displayFullSelftext: false})
-    } else if (! manuallyHiddenSelftext && ! initialFocusCommentID && ! displayFullSelftext) {
+    } else if (! limitCommentDepth && ! manuallyHiddenSelftext && ! initialFocusCommentID && ! displayFullSelftext) {
       setSelftextMeta({...selftextMeta, displayFullSelftext: true})
     }
   }, [displayFullSelftext,
       manuallyDisplayedSelftext,
       manuallyHiddenSelftext,
       initialFocusCommentID,
+      limitCommentDepth,
   ])
+  // display the full post if comment depth isn't limited, even on pages that are a direct link to a comment
+  // provides a way to link a comment and see the text of the post
+  useEffect(() => {
+    let display = true
+    if (limitCommentDepth && initialFocusCommentID) {
+      display = false
+    }
+    setSelftextMeta({...selftextMeta, displayFullSelftext: display})
+  }, [limitCommentDepth])
 
   let thumbnail
   const thumbnailWidth = props.thumbnail_width ? props.thumbnail_width * 0.5 : 70
