@@ -250,12 +250,13 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
       modlog = modlogsPosts[combined_post.id] || uModlogsPost
       combined_post.modlog = modlog
     }
-    if (combined_post.removed && combined_post.is_self) {
+    const ps_exists_and_has_selftext = ps_post && 'selftext' in ps_post
+    if (combined_post.removed && (combined_post.is_self || ps_exists_and_has_selftext)) {
       if (modlog) {
         combined_post.selftext = modlog.target_body
       } else if (uModlogsPost) {
         combined_post.selftext = uModlogsPost.target_body
-      } else if (ps_post && 'selftext' in ps_post) {
+      } else if (ps_exists_and_has_selftext) {
         combined_post.selftext = ps_post.selftext
       }
     }
