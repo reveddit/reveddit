@@ -46,7 +46,7 @@ const CommentBody = (props) => {
         removedMessage = <p>{getRemovedMessage(props, 'comment')}</p>
       }
       if (comment_Is_Removed && ! searchAuthorsForm) {
-        hideUnarchivedButton = <HideUnarchivedComments global={props.global}/>
+        hideUnarchivedButton = <HideUnarchivedComments global={props.global} page_type={props.page_type}/>
       }
     } else {
       if (props.page_type === 'user' && ! props.removed) {

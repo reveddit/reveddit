@@ -126,7 +126,7 @@ const RestoreComment = (props) => {
   const [waybackSearched, setWaybackSearched] = useState(false)
 
   let searchButton = ''
-  const {global, id, created_utc, score, controversiality, retrieved_on, link_id} = props
+  const {global, id, created_utc, score, controversiality, retrieved_on, link_id, page_type} = props
   const {itemsLookup, alreadySearchedAuthors, threadPost,
          itemsSortedByDate, add_user, authors:globalAuthors,
          loading: globalLoading, items, commentTree, initialFocusCommentID,
@@ -342,20 +342,20 @@ const RestoreComment = (props) => {
             </>
           : <></>
           }
-          <HideUnarchivedComments global={global}/>
+          <HideUnarchivedComments global={global} page_type={page_type}/>
         </div>
       </Wrap>
     )
   } else {
-    searchButton = <HideUnarchivedComments global={global}/>
+    searchButton = <HideUnarchivedComments global={global} page_type={page_type}/>
   }
   return searchButton
 }
 
-export const HideUnarchivedComments = ({global}) => {
+export const HideUnarchivedComments = ({global, page_type}) => {
   return <BodyButton>
     <a className='pointer' onClick={() => {
-      global.selection_update('keywords', EXCLUDE_UNARCHIVED_REGEX, 'thread')
+      global.selection_update('keywords', EXCLUDE_UNARCHIVED_REGEX, page_type)
     }}>Hide Unarchived</a>
   </BodyButton>
 }
