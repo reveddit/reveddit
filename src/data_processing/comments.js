@@ -141,7 +141,7 @@ const setupCommentMeta = (archiveComment, redditComment) => {
       //handles case where the archive has no record of the comment
       archiveComment.archive_body_removed_before_modlog_copy = true
     }
-    if (modlog && ! archiveComment.from_add_user) {
+    if (modlog && ! archiveComment.from_add_user && ! redditComment.removal_reason) {
       archiveComment.author = modlog.author
       archiveComment.body = modlog.body
     }
