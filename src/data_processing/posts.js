@@ -121,6 +121,8 @@ export const combineRedditAndPushshiftPost = (post, ps_post) => {
         }
       }
       copyFields(['url', 'title'], ps_post, post, true)
+    } else {
+      copyFields(['title'], ps_post, post, true)
     }
     copyFields(['author_flair_text'], ps_post, post, true)
   }
