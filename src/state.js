@@ -489,6 +489,9 @@ class GlobalState extends Container {
     const queryParams = create_qparams(path_and_search)
     adjust_qparams_for_selection(page_type, queryParams, 'context', context)
     adjust_qparams_for_selection(page_type, queryParams, 'showContext', true)
+    // if 'limit comment depth' and 'show context' are false, then the page freezes when clicking a context link
+    // setting 'limit comment depth' to true here resolves that bug
+    adjust_qparams_for_selection(page_type, queryParams, 'limitCommentDepth', true)
     let queryParamsWithoutContextZero = queryParams
     if (context === 0) {
       queryParamsWithoutContextZero = create_qparams(queryParams.toString()).delete('context')
