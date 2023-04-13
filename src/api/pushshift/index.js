@@ -8,7 +8,7 @@ export const post_fields_for_user_page_lookup = [
   'id', 'retrieved_utc','created_utc', 'updated_utc', 'is_robot_indexable', 'is_crosspostable', 'author_flair_text']
 
 const post_fields = [...post_fields_for_user_page_lookup, 'thumbnail', 'author_fullname', 'url', 'domain', 'title']
-const post_fields_for_manually_approved_lookup = ['id', 'retrieved_utc', 'updated_utc', 'is_robot_indexable', 'title']
+const post_fields_for_manually_approved_lookup = ['id', 'retrieved_utc', 'updated_utc', 'is_robot_indexable', 'title', 'url']
 const comment_fields = [
   ...comment_fields_for_user_page_lookup,
   'author_fullname', 'body', 'parent_id', 'score',

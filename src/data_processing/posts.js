@@ -110,19 +110,28 @@ export const combineRedditAndPushshiftPost = (post, ps_post) => {
     }
     post.archived_removed_by_category = ps_post.removed_by_category
     copyFields(['modlog', 'media_metadata', 'author_fullname'], ps_post, post, true)
-    if (! post.removal_reason) {
-      // Handle PS bug where domain is set to the permalink, e.g. t3_10scvaw
-      if (ps_post.domain && ps_post.domain[0] !== '/') {
-        post.domain = ps_post.domain
-      } else if (! post.domain && ps_post.url) {
+    const fillInDomain = () => {
+      if (ps_post.url) {
         const domain_match = ps_post.url.match(/^https?:\/\/([^/]+)/)
         if (domain_match) {
           post.domain = domain_match[1]
         }
       }
+    }
+    if (! post.removal_reason) {
+      // Handle PS bug where domain is set to the permalink, e.g. t3_10scvaw
+      if (ps_post.domain && ps_post.domain[0] !== '/') {
+        post.domain = ps_post.domain
+      } else if (! post.domain || post.domain[0] === '/') {
+        fillInDomain()
+      }
       copyFields(['url', 'title'], ps_post, post, true)
     } else {
       copyFields(['title'], ps_post, post, true)
+    }
+    if (post.domain?.[0] === '/') {
+      post.domain = 'self.'+post.subreddit;
+      fillInDomain()
     }
     copyFields(['author_flair_text'], ps_post, post, true)
   }
