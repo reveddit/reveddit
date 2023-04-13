@@ -108,7 +108,7 @@ const Comment = withRouter(connect((props) => {
   const permalink_nohash = permalink ? convertPathSub(permalink)
     : `${PATH_STR_SUB}/${subreddit}/comments/${link_id}/_/${id}/`
 
-  const searchParams = new SimpleURLSearchParams(window.location.search).delete('context').delete('showFilters')
+  const searchParams = new SimpleURLSearchParams(window.location.search).delete('context').delete('showContext').delete('showFilters')
   const searchParams_nocontext = searchParams.toString()
   const thisCommentHash = `#${name}`
   const replies_id = name+'_replies'
