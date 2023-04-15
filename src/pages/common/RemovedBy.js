@@ -42,7 +42,8 @@ const LABEL_SPAM_REMOVED_THEN_APPROVED = arma_custom('spam')
 export const REMOVAL_META = {
                  [ANTI_EVIL_REMOVED]: {filter_text: 'admin removed',
                                          label: '[removed] by Reddit',
-                                          desc: <>Removed by a Reddit admin. <NewWindowLink reddit='/9qf5ma'>More info</NewWindowLink><p>See also: <NewWindowLink reddit={REVEDDIT_POST_ON_ADMIN_REMOVED_CONTENT}>Good news: Admins are being more transparent by labeling the content they remove. Bad news: Reveddit won't show this content.</NewWindowLink></p></>,
+                                          desc: 'Removed by a Reddit admin.',
+                                      jsx_desc: <>Removed by a Reddit admin. <NewWindowLink reddit='/9qf5ma'>More info</NewWindowLink><p>See also: <NewWindowLink reddit={REVEDDIT_POST_ON_ADMIN_REMOVED_CONTENT}>Good news: Admins are being more transparent by labeling the content they remove. Bad news: Reveddit won't show this content.</NewWindowLink></p></>,
                                       },
         [MOD_OR_AUTOMOD_REMOVED]: {filter_text: 'mod removed',
                                          label: '[removed] by mod',
