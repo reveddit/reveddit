@@ -21,7 +21,7 @@ import { RestoreIcon } from 'pages/common/svg'
 
 const contextDefault = 3
 const MIN_COMMENT_DEPTH = 4
-const MAX_COMMENT_DEPTH = 9
+const MAX_COMMENT_DEPTH = 15
 
 export const getMaxCommentDepth = () => {
   let depth = Math.round(window.screen.availWidth / 100)
