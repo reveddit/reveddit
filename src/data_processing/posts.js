@@ -174,6 +174,10 @@ export const combineRedditAndPushshiftPost = (post, ps_post) => {
   if (post.removal_reason) {
     post.removedby_evil = ANTI_EVIL_REMOVED
   }
+  // thumbnails for user and admin deleted posts do not load, so don't copy urls for those
+  if (ps_post?.thumbnail?.match(/^https?:\/\//) && ! post.deleted && ! post.removal_reason) {
+    post.archive_thumbnail = ps_post.thumbnail
+  }
   return post
 }
 

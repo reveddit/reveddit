@@ -80,13 +80,12 @@ const Post = connect((props) => {
   let thumbnail
   const thumbnailWidth = props.thumbnail_width ? props.thumbnail_width * 0.5 : 70
   const thumbnailHeight = props.thumbnail_height ? props.thumbnail_height * 0.5 : 70
-
-  if (redditThumbnails.includes(props.thumbnail)) {
+  if (redditThumbnails.includes(props.thumbnail) && ! props.archive_thumbnail) {
     thumbnail = <a href={url} className={`thumbnail thumbnail-${props.thumbnail}`} />
-  } else if (props.thumbnail && props.thumbnail !== 'spoiler') {
+  } else if ((props.thumbnail && props.thumbnail !== 'spoiler') || props.archive_thumbnail) {
     thumbnail = (
       <a href={url}>
-        <img className='thumbnail' src={props.thumbnail} width={thumbnailWidth} height={thumbnailHeight} alt='Thumbnail' />
+        <img className='thumbnail' src={props.archive_thumbnail || props.thumbnail} width={thumbnailWidth} height={thumbnailHeight} alt='Thumbnail' />
       </a>
     )
   }

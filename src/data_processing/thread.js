@@ -148,7 +148,6 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     const moderators_promise = getModerators(reddit_post.subreddit)
     const modlogs_comments_promise = getModlogsComments({subreddit: reddit_post.subreddit, link_id: reddit_post.id, limit: 500})
     let modlogs_posts_promise = Promise.resolve({})
-    const use_fields_for_manually_approved_lookup = ! ((postIsRemoved(reddit_post) && (reddit_post.is_self || reddit_post.is_gallery)) || postIsDeleted(reddit_post))
     modlogs_posts_promise = getModlogsPosts({subreddit: reddit_post.subreddit, link_id: reddit_post.id})
     document.title = reddit_post.title
     if (reddit_post.quarantine && ! quarantined) {
@@ -207,7 +206,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
         post_created_utc: reddit_post.created_utc,
       })
     }
-    pushshift_post_promise = pushshiftLimiter.schedule(() => getPushshiftPost({id: threadID, use_fields_for_manually_approved_lookup, archiveTimes}).catch(ignoreArchiveErrors))
+    pushshift_post_promise = pushshiftLimiter.schedule(() => getPushshiftPost({id: threadID, archiveTimes}).catch(ignoreArchiveErrors))
     const {user_comments, newComments: remainingRedditIDs} = await processAddUserPromises(add_user_promises, redditComments, post_without_pushshift_data)
     const {combinedComments} = await addRemainingRedditComments_andCombine(quarantined_subreddits, post_without_pushshift_data, {}, redditComments, Object.keys(remainingRedditIDs), user_comments)
 

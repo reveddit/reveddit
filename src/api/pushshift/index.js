@@ -267,6 +267,8 @@ export const getPost = ({id, use_fields_for_manually_approved_lookup = false, ar
   const params = {ids: toBase10(id)}
   if (use_fields_for_manually_approved_lookup) {
     params.filter = post_fields_for_manually_approved_lookup.join(',')
+  } else {
+    params.filter = post_fields
   }
   return fetchUrlWithParams(postURL, params, fetchWithTimeout, options)
   .then(response => response.json())
