@@ -334,7 +334,7 @@ export const withFetch = (WrappedComponent) =>
             const successFn = (success ? global.setSuccess : global.setError).bind(global)
             const setStateFn = lookupAccountMeta ? global.setState.bind(global) : successFn
             await setStateFn(stateObj)
-            const {commentTree, items, threadPost, initialFocusCommentID} = global.state
+            const {commentTree, items, threadPost, initialFocusCommentID, moderators} = global.state
             if (items.length === 0 && ['subreddit_posts', 'subreddit_comments'].includes(page_type)) {
               throw "no results"
             }
@@ -372,21 +372,32 @@ export const withFetch = (WrappedComponent) =>
                   authorNames.add(item.author)
                   if (item.distinguished === 'admin') {
                     adminAuthors.add(item.author)
+                  } else if (item.distinguished === 'moderator') {
+                    const subreddit_lc = item.subreddit.toLowerCase()
+                    if (! moderators[subreddit_lc]) {
+                      moderators[subreddit_lc] = {}
+                    }
+                    moderators[subreddit_lc][item.author] = true
+                  }
+                }
+              }
+              const setIsAdmin = (authors) => {
+                for (const a of adminAuthors) {
+                  if (a in authors) {
+                    authors[a].is_admin = true
                   }
                 }
               }
               if (lookupAccountMeta) {
                 getAuthorInfoByName(Array.from(authorIDs))
                 .then(({authors, author_fullnames}) => {
-                  for (const a of adminAuthors) {
-                    if (a in authors) {
-                      authors[a].is_admin = true
-                    }
-                  }
-                  successFn({authors, author_fullnames})
+                  setIsAdmin(authors)
+                  successFn({authors, author_fullnames, moderators})
                 })
               } else {
-                global.setState({authors: Array.from(authorNames).reduce((map, val) => (map[val] = {}, map), {})})
+                const authors = Array.from(authorNames).reduce((map, val) => (map[val] = {}, map), {})
+                setIsAdmin(authors)
+                global.setState({authors, moderators})
               }
             }
           })
