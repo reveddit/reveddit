@@ -65,7 +65,7 @@ const CommentSection = (props) => {
           itemsLookup: commentsLookup, commentTree,
           categoryFilter_author, keywords, user_flair,
           threadPost, limitCommentDepth, loading, tagsFilter, exclude_tag,
-          thread_before, items, add_user, add_user_on_page_load,
+          thread_before, items, add_user, add_user_on_page_load, authors,
         } = global.state
   const [showAllComments, setShowAllComments] = useState(false)
   const [showFilteredRootComments, setShowFilteredRootComments] = useState(false)
@@ -118,7 +118,7 @@ const CommentSection = (props) => {
   const filters_str = [
     removedFilter,removedByFilter_str,categoryFilter_author,tagsFilter_str,
     keywords,user_flair,thread_before,focusCommentID,
-    ...[showContext,limitCommentDepth,exclude_action,exclude_tag].map(x => x.toString()),
+    ...[showContext,limitCommentDepth,exclude_action,exclude_tag,Object.keys(authors)].map(x => x.toString()),
   ].join('|')
   const sortVisibleComments = (visibleComments) => {
     const sortFn = getSortFn(localSort, global.state)
