@@ -31,6 +31,7 @@ const Author = ({author, author_fullname, is_op, deleted, distinguished, subredd
         className={'author '+
           (is_op ? 'submitter ' : '')+
           (distinguished ? 'distinguished '+distinguished+' ' : '')+
+          ((info && info.is_admin) ? 'is_admin ' : '')+
           ((moderators[subreddit_lc] || {})[author] || moderated_subreddits[subreddit_lc] ? 'is_moderator ' : '')
         }
       >

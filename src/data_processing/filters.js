@@ -66,12 +66,14 @@ export const itemIsOneOfSelectedActions = (item, selectedOtherActions, selectedR
 }
 
 export const itemIsOneOfSelectedTags = (item, gs) => {
-  const {moderators, moderated_subreddits} = gs
+  const {moderators, moderated_subreddits, authors} = gs
   const subreddit_lc = item.subreddit.toLowerCase()
   for (const type of Object.keys(gs.tagsFilter)) {
     if (TAG_META[type].values.includes(item[TAG_META[type].field])) {
       return true
     } else if (type === MOD && ((moderators[subreddit_lc] || {})[item.author] || moderated_subreddits[subreddit_lc])) {
+      return true
+    } else if (type === ADMIN && authors?.[item.author]?.is_admin) {
       return true
     }
   }

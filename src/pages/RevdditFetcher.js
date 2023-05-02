@@ -359,6 +359,7 @@ export const withFetch = (WrappedComponent) =>
             if ((lookupAccountMeta || threadPost) && items.length) {
               const authorIDs = new Set()
               const authorNames = new Set()
+              const adminAuthors = new Set()
               let itemsAndPost = items
               if (threadPost && (threadPost.author || threadPost.author_fullname)) {
                 itemsAndPost = items.concat(threadPost)
@@ -369,11 +370,19 @@ export const withFetch = (WrappedComponent) =>
                 }
                 if (item.author) {
                   authorNames.add(item.author)
+                  if (item.distinguished === 'admin') {
+                    adminAuthors.add(item.author)
+                  }
                 }
               }
               if (lookupAccountMeta) {
                 getAuthorInfoByName(Array.from(authorIDs))
                 .then(({authors, author_fullnames}) => {
+                  for (const a of adminAuthors) {
+                    if (a in authors) {
+                      authors[a].is_admin = true
+                    }
+                  }
                   successFn({authors, author_fullnames})
                 })
               } else {

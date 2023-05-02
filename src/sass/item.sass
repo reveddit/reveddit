@@ -41,6 +41,13 @@
       &:not(.submitter):not(.admin):not(.special)
         color: $moderator
         border-width: 1px
+    &.is_admin:not(.admin)
+      border-style: solid
+      border-color: $admin
+      border-radius: 3px
+      padding: 2px
+      &:not(.submitter):not(.special):not(.admin):not(.moderator)
+        border-width: 1px
   .lockedTag
     font-size: 12px
     color: black
