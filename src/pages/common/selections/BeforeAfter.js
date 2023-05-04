@@ -190,7 +190,8 @@ const BeforeAfter = ({before_or_after, ...selectionProps}) => {
               let [number, unit] = parseNumberAndUnit(value)
               if (! unit) {
                 number = value
-              } else if (inputLooksLikeDate(value)) {
+              }
+              if (inputLooksLikeDate(value)) {
                 unit = DATE_UNIT
               }
               if (before_or_after && parseInt(number) > 0) {
