@@ -13,6 +13,7 @@ import {QuestionMark} from 'pages/common/svg'
 const notices = {
   'orphaned': 'hideOrphanedNotice',
   'missing': 'hideMissingInThreadNotice',
+  'context': 'hideContextInThreadNotice',
 }
 
 const dismiss = (noticeType) => {
@@ -49,17 +50,23 @@ const CommentBody = (props) => {
         hideUnarchivedButton = <HideUnarchivedComments global={props.global} page_type={props.page_type}/>
       }
     } else {
-      if (props.page_type === 'user' && ! props.removed) {
-        if (commentIsMissingInThread(props)) {
-          if (! get(notices.missing, false)) {
-            actionDescription = <Notice className='missing' title='missing'
-              message={<div>Due to a <NewWindowLink reddit={'/gwzbv0'}>rare bug in reddit</NewWindowLink>, this comment is missing in its thread. Click the reddit-parent link below to confirm this comment does not appear.</div>}
-              dismissFn={() => dismiss('missing')}/>
+      if (props.page_type === 'user') {
+        if (! props.removed) {
+          if (commentIsMissingInThread(props)) {
+            if (! get(notices.missing, false)) {
+              actionDescription = <Notice className='missing' title='missing'
+                message={<div>Due to a <NewWindowLink reddit={'/gwzbv0'}>rare bug in reddit</NewWindowLink>, this comment is missing in its thread. Click the reddit-parent link below to confirm this comment does not appear.</div>}
+                dismissFn={() => dismiss('missing')}/>
+            }
+          } else if (commentIsOrphaned(props) && ! get(notices.orphaned, false)) {
+            actionDescription = <Notice className='orphaned' title='orphaned'
+              message='This comment is not removed. It is less visible because the parent comment or link itself was removed.'
+              dismissFn={() => dismiss('orphaned')} />
           }
-        } else if (commentIsOrphaned(props) && ! get(notices.orphaned, false)) {
-          actionDescription = <Notice className='orphaned' title='orphaned'
-            message='This comment is not removed. It is less visible because the parent comment or link itself was removed.'
-            dismissFn={() => dismiss('orphaned')} />
+        } else if (! props.removal_reason && ! get(notices.context, false)) {
+          actionDescription = <Notice className='context' title='show comments in context'
+            message="The 'context' and 'full comments' links below can show this comment in its thread's context."
+            dismissFn={() => dismiss('context')} />
         }
       }
       innerHTML = markdownToHTML(props.body)
