@@ -239,11 +239,17 @@ const Selections = ({subreddit, page_type, visibleItemsWithoutCategoryFilter,
                   <>
                     {upvoteRemovalRateHistory}
                     <div>
-                      {textFilter_content}
                       <RedditSortTimeBase page_type={page_type} globalVarName='sort' className='aggSort' title='Sort By'/>
                       <ItemsPerPage/>
                     </div>
+                    <div>
+                       <BeforeAfter page_type={page_type} before_or_after='after'
+                          title='After' titleHelpModal={{content:beforeAfter_help}} />
+                       <BeforeAfter page_type={page_type} before_or_after='before'
+                          title='Before' titleHelpModal={{content:beforeAfter_help}} />
+                    </div>
                     <Content page_type={page_type} subreddit={subreddit}/>
+                    {textFilter_content}
                   </>)
               default: return ''
             }

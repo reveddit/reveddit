@@ -4,6 +4,7 @@ import {SimpleURLSearchParams,
         unitInSeconds, parseDateISOString, convertToEpoch, DATE_UNIT,
         parseNumberAndUnit,
 } from 'utils'
+import { updateURL } from 'state'
 import DayPickerInput from 'react-day-picker/DayPickerInput'
 import { useIsMobile } from 'hooks/mobile'
 import { usePrevious } from 'hooks/previous'
@@ -79,14 +80,20 @@ const convertEpochToDateString = (epoch) => {
   return ymd_string + time_string
 }
 
-const getDefaults = () => {
+const getDefaults = (before_or_after) => {
   let beforeOrAfter = B, number = '', unit = DATE_UNIT
   const param_b = queryParamsOnPageLoad.get(B)
   const param_a = queryParamsOnPageLoad.get(A)
-  if (param_b) {
+  if (before_or_after === 'before') {
+    beforeOrAfter = B
+  } else if (before_or_after === 'after') {
+    beforeOrAfter = A
+  }
+  if ((! before_or_after || before_or_after === 'before') && param_b) {
     beforeOrAfter = B;
     [number, unit] = parseNumberAndUnit(param_b)
-  } else if (param_a) {
+  }
+  if ((! before_or_after || before_or_after === 'after') && param_a) {
     beforeOrAfter = A;
     [number, unit] = parseNumberAndUnit(param_a)
   }
@@ -99,9 +106,15 @@ const getDefaults = () => {
   return {beforeOrAfter, number, unit}
 }
 
-const BeforeAfter = ({...selectionProps}) => {
+const BeforeAfter = ({before_or_after, ...selectionProps}) => {
   const queryParams = new SimpleURLSearchParams(window.location.search)
-  const [meta, setMeta] = useState(getDefaults())
+  let this_beforeAndAfter = beforeAndAfter
+  if (before_or_after === 'before') {
+    this_beforeAndAfter = [B]
+  } else if (before_or_after === 'after') {
+    this_beforeAndAfter = [A]
+  }
+  const [meta, setMeta] = useState(getDefaults(before_or_after))
   const prevMeta = usePrevious(meta)
   const dayPickerRef = useRef(null)
   const agoInputRef = useRef(null)
@@ -112,12 +125,18 @@ const BeforeAfter = ({...selectionProps}) => {
     queryParams.delete(A)
     window.location.href = queryParams.toString()
   }
+  const getQueryParamsFromNumberAndUnit = (number, unit) => {
+    const queryParams_temp = new SimpleURLSearchParams(window.location.search)
+    if (! this_beforeAndAfter) {
+      queryParams_temp.delete(opposite[meta.beforeOrAfter])
+    }
+    queryParams_temp.set(meta.beforeOrAfter, convertToEpoch(number,unit))
+    return queryParams_temp
+  }
   const onSubmit = (e) => {
     e.preventDefault()
     if (parseInt(meta.number) > 0) {
-      queryParams.delete(opposite[meta.beforeOrAfter])
-      queryParams.set(meta.beforeOrAfter, convertToEpoch(meta.number,meta.unit))
-      window.location.href = queryParams.toString()
+      window.location.href = getQueryParamsFromNumberAndUnit(meta.number, meta.unit).toString()
     } else if (valueOnPageLoad && (meta.number == 0 || meta.number == '')) {
       reset()
     }
@@ -143,14 +162,13 @@ const BeforeAfter = ({...selectionProps}) => {
       agoInputRef.current.focus()
     }
   }, [meta.number, meta.unit])
-
   return (
     <Selection className='beforeAfter' isFilter={true} isSet={valueOnPageLoad} {...selectionProps}>
       <form onSubmit={onSubmit}>
         <select value={meta.beforeOrAfter} onChange={(e) => {
           setMeta({...meta, beforeOrAfter: e.target.value})
         }}>
-          {beforeAndAfter.map(x => <option key={x} value={x}>{x}</option>)}
+          {this_beforeAndAfter.map(x => <option key={x} value={x}>{x}</option>)}
         </select>
         {meta.unit !== DATE_UNIT ?
           <input type='text' placeholder='0' value={meta.number} ref={agoInputRef}
@@ -174,6 +192,9 @@ const BeforeAfter = ({...selectionProps}) => {
                 number = value
               } else if (inputLooksLikeDate(value)) {
                 unit = DATE_UNIT
+              }
+              if (before_or_after && parseInt(number) > 0) {
+                updateURL(getQueryParamsFromNumberAndUnit(number, unit))
               }
               setMeta({...meta, number, ...(unit && {unit})})
             }}
