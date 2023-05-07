@@ -164,6 +164,16 @@ export const combineRedditAndPushshiftPost = (post, ps_post) => {
       }
     }
   } else {
+    // Note: There is no check for retrievalLatency for AUTOMOD_REMOVED_MOD_APPROVED
+    // In rare cases, the auto-removed-then-approved label may be incorrectly applied when retrievalLatency is large.
+    // For example, t3_ec7j5g was not autoremoved. It was removed at the time of a Pushshift re-ingest, and later approved again.
+    // That label could be corrected by adding the condition `&& retrievalLatency <= AUTOMOD_LATENCY_THRESHOLD` below.
+    // However, that would essentially erase all historic auto-removed-then-approved labels.
+    // As it is with the Pushshift re-ingest, a lot of AUTOMOD_REMOVED labels have already been lost.
+    // The basic assumption is that mods don't generally flip back and forth between removed/approved status;
+    // a decision is made, and the status from Reddit represents that decision as either removed or approved.
+    // If that status differs from Pushshift's, then you can infer some auto or manual action occurred.
+    // So when Pushshift has 'removed' and Reddit has 'approved', one assumes auto-removed-then-approved, even when a re-ingest occurred.
     if ( (ps_post && 'is_robot_indexable' in ps_post && ! ps_post.is_robot_indexable)
          || modlog_says_bot_removed) {
       post.removedby = AUTOMOD_REMOVED_MOD_APPROVED
