@@ -285,6 +285,7 @@ const getUrlMeta = (url) => {
       const full_yt_urls = getYoutubeURLs(id)
       reddit_info_urls.push(...full_yt_urls)
       reddit_search_selftext.push(...full_yt_urls)
+      reddit_search_url.push(...full_yt_urls)
     }
   }
   const postURL_ID = redditlikeDomainStripped.split('/')[4]
