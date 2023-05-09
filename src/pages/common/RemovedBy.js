@@ -239,6 +239,9 @@ const RemovedBy = (props) => {
       alternateLabel = `[deleted] by ${first_removed_by_other || 'mod'} & user`
       modalDetailsItems.push(
         <p>It was originally removed by {archived_removed_by_category || 'a moderator'}. <NewWindowLink reddit={permalink} redesign={true}>New reddit</NewWindowLink> may show more details.</p>)
+    } else if (props.retrieved_on && removedby === AUTOMOD_REMOVED_MOD_APPROVED) {
+      const prettyTimeLength = getPrettyTimeLength(props.retrieved_on-props.created_utc)
+      modalDetailsItems.push(<p>Removal time was recorded {prettyTimeLength} after creation.</p>)
     }
     if (removed_by_category === 'reddit') {
       modalDetailsItems.push(<p>The author was likely not notified of the removal. See <LinkWithCloseModal to='/about/faq/#reddit-does-not-say-post-removed'>Why didn't Reddit tell me my post was removed?</LinkWithCloseModal></p>)
