@@ -1,7 +1,7 @@
 import React from 'react'
 import { markdownToHTML, commentIsRemoved,
          commentIsOrphaned, commentIsMissingInThread, get, put,
-         getRemovedMessage, textSaysRemoved, getRemovedWithinText } from 'utils'
+         getRemovedMessage, textSaysRemoved, getRemovedWithinText, commentRemovedByReddit } from 'utils'
 import { connect } from 'state'
 import {Notice} from 'pages/common/Notice'
 import RestoreComment, {HideUnarchivedComments} from 'data_processing/RestoreComment'
@@ -27,7 +27,7 @@ const CommentBody = (props) => {
   let innerHTML = '', actionDescription = '', searchAuthorsForm = '', restoredTag = '', hideUnarchivedButton = '',
       removedMessage = <></>
   const isThread = props.page_type === 'thread'
-  const comment_Is_Removed = commentIsRemoved(props)
+  const comment_Is_Removed = commentIsRemoved(props) || commentRemovedByReddit(props)
   if (! props.deleted) {
     const archiveRemoved_or_noArchive_or_fromAddUser = (props.archive_body_removed || ! props.archive_processed || props.from_add_user) && ! props.removal_reason
     if ( (comment_Is_Removed || (isThread && archiveRemoved_or_noArchive_or_fromAddUser))

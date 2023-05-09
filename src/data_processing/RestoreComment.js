@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useRef} from 'react'
 import {ifNumParseInt, isCommentID, validAuthor, now,
         formatBytes, getPrettyTimeLength, normalizeTextForComparison,
-        time_is_in_archive_storage_window, commentIsRemoved,
+        time_is_in_archive_storage_window, commentIsRemoved, commentRemovedByReddit,
 } from 'utils'
 import {connect, urlParamKeys, create_qparams_and_adjust, updateURL} from 'state'
 import { kindsReverse, queryUserPage } from 'api/reddit'
@@ -156,7 +156,8 @@ const RestoreComment = (props) => {
   // it should only run once per comment per search
   // do not add 'add_user' as a dependency: it causes a separate state update
   }, [JSON.stringify(alreadySearchedAuthors), globalLoading])
-  const countRemaining = ({alreadySearchedAuthors}) => Object.keys(global.state.authors).length - Object.keys(alreadySearchedAuthors).length
+  const removedByReddit = commentRemovedByReddit(props)
+  const countRemaining = ({alreadySearchedAuthors}) => removedByReddit ? 0 : Object.keys(global.state.authors).length - Object.keys(alreadySearchedAuthors).length
   useEffect(() => {
     let isCancelled = false
     if (searchAll) {
@@ -226,7 +227,7 @@ const RestoreComment = (props) => {
   const search = async () => {
     let state = {}
     await setLocalLoading(true)
-    const targetNotFound = () => (! itemsLookup[id] || commentIsRemoved(itemsLookup[id]))
+    const targetNotFound = () => (! itemsLookup[id] || commentIsRemoved(itemsLookup[id]) || removedByReddit)
     // ! retrieved_on means it hasn't been looked up in the archive yet
     if (canRunArchiveSearch) {
       const {comments: pushshiftComments} = await getPushshiftCommentsByThread({link_id: threadPost.id, after: this_query_ps_after, options: {timeout: 8000}}).catch(ignoreArchiveErrors_comments)
@@ -278,7 +279,7 @@ const RestoreComment = (props) => {
       }
       setWaybackSearched(true)
     }
-    if (targetNotFound()) {
+    if (targetNotFound() && ! removedByReddit) {
       state = await searchFromMeta(meta)
     }
     await setLocalLoading(false)
@@ -307,7 +308,7 @@ const RestoreComment = (props) => {
 //    if (! meta.aug || meta.aug.length()) {
     searchButton = <Wrap><Spin width='20px'/>{cancel}{numAuthorsRemainingDiv}</Wrap>
 //    }
-  } else if ((meta.aug?.length() && numAuthorsRemaining)
+  } else if ((meta.aug?.length() && numAuthorsRemaining && ! removedByReddit)
             || canRunArchiveSearch || canRunWaybackSearch) {
     searchButton = (
       <Wrap>

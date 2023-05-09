@@ -118,6 +118,8 @@ export const commentIsRemoved = comment => {
   return bodyRemoved(comment) && authorDeleted(comment)
 }
 
+export const commentRemovedByReddit = (props) => props.removal_reason && props.body.match(/^\[.*\]$/)
+
 export const itemIsRemovedOrDeleted = (item, checkCommentBody=true) => {
   if (item.name.slice(0,2) === 't1') {
     if (checkCommentBody) {
