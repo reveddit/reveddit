@@ -46,6 +46,9 @@ export const NewsItem = ({to, title, created_utc, newsText = '', timePrefix = ''
 const contact = '/about/contact/'
 const donate = '/about/donate/'
 const news = [
+  {href: 'https://removed.substack.com/p/the-beginnings-of-shadowbans-and',
+  title: '[REMOVED] on substack',
+  created_utc: '1681790400'},
   {href: 'https://shadowmoderation.com/2022-10-transparent-moderation/',
   title: 'Talk: Improving online discourse with transparent moderation',
   created_utc: '1665580500'},
