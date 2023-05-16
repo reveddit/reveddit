@@ -17,7 +17,7 @@ export const pinPostLink = '/user/me/submit?title=See+which+comments+of+yours+ha
 
 const reasons = [
   <li key='m'>In many cases, Reddit sends no message about removals. Messages can <i>optionally</i> be sent by subreddit moderators.</li>,
-  <li key='i'>Reddit shows you your removed comments, and sometimes posts<SamePageHashLink id='reddit-does-not-say-post-removed'><sup>2</sup></SamePageHashLink>, as if they are not removed.<div style={{textAlign:'center'}}><img src="/images/removed-views.png" style={{maxWidth:'100%'}}/></div></li>
+  <li key='i'>Reddit shows you your removed comments, and sometimes posts<SamePageHashLink id='reddit-does-not-say-post-removed'><sup>3</sup></SamePageHashLink>, as if they are not removed.<div style={{textAlign:'center'}}><img src="/images/removed-views.png" style={{maxWidth:'100%'}}/></div></li>
 ]
 const cantSayAnything_modlogConfig = '/r/CantSayAnything/wiki/modlog_config'
 const unarchived_search_button_word_lc = unarchived_search_button_word.toLowerCase()
@@ -60,6 +60,7 @@ const questions = {
     content: <>
       <p>Reveddit reveals content removed from Reddit by moderators. It does not show user-deleted content.<SamePageHashLink id='user-deleted'><sup>1</sup></SamePageHashLink></p>
       <p>To use it, insert <span className='v'>ve</span> or just <span className='v'>v</span> into the URL of any page on Reddit, including user pages, subreddits, threads and more.</p>
+      <p>Where transparency exists through the use of Reveddit, users are more compliant and mods are less abusive. The community plays a more active role, and users are given a chance to either alter behavior or migrate elsewhere.<NewWindowLink old={true} reddit='/r/reddit/comments/12qwagm/an_update_regarding_reddits_api/jguz1di/?context=1'><sup>2</sup></NewWindowLink></p>
   </>},
   need: {
     header: 'Why do I need it?',
@@ -82,7 +83,7 @@ const questions = {
         You can verify this by opening the link to your content in an incognito window or while logged out. Your comment (or post's body) will not appear.
       </p>
       <p>
-        Moderators may also silently ban users from a subreddit using what Reddit's Automoderator docs once called a "shadowban"<SamePageHashLink id='shadowban'><sup>3</sup></SamePageHashLink> and now call a {botban}:
+        Moderators may also silently ban users from a subreddit using what Reddit's Automoderator docs once called a "shadowban"<SamePageHashLink id='shadowban'><sup>4</sup></SamePageHashLink> and now call a {botban}:
       </p>
       <blockquote>
         With a bot ban, <em>some</em> users won't realize they've been banned.
