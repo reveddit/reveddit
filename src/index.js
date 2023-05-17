@@ -73,6 +73,7 @@ const routes = (
   <RouteRedirectWithParams path='/api/info/' search={/\/api\/info/} replace='/info'/>
   <RouteRedirectWithParams path='/gallery/' search={/\/gallery/} replace=''/>
   <RouteRedirectWithParams path='/about/f.a.q.' search='/f.a.q.' replace='/faq'/>
+  <RouteRedirectWithParams path='/submit' search='/submit' replace='/info'/>
   <DefaultLayout exact path='/' component={About} title='About reveddit'/>
   <DefaultLayout path='/about/faq' component={About_faq} title='Frequently Asked Questions'/>
   <DefaultLayout path='/about/contact' component={About_contact} title='Contact'/>
