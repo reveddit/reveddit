@@ -63,7 +63,11 @@ const CommentBody = (props) => {
         }
       }
       if (! innerHTML) {
-        removedMessage = <><p>{getRemovedMessage(props, 'comment')}</p>{usernameEntry}</>
+        if (!isThread && props.removal_reason) {
+          innerHTML = markdownToHTML(props.body)
+        } else {
+          removedMessage = <><p>{getRemovedMessage(props, 'comment')}</p>{usernameEntry}</>
+        }
       }
       if (comment_Is_Removed && ! searchAuthorsForm) {
         hideUnarchivedButton = <HideUnarchivedComments global={props.global} page_type={props.page_type}/>
