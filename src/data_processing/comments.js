@@ -42,7 +42,7 @@ const copy_fields = ['permalink', 'score', 'controversiality',
                      // and were added to the pushshiftComments object
                      'subreddit', 'created_utc', 'parent_id']
 
-const copy_if_value_fields = ['distinguished', 'stickied', 'author_fullname', 'removal_reason', 'from_add_user']
+const copy_if_value_fields = ['distinguished', 'stickied', 'author_fullname', 'removal_reason', 'from_add_user', 'reveddit_note']
 
 export const initializeComment = (comment, post) => {
   if (post && post.author === comment.author && comment.author !== '[deleted]') {

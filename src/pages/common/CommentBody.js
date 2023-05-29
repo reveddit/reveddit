@@ -91,6 +91,9 @@ const CommentBody = (props) => {
             message="The 'context' and 'full comments' links below can show this comment in its thread's context."
             dismissFn={() => dismiss('context')} />
         }
+      } else if (props.reveddit_note) {
+        actionDescription = <Notice className='reveddit_notice' title='Note'
+          message={props.reveddit_note} />
       }
       innerHTML = markdownToHTML(props.body)
     }
