@@ -47,16 +47,32 @@ const normalArchiveDelay = 60
 
 export const handleRedditError = (error, connectedProps) => {
   console.error(error)
-  const content = <>
-    <p>Error: unable to connect to reddit</p>
-    <p>In the mean time, check out this <a href={media_links.podcast}>podcast</a>, <a href={media_links.writing}>post</a>, or <a href={media_links.talk}>talk</a> about shadow moderation.</p>
-    <a href={media_links.talk}><img src="/images/talk-screenshot-1-1-ratio.png"/></a>
-    <SocialLinks/>
-  </>
+  let content = getFirefoxError()
+  if (! content) {
+    content = <>
+      <p>Error: unable to connect to reddit</p>
+      <p>In the mean time, check out this <a href={media_links.podcast}>podcast</a>, <a href={media_links.writing}>post</a>, or <a href={media_links.talk}>talk</a> about shadow moderation.</p>
+      <a href={media_links.talk}><img src="/images/talk-screenshot-1-1-ratio.png"/></a>
+      <SocialLinks/>
+    </>
+  }
   connectedProps.openGenericModal({content})
   connectedProps.global.setError()
 }
+const isFirefox = /firefox/i.test(navigator.userAgent) || typeof InstallTrigger !== 'undefined';
 
+const getFirefoxError = () => {
+  if (navigator.doNotTrack == "1" && isFirefox) {
+    return <>
+        <p>Error: unable to connect to reddit</p>
+        <p>Tracking Protection on Firefox may be preventing this site from accessing reddit's API. <b>To fix this</b>, add an exception by clicking the shield icon next to the URL:</p>
+        <img src="/images/etp.png"/>
+        <p><RedditOrLocalLink to='/about/faq/#firefox'>Why should I disable tracking protection?</RedditOrLocalLink></p>
+        <p>If this does not resolve the issue, there may be a conflicting extension blocking connections to reddit from other websites.</p>
+    </>
+  }
+  return null
+}
 
 const getCategorySettings = (page_type, subreddit) => {
   const category_settings = {
@@ -427,18 +443,8 @@ export const withFetch = (WrappedComponent) =>
         redirectToHistory(this.props.match.params.subreddit)
       } else if (this.props.global.state.items.length === 0) {
 //        document.querySelector('#donate-ribbon').style.display = 'none'
-        let content = undefined
-        var isFirefox = /firefox/i.test(navigator.userAgent) || typeof InstallTrigger !== 'undefined';
-        if (navigator.doNotTrack == "1" && isFirefox) {
-          content =
-            <>
-              <p>Error: unable to connect to reddit</p>
-              <p>Tracking Protection on Firefox may be preventing this site from accessing reddit's API. <b>To fix this</b>, add an exception by clicking the shield icon next to the URL:</p>
-              <img src="/images/etp.png"/>
-              <p><RedditOrLocalLink to='/about/faq/#firefox'>Why should I disable tracking protection?</RedditOrLocalLink></p>
-              <p>If this does not resolve the issue, there may be a conflicting extension blocking connections to reddit from other websites.</p>
-            </>
-        } else {
+        let content = getFirefoxError()
+        if (! content) {
           content =
             <>
               <BlankUser message='During an outage, user pages still work:'
