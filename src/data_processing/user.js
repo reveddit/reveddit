@@ -154,7 +154,7 @@ export const getRevdditUserItems = async (user, kind, global, isFirstTimeLoading
   .then( async (pageLoad_or_loadAll_or_viewMore_userPageNext) => {
     if ((isFirstTimeLoading && ! all) || (all && ! pageLoad_or_loadAll_or_viewMore_userPageNext)) {
       await lookupAndSetRemovedBy(global)
-      .catch(() => global.setError())
+      .catch(() => {}) // previously: () => global.setError()
     }
     window.onscroll = (ev) => {
       const {loading, userNext, show} = global.state
@@ -168,7 +168,7 @@ export const getRevdditUserItems = async (user, kind, global, isFirstTimeLoading
             if (! updated_userNext && items.length > 100) {
               return lookupAndSetRemovedBy(global)
               .then(() => global.setSuccess())
-              .catch(() => global.setError())
+              .catch(() => {}) // previously: () => global.setError()
             } else {
               return global.setSuccess()
             }
