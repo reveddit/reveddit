@@ -85,7 +85,7 @@ const Post = connect((props) => {
   } else if ((props.thumbnail && props.thumbnail !== 'spoiler') || props.archive_thumbnail) {
     thumbnail = (
       <a href={url}>
-        <img className='thumbnail' src={props.archive_thumbnail || props.thumbnail} width={thumbnailWidth} height={thumbnailHeight} alt='Thumbnail' />
+        <img className='thumbnail' src={(props.archive_thumbnail || props.thumbnail || '').replace(/&amp;/g, '&')} width={thumbnailWidth} height={thumbnailHeight} alt='Thumbnail' />
       </a>
     )
   }
