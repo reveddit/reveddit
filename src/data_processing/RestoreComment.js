@@ -223,7 +223,7 @@ const RestoreComment = (props) => {
       // comment overwrites began some time prior to 1630649330
       && (created_utc < 1630649330 || time_is_in_archive_storage_window(created_utc, archiveTimes))
       && ! ps_after_list.includes(this_query_ps_after))
-  const canRunWaybackSearch = ! waybackSearched && comment_age_in_seconds > 172800 // 2 days
+  const canRunWaybackSearch = ! waybackSearched && comment_age_in_seconds > 161243 // ~ 44 hours
   const search = async () => {
     let state = {}
     await setLocalLoading(true)
