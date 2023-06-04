@@ -53,6 +53,14 @@ export const getModeratedSubreddits = (user) => {
   })
 }
 
+export const getUserAbout = (user) => {
+  const url = oauth_reddit + `user/${user}/about/.json`
+  return getAuth()
+  .then(auth => window.fetch(url, auth))
+  .then(response => response.json())
+  .then(data => data.data)
+}
+
 export const getSubredditAbout = (subreddit, useProxy = false) => {
   const host = getHost(useProxy)
   const url = host + `r/${subreddit}/about/.json`

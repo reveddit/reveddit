@@ -278,6 +278,7 @@ const initialState = {
   limitCommentDepth: true,
   moderators: {},
   moderated_subreddits: {},
+  user_about: {},
   authors: {}, author_fullnames: {},
   archiveTimes: null,
   add_user: '',

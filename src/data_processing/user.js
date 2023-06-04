@@ -3,6 +3,7 @@ import {
   usernameAvailable,
   userPageHTML,
   getModeratedSubreddits,
+  getUserAbout,
   www_reddit,
   OVERVIEW, SUBMITTED, COMMENTS, GILDED,
 } from 'api/reddit'
@@ -146,7 +147,11 @@ export const getRevdditUserItems = async (user, kind, global, isFirstTimeLoading
     }
   })
   if (isFirstTimeLoading) {
-    getModeratedSubreddits(user).then(moderated_subreddits => global.setState({moderated_subreddits}))
+    const moderated_promise = getModeratedSubreddits(user)
+    const about_promise = getUserAbout(user)
+    Promise.all([moderated_promise, about_promise])
+    .then(([moderated_subreddits, user_about]) =>
+       global.setState({moderated_subreddits, user_about}))
   }
   const params_pre_after = [user, kind, global, sort, before]
   const params_post_after = [t, limit, all]

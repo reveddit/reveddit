@@ -34,9 +34,11 @@ const Post = connect((props) => {
   if (! title) {
     return <div/>
   }
-  const {media_metadata} = props.over_18 ? {} : props
+
   const {sort, t, userCommentsByPost, initialFocusCommentID, limitCommentDepth} = global.state
-  let {add_user, loading:globalLoading} = global.state
+  let {add_user, loading:globalLoading, user_about, over18} = global.state
+  const nsfw = props.over_18 || user_about?.subreddit?.over_18 || over18
+  const {media_metadata} = nsfw ? {} : props
   const url = stripRedditLikeDomain(props.url.replace(/&amp;/g, '&'))
   const [selftextMeta, setSelftextMeta] = useState({
     displayFullSelftext: true,
@@ -82,7 +84,7 @@ const Post = connect((props) => {
   const thumbnailHeight = props.thumbnail_height ? props.thumbnail_height * 0.5 : 70
   if (redditThumbnails.includes(props.thumbnail) && ! props.archive_thumbnail) {
     thumbnail = <a href={url} className={`thumbnail thumbnail-${props.thumbnail}`} />
-  } else if ((props.thumbnail && props.thumbnail !== 'spoiler') || props.archive_thumbnail) {
+  } else if (((props.thumbnail && props.thumbnail !== 'spoiler') || props.archive_thumbnail) && ! nsfw) {
     thumbnail = (
       <a href={url}>
         <img className='thumbnail' src={(props.archive_thumbnail || props.thumbnail || '').replace(/&amp;/g, '&')} width={thumbnailWidth} height={thumbnailHeight} alt='Thumbnail' />
