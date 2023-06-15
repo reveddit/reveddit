@@ -539,7 +539,7 @@ export const getAuthorInfo = (ids, results = {}) => {
 
 export const getAuthorInfoByName = (ids) => {
   const results = {}
-  return groupRequests(getAuthorInfo, ids, [results], 500)
+  return groupRequests(getAuthorInfo, ids, [results], 200)
   .then(() => {
     const authors = {}
     if (! ('error' in results) || ! ('message' in results)) {
