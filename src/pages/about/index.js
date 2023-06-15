@@ -127,12 +127,21 @@ export class About extends React.Component {
   componentDidMount() {
     makeDonateVisible()
     getWhatPeopleSay()
-    .then(({reddit, pushshift, moderators}) => {
+    .then(({authors, reddit, pushshift, moderators}) => {
       const combined = combinePushshiftAndRedditComments(pushshift.comments, reddit.comments, false)
       setPostAndParentDataForComments(Object.values(combined), reddit.parents_and_posts)
       this.setState({comments: filterDeletedComments(combined)})
-      if (moderators) {
-        this.props.global.setState({moderators})
+      if (authors || moderators) {
+        //cleanup empty data
+        for (const [name,data] of Object.entries(authors)) {
+          if (! Object.keys(data).length) {
+            delete authors[name]
+          }
+        }
+        this.props.global.setState({
+          authors,
+          author_fullnames: {'abc': 1}, // dummy value to trigger loading data from authors dict
+          moderators})
       }
     })
   }
