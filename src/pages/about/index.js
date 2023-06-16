@@ -14,6 +14,9 @@ import { Link } from 'react-router-dom'
 import { InternalPage, NewWindowLink, SamePageHashLink } from 'components/Misc'
 import {jumpToHash} from 'utils'
 
+const whatPeopleSay_id = 'say'
+const whatPeopleSay_hash = '#'+whatPeopleSay_id
+
 const filterDeletedComments = (comments) => {
   const result = []
   Object.values(comments).sort((a, b) => b.created_utc-a.created_utc).forEach((c) => {
@@ -106,11 +109,21 @@ const news = [
 ]
 const sub = '<sub>'
 const About = ({global}) => {
+  const hashIsSay = (new URL(window.location.href)).hash.match(/^#say/)
   const [comments, setComments] = useState([])
-  const [singleDisplayIndex, setSingleDisplayIndex] = useState(0)
+  const [singleDisplayIndex, setSingleDisplayIndex] = useState(hashIsSay ? -1 : 0)
   const [showAllNews, setShowAllNews] = useState(false)
   
   const changeView = (index) => {
+    const url = new URL(window.location.href)
+    if (index === -1 || index === 0) {
+      if (index === -1) {
+        url.hash = whatPeopleSay_hash
+      } else if (url.hash === whatPeopleSay_hash) {
+        url.hash = ''
+      }
+      window.history.replaceState(null,null,url)
+    }
     setSingleDisplayIndex(index)
   }
   const showNews = () => {
@@ -182,7 +195,7 @@ const About = ({global}) => {
             <Highlight showMobile={true}/>
           </ContentWithHeader>
         </div>
-        <ContentWithHeader header='What people say' className='section' id='say'>
+        <ContentWithHeader header='What people say' className='section' id={whatPeopleSay_id}>
           {comments.length ?
             singleDisplayComment ?
               <React.Fragment>
