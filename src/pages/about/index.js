@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState, useEffect} from 'react'
 import { connect } from 'state'
 import BlankUser from 'components/BlankUser'
 import Comment from 'pages/common/Comment'
@@ -105,32 +105,31 @@ const news = [
    created_utc:'1539261445'},
 ]
 const sub = '<sub>'
-export class About extends React.Component {
-  state = {
-    comments: [],
-    singleDisplayIndex: 0,
-    showAllNews: false
+const About = ({global}) => {
+  const [comments, setComments] = useState([])
+  const [singleDisplayIndex, setSingleDisplayIndex] = useState(0)
+  const [showAllNews, setShowAllNews] = useState(false)
+  
+  const changeView = (index) => {
+    setSingleDisplayIndex(index)
   }
-  changeView = (index) => {
-    this.setState({singleDisplayIndex: index})
-  }
-  showNews = () => {
+  const showNews = () => {
     return <>
-      {this.state.showAllNews ? news.map(n => <NewsItem key={n.created_utc} {...n}/>) :
+      {showAllNews ? news.map(n => <NewsItem key={n.created_utc} {...n}/>) :
         <>
           {news.map(n => <NewsItem key={n.created_utc} {...n}/>).slice(0,5)}
-          <li><a className='collapseToggle' onClick={() => this.setState({showAllNews:true})}>[+] show all</a></li>
+          <li><a className='collapseToggle' onClick={() => setShowAllNews(true)}>[+] show all</a></li>
         </>
       }
     </>
   }
-  componentDidMount() {
+  useEffect(() => {
     makeDonateVisible()
     getWhatPeopleSay()
     .then(({authors, reddit, pushshift, moderators}) => {
       const combined = combinePushshiftAndRedditComments(pushshift.comments, reddit.comments, false)
       setPostAndParentDataForComments(Object.values(combined), reddit.parents_and_posts)
-      this.setState({comments: filterDeletedComments(combined)})
+      setComments(filterDeletedComments(combined))
       if (authors || moderators) {
         //cleanup empty data
         for (const [name,data] of Object.entries(authors)) {
@@ -138,115 +137,113 @@ export class About extends React.Component {
             delete authors[name]
           }
         }
-        this.props.global.setState({
+        global.setState({
           authors,
           author_fullnames: {'abc': 1}, // dummy value to trigger loading data from authors dict
           moderators})
       }
     })
+  }, [])
+
+  if (global.state.statusImage !== undefined) {
+    global.clearStatus()
   }
-  render() {
-    const props = this.props
-    if (props.global.state.statusImage !== undefined) {
-      props.global.clearStatus()
+  let singleDisplayComment = null
+  let hasNext = false, hasPrev = false
+  let nextAttr = {}, prevAttr = {}
+  if (singleDisplayIndex >= 0) {
+    singleDisplayComment = comments[singleDisplayIndex]
+    if (singleDisplayIndex > 0) {
+      hasPrev = true
+      prevAttr = {onClick: (e) => changeView(singleDisplayIndex-1)}
     }
-    let singleDisplayComment = null
-    let hasNext = false, hasPrev = false
-    let nextAttr = {}, prevAttr = {}
-    if (this.state.singleDisplayIndex >= 0) {
-      singleDisplayComment = this.state.comments[this.state.singleDisplayIndex]
-      if (this.state.singleDisplayIndex > 0) {
-        hasPrev = true
-        prevAttr = {onClick: (e) => this.changeView(this.state.singleDisplayIndex-1)}
-      }
-      if (this.state.singleDisplayIndex < this.state.comments.length-1) {
-        hasNext = true
-        nextAttr = {onClick: (e) => this.changeView(this.state.singleDisplayIndex+1)}
-      }
+    if (singleDisplayIndex < comments.length-1) {
+      hasNext = true
+      nextAttr = {onClick: (e) => changeView(singleDisplayIndex+1)}
     }
-    const status = new SimpleURLSearchParams(window.location.search).get('status') || ''
-    let message = ''
-    if (status === 'donate-success') {
-      message = 'Thank you for your donation!'
-    } else if (status === 'donate-cancel') {
-      message = 'Your donation has been cancelled.'
-    }
-    return (
-        <InternalPage>
-          <div className='about section'>
-            {message &&
-              <div className='message'>
-                {message}
-              </div>
-            }
-            <ContentWithHeader header='About'>
-              <BlankUser/>
-              <Highlight showMobile={true}/>
-            </ContentWithHeader>
-          </div>
-          <ContentWithHeader header='What people say' className='section' id='say'>
-            {this.state.comments.length ?
-              singleDisplayComment ?
-                <React.Fragment>
-                  <div className='non-item pagination'>
-                    <a  {...prevAttr}
-                       className={`collapseToggle prev ${hasPrev ? 'active':'disabled'}`}>&lt;- previous</a>
-                    <a {...nextAttr}
-                            className={`collapseToggle next ${hasNext ? 'active':'disabled'}`}>next -&gt;</a>
-                  </div>
-                  <Comment key={singleDisplayComment.id} {...singleDisplayComment}/>
-                  <div className='non-item'><a onClick={(e) => this.changeView(-1)}
-                          className='collapseToggle'>[+] view all</a>
-                  </div>
-                </React.Fragment>
-                :
-                <React.Fragment>
-                  <div className='non-item'><a onClick={(e) => this.changeView(0)}
-                          className='collapseToggle'>[–] show less</a>
-                  </div>
-                  {this.state.comments.map(c => <Comment key={c.id} {...c}/>)}
-                  <div className='non-item'><a onClick={(e) => this.changeView(0)}
-                          className='collapseToggle'>[–] show less</a>
-                  </div>
-                </React.Fragment>
-            : ''}
+  }
+  const status = new SimpleURLSearchParams(window.location.search).get('status') || ''
+  let message = ''
+  if (status === 'donate-success') {
+    message = 'Thank you for your donation!'
+  } else if (status === 'donate-cancel') {
+    message = 'Your donation has been cancelled.'
+  }
+  return (
+      <InternalPage>
+        <div className='about section'>
+          {message &&
+            <div className='message'>
+              {message}
+            </div>
+          }
+          <ContentWithHeader header='About'>
+            <BlankUser/>
+            <Highlight showMobile={true}/>
           </ContentWithHeader>
-          <Row>
-            <ContentWithHeader header='News' half={true}>
-              <ul className='news'>
-                {this.showNews()}
-              </ul>
-            </ContentWithHeader>
-            <ContentWithHeader header='Site usage' half={true}>
-              <p>Insert <span className='v'>ve</span> into the URL of any Reddit page.</p>
-              <ul>
-                <li><a href={PATH_STR_USER+'/redditor_3975/'}>user/redditor_3975</a></li>
-                <li><a href={PATH_STR_SUB+'/CantSayAnything/'}>r/CantSayAnything</a></li>
-                <li><a href={PATH_STR_SUB+'/worldnews/history/'}>r/worldnews/history</a></li>
-                <li><a href={PATH_STR_SUB+'/worldnews/duplicates/eb2hjw'}>other-discussions+</a></li>
-                <li><a href={PATH_STR_SUB+'/CantSayAnything/about/sticky'}>r/{sub}/comments/link-id/</a></li>
-                <li><a href={PATH_STR_SUB+'/CantSayAnything/comments'}>r/{sub}/comments</a></li>
-                <li><a href='/domain/cnn.com+edition.cnn.com'>domain/cnn.com+edition.cnn.com</a></li>
-                <li><a href={PATH_STR_SUB+'/news+worldnews/'}>r/news+worldnews/</a></li>
-                <li><a href={PATH_STR_SUB+'/all/'}>r/all</a></li>
-                <li><a href={PATH_STR_SUB+'/all/missing-comments/'}>r/all/missing-comments</a></li>
-              </ul>
-            </ContentWithHeader>
-          </Row>
-          <Row>
-            <ContentWithHeader header='Donate' half={true}>
-              <p>Reveddit is free and ad-free. You can support work like this with a <Link to={donate}>donation</Link>, <Link to={contact}>feedback</Link>, or <NewWindowLink href='https://github.com/reveddit/reveddit'>pull requests</NewWindowLink>.</p>
-              <p>Thank you!</p>
-            </ContentWithHeader>
-          </Row>
-          <footer>
-            <Link to={contact}>contact</Link>
-            <Link to={contact+'#privacy'}>privacy</Link>
-            <Link to={donate}>donate</Link>
-          </footer>
-        </InternalPage>
-    )
-  }
+        </div>
+        <ContentWithHeader header='What people say' className='section' id='say'>
+          {comments.length ?
+            singleDisplayComment ?
+              <React.Fragment>
+                <div className='non-item pagination'>
+                  <a  {...prevAttr}
+                      className={`collapseToggle prev ${hasPrev ? 'active':'disabled'}`}>&lt;- previous</a>
+                  <a {...nextAttr}
+                          className={`collapseToggle next ${hasNext ? 'active':'disabled'}`}>next -&gt;</a>
+                </div>
+                <Comment key={singleDisplayComment.id} {...singleDisplayComment}/>
+                <div className='non-item'><a onClick={(e) => changeView(-1)}
+                        className='collapseToggle'>[+] view all</a>
+                </div>
+              </React.Fragment>
+              :
+              <React.Fragment>
+                <div className='non-item'><a onClick={(e) => changeView(0)}
+                        className='collapseToggle'>[–] show less</a>
+                </div>
+                {comments.map(c => <Comment key={c.id} {...c}/>)}
+                <div className='non-item'><a onClick={(e) => changeView(0)}
+                        className='collapseToggle'>[–] show less</a>
+                </div>
+              </React.Fragment>
+          : ''}
+        </ContentWithHeader>
+        <Row>
+          <ContentWithHeader header='News' half={true}>
+            <ul className='news'>
+              {showNews()}
+            </ul>
+          </ContentWithHeader>
+          <ContentWithHeader header='Site usage' half={true}>
+            <p>Insert <span className='v'>ve</span> into the URL of any Reddit page.</p>
+            <ul>
+              <li><a href={PATH_STR_USER+'/redditor_3975/'}>user/redditor_3975</a></li>
+              <li><a href={PATH_STR_SUB+'/CantSayAnything/'}>r/CantSayAnything</a></li>
+              <li><a href={PATH_STR_SUB+'/worldnews/history/'}>r/worldnews/history</a></li>
+              <li><a href={PATH_STR_SUB+'/worldnews/duplicates/eb2hjw'}>other-discussions+</a></li>
+              <li><a href={PATH_STR_SUB+'/CantSayAnything/about/sticky'}>r/{sub}/comments/link-id/</a></li>
+              <li><a href={PATH_STR_SUB+'/CantSayAnything/comments'}>r/{sub}/comments</a></li>
+              <li><a href='/domain/cnn.com+edition.cnn.com'>domain/cnn.com+edition.cnn.com</a></li>
+              <li><a href={PATH_STR_SUB+'/news+worldnews/'}>r/news+worldnews/</a></li>
+              <li><a href={PATH_STR_SUB+'/all/'}>r/all</a></li>
+              <li><a href={PATH_STR_SUB+'/all/missing-comments/'}>r/all/missing-comments</a></li>
+            </ul>
+          </ContentWithHeader>
+        </Row>
+        <Row>
+          <ContentWithHeader header='Donate' half={true}>
+            <p>Reveddit is free and ad-free. You can support work like this with a <Link to={donate}>donation</Link>, <Link to={contact}>feedback</Link>, or <NewWindowLink href='https://github.com/reveddit/reveddit'>pull requests</NewWindowLink>.</p>
+            <p>Thank you!</p>
+          </ContentWithHeader>
+        </Row>
+        <footer>
+          <Link to={contact}>contact</Link>
+          <Link to={contact+'#privacy'}>privacy</Link>
+          <Link to={donate}>donate</Link>
+        </footer>
+      </InternalPage>
+  )
 }
 
 export const Row = ({children}) => <div className='sections'>{children}</div>
