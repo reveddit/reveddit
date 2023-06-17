@@ -16,6 +16,7 @@ import {jumpToHash} from 'utils'
 
 const whatPeopleSay_id = 'say'
 const whatPeopleSay_hash = '#'+whatPeopleSay_id
+const whatPeopleSay_indexParam = 'i'
 
 const filterDeletedComments = (comments) => {
   const result = []
@@ -109,9 +110,12 @@ const news = [
 ]
 const sub = '<sub>'
 const About = ({global}) => {
-  const hashIsSay = (new URL(window.location.href)).hash.match(/^#say/)
+  const url = new URL(window.location.href)
+  const hashIsSay = url.hash.match(/^#say/)
+  const initialIndex = (hashIsSay && (url.searchParams.get(whatPeopleSay_indexParam) || -1)) || 0
+  // const initialIndex = (hashIsSay && (hashIsSay[1] || -1)) || 0
   const [comments, setComments] = useState([])
-  const [singleDisplayIndex, setSingleDisplayIndex] = useState(hashIsSay ? -1 : 0)
+  const [singleDisplayIndex, setSingleDisplayIndex] = useState(initialIndex)
   const [showAllNews, setShowAllNews] = useState(false)
   
   const changeView = (index) => {
@@ -122,8 +126,12 @@ const About = ({global}) => {
       } else if (url.hash === whatPeopleSay_hash) {
         url.hash = ''
       }
-      window.history.replaceState(null,null,url)
+      url.searchParams.delete(whatPeopleSay_indexParam)
+    } else {
+      url.hash = whatPeopleSay_hash
+      url.searchParams.set(whatPeopleSay_indexParam,index)
     }
+    window.history.replaceState(null,null,url)
     setSingleDisplayIndex(index)
   }
   const showNews = () => {
