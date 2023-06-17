@@ -113,7 +113,6 @@ const About = ({global}) => {
   const url = new URL(window.location.href)
   const hashIsSay = url.hash.match(/^#say/)
   const initialIndex = (hashIsSay && (url.searchParams.get(whatPeopleSay_indexParam) || -1)) || 0
-  // const initialIndex = (hashIsSay && (hashIsSay[1] || -1)) || 0
   const [comments, setComments] = useState([])
   const [singleDisplayIndex, setSingleDisplayIndex] = useState(initialIndex)
   const [showAllNews, setShowAllNews] = useState(false)
