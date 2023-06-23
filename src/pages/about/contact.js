@@ -16,7 +16,7 @@ const About_privacy = (props) => {
       </ContentWithHeader>
       <ContentWithHeader header='Credits' half={true}>
         <p>
-          Created by <NewWindowLink href='https://github.com/rhaksw/'>Rob Hawkins</NewWindowLink> using:
+          Created by <NewWindowLink href='https://github.com/rhaksw/'>Robert Hawkins</NewWindowLink> using:
         </p>
         <ul>
           <li><NewWindowLink href='https://github.com/JubbeArt/removeddit'>Removeddit</NewWindowLink> by Jesper Wrang</li>
