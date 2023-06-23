@@ -4,9 +4,9 @@ import {ContentWithHeader} from 'pages/about'
 import {Row} from 'pages/about'
 
 const number = 61036703
-const About_privacy = () => {
+const About_privacy = (props) => {
   return (
-    <InternalPage>
+    <InternalPage props={props}>
     <Row>
       <ContentWithHeader header='Feedback' half={true}>
         <ul>

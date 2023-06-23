@@ -6,6 +6,7 @@ import Bowser from 'bowser'
 import {ext_urls, jumpToHash, copyLink, SimpleURLSearchParams} from 'utils'
 import {meta} from 'pages/about/AddOns'
 import { Link } from 'react-router-dom'
+import { newUserModal } from 'pages/modals/Misc'
 
 const chromelike = ['chrome', 'chromium', 'opera', 'edge', 'vivaldi']
 const chromelike_fullnames = {}
@@ -162,8 +163,11 @@ export const ModalWithButton = ({text, title, buttonText, buttonFn, children}) =
   )
 }
 
-export const InternalPage = ({children}) => {
+export const InternalPage = ({children, props}) => {
   useEffect(() => {
+    if (props) {
+      newUserModal(props)
+    }
     // Wait for images to render
     setTimeout(() => jumpToHash(location.hash, 0), 500)
   }, [])
@@ -206,7 +210,8 @@ export const SocialLinks = () => {
   return (
     <div style={{textAlign:'center', marginTop:'10px'}}>
       <TwitterBlue wh='20' style={{marginRight:'25px'}}/>
-      <NewWindowLink reddit='/r/reveddit'>r/reveddit</NewWindowLink>
+      <NewWindowLink style={{marginRight:'25px'}} reddit='/r/reveddit'>r/reveddit</NewWindowLink>
+      <NewWindowLink href='https://removed.substack.com'>removed.substack.com</NewWindowLink>
     </div>
   )
 }

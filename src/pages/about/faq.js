@@ -278,9 +278,9 @@ const questions = {
 
 export const FaqLink = ({id, children}) => <RedditOrLocalLink to={'/about/faq/#'+id}>{children ? children : <em>{questions[id].header}</em>}</RedditOrLocalLink>
 
-const About_faq = () => {
+const About_faq = (props) => {
   return (
-    <InternalPage>
+    <InternalPage props={props}>
       {
         Object.entries(questions).map(([id, obj]) => {
           return <ContentWithHeader key={id} id={id} header={obj.header}>

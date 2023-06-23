@@ -29,7 +29,7 @@ const getStripe = () => {
   return stripePromise
 }
 
-const About_donate = () => {
+const About_donate = (props) => {
   // const [stripe, setStripe] = useState(null)
   // useEffect(() => {
   //   getStripe().then(setStripe)
@@ -54,7 +54,7 @@ const About_donate = () => {
   document.title = 'Donate to reveddit'
 
   return (
-    <InternalPage>
+    <InternalPage props={props}>
       <Row>
         <ContentWithHeader header='Donate' half={true}>
           <div className="donate-form-container">

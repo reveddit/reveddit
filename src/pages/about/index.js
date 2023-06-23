@@ -50,6 +50,12 @@ export const NewsItem = ({to, title, created_utc, newsText = '', timePrefix = ''
 const contact = '/about/contact/'
 const donate = '/about/donate/'
 const news = [
+  {href: 'https://www.youtube.com/watch?v=ndiAl6QEA6k&t=1345s',
+  title: "The Problem with Shadowbanning on Reddit and Beyond: A discussion with Reveddit Owner Robert Hawkins",
+  created_utc: '1687176001'},
+  {href: 'https://removed.substack.com/p/twitters-throttling-of-what-is-a',
+  title: "Article: Twitter's Throttling Of “What is a Woman?” Was Not Censorship",
+  created_utc: '1687176000'},
   {href: 'https://removed.substack.com/p/the-beginnings-of-shadowbans-and',
   title: '[REMOVED] on substack',
   created_utc: '1681790400'},
@@ -109,7 +115,7 @@ const news = [
    created_utc:'1539261445'},
 ]
 const sub = '<sub>'
-const About = ({global}) => {
+const About = ({global, ...props}) => {
   const url = new URL(window.location.href)
   const hashIsSay = url.hash.match(/^#say/)
   const initialIndex = (hashIsSay && (url.searchParams.get(whatPeopleSay_indexParam) || -1)) || 0
@@ -190,7 +196,7 @@ const About = ({global}) => {
     message = 'Your donation has been cancelled.'
   }
   return (
-      <InternalPage>
+      <InternalPage props={props}>
         <div className='about section'>
           {message &&
             <div className='message'>

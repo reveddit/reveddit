@@ -13,15 +13,16 @@ import { getSortFn } from 'data_processing/sort'
 import Selections from 'pages/common/selections'
 import SummaryAndPagination from 'pages/common/SummaryAndPagination'
 import { showAccountInfo_global } from 'pages/modals/Settings'
+import { SpreadWord, newUserModal } from 'pages/modals/Misc'
 import { connect, removedFilter_types, getExtraGlobalStateVars, create_qparams,
          urlParamKeys_max_min,
 } from 'state'
-import { NOT_REMOVED, COLLAPSED, ORPHANED } from 'pages/common/RemovedBy'
+import { COLLAPSED, ORPHANED } from 'pages/common/RemovedBy'
 import { jumpToHash, get, put,
          itemIsActioned, itemIsCollapsed, commentIsOrphaned,
          commentIsMissingInThread, getPrettyDate, getPrettyTimeLength,
          archiveTimes_isCurrent, archive_isOnline, matchOrIncludes, now, reversible,
-         redirectToHistory, media_links,
+         redirectToHistory,
 } from 'utils'
 import { getAuthorInfoByName } from 'api/reddit'
 import { getAuth } from 'api/reddit/auth'
@@ -45,15 +46,16 @@ const CAT_POST_TITLE = {category: 'link_title',
 
 const normalArchiveDelay = 60
 
+let REDDIT_ERROR_OCCURRED = false
+
 export const handleRedditError = (error, connectedProps) => {
+  REDDIT_ERROR_OCCURRED = true
   console.error(error)
   let content = getFirefoxError()
   if (! content) {
     content = <>
       <p>Error: unable to connect to reddit</p>
-      <p>In the mean time, check out this <a href={media_links.podcast}>podcast</a>, <a href={media_links.writing}>post</a>, or <a href={media_links.talk}>talk</a> about shadow moderation.</p>
-      <a href={media_links.talk}><img src="/images/talk-screenshot-1-1-ratio.png"/></a>
-      <SocialLinks/>
+      <SpreadWord/>
     </>
   }
   connectedProps.openGenericModal({content})
@@ -336,9 +338,15 @@ export const withFetch = (WrappedComponent) =>
                       getExtraGlobalStateVars(page_type, allQueryParams.get('sort') ))
       .then(result => {
         if (page_type === 'info' && allQueryParams.toString() === '') {
+          newUserModal(this.props)
           return global.setSuccess()
         }
         getAuth().then(() => {
+          setTimeout(() => {
+            if (! REDDIT_ERROR_OCCURRED) {
+              newUserModal(this.props)
+            }
+          }, 1000)      
           const {context, add_user, user_sort, user_kind, user_time, before, after,
                 } = global.state
           const [loadDataFunction, params] = getLoadDataFunctionAndParam(
