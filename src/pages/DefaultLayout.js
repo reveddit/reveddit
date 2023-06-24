@@ -99,56 +99,56 @@ const DefaultLayout = (props) => {
     }
     setLayoutState({genericModalIsOpen: false, hash: '', content: ''});
   }
-    const {component: Component, ...rest } = props
-    const {hash, content, genericModalIsOpen} = layoutState
-    const {threadPost} = props.global.state
-    const {page_type} = rest
-    let threadClass = ''
-    if (threadPost.removed) {
-      threadClass = 'thread-removed'
-    } else if (threadPost.deleted) {
-      threadClass = 'thread-deleted'
+  const {component: Component, ...rest } = props
+  const {hash, content, genericModalIsOpen} = layoutState
+  const {threadPost} = props.global.state
+  const {page_type} = rest
+  let threadClass = ''
+  if (threadPost.removed) {
+    threadClass = 'thread-removed'
+  } else if (threadPost.deleted) {
+    threadClass = 'thread-deleted'
+  }
+  useEffect(() => {
+    if (genericModalIsOpen) {
+      hideRibbon()
+    } else {
+      hideRibbon(false)
     }
-    useEffect(() => {
-      if (genericModalIsOpen) {
-        hideRibbon()
-      } else {
-        hideRibbon(false)
-      }
-    }, [genericModalIsOpen])
-    return (
-      <Route {...rest} render={matchProps => {
-        return (
-          <React.Fragment>
-            <Header {...matchProps} {...rest} openGenericModal={openGenericModal}/>
-            <div className={'main page_'+page_type+' '+threadClass}>
-              <Modal isOpen={genericModalIsOpen}
-                onRequestClose={closeGenericModal}
-                style={customStyles}>
-                <div id='modalContainer'>
-                  <div id='genericModal' className={hash}>
-                    <div className='dismiss'>
-                      <a className='pointer' onClick={closeGenericModal}>✖&#xfe0e;</a>
-                    </div>
-                    <ModalProvider value={{closeModal: closeGenericModal, openModal: openGenericModal}}>
-                      {hash ?
-                        getContentForHash(hash)
-                        :
-                        content
-                      }
-                    </ModalProvider>
+  }, [genericModalIsOpen])
+  return (
+    <Route {...rest} render={matchProps => {
+      return (
+        <React.Fragment>
+          <Header {...matchProps} {...rest} openGenericModal={openGenericModal}/>
+          <div className={'main page_'+page_type+' '+threadClass}>
+            <Modal isOpen={genericModalIsOpen}
+              onRequestClose={closeGenericModal}
+              style={customStyles}>
+              <div id='modalContainer'>
+                <div id='genericModal' className={hash}>
+                  <div className='dismiss'>
+                    <a className='pointer' onClick={closeGenericModal}>✖&#xfe0e;</a>
                   </div>
+                  <ModalProvider value={{closeModal: closeGenericModal, openModal: openGenericModal}}>
+                    {hash ?
+                      getContentForHash(hash)
+                      :
+                      content
+                    }
+                  </ModalProvider>
                 </div>
-              </Modal>
-              <ModalProvider value={{openModal: openGenericModal, closeModal: closeGenericModal}}>
-                <Component {...matchProps} {...rest} openGenericModal={openGenericModal}/>
-              </ModalProvider>
-              <SocialLinks/>
-            </div>
-          </React.Fragment>
-        )
-      }} />
-    )
+              </div>
+            </Modal>
+            <ModalProvider value={{openModal: openGenericModal, closeModal: closeGenericModal}}>
+              <Component {...matchProps} {...rest} openGenericModal={openGenericModal}/>
+            </ModalProvider>
+            <SocialLinks/>
+          </div>
+        </React.Fragment>
+      )
+    }} />
+  )
 }
 
 export default connect(DefaultLayout)
