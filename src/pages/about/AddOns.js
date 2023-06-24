@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react'
-import {ext_urls, makeDonateVisible, copyLink} from 'utils'
+import {ext_urls, copyLink} from 'utils'
 import { iOS_shortcut_link, InternalPage} from 'components/Misc'
 
 
@@ -88,9 +88,6 @@ export default () => {
       </>
     )
   }
-  useEffect(() => {
-    makeDonateVisible()
-  }, [])
   return (
     <InternalPage>
       {linkWrap('rt')}

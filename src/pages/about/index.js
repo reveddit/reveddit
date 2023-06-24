@@ -4,7 +4,7 @@ import BlankUser from 'components/BlankUser'
 import Comment from 'pages/common/Comment'
 import Time from 'pages/common/Time'
 import { getWhatPeopleSay } from 'api/reveddit'
-import { itemIsRemovedOrDeleted, SimpleURLSearchParams, makeDonateVisible,
+import { itemIsRemovedOrDeleted, SimpleURLSearchParams,
          PATH_STR_USER, PATH_STR_SUB,
 } from 'utils'
 import { combinePushshiftAndRedditComments } from 'data_processing/comments'
@@ -150,7 +150,6 @@ const About = ({global, ...props}) => {
     </>
   }
   useEffect(() => {
-    makeDonateVisible()
     getWhatPeopleSay()
     .then(({authors, reddit, pushshift, moderators}) => {
       const combined = combinePushshiftAndRedditComments(pushshift.comments, reddit.comments, false)

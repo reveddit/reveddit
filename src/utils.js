@@ -40,10 +40,6 @@ export const media_links = {
   talk: 'https://shadowmoderation.com/2022-10-transparent-moderation/',
 }
 
-export const makeDonateVisible = () => {
-  document.getElementById('donate-ribbon').style.visibility = 'visible'
-}
-
 // Flatten arrays one level
 export const flatten = arr => arr.reduce(
   (accumulator, value) => accumulator.concat(value),

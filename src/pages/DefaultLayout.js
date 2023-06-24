@@ -6,7 +6,7 @@ import Header from 'pages/common/Header'
 import Welcome from 'pages/modals/Welcome'
 import Settings from 'pages/modals/Settings'
 import ActionHelp from 'pages/modals/ActionHelp'
-import { Banned } from 'pages/modals/Misc'
+import { Banned, SpreadWord } from 'pages/modals/Misc'
 import { ModalProvider } from 'contexts/modal'
 import { SocialLinks } from 'components/Misc'
 
@@ -34,6 +34,10 @@ export const pageTypes = {
   missing_comments: 'missing_comments'
 }
 
+// to make ribbon open a modal, set the modal hash here
+// to make ribbon open a link, set ribbonHash = ''
+const ribbonHash = 'spread_word'
+
 const getContentForHash = (hash) => {
   const action = hash.match(/^action_(.+)_help$/)
   if (action) {
@@ -48,7 +52,9 @@ const getContentForHash = (hash) => {
       return <ActionHelp/>
     case 'banned':
       return <Banned/>
-  }
+    case 'spread_word':
+      return <SpreadWord/>
+    }
   return undefined
 }
 
@@ -63,7 +69,7 @@ const setHashInURL = (hash) => {
 }
 
 const hideRibbon = (hide = true) => {
-  document.querySelector('#donate-ribbon').style.visibility = hide ? 'hidden' : 'visible'
+  document.querySelector('#ribbon').style.visibility = hide ? 'hidden' : 'visible'
 }
 
 const DefaultLayout = (props) => {
@@ -85,6 +91,13 @@ const DefaultLayout = (props) => {
     }
     if (props.title) {
       document.title = props.title
+    }
+    const ribbon = document.querySelector('#ribbon')
+    if (ribbon && ribbonHash) {
+      ribbon.onclick = (e) => {
+        e.preventDefault()
+        openGenericModal({hash: ribbonHash})
+      }
     }
   }, [])
   const openGenericModal = ({content, hash = ''}) => {
