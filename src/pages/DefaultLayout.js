@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Route } from 'react-router-dom'
 import Modal from 'react-modal'
 import { connect } from 'state'
@@ -62,43 +62,46 @@ const setHashInURL = (hash) => {
   history.replaceState({[hash]: true}, hash, url)
 }
 
-class DefaultLayout extends React.Component {
-  state = {
+const hideRibbon = (hide = true) => {
+  document.querySelector('#donate-ribbon').style.visibility = hide ? 'hidden' : 'visible'
+}
+
+const DefaultLayout = (props) => {
+  const [layoutState, setLayoutState] = useState({
     genericModalIsOpen: false,
     content: '',
     hash: ''
-  }
-  componentDidMount() {
+  })
+  useEffect(() => {
     const hash = window.location.hash.replace('#', '')
     const content = getContentForHash(hash)
     if (content) {
-      this.openGenericModal({content, hash})
+      openGenericModal({content, hash})
     }
     const newSearch = window.location.search.replace(/amp;/g, '')
     if (window.location.search !== newSearch) {
       const url = newSearch + window.location.hash
       history.replaceState({}, '', url)
     }
-    if (this.props.title) {
-      document.title = this.props.title
+    if (props.title) {
+      document.title = props.title
     }
-  }
-  openGenericModal = ({content, hash = ''}) => {
+  }, [])
+  const openGenericModal = ({content, hash = ''}) => {
     if (hash) {
       setHashInURL(hash)
     }
-    this.setState({genericModalIsOpen: true, content, hash});
+    setLayoutState({genericModalIsOpen: true, content, hash})
   }
-  closeGenericModal = () => {
-    if (this.state.hash) {
+  const closeGenericModal = () => {
+    if (layoutState.hash) {
       clearHashFromURL()
     }
-    this.setState({genericModalIsOpen: false, hash: '', content: ''});
+    setLayoutState({genericModalIsOpen: false, hash: '', content: ''});
   }
-
-  render() {
-    const {component: Component, ...rest } = this.props
-    const {threadPost} = this.props.global.state
+    const {component: Component, ...rest } = props
+    const {hash, content, genericModalIsOpen} = layoutState
+    const {threadPost} = props.global.state
     const {page_type} = rest
     let threadClass = ''
     if (threadPost.removed) {
@@ -106,32 +109,39 @@ class DefaultLayout extends React.Component {
     } else if (threadPost.deleted) {
       threadClass = 'thread-deleted'
     }
+    useEffect(() => {
+      if (genericModalIsOpen) {
+        hideRibbon()
+      } else {
+        hideRibbon(false)
+      }
+    }, [genericModalIsOpen])
     return (
       <Route {...rest} render={matchProps => {
         return (
           <React.Fragment>
-            <Header {...matchProps} {...rest} openGenericModal={this.openGenericModal}/>
+            <Header {...matchProps} {...rest} openGenericModal={openGenericModal}/>
             <div className={'main page_'+page_type+' '+threadClass}>
-              <Modal isOpen={this.state.genericModalIsOpen}
-                onRequestClose={this.closeGenericModal}
+              <Modal isOpen={genericModalIsOpen}
+                onRequestClose={closeGenericModal}
                 style={customStyles}>
                 <div id='modalContainer'>
-                  <div id='genericModal' className={this.state.hash}>
+                  <div id='genericModal' className={hash}>
                     <div className='dismiss'>
-                      <a className='pointer' onClick={this.closeGenericModal}>✖&#xfe0e;</a>
+                      <a className='pointer' onClick={closeGenericModal}>✖&#xfe0e;</a>
                     </div>
-                    <ModalProvider value={{closeModal: this.closeGenericModal, openModal: this.openGenericModal}}>
-                      {this.state.hash ?
-                        getContentForHash(this.state.hash)
+                    <ModalProvider value={{closeModal: closeGenericModal, openModal: openGenericModal}}>
+                      {hash ?
+                        getContentForHash(hash)
                         :
-                        this.state.content
+                        content
                       }
                     </ModalProvider>
                   </div>
                 </div>
               </Modal>
-              <ModalProvider value={{openModal: this.openGenericModal, closeModal: this.closeGenericModal}}>
-                <Component {...matchProps} {...rest} openGenericModal={this.openGenericModal}/>
+              <ModalProvider value={{openModal: openGenericModal, closeModal: closeGenericModal}}>
+                <Component {...matchProps} {...rest} openGenericModal={openGenericModal}/>
               </ModalProvider>
               <SocialLinks/>
             </div>
@@ -139,7 +149,6 @@ class DefaultLayout extends React.Component {
         )
       }} />
     )
-  }
 }
 
 export default connect(DefaultLayout)
