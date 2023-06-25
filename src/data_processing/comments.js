@@ -334,7 +334,9 @@ export const setSubredditMeta = async (subreddit, global) => {
     return Promise.all([moderators_promise, subreddit_about_promise])
   })
   .then(([moderators, subreddit_about]) => {
-    if (((isEmptyObj(moderators) || moderators.error) && isEmptyObj(subreddit_about)) || [subreddit_about.reason, moderators.reason].some(w => /^\b(private|banned)\b$/.test(w))) {
+    if (((isEmptyObj(moderators) || moderators.error) && isEmptyObj(subreddit_about))
+      || [subreddit_about.reason, moderators.reason].some(w => /^\b(private|banned)\b$/.test(w))
+      || subreddit_about.message === 'Forbidden') {
       redirectToHistory(subreddit)
     }
     over18 = subreddit_about.over18
