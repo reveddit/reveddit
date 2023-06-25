@@ -58,7 +58,7 @@ const getContentForHash = (hash) => {
   return undefined
 }
 
-const clearHashFromURL = () => {
+export const clearHashFromURL = () => {
   const url = window.location.pathname + window.location.search
   history.replaceState({}, '', url)
 }
@@ -78,6 +78,7 @@ const DefaultLayout = (props) => {
     content: '',
     hash: ''
   })
+  const [pendingModals, setPendingModals] = useState([])
   useEffect(() => {
     const hash = window.location.hash.replace('#', '')
     const content = getContentForHash(hash)
@@ -101,16 +102,26 @@ const DefaultLayout = (props) => {
     }
   }, [])
   const openGenericModal = ({content, hash = ''}) => {
-    if (hash) {
-      setHashInURL(hash)
+    if (genericModalIsOpen) {
+      setPendingModals(pendingModals.concat({content, hash}))
+    } else {
+      if (hash) {
+        setHashInURL(hash)
+      }
+      setLayoutState({genericModalIsOpen: true, content, hash})
     }
-    setLayoutState({genericModalIsOpen: true, content, hash})
   }
   const closeGenericModal = () => {
     if (layoutState.hash) {
       clearHashFromURL()
     }
-    setLayoutState({genericModalIsOpen: false, hash: '', content: ''});
+    if (pendingModals.length) {
+      const {content, hash} = pendingModals.pop()
+      setPendingModals(pendingModals)
+      setLayoutState({genericModalIsOpen: true, content, hash})
+    } else {
+      setLayoutState({genericModalIsOpen: false, hash: '', content: ''});
+    }
   }
   const {component: Component, ...rest } = props
   const {hash, content, genericModalIsOpen} = layoutState
