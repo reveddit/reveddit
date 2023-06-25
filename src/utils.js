@@ -640,8 +640,8 @@ export const formatBytes = (bytes, decimals = 1) => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
 }
 
-export const redirectToHistory = (subreddit) => {
+export const redirectToHistory = (subreddit, hash = '#banned') => {
   if (subreddit) {
-    window.location.href = `/v/${subreddit}/history/#banned`
+    window.location.href = `/v/${subreddit}/history/` + (hash ? hash : '')
   }
 }

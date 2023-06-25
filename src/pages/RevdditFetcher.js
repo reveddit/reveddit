@@ -447,21 +447,26 @@ export const withFetch = (WrappedComponent) =>
     }
     handleError = (error) => {
       console.error(error)
+      const subreddit = this.props.match.params.subreddit
       if (error.message === 'Forbidden') {
-        redirectToHistory(this.props.match.params.subreddit)
+        redirectToHistory(subreddit)
       } else if (this.props.global.state.items.length === 0) {
         let content = getFirefoxError()
         if (! content) {
-          content =
-            <>
-              <BlankUser message='During an outage, user pages still work:'
-                  placeholder='username'
-                  bottomMessage={<>
-                    <div><RedditOrLocalLink to='/about/faq/#errors'>What happened?</RedditOrLocalLink></div>
-                    <Highlight showMobile={true}/>
-                    <SocialLinks/>
-                  </>}/>
-            </>
+          if (this.props.page_type.match(/^subreddit_/)) {
+            redirectToHistory(subreddit, '#subreddit_unavailable')
+          } else {
+            content =
+              <>
+                <BlankUser message='During an outage, user pages still work:'
+                    placeholder='username'
+                    bottomMessage={<>
+                      <div><RedditOrLocalLink to='/about/faq/#errors'>What happened?</RedditOrLocalLink></div>
+                      <Highlight showMobile={true}/>
+                      <SocialLinks/>
+                    </>}/>
+              </>
+          }
         }
         this.props.openGenericModal({content})
       }

@@ -4,19 +4,24 @@ import BlankUser from 'components/BlankUser'
 import Highlight from 'pages/common/Highlight'
 import { convertPathSub_reverse, get, put } from 'utils'
 
+const BlankUserBlurb = () => (<>
+  <p>Look up your account's history:</p>
+  <BlankUser message=' '
+              placeholder='username'
+              bottomMessage={<>
+                <Highlight showMobile={true}/>
+                <SocialLinks/>
+              </>}
+  />
+</>)
+
 export const Banned = () => {
   const redditPath = convertPathSub_reverse(window.location.pathname).split('/').slice(0,3).join('/')
   return (
     <>
       <h3>Historical view</h3>
       <p><NewWindowLink reddit={redditPath}>{redditPath}</NewWindowLink> is either private, banned, or does not exist. This historical view may show some of the top removed content.</p>
-      <p>Look up your account's history:</p>
-      <BlankUser message=' '
-                  placeholder='username'
-                  bottomMessage={<>
-                    <Highlight showMobile={true}/>
-                    <SocialLinks/>
-      </>}/>
+      <BlankUserBlurb/>
     </>
   )
 }
@@ -44,4 +49,11 @@ export const newUserModal = (props) => {
     props.openGenericModal({hash: 'welcome'})
     put(hasVisitedSite, true)
   }
+}
+
+export const SubredditViewUnavailable = () => {
+  return (<>
+    <p>Live subreddit view is unavailable. Some historic data may appear here.</p>
+    <BlankUserBlurb/>
+  </>)
 }
