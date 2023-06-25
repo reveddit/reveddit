@@ -1,5 +1,7 @@
 import React from 'react'
 import { NewWindowLink, SocialLinks } from 'components/Misc'
+import BlankUser from 'components/BlankUser'
+import Highlight from 'pages/common/Highlight'
 import { convertPathSub_reverse, get, put } from 'utils'
 
 export const Banned = () => {
@@ -7,8 +9,14 @@ export const Banned = () => {
   return (
     <>
       <h3>Historical view</h3>
-      <p><NewWindowLink reddit={redditPath}>{redditPath}</NewWindowLink> may not exist or has been banned.</p>
-      <p>This historical view may show some of the top removed content.</p>
+      <p><NewWindowLink reddit={redditPath}>{redditPath}</NewWindowLink> is either private, banned, or does not exist. This historical view may show some of the top removed content.</p>
+      <p>Look up your account's history:</p>
+      <BlankUser message=' '
+                  placeholder='username'
+                  bottomMessage={<>
+                    <Highlight showMobile={true}/>
+                    <SocialLinks/>
+      </>}/>
     </>
   )
 }
