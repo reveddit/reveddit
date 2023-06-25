@@ -11,7 +11,7 @@ import { combinePushshiftAndRedditComments } from 'data_processing/comments'
 import { setPostAndParentDataForComments } from 'data_processing/info'
 import Highlight from 'pages/common/Highlight'
 import { Link } from 'react-router-dom'
-import { InternalPage, NewWindowLink, SamePageHashLink } from 'components/Misc'
+import { InternalPage, NewWindowLink, SamePageHashLink, Spin } from 'components/Misc'
 import {jumpToHash} from 'utils'
 
 const whatPeopleSay_id = 'say'
@@ -167,6 +167,7 @@ const About = ({global, ...props}) => {
           author_fullnames: {'abc': 1}, // dummy value to trigger loading data from authors dict
           moderators})
       }
+      document.querySelector('.spin').classList.add('display-none')
     })
   }, [])
 
@@ -208,6 +209,7 @@ const About = ({global, ...props}) => {
           </ContentWithHeader>
         </div>
         <ContentWithHeader header='What people say' className='section' id={whatPeopleSay_id}>
+          <Spin/>
           {comments.length ?
             singleDisplayComment ?
               <React.Fragment>
