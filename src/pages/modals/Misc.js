@@ -22,10 +22,9 @@ export const Banned = () => {
 }
 
 const hasVisitedSite = 'hasVisitedSite'
-const hasSeenSpreadWord = 'hasSeenSpreadWord'
+export const hasSeenSpreadWord = 'hasSeenSpreadWord'
 
 export const SpreadWord = () => {
-  put(hasSeenSpreadWord, true)
   return (<>
     <p>Shadowbanning is more widespread than you think. Spread the word!</p>
     <iframe className="video" src="https://www.youtube-nocookie.com/embed/ndiAl6QEA6k?start=1345" title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen></iframe>
@@ -39,7 +38,7 @@ export const SpreadWord = () => {
 
 export const newUserModal = (props) => {
   if (! get(hasSeenSpreadWord, false)) {
-    props.openGenericModal({content: <SpreadWord/>})
+    props.openGenericModal({hash: 'spread_word'})
   } else if (! get('hasNotifierExtension', false) &&
           ! get(hasVisitedSite, false)) {
     props.openGenericModal({hash: 'welcome'})

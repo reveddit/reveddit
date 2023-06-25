@@ -6,9 +6,10 @@ import Header from 'pages/common/Header'
 import Welcome from 'pages/modals/Welcome'
 import Settings from 'pages/modals/Settings'
 import ActionHelp from 'pages/modals/ActionHelp'
-import { Banned, SpreadWord } from 'pages/modals/Misc'
+import { Banned, SpreadWord, hasSeenSpreadWord } from 'pages/modals/Misc'
 import { ModalProvider } from 'contexts/modal'
 import { SocialLinks } from 'components/Misc'
+import { put } from 'utils'
 
 Modal.setAppElement('#app')
 
@@ -114,6 +115,9 @@ const DefaultLayout = (props) => {
   const closeGenericModal = () => {
     if (layoutState.hash) {
       clearHashFromURL()
+      if (layoutState.hash === 'spread_word') {
+        put(hasSeenSpreadWord, true)
+      }
     }
     if (pendingModals.length) {
       const {content, hash} = pendingModals.pop()
