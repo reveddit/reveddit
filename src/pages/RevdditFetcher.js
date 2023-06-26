@@ -56,6 +56,7 @@ export const handleRedditError = (error, connectedProps) => {
     content = <>
       <p>Error: unable to connect to reddit</p>
       <SpreadWord/>
+      <SocialLinks/>
     </>
   }
   connectedProps.openGenericModal({content})

@@ -54,7 +54,7 @@ const getContentForHash = (hash) => {
     case 'banned':
       return <Banned/>
     case 'spread_word':
-      return <SpreadWord/>
+      return <><SpreadWord/><SocialLinks/></>
     case 'subreddit_unavailable':
       return <SubredditViewUnavailable/>
     }

@@ -29,15 +29,14 @@ export const Banned = () => {
 const hasVisitedSite = 'hasVisitedSite'
 export const hasSeenSpreadWord = 'hasSeenSpreadWord'
 
-export const SpreadWord = () => {
+export const SpreadWord = ({topMessage = <p>Shadowbanning is more widespread than you think. Spread the word!</p>}) => {
   return (<>
-    <p>Shadowbanning is more widespread than you think. Spread the word!</p>
+    {topMessage}
     <iframe className="video" src="https://www.youtube-nocookie.com/embed/ndiAl6QEA6k?start=1372" title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen></iframe>
     <div className='space-around' style={{marginBottom: '30px'}}>
       <NewWindowLink href="https://podcasts.apple.com/us/podcast/the-problem-with-shadowbanning-on-reddit-and/id1665487526?i=1000617548040">audio only</NewWindowLink>
       <NewWindowLink href="https://faithfullyengaged.com/blog/the-changing-landscape-of-social-media-from-community-to-censorship">write-up</NewWindowLink>
     </div>
-    <SocialLinks/>
   </>)
 }
 

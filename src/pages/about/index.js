@@ -12,7 +12,7 @@ import { setPostAndParentDataForComments } from 'data_processing/info'
 import Highlight from 'pages/common/Highlight'
 import { Link } from 'react-router-dom'
 import { InternalPage, NewWindowLink, SamePageHashLink, Spin } from 'components/Misc'
-import {jumpToHash} from 'utils'
+import { SpreadWord } from 'pages/modals/Misc'
 
 const whatPeopleSay_id = 'say'
 const whatPeopleSay_hash = '#'+whatPeopleSay_id
@@ -204,7 +204,8 @@ const About = ({global, ...props}) => {
             </div>
           }
           <ContentWithHeader header='About'>
-            <BlankUser/>
+            <BlankUser bottomMessage={<></>}/>
+            <div className='note'><SpreadWord topMessage={<></>}/></div>
             <Highlight showMobile={true}/>
           </ContentWithHeader>
         </div>
