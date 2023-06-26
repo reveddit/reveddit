@@ -30,7 +30,7 @@ export const getWhatPeopleSay = async () => {
   const params = {
     c: getCount(60*5)
   }
-  return flaskQuery({path: 'what-people-say/', params})
+  return flaskQuery({path: 'what-people-say/', params, options: {timeout: 20000}})
 }
 
 export const getArchiveTimes = async () => {
