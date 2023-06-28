@@ -1,5 +1,4 @@
 import React, {useState, useMemo} from 'react'
-import scrollToElement from 'scroll-to-element'
 import { getRevdditCommentsBySubreddit } from 'data_processing/comments'
 import { getRevdditMissingComments } from 'data_processing/missing_comments'
 import { getRevdditPostsBySubreddit } from 'data_processing/subreddit_posts'
@@ -12,8 +11,9 @@ import { itemIsOneOfSelectedActions, itemIsOneOfSelectedTags, filterSelectedActi
 import { getSortFn } from 'data_processing/sort'
 import Selections from 'pages/common/selections'
 import SummaryAndPagination from 'pages/common/SummaryAndPagination'
-import { showAccountInfo_global } from 'pages/modals/Settings'
-import { SpreadWord, newUserModal } from 'pages/modals/Misc'
+import { showAccountInfo_global, ClientIDForm, API_REGISTRATION_LINK } from 'pages/modals/Settings'
+import { newUserModal, SpreadWord } from 'pages/modals/Misc'
+
 import { connect, removedFilter_types, getExtraGlobalStateVars, create_qparams,
          urlParamKeys_max_min,
 } from 'state'
@@ -22,7 +22,7 @@ import { jumpToHash, get, put,
          itemIsActioned, itemIsCollapsed, commentIsOrphaned,
          commentIsMissingInThread, getPrettyDate, getPrettyTimeLength,
          archiveTimes_isCurrent, archive_isOnline, matchOrIncludes, now, reversible,
-         redirectToHistory,
+         redirectToHistory, reddit_API_rules_changed,
 } from 'utils'
 import { getAuthorInfoByName } from 'api/reddit'
 import { getAuth } from 'api/reddit/auth'
@@ -34,7 +34,7 @@ import {RedditOrLocalLink} from 'components/Misc'
 import {FaqLink} from 'pages/about/faq'
 import BlankUser from 'components/BlankUser'
 import Highlight from 'pages/common/Highlight'
-import {SocialLinks} from 'components/Misc'
+import {ExtensionLink, SocialLinks} from 'components/Misc'
 
 const CAT_SUBREDDIT = {category: 'subreddit',
                        category_title: 'Subreddit',
@@ -53,11 +53,19 @@ export const handleRedditError = (error, connectedProps) => {
   console.error(error)
   let content = getFirefoxError()
   if (! content) {
-    content = <>
-      <p>Error: unable to connect to reddit</p>
-      <SpreadWord/>
-      <SocialLinks/>
+    if (! reddit_API_rules_changed) {
+      content = <>
+        <p>Error: unable to connect to reddit</p>
+        <SpreadWord/>
+        <SocialLinks/>
     </>
+    } else {
+      content = <>
+        <p>To use Reveddit, sign up for an API key of type "<a target="_blank" href={API_REGISTRATION_LINK}>installed app</a>" and enter its ID here.</p>
+        {<ClientIDForm/>}
+        <SocialLinks/>
+      </>
+    }
   }
   connectedProps.openGenericModal({content})
   connectedProps.global.setError()
@@ -456,18 +464,19 @@ export const withFetch = (WrappedComponent) =>
         if (! content) {
           if (this.props.page_type.match(/^subreddit_/)) {
             redirectToHistory(subreddit, '#subreddit_unavailable')
-          } else {
-            content =
-              <>
-                <BlankUser message='During an outage, user pages still work:'
-                    placeholder='username'
-                    bottomMessage={<>
-                      <div><RedditOrLocalLink to='/about/faq/#errors'>What happened?</RedditOrLocalLink></div>
-                      <Highlight showMobile={true}/>
-                      <SocialLinks/>
-                    </>}/>
-              </>
+          } else if (reddit_API_rules_changed) {
+            return handleRedditError(error, this.props)
           }
+          content =
+            <>
+              <BlankUser message='During an outage, user pages still work:'
+                  placeholder='username'
+                  bottomMessage={<>
+                    <div><RedditOrLocalLink to='/about/faq/#errors'>What happened?</RedditOrLocalLink></div>
+                    <Highlight showMobile={true}/>
+                    <SocialLinks/>
+                  </>}/>
+            </>
         }
         this.props.openGenericModal({content})
       }

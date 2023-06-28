@@ -6,6 +6,8 @@ import {useRef, useEffect} from 'react'
 import { DateUtils } from 'react-day-picker'
 import { NewWindowLink } from 'components/Misc'
 
+export const CLIENT_ID_SET_BY_USER_VAR_NAME = 'REVEDDIT_USER_CUSTOM_CLIENT_ID'
+
 const markdown = SnuOwnd.getParser()
 const chrome_base = 'https://chrome.google.com/webstore/detail/'
 const ff_base = 'https://addons.mozilla.org/en-US/firefox/addon/'
@@ -644,4 +646,10 @@ export const redirectToHistory = (subreddit, hash = '#banned') => {
   if (subreddit) {
     window.location.href = `/v/${subreddit}/history/` + (hash ? hash : '')
   }
+}
+
+export const reddit_API_rules_changed = now > 1688194800
+
+export const serviceWorkerRegistration = async () => {
+  return navigator.serviceWorker?.ready.then((registration) => registration.active)
 }
