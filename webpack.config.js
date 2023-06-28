@@ -112,12 +112,9 @@ module.exports = async (env, argv) => {
         filename: path.resolve(__dirname, 'dist/index.html'),
       }),
         ...injectScript(GENERATED_CSS_FILE, 'dist/'),
-      new WorkboxPlugin.GenerateSW({
-        // these options encourage the ServiceWorkers to get in there fast
-        // and not allow any straggling "old" SWs to hang around
-        clientsClaim: true,
-        skipWaiting: true,
-        mode: 'production', // hide debug messages
+      new WorkboxPlugin.InjectManifest({
+        swSrc: path.resolve(__dirname, './src/sw.js'),
+        swDest: 'service-worker.js',
         ...(! IS_PRODUCTION && {maximumFileSizeToCacheInBytes: 8*1024*1024}),
       }),
     ],
