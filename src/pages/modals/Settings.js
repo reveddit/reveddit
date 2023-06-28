@@ -1,6 +1,6 @@
 import React, {useState} from 'react'
-import {get, put, usePrevious} from 'utils'
-
+import {get, put, usePrevious, CLIENT_ID_SET_BY_USER_VAR_NAME} from 'utils'
+import { clearHashFromURL } from 'pages/DefaultLayout'
 const showRelDates_var = 'showRelativeDatesInThreads'
 const showAccountInfo_var = 'showAccountInfo'
 const limitCommentDepth_var = 'limitCommentDepth'
@@ -8,6 +8,8 @@ const limitCommentDepth_var = 'limitCommentDepth'
 export const showRelDates_global = get(showRelDates_var, false)
 export const showAccountInfo_global = get(showAccountInfo_var, false)
 export const limitCommentDepth_global = get(limitCommentDepth_var, true)
+
+export const API_REGISTRATION_LINK = "https://www.reddit.com/prefs/apps/"
 
 const getSetting = (initValue, varName) => {
   const value_current = initValue
@@ -31,6 +33,32 @@ const renderSetting = (checked, onChange, description) => {
   )
 }
 
+export const ClientIDForm = () => {
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    const data = new FormData(e.target)
+    const clientid = data.get('clientid').trim()
+    put(CLIENT_ID_SET_BY_USER_VAR_NAME, clientid)
+    clearHashFromURL()
+    window.location.reload()
+  }
+  const handleChange = (e) => {
+    const clientid = e.target.value.trim()
+    if (clientid === '') {
+      put(CLIENT_ID_SET_BY_USER_VAR_NAME, '')
+    }
+  }
+  return (
+    <div className='space-around'>
+      <form id='user-form' onSubmit={handleSubmit}>
+        <label htmlFor='clientid'>ID </label>
+        <input id='clientid' onChange={handleChange} type='text' name='clientid' placeholder='app id' autoFocus='autoFocus' defaultValue={get(CLIENT_ID_SET_BY_USER_VAR_NAME, '')}/>
+        <input type='submit' id='button_u' value='go' />
+      </form>
+    </div>
+  )
+}
+
 export default () => {
   const [showRelDates, update_showRelDates, prev_showRelDates] = getSetting(showRelDates_global, showRelDates_var)
   const [showAccountInfo, update_showAccountInfo, prev_showAccountInfo] = getSetting(showAccountInfo_global, showAccountInfo_var)
@@ -47,6 +75,8 @@ export default () => {
       <div className='header'>In threads</div>
       {renderSetting(limitCommentDepth, update_limitCommentDepth, 'Limit comment depth by default')}
       {renderSetting(showRelDates, update_showRelDates, 'Show relative dates')}
+      <div className='header'><a target="_blank" href={API_REGISTRATION_LINK}>Installed app</a> API key</div>
+      <ClientIDForm/>
       <div style={{textAlign:'center',color:'red',marginTop:'15px'}}>
         { changes ?
           'refresh to apply changes' : '\u00A0'}
