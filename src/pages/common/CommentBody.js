@@ -63,7 +63,7 @@ const CommentBody = (props) => {
         }
       }
       if (! innerHTML) {
-        if (!isThread && props.removal_reason) {
+        if (props.removal_reason) {
           innerHTML = markdownToHTML(props.body)
         } else {
           removedMessage = <><p>{getRemovedMessage(props, 'comment')}</p>{usernameEntry}</>
