@@ -9,7 +9,7 @@ import Pagination from 'components/Pagination'
 import { ShareLink } from 'components/Misc'
 
 const Info = (props) => {
-  const { page_type, viewableItems, selections, summary, archiveDelayMsg,
+  const { page_type, viewableItems, selections, summary, topNotice,
           oldestTimestamp, newestTimestamp, global,
         } = props
   const {items, loading, localSort, localSortReverse} = global.state
@@ -32,7 +32,7 @@ const Info = (props) => {
       {selections}
       {summary}
       <Highlight/>
-      {archiveDelayMsg}
+      {topNotice}
       {
         noItemsFound ?
         <p>No items found</p> :

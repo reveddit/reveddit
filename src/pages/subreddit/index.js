@@ -13,7 +13,7 @@ import { ShareLink } from 'components/Misc'
 
 const SubredditPosts = (props) => {
   const { subreddit } = props.match.params
-  const { page_type, viewableItems, selections, summary, archiveDelayMsg,
+  const { page_type, viewableItems, selections, summary, topNotice,
           global,
         } = props
   const {items, loading, localSort,
@@ -41,7 +41,7 @@ const SubredditPosts = (props) => {
       {summary}
       {instructionalNotice}
       <Highlight/>
-      {archiveDelayMsg}
+      {topNotice}
       {
         noItemsFound ?
         <p>No posts found</p> :

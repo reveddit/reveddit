@@ -16,7 +16,7 @@ import { ShareLink } from 'components/Misc'
 const SubredditComments = (props) => {
   const { subreddit } = props.match.params
   const { page_type, viewableItems, selections, summary,
-          notShownMsg, archiveDelayMsg, global,
+          notShownMsg, topNotice, global,
         } = props
   const {items, loading, localSort, hasVisitedUserPage,
         } = global.state
@@ -33,7 +33,7 @@ const SubredditComments = (props) => {
         <UserPageTip/>
       }
       <Highlight/>
-      {archiveDelayMsg}
+      {topNotice}
       {notShownMsg}
       {
         noItemsFound ?

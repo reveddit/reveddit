@@ -5,9 +5,8 @@ import { markdownToHTML, commentIsRemoved,
 import { connect } from 'state'
 import {Notice} from 'pages/common/Notice'
 import RestoreComment, {HideUnarchivedComments} from 'data_processing/RestoreComment'
-import { NewWindowLink } from 'components/Misc'
+import { NewWindowLink, UserNameEntry } from 'components/Misc'
 import {LabelWithModal, RESTORED} from 'pages/common/RemovedBy'
-import {QuestionMark} from 'pages/common/svg'
 
 
 const notices = {
@@ -22,24 +21,10 @@ const dismiss = (noticeType) => {
     el.style.display = 'none'
   }
 }
-const submitUsername = (e) => {
-  e.preventDefault()
-  const data = new FormData(e.target)
-  const username = data.get('username').trim().replace(/^u(?:ser)?\//i, '')
-  if (username) {
-    window.open(`/u/${username}?all=true`, '_blank').focus()
-  }
-}
 const hasVisitedUserPage = get('hasVisitedUserPage', null)
 let usernameEntry = <></>
 if (! hasVisitedUserPage) {
-  usernameEntry = <div className='user-lookup'>
-    <form onSubmit={submitUsername}>
-      <input type='text' placeholder='username' name='username'/>
-      <input type='submit' value='go' />
-      <span> (check your username's removed content. <a href='/about/faq/#need' target='_blank'>why?</a>)</span>
-    </form>
-  </div>
+  usernameEntry = <UserNameEntry/>
 }
 
 const CommentBody = (props) => {

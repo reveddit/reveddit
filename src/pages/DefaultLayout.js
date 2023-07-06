@@ -75,6 +75,8 @@ const hideRibbon = (hide = true) => {
   document.querySelector('#ribbon').style.visibility = hide ? 'hidden' : 'visible'
 }
 
+const existingHash = () => window.location.hash.replace('#', '')
+
 const DefaultLayout = (props) => {
   const [layoutState, setLayoutState] = useState({
     genericModalIsOpen: false,
@@ -83,7 +85,7 @@ const DefaultLayout = (props) => {
   })
   const [pendingModals, setPendingModals] = useState([])
   useEffect(() => {
-    const hash = window.location.hash.replace('#', '')
+    const hash = existingHash()
     const content = getContentForHash(hash)
     if (content) {
       openGenericModal({content, hash})
@@ -108,7 +110,8 @@ const DefaultLayout = (props) => {
     if (genericModalIsOpen) {
       setPendingModals(pendingModals.concat({content, hash}))
     } else {
-      if (hash) {
+      // ! existingHash() prevents new user modals from overriding FAQ hashes like /about/faq/#need
+      if (hash && ! existingHash()) {
         setHashInURL(hash)
       }
       setLayoutState({genericModalIsOpen: true, content, hash})
