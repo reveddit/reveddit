@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react'
+import React from 'react'
 import {ext_urls, copyLink} from 'utils'
 import { iOS_shortcut_link, InternalPage} from 'components/Misc'
 

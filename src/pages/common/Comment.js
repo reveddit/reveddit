@@ -1,10 +1,10 @@
 import React, {useState} from 'react'
-import { prettyScore, parse,
+import { prettyScore,
          PATH_STR_USER, PATH_STR_SUB, convertPathSub, stripRedditLikeDomain,
 } from 'utils'
 import Time from 'pages/common/Time'
 import RemovedBy, {QuarantinedLabel} from 'pages/common/RemovedBy'
-import { NOT_REMOVED, ORPHANED } from 'pages/common/RemovedBy'
+import { ORPHANED } from 'pages/common/RemovedBy'
 import CommentBody from 'pages/common/CommentBody'
 import Author from 'pages/common/Author'
 import { connect, hasClickedRemovedUserCommentContext, urlParamKeys } from 'state'

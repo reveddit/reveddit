@@ -5,7 +5,6 @@ import {ExtensionLink, MessageMods, SamePageHashLink, RedditOrLocalLink} from 'c
 import {TwitterLink} from 'pages/common/svg'
 import {ContentWithHeader} from 'pages/about'
 import { unarchived_search_help_content, unarchived_search_button_word, unarchived_search_button_word_code } from 'data_processing/RestoreComment'
-import { unarchived_label_text } from 'pages/common/RemovedBy'
 import {shuffle} from 'utils'
 import {www_reddit} from 'api/reddit'
 import {NewsItem} from 'pages/about'

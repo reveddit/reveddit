@@ -1,7 +1,7 @@
 import React from 'react'
 import { markdownToHTML, commentIsRemoved,
          commentIsOrphaned, commentIsMissingInThread, get, put,
-         getRemovedMessage, textSaysRemoved, getRemovedWithinText, commentRemovedByReddit } from 'utils'
+         getRemovedMessage, getRemovedWithinText, commentRemovedByReddit } from 'utils'
 import { connect } from 'state'
 import {Notice} from 'pages/common/Notice'
 import RestoreComment, {HideUnarchivedComments} from 'data_processing/RestoreComment'

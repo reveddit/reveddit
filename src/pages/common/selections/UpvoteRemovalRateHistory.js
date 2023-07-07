@@ -3,7 +3,7 @@ import { connect, adjust_qparams_for_selection, updateURL } from 'state'
 import * as d3 from 'd3'
 import Preview from 'pages/common/Preview'
 import { prettyFormatBigNumber, SimpleURLSearchParams, ifNumParseInt,
-         PATH_STR_SUB, truthyOrUndefined,
+         truthyOrUndefined,
 } from 'utils'
 import { Fetch } from 'hooks/fetch'
 import { Selection } from './SelectionBase'

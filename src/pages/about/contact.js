@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react'
+import React from 'react'
 import { InternalPage, NewWindowLink } from 'components/Misc'
 import {ContentWithHeader} from 'pages/about'
 import {Row} from 'pages/about'

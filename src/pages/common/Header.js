@@ -1,7 +1,6 @@
 import React from 'react'
 import { Link, withRouter } from 'react-router-dom'
 import { connect } from 'state'
-import { get, put } from 'utils'
 import { Shuffle, TwitterWhite } from 'pages/common/svg'
 
 const getEntityName = (params) => {

@@ -1,9 +1,8 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
 import Post from 'pages/common/Post'
 import { withFetch } from 'pages/RevdditFetcher'
-import { connect, localSort_types } from 'state'
-import { reversible, getUrlWithTimestamp, PATH_STR_USER,
+import { connect } from 'state'
+import { getUrlWithTimestamp,
          PATH_STR_SUB,
 } from 'utils'
 import Highlight from 'pages/common/Highlight'

@@ -1,11 +1,9 @@
 import React from 'react'
 import { Link, withRouter } from 'react-router-dom'
-import scrollToElement from 'scroll-to-element'
-import { connect, localSort_types, urlParamKeys } from 'state'
+import { connect, urlParamKeys } from 'state'
 import Post from 'pages/common/Post'
 import {Notice, UserPageTip} from 'pages/common/Notice'
 import CommentSection from './CommentSection'
-import Selections from 'pages/common/selections'
 import { withFetch } from 'pages/RevdditFetcher'
 import { SimpleURLSearchParams, jumpToHash,
          PATH_STR_SUB,

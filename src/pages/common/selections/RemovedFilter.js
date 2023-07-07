@@ -1,6 +1,5 @@
 import React from 'react'
 import { connect, removedFilter_types, removedFilter_text } from 'state'
-import { REMOVAL_META, AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED } from 'pages/common/RemovedBy'
 import { Selection } from './SelectionBase'
 
 class RemovedFilter extends React.Component {

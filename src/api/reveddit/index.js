@@ -1,5 +1,5 @@
 import { paramString, SimpleURLSearchParams, PATH_STR_SUB } from 'utils'
-import { mapRedditObj, getModeratorsPostProcess, flaskQuery,
+import { getModeratorsPostProcess, flaskQuery,
          getCount, subredditHasModlogs,
          U_MODLOGS_CODE,
 } from 'api/common'
