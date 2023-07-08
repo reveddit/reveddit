@@ -50,6 +50,9 @@ export const NewsItem = ({to, title, created_utc, newsText = '', timePrefix = ''
 const contact = '/about/contact/'
 const donate = '/about/donate/'
 const news = [
+  {reddit: '/14ofm29',
+  title: "I'm the creator of Reveddit. AMA",
+  created_utc: '1688274418'},
   {href: 'https://www.youtube.com/watch?v=ndiAl6QEA6k&t=1345s',
   title: "The Problem with Shadowbanning on Reddit and Beyond: A discussion with Reveddit Owner Robert Hawkins",
   created_utc: '1687176001'},
