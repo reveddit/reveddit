@@ -11,6 +11,7 @@ import Time from 'pages/common/Time'
 const Aggregations = ({global, selections, summary, viewableItems, ...props}) => {
   const {content: type, n, sort, agg_most_recent_created_utc} = global.state
   const {subreddit} = props.match.params
+  const {topNotice} = props
   const reddit_content_type = type === 'comments' ? '1' : '3'
   const last_updated = agg_most_recent_created_utc ? <>Last updated: <Time created_utc={agg_most_recent_created_utc}/></> : <></>
   return (
@@ -30,6 +31,7 @@ const Aggregations = ({global, selections, summary, viewableItems, ...props}) =>
           }
         </>
       }/>
+      {topNotice}
       {viewableItems.map((item, i) => {
         const url = getAggregationsPeriodURL({
           subreddit,
