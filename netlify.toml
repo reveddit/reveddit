@@ -11,11 +11,11 @@
   [headers.values]
     Content-Security-Policy = '''
       default-src 'self';
-      script-src 'self' 'sha256-dK06Ziaa0EW7eznMaLyuarFhVcusz+7eBUuwXo3gWD8=' https://js.stripe.com/v3 https://js.stripe.com/v3/ https://www.google-analytics.com https://ssl.google-analytics.com https://www.googletagmanager.com/gtag/js https://static.cloudflareinsights.com;
+      script-src 'self' 'sha256-dK06Ziaa0EW7eznMaLyuarFhVcusz+7eBUuwXo3gWD8=' https://js.stripe.com/v3 https://js.stripe.com/v3/ https://www.google-analytics.com https://ssl.google-analytics.com https://www.googletagmanager.com/gtag/js *.cloudflareinsights.com;
       style-src 'self';
       object-src 'none';
       base-uri 'self';
-      connect-src 'self' https://api.pushshift.io https://elastic.pushshift.io https://oauth.reddit.com https://ored.reveddit.com https://cred2.reveddit.com https://api.reveddit.com https://www.reddit.com https://removeddit.com https://www.google-analytics.com https://region1.google-analytics.com https://region1.analytics.google.com https://cloudflareinsights.com;
+      connect-src 'self' https://api.pushshift.io https://elastic.pushshift.io https://oauth.reddit.com https://ored.reveddit.com https://cred2.reveddit.com https://api.reveddit.com https://www.reddit.com https://removeddit.com https://www.google-analytics.com https://region1.google-analytics.com https://region1.analytics.google.com cloudflareinsights.com;
       font-src 'self';
       frame-src 'self' https://js.stripe.com https://youtube.com https://www.youtube.com https://www.youtube-nocookie.com/;
       img-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://region1.analytics.google.com data: https:;
