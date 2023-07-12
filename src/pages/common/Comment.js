@@ -138,7 +138,7 @@ const Comment = (props) => {
                 <>
                   <a href={parent_context+'?removedby=missing'}>reveddit-parent</a>
                   <NewWindowLink reddit={parent_context+'?limit=500'} redesign={true}>reddit-parent</NewWindowLink>
-                  <NewWindowLink reddit={permalink+'?context=1'} redesign={true}>reddit-permalink</NewWindowLink>
+                  <NewWindowLink reddit={'/api/info?id='+name}>reddit-permalink</NewWindowLink>
                 </>
                 :
                   <a href={permalink+'?'+contextParamStr+'#'+name}
