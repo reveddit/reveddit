@@ -11,7 +11,7 @@
   [headers.values]
     Content-Security-Policy = '''
       default-src 'self';
-      script-src 'self' 'sha256-dK06Ziaa0EW7eznMaLyuarFhVcusz+7eBUuwXo3gWD8=' https://js.stripe.com/v3 https://js.stripe.com/v3/ https://www.google-analytics.com https://ssl.google-analytics.com https://www.googletagmanager.com/gtag/js *.cloudflareinsights.com;
+      script-src 'self' 'sha256-dK06Ziaa0EW7eznMaLyuarFhVcusz+7eBUuwXo3gWD8=' https://js.stripe.com/v3 https://js.stripe.com/v3/ https://www.google-analytics.com https://ssl.google-analytics.com https://www.googletagmanager.com/gtag/js *.cloudflareinsights.com www.youtube.com youtube.com;
       style-src 'self';
       object-src 'none';
       base-uri 'self';
