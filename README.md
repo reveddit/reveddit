@@ -1,5 +1,5 @@
 # reveddit
-[www.reveddit.com](https://www.reveddit.com/about) is a site for reviewing removed content on [reddit](https://www.reddit.com) user, subreddit, and thread pages.
+[www.reveddit.com](https://www.reveddit.com/about) is a site for reviewing removed content on [reddit](https://www.reddit.com) user, subreddit, and thread pages..
 Visit any `reddit.com/user/<username>` or `reddit.com/r/<subreddit>` page and add `ve` to the URL to see recent removed content,
 
 * https://reveddit.com/user/
