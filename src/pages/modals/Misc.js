@@ -1,9 +1,8 @@
-import React, {useState} from 'react'
+import React from 'react'
 import { NewWindowLink, SocialLinks } from 'components/Misc'
 import BlankUser from 'components/BlankUser'
 import Highlight from 'pages/common/Highlight'
 import { convertPathSub_reverse, get, put, shuffle } from 'utils'
-import YouTube from 'react-youtube'
 
 const BlankUserBlurb = () => (<>
   <p>Look up your account's history:</p>
@@ -29,38 +28,14 @@ export const Banned = () => {
 
 const hasVisitedSite = 'hasVisitedSite'
 export const hasSeenSpreadWord = 'hasSeenSpreadWord'
-const startTimes = {1372: 'Over 50%', 1538: 'Origins', 2074: 'Bots', 3438: 'YouTube', 3886: 'Truth', 4319: 'Anxiety'}
-const videoId = 'ndiAl6QEA6k'
+const startTimes = ['1372', '1538', '2073', '3438', '3886', '4319']
 export const SpreadWord = ({topMessage = <p>Shadowbanning is more widespread than you think. Spread the word!</p>}) => {
-  const [player, setPlayer] = useState()
-  const [currentStart, setCurrentStart] = useState(shuffle(Object.keys(startTimes))[0])
-  const timestamps = Object.entries(startTimes).map(([start, text]) => {
-    let style = {}
-    let playText=''
-    if (start === currentStart) {
-      style.fontWeight='bold'
-      playText='⏵ '
-    }
-    return <a href={'https://youtu.be/'+videoId+'?t='+start.toString()+'s'} onClick={(e) => {
-      e.preventDefault()
-      setCurrentStart(start)
-      setTimeout(() =>
-        player?.seekTo(start, true),
-        200) // I forgot the right way to do this
-    }} style={style}>{playText+text}</a>
-  })
   return (<>
     {topMessage}
-    <YouTube videoId={videoId}
-      opts={{
-        width:'',height:'',
-        playerVars: {start: currentStart},
-      }}
-      iframeClassName='video'
-      onReady={(event) => setPlayer(event.target)}/>
-    <div style={{textAlign:'center', marginBottom:'3px'}}>Timestamps</div>
+    <iframe className="video" src={`https://www.youtube-nocookie.com/embed/ndiAl6QEA6k?start=${shuffle(startTimes)[0]}`} title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen></iframe>
     <div className='space-around' style={{marginBottom: '30px'}}>
-      {timestamps}
+      <NewWindowLink href="https://podcasts.apple.com/us/podcast/the-problem-with-shadowbanning-on-reddit-and/id1665487526?i=1000617548040">audio only</NewWindowLink>
+      <NewWindowLink href="https://faithfullyengaged.com/blog/the-changing-landscape-of-social-media-from-community-to-censorship">write-up</NewWindowLink>
     </div>
   </>)
 }

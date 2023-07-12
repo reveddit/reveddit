@@ -5513,7 +5513,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"debug@npm:2.6.9, debug@npm:^2.2.0, debug@npm:^2.3.3, debug@npm:^2.6.6, debug@npm:^2.6.8, debug@npm:^2.6.9":
+"debug@npm:2.6.9, debug@npm:^2.2.0, debug@npm:^2.3.3, debug@npm:^2.6.8, debug@npm:^2.6.9":
   version: 2.6.9
   resolution: "debug@npm:2.6.9"
   dependencies:
@@ -6851,13 +6851,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-deep-equal@npm:3.1.3, fast-deep-equal@npm:^3.1.3":
-  version: 3.1.3
-  resolution: "fast-deep-equal@npm:3.1.3"
-  checksum: 5f83fabf1f0bac0df5117e881ee15756dc8a9ee48c8020ed63cb84a7935d78c338dc0982b3b7b6ad0792905f5ef0c35293db9cae2f3208a6f09071c43887a02f
-  languageName: node
-  linkType: hard
-
 "fast-deep-equal@npm:^1.0.0":
   version: 1.1.0
   resolution: "fast-deep-equal@npm:1.1.0"
@@ -6869,6 +6862,13 @@ __metadata:
   version: 3.1.1
   resolution: "fast-deep-equal@npm:3.1.1"
   checksum: 895d8981503fffed78a48526d7fa6188a2f9743eac344ff38a22516310c79b6d14133267cbd52e3393844943b9f345f6eefffb6c19aee115c2eee9670b6d893c
+  languageName: node
+  linkType: hard
+
+"fast-deep-equal@npm:^3.1.3":
+  version: 3.1.3
+  resolution: "fast-deep-equal@npm:3.1.3"
+  checksum: 5f83fabf1f0bac0df5117e881ee15756dc8a9ee48c8020ed63cb84a7935d78c338dc0982b3b7b6ad0792905f5ef0c35293db9cae2f3208a6f09071c43887a02f
   languageName: node
   linkType: hard
 
@@ -9371,13 +9371,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"load-script@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "load-script@npm:1.0.0"
-  checksum: 9ebd2d063f44015241b85ca5d2c2d729ec1317b47dba21d047fd7f30710f5b24ab3ebdac77f8c8b254ea866e6ec69565c88470984626983c40f22b322677e3e1
-  languageName: node
-  linkType: hard
-
 "loader-runner@npm:^2.3.0":
   version: 2.3.0
   resolution: "loader-runner@npm:2.3.0"
@@ -11291,17 +11284,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prop-types@npm:15.8.1":
-  version: 15.8.1
-  resolution: "prop-types@npm:15.8.1"
-  dependencies:
-    loose-envify: "npm:^1.4.0"
-    object-assign: "npm:^4.1.1"
-    react-is: "npm:^16.13.1"
-  checksum: 196295f119e0f38ec64b43c1121a7e3bdbfcf66b86a01d50df22a247eb22b644033097b53a3b0961ce64d540c7a2c505c844ff245cb548b4f6eda59bbac6fbf0
-  languageName: node
-  linkType: hard
-
 "prop-types@npm:^15.5.10, prop-types@npm:^15.6.0, prop-types@npm:^15.6.2":
   version: 15.7.2
   resolution: "prop-types@npm:15.7.2"
@@ -11537,13 +11519,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-is@npm:^16.13.1":
-  version: 16.13.1
-  resolution: "react-is@npm:16.13.1"
-  checksum: 0c9adc5d984db733fb1dd298f3e94cdec66bc328d27fb11df65971d2cc9a299008bc64baab8fe8e79943df85b445a1008b2cc9e270825d0fd056e5a0d2df8de6
-  languageName: node
-  linkType: hard
-
 "react-is@npm:^16.6.0, react-is@npm:^16.7.0, react-is@npm:^16.8.1":
   version: 16.12.0
   resolution: "react-is@npm:16.12.0"
@@ -11607,19 +11582,6 @@ __metadata:
   peerDependencies:
     react: ">=15"
   checksum: e179ce7ceb214a14650f631e99db5ba4e68ff9196741aeb74951a57375e940d1321d2a2c64a210efc727b3f335cf991c4a47260c7fe2e7d40a28fc175c1b05d1
-  languageName: node
-  linkType: hard
-
-"react-youtube@npm:^10.1.0":
-  version: 10.1.0
-  resolution: "react-youtube@npm:10.1.0"
-  dependencies:
-    fast-deep-equal: "npm:3.1.3"
-    prop-types: "npm:15.8.1"
-    youtube-player: "npm:5.5.2"
-  peerDependencies:
-    react: ">=0.14.1"
-  checksum: bf20504b7b4fc407f9d32f517906963327a0a958a20bd8d1e24d58471a1aa993090ccc3149333cfe7586c53d72b8881ea7f5d17ee572d69463c71cf0fb5b9740
   languageName: node
   linkType: hard
 
@@ -12280,7 +12242,6 @@ __metadata:
     react-modal: "npm:^3.8.2"
     react-router: "npm:^5.1.2"
     react-router-dom: "npm:^5.1.2"
-    react-youtube: "npm:^10.1.0"
     scroll-to-element: "npm:^2.0.2"
     standard: "npm:^11.0.1"
     stripe: "npm:^8.131.1"
@@ -12811,13 +12772,6 @@ __metadata:
   version: 3.0.7
   resolution: "signal-exit@npm:3.0.7"
   checksum: 5cf7525c55a72d8d104d914acf2e470f74b2c156197277ad7b331bc5de3d8790170fed3c82ff98c7c31adaa8ff941bfd5ba44f55171cbe8ed0e939fa82a8322a
-  languageName: node
-  linkType: hard
-
-"sister@npm:^3.0.0":
-  version: 3.0.2
-  resolution: "sister@npm:3.0.2"
-  checksum: 05790103ac3ec5ba6f3761fcc84c11af86ba1eb793c1bee3d38e54c33355434f53b7fc2ec3c1514a870429f5ac03f4dbb2311b8538c6a3985cf4ae33735c3670
   languageName: node
   linkType: hard
 
@@ -15218,16 +15172,5 @@ __metadata:
   version: 0.1.0
   resolution: "yocto-queue@npm:0.1.0"
   checksum: 63eceacd482622afd71290541a9823a0e5eed88a6b58a5d136a5fb8151ed4d1549c80f28d74d4ad351582f9890635d49e6cf70f8d3cc64948640f839f6a37c70
-  languageName: node
-  linkType: hard
-
-"youtube-player@npm:5.5.2":
-  version: 5.5.2
-  resolution: "youtube-player@npm:5.5.2"
-  dependencies:
-    debug: "npm:^2.6.6"
-    load-script: "npm:^1.0.0"
-    sister: "npm:^3.0.0"
-  checksum: 75c6b80225e49ecdd85f1a90b6ba13484dc42ea551f4cf9fe82198f20c4ecdbc1de0c589e0e4ff6226086d88734faa3a452657aaa2715737227442e118813b47
   languageName: node
   linkType: hard

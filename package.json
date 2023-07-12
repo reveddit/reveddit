@@ -38,7 +38,6 @@
     "react-modal": "^3.8.2",
     "react-router": "^5.1.2",
     "react-router-dom": "^5.1.2",
-    "react-youtube": "^10.1.0",
     "stripe": "^8.131.1",
     "unstated": "^2.1.1",
     "whatwg-fetch": "^2.0.4",
