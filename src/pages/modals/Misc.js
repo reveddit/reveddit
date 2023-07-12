@@ -2,7 +2,7 @@ import React from 'react'
 import { NewWindowLink, SocialLinks } from 'components/Misc'
 import BlankUser from 'components/BlankUser'
 import Highlight from 'pages/common/Highlight'
-import { convertPathSub_reverse, get, put } from 'utils'
+import { convertPathSub_reverse, get, put, shuffle } from 'utils'
 
 const BlankUserBlurb = () => (<>
   <p>Look up your account's history:</p>
@@ -28,11 +28,11 @@ export const Banned = () => {
 
 const hasVisitedSite = 'hasVisitedSite'
 export const hasSeenSpreadWord = 'hasSeenSpreadWord'
-
+const startTimes = ['1372', '1538', '2073', '3438', '3886', '4319']
 export const SpreadWord = ({topMessage = <p>Shadowbanning is more widespread than you think. Spread the word!</p>}) => {
   return (<>
     {topMessage}
-    <iframe className="video" src="https://www.youtube-nocookie.com/embed/ndiAl6QEA6k?start=1372" title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen></iframe>
+    <iframe className="video" src={`https://www.youtube-nocookie.com/embed/ndiAl6QEA6k?start=${shuffle(startTimes)[0]}`} title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen></iframe>
     <div className='space-around' style={{marginBottom: '30px'}}>
       <NewWindowLink href="https://podcasts.apple.com/us/podcast/the-problem-with-shadowbanning-on-reddit-and/id1665487526?i=1000617548040">audio only</NewWindowLink>
       <NewWindowLink href="https://faithfullyengaged.com/blog/the-changing-landscape-of-social-media-from-community-to-censorship">write-up</NewWindowLink>
