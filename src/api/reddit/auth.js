@@ -1,4 +1,4 @@
-import {www_reddit} from 'api/reddit'
+import {www_reddit, www_reddit_slash} from 'api/reddit'
 import {get, CLIENT_ID_SET_BY_USER_VAR_NAME} from 'utils'
 
 // Token for reddit API
@@ -35,7 +35,10 @@ const getToken = async () => {
 }
 
 // Get header for general api calls
-export const getAuth = async () => {
+export const getAuth = async (host) => {
+  if (host === www_reddit_slash) {
+    return {}
+  }
   const token = await getToken()
   if (token) {
     return {
