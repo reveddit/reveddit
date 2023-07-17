@@ -653,3 +653,5 @@ export const reddit_API_rules_changed = now > 1688194800
 export const serviceWorkerRegistration = async () => {
   return navigator.serviceWorker?.ready.then((registration) => registration.active)
 }
+
+export const getCustomClientID = () => get(CLIENT_ID_SET_BY_USER_VAR_NAME)

@@ -1,8 +1,8 @@
-import { chunk, flatten, fetchWithTimeout, promiseDelay,
-         getRandomInt, paramString,
+import { chunk, fetchWithTimeout, promiseDelay,
+         getRandomInt, paramString, getCustomClientID,
 } from 'utils'
 import { getAuth } from './auth'
-import { mapRedditObj, getModeratorsPostProcess,
+import { mapRedditObj,
          subredditHasModlogs, U_PUBLICMODLOGS_CODE,
 } from 'api/common'
 import { getModerators } from 'api/reveddit'
@@ -165,8 +165,7 @@ export const getPostWithComments = ({
   }
   const url = host + `comments/${threadID}.json`+'?'+paramString(params)
   return getAuth(host)
-    .then(auth => window.fetch(url, auth))
-    .then(response => response.json())
+    .then(auth => fetchJsonAndValidate(url, auth))
     .then(results => {
       if (! Array.isArray(results)) {
         throw results
@@ -410,6 +409,9 @@ const queryByID = async (ids, quarantined_subreddits, key = 'name', results = {}
 }
 
 const fetchJsonAndValidate = async (url, init = {}) => {
+  if (getCustomClientID() || url.startsWith(www_reddit_slash)) {
+    init.cache = 'reload'
+  }
   const response = await window.fetch(url, init)
   if (response.ok) {
     return response.json()
