@@ -1,9 +1,6 @@
 import React, {useState} from 'react'
-import { Link } from 'react-router-dom'
 import { SimpleURLSearchParams, useFocus } from 'utils'
-import { Shuffle } from 'pages/common/svg'
 import { LinkWithCloseModal } from 'components/Misc'
-import { useHistory } from 'react-router-dom'
 
 const sub_regex = /^\/?[rv]\/([^/]+)(\/c[^/]*)?(\/[^/]+)?/
 //const defaultPlaceholder = 'user, r/sub or url'
@@ -13,7 +10,6 @@ export default ({message, bottomMessage, placeholder}) => {
   const [random, setRandom] = useState(false)
   const [input, setInput] = useState('')
   const [inputRef, setInputFocus] = useFocus()
-  const history = useHistory()
   if (random) {
     const sub = input.match(sub_regex) || window.location.pathname.match(sub_regex)
     let path = '/r/all/x'
