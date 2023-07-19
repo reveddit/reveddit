@@ -11,7 +11,7 @@ import { itemIsOneOfSelectedActions, itemIsOneOfSelectedTags, filterSelectedActi
 import { getSortFn } from 'data_processing/sort'
 import Selections from 'pages/common/selections'
 import SummaryAndPagination from 'pages/common/SummaryAndPagination'
-import { showAccountInfo_global, ClientIDForm, API_REGISTRATION_LINK } from 'pages/modals/Settings'
+import { showAccountInfo_global, ClientIDForm, installed_app_link } from 'pages/modals/Settings'
 import { newUserModal, SpreadWord } from 'pages/modals/Misc'
 
 import { connect, removedFilter_types, getExtraGlobalStateVars, create_qparams,
@@ -58,7 +58,7 @@ export const handleRedditError = (error, connectedProps) => {
     </>
     } else {
       content = <>
-        <p>To use Reveddit, sign up for an API key of type "<a target="_blank" href={API_REGISTRATION_LINK}>installed app</a>" and enter its ID here.</p>
+        <p>To use Reveddit, sign up for an {installed_app_link} and enter its ID here.</p>
         {<ClientIDForm/>}
         <SocialLinks/>
       </>
