@@ -40,8 +40,18 @@ export const SpreadWord = ({topMessage = <p>Shadowbanning is more widespread tha
   </>)
 }
 
+const hasSeenCensorshipWorse = 'hasSeenCensorshipWorse'
+export const censorshipWorseLink = 'https://www.removednews.com/p/hate-online-censorship-its-way-worse'
+export const CensorshipWorse = () => {
+  return (<>
+    <a href={censorshipWorseLink}><img alt="Link to article titled: A new red army is here: Widespread secret suppression scales thought police to levels not seen since the days of Nazis and Communists, and it is time to speak up about it." src="/images/substack-media-2023-07-21.jpg"/></a>
+  </>)
+}
+
 export const newUserModal = (props) => {
-  if (! get(hasSeenSpreadWord, false)) {
+  if (! get(hasSeenCensorshipWorse, false)) {
+    props.openGenericModal({hash: 'censorship_worse'})
+  } else if (! get(hasSeenSpreadWord, false)) {
     props.openGenericModal({hash: 'spread_word'})
   } else if (! get('hasNotifierExtension', false) &&
           ! get(hasVisitedSite, false)) {

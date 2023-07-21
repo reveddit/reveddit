@@ -6,7 +6,9 @@ import Header from 'pages/common/Header'
 import Welcome from 'pages/modals/Welcome'
 import Settings from 'pages/modals/Settings'
 import ActionHelp from 'pages/modals/ActionHelp'
-import { Banned, SpreadWord, hasSeenSpreadWord, SubredditViewUnavailable } from 'pages/modals/Misc'
+import { Banned, SpreadWord, hasSeenSpreadWord, SubredditViewUnavailable,
+CensorshipWorse
+} from 'pages/modals/Misc'
 import { ModalProvider } from 'contexts/modal'
 import { SocialLinks } from 'components/Misc'
 import { put } from 'utils'
@@ -37,7 +39,7 @@ export const pageTypes = {
 
 // to make ribbon open a modal, set the modal hash here
 // to make ribbon open a link, set ribbonHash = ''
-const ribbonHash = 'spread_word'
+const ribbonHash = 'censorship_worse'
 
 const getContentForHash = (hash) => {
   const action = hash.match(/^action_(.+)_help$/)
@@ -55,6 +57,8 @@ const getContentForHash = (hash) => {
       return <Banned/>
     case 'spread_word':
       return <><SpreadWord/><SocialLinks/></>
+    case 'censorship_worse':
+      return <><CensorshipWorse/></>
     case 'subreddit_unavailable':
       return <SubredditViewUnavailable/>
     }
