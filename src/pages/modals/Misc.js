@@ -29,7 +29,15 @@ export const Banned = () => {
 const hasVisitedSite = 'hasVisitedSite'
 export const hasSeenSpreadWord = 'hasSeenSpreadWord'
 const startTimes = ['1372', '1538', '2073', '3438', '3886', '4319']
-export const SpreadWord = ({topMessage = <p>Shadowbanning is more widespread than you think. Spread the word!</p>}) => {
+const widespread = <p>Shadowbanning is more widespread than you think. Spread the word!</p>
+export const SpreadWord = ({topMessage = widespread}) => {
+  return (<>
+    {topMessage}
+    <iframe className="video" src={`https://www.youtube-nocookie.com/embed/8e6BIkKBZpg`} title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen></iframe>
+  </>)
+}
+
+export const SpreadWordPrev = ({topMessage = widespread}) => {
   return (<>
     {topMessage}
     <iframe className="video" src={`https://www.youtube-nocookie.com/embed/ndiAl6QEA6k?start=${shuffle(startTimes)[0]}`} title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen></iframe>
@@ -44,15 +52,25 @@ const hasSeenCensorshipWorse = 'hasSeenCensorshipWorse'
 export const censorshipWorseLink = 'https://www.removednews.com/p/hate-online-censorship-its-way-worse'
 export const CensorshipWorse = () => {
   return (<>
-    <a href={censorshipWorseLink}><img alt="Link to article titled: A new red army is here: Widespread secret suppression scales thought police to levels not seen since the days of Nazis and Communists, and it is time to speak up about it." src="/images/substack-media-2023-07-21.jpg"/></a>
+    <NewWindowLink href={censorshipWorseLink} onClick={() => put(hasSeenCensorshipWorse, true)}><img alt="Link to article titled: A new red army is here: Widespread secret suppression scales thought police to levels not seen since the days of Nazis and Communists, and it is time to speak up about it." src="/images/substack-media-2023-07-21.jpg"/></NewWindowLink>
   </>)
+}
+//hash -> localStorageKey
+const showOneOfTheseFirst = {
+  'censorship_worse': hasSeenCensorshipWorse,
+  'spread_word': hasSeenSpreadWord,
 }
 
 export const newUserModal = (props) => {
-  if (! get(hasSeenCensorshipWorse, false)) {
-    props.openGenericModal({hash: 'censorship_worse'})
-  } else if (! get(hasSeenSpreadWord, false)) {
-    props.openGenericModal({hash: 'spread_word'})
+  const hash_options = []
+  for (const [hash, localStorageKey] of Object.entries(showOneOfTheseFirst)) {
+    if (! get(localStorageKey, false)) {
+      hash_options.push(hash)
+    }
+  }
+  if (hash_options.length) {
+    const hash = shuffle(hash_options)[0]
+    props.openGenericModal({hash})
   } else if (! get('hasNotifierExtension', false) &&
           ! get(hasVisitedSite, false)) {
     props.openGenericModal({hash: 'welcome'})
