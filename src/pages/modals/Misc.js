@@ -27,7 +27,10 @@ export const Banned = () => {
 }
 
 const hasVisitedSite = 'hasVisitedSite'
-export const hasSeenSpreadWord = 'hasSeenSpreadWord'
+// This value has to change for new users to see it
+// BETTER: Instead of calling this var 'SpreadWord', describe the content shown.
+//         That way in the future it will be more clear that I need to create another var.
+export const hasSeenSpreadWord = 'hasSeenSpreadWord_v2'
 const startTimes = ['1372', '1538', '2073', '3438', '3886', '4319']
 const widespread = <p>Shadowbanning is more widespread than you think. Spread the word!</p>
 export const SpreadWord = ({topMessage = widespread}) => {
