@@ -338,21 +338,16 @@ export const withFetch = (WrappedComponent) =>
       }
       global.setQueryParamsFromSavedDefaults(page_type)
       const allQueryParams = create_qparams()
+      newUserModal(this.props)
       global.setStateFromQueryParams(
                       page_type,
                       allQueryParams,
                       getExtraGlobalStateVars(page_type, allQueryParams.get('sort') ))
       .then(result => {
         if (page_type === 'info' && allQueryParams.toString() === '') {
-          newUserModal(this.props)
           return global.setSuccess()
         }
         getAuth().then(() => {
-          setTimeout(() => {
-            if (! REDDIT_ERROR_OCCURRED) {
-              newUserModal(this.props)
-            }
-          }, 1000)      
           const {context, add_user, user_sort, user_kind, user_time, before, after,
                 } = global.state
           const [loadDataFunction, params] = getLoadDataFunctionAndParam(
