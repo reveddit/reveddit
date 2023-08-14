@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState} from 'react'
 import { NewWindowLink, SocialLinks } from 'components/Misc'
 import BlankUser from 'components/BlankUser'
 import Highlight from 'pages/common/Highlight'
@@ -46,9 +46,10 @@ export const YoutubeShadowRemovals = ({topMessage = widespread}) => {
 }
 
 export const FaithfullyEngaged = ({topMessage = widespread}) => {
+  const [startTime] = useState(shuffle(startTimes)[0])
   return (<>
     {topMessage}
-    <iframe className="video" src={`https://www.youtube-nocookie.com/embed/ndiAl6QEA6k?start=${shuffle(startTimes)[0]}`} title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen></iframe>
+    <iframe className="video" src={`https://www.youtube-nocookie.com/embed/ndiAl6QEA6k?start=${startTime}`} title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen></iframe>
     <div className='space-around' style={{marginBottom: '30px'}}>
       <NewWindowLink href="https://podcasts.apple.com/us/podcast/the-problem-with-shadowbanning-on-reddit-and/id1665487526?i=1000617548040">audio only</NewWindowLink>
       <NewWindowLink href="https://faithfullyengaged.com/blog/the-changing-landscape-of-social-media-from-community-to-censorship">write-up</NewWindowLink>
