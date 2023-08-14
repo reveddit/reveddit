@@ -58,10 +58,11 @@ const getContentForHash = (hash) => {
     case 'faithfully_engaged':
       return <><FaithfullyEngaged/><SocialLinks/></>
     case 'spread_word':
-    case 'news_ribbon':
       return <><SpreadWord/><SocialLinks/></>
     case 'youtube_shadow':
       return <><YoutubeShadowRemovals/><SocialLinks/></>
+    // TODO: add scroller to show all news
+    case 'news_ribbon': // news ribbon should show latest content
     case 'censorship_worse':
       return <><CensorshipWorse/></>
     case 'subreddit_unavailable':
