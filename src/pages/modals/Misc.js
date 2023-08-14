@@ -28,19 +28,24 @@ export const Banned = () => {
 
 const hasVisitedSite = 'hasVisitedSite'
 // This value has to change for new users to see it
-// BETTER: Instead of calling this var 'SpreadWord', describe the content shown.
-//         That way in the future it will be more clear that I need to create another var.
-export const hasSeenSpreadWord = 'hasSeenSpreadWord_v2'
-const startTimes = ['1372', '1538', '2073', '3438', '3886', '4319']
+// BETTER: Instead using 'SpreadWord', describe the content shown.
+//         That way in the future it will be more clear that I need to use a different value for new content
+// NOTE: Var vals for first two uses should remain the same
+//         'hasSeenSpreadWord' -> Faithfully Engaged podcast, 1st appearance
+//         'hasSeenSpreadWord_v2' -> Demo of YouTube comment shadow removals
+const hasSeenFaithfullyEngaged = 'hasSeenSpreadWord'
+export const hasSeenYoutubeShadowRemovals = 'hasSeenSpreadWord_v2'
+export const hasSeenSpreadWord = hasSeenYoutubeShadowRemovals
+const startTimes = ['1372', '1538', '2073', '3438', '3887', '4319']
 const widespread = <p>Shadowbanning is more widespread than you think. Spread the word!</p>
-export const SpreadWord = ({topMessage = widespread}) => {
+export const YoutubeShadowRemovals = ({topMessage = widespread}) => {
   return (<>
     {topMessage}
     <iframe className="video" src={`https://www.youtube-nocookie.com/embed/8e6BIkKBZpg`} title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen></iframe>
   </>)
 }
 
-export const SpreadWordPrev = ({topMessage = widespread}) => {
+export const FaithfullyEngaged = ({topMessage = widespread}) => {
   return (<>
     {topMessage}
     <iframe className="video" src={`https://www.youtube-nocookie.com/embed/ndiAl6QEA6k?start=${shuffle(startTimes)[0]}`} title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen></iframe>
@@ -50,6 +55,8 @@ export const SpreadWordPrev = ({topMessage = widespread}) => {
     </div>
   </>)
 }
+
+export const SpreadWord = FaithfullyEngaged
 
 const hasSeenCensorshipWorse = 'hasSeenCensorshipWorse'
 export const censorshipWorseLink = 'https://www.removednews.com/p/hate-online-censorship-its-way-worse'
@@ -61,7 +68,7 @@ export const CensorshipWorse = () => {
 //hash -> localStorageKey
 const showOneOfTheseFirst = {
   'censorship_worse': hasSeenCensorshipWorse,
-  'spread_word': hasSeenSpreadWord,
+  'youtube_shadow': hasSeenYoutubeShadowRemovals,
 }
 
 export const newUserModal = (props) => {
@@ -71,9 +78,13 @@ export const newUserModal = (props) => {
       hash_options.push(hash)
     }
   }
-  if (hash_options.length) {
+  if (! get(hasSeenFaithfullyEngaged, false)) {
+    props.openGenericModal({hash: 'faithfully_engaged'})
+    put(hasSeenFaithfullyEngaged, true)
+  } else if (hash_options.length) {
     const hash = shuffle(hash_options)[0]
     props.openGenericModal({hash})
+    put(showOneOfTheseFirst[hash], true)
   } else if (! get('hasNotifierExtension', false) &&
           ! get(hasVisitedSite, false)) {
     props.openGenericModal({hash: 'welcome'})
