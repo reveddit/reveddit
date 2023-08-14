@@ -50,9 +50,9 @@ export const RedditOrLocalLink = ({children, reddit, to}) => {
   return null
 }
 
-export const SamePageHashLink = ({id, children, ...props}) => {
+export const SamePageHashLink = ({id, children, onClick = () => {}, ...props}) => {
   const hash='#'+id
-  return <Link to={hash} onClick={() => jumpToHash(hash)} {...props}>{children}</Link>
+  return <Link to={hash} onClick={() => {jumpToHash(hash); onClick();}} {...props}>{children}</Link>
 }
 
 export const NewWindowLink = ({children, reddit, old=false, redesign=false, ...props}) => {

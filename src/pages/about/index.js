@@ -29,10 +29,10 @@ const filterDeletedComments = (comments) => {
   return result
 }
 
-export const ContentWithHeader = ({header, children, half, id}) => {
+export const ContentWithHeader = ({header, children, half, id, onClick = () => {}}) => {
   return (
     <div id={id} className={'section ' + (half ? 'half' : '')}>
-      {id ? <SamePageHashLink id={id} style={{marginRight:'5px'}}>🔗</SamePageHashLink> : null}
+      {id ? <SamePageHashLink id={id} style={{marginRight:'5px'}} onClick={onClick}>🔗</SamePageHashLink> : null}
       <h2 className='about' style={{display:'inline'}}>{header}</h2>
       <p></p>
       {children}
@@ -215,7 +215,7 @@ const About = ({global, ...props}) => {
             <Highlight showMobile={true}/>
           </ContentWithHeader>
         </div>
-        <ContentWithHeader header='What people say' className='section' id={whatPeopleSay_id}>
+        <ContentWithHeader header='What people say' className='section' id={whatPeopleSay_id} onClick={() => {setSingleDisplayIndex(-1)}}>
           <Spin/>
           {comments.length ?
             singleDisplayComment ?
@@ -226,10 +226,10 @@ const About = ({global, ...props}) => {
                   <a {...nextAttr}
                           className={`collapseToggle next ${hasNext ? 'active':'disabled'}`}>next -&gt;</a>
                 </div>
-                <Comment key={singleDisplayComment.id} {...singleDisplayComment}/>
                 <div className='non-item'><a onClick={(e) => changeView(-1)}
                         className='collapseToggle'>[+] view all</a>
                 </div>
+                <Comment key={singleDisplayComment.id} {...singleDisplayComment}/>
               </React.Fragment>
               :
               <React.Fragment>
