@@ -72,6 +72,9 @@ const showOneOfTheseFirst = {
 }
 
 export const newUserModal = (props) => {
+  if (window.location.hash === '#say') {
+    return
+  }
   const hash_options = []
   for (const [hash, localStorageKey] of Object.entries(showOneOfTheseFirst)) {
     if (! get(localStorageKey, false)) {
