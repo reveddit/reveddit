@@ -571,7 +571,7 @@ const GenericPostProcessor = connect((props) => {
          numOrphaned = 0,  numOrphanedNotShown = 0
     const viewableItems = items.filter(item => {
       let itemIsOneOfSelectedCategory = false
-      if (! category_state || showAllCategories || category_state === item[category_unique_field]) {
+      if (! category_state || showAllCategories || category_state.toLowerCase().split(',').includes(item[category_unique_field].toLowerCase())) {
         itemIsOneOfSelectedCategory = true
       } else {
         // don't count items not in the selected category
