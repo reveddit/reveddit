@@ -11,6 +11,7 @@ dist/*js.map
 dist/*css
 dist/x-files/
 lambda/
+.sass-cache/
 
 # Log files
 *.log
