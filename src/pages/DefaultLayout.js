@@ -7,7 +7,7 @@ import Welcome from 'pages/modals/Welcome'
 import Settings from 'pages/modals/Settings'
 import ActionHelp from 'pages/modals/ActionHelp'
 import { Banned, SpreadWord, hasSeenSpreadWord, SubredditViewUnavailable,
-CensorshipWorse, FaithfullyEngaged, YoutubeShadowRemovals,
+CensorshipWorse, FaithfullyEngaged, YoutubeShadowRemovals, WydenTweet,
 } from 'pages/modals/Misc'
 import { ModalProvider } from 'contexts/modal'
 import { SocialLinks } from 'components/Misc'
@@ -59,10 +59,12 @@ const getContentForHash = (hash) => {
       return <><FaithfullyEngaged/><SocialLinks/></>
     case 'spread_word':
       return <><SpreadWord/><SocialLinks/></>
+    case 'news_ribbon': // news ribbon should show latest content
+    case 'wyden':
+      return <WydenTweet/>
     case 'youtube_shadow':
       return <><YoutubeShadowRemovals/><SocialLinks/></>
     // TODO: add scroller to show all news
-    case 'news_ribbon': // news ribbon should show latest content
     case 'censorship_worse':
       return <><CensorshipWorse/></>
     case 'subreddit_unavailable':

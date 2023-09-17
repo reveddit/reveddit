@@ -18,7 +18,7 @@
       connect-src 'self' https://api.pushshift.io https://elastic.pushshift.io https://oauth.reddit.com https://ored.reveddit.com https://cred2.reveddit.com https://api.reveddit.com https://www.reddit.com https://removeddit.com https://www.google-analytics.com https://region1.google-analytics.com https://region1.analytics.google.com cloudflareinsights.com;
       font-src 'self';
       frame-src 'self' https://js.stripe.com https://www.youtube-nocookie.com/;
-      img-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://region1.analytics.google.com data: https:;
+      img-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://region1.analytics.google.com https://pbs.twimg.com data: https:;
       manifest-src 'self';
       media-src 'self';
       worker-src 'self';
