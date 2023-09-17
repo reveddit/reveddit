@@ -1,7 +1,7 @@
 import "core-js/stable"
 document.getElementById("javascript-root-error").style.display = 'none'
 import React, { Suspense, lazy } from 'react'
-import { createRoot } from 'react-dom/client';
+import ReactDOM from 'react-dom'
 import { BrowserRouter, Switch, Route, Redirect } from 'react-router-dom'
 import { Provider } from 'unstated'
 import DefaultLayout, {pageTypes} from 'pages/DefaultLayout'
@@ -168,6 +168,4 @@ class App extends React.Component {
     )
   }
 }
-const container = document.getElementById('app')
-const root = createRoot(container)
-root.render(<App />)
+ReactDOM.render(<App />, document.getElementById('app'))
