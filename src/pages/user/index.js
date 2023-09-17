@@ -1,13 +1,10 @@
-import React, {useContext} from 'react'
+import React from 'react'
 import { Link } from 'react-router-dom'
 import Post from 'pages/common/Post'
 import Comment from 'pages/common/Comment'
 import LoadLink from './LoadLink'
 import {Notice, TipWithBackground} from 'pages/common/Notice'
-import Selections from 'pages/common/selections'
-import scrollToElement from 'scroll-to-element'
-import { connect, removedFilter_types } from 'state'
-import Time from 'pages/common/Time'
+import { connect } from 'state'
 import { withFetch } from 'pages/RevdditFetcher'
 import { SimpleURLSearchParams, copyLink, get, put, PATH_STR_SUB } from 'utils'
 import Highlight from 'pages/common/Highlight'
@@ -89,15 +86,15 @@ const User = ({match, global, page_type, viewableItems, selections, summary, not
     instructionalNotice = <TipWithBackground message="Sorting by top may show more results."
       htmlLink={<a href={'?sort=top&all=true'}>sort by top</a>}
     />
-  } else if (! hasVisitedSubredditPage) {
-    instructionalNotice = <TipWithBackground message="Subreddit pages work too."
-      htmlLink={<Link to={PATH_STR_SUB+'/'}>view a subreddit</Link>}
-    />
   } else if (! hasClickedRemovedUserCommentContext) {
     instructionalNotice = <TipWithBackground message="The context links of removed comments now show the comment in context even if the comment was not archived."/>
   } else if (! get(hidePinPostNotice_var, false)) {
     instructionalNotice = <Notice title='share reveddit'
       htmlLink={<div><NewWindowLink old={true} reddit={pinPostLink} onClick={() => dismiss()}>create a post</NewWindowLink>, then select <a className='pointer' onClick={() => modal.openModal({content: <img style={{marginTop: '20px'}}src='/images/pin-profile.png'/>})}>pin to profile</a></div>}/>
+  } else if (! hasVisitedSubredditPage) {
+    instructionalNotice = <TipWithBackground message="Subreddit pages may summarize removal history prior to 2021/06."
+      htmlLink={<Link to={PATH_STR_SUB+'/'}>view a subreddit</Link>}
+    />
   }
   if (removedCommentIDs.length > 0) {
     removedCommentsLink = '/api/info?id='+removedCommentIDs.slice(0,100).join(',')

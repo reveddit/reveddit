@@ -1,6 +1,6 @@
 import React, {useState, useEffect, useRef} from 'react'
 import { Link, withRouter } from 'react-router-dom'
-import { prettyScore, parse, SimpleURLSearchParams,
+import { prettyScore, SimpleURLSearchParams,
          convertPathSub, PATH_STR_SUB, validAuthor,
          jumpToCurrentHash_ifNoScroll, jumpToCurrentHash, jumpToHash,
          copyToClipboard, reversible,

@@ -90,6 +90,11 @@ module.exports = async (env, argv) => {
             },
           ],
         },
+        {
+          exclude: /src/,
+          test: /\.css$/i,
+          use: ["style-loader", "css-loader"],
+        },
       ]
     },
     resolve: {

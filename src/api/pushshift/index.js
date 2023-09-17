@@ -1,4 +1,4 @@
-import { toBase10, toBase36, chunk, flatten, getQueryString, promiseDelay,
+import { toBase10, toBase36, chunk, getQueryString, promiseDelay,
          convertToEpoch, parseNumberAndUnit, archive_isOffline_for_extendedPeriod,
 } from 'utils'
 import { fetchWithTimeout } from 'api/common'

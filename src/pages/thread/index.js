@@ -1,11 +1,9 @@
 import React from 'react'
 import { Link, withRouter } from 'react-router-dom'
-import scrollToElement from 'scroll-to-element'
-import { connect, localSort_types, urlParamKeys } from 'state'
+import { connect, urlParamKeys } from 'state'
 import Post from 'pages/common/Post'
 import {Notice, UserPageTip} from 'pages/common/Notice'
 import CommentSection from './CommentSection'
-import Selections from 'pages/common/selections'
 import { withFetch } from 'pages/RevdditFetcher'
 import { SimpleURLSearchParams, jumpToHash,
          PATH_STR_SUB,
@@ -21,7 +19,7 @@ const Thread = connect(withFetch(withRouter(({global, ...props}) => {
   const { id, author } = post
   const { subreddit, threadID, urlTitle = '', commentID } = props.match.params
   const { selections, summary,
-          page_type, archiveDelayMsg, viewableItems,
+          page_type, topNotice, viewableItems,
         } = props
   const queryParams = new SimpleURLSearchParams()
   if (add_user) {
@@ -64,7 +62,7 @@ const Thread = connect(withFetch(withRouter(({global, ...props}) => {
       <Post {...post} page_type={page_type} />
       {summary}
       <Highlight/>
-      {archiveDelayMsg}
+      {topNotice}
       {! hasVisitedUserPage &&
         <UserPageTip/>
       }

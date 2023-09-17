@@ -11,7 +11,7 @@ import { itemIsOneOfSelectedActions, itemIsOneOfSelectedTags, filterSelectedActi
 import { getSortFn } from 'data_processing/sort'
 import Selections from 'pages/common/selections'
 import SummaryAndPagination from 'pages/common/SummaryAndPagination'
-import { showAccountInfo_global, ClientIDForm, API_REGISTRATION_LINK } from 'pages/modals/Settings'
+import { showAccountInfo_global, ClientIDForm, installed_app_link } from 'pages/modals/Settings'
 import { newUserModal, SpreadWord } from 'pages/modals/Misc'
 
 import { connect, removedFilter_types, getExtraGlobalStateVars, create_qparams,
@@ -20,8 +20,7 @@ import { connect, removedFilter_types, getExtraGlobalStateVars, create_qparams,
 import { COLLAPSED, ORPHANED } from 'pages/common/RemovedBy'
 import { jumpToHash, get, put,
          itemIsActioned, itemIsCollapsed, commentIsOrphaned,
-         commentIsMissingInThread, getPrettyDate, getPrettyTimeLength,
-         archiveTimes_isCurrent, archive_isOnline, matchOrIncludes, now, reversible,
+         commentIsMissingInThread, matchOrIncludes, now, reversible,
          redirectToHistory, reddit_API_rules_changed,
 } from 'utils'
 import { getAuthorInfoByName } from 'api/reddit'
@@ -29,12 +28,10 @@ import { getAuth } from 'api/reddit/auth'
 import { getArchiveTimes } from 'api/reveddit'
 import {meta} from 'pages/about/AddOns'
 import {Notice} from 'pages/common/Notice'
-import Time from 'pages/common/Time'
 import {RedditOrLocalLink} from 'components/Misc'
-import {FaqLink} from 'pages/about/faq'
 import BlankUser from 'components/BlankUser'
 import Highlight from 'pages/common/Highlight'
-import {ExtensionLink, SocialLinks} from 'components/Misc'
+import {SocialLinks, UserNameEntry} from 'components/Misc'
 
 const CAT_SUBREDDIT = {category: 'subreddit',
                        category_title: 'Subreddit',
@@ -61,7 +58,7 @@ export const handleRedditError = (error, connectedProps) => {
     </>
     } else {
       content = <>
-        <p>To use Reveddit, sign up for an API key of type "<a target="_blank" href={API_REGISTRATION_LINK}>installed app</a>" and enter its ID here.</p>
+        <p>To use Reveddit, sign up for an {installed_app_link} and enter its ID here.</p>
         {<ClientIDForm/>}
         <SocialLinks/>
       </>
@@ -341,21 +338,16 @@ export const withFetch = (WrappedComponent) =>
       }
       global.setQueryParamsFromSavedDefaults(page_type)
       const allQueryParams = create_qparams()
+      newUserModal(this.props)
       global.setStateFromQueryParams(
                       page_type,
                       allQueryParams,
                       getExtraGlobalStateVars(page_type, allQueryParams.get('sort') ))
       .then(result => {
         if (page_type === 'info' && allQueryParams.toString() === '') {
-          newUserModal(this.props)
           return global.setSuccess()
         }
         getAuth().then(() => {
-          setTimeout(() => {
-            if (! REDDIT_ERROR_OCCURRED) {
-              newUserModal(this.props)
-            }
-          }, 1000)      
           const {context, add_user, user_sort, user_kind, user_time, before, after,
                 } = global.state
           const [loadDataFunction, params] = getLoadDataFunctionAndParam(
@@ -579,7 +571,7 @@ const GenericPostProcessor = connect((props) => {
          numOrphaned = 0,  numOrphanedNotShown = 0
     const viewableItems = items.filter(item => {
       let itemIsOneOfSelectedCategory = false
-      if (! category_state || showAllCategories || category_state === item[category_unique_field]) {
+      if (! category_state || showAllCategories || category_state.toLowerCase().split(',').includes(item[category_unique_field].toLowerCase())) {
         itemIsOneOfSelectedCategory = true
       } else {
         // don't count items not in the selected category
@@ -678,72 +670,8 @@ const GenericPostProcessor = connect((props) => {
         </div>
   }
   const notShownMsg = <>{numOrphanedNotShownMsg}{numCollapsedNotShownMsg}</>
-  let archiveDelayMsg = ''
-  if (archiveTimes && (archiveTimes_isCurrent(archiveTimes) || page_type === 'info') ) {
-    let commentsMsg = '', submissionsMsg = '', offlineMsg = ''
-    const archiveTime_comment = Math.max(archiveTimes.comment, archiveTimes.beta_comment)
-    const starred = (archiveTime_comment === archiveTimes.beta_comment && archiveTimes.updated - archiveTimes.comment > normalArchiveDelay)
-    if (page_type === 'info' ||
-          (archiveTimes.updated - archiveTimes.submission > normalArchiveDelay
-          && ['search', 'subreddit_posts', 'duplicate_posts', 'domain_posts'].includes(page_type))) {
-      submissionsMsg = gridLabel('submissions', archiveTimes.submission, archiveTimes.updated)
-    }
-    const isCommentsPageType = ['search', 'thread', 'subreddit_comments'].includes(page_type)
-    if (page_type === 'info' ||
-          (archiveTimes.updated - archiveTime_comment > normalArchiveDelay
-          && isCommentsPageType)) {
-      commentsMsg = gridLabel('comments', archiveTime_comment, archiveTimes.updated, starred, archiveTimes.last_checked)
-    }
-    if (page_type === 'info' || (isCommentsPageType && archiveTimes.time_to_comment_overwrite)) {
-      if (commentsMsg) {
-        commentsMsg = <>{commentsMsg}<div></div></>
-      } else {
-        commentsMsg = <div className='label comments'>comments</div>
-      }
-      commentsMsg = <>{commentsMsg}<Time noAgo={true} className='comments'
-        title_prefix='last overwrite: '
-        created_utc={archiveTimes.created_utc_of_most_recent_overwrite}
-        pretty={getPrettyTimeLength(archiveTimes.time_to_comment_overwrite)} suffix=' until overwrite'/></>
-    }
-    if (! archive_isOnline(archiveTimes)) {
-      //text in {submissionsMsg || commentsMsg} gets hidden here, it's just an easy way to make space and keep columns aligned
-      offlineMsg = <>
-        <div className='container offlineMsg'>
-          <div className='label'>OFFLINE</div>
-          <Time prefix='last seen ' created_utc={archiveTimes.updated}/>
-          {submissionsMsg || commentsMsg}
-        </div>
-        <div></div>
-      </>
-    }
-    if (submissionsMsg || commentsMsg || offlineMsg) {
-      const last_checked = getPrettyDate(archiveTimes.last_checked)
-      let modal_status_summary = <></>
-      if (archiveTimes.last_down_time) {
-        const modal_status_items = []
-        if (archiveTimes.last_down_time < archiveTimes.updated) {
-          modal_status_items.push(<>online since <Time created_utc={archiveTimes.last_down_time}/></>)
-          if (archiveTimes.last_up_time_before_down_time) {
-            modal_status_items.push(<>duration of last outage: <Time noAgo={true}
-              pretty={getPrettyTimeLength(archiveTimes.last_down_time - archiveTimes.last_up_time_before_down_time)}/></>)
-          }
-        } else {
-          modal_status_items.push(<Time prefix='inaccessible since ' created_utc={archiveTimes.updated}/>)
-        }
-        modal_status_summary = <><strong>status</strong><ul>{modal_status_items.map((el, i) => <li key={i}>{el}</li>)}</ul></>
-      }
-      const archive_delay_help = (<>
-        {modal_status_summary}
-        <p><strong>Delay</strong> indicates the archival process, called Pushshift, is behind due to a high volume of reddit content. Pushshift may also fail to archive some content. See <FaqLink id='unarchived'></FaqLink></p>
-        <p><strong>Time until overwrite</strong> indicates how long comments are visible until they may be overwritten. See <RedditOrLocalLink reddit='/pgzdav'>API rewrites</RedditOrLocalLink> for more info.</p>
-        {starred ? <p>* The comment delay comes from the status of Pushshift's beta API.</p> : <></>}
-        <p>See <a href='/info'>/info</a> for the complete status.</p>
-      </>)
-      archiveDelayMsg =
-        <Notice className='delay' title='archive status' detail={'as of '+last_checked} help={archive_delay_help}
-          message = {<>{offlineMsg}<div className={'container ' + (offlineMsg ? 'offline' : '')}>{submissionsMsg}{commentsMsg}</div></>} />
-    }
-  }
+  const userEntryBox = <Notice title='your account history' message = {<UserNameEntry style={{marginTop:'5px'}}/>} />
+
   return (
     <React.Fragment>
       <WrappedComponent {...props} {...{showAllCollapsed, showAllOrphaned}}
@@ -751,25 +679,9 @@ const GenericPostProcessor = connect((props) => {
         summary={summary}
         viewableItems={viewableItems}
         notShownMsg={notShownMsg}
-        archiveDelayMsg={archiveDelayMsg}
+        topNotice={userEntryBox}
         {...visibleItemsWithoutCategoryFilter_meta}
       />
     </React.Fragment>
   )
 })
-
-
-const gridLabel = (label, created_utc, updated, starred=false, last_checked=undefined) => {
-  let time_difference = updated - created_utc
-  // If beta has more recent data and api is offline, time difference is negative without this adjustment
-  if (time_difference < 0 && last_checked) {
-    time_difference = last_checked - created_utc
-  }
-  return <>
-    <div className={'label '+label}>{label}</div>
-    <Time className={label} noAgo={true} created_utc={created_utc}
-          pretty={getPrettyTimeLength(time_difference) + (starred ? '*' : '')}
-          suffix = ' delay'
-    />
-  </>
-}

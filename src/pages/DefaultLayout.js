@@ -6,7 +6,9 @@ import Header from 'pages/common/Header'
 import Welcome from 'pages/modals/Welcome'
 import Settings from 'pages/modals/Settings'
 import ActionHelp from 'pages/modals/ActionHelp'
-import { Banned, SpreadWord, hasSeenSpreadWord, SubredditViewUnavailable } from 'pages/modals/Misc'
+import { Banned, SpreadWord, hasSeenSpreadWord, SubredditViewUnavailable,
+CensorshipWorse, FaithfullyEngaged, YoutubeShadowRemovals, WydenTweet,
+} from 'pages/modals/Misc'
 import { ModalProvider } from 'contexts/modal'
 import { SocialLinks } from 'components/Misc'
 import { put } from 'utils'
@@ -37,7 +39,7 @@ export const pageTypes = {
 
 // to make ribbon open a modal, set the modal hash here
 // to make ribbon open a link, set ribbonHash = ''
-const ribbonHash = 'spread_word'
+const ribbonHash = 'news_ribbon'
 
 const getContentForHash = (hash) => {
   const action = hash.match(/^action_(.+)_help$/)
@@ -53,8 +55,18 @@ const getContentForHash = (hash) => {
       return <ActionHelp/>
     case 'banned':
       return <Banned/>
+    case 'faithfully_engaged':
+      return <><FaithfullyEngaged/><SocialLinks/></>
     case 'spread_word':
       return <><SpreadWord/><SocialLinks/></>
+    case 'news_ribbon': // news ribbon should show latest content
+    case 'wyden':
+      return <WydenTweet/>
+    case 'youtube_shadow':
+      return <><YoutubeShadowRemovals/><SocialLinks/></>
+    // TODO: add scroller to show all news
+    case 'censorship_worse':
+      return <><CensorshipWorse/></>
     case 'subreddit_unavailable':
       return <SubredditViewUnavailable/>
     }
@@ -75,6 +87,8 @@ const hideRibbon = (hide = true) => {
   document.querySelector('#ribbon').style.visibility = hide ? 'hidden' : 'visible'
 }
 
+const existingHash = () => window.location.hash.replace('#', '')
+
 const DefaultLayout = (props) => {
   const [layoutState, setLayoutState] = useState({
     genericModalIsOpen: false,
@@ -83,7 +97,7 @@ const DefaultLayout = (props) => {
   })
   const [pendingModals, setPendingModals] = useState([])
   useEffect(() => {
-    const hash = window.location.hash.replace('#', '')
+    const hash = existingHash()
     const content = getContentForHash(hash)
     if (content) {
       openGenericModal({content, hash})
@@ -108,7 +122,8 @@ const DefaultLayout = (props) => {
     if (genericModalIsOpen) {
       setPendingModals(pendingModals.concat({content, hash}))
     } else {
-      if (hash) {
+      // ! existingHash() prevents new user modals from overriding FAQ hashes like /about/faq/#need
+      if (hash && ! existingHash()) {
         setHashInURL(hash)
       }
       setLayoutState({genericModalIsOpen: true, content, hash})

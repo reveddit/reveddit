@@ -1,5 +1,5 @@
-import {www_reddit} from 'api/reddit'
-import {get, CLIENT_ID_SET_BY_USER_VAR_NAME} from 'utils'
+import {www_reddit, www_reddit_slash} from 'api/reddit'
+import {getCustomClientID} from 'utils'
 
 // Token for reddit API
 let token, expires
@@ -11,7 +11,7 @@ const getToken = async () => {
   if (token !== undefined && expires > Date.now()/1000) {
     return Promise.resolve(token)
   }
-  const user_client_id = get(CLIENT_ID_SET_BY_USER_VAR_NAME)
+  const user_client_id = getCustomClientID()
   // use user-set client ID if it exists and is non-empty, otherwise use Reveddit client ID
   client_id = user_client_id || client_id
 
@@ -35,7 +35,10 @@ const getToken = async () => {
 }
 
 // Get header for general api calls
-export const getAuth = async () => {
+export const getAuth = async (host) => {
+  if (host === www_reddit_slash) {
+    return {}
+  }
   const token = await getToken()
   if (token) {
     return {

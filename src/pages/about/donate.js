@@ -1,5 +1,4 @@
-import React, {useState, useEffect} from 'react'
-import { connect } from 'state'
+import React from 'react'
 import {loadStripe} from '@stripe/stripe-js/pure'
 import { InternalPage } from 'components/Misc'
 import {ContentWithHeader} from 'pages/about'

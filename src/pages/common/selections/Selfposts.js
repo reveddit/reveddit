@@ -1,6 +1,5 @@
 import React from 'react'
 import { connect, create_qparams_and_adjust } from 'state'
-import { SimpleURLSearchParams } from 'utils'
 import { Selection } from './SelectionBase'
 
 const updateURL = (value) => {

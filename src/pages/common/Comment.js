@@ -1,10 +1,10 @@
 import React, {useState} from 'react'
-import { prettyScore, parse,
+import { prettyScore,
          PATH_STR_USER, PATH_STR_SUB, convertPathSub, stripRedditLikeDomain,
 } from 'utils'
 import Time from 'pages/common/Time'
 import RemovedBy, {QuarantinedLabel} from 'pages/common/RemovedBy'
-import { NOT_REMOVED, ORPHANED } from 'pages/common/RemovedBy'
+import { ORPHANED } from 'pages/common/RemovedBy'
 import CommentBody from 'pages/common/CommentBody'
 import Author from 'pages/common/Author'
 import { connect, hasClickedRemovedUserCommentContext, urlParamKeys } from 'state'
@@ -138,7 +138,7 @@ const Comment = (props) => {
                 <>
                   <a href={parent_context+'?removedby=missing'}>reveddit-parent</a>
                   <NewWindowLink reddit={parent_context+'?limit=500'} redesign={true}>reddit-parent</NewWindowLink>
-                  <NewWindowLink reddit={permalink+'?context=1'} redesign={true}>reddit-permalink</NewWindowLink>
+                  <NewWindowLink reddit={'/api/info?id='+name}>reddit-permalink</NewWindowLink>
                 </>
                 :
                   <a href={permalink+'?'+contextParamStr+'#'+name}

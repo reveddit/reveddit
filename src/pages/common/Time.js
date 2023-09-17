@@ -1,5 +1,4 @@
 import React from 'react'
-import { connect } from 'state'
 import { getPrettyDate, getPrettyTimeLength } from 'utils'
 import {showRelDates_global} from 'pages/modals/Settings'
 

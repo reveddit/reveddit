@@ -1,5 +1,4 @@
 import {localSort_types} from 'state'
-import { reversible } from 'utils'
 import { wrappedSortFunctions } from 'data_processing/sort'
 
 const byScore = (a, b) => {

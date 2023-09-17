@@ -12,7 +12,7 @@ import { setPostAndParentDataForComments } from 'data_processing/info'
 import Highlight from 'pages/common/Highlight'
 import { Link } from 'react-router-dom'
 import { InternalPage, NewWindowLink, SamePageHashLink, Spin } from 'components/Misc'
-import { SpreadWord } from 'pages/modals/Misc'
+import { SpreadWord, censorshipWorseLink } from 'pages/modals/Misc'
 
 const whatPeopleSay_id = 'say'
 const whatPeopleSay_hash = '#'+whatPeopleSay_id
@@ -29,10 +29,10 @@ const filterDeletedComments = (comments) => {
   return result
 }
 
-export const ContentWithHeader = ({header, children, half, id}) => {
+export const ContentWithHeader = ({header, children, half, id, onClick = () => {}}) => {
   return (
     <div id={id} className={'section ' + (half ? 'half' : '')}>
-      {id ? <SamePageHashLink id={id} style={{marginRight:'5px'}}>🔗</SamePageHashLink> : null}
+      {id ? <SamePageHashLink id={id} style={{marginRight:'5px'}} onClick={onClick}>🔗</SamePageHashLink> : null}
       <h2 className='about' style={{display:'inline'}}>{header}</h2>
       <p></p>
       {children}
@@ -50,6 +50,12 @@ export const NewsItem = ({to, title, created_utc, newsText = '', timePrefix = ''
 const contact = '/about/contact/'
 const donate = '/about/donate/'
 const news = [
+  {href: censorshipWorseLink,
+  title: "Hate Online Censorship? It's Way Worse Than You Think.",
+  created_utc: '1689944502'},
+  {reddit: '/14ofm29',
+  title: "I'm the creator of Reveddit. AMA",
+  created_utc: '1688274418'},
   {href: 'https://www.youtube.com/watch?v=ndiAl6QEA6k&t=1345s',
   title: "The Problem with Shadowbanning on Reddit and Beyond: A discussion with Reveddit Owner Robert Hawkins",
   created_utc: '1687176001'},
@@ -209,7 +215,7 @@ const About = ({global, ...props}) => {
             <Highlight showMobile={true}/>
           </ContentWithHeader>
         </div>
-        <ContentWithHeader header='What people say' className='section' id={whatPeopleSay_id}>
+        <ContentWithHeader header='What people say' className='section' id={whatPeopleSay_id} onClick={() => {setSingleDisplayIndex(-1)}}>
           <Spin/>
           {comments.length ?
             singleDisplayComment ?
@@ -220,10 +226,10 @@ const About = ({global, ...props}) => {
                   <a {...nextAttr}
                           className={`collapseToggle next ${hasNext ? 'active':'disabled'}`}>next -&gt;</a>
                 </div>
-                <Comment key={singleDisplayComment.id} {...singleDisplayComment}/>
                 <div className='non-item'><a onClick={(e) => changeView(-1)}
                         className='collapseToggle'>[+] view all</a>
                 </div>
+                <Comment key={singleDisplayComment.id} {...singleDisplayComment}/>
               </React.Fragment>
               :
               <React.Fragment>
@@ -252,9 +258,6 @@ const About = ({global, ...props}) => {
               <li><a href={PATH_STR_SUB+'/worldnews/duplicates/eb2hjw'}>other-discussions+</a></li>
               <li><a href={PATH_STR_SUB+'/CantSayAnything/about/sticky'}>r/{sub}/comments/link-id/</a></li>
               <li><a href={PATH_STR_SUB+'/CantSayAnything/comments'}>r/{sub}/comments</a></li>
-              <li><a href='/domain/cnn.com+edition.cnn.com'>domain/cnn.com+edition.cnn.com</a></li>
-              <li><a href={PATH_STR_SUB+'/news+worldnews/'}>r/news+worldnews/</a></li>
-              <li><a href={PATH_STR_SUB+'/all/'}>r/all</a></li>
               <li><a href={PATH_STR_SUB+'/all/missing-comments/'}>r/all/missing-comments</a></li>
             </ul>
           </ContentWithHeader>

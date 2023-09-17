@@ -1,5 +1,4 @@
 import React from 'react'
-import {ext_urls} from 'utils'
 import {Tip, ExtensionLink, is_iOS, iOS_shortcut_link} from 'components/Misc'
 
 export default ({showMobile = false}) => {

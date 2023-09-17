@@ -39,7 +39,7 @@ let archiveError = false
 export const ignoreArchiveErrors_comments = () => ignoreArchiveErrors(commentsByThreadReturnValueDefaults)
 
 const ignoreArchiveErrors = (returnValue = {}) => {
-  archiveError = true
+  // archiveError = true // disabled error reporting since Pushshift is no longer publicly accessible
   // clone here so that the passed in object doesn't get used later and potentially modified
   return JSON.parse(JSON.stringify(returnValue))
 }

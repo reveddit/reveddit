@@ -1,5 +1,4 @@
 import React, {useEffect} from 'react'
-import { useHistory } from 'react-router-dom'
 import { randomRedditor } from 'api/reddit'
 import { connect } from 'state'
 import { Spin } from 'components/Misc'
@@ -8,7 +7,6 @@ import {handleRedditError} from 'pages/RevdditFetcher'
 
 export const Random = (props) => {
   const subreddit = props.match.params.subreddit || 'all'
-  const history = useHistory()
   useEffect(() => {
     let isCancelled = false
     props.global.setLoading('')

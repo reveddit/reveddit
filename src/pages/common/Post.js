@@ -2,12 +2,11 @@ import React, {useState, useEffect} from 'react'
 import { prettyScore, parse, redditThumbnails, replaceAmpGTLT,
          postIsRemovedAndSelftextSaysRemoved, getRemovedMessage,
          PATH_STR_SUB, convertPathSub, stripRedditLikeDomain,
-         prettyFormatBigNumber, SimpleURLSearchParams,
+         SimpleURLSearchParams,
 } from 'utils'
 import Time from 'pages/common/Time'
 import RemovedBy, {QuarantinedLabel} from 'pages/common/RemovedBy'
 import Author from 'pages/common/Author'
-import { NOT_REMOVED } from 'pages/common/RemovedBy'
 import { connect, urlParamKeys } from 'state'
 import {MessageMods} from 'components/Misc'
 import { NewWindowLink } from 'components/Misc'

@@ -1,8 +1,8 @@
-import { chunk, flatten, fetchWithTimeout, promiseDelay,
-         getRandomInt, paramString,
+import { chunk, fetchWithTimeout, promiseDelay,
+         getRandomInt, paramString, getCustomClientID,
 } from 'utils'
 import { getAuth } from './auth'
-import { mapRedditObj, getModeratorsPostProcess,
+import { mapRedditObj,
          subredditHasModlogs, U_PUBLICMODLOGS_CODE,
 } from 'api/common'
 import { getModerators } from 'api/reveddit'
@@ -11,6 +11,7 @@ const https = 'https://'
 export const oauth_reddit = https+'oauth.reddit.com/'
 let can_use_oauth_reddit_rev = true
 export const www_reddit = https+'www.reddit.com'
+export const www_reddit_slash = www_reddit + '/'
 export const old_reddit = https+'old.reddit.com'
 
 const reveddit_cors = REVEDDIT_CORS_ANWHERE_HOST
@@ -44,8 +45,9 @@ export const getPosts = ({objects = undefined, ids = [], quarantined_subreddits,
 }
 
 export const getModeratedSubreddits = (user) => {
-  const url = oauth_reddit + `user/${user}/moderated_subreddits/.json`
-  return getAuth()
+  const host = www_reddit_slash
+  const url = host + `user/${user}/moderated_subreddits/.json`
+  return getAuth(host)
   .then(auth => window.fetch(url, auth))
   .then(response => response.json())
   .then(results => {
@@ -54,8 +56,9 @@ export const getModeratedSubreddits = (user) => {
 }
 
 export const getUserAbout = (user) => {
-  const url = oauth_reddit + `user/${user}/about/.json`
-  return getAuth()
+  const host = www_reddit_slash
+  const url = host + `user/${user}/about/.json`
+  return getAuth(host)
   .then(auth => window.fetch(url, auth))
   .then(response => response.json())
   .then(data => data.data)
@@ -161,9 +164,8 @@ export const getPostWithComments = ({
     params.quarantined_subreddits = subreddit
   }
   const url = host + `comments/${threadID}.json`+'?'+paramString(params)
-  return getAuth()
-    .then(auth => window.fetch(url, auth))
-    .then(response => response.json())
+  return getAuth(host)
+    .then(auth => fetchJsonAndValidate(url, auth))
     .then(results => {
       if (! Array.isArray(results)) {
         throw results
@@ -245,11 +247,21 @@ export const queryUserPageCombined = async (params) => {
   })
 }
 
+const notProxy_host = www_reddit_slash
+
 const getHost = (useProxy = false) => {
-  if (! useProxy || ! can_use_oauth_reddit_rev) {
-    return oauth_reddit
+  if (useProxy) {
+    if (can_use_oauth_reddit_rev) {
+      return OAUTH_REDDIT_REV
+    } else {
+      return notProxy_host
+    }
   } else {
-    return OAUTH_REDDIT_REV
+    if (can_use_oauth_reddit_rev) {
+      return oauth_reddit
+    } else {
+      return notProxy_host
+    }
   }
 }
 
@@ -278,23 +290,22 @@ export const queryUserPage = async ({user, kind, sort, before, after, t, limit =
       params.quarantined_subreddits = quarantined_subreddits
     }
   }
-  let auth = await getAuth()
+  let auth = await getAuth(host)
   if (host_is_proxy) {
     auth.method = 'POST'
     auth.body = auth.headers.Authorization
     delete auth.headers.Authorization
   }
-  let response
+  let json
   try {
-    response = await window.fetch(host + `user/${user}/${kinds[kind]}.json` + '?'+paramString(params), auth)
+    json = await fetchJsonAndValidate(host + `user/${user}/${kinds[kind]}.json` + '?'+paramString(params), auth)
   } catch (e) {
-    if (host !== oauth_reddit && e.message !== 'Forbidden') {
+    if (host !== notProxy_host && e.message !== 'Forbidden') {
       can_use_oauth_reddit_rev = false
-      return queryUserPageCombined({user, kind, ...params}) // host will be oauth_reddit for this query
+      return queryUserPageCombined({user, kind, ...params}) // host will be notProxy_host for this query
     }
     errorHandler(e)
   }
-  const json = await response.json()
   if (host === OAUTH_REDDIT_REV) {
     if (! include_info && ! include_parents && json.user) {
       return json.user
@@ -343,7 +354,6 @@ export const queryUserPage = async ({user, kind, sort, before, after, t, limit =
       await Promise.all(promises)
       return result
     }
-    return result
   } else {
     let empty = {items: [], after: null}
     if ('message' in json && 'error' in json) {
@@ -376,12 +386,16 @@ export const userPageHTML = (user) => {
 }
 
 const queryByID = async (ids, quarantined_subreddits, key = 'name', results = {}, host = oauth_reddit) => {
-  var params = {id: ids.join(), raw_json:1}
+  const params = {id: ids.join(), raw_json:1}
   if (host === OAUTH_REDDIT_REV && quarantined_subreddits) {
     params.quarantined_subreddits = quarantined_subreddits
   }
-  const auth = await getAuth()
-  const queryForHost = (host) => query(host + 'api/info' + '?'+paramString(params),
+  const auth = await getAuth(host)
+  let path = 'api/info'
+  if (host === www_reddit_slash) {
+    path += '.json'
+  }
+  const queryForHost = (host) => query(host + path + '?'+paramString(params),
                                        auth, key, results)
   return queryForHost(host)
   .catch(e => {
@@ -394,9 +408,20 @@ const queryByID = async (ids, quarantined_subreddits, key = 'name', results = {}
   })
 }
 
+const fetchJsonAndValidate = async (url, init = {}) => {
+  if (getCustomClientID() || url.startsWith(www_reddit_slash)) {
+    init.cache = 'reload'
+  }
+  const response = await window.fetch(url, init)
+  if (response.ok) {
+    return response.json()
+  } else {
+    throw new Error('fetchJsonAndValidate error')
+  }
+}
+
 const query = async (url, auth, key, results = {}) => {
-  return window.fetch(url, auth)
-  .then(response => response.json())
+  return fetchJsonAndValidate(url, auth)
   .then(json => json.data.children.reduce((map, obj) => mapRedditObj(map, obj, key), results))
 }
 
@@ -423,7 +448,7 @@ export const querySubredditPage = async ({subreddit, sort, after = '', t = '', u
     raw_json:1}
   addQuarantineParam(host, params)
   const url = host + `r/${subreddit}/${sort}.json` + '?'+paramString(params)
-  const auth = await getAuth()
+  const auth = await getAuth(host)
   return window.fetch(url, auth)
     .then(response => response.json())
     .then(results => {
@@ -489,7 +514,7 @@ export const selectRandomCommenter = async (post, sort = 'new', mods_promise, us
   }
   addQuarantineParam(host, params)
   const url = host + `r/${post.subreddit}/comments/${post.id}.json`+'?'+paramString(params)
-  const auth = await getAuth()
+  const auth = await getAuth(host)
   return window.fetch(url, auth)
   .then(response => response.json())
   .then(result => result[1].data.children)

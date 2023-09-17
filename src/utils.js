@@ -507,7 +507,7 @@ export const getRemovedMessage = (props, itemType) => {
   } else if (loading) {
     removedMessage = ' content loading...'
   } else if (error) {
-    return '[error connecting to archive, try again later]'
+    return <>[archive unavailable] <NewWindowLink reddit='/1393z7x'>more info</NewWindowLink></>
   } else if (archiveTimes) {
     // comment overwrites began some time prior to 1630649330
     if (is_comment && (props.created_utc < 1630649330 || time_is_in_archive_storage_window(props.created_utc, archiveTimes))) {
@@ -653,3 +653,5 @@ export const reddit_API_rules_changed = now > 1688194800
 export const serviceWorkerRegistration = async () => {
   return navigator.serviceWorker?.ready.then((registration) => registration.active)
 }
+
+export const getCustomClientID = () => get(CLIENT_ID_SET_BY_USER_VAR_NAME)

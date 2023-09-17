@@ -1,14 +1,9 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
-import { connect, localSort_types, create_qparams } from 'state'
-import Time from 'pages/common/Time'
+import { connect } from 'state'
 import Comment from 'pages/common/Comment'
-import Selections from 'pages/common/selections'
-import ResultsSummary from 'pages/common/ResultsSummary'
 import {UserPageTip} from 'pages/common/Notice'
-import { REMOVAL_META, NOT_REMOVED, USER_REMOVED } from 'pages/common/RemovedBy'
 import { withFetch } from 'pages/RevdditFetcher'
-import { reversible, getUrlWithTimestamp, PATH_STR_USER } from 'utils'
+import { getUrlWithTimestamp } from 'utils'
 import Highlight from 'pages/common/Highlight'
 import Pagination from 'components/Pagination'
 import { ShareLink } from 'components/Misc'
@@ -16,7 +11,7 @@ import { ShareLink } from 'components/Misc'
 const SubredditComments = (props) => {
   const { subreddit } = props.match.params
   const { page_type, viewableItems, selections, summary,
-          notShownMsg, archiveDelayMsg, global,
+          notShownMsg, topNotice, global,
         } = props
   const {items, loading, localSort, hasVisitedUserPage,
         } = global.state
@@ -33,7 +28,7 @@ const SubredditComments = (props) => {
         <UserPageTip/>
       }
       <Highlight/>
-      {archiveDelayMsg}
+      {topNotice}
       {notShownMsg}
       {
         noItemsFound ?

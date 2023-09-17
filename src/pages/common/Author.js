@@ -1,6 +1,6 @@
 import React from 'react'
 import { connect } from 'state'
-import { getPrettyTimeLength, replaceAmpGTLT, PATH_STR_USER } from 'utils'
+import { getPrettyTimeLength, PATH_STR_USER } from 'utils'
 import { showAccountInfo_global } from 'pages/modals/Settings'
 import Flair from './Flair'
 

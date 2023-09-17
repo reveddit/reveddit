@@ -5,7 +5,6 @@ import {ExtensionLink, MessageMods, SamePageHashLink, RedditOrLocalLink} from 'c
 import {TwitterLink} from 'pages/common/svg'
 import {ContentWithHeader} from 'pages/about'
 import { unarchived_search_help_content, unarchived_search_button_word, unarchived_search_button_word_code } from 'data_processing/RestoreComment'
-import { unarchived_label_text } from 'pages/common/RemovedBy'
 import {shuffle} from 'utils'
 import {www_reddit} from 'api/reddit'
 import {NewsItem} from 'pages/about'
@@ -153,8 +152,8 @@ const questions = {
   'user-deleted': {
     header: 'Does Reveddit show user-deleted content?',
     content: <>
-      <p>No, user-deleted content does not appear on Reveddit. See <NewWindowLink reddit='/r/reveddit/comments/ih86wk/whats_it_mean_when_a_comment_has_been_restored/g75nxjx/'>this discussion on r/Reveddit</NewWindowLink> and <NewWindowLink reddit='/r/removeddit/comments/ir1oyw/rip_removeddit_ceddit_reveddit/g5fgxgl/?context=3#thing_t1_g5fgxgl'>this one on r/removeddit</NewWindowLink> for more info.</p>
-      <p>An exception is made for titles and links of user-deleted submissions. Titles and links provide basic context necessary to review discussions. These are now restored via the archive service because at some point in early 2022 Reddit began overwriting the titles and links of three-month-old user-deleted posts.</p>
+      <p>User-deleted content never appears on Reveddit user pages. See <NewWindowLink reddit='/r/reveddit/comments/ih86wk/whats_it_mean_when_a_comment_has_been_restored/g75nxjx/'>this discussion on r/Reveddit</NewWindowLink> and <NewWindowLink reddit='/r/removeddit/comments/ir1oyw/rip_removeddit_ceddit_reveddit/g5fgxgl/?context=3#thing_t1_g5fgxgl'>this one on r/removeddit</NewWindowLink> for more info.</p>
+      <p>An exception was made for titles and links of user-deleted submissions on thread pages. That means someone would need the link to the content in order to see the title and user-submitted URL, and it still would not show the username. User pages never show any user-deleted content. Titles and links provide basic context necessary to review discussions. These are now restored via the archive service because at some point in early 2022 Reddit began overwriting the titles and links of three-month-old user-deleted posts.</p>
       <p>Please note,</p>
       <ul>
         <li>Only Reddit's <code>delete</code> button removes content from Reveddit. A moderator can also use the <code>remove</code> button on their own content in subs they moderate. In that case the content will still appear on Reveddit.</li>
@@ -205,7 +204,7 @@ const questions = {
   'unknown-removed': {
     header: 'What does the "unknown removed" label mean?',
     content: <>
-      <p>The <code>unknown</code> label is applied when Reveddit cannot determine if something was removed manually by a mod or removed automatically by automod, Reddit's spam filter, or another bot. Pushshift, a database that captures Reddit data as it is created, and which Reveddit queries, can fall behind or fail to retrieve data. When that happens, any removed items are marked as <code>[removed] by unknown</code>. When Pushshift captures content soon after creation, and the content has already been removed, then it is marked as <code>[removed] automatically</code>. If Pushshift has a record of a removed comment's body then the comment is labeled <code>[removed] by mod</code>. More detail can be found in the <a href='https://github.com/reveddit/reveddit/blob/60a34a28c5133fd54777d189fc9997afe89a2f39/src/data_processing/comments.js#L131'>source code</a>.</p>
+      <p>The <code>mod/auto</code> label (formerly marked as <code>unknown</code>) is applied when Reveddit cannot determine if something was removed manually by a mod or removed automatically by automod, Reddit's spam filter, or another bot. Pushshift, a database that captures Reddit data as it is created, and which Reveddit queries, can fall behind or fail to retrieve data. When that happens, any removed items are marked as <code>[removed] by mod/auto</code>. When Pushshift captures content soon after creation, and the content has already been removed, then it is marked as <code>[removed] automatically</code>. If Pushshift has a record of a removed comment's body then the comment is labeled <code>[removed] by mod</code>. More detail can be found in the <a href='https://github.com/reveddit/reveddit/blob/60a34a28c5133fd54777d189fc9997afe89a2f39/src/data_processing/comments.js#L131'>source code</a>.</p>
       <p>Note, when an account is suspended by Reddit, all the posts and comments for that account may be removed. The Reddit API does not indicate where suspension-related removals occur and so Reveddit cannot see or mark where this happens. You can check if an account has been suspended on its Reddit or Reveddit user page. Temporary suspensions may also remove content created before the suspension.</p>
   </>},
   [removed_replies_key]: removed_replies,
