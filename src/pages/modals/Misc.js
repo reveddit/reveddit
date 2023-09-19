@@ -36,7 +36,7 @@ const hasVisitedSite = 'hasVisitedSite'
 const hasSeenFaithfullyEngaged = 'hasSeenSpreadWord'
 export const hasSeenYoutubeShadowRemovals = 'hasSeenSpreadWord_v2'
 export const hasSeenSpreadWord = hasSeenYoutubeShadowRemovals
-const hasSeenWyden = 'hasSeenWyden'
+
 const startTimes = ['1372', '1538', '2073', '3438', '3887', '4319']
 const widespread = <p>Shadowbanning is more widespread than you think. Spread the word!</p>
 export const YoutubeShadowRemovals = ({topMessage = widespread}) => {
@@ -46,10 +46,6 @@ export const YoutubeShadowRemovals = ({topMessage = widespread}) => {
   </>)
 }
 
-
-export const WydenTweet = () => {
-  return <><p>A message from <NewWindowLink href='https://twitter.com/rhaksw/status/1703436713362870723'>Reveddit's creator</NewWindowLink>:</p><p>Senator Ron Wyden will do an <NewWindowLink reddit='/16jlhj7'>AMA on r/technology</NewWindowLink> on Monday, but I will be asleep at that time.</p><p>Would someone please ask if he supports Reddit allowing moderators to shadow remove users' comments?</p></>
-}
 
 export const FaithfullyEngaged = ({topMessage = widespread}) => {
   const [startTime] = useState(shuffle(startTimes)[0])
@@ -88,10 +84,7 @@ export const newUserModal = (props) => {
       hash_options.push(hash)
     }
   }
-  if (! get(hasSeenWyden, false)) {
-    props.openGenericModal({hash: 'wyden'})
-    put(hasSeenWyden, true)
-  } else if (! get(hasSeenFaithfullyEngaged, false)) {
+  if (! get(hasSeenFaithfullyEngaged, false)) {
     props.openGenericModal({hash: 'faithfully_engaged'})
     put(hasSeenFaithfullyEngaged, true)
   } else if (hash_options.length) {
