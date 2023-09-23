@@ -120,6 +120,7 @@ export const getUmodlogsComments = (subreddit) => {
 }
 export const getUmodlogs = async ({subreddit, thread_id, actions}) => {
   const empty = {comments: {}, posts: {}}
+  return empty // u/modlogs no longer works, requests to modlogs.fyi time out
   const hasModlogs = await subredditHasModlogs(subreddit, U_MODLOGS_CODE)
   if (hasModlogs) {
     const params = { c: getCount(), limit: 100 }
