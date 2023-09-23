@@ -101,6 +101,7 @@ export const combinePushshiftAndRedditComments = (pushshiftComments, redditComme
       //console.log(ps_comment.id)
     }
   })
+  
   console.log(`Pushshift: ${Object.keys(pushshiftComments).length} comments`)
   console.log(`Reddit: ${Object.keys(redditComments).length} comments`)
   return combinedComments
@@ -121,7 +122,8 @@ const setupCommentMeta = (archiveComment, redditComment) => {
   set_link_permalink(archiveComment, redditComment)
   copyFields(copy_fields, redditComment, archiveComment)
   copyFields(copy_if_value_fields, redditComment, archiveComment, true)
-  copyFields(['author_flair_text'], redditComment, archiveComment, true, true)
+  // copying body and author for when publicmodlogs is the initial source of data (as opposed to pushshift)
+  copyFields(['author_flair_text', 'body', 'author'], redditComment, archiveComment, true, true)
   if (! redditComment.link_title) {
     archiveComment.link_title = redditComment.permalink.split('/')[5].replace(/_/g, ' ')
   }
