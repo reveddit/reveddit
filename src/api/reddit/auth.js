@@ -1,5 +1,5 @@
 import {www_reddit, www_reddit_slash} from 'api/reddit'
-import {getCustomClientID} from 'utils'
+import {getCustomClientID, extensionIsInstalled, reddit_API_rules_changed} from 'utils'
 
 // Token for reddit API
 let token, expires
@@ -14,7 +14,14 @@ const getToken = async () => {
   const user_client_id = getCustomClientID()
   // use user-set client ID if it exists and is non-empty, otherwise use Reveddit client ID
   client_id = user_client_id || client_id
-
+  if (await extensionIsInstalled()) {
+    console.log('extension >3.0 is installed')
+    if (reddit_API_rules_changed && ! user_client_id) {
+      return null
+    }
+  } else {
+    console.log('extension >3.0 is NOT installed')
+  }
   // Headers for getting reddit api token
   const tokenInit = {
     headers: {

@@ -1,4 +1,5 @@
 import React, {useState, useMemo} from 'react'
+import scrollToElement from 'scroll-to-element'
 import { getRevdditCommentsBySubreddit } from 'data_processing/comments'
 import { getRevdditMissingComments } from 'data_processing/missing_comments'
 import { getRevdditPostsBySubreddit } from 'data_processing/subreddit_posts'
@@ -13,7 +14,6 @@ import Selections from 'pages/common/selections'
 import SummaryAndPagination from 'pages/common/SummaryAndPagination'
 import { showAccountInfo_global, ClientIDForm, installed_app_link } from 'pages/modals/Settings'
 import { newUserModal, SpreadWord } from 'pages/modals/Misc'
-
 import { connect, removedFilter_types, getExtraGlobalStateVars, create_qparams,
          urlParamKeys_max_min,
 } from 'state'
@@ -58,7 +58,11 @@ export const handleRedditError = (error, connectedProps) => {
     </>
     } else {
       content = <>
-        <p>To use Reveddit, sign up for an {installed_app_link} and enter its ID here.</p>
+        <p>Reveddit now requires <b>either</b> the extension,</p>
+        <div className='space-around' style={{paddingTop: '10px'}}>
+          <ExtensionLink image={true}/>
+        </div>
+        <p><b>or</b> an {installed_app_link}:</p>
         {<ClientIDForm/>}
         <SocialLinks/>
       </>

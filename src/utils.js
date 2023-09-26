@@ -648,7 +648,36 @@ export const redirectToHistory = (subreddit, hash = '#banned') => {
   }
 }
 
-export const reddit_API_rules_changed = now > 1688194800
+// 1688194800 = July 1, 2023
+// 1617490531 = old
+export const reddit_API_rules_changed = now > 1617490531
+
+let extension_installed = false
+let extension_response
+const timeDelayBeforeAskingExtension = 3000 //300 // min that worked was 125
+const timeWaitForExtensionResponse = timeDelayBeforeAskingExtension+150 // min that worked was +50
+
+window.addEventListener("message", evt => {
+  if (evt.data.type === 'RevedditExtensionInstalled') {
+    // console.log('installed extension version', evt.data.version)
+    extension_installed = true
+  }
+});
+setTimeout(() => window.postMessage({type: 'IsExtensionInstalled'}), timeDelayBeforeAskingExtension)
+extension_response = new Promise(resolve => setTimeout(resolve, timeWaitForExtensionResponse));
+
+export const extensionIsInstalled = async () => {
+  await extension_response
+  return extension_installed
+}
+
+export const useExtensionToQuery = async () => {
+  const user_client_id = get(CLIENT_ID_SET_BY_USER_VAR_NAME)
+  if (reddit_API_rules_changed && ! user_client_id) {
+    return extensionIsInstalled()
+  }
+  return false
+}
 
 export const serviceWorkerRegistration = async () => {
   return navigator.serviceWorker?.ready.then((registration) => registration.active)

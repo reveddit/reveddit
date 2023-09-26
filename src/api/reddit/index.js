@@ -1,5 +1,5 @@
 import { chunk, fetchWithTimeout, promiseDelay,
-         getRandomInt, paramString, getCustomClientID,
+  getRandomInt, paramString, getCustomClientID, useExtensionToQuery,
 } from 'utils'
 import { getAuth } from './auth'
 import { mapRedditObj,
@@ -238,7 +238,40 @@ export const kindsReverse = {
   '': '',
 }
 
+// https://advancedweb.hu/how-to-use-async-await-with-postmessage/
+const getFromOldHTML = (path) => new Promise((res, rej) => {
+	const channel = new MessageChannel()
+
+	channel.port1.onmessage = ({data}) => {
+		channel.port1.close()
+		if (data.error) {
+			rej(data.error)
+		} else {
+			res(data.result)
+		}
+	}
+
+	window.postMessage({old: true, path}, [channel.port2])
+})
+
+// window.addEventListener("message", evt => {
+//   // if (evt.origin !== "http://example.com") return;
+//   if (evt.data.type === 'response') {
+//     console.log('web page received a response')
+//     console.log(evt.data) // "Response"
+//   }
+// });
+
+
 export const queryUserPageCombined = async (params) => {
+  console.log('website sending message to extension')
+  if (await useExtensionToQuery()) {
+    console.log('sending message from client to sw')
+    const result = await getFromOldHTML(getUserPathForHTMLRequest(params))
+    console.log('result', result)
+    return result
+  }
+
   return queryUserPage({
     useProxy: true,
     include_info:true,
@@ -271,11 +304,12 @@ const addQuarantineParam = (host, params) => {
   }
 }
 
-export const queryUserPage = async ({user, kind, sort, before, after, t, limit = 100,
-  quarantined_subreddits,
-  useProxy=false, include_info=false, include_parents=false}) => {
-  const host = getHost(useProxy)
-  const host_is_proxy = host === OAUTH_REDDIT_REV
+const getUserPathForHTMLRequest = (inParams) => {
+  const {path, params} = getUserPathAndRedditParams({...inParams, suffix: ''})
+  return '/'+path+'?'+paramString(params)
+}
+
+const getUserPathAndRedditParams = ({user, kind, sort, before, after, t, limit = 100, suffix = '.json'}) => {
   const params = {
     ...(sort && {sort}),
     ...(limit && {limit}),
@@ -283,6 +317,15 @@ export const queryUserPage = async ({user, kind, sort, before, after, t, limit =
     ...(after && {after}),
     ...(before && {before}),
   }
+  return {path: `user/${user}/${kinds[kind]}${suffix}`, params}
+}
+
+export const queryUserPage = async ({user, kind, sort, before, after, t, limit = 100,
+  quarantined_subreddits,
+  useProxy=false, include_info=false, include_parents=false}) => {
+  const host = getHost(useProxy)
+  const host_is_proxy = host === OAUTH_REDDIT_REV
+  const {params, path} = getUserPathAndRedditParams({user, kind, sort, before, after, t, limit})
   if (host_is_proxy) {
     params.include_info = include_info
     params.include_parents = include_parents
@@ -298,7 +341,7 @@ export const queryUserPage = async ({user, kind, sort, before, after, t, limit =
   }
   let json
   try {
-    json = await fetchJsonAndValidate(host + `user/${user}/${kinds[kind]}.json` + '?'+paramString(params), auth)
+    json = await fetchJsonAndValidate(host + path + '?'+paramString(params), auth)
   } catch (e) {
     if (host !== notProxy_host && e.message !== 'Forbidden') {
       can_use_oauth_reddit_rev = false
