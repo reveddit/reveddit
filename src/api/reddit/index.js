@@ -589,12 +589,17 @@ const getModlogsItems = async ({subreddit, itemType, limit = 100, link_id}) => {
   const approved = (link_id && itemType == 'link') ? '&type=approvelink' : ''
   const remove = '&type=remove'+itemType
   const spam = '&type=spam'+itemType
+
   let auth = {}
   const urls = []
   const subreddit_lower = subreddit.toLowerCase()
-  const baseUrl = oauth_reddit + `r/${subreddit}/about/log/.json?feed=${u_publicmodlogs_feed}&user=publicmodlogs`
+  const params = `?feed=${u_publicmodlogs_feed}&user=publicmodlogs`
+  const baseUrl = oauth_reddit + `r/${subreddit}/about/log/.json${params}`
+  const spamParams = `${params}&only=links&limit=50`
+  const spamUrl = oauth_reddit + `r/${subreddit}/about/spam/.json${spamParams}`
   auth = await getAuth()
   urls.push(...[
+    spamUrl,
     baseUrl + remove + `&limit=${limit}`,
     baseUrl + spam + "&limit=50"
   ])
@@ -632,12 +637,12 @@ const postProcessModlogsList = (list, link_id = '', items = {}) => {
     if (item.data) {
       data = item.data
     }
-    data.target_permalink = data.target_permalink.replace(/^https?:\/\/[^/]*/,'')
+    data.target_permalink = (data.target_permalink || data.permalink).replace(/^https?:\/\/[^/]*/,'')
     data.link_id = 't3_'+data.target_permalink.split('/')[4]
     if (link_id && data.link_id !== 't3_'+link_id) {
       continue
     }
-    data.id = data.target_fullname.slice(3)
+    data.id = (data.target_fullname || data.name).slice(3)
     data.log_source = 'u_publicmodlogs'
     items[data.id] = data
   }
