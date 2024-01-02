@@ -61,6 +61,15 @@ export const FaithfullyEngaged = ({topMessage = widespread}) => {
 
 export const SpreadWord = FaithfullyEngaged
 
+const hasSeenOnlyFoolHumans = 'hasSeenOnlyFoolHumans'
+export const onlyFoolHumansLink = 'https://www.removednews.com/p/shadow-bans-only-fool-humans'
+export const OnlyFoolHumans = () => {
+  return (<>
+    <NewWindowLink href={onlyFoolHumansLink} onClick={() => put(hasSeenOnlyFoolHumans, true)}><img alt="Link to article titled: Shadow Bans Only Fool Humans, Not Bots" src="/images/substack-media-2024-01-02.jpg"/></NewWindowLink>
+  </>)
+}
+
+
 const hasSeenCensorshipWorse = 'hasSeenCensorshipWorse'
 export const censorshipWorseLink = 'https://www.removednews.com/p/hate-online-censorship-its-way-worse'
 export const CensorshipWorse = () => {
@@ -84,7 +93,10 @@ export const newUserModal = (props) => {
       hash_options.push(hash)
     }
   }
-  if (! get(hasSeenFaithfullyEngaged, false)) {
+  if (! get(hasSeenOnlyFoolHumans, false)) {
+    props.openGenericModal({hash: 'only_fool_humans'})
+    put(hasSeenOnlyFoolHumans, true)
+  } else if (! get(hasSeenFaithfullyEngaged, false)) {
     props.openGenericModal({hash: 'faithfully_engaged'})
     put(hasSeenFaithfullyEngaged, true)
   } else if (hash_options.length) {
