@@ -454,6 +454,10 @@ export const getRandomInt = (max) => {
   return Math.floor(Math.random() * Math.floor(max));
 }
 
+export const getRandomElement = (items) => {
+  return items[Math.floor(Math.random()*items.length)]
+}
+
 export const shuffle = (array) => {
   var currentIndex = array.length, temporaryValue, randomIndex
   while (0 !== currentIndex) {

@@ -5,18 +5,19 @@ import Comment from 'pages/common/Comment'
 import Time from 'pages/common/Time'
 import { getWhatPeopleSay } from 'api/reveddit'
 import { itemIsRemovedOrDeleted, SimpleURLSearchParams,
-         PATH_STR_USER, PATH_STR_SUB,
+         PATH_STR_USER, PATH_STR_SUB, getRandomElement,
 } from 'utils'
 import { combinePushshiftAndRedditComments } from 'data_processing/comments'
 import { setPostAndParentDataForComments } from 'data_processing/info'
 import Highlight from 'pages/common/Highlight'
 import { Link } from 'react-router-dom'
 import { InternalPage, NewWindowLink, SamePageHashLink, Spin } from 'components/Misc'
-import { SpreadWord, censorshipWorseLink, onlyFoolHumansLink } from 'pages/modals/Misc'
+import { SpreadWord, censorshipWorseLink, onlyFoolHumansLink, OnlyFoolHumans, YoutubeShadowRemovals } from 'pages/modals/Misc'
 
 const whatPeopleSay_id = 'say'
 const whatPeopleSay_hash = '#'+whatPeopleSay_id
 const whatPeopleSay_indexParam = 'i'
+const headlineComponents = [<OnlyFoolHumans/>, <SpreadWord topMessage={<></>}/>, <YoutubeShadowRemovals topMessage={<></>}/>]
 
 const filterDeletedComments = (comments) => {
   const result = []
@@ -204,6 +205,7 @@ const About = ({global, ...props}) => {
   } else if (status === 'donate-cancel') {
     message = 'Your donation has been cancelled.'
   }
+  const headlineComponent = getRandomElement(headlineComponents)
   return (
       <InternalPage props={props}>
         <div className='about section'>
@@ -214,7 +216,7 @@ const About = ({global, ...props}) => {
           }
           <ContentWithHeader header='About'>
             <BlankUser bottomMessage={<></>}/>
-            <div className='note'><SpreadWord topMessage={<></>}/></div>
+            <div className='note'>{headlineComponent}</div>
             <Highlight showMobile={true}/>
           </ContentWithHeader>
         </div>

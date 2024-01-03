@@ -38,7 +38,7 @@ export const hasSeenYoutubeShadowRemovals = 'hasSeenSpreadWord_v2'
 export const hasSeenSpreadWord = hasSeenYoutubeShadowRemovals
 
 const startTimes = ['1372', '1538', '2073', '3438', '3887', '4319']
-const widespread = <p>Shadowbanning is more widespread than you think. Spread the word!</p>
+const widespread = <p>Shadow banning is more widespread than you think. Spread the word!</p>
 export const YoutubeShadowRemovals = ({topMessage = widespread}) => {
   return (<>
     {topMessage}
@@ -61,7 +61,7 @@ export const FaithfullyEngaged = ({topMessage = widespread}) => {
 
 export const SpreadWord = FaithfullyEngaged
 
-const hasSeenOnlyFoolHumans = 'hasSeenOnlyFoolHumans'
+const hasSeenOnlyFoolHumans = 'hasSeenOnlyFoolHumansv2'
 export const onlyFoolHumansLink = 'https://www.removednews.com/p/shadow-bans-only-fool-humans'
 export const OnlyFoolHumans = () => {
   return (<>
@@ -95,7 +95,6 @@ export const newUserModal = (props) => {
   }
   if (! get(hasSeenOnlyFoolHumans, false)) {
     props.openGenericModal({hash: 'only_fool_humans'})
-    put(hasSeenOnlyFoolHumans, true)
   } else if (! get(hasSeenFaithfullyEngaged, false)) {
     props.openGenericModal({hash: 'faithfully_engaged'})
     put(hasSeenFaithfullyEngaged, true)
