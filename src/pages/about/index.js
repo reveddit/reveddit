@@ -18,6 +18,7 @@ const whatPeopleSay_id = 'say'
 const whatPeopleSay_hash = '#'+whatPeopleSay_id
 const whatPeopleSay_indexParam = 'i'
 const headlineComponents = [<OnlyFoolHumans/>, <SpreadWord topMessage={<></>}/>, <YoutubeShadowRemovals topMessage={<></>}/>]
+const headlineComponent = getRandomElement(headlineComponents)
 
 const filterDeletedComments = (comments) => {
   const result = []
@@ -205,7 +206,6 @@ const About = ({global, ...props}) => {
   } else if (status === 'donate-cancel') {
     message = 'Your donation has been cancelled.'
   }
-  const headlineComponent = getRandomElement(headlineComponents)
   return (
       <InternalPage props={props}>
         <div className='about section'>
