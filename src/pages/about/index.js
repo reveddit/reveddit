@@ -216,8 +216,8 @@ const About = ({global, ...props}) => {
           }
           <ContentWithHeader header='About'>
             <BlankUser bottomMessage={<></>}/>
-            <div className='note'>{headlineComponent}</div>
             <Highlight showMobile={true}/>
+            <div className='note'>{headlineComponent}</div>
           </ContentWithHeader>
         </div>
         <ContentWithHeader header='What people say' className='section' id={whatPeopleSay_id} onClick={() => {setSingleDisplayIndex(-1)}}>
