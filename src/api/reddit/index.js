@@ -271,6 +271,8 @@ const addQuarantineParam = (host, params) => {
   }
 }
 
+export const EmptyUserPageResult = {items: [], after: null}
+
 export const queryUserPage = async ({user, kind, sort, before, after, t, limit = 100,
   quarantined_subreddits,
   useProxy=false, include_info=false, include_parents=false}) => {
@@ -355,7 +357,7 @@ export const queryUserPage = async ({user, kind, sort, before, after, t, limit =
       return result
     }
   } else {
-    let empty = {items: [], after: null}
+    let empty = {...EmptyUserPageResult}
     if ('message' in json && 'error' in json) {
       empty.message = json.message
       empty.error = json.error
