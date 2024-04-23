@@ -12,12 +12,11 @@ import { setPostAndParentDataForComments } from 'data_processing/info'
 import Highlight from 'pages/common/Highlight'
 import { Link } from 'react-router-dom'
 import { InternalPage, NewWindowLink, SamePageHashLink, Spin } from 'components/Misc'
-import { SpreadWord, censorshipWorseLink, onlyFoolHumansLink, OnlyFoolHumans, YoutubeShadowRemovals } from 'pages/modals/Misc'
+import { media, headlineComponents } from 'pages/modals/Misc'
 
 const whatPeopleSay_id = 'say'
 const whatPeopleSay_hash = '#'+whatPeopleSay_id
 const whatPeopleSay_indexParam = 'i'
-const headlineComponents = [<OnlyFoolHumans/>, <SpreadWord topMessage={<></>}/>, <YoutubeShadowRemovals topMessage={<></>}/>]
 const headlineComponent = getRandomElement(headlineComponents)
 
 const filterDeletedComments = (comments) => {
@@ -52,11 +51,11 @@ export const NewsItem = ({to, title, created_utc, newsText = '', timePrefix = ''
 const contact = '/about/contact/'
 const donate = '/about/donate/'
 const news = [
-  {href: onlyFoolHumansLink,
-  title: "Shadow Bans Only Fool Humans, Not Bots",
+  {href: media.ofh.news_url,
+  title: media.ofh.news_text,
   created_utc: '1704206700'},
-  {href: censorshipWorseLink,
-  title: "Hate Online Censorship? It's Way Worse Than You Think.",
+  {href: media.cw.news_url,
+  title: media.cw.news_text,
   created_utc: '1689944502'},
   {reddit: '/14ofm29',
   title: "I'm the creator of Reveddit. AMA",
