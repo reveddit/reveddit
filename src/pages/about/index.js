@@ -12,12 +12,12 @@ import { setPostAndParentDataForComments } from 'data_processing/info'
 import Highlight from 'pages/common/Highlight'
 import { Link } from 'react-router-dom'
 import { InternalPage, NewWindowLink, SamePageHashLink, Spin } from 'components/Misc'
-import { media, headlineComponents } from 'pages/modals/Misc'
+import { media, headlines } from 'pages/modals/Misc'
 
 const whatPeopleSay_id = 'say'
 const whatPeopleSay_hash = '#'+whatPeopleSay_id
 const whatPeopleSay_indexParam = 'i'
-const headlineComponent = getRandomElement(headlineComponents)
+const headline = getRandomElement(headlines)
 
 const filterDeletedComments = (comments) => {
   const result = []
@@ -216,7 +216,7 @@ const About = ({global, ...props}) => {
           <ContentWithHeader header='About'>
             <BlankUser bottomMessage={<></>}/>
             <Highlight showMobile={true}/>
-            <div className='note'>{headlineComponent}</div>
+            <div className='note'>{React.cloneElement(media[headline].content({topMessage:''}))}</div>
           </ContentWithHeader>
         </div>
         <ContentWithHeader header='What people say' className='section' id={whatPeopleSay_id} onClick={() => {setSingleDisplayIndex(-1)}}>

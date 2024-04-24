@@ -90,18 +90,6 @@ export const CensorshipWorse = () => {
 }
 
 export const media = {
-  'yt': {
-    'content': YoutubeShadowRemovals,
-    'local_storage_var': 'hasSeenSpreadWord_v2',
-    'url_hash': 'youtube_shadow',
-  },
-  'fe': {
-    'content': FaithfullyEngaged,
-    'local_storage_var': 'hasSeenSpreadWord',
-    'url_hash': 'faithfully_engaged',
-    'news_url': 'https://www.youtube.com/watch?v=ndiAl6QEA6k&t=1345s',
-    'news_text': "The Problem with Shadowbanning on Reddit and Beyond: A discussion with Reveddit Owner Robert Hawkins",
-  },
   'csa': {
     'content': CoupSaveAmerica,
     'local_storage_var': 'sawCSA',
@@ -115,6 +103,18 @@ export const media = {
     'url_hash': 'only_fool_humans',
     'news_url': 'https://www.removednews.com/p/shadow-bans-only-fool-humans',
     'news_text': "Shadow Bans Only Fool Humans, Not Bots",
+  },
+  'fe': {
+    'content': FaithfullyEngaged,
+    'local_storage_var': 'hasSeenSpreadWord',
+    'url_hash': 'faithfully_engaged',
+    'news_url': 'https://www.youtube.com/watch?v=ndiAl6QEA6k&t=1345s',
+    'news_text': "The Problem with Shadowbanning on Reddit and Beyond: A discussion with Reveddit Owner Robert Hawkins",
+  },
+  'yt': {
+    'content': YoutubeShadowRemovals,
+    'local_storage_var': 'hasSeenSpreadWord_v2',
+    'url_hash': 'youtube_shadow',
   },
   'cw': {
     'content': CensorshipWorse,
@@ -131,9 +131,10 @@ export const media = {
   //   'news_text': '',
   // },
 }
-//export const headlineComponents = [<CoupSaveAmerica topMessage={<></>}/>, <OnlyFoolHumans/>, <FaithfullyEngaged topMessage={<></>}/>, <YoutubeShadowRemovals topMessage={<></>}/>]
-export const headlineComponents = [<CoupSaveAmerica topMessage={<></>}/>]
-const modals = ['csa', 'ofh', 'fe', 'yt', 'cw']
+
+export const headlines = ['csa']
+//export const headlines = Object.keys(media)
+const modals = Object.keys(media)
 
 export const newUserModal = (props) => {
   if (window.location.hash === '#say') {
