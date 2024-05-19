@@ -13,12 +13,23 @@ header
     #button_shuffle
       margin-left: 3px
       margin-top: 2px
-  #nav *
-    font-weight: bold
-  #subheading
-    margin-top: 5px
+  #nav
+    display: flex
+    align-items: center
     *
       font-weight: bold
+  .nav-item
+    border-right: 1px solid white
+    padding: 0 10px
+    &:first-child
+      padding-left: 0
+    &:last-child
+      border-right: none
+  #subheading
+    *
+      font-weight: bold
+    input[type="submit"], button
+      cursor: pointer
     .user input[type="text"]
       width: 118px
     input[type="text"]
@@ -40,6 +51,9 @@ header
     font-size: 16px
 
   #header
+    display: flex
+    flex-direction: column
+    gap: 10px
     a,label
       color: #fff
     h1
