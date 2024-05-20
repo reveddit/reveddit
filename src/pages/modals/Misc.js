@@ -51,6 +51,9 @@ export const CoupSaveAmerica = ({topMessage = widespread}) => {
   return (<>
     {topMessage}
     <YoutubeVideo id='2_Fw0NgFZXk'/>
+    <div className='space-around' style={{marginBottom: '30px'}}>
+      <NewWindowLink href="https://podcasts.apple.com/us/podcast/exploring-shadow-banning-with-robert-hawkins/id1624175133?i=1000653301210">audio only</NewWindowLink>
+    </div>
   </>)
 }
 
@@ -69,7 +72,6 @@ export const FaithfullyEngaged = ({topMessage = widespread}) => {
     <YoutubeVideo id={`ndiAl6QEA6k?start=${startTime}`}/>
     <div className='space-around' style={{marginBottom: '30px'}}>
       <NewWindowLink href="https://podcasts.apple.com/us/podcast/the-problem-with-shadowbanning-on-reddit-and/id1665487526?i=1000617548040">audio only</NewWindowLink>
-      <NewWindowLink href="https://faithfullyengaged.com/blog/the-changing-landscape-of-social-media-from-community-to-censorship">write-up</NewWindowLink>
     </div>
   </>)
 }
