@@ -216,7 +216,6 @@ const About = ({global, ...props}) => {
           <ContentWithHeader header='About'>
             <BlankUser bottomMessage={<></>}/>
             <Highlight showMobile={true}/>
-            <div className='note'>{React.cloneElement(media[headline].content({topMessage:''}))}</div>
           </ContentWithHeader>
         </div>
         <ContentWithHeader header='What people say' className='section' id={whatPeopleSay_id} onClick={() => {setSingleDisplayIndex(-1)}}>
@@ -247,6 +246,7 @@ const About = ({global, ...props}) => {
               </React.Fragment>
           : ''}
         </ContentWithHeader>
+        <div className='image-or-video'>{React.cloneElement(media[headline].content({topMessage:''}))}</div>
         <Row>
           <ContentWithHeader header='News' half={true}>
             <ul className='news'>
