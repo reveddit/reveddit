@@ -15,6 +15,9 @@ const LOCALHOST = 'http://localhost'
 const API_REVEDDIT = 'https://api.reveddit.com/'
 const MODLOGS_API = API_REVEDDIT+'short/modlogs/api/'
 let OAUTH_REDDIT_REV = 'https://cred2.reveddit.com/'
+const EXTENSION_ID_DEV = 'flebbibjihapbjipljlfkokfejgaipil'
+const EXTENSION_ID_PROD = 'ickfhlplfbipnfahjbeongebnmojbnhm'
+let EXTENSION_ID = EXTENSION_ID_PROD
 const createHashFromFile = filePath => new Promise(resolve => {
   const hash = crypto.createHash('sha1');
   fs.createReadStream(filePath).on('data', data => hash.update(data)).on('end', () => resolve(hash.digest('hex')));
@@ -22,6 +25,7 @@ const createHashFromFile = filePath => new Promise(resolve => {
 
 const X_FILES_DIR = 'x-files'
 const GENERATED_CSS_FILE = `dist/${X_FILES_DIR}/main.css`
+
 
 module.exports = async (env, argv) => {
   const cssContentHash = await createHashFromFile(GENERATED_CSS_FILE)
@@ -47,6 +51,7 @@ module.exports = async (env, argv) => {
   }
   const IS_PRODUCTION = argv.mode === 'production'
 
+
   let flask_host = API_REVEDDIT
   let short = 'short/', long = 'long/'
   let cors_anywhere_host = API_REVEDDIT+short+'cors/'
@@ -54,7 +59,38 @@ module.exports = async (env, argv) => {
     flask_host = LOCALHOST + ':5000/'
     short = '', long = ''
     OAUTH_REDDIT_REV = LOCALHOST + ':8787/'
+    EXTENSION_ID = EXTENSION_ID_DEV
   }
+  const plugins = [
+    new webpack.DefinePlugin({
+      REDDIT_API_CLIENT_ID: JSON.stringify(process.env.REDDIT_API_CLIENT_ID),
+      LAMBDA_ENDPOINT: JSON.stringify(process.env.LAMBDA_ENDPOINT),
+      STRIPE_PUBLISHABLE_KEY: JSON.stringify(process.env.STRIPE_PUBLISHABLE_KEY),
+      REVEDDIT_FLASK_HOST_SHORT: JSON.stringify(flask_host+short),
+      REVEDDIT_FLASK_HOST_LONG: JSON.stringify(flask_host+long),
+      REVEDDIT_CORS_ANWHERE_HOST: JSON.stringify(cors_anywhere_host),
+      U_MODLOGS_API: JSON.stringify(MODLOGS_API),
+      OAUTH_REDDIT_REV: JSON.stringify(OAUTH_REDDIT_REV),
+      EXTENSION_ID: JSON.stringify(EXTENSION_ID),
+      IS_PRODUCTION: JSON.stringify(IS_PRODUCTION)
+    }),
+    new LodashModuleReplacementPlugin,
+    new HtmlWebpackPlugin({
+      template: path.resolve(__dirname, 'src/index.html'),
+      filename: path.resolve(__dirname, 'dist/index.html'),
+    }),
+      ...injectScript(GENERATED_CSS_FILE, 'dist/')
+  ]
+
+  if (IS_PRODUCTION) {
+    plugins.push(
+      new WorkboxPlugin.InjectManifest({
+        swSrc: path.resolve(__dirname, './src/sw.js'),
+        swDest: 'service-worker.js',
+        ...(! IS_PRODUCTION && {maximumFileSizeToCacheInBytes: 8*1024*1024}),
+    }))
+  }
+
   return {
     entry: [
       'whatwg-fetch',
@@ -100,29 +136,7 @@ module.exports = async (env, argv) => {
     resolve: {
       modules: [path.resolve(__dirname, 'src'), 'node_modules']
     },
-    plugins: [
-      new webpack.DefinePlugin({
-        REDDIT_API_CLIENT_ID: JSON.stringify(process.env.REDDIT_API_CLIENT_ID),
-        LAMBDA_ENDPOINT: JSON.stringify(process.env.LAMBDA_ENDPOINT),
-        STRIPE_PUBLISHABLE_KEY: JSON.stringify(process.env.STRIPE_PUBLISHABLE_KEY),
-        REVEDDIT_FLASK_HOST_SHORT: JSON.stringify(flask_host+short),
-        REVEDDIT_FLASK_HOST_LONG: JSON.stringify(flask_host+long),
-        REVEDDIT_CORS_ANWHERE_HOST: JSON.stringify(cors_anywhere_host),
-        U_MODLOGS_API: JSON.stringify(MODLOGS_API),
-        OAUTH_REDDIT_REV: JSON.stringify(OAUTH_REDDIT_REV),
-      }),
-      new LodashModuleReplacementPlugin,
-      new HtmlWebpackPlugin({
-        template: path.resolve(__dirname, 'src/index.html'),
-        filename: path.resolve(__dirname, 'dist/index.html'),
-      }),
-        ...injectScript(GENERATED_CSS_FILE, 'dist/'),
-      new WorkboxPlugin.InjectManifest({
-        swSrc: path.resolve(__dirname, './src/sw.js'),
-        swDest: 'service-worker.js',
-        ...(! IS_PRODUCTION && {maximumFileSizeToCacheInBytes: 8*1024*1024}),
-      }),
-    ],
+    plugins: plugins,
     optimization: {
       // from https://medium.com/hackernoon/the-100-correct-way-to-split-your-chunks-with-webpack-f8a9df5b7758
       // and  https://stackoverflow.com/a/52961891/2636364
