@@ -238,38 +238,14 @@ export const kindsReverse = {
   '': '',
 }
 
-// https://advancedweb.hu/how-to-use-async-await-with-postmessage/
-const getFromOldHTML = (path) => new Promise((res, rej) => {
-	const channel = new MessageChannel()
-
-	channel.port1.onmessage = ({data}) => {
-		channel.port1.close()
-		if (data.error) {
-			rej(data.error)
-		} else {
-			res(data.result)
-		}
-	}
-
-	window.postMessage({old: true, path}, [channel.port2])
-})
-
-// window.addEventListener("message", evt => {
-//   // if (evt.origin !== "http://example.com") return;
-//   if (evt.data.type === 'response') {
-//     console.log('web page received a response')
-//     console.log(evt.data) // "Response"
-//   }
-// });
-
+const getFromOldHTML = (path) => {
+  return chrome.runtime.sendMessage(EXTENSION_ID, {action: 'fetch-old', path})
+}
 
 export const queryUserPageCombined = async (params) => {
-  console.log('website sending message to extension')
   if (await useExtensionToQuery()) {
-    console.log('sending message from client to sw')
     const result = await getFromOldHTML(getUserPathForHTMLRequest(params))
-    console.log('result', result)
-    return result
+    return {user: result.data, info: []}
   }
 
   return queryUserPage({
