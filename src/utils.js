@@ -656,23 +656,11 @@ export const redirectToHistory = (subreddit, hash = '#banned') => {
 // 1617490531 = old
 export const reddit_API_rules_changed = now > 1617490531
 
-let extension_installed = false
-let extension_response
-const timeDelayBeforeAskingExtension = 3000 //300 // min that worked was 125
-const timeWaitForExtensionResponse = timeDelayBeforeAskingExtension+150 // min that worked was +50
-
-window.addEventListener("message", evt => {
-  if (evt.data.type === 'RevedditExtensionInstalled') {
-    // console.log('installed extension version', evt.data.version)
-    extension_installed = true
-  }
-});
-setTimeout(() => window.postMessage({type: 'IsExtensionInstalled'}), timeDelayBeforeAskingExtension)
-extension_response = new Promise(resolve => setTimeout(resolve, timeWaitForExtensionResponse));
+const extension_response = chrome?.runtime?.sendMessage(EXTENSION_ID, {action: 'version'})
 
 export const extensionIsInstalled = async () => {
-  await extension_response
-  return extension_installed
+  const version = await extension_response
+  return !! version
 }
 
 export const useExtensionToQuery = async () => {
