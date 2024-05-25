@@ -16,7 +16,7 @@ import {old_reddit} from 'api/reddit'
 
 const PARAMKEYS_DONT_REMOVE_BACKSLASH = new Set(Object.values(urlParamKeys_textFilters))
 
-if ('serviceWorker' in navigator) {
+if ('serviceWorker' in navigator && IS_PRODUCTION === 'true') {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js').then(registration => {
     }).catch(registrationError => {
