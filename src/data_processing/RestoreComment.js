@@ -4,7 +4,7 @@ import {ifNumParseInt, isCommentID, validAuthor, now,
         time_is_in_archive_storage_window, commentIsRemoved, commentRemovedByReddit,
 } from 'utils'
 import {connect, urlParamKeys, create_qparams_and_adjust, updateURL} from 'state'
-import { kindsReverse, queryUserPage } from 'api/reddit'
+import { kindsReverse, queryUserPage, EmptyUserPageResult } from 'api/reddit'
 import { getWaybackComments } from 'api/reveddit'
 import { Spin, QuestionMarkModal, Help, NewWindowLink, ModalWithButton, buttonClasses } from 'components/Misc'
 import { copyFields, initializeComment, retrieveRedditComments_and_combineWithPushshiftComments } from 'data_processing/comments'
@@ -453,6 +453,10 @@ export class AddUserItem {
       t: this.time,
       limit: this.limit || 100,
       ...getQuarantinedParams(this.quarantined_subreddits),
+    })
+    .catch(e => {
+      console.error('USER PAGE LOOKUP FAILED:', (this.author || '[]'))
+      return EmptyUserPageResult
     })
   }
   toString() {

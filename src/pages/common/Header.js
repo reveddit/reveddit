@@ -129,13 +129,10 @@ class Header extends React.Component {
           <div id='header'>
             <div id='site-name'><Link to="/about/">about <span className='rev'>rev</span>eddit</Link></div>
             <div id='nav'>
-              <a href="#settings" onClick={this.settings}>⚙</a>
-              <span> | </span>
-              <Link to="/about/faq/">F.A.Q.</Link>
-              <span> | </span>
-              <Link to="/add-ons/">add-ons</Link>
-              <span> | </span>
-              <TwitterWhite/>
+              <a href="#settings" onClick={this.settings} className="nav-item">⚙</a>
+              <Link to="/about/faq/" className="nav-item">F.A.Q.</Link>
+              <Link to="/add-ons/" className="nav-item">add-ons</Link>
+              <TwitterWhite className="nav-item"/>
             </div>
             {value &&
               <div id='subheading'>

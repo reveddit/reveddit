@@ -5,18 +5,19 @@ import Comment from 'pages/common/Comment'
 import Time from 'pages/common/Time'
 import { getWhatPeopleSay } from 'api/reveddit'
 import { itemIsRemovedOrDeleted, SimpleURLSearchParams,
-         PATH_STR_USER, PATH_STR_SUB,
+         PATH_STR_USER, PATH_STR_SUB, getRandomElement,
 } from 'utils'
 import { combinePushshiftAndRedditComments } from 'data_processing/comments'
 import { setPostAndParentDataForComments } from 'data_processing/info'
 import Highlight from 'pages/common/Highlight'
 import { Link } from 'react-router-dom'
 import { InternalPage, NewWindowLink, SamePageHashLink, Spin } from 'components/Misc'
-import { SpreadWord, censorshipWorseLink } from 'pages/modals/Misc'
+import { media, headlines } from 'pages/modals/Misc'
 
 const whatPeopleSay_id = 'say'
 const whatPeopleSay_hash = '#'+whatPeopleSay_id
 const whatPeopleSay_indexParam = 'i'
+const headline = getRandomElement(headlines)
 
 const filterDeletedComments = (comments) => {
   const result = []
@@ -50,8 +51,11 @@ export const NewsItem = ({to, title, created_utc, newsText = '', timePrefix = ''
 const contact = '/about/contact/'
 const donate = '/about/donate/'
 const news = [
-  {href: censorshipWorseLink,
-  title: "Hate Online Censorship? It's Way Worse Than You Think.",
+  {href: media.ofh.news_url,
+  title: media.ofh.news_text,
+  created_utc: '1704206700'},
+  {href: media.cw.news_url,
+  title: media.cw.news_text,
   created_utc: '1689944502'},
   {reddit: '/14ofm29',
   title: "I'm the creator of Reveddit. AMA",
@@ -211,7 +215,6 @@ const About = ({global, ...props}) => {
           }
           <ContentWithHeader header='About'>
             <BlankUser bottomMessage={<></>}/>
-            <div className='note'><SpreadWord topMessage={<></>}/></div>
             <Highlight showMobile={true}/>
           </ContentWithHeader>
         </div>
@@ -243,6 +246,7 @@ const About = ({global, ...props}) => {
               </React.Fragment>
           : ''}
         </ContentWithHeader>
+        <div className='image-or-video'>{React.cloneElement(media[headline].content({topMessage:''}))}</div>
         <Row>
           <ContentWithHeader header='News' half={true}>
             <ul className='news'>

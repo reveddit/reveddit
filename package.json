@@ -72,7 +72,7 @@
     "html-webpack-tags-plugin": "^2.0.17",
     "lodash-webpack-plugin": "^0.11.6",
     "netlify-lambda": "^1.4.13",
-    "sass": "^1.67.0",
+    "sass": "^1.69.7",
     "scroll-to-element": "^2.0.2",
     "standard": "^11.0.1",
     "style-loader": "^3.3.3",
