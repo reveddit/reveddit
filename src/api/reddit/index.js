@@ -245,7 +245,7 @@ const getFromOldHTML = (path) => {
 export const queryUserPageCombined = async (params) => {
   if (await useExtensionToQuery()) {
     const result = await getFromOldHTML(getUserPathForHTMLRequest(params))
-    return {user: result.data, info: []}
+    return {user: result.data, info: result.data.info}
   }
 
   return queryUserPage({
