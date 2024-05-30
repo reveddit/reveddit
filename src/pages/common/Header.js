@@ -42,7 +42,7 @@ class Header extends React.Component {
         <span className='subheading'>{display}</span>
         <label htmlFor={item_type} className='hide-element'>{item_type}</label>
         <input id={item_type} type='text' {...text_input_actions}
-        name={path_type} placeholder={item_type}/>
+        name={path_type} placeholder={item_type} autoComplete={item_type}/>
         {path_suffix &&
           <span className='subheading'>{`/${path_suffix}/`}</span>
         }

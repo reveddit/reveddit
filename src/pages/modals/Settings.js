@@ -23,11 +23,11 @@ const getSetting = (initValue, varName) => {
   return [value, update_value, prev_value]
 }
 
-const renderSetting = (checked, onChange, description) => {
+const renderSetting = (checked, onChange, description, name) => {
   return (
     <div>
       <label>
-        <input type='checkbox' {...{checked, onChange}}/>
+        <input type='checkbox' {...{checked, onChange, name}}/>
         <span>{description}</span>
       </label>
     </div>
@@ -72,10 +72,10 @@ export default () => {
   return (
     <>
       <div className='header'>Everywhere</div>
-      {renderSetting(showAccountInfo, update_showAccountInfo, 'Show account age/karma')}
+      {renderSetting(showAccountInfo, update_showAccountInfo, 'Show account age/karma', 'showAccountInfo')}
       <div className='header'>In threads</div>
-      {renderSetting(limitCommentDepth, update_limitCommentDepth, 'Limit comment depth by default')}
-      {renderSetting(showRelDates, update_showRelDates, 'Show relative dates')}
+      {renderSetting(limitCommentDepth, update_limitCommentDepth, 'Limit comment depth by default', 'limitCommentDepth')}
+      {renderSetting(showRelDates, update_showRelDates, 'Show relative dates', 'showRelDates')}
       <div className='header'>{installed_app_link}</div>
       <ClientIDForm/>
       <div style={{textAlign:'center',color:'red',marginTop:'15px'}}>

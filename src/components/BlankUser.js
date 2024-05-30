@@ -75,7 +75,7 @@ export default ({message, bottomMessage, placeholder}) => {
       <form id='user-form' onSubmit={handleSubmitUser}>
         <label htmlFor='search' className='hide-element'>search</label>
         <input ref={inputRef} id='search' type='text' name='username' placeholder={placeholder || defaultPlaceholder} autoFocus='autoFocus'
-          value={input} onChange={(e) => setInput(e.target.value)}/>
+          value={input} onChange={(e) => setInput(e.target.value)} autoComplete='username'/>
         <input type='submit' id='button_u' value='go' />
         <div>
           <button title="Look up a random redditor" id='button_shuffle'
