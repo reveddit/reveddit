@@ -58,12 +58,13 @@ const ifTimeUnitConvertToEpoch = (timeStringOrNumber) => {
 
 //after=since
 //before=until
-const queryItems = ({q, author, subreddit, n = 500, sort:order='desc', sort_type:sort='created_utc', before:until, after:since, domain,
+const queryItems = async ({q, author, subreddit, n = 500, sort:order='desc', sort_type:sort='created_utc', before:until, after:since, domain,
                      url, selftext, parent_id, stickied, title, distinguished,
                      user_flair: author_flair_text,
                      },
                      apiURL, fields, prefix, key = 'name') => {
   const results = {}
+  return results
   if (since && ! until && ! sort) {
     order = 'asc'
   }
@@ -115,6 +116,7 @@ const fetchUrlWithParams = (url, queryParams, fetchFn = window.fetch, options = 
 // fields must include 'id'
 export const getCommentsByID = async ({ids, field='ids', fields=comment_fields}) => {
   const results = {}
+  return results
   let i = 0
   for (const ids_chunk of chunk(ids, maxNumCommentsByID)) {
     if (i > 0) {
@@ -126,12 +128,13 @@ export const getCommentsByID = async ({ids, field='ids', fields=comment_fields})
   return results
 }
 
-const getCommentsByID_chunk = (ids, field='ids', fields=comment_fields, results={}) => {
+const getCommentsByID_chunk = async (ids, field='ids', fields=comment_fields, results={}) => {
   const queryParams = {
     filter: fields.join(','),
     size: ids.length,
     [field]: ids.join(',')
   }
+  return {}
   return fetchUrlWithParams(commentURL, queryParams, fetchWithTimeout)
     .then(response => response.json())
     .then(data => {
@@ -198,10 +201,11 @@ const ifNumParseAndAdd = (n, add) => {
 
 }
 
-const getItemsBySubredditOrDomain = function(
+const getItemsBySubredditOrDomain = async (
   {subreddit:subreddits_str, domain:domains_str, n=maxNumItems, before:until='', after:since='',
    ps_url, fields, archiveTimes}
-) {
+) => {
+  return []
   const options = {timeout: 60000}
   if (archive_isOffline_for_extendedPeriod(archiveTimes)) {
     options.timeout = 4000
@@ -240,12 +244,13 @@ export const getPostsByID = ({ids, fields = post_fields}) => {
     })
 }
 
-const getPostsByID_chunk = (ids, fields = post_fields) => {
+const getPostsByID_chunk = async (ids, fields = post_fields) => {
   const params = {
     ids: ids.map(toBase10).join(','),
     filter: fields.join(','),
     limit: ids.length, // must be explicitly set
   }
+  return {}
   return fetchUrlWithParams(postURL, params, fetchWithTimeout)
     .then(response => response.json())
     .then(data => {
@@ -259,7 +264,7 @@ const getPostsByID_chunk = (ids, fields = post_fields) => {
     })
 }
 
-export const getPost = ({id, use_fields_for_manually_approved_lookup = false, archiveTimes}) => {
+export const getPost = async ({id, use_fields_for_manually_approved_lookup = false, archiveTimes}) => {
   const options = {}
   if (archive_isOffline_for_extendedPeriod(archiveTimes)) {
     options.timeout = 4000
@@ -270,6 +275,7 @@ export const getPost = ({id, use_fields_for_manually_approved_lookup = false, ar
   } else {
     params.filter = post_fields
   }
+  return {}
   return fetchUrlWithParams(postURL, params, fetchWithTimeout, options)
   .then(response => response.json())
   .then(data => {
@@ -317,7 +323,8 @@ export const getPost = ({id, use_fields_for_manually_approved_lookup = false, ar
 
 // api.pushshift.io currently only returns results with q=* specified and that limits result size to 100
 export const commentsByThreadReturnValueDefaults = { comments: {}, last: undefined }
-export const getCommentsByThread = ({link_id, after='', options = {timeout: 45000}, archiveTimes}) => {
+export const getCommentsByThread = async ({link_id, after='', options = {timeout: 45000}, archiveTimes}) => {
+  return commentsByThreadReturnValueDefaults
   if (archive_isOffline_for_extendedPeriod(archiveTimes)) {
     options.timeout = 4000
   }
