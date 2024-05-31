@@ -201,6 +201,9 @@ const getItems = async (user, kind, global, sort, before = '', after = '', time,
       return global.setError({userIssueDescription: 'ERROR: '+data.message})
     }
   }
+  if (! userPageData) {
+    return global.setError({userIssueDescription: 'ERROR: Too Many Requests'})
+  }
   const {comments: missingComments} = await missing_comments_promise
   const num_pages = gs.num_pages+1
   const userPage_item_lookup = {}
