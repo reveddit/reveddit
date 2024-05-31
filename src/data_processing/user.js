@@ -24,7 +24,6 @@ import {
 import { setPostAndParentDataForComments } from 'data_processing/info'
 import { setMissingCommentMeta } from 'data_processing/missing_comments'
 
-const verify = 'Verify the url and reload this page to double check. '
 const deleted_shadowbanned_notexist = 'may be deleted, shadowbanned, or may not exist. '
 
 function lookupAndSetRemovedBy(global) {
@@ -205,22 +204,14 @@ const getItems = async (user, kind, global, sort, before = '', after = '', time,
       if (avail === true) {
         global.setError({userIssueDescription: 'does not exist'})
       } else {
-        const html_result = await userPageHTML(user)
-        const status = `You can also check account status at <a href="${www_reddit}/user/${user}" rel="noopener">/u/${user}</a> or <a href="${www_reddit}/r/ShadowBan" rel="noopener">/r/ShadowBan</a>.`
-        if ('error' in html_result) {
-          console.error(html_result.error)
-          global.setError({userIssueDescription: deleted_shadowbanned_notexist+verify+status})
-        } else if (html_result.html.match(/has deleted their account/)) {
-          global.setError({userIssueDescription: 'has deleted their account'})
-        } else if (html_result.html.match(/must be 18/)) {
-          global.setError({userIssueDescription: deleted_shadowbanned_notexist+verify+status})
-        } else {
-          global.setError({userIssueDescription: 'may be shadowbanned or may not exist. '+verify+status})
-        }
+        const status = `<p>Verify the URL, or check account status at <a href="${www_reddit}/user/${user}" rel="noopener">/u/${user}</a> or <a href="${www_reddit}/r/ShadowBan" rel="noopener">/r/ShadowBan</a>.</p>`
+        global.setError({userIssueDescription: deleted_shadowbanned_notexist+status})
       }
       return null
-    } else if ('message' in data && data.message.toLowerCase() == 'forbidden') {
+    } else if (data?.message.toLowerCase() == 'forbidden') {
       return global.setError({userIssueDescription: 'suspended'})
+    } else if (data?.message) {
+      return global.setError({userIssueDescription: 'ERROR: '+data.message})
     }
   }
   const {comments: missingComments} = await missing_comments_promise

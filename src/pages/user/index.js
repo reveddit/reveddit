@@ -55,7 +55,12 @@ const User = ({match, global, page_type, viewableItems, selections, summary, not
        kind={kind}
        loadAll={false}/></div>
   } else if (userIssueDescription) {
-    error = <div className='non-item text' dangerouslySetInnerHTML={{ __html: user +' '+ userIssueDescription }}></div>
+    const message = userIssueDescription.toLowerCase().startsWith('error') ? userIssueDescription : user + ' ' + userIssueDescription
+    let suffix = <></>
+    if (userIssueDescription.toLowerCase().includes('too many requests')) {
+      suffix = <span>. Try again later or <a href="#" onClick={() => modal.openModal({hash:'settings'})}>setup an API key.</a></span>
+    }
+    error = <div className='centered-note non-item text'><span dangerouslySetInnerHTML={{ __html: message }}/>{suffix}</div>
   }
   if (items.length) {
     pagesLoaded = <React.Fragment>

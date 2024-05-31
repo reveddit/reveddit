@@ -306,7 +306,7 @@ export const queryUserPage = async ({user, kind, sort, before, after, t, limit =
       can_use_oauth_reddit_rev = false
       return queryUserPageCombined({user, kind, ...params}) // host will be notProxy_host for this query
     }
-    errorHandler(e)
+    return e
   }
   if (host === OAUTH_REDDIT_REV) {
     if (! include_info && ! include_parents && json.user) {
@@ -415,10 +415,16 @@ const fetchJsonAndValidate = async (url, init = {}) => {
     init.cache = 'reload'
   }
   const response = await window.fetch(url, init)
+  let json
+  try {
+    json = await response.json()
+  } catch (e) {
+    throw new Error('fetchJsonAndValidate')
+  }
   if (response.ok) {
-    return response.json()
+    return json
   } else {
-    throw new Error('fetchJsonAndValidate error')
+    throw json
   }
 }
 
