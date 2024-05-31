@@ -11,7 +11,7 @@ import { itemIsOneOfSelectedActions, itemIsOneOfSelectedTags, filterSelectedActi
 import { getSortFn } from 'data_processing/sort'
 import Selections from 'pages/common/selections'
 import SummaryAndPagination from 'pages/common/SummaryAndPagination'
-import { showAccountInfo_global, ClientIDForm, installed_app_link } from 'pages/modals/Settings'
+import { showAccountInfo_global, ClientIDForm, guideLink } from 'pages/modals/Settings'
 import { newUserModal, SpreadWord } from 'pages/modals/Misc'
 
 import { connect, removedFilter_types, getExtraGlobalStateVars, create_qparams,
@@ -21,7 +21,7 @@ import { COLLAPSED, ORPHANED } from 'pages/common/RemovedBy'
 import { jumpToHash, get, put,
          itemIsActioned, itemIsCollapsed, commentIsOrphaned,
          commentIsMissingInThread, matchOrIncludes, now, reversible,
-         redirectToHistory, reddit_API_rules_changed,
+         redirectToHistory, getCustomClientID,
 } from 'utils'
 import { getAuthorInfoByName } from 'api/reddit'
 import { getAuth } from 'api/reddit/auth'
@@ -50,15 +50,13 @@ export const handleRedditError = (error, connectedProps) => {
   console.error(error)
   let content = getFirefoxError()
   if (! content) {
-    if (! reddit_API_rules_changed) {
-      content = <>
-        <p>Error: unable to connect to reddit</p>
-        <SpreadWord/>
-        <SocialLinks/>
-    </>
+    // if client_id is set and message is too many requests, change below message
+    const customClientID = getCustomClientID()
+    if (customClientID && error?.message?.toLowerCase().includes('too many requests')) {
+      content = <><p>Reddit said "{error.message}".</p><p>Try again in 5 minutes.</p><SocialLinks/></>
     } else {
       content = <>
-        <p>To use Reveddit, sign up for an {installed_app_link} and enter its ID here.</p>
+        <p>To use Reveddit, follow this {guideLink} to create an API key of type "installed app", and enter its ID here.</p>
         {<ClientIDForm/>}
         <SocialLinks/>
       </>
@@ -456,7 +454,7 @@ export const withFetch = (WrappedComponent) =>
         if (! content) {
           if (this.props.page_type.match(/^subreddit_/)) {
             redirectToHistory(subreddit, '#subreddit_unavailable')
-          } else if (reddit_API_rules_changed) {
+          } else {
             return handleRedditError(error, this.props)
           }
           content =

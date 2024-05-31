@@ -353,8 +353,12 @@ export const queryUserPage = async ({user, kind, sort, before, after, t, limit =
           result.parents = parents
         }))
       }
-      await Promise.all(promises)
-      return result
+      try {
+        await Promise.all(promises)
+        return result
+      } catch (e) {
+        return e
+      }
     }
   } else {
     let empty = {...EmptyUserPageResult}

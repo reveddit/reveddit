@@ -6,7 +6,7 @@ import LoadLink from './LoadLink'
 import {Notice, TipWithBackground} from 'pages/common/Notice'
 import { connect } from 'state'
 import { withFetch } from 'pages/RevdditFetcher'
-import { SimpleURLSearchParams, copyLink, get, put, PATH_STR_SUB } from 'utils'
+import { SimpleURLSearchParams, copyLink, get, put, PATH_STR_SUB, getCustomClientID } from 'utils'
 import Highlight from 'pages/common/Highlight'
 import ModalContext from 'contexts/modal'
 import { Spin } from 'components/Misc'
@@ -26,9 +26,10 @@ const User = ({match, global, page_type, viewableItems, selections, summary, not
   const queryParams = new SimpleURLSearchParams(window.location.search)
   const {userNext, num_pages, loading, userIssueDescription, items, show, after,
          hasVisitedUserPage_sortTop, hasVisitedSubredditPage, hasClickedRemovedUserCommentContext,
+         error,
         } = global.state
   let loadAllLink = '', nextLink = '', pagesLoaded = ''
-  let error = '', status = '', instructionalNotice = '', removedCommentsLink = ''
+  let errorMessage = '', status = '', instructionalNotice = '', removedCommentsLink = ''
   let totalPages = 10
   let selectedItems = null
   if (! userNext) {
@@ -41,7 +42,7 @@ const User = ({match, global, page_type, viewableItems, selections, summary, not
     selectedItems = queryParams.get('show').split(',')
   }
   if (! loading) {
-    if (! after && userNext) {
+    if (! after && userNext && ! error) {
       loadAllLink = <LoadLink user={user}
                      kind={kind}
                      loadAll={true}/>
@@ -49,18 +50,32 @@ const User = ({match, global, page_type, viewableItems, selections, summary, not
   }
   if (loading) {
     nextLink = <Spin/>
-  } else if (userNext) {
+  } else if (userNext && ! userIssueDescription && ! error) {
     nextLink = <div className='non-item'>
       <LoadLink user={user}
        kind={kind}
        loadAll={false}/></div>
   } else if (userIssueDescription) {
-    const message = userIssueDescription.toLowerCase().startsWith('error') ? userIssueDescription : user + ' ' + userIssueDescription
+    let message
+    if (userIssueDescription.toLowerCase().startsWith('error')) {
+      message = userIssueDescription
+    } else if (userIssueDescription === 'deleted_shadowbanned_notexist') {
+      message = <>
+        <p>{`${user} may be deleted, shadowbanned, or may not exist. `}</p>
+        <p>Verify the URL, or check account status at <a href="${www_reddit}/user/${user}" rel="noopener">/u/${user}</a> or <a href="${www_reddit}/r/ShadowBan" rel="noopener">/r/ShadowBan</a>.</p>
+      </>
+    } else {
+      message = `${user} ${userIssueDescription}`
+    }
     let suffix = <></>
     if (userIssueDescription.toLowerCase().includes('too many requests')) {
-      suffix = <span>. Try again later or <a href="#" onClick={() => modal.openModal({hash:'settings'})}>setup an API key.</a></span>
+      let api_key_message = ''
+      if (! getCustomClientID()) {
+        api_key_message = <> or <Link to="#settings" onClick={() => modal.openModal({hash:'settings'})}>setup an API key</Link></>
+      }
+      suffix = <>. Try again in 5 minutes{api_key_message}.</>
     }
-    error = <div className='centered-note non-item text'><span dangerouslySetInnerHTML={{ __html: message }}/>{suffix}</div>
+    errorMessage = <div className='centered-note non-item text'><span>{message}{suffix}</span></div>
   }
   if (items.length) {
     pagesLoaded = <React.Fragment>
@@ -135,7 +150,7 @@ const User = ({match, global, page_type, viewableItems, selections, summary, not
           {
             shownItems
           }
-          {error}
+          {errorMessage}
           {status}
         </div>
         <div className='footer'>

@@ -52,14 +52,16 @@ export const ClientIDForm = () => {
   return (
     <div className='space-around'>
       <form id='user-form' onSubmit={handleSubmit}>
-        <label htmlFor='clientid'>ID </label>
+        <label htmlFor='clientid'>Key </label>
         <input id='clientid' onChange={handleChange} type='text' name='clientid' placeholder='app id' autoFocus='autoFocus' defaultValue={get(CLIENT_ID_SET_BY_USER_VAR_NAME, '')}/>
         <input type='submit' id='button_u' value='go' />
       </form>
     </div>
   )
 }
-export const installed_app_link = <>"<NewWindowLink href={API_REGISTRATION_LINK}>Installed app</NewWindowLink>" API key (<NewWindowLink reddit='/1502sb3'>guide</NewWindowLink>) </>
+
+export const guideLink = <NewWindowLink reddit='/1502sb3'>guide</NewWindowLink>
+export const api_key_info = <>Follow this {guideLink} to create an API key and enter it here:</>
 export default () => {
   const [showRelDates, update_showRelDates, prev_showRelDates] = getSetting(showRelDates_global, showRelDates_var)
   const [showAccountInfo, update_showAccountInfo, prev_showAccountInfo] = getSetting(showAccountInfo_global, showAccountInfo_var)
@@ -76,7 +78,7 @@ export default () => {
       <div className='header'>In threads</div>
       {renderSetting(limitCommentDepth, update_limitCommentDepth, 'Limit comment depth by default', 'limitCommentDepth')}
       {renderSetting(showRelDates, update_showRelDates, 'Show relative dates', 'showRelDates')}
-      <div className='header'>{installed_app_link}</div>
+      <div className='header'>{api_key_info}</div>
       <ClientIDForm/>
       <div style={{textAlign:'center',color:'red',marginTop:'15px'}}>
         { changes ?

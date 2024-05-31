@@ -24,8 +24,6 @@ import {
 import { setPostAndParentDataForComments } from 'data_processing/info'
 import { setMissingCommentMeta } from 'data_processing/missing_comments'
 
-const deleted_shadowbanned_notexist = 'may be deleted, shadowbanned, or may not exist. '
-
 function lookupAndSetRemovedBy(global) {
   const comment_ids = []
   const post_ids = []
@@ -151,31 +149,21 @@ export const getRevdditUserItems = async (user, kind, global, isFirstTimeLoading
     Promise.all([moderated_promise, about_promise])
     .then(([moderated_subreddits, user_about]) =>
        global.setState({moderated_subreddits, user_about}))
+    .catch(() => {})
   }
   const params_pre_after = [user, kind, global, sort, before]
   const params_post_after = [t, limit, all]
   return getItems(...params_pre_after, after || gs.userNext, ...params_post_after)
   .then( async (pageLoad_or_loadAll_or_viewMore_userPageNext) => {
-    if ((isFirstTimeLoading && ! all) || (all && ! pageLoad_or_loadAll_or_viewMore_userPageNext)) {
-      await lookupAndSetRemovedBy(global)
-      .catch(() => {}) // previously: () => global.setError()
-    }
     window.onscroll = (ev) => {
-      const {loading, userNext, show} = global.state
-      if (userNext && ! loading && ! show && (window.innerHeight + window.pageYOffset) >= document.body.offsetHeight - 2) {
+      const {loading, userNext, show, error} = global.state
+      if (userNext && ! loading && ! error && ! show && (window.innerHeight + window.pageYOffset) >= document.body.offsetHeight - 2) {
         global.setLoading('')
         .then(() => {
           getItems(...params_pre_after, userNext, ...params_post_after)
           .then(() => {
             const {userNext: updated_userNext, items} = global.state
-            // on scroll load, call pushshift if page # is > 1 and there are no more pages
-            if (! updated_userNext && items.length > 100) {
-              return lookupAndSetRemovedBy(global)
-              .then(() => global.setSuccess())
-              .catch(() => {}) // previously: () => global.setError()
-            } else {
-              return global.setSuccess()
-            }
+            return global.setSuccess()
           })
         })
       }
@@ -204,8 +192,7 @@ const getItems = async (user, kind, global, sort, before = '', after = '', time,
       if (avail === true) {
         global.setError({userIssueDescription: 'does not exist'})
       } else {
-        const status = `<p>Verify the URL, or check account status at <a href="${www_reddit}/user/${user}" rel="noopener">/u/${user}</a> or <a href="${www_reddit}/r/ShadowBan" rel="noopener">/r/ShadowBan</a>.</p>`
-        global.setError({userIssueDescription: deleted_shadowbanned_notexist+status})
+        global.setError({userIssueDescription: 'deleted_shadowbanned_notexist'})
       }
       return null
     } else if (data?.message.toLowerCase() == 'forbidden') {

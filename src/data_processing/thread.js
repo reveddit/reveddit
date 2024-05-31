@@ -142,7 +142,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
       useProxy = true
       return getRedditPostWithComments({...reddit_pwc_baseArgs_firstQuery, useProxy})
     }
-    throw new Error('unable to retrieve data from reddit')
+    throw e
   })
   .then(async ({post: reddit_post, comments: redditComments, moreComments, oldestComment}) => {
     const moderators_promise = getModerators(reddit_post.subreddit)
