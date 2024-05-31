@@ -15,6 +15,10 @@ const getToken = async () => {
   // use user-set client ID if it exists and is non-empty, otherwise use Reveddit client ID
   client_id = user_client_id || client_id
 
+  if (! client_id) {
+    console.error('REDDIT_API_CLIENT_ID is undefined')
+    return null
+  }
   // Headers for getting reddit api token
   const tokenInit = {
     headers: {

@@ -26,6 +26,17 @@ const createHashFromFile = filePath => new Promise(resolve => {
 const X_FILES_DIR = 'x-files'
 const GENERATED_CSS_FILE = `dist/${X_FILES_DIR}/main.css`
 
+const PLUGIN_NAME = 'custom-alerts';
+class CustomAlertsPlugin {
+  apply(compiler) {
+    compiler.hooks.compilation.tap(PLUGIN_NAME, (compilation) => {
+      const logger = compilation.getLogger(PLUGIN_NAME)
+      if (! process.env.REDDIT_API_CLIENT_ID) {
+        logger.error('Warning: REDDIT_API_CLIENT_ID not found in environment.')
+      }
+    })
+  }
+}
 
 module.exports = async (env, argv) => {
   const cssContentHash = await createHashFromFile(GENERATED_CSS_FILE)
@@ -79,7 +90,8 @@ module.exports = async (env, argv) => {
       template: path.resolve(__dirname, 'src/index.html'),
       filename: path.resolve(__dirname, 'dist/index.html'),
     }),
-      ...injectScript(GENERATED_CSS_FILE, 'dist/')
+      ...injectScript(GENERATED_CSS_FILE, 'dist/'),
+      new CustomAlertsPlugin()
   ]
 
   if (IS_PRODUCTION) {
