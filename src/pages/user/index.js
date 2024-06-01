@@ -50,32 +50,35 @@ const User = ({match, global, page_type, viewableItems, selections, summary, not
   }
   if (loading) {
     nextLink = <Spin/>
-  } else if (userNext && ! userIssueDescription && ! error) {
-    nextLink = <div className='non-item'>
-      <LoadLink user={user}
-       kind={kind}
-       loadAll={false}/></div>
-  } else if (userIssueDescription) {
-    let message
-    if (userIssueDescription.toLowerCase().startsWith('error')) {
-      message = userIssueDescription
-    } else if (userIssueDescription === 'deleted_shadowbanned_notexist') {
-      message = <>
-        <p>{`${user} may be deleted, shadowbanned, or may not exist. `}</p>
-        <p>Verify the URL, or check account status at <a href="${www_reddit}/user/${user}" rel="noopener">/u/${user}</a> or <a href="${www_reddit}/r/ShadowBan" rel="noopener">/r/ShadowBan</a>.</p>
-      </>
-    } else {
-      message = `${user} ${userIssueDescription}`
+  } else {
+    if (userNext) {
+      nextLink = <div className='non-item'>
+        <LoadLink user={user}
+        kind={kind}
+        loadAll={false}/></div>
     }
-    let suffix = <></>
-    if (userIssueDescription.toLowerCase().includes('too many requests')) {
-      let api_key_message = ''
-      if (! getCustomClientID()) {
-        api_key_message = <> or <Link to="#settings" onClick={() => modal.openModal({hash:'settings'})}>setup an API key</Link></>
+    if (userIssueDescription) {
+      let message
+      if (userIssueDescription.toLowerCase().startsWith('error')) {
+        message = userIssueDescription
+      } else if (userIssueDescription === 'deleted_shadowbanned_notexist') {
+        message = <>
+          <p>{`${user} may be deleted, shadowbanned, or may not exist. `}</p>
+          <p>Verify the URL, or check account status at <a href="${www_reddit}/user/${user}" rel="noopener">/u/${user}</a> or <a href="${www_reddit}/r/ShadowBan" rel="noopener">/r/ShadowBan</a>.</p>
+        </>
+      } else {
+        message = `${user} ${userIssueDescription}`
       }
-      suffix = <>. Try again in 5 minutes{api_key_message}.</>
+      let suffix = <></>
+      if (userIssueDescription.toLowerCase().includes('too many requests')) {
+        let api_key_message = ''
+        if (! getCustomClientID()) {
+          api_key_message = <> or <Link to="#settings" onClick={() => modal.openModal({hash:'settings'})}>setup an API key</Link></>
+        }
+        suffix = <>. Try again in 5 minutes{api_key_message}.</>
+      }
+      errorMessage = <div className='centered-note non-item text'><span>{message}{suffix}</span></div>
     }
-    errorMessage = <div className='centered-note non-item text'><span>{message}{suffix}</span></div>
   }
   if (items.length) {
     pagesLoaded = <React.Fragment>
