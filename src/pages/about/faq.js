@@ -68,7 +68,7 @@ const About_faq = (props) => {
         <p>Where transparency exists through the use of Reveddit, users are more compliant and mods are less abusive. The community plays a more active role, and users are given a chance to either alter behavior or migrate elsewhere.<NewWindowLink old={true} reddit='/r/reddit/comments/12qwagm/an_update_regarding_reddits_api/jguz1di/?context=1'><sup>2</sup></NewWindowLink></p>
     </>},
     need: {
-      header: 'Why do I need it?',
+      header: 'Why should I look up my username?',
       content: <>
         <p>
           Two reasons,
