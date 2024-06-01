@@ -3,7 +3,7 @@ import { chunk, fetchWithTimeout, promiseDelay,
 } from 'utils'
 import { getAuth } from './auth'
 import { mapRedditObj,
-         subredditHasModlogs, U_PUBLICMODLOGS_CODE,
+         subredditHasModlogs, U_PUBLICMODLOGS_CODE, fetchWithCache,
 } from 'api/common'
 import { getModerators } from 'api/reveddit'
 
@@ -44,23 +44,21 @@ export const getPosts = ({objects = undefined, ids = [], quarantined_subreddits,
   })
 }
 
-export const getModeratedSubreddits = (user) => {
+export const getModeratedSubreddits = async (user) => {
   const host = www_reddit_slash
   const url = host + `user/${user}/moderated_subreddits/.json`
-  return getAuth(host)
-  .then(auth => window.fetch(url, auth))
-  .then(response => response.json())
+  const auth = await getAuth(host)
+  return fetchWithCache(url, auth, 60*30)
   .then(results => {
     return (results.data || []).reduce((map, obj) => (map[obj.sr.toLowerCase()] = true, map), {['u_'+user]: true})
   })
 }
 
-export const getUserAbout = (user) => {
+export const getUserAbout = async (user) => {
   const host = www_reddit_slash
   const url = host + `user/${user}/about/.json`
-  return getAuth(host)
-  .then(auth => window.fetch(url, auth))
-  .then(response => response.json())
+  const auth = await getAuth(host)
+  return fetchWithCache(url, auth, 60*60*24)
   .then(data => data.data)
 }
 

@@ -3,6 +3,48 @@ import { get, put, getNow, paramString } from 'utils'
 import { getModlogsPosts, getModlogsComments } from 'api/reddit'
 import { getUmodlogsPosts, getUmodlogsComments } from 'api/reveddit'
 
+const FETCH_CACHE = 'FETCH_CACHE'
+const MAX_URLS_IN_CACHE = 30
+// {
+//   url: {
+//     data: ... ,
+//     updated: ... ,
+//   }
+// }
+export const fetchWithCache = async (url, options, age) => {
+  let fetch_cache = get(FETCH_CACHE, {})
+  let url_cache = fetch_cache[url] || {}
+  const now = getNow()
+  // only fetch data if it's older than age seconds
+  if (! url_cache?.updated || (now-url_cache.updated) > age ) {
+    url_cache.data = await window.fetch(url, options).then(response => {
+      if (! response.ok) {
+        // return stale data (or undefined) if fetch fails
+        return url_cache.data
+      }
+      return response.json()
+    })
+    .catch(() => {
+      return url_cache.data
+    })
+    if (url_cache.data) {
+      fetch_cache = Object.entries(fetch_cache)
+          .sort(([_akey, a], [_bkey, b]) => b.updated-a.updated)
+          .slice(0, MAX_URLS_IN_CACHE-1)
+          .reduce((obj, item) => {obj[item[0]] = item[1]; return obj}, {})
+      url_cache.updated = now
+      // get() again to reduce overwrites caused by simultaneous fetch. Seems to work.
+      // Could guarantee no issue by storing data in separate keys, and
+      // tracking & deleting old items by using a common key prefix.
+      fetch_cache = get(FETCH_CACHE, {})
+      fetch_cache[url] = url_cache
+      put(FETCH_CACHE, fetch_cache)
+    }
+  }
+  return url_cache.data || {}
+}
+
+
 const reservoir = 50
 
 export const redditLimiter = new Bottleneck({
