@@ -347,7 +347,7 @@ const PreserveButton = connect(({global, post, author, deleted, loading, setLoca
           localAlreadySearchedAuthors[author] = true
           // the idea of setting userPageSort to something other than 'new' here is, if the thread is old and the comment's score is high or low,
           // then maybe the score of a removed comment from the same author is high/low, so change sort to 'top' or 'controversial'
-          const aui = new AddUserItem({author, sort: userPageSort, time: userPageTime})
+          const aui = new AddUserItem({author, sort: userPageSort, time: userPageTime, kind: 'c'})
           aui.query().then(userPage => getUserCommentsForPost(post, itemsLookup, [userPage]))
           .then(async ({user_comments, newComments}) => {
             const {new_commentTree, new_add_user} = await addUserComments_updateURL_createTreeIfNeeded({
