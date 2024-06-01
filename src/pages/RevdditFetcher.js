@@ -27,6 +27,7 @@ import { getAuthorInfoByName } from 'api/reddit'
 import { getAuth } from 'api/reddit/auth'
 import { getArchiveTimes } from 'api/reveddit'
 import {meta} from 'pages/about/AddOns'
+import {redditPrefsAppsLink} from 'pages/about/faq'
 import {Notice} from 'pages/common/Notice'
 import {RedditOrLocalLink} from 'components/Misc'
 import BlankUser from 'components/BlankUser'
@@ -53,19 +54,24 @@ export const handleRedditError = (error, connectedProps) => {
     // if client_id is set and message is too many requests, change below message
     const customClientID = getCustomClientID()
     if (customClientID && error?.message?.toLowerCase().includes('too many requests')) {
-      content = <><p>Reddit said "{error.message}".</p><p>Try again in 5 minutes.</p><SocialLinks/></>
+      content = <><p>Reddit said "{error.message}".</p><p>Try again in 5 minutes.</p></>
+    } else if (customClientID) {
+      content = <><p>Unable to connect to Reddit. Follow the {guideLink} to verify the API key below matches the one on {redditPrefsAppsLink}</p>
+                  <p>Or, check for conflicting extensions or privacy settings (see: {whatHappenedLink})</p><ClientIDForm/></>
     } else {
       content = <>
         <p>To use Reveddit, follow this {guideLink} to create an API key of type "installed app", and enter its ID here.</p>
         {<ClientIDForm/>}
-        <SocialLinks/>
       </>
     }
   }
+  content = <>{content}<SocialLinks/></>
   connectedProps.openGenericModal({content})
   connectedProps.global.setError()
 }
 const isFirefox = /firefox/i.test(navigator.userAgent) || typeof InstallTrigger !== 'undefined';
+
+const whatHappenedLink = <RedditOrLocalLink to='/about/faq/#errors'>What happened?</RedditOrLocalLink>
 
 const getFirefoxError = () => {
   if (navigator.doNotTrack == "1" && isFirefox) {
@@ -74,7 +80,7 @@ const getFirefoxError = () => {
         <p>Tracking Protection on Firefox may be preventing this site from accessing reddit's API. <b>To fix this</b>, add an exception by clicking the shield icon next to the URL:</p>
         <img src="/images/etp.png"/>
         <p><RedditOrLocalLink to='/about/faq/#firefox'>Why should I disable tracking protection?</RedditOrLocalLink></p>
-        <p>If this does not resolve the issue, there may be a conflicting extension blocking connections to reddit from other websites.</p>
+        <p>If this does not resolve the issue, there may be a conflicting extension blocking connections to reddit from other websites. See {whatHappenedLink}</p>
     </>
   }
   return null
@@ -462,12 +468,12 @@ export const withFetch = (WrappedComponent) =>
               <BlankUser message='During an outage, user pages still work:'
                   placeholder='username'
                   bottomMessage={<>
-                    <div><RedditOrLocalLink to='/about/faq/#errors'>What happened?</RedditOrLocalLink></div>
+                    <div>{whatHappenedLink}</div>
                     <Highlight showMobile={true}/>
-                    <SocialLinks/>
                   </>}/>
             </>
         }
+        content = <>{content}<SocialLinks/></>
         this.props.openGenericModal({content})
       }
       this.props.global.setError()
