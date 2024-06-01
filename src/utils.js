@@ -498,7 +498,7 @@ export const time_is_in_archive_storage_window = (created_utc, archiveTimes) =>
 
 export const getRemovedMessage = (props, itemType) => {
   let prefix = '[removed]'
-  let removedMessage = ' before archival'
+  let removedMessage = ''
   const {archiveTimes, error, loading} = props.global.state
   const is_comment = 'body' in props
   if (props.retrieved_on) {
@@ -519,8 +519,6 @@ export const getRemovedMessage = (props, itemType) => {
       removedMessage = 'Click Restore to load this comment.'
     } else if (archive_isOnline(archiveTimes)) {
       removedMessage += '. The current delay is '+getPrettyTimeLength(archiveTimes.updated - archiveTimes[itemType])
-    } else {
-      removedMessage = ', archive currently unavailable'
     }
   }
   return <>{prefix}{removedMessage}</>
