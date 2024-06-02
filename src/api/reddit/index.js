@@ -1,4 +1,4 @@
-import { chunk, fetchWithTimeout, promiseDelay,
+import { chunk, promiseDelay,
          getRandomInt, paramString, getCustomClientID,
 } from 'utils'
 import { getAuth } from './auth'
@@ -14,7 +14,6 @@ export const www_reddit = https+'www.reddit.com'
 export const www_reddit_slash = www_reddit + '/'
 export const old_reddit = https+'old.reddit.com'
 
-const reveddit_cors = REVEDDIT_CORS_ANWHERE_HOST
 const u_publicmodlogs_feed = '7e9b27126097f51ae6c9cd5b049af34891da6ba6'
 const numRequestsBeforeWait = 100
 const waitInterval = 5000
@@ -375,19 +374,6 @@ export const usernameAvailable = (user) => {
   .then(auth => window.fetch(url, auth))
   .then(response => response.json())
   .catch(errorHandler)
-}
-
-export const userPageHTML = (user) => {
-  // don't send https:// in a path because it will convert to https:/domain
-  const url = reveddit_cors+`old.reddit.com/user/${user}`
-  return fetchWithTimeout(url, {'Accept-Language': 'en'}, 5000)
-  .then(response => response.text())
-  .then(html => {
-    return {html: html}
-  })
-  .catch(error => {
-    return {error: error.message}
-  })
 }
 
 const queryByID = async (ids, quarantined_subreddits, key = 'name', results = {}, host = oauth_reddit) => {

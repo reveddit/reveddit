@@ -82,7 +82,7 @@ export const getModeratorsPostProcess = (results) => {
 }
 
 export const revedditErrorHandler = (e) => {
-  throw new Error(`Could not connect to Reveddit: ${e}`)
+  throw new Error(`Reveddit error: ${e}`)
 }
 
 

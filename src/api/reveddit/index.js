@@ -236,3 +236,10 @@ export const getWaybackComments = ({link_id, ids, known_removed_ids}) => {
   .then(result => result.data || {})
   .catch(error => {return {}}) // ignore fetch errors, this is not critical data
 }
+
+export const getUserStatus = (user) => {
+  const url = REVEDDIT_FLASK_HOST_SHORT+`/user-status/${user}`
+  return flaskQuery({path:`/user-status/${user}`})
+  .catch(e => e)
+}
+

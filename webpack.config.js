@@ -65,11 +65,8 @@ module.exports = async (env, argv) => {
 
   let flask_host = API_REVEDDIT
   let short = 'short/', long = 'long/'
-  const cors_path = 'cors2/'
-  let cors_anywhere_host = API_REVEDDIT+short+cors_path
   if (! IS_PRODUCTION) {
     flask_host = LOCALHOST + ':5000/'
-    cors_anywhere_host = flask_host+cors_path
     short = '', long = ''
     OAUTH_REDDIT_REV = LOCALHOST + ':8787/'
     EXTENSION_ID = EXTENSION_ID_DEV
@@ -81,7 +78,6 @@ module.exports = async (env, argv) => {
       STRIPE_PUBLISHABLE_KEY: JSON.stringify(process.env.STRIPE_PUBLISHABLE_KEY),
       REVEDDIT_FLASK_HOST_SHORT: JSON.stringify(flask_host+short),
       REVEDDIT_FLASK_HOST_LONG: JSON.stringify(flask_host+long),
-      REVEDDIT_CORS_ANWHERE_HOST: JSON.stringify(cors_anywhere_host),
       U_MODLOGS_API: JSON.stringify(MODLOGS_API),
       OAUTH_REDDIT_REV: JSON.stringify(OAUTH_REDDIT_REV),
       EXTENSION_ID: JSON.stringify(EXTENSION_ID),

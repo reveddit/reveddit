@@ -1,13 +1,12 @@
 import {
   queryUserPageCombined,
   usernameAvailable,
-  userPageHTML,
   getModeratedSubreddits,
   getUserAbout,
   www_reddit,
   OVERVIEW, SUBMITTED, COMMENTS, GILDED,
 } from 'api/reddit'
-import { getMissingComments } from 'api/reveddit'
+import { getMissingComments, getUserStatus } from 'api/reveddit'
 import {
   getCommentsByID, getPostsByID,
   post_fields_for_user_page_lookup,
@@ -187,29 +186,26 @@ const getItems = async (user, kind, global, sort, before = '', after = '', time,
   const data = await queryUserPageCombined({user, kind, sort, before, after, t: time, limit, quarantined_subreddits})
   const userPageData = data.user
   if ('error' in data) {
+    let user_issue_description
     if (data.error == 404) {
       const avail = await usernameAvailable(user)
       if (avail === true) {
-        global.setError({userIssueDescription: 'does not exist'})
+        user_issue_description = 'does not exist'
       } else {
-        const html_result = await userPageHTML(user)
-        if ('error' in html_result) {
-          console.error(html_result.error)
-          global.setError({userIssueDescription: 'deleted_shadowbanned'})
-        } else if (html_result.html.match(/has deleted their account/)) {
-          global.setError({userIssueDescription: 'has deleted their account'})
-        } else if (html_result.html.match(/must be 18/)) {
-          global.setError({userIssueDescription: 'deleted_shadowbanned'})
+        const data = await getUserStatus(user)
+        if (data.error || ! data.user_status) {
+          console.error(data.error)
+          user_issue_description = 'deleted_shadowbanned'
         } else {
-          global.setError({userIssueDescription: 'shadowbanned'})
+          user_issue_description = data.user_status
         }
       }
-      return null
     } else if (data?.message.toLowerCase() == 'forbidden') {
-      return global.setError({userIssueDescription: 'suspended'})
+      user_issue_description = 'suspended'
     } else if (data?.message) {
-      return global.setError({userIssueDescription: 'ERROR: '+data.message})
+      user_issue_description = 'ERROR: '+data.message
     }
+    return global.setError({userIssueDescription: user_issue_description})
   }
   if (! userPageData) {
     return global.setError({userIssueDescription: 'ERROR: Too Many Requests'})
