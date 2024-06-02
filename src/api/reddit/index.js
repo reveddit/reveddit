@@ -380,7 +380,7 @@ export const usernameAvailable = (user) => {
 export const userPageHTML = (user) => {
   // don't send https:// in a path because it will convert to https:/domain
   const url = reveddit_cors+`old.reddit.com/user/${user}`
-  return fetchWithTimeout(url, {'Accept-Language': 'en'}, 3000)
+  return fetchWithTimeout(url, {'Accept-Language': 'en'}, 5000)
   .then(response => response.text())
   .then(html => {
     return {html: html}
