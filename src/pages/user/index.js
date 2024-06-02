@@ -9,7 +9,7 @@ import { withFetch } from 'pages/RevdditFetcher'
 import { SimpleURLSearchParams, copyLink, get, put, PATH_STR_SUB, getCustomClientID } from 'utils'
 import Highlight from 'pages/common/Highlight'
 import ModalContext from 'contexts/modal'
-import { Spin } from 'components/Misc'
+import { Spin, RedditOrLocalLink } from 'components/Misc'
 import { NewWindowLink } from 'components/Misc'
 import {pinPostLink} from 'pages/about/faq'
 
@@ -61,10 +61,11 @@ const User = ({match, global, page_type, viewableItems, selections, summary, not
       let message
       if (userIssueDescription.toLowerCase().startsWith('error')) {
         message = userIssueDescription
-      } else if (userIssueDescription === 'deleted_shadowbanned_notexist') {
+      } else if (userIssueDescription.includes('shadowbanned')) {
+        const deleted_txt = userIssueDescription.includes('deleted') ? " deleted or ": ""
         message = <>
-          <p>{`${user} may be deleted, shadowbanned, or may not exist. `}</p>
-          <p>Verify the URL, or check account status at <a href="${www_reddit}/user/${user}" rel="noopener">/u/${user}</a> or <a href="${www_reddit}/r/ShadowBan" rel="noopener">/r/ShadowBan</a>.</p>
+          <p>{`${user} may be ${deleted_txt}shadowbanned. `}</p>
+          <p>Verify the URL, or check account status at <RedditOrLocalLink reddit={`/user/${user}`} rel="noopener">/u/{user}</RedditOrLocalLink> or <RedditOrLocalLink reddit="/r/ShadowBan" rel="noopener">/r/ShadowBan</RedditOrLocalLink>.</p>
         </>
       } else {
         message = `${user} ${userIssueDescription}`

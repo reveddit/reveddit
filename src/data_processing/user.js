@@ -192,7 +192,17 @@ const getItems = async (user, kind, global, sort, before = '', after = '', time,
       if (avail === true) {
         global.setError({userIssueDescription: 'does not exist'})
       } else {
-        global.setError({userIssueDescription: 'deleted_shadowbanned_notexist'})
+        const html_result = await userPageHTML(user)
+        if ('error' in html_result) {
+          console.error(html_result.error)
+          global.setError({userIssueDescription: 'deleted_shadowbanned'})
+        } else if (html_result.html.match(/has deleted their account/)) {
+          global.setError({userIssueDescription: 'has deleted their account'})
+        } else if (html_result.html.match(/must be 18/)) {
+          global.setError({userIssueDescription: 'deleted_shadowbanned'})
+        } else {
+          global.setError({userIssueDescription: 'shadowbanned'})
+        }
       }
       return null
     } else if (data?.message.toLowerCase() == 'forbidden') {

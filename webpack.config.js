@@ -65,9 +65,11 @@ module.exports = async (env, argv) => {
 
   let flask_host = API_REVEDDIT
   let short = 'short/', long = 'long/'
-  let cors_anywhere_host = API_REVEDDIT+short+'cors/'
+  const cors_path = 'cors2/'
+  let cors_anywhere_host = API_REVEDDIT+short+cors_path
   if (! IS_PRODUCTION) {
     flask_host = LOCALHOST + ':5000/'
+    cors_anywhere_host = flask_host+cors_path
     short = '', long = ''
     OAUTH_REDDIT_REV = LOCALHOST + ':8787/'
     EXTENSION_ID = EXTENSION_ID_DEV
