@@ -92,13 +92,6 @@ export const CensorshipWorse = () => {
 }
 
 export const media = {
-  'csa': {
-    'content': CoupSaveAmerica,
-    'local_storage_var': 'sawCSA',
-    'url_hash': 'csa',
-    'news_url': 'https://www.youtube.com/watch?v=2_Fw0NgFZXk',
-    'news_text': '',
-  },
   'ofh': {
     'content': OnlyFoolHumans,
     'local_storage_var': 'hasSeenOnlyFoolHumansv2',
@@ -125,6 +118,13 @@ export const media = {
     'news_url': 'https://www.removednews.com/p/hate-online-censorship-its-way-worse',
     'news_text': "Hate Online Censorship? It's Way Worse Than You Think.",
   },
+  'csa': {
+    'content': CoupSaveAmerica,
+    'local_storage_var': 'sawCSA',
+    'url_hash': 'csa',
+    'news_url': 'https://www.youtube.com/watch?v=2_Fw0NgFZXk',
+    'news_text': '',
+  },
   // '': {
   //   'content': <></>,
   //   'local_storage_var': '',
@@ -134,12 +134,18 @@ export const media = {
   // },
 }
 
-export const headlines = ['csa']
+export const headlines = ['ofh']
 //export const headlines = Object.keys(media)
 const modals = Object.keys(media)
 
 export const newUserModal = (props) => {
   if (window.location.hash === '#say') {
+    return
+  }
+  if (! get('hasNotifierExtension', false) &&
+          ! get(hasVisitedSite, false)) {
+    props.openGenericModal({hash: 'welcome'})
+    put(hasVisitedSite, true)
     return
   }
   for (const key of modals) {
@@ -149,11 +155,6 @@ export const newUserModal = (props) => {
       put(media_item.local_storage_var, true)
       return
     }
-  }
-  if (! get('hasNotifierExtension', false) &&
-          ! get(hasVisitedSite, false)) {
-    props.openGenericModal({hash: 'welcome'})
-    put(hasVisitedSite, true)
   }
 }
 
