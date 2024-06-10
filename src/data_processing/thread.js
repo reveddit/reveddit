@@ -182,7 +182,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
       })
     }
     oldestComment = await oldest_comment_promise
-    const reddit_comments_promises = [Promise.resolve({comments: redditComments, moreComments})]
+    const reddit_comments_promises = [Promise.resolve({comments: redditComments, moreComments, moreCommentIDs})]
     let root_comment_id
     await archive_times_promise
     const archiveTimes = global.state.archiveTimes
