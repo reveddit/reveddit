@@ -171,7 +171,7 @@ export const getPostWithComments = ({
       post.url = post.url || ''
       post.domain = post.domain || ''
       const items = results[1].data.children
-      const comments = {}, moreComments = {}
+      const comments = {}, moreComments = {}, moreCommentIDs = {}
       let oldestComment = {}, newestComment = {}
       items.forEach(item => {
         const itemData = item.data
@@ -183,11 +183,12 @@ export const getPostWithComments = ({
           // NOTE: This object is also used to make "continue this thread" links, per reddit.com/54qknz
           //       Those instances have itemData.count == 0
           moreComments[itemData.parent_id] = true
+          item?.data?.children?.forEach(id => moreCommentIDs[id] = 1)
         }
       })
       return {
         post,
-        comments, moreComments, oldestComment,
+        comments, moreComments, moreCommentIDs, oldestComment,
         //newestComment, // not currently used
       }
     })

@@ -32,7 +32,7 @@ import {AddUserParam, AddUserItem, getUserCommentsForPost,
 import { localSort_types, filter_pageType_defaults, create_qparams } from 'state'
 
 const NumAddUserItemsToLoadAtFirst = 10
-const numCommentsWithPost = 500
+const numCommentsWithPost = 200 // lower threshold returns more "more" comment IDs. unclear why
 const NumPushshiftResultsConsideredAsFull = PUSHSHIFT_MAX_COUNT_PER_QUERY*.8
 let archiveError = false
 
@@ -144,7 +144,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     }
     throw e
   })
-  .then(async ({post: reddit_post, comments: redditComments, moreComments, oldestComment}) => {
+  .then(async ({post: reddit_post, comments: redditComments, moreComments, oldestComment, moreCommentIDs}) => {
     const moderators_promise = getModerators(reddit_post.subreddit)
     const modlogs_comments_promise = getModlogsComments({subreddit: reddit_post.subreddit, link_id: reddit_post.id, limit: 500})
     let modlogs_posts_promise = Promise.resolve({})
@@ -266,10 +266,11 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
           moderators_promise, modlogs_comments_promise, user_comments} = await reddit_pwc_promise
   let {root_comment_id} = await reddit_pwc_promise
   const redditCommentsResults = await Promise.all(reddit_comments_promises)
-  const redditComments = {}, moreComments = {}
-  for (const {comments: thisRC, moreComments: thisMC} of redditCommentsResults) {
+  const redditComments = {}, moreComments = {}, moreCommentIDs = {}
+  for (const {comments: thisRC, moreComments: thisMC, moreCommentIDs: thisMCIDs} of redditCommentsResults) {
     Object.assign(redditComments, thisRC)
     Object.assign(moreComments, thisMC)
+    Object.assign(moreCommentIDs, thisMCIDs)
   }
   const pushshiftResult = await pushshift_comments_promise
   const {comments: pushshiftComments} = pushshiftResult
@@ -444,6 +445,12 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
       }
     }
   })
+  // update 2024/06/10: pushshift comments is now always empty, so it can be ignored
+  for (const id of Object.keys(moreCommentIDs)) {
+    if (! redditComments[id]) {
+      remainingRedditIDs[id] = 1
+    }
+  }
 
   const {combinedComments} = await addRemainingRedditComments_andCombine(quarantined_subreddits, reddit_post, pushshiftComments, redditComments, Object.keys(remainingRedditIDs), user_comments)
   let changed
