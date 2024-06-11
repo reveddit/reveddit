@@ -63,8 +63,11 @@ const queryItems = async ({q, author, subreddit, n = 500, sort:order='desc', sor
                      user_flair: author_flair_text,
                      },
                      apiURL, fields, prefix, key = 'name') => {
-  const results = {}
-  return results
+  if (key) {
+    return {}
+  } else {
+    return []
+  }
   if (since && ! until && ! sort) {
     order = 'asc'
   }
