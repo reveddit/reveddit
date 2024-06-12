@@ -11,20 +11,18 @@ import { copyFields, initializeComment, retrieveRedditComments_and_combineWithPu
 import { createCommentTree, ignoreArchiveErrors_comments } from 'data_processing/thread'
 import { RestoreIcon } from 'pages/common/svg'
 import { getAuth } from 'api/reddit/auth'
+import { redditLimiter } from 'api/common'
 import { getCommentsByThread as getPushshiftCommentsByThread } from 'api/pushshift'
 import { unarchived_label_text } from 'pages/common/RemovedBy'
 import { EXCLUDE_UNARCHIVED_REGEX } from 'pages/common/selections/TextFilter'
 
-const MAX_AUTHORS_NEARBY_BY_DATE = 5
-const MAX_AUTHORS_TO_SEARCH = 15
+const MAX_AUTHORS_NEARBY_BY_DATE = 25
+const MAX_AUTHORS_TO_SEARCH = 100
 
 const ONE_MONTH_IN_SECONDS = 30*60*60*24
 const ONE_YEAR_IN_SECONDS = 365*60*60*24
 const MAX_TIME_FOR_NEW_SORT = 5*ONE_MONTH_IN_SECONDS
 const MAX_SCORE_FOR_NEW_SORT = 5
-
-const RESTORE_ALL_MS_PER_AUTHOR_QUERY = 1500
-const MS_BETWEEN_AUTHOR_QUERIES = RESTORE_ALL_MS_PER_AUTHOR_QUERY*MAX_AUTHORS_NEARBY_BY_DATE
 
 export const get_userPageSortAndTime = ({created_utc, score, controversiality}) => {
   let userPageSort = 'new', userPageTime = ''
@@ -170,18 +168,12 @@ const RestoreComment = (props) => {
         // either numRemaining > 0 or meta_var.aug.length() > 0 would be enough without the other.
         // doing both in case to avoid bugs causing an infinite loop
         while (! isCancelled && numRemaining > 0 && meta_var.aug.length() > 0) {
-          const start = new Date().getTime()
           const state = await searchFromMeta(meta_var)
           numRemaining = countRemaining(state)
           meta_var = getAddUserMeta(props, meta_var.distance, userPageSort, userPageTime)
           if (numRemaining > 0 && meta_var.aug.length() > 0) {
             needToSetSuccess = true
             await global.setLoading('', state)
-            const elapsed = (new Date().getTime() - start)
-            if (elapsed < MS_BETWEEN_AUTHOR_QUERIES) {
-              const sleep = MS_BETWEEN_AUTHOR_QUERIES - elapsed
-              await new Promise(r => setTimeout(r, sleep))
-            }
           } else {
             needToSetSuccess = false
             global.setSuccess(state)
@@ -294,12 +286,11 @@ const RestoreComment = (props) => {
   //  ! loading && hasAuthors => show button
   //  ! loading && noAuthors => show nothing
   const numAuthorsRemaining = countRemaining({alreadySearchedAuthors})
-  const timeRemaining = getPrettyTimeLength(numAuthorsRemaining*(RESTORE_ALL_MS_PER_AUTHOR_QUERY/1000), true)
   // Check for > 0 b/c globalAuthors is not populated until end of page load
   const numAuthorsRemainingDiv = (
     numAuthorsRemaining > 0 ?
       <div style={{marginTop:'10px'}}>
-        <span> ({numAuthorsRemaining.toLocaleString()} users left{loading && searchAll ? <>, {timeRemaining}</> : <></>})</span>
+        <span> ({numAuthorsRemaining.toLocaleString()} users left)</span>
       </div>
     : <></>
   )
@@ -328,7 +319,6 @@ const RestoreComment = (props) => {
                     <p>{code_button} searches every known commenter's last 100 comments for this comment. It may use excessive bandwidth. Estimated usage for {numAuthorsRemaining} user queries:</p>
                     <ul>
                       <li>{formatBytes(30720*numAuthorsRemaining)}</li>
-                      <li>{timeRemaining}</li>
                     </ul>
                     {comment_age_in_seconds > ONE_MONTH_IN_SECONDS ?
                       <p>This comment is {getPrettyTimeLength(comment_age_in_seconds)} old. It may not be recoverable if it is no longer among the author's most recent 100 comments.</p>
@@ -416,7 +406,7 @@ class AddUserGroup {
   async query() {
     await getAuth()
     return {
-      promises: this.itemsToSearch.map(i => i.query()),
+      promises: this.itemsToSearch.map(i => redditLimiter.schedule(() => i.query())),
       authors: this.authorsToSearch,
     }
   }

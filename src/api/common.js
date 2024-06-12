@@ -45,13 +45,13 @@ export const fetchWithCache = async (url, options, age) => {
 }
 
 
-const reservoir = 50
+const reservoir = 100
 
 export const redditLimiter = new Bottleneck({
-  reservoir, // 50 requests per minute for add_user calls in threads should keep api usage under 60 requests/minute
+  reservoir, // requests per minute, increased b/c each user has own api key
   reservoirRefreshAmount: reservoir,
   reservoirRefreshInterval: 60 * 1000, // ms, must be divisible by 250
-  maxConcurrent: 10,
+  maxConcurrent: 30,
 })
 
 export const pushshiftLimiter = new Bottleneck({
