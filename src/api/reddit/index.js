@@ -4,6 +4,7 @@ import { chunk, promiseDelay,
 import { getAuth } from './auth'
 import { mapRedditObj,
          subredditHasModlogs, U_PUBLICMODLOGS_CODE, fetchWithCache,
+         redditLimiter
 } from 'api/common'
 import { getModerators } from 'api/reveddit'
 
@@ -408,6 +409,14 @@ const fetchJsonAndValidate = async (url, init = {}) => {
   let json
   try {
     json = await response.json()
+    const remaining = response.headers?.get('X-Ratelimit-Remaining')
+    const reset = response.headers?.get('X-Ratelimit-Reset')
+    if (remaining && reset) {
+      redditLimiter.updateSettings({
+        reservoir: Number(remaining)-10,
+        reservoirRefreshInterval: Number(reset)
+      })
+    }
   } catch (e) {
     throw new Error('fetchJsonAndValidate')
   }
