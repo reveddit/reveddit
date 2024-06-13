@@ -31,7 +31,7 @@ const RemovedByFilter = (props) => {
           return (
             <div key={type}>
               <label title={removal_meta[type].desc}>
-                <input id={type} type='checkbox'
+                <input id={'rb-'+type} type='checkbox'
                   checked={removedByFilter[type] !== undefined}
                   value={type}
                   onChange={(e) => global.removedByFilter_update(e.target, page_type)}
