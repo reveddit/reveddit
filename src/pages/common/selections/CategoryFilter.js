@@ -70,7 +70,7 @@ const CategoryFilter = connect((props) => {
             }
             return (
               <option key={category} value={category}>
-                ({`${category_visible_counts[category]} / ${category_counts[category]}`}) {displayValue}
+                {displayValue} ({`${category_visible_counts[category]} / ${category_counts[category]}`})
               </option>
             )
           })
