@@ -459,7 +459,8 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
   //could: check if pushshiftComments has any parent_ids that are not in combinedComments
   //      and do a reddit query for these. Possibly query twice if the result has items whose parent IDs
   //      are not in combinedComments after adding the result of the first query
-  const [commentTree, itemsSortedByDate] = createCommentTree(threadID, root_comment_id, combinedComments, true)
+  const logErrorsHere = add_user_promises_remainder.length ? false : true
+  const [commentTree, itemsSortedByDate] = createCommentTree(threadID, root_comment_id, combinedComments, logErrorsHere)
   const stateObj = {items: itemsSortedByDate,
                     itemsLookup: combinedComments,
                     commentTree, itemsSortedByDate,
@@ -538,7 +539,7 @@ export const getRevdditThreadItems = async (threadID, commentID, context, add_us
     //       To do that, instead of storing comment objects in replies array,
     //       just store the IDs and use commentsLookup to retrieve them when used
     //  WHY: The previous "if (removed_leaf_comments_promise) {" code did not change reply IDs, it only changed the objects that represent them
-    const [commentTree_2, itemsSortedByDate_2] = createCommentTree(threadID, root_comment_id, stateObj.itemsLookup)
+    const [commentTree_2, itemsSortedByDate_2] = createCommentTree(threadID, root_comment_id, stateObj.itemsLookup, true)
     stateObj.commentTree = commentTree_2
     stateObj.itemsSortedByDate = itemsSortedByDate_2
     stateObj.items = itemsSortedByDate_2
@@ -646,7 +647,6 @@ const markTreeMeta = (missing, origRedditComments, moreComments, comments, post_
 
 export const createCommentTree = (postID, root_comment_id, commentsLookup, logErrors = false) => {
   const commentTree = []
-  const parentsInTree = new Set()
   const commentsSortedByDate = Object.values(commentsLookup).sort(sortCreatedAsc)
   for (const [i, comment] of commentsSortedByDate.entries()) {
     comment.by_date_i = i

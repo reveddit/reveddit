@@ -596,6 +596,12 @@ export const getUserCommentsForPost = (post, existingIDs, userPages) => {
         if (! (c.id in existingIDs)) {
           newComments[c.id] = c
         }
+        if (isCommentID(c.parent_id)) {
+          const parent_id = c.parent_id.substring(3)
+          if ( ! (parent_id in existingIDs) ) {
+            newComments[parent_id] = {id:parent_id}
+          }
+        }
         if (! first_comment) {
           first_comment = c
         }
