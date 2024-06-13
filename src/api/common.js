@@ -1,6 +1,6 @@
 import Bottleneck from "bottleneck"
-import { get, put, getNow, paramString } from 'utils'
-import { getModlogsPosts, getModlogsComments } from 'api/reddit'
+import { get, put, getNow, paramString, sleeper } from 'utils'
+import { getModlogsPosts, getModlogsComments, fetchRatelimitHeaders } from 'api/reddit'
 import { getUmodlogsPosts, getUmodlogsComments } from 'api/reveddit'
 
 const FETCH_CACHE = 'FETCH_CACHE'
@@ -53,6 +53,26 @@ export const redditLimiter = new Bottleneck({
   reservoirRefreshInterval: 60 * 1000, // ms, must be divisible by 250
   maxConcurrent: 30,
 })
+const wait = (ms) => new Promise((resolve, reject) => setTimeout(resolve, ms))
+redditLimiter.on('depleted', (empty) => {
+  fetchRatelimitHeaders()
+  .then(({reset, used, remaining}) => {
+    if (!empty && reset) {
+      if (remaining > 0) {
+        return redditLimiter.updateSettings({reservoir: remaining})
+      } else {
+        console.log('Waiting for rate limit to reset,', reset, 'seconds.')
+        return wait(reset*1000)
+        .then(() => {
+          const newReservoir = used+remaining-10
+          console.log('Updating reservoir', newReservoir)
+          return redditLimiter.updateSettings({reservoir: newReservoir})
+        })
+      }
+    }
+  })
+})
+
 
 export const pushshiftLimiter = new Bottleneck({
   reservoir: 1, // 1 request per 1.5 seconds. pushshift allows ??

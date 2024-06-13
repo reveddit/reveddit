@@ -390,7 +390,7 @@ const queryByID = async (ids, quarantined_subreddits, key = 'name', results = {}
   }
   const queryForHost = (host) => query(host + path + '?'+paramString(params),
                                        auth, key, results)
-  return queryForHost(host)
+  return redditLimiter.schedule(() => queryForHost(host))
   .catch(e => {
     if (host !== oauth_reddit && e.message !== 'Forbidden') {
       can_use_oauth_reddit_rev = false
@@ -401,6 +401,20 @@ const queryByID = async (ids, quarantined_subreddits, key = 'name', results = {}
   })
 }
 
+const getNumberFromHeader = (response, header) => Number(response?.headers?.get(header))
+export const fetchRatelimitHeaders = async () => {
+  const auth = await getAuth()
+  const response = await fetch(oauth_reddit, auth)
+  const reset = getNumberFromHeader(response, 'X-Ratelimit-Reset')
+  const remaining = getNumberFromHeader(response, 'X-Ratelimit-Remaining')
+  const used = getNumberFromHeader(response, 'X-Ratelimit-Used')
+  if (reset) {
+    return {reset, remaining, used}
+  } else {
+    return {reset: 600, used: 0, remaining: 100}
+  }
+}
+
 const fetchJsonAndValidate = async (url, init = {}) => {
   if (getCustomClientID() || url.startsWith(www_reddit_slash)) {
     init.cache = 'reload'
@@ -409,21 +423,13 @@ const fetchJsonAndValidate = async (url, init = {}) => {
   let json
   try {
     json = await response.json()
-    const remaining = response.headers?.get('X-Ratelimit-Remaining')
-    const reset = response.headers?.get('X-Ratelimit-Reset')
-    if (remaining && reset) {
-      redditLimiter.updateSettings({
-        reservoir: Number(remaining)-10,
-        reservoirRefreshInterval: Number(reset)
-      })
-    }
   } catch (e) {
-    throw new Error('fetchJsonAndValidate')
+    console.error('fetchJsonAndValidate:', e)
   }
   if (response.ok) {
     return json
   } else {
-    throw json
+    return {}
   }
 }
 
