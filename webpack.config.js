@@ -15,6 +15,7 @@ const LOCALHOST = 'http://localhost'
 const API_REVEDDIT = 'https://api.reveddit.com/'
 const MODLOGS_API = API_REVEDDIT+'short/modlogs/api/'
 let OAUTH_REDDIT_REV = 'https://cred2.reveddit.com/'
+const OAUTH_REDDIT_REV_STAGING = 'https://cred2-staging.reveddit.com/'
 const EXTENSION_ID_DEV = 'flebbibjihapbjipljlfkokfejgaipil'
 const EXTENSION_ID_PROD = 'ickfhlplfbipnfahjbeongebnmojbnhm'
 let EXTENSION_ID = EXTENSION_ID_PROD
@@ -61,6 +62,7 @@ module.exports = async (env, argv) => {
     ]
   }
   const IS_PRODUCTION = argv.mode === 'production'
+  const IS_STAGING = process.env.TARGET_ENV === 'staging'
 
 
   let flask_host = API_REVEDDIT
@@ -69,6 +71,9 @@ module.exports = async (env, argv) => {
     flask_host = LOCALHOST + ':5000/'
     short = '', long = ''
     OAUTH_REDDIT_REV = LOCALHOST + ':8787/'
+    if (IS_STAGING) {
+      OAUTH_REDDIT_REV = OAUTH_REDDIT_REV_STAGING
+    }
     EXTENSION_ID = EXTENSION_ID_DEV
   }
   const plugins = [
