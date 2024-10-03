@@ -52,7 +52,7 @@ const code_button = <code>{unarchived_search_button_word_plus_all}</code>
 export const unarchived_search_button_word_code = <code>{unarchived_search_button_word}</code>
 
 export const unarchived_search_see_more = <>
-  See <NewWindowLink reddit={'/r/removeddit/comments/hy5z7g/_/g4xlrne/'}>search for unarchived comments</NewWindowLink> and <NewWindowLink reddit='/ih86wk'>{unarchived_label_text}</NewWindowLink> for more information.
+  See <NewWindowLink reddit={'/r/removeddit/comments/hy5z7g/_/g4xlrne/'}>search for unarchived comments</NewWindowLink> and <NewWindowLink reddit='/ih86wk' short>{unarchived_label_text}</NewWindowLink> for more information.
 </>
 
 export const unarchived_search_help_content = (

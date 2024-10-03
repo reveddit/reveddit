@@ -240,9 +240,9 @@ const About_faq = (props) => {
           <li>Reddit live/chat comments</li>
         </ul>
         <h3>II. Archive overwrites</h3>
-        <p>The archive service on which Reveddit relies changed its comment retention behavior around September 2021. As a result, now comments in threads may not be visible after about 1.5 days. <NewWindowLink reddit='/pgzf7g'>This post</NewWindowLink> explains what is going on. That change does not impact <ExtensionLink/> or user pages on Reveddit.</p>
+        <p>The archive service on which Reveddit relies changed its comment retention behavior around September 2021. As a result, now comments in threads may not be visible after about 1.5 days. <NewWindowLink reddit='/pgzf7g' short>This post</NewWindowLink> explains what is going on. That change does not impact <ExtensionLink/> or user pages on Reveddit.</p>
         <h3>III. Collapsed comments on user pages</h3>
-        <p>Collapsed comments may or may not be marked on user pages. It seems to work for some accounts and not for others. See <NewWindowLink reddit='/qgajxq'>here</NewWindowLink> for more info.</p>
+        <p>Collapsed comments may or may not be marked on user pages. It seems to work for some accounts and not for others. See <NewWindowLink reddit='/qgajxq' short>here</NewWindowLink> for more info.</p>
     </>},
     heard: {
       header: "Why haven't I heard about this?",

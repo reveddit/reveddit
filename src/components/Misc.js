@@ -55,13 +55,15 @@ export const SamePageHashLink = ({id, children, onClick = () => {}, ...props}) =
   return <Link to={hash} onClick={() => {jumpToHash(hash); onClick();}} {...props}>{children}</Link>
 }
 
-export const NewWindowLink = ({children, reddit, old=false, redesign=false, ...props}) => {
+export const NewWindowLink = ({children, reddit, short=false, old=false, redesign=false, ...props}) => {
   let href
   if (reddit) {
     if (old) {
       href = old_reddit
     } else if (redesign) {
       href = 'https://new.reddit.com'
+    } else if (short) {
+      href = 'https://redd.it'
     } else {
       href = www_reddit
     }

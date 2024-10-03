@@ -504,14 +504,14 @@ export const getRemovedMessage = (props, itemType) => {
   if (props.retrieved_on) {
     // In August or September 2021, archive started overwriting comments after a day or two
     if (is_comment && props.created_utc > 1629248296 && props.retrieved_on-props.created_utc > 43200) {
-      removedMessage = <> Click Restore to try an alternate source. This comment may not have been archived in time or <NewWindowLink reddit='/pgzdav'>may have been overwritten</NewWindowLink> after {getPrettyTimeLength(props.retrieved_on-props.created_utc)}.</>
+      removedMessage = <> Click Restore to try an alternate source. This comment may not have been archived in time or <NewWindowLink reddit='/pgzdav' short>may have been overwritten</NewWindowLink> after {getPrettyTimeLength(props.retrieved_on-props.created_utc)}.</>
     } else {
       removedMessage += ','+getRemovedWithinText(props)
     }
   } else if (loading) {
     removedMessage = ' content loading...'
   } else if (error) {
-    return <>[archive unavailable] <NewWindowLink reddit='/1393z7x'>more info</NewWindowLink></>
+    return <>[archive unavailable] <NewWindowLink reddit='/1393z7x' short>more info</NewWindowLink></>
   } else if (archiveTimes) {
     // comment overwrites began some time prior to 1630649330
     if (is_comment && (props.created_utc < 1630649330 || time_is_in_archive_storage_window(props.created_utc, archiveTimes))) {

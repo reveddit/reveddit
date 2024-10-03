@@ -56,7 +56,7 @@ const content_help =
     <h3>r/all posts</h3>
     <p>Archived removed posts that had hit r/all. This page is up to date if the <NewWindowLink reddit={`/${un}`}>{un}</NewWindowLink> bot is running.</p>
     <h3>lost comments</h3>
-    <p>Comments that do not appear in the thread unless directly linked. <NewWindowLink reddit='/gwzbxp'>more info</NewWindowLink></p>
+    <p>Comments that do not appear in the thread unless directly linked. <NewWindowLink reddit='/gwzbxp' short>more info</NewWindowLink></p>
   </>
 
 const Content = ({global, subreddit, page_type}) => {

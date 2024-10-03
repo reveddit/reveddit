@@ -43,7 +43,7 @@ export const REMOVAL_META = {
                  [ANTI_EVIL_REMOVED]: {filter_text: 'admin removed',
                                          label: '[removed] by Reddit',
                                           desc: 'Removed by a Reddit admin.',
-                                      jsx_desc: <>Removed by a Reddit admin. <NewWindowLink reddit='/9qf5ma'>More info</NewWindowLink><p>See also: <NewWindowLink reddit={REVEDDIT_POST_ON_ADMIN_REMOVED_CONTENT}>Good news: Admins are being more transparent by labeling the content they remove. Bad news: Reveddit won't show this content.</NewWindowLink></p></>,
+                                      jsx_desc: <>Removed by a Reddit admin. <NewWindowLink reddit='/9qf5ma' short>More info</NewWindowLink><p>See also: <NewWindowLink reddit={REVEDDIT_POST_ON_ADMIN_REMOVED_CONTENT}>Good news: Admins are being more transparent by labeling the content they remove. Bad news: Reveddit won't show this content.</NewWindowLink></p></>,
                                       },
         [MOD_OR_AUTOMOD_REMOVED]: {filter_text: 'mod removed',
                                          label: '[removed] by mod',
@@ -76,12 +76,12 @@ const APPROVED_META = {
 export const COLLAPSED_META = {filter_text: 'collapsed',
                                      label: 'collapsed',
                                       desc: 'The comment has a positive score and is collapsed in the thread.',
-                               reddit_link: '/e8vl4d'}
+                               reddit_link: '/r/modnews/comments/e8vl4d/announcing_the_crowd_control_beta/'}
 
 export const MISSING_IN_THREAD_META = {filter_text: 'missing in thread',
                                              label: 'missing in thread',
                                               desc: 'The comment does not appear on the reddit thread unless directly linked.',
-                                       reddit_link: '/gwzbxp'}
+                                       reddit_link: '/r/reveddit/comments/gwzbxp/tracking_missing_comments/'}
 
 export const ORPHANED_META = {filter_text: 'orphaned',
                                      desc: 'The link itself or the direct parent of the comment was removed.',
@@ -95,7 +95,7 @@ export const USER_REMOVED_META = {filter_text: 'user deleted',
 export const RESTORED_META = {filter_text: unarchived_label_text,
                                     label: unarchived_label_text,
                                      desc: "This comment or edit was not archived but could be copied from the author's /user page on reddit.",
-                              local_link: '/about/faq/#restore'}
+                               local_link: '/about/faq/#restore'}
 
 export const ALL_ACTIONS_META = {
   ...REMOVAL_META,

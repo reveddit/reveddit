@@ -60,7 +60,7 @@ export const ClientIDForm = () => {
   )
 }
 
-export const guideLink = <NewWindowLink reddit='/1502sb3'>guide</NewWindowLink>
+export const guideLink = <NewWindowLink reddit='/1502sb3' short>guide</NewWindowLink>
 export const api_key_info = <>Follow this {guideLink} to create an API key and enter it here:</>
 export default () => {
   const [showRelDates, update_showRelDates, prev_showRelDates] = getSetting(showRelDates_global, showRelDates_var)
