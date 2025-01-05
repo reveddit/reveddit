@@ -429,7 +429,7 @@ const fetchJsonAndValidate = async (url, init = {}) => {
   if (response.ok) {
     return json
   } else {
-    return {}
+    return {'error': response.status}
   }
 }
 
