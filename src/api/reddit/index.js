@@ -426,11 +426,7 @@ const fetchJsonAndValidate = async (url, init = {}) => {
   } catch (e) {
     console.error('fetchJsonAndValidate:', e)
   }
-  if (response.ok) {
-    return json
-  } else {
-    return {'error': response.status}
-  }
+  return json || {}
 }
 
 const query = async (url, auth, key, results = {}) => {
