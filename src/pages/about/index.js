@@ -230,7 +230,7 @@ const About = ({global, ...props}) => {
                           className={`collapseToggle next ${hasNext ? 'active':'disabled'}`}>next -&gt;</a>
                 </div>
                 <div className='non-item'><a onClick={(e) => changeView(-1)}
-                        className='collapseToggle'>[+] view all</a>
+                        className='collapseToggle'>[+] view all ({comments.length})</a>
                 </div>
                 <Comment key={singleDisplayComment.id} {...singleDisplayComment}/>
               </React.Fragment>
