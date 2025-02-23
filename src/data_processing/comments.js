@@ -244,7 +244,7 @@ export const applyPostAndParentDataToComment = (postData, comment, applyPostLabe
       }
     }
     const parent = postData[comment.parent_id]
-    if (comment.parent_id.slice(0,2) === 't1' && parent) {
+    if (parent && comment.parent_id.slice(0,2) === 't1') {
       if (commentIsRemoved(parent)) {
         comment.parent_removed_label = 'removed'
       } else if (commentIsDeleted(parent)) {
