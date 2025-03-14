@@ -239,7 +239,7 @@ export const kindsReverse = {
 
 export const queryUserPageCombined = async (params) => {
   return queryUserPage({
-    useProxy: true,
+    useProxy: false,
     include_info:true,
     include_parents:true,
     ...params,
