@@ -85,7 +85,7 @@ const User = ({match, global, page_type, viewableItems, selections, summary, not
     pagesLoaded = <React.Fragment>
                     <div id='pagesloaded' className='non-item text' data-pagesloaded={num_pages}>loaded pages {`${num_pages}/${totalPages}`}</div>
                   </React.Fragment>
-  } else if (! loading) {
+  } else if (! loading && ! error) {
     status = <p>No comments or posts were found.</p>
   }
 
