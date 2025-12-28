@@ -1,10 +1,10 @@
-import React, {useEffect} from 'react'
-import {www_reddit, old_reddit} from 'api/reddit'
+import React, { useEffect } from 'react'
+import { www_reddit, old_reddit } from 'api/reddit'
 import { QuestionMark, TwitterWhite } from 'pages/common/svg'
 import ModalContext from 'contexts/modal'
 import Bowser from 'bowser'
-import {ext_urls, jumpToHash, copyLink, SimpleURLSearchParams} from 'utils'
-import {meta} from 'pages/about/AddOns'
+import { ext_urls, jumpToHash, copyLink, SimpleURLSearchParams } from 'utils'
+import { meta } from 'pages/about/AddOns'
 import { Link } from 'react-router-dom'
 import { newUserModal } from 'pages/modals/Misc'
 
@@ -17,8 +17,8 @@ chromelike.forEach(name => {
 const bp = Bowser.getParser(window.navigator.userAgent)
 const browserName = bp.getBrowserName()
 
-const isChrome = !! chromelike_fullnames[browserName]
-const isFirefox = !! (Bowser.BROWSER_MAP['firefox'] == browserName)
+const isChrome = !!chromelike_fullnames[browserName]
+const isFirefox = !!(Bowser.BROWSER_MAP['firefox'] == browserName)
 
 export const is_iOS = (
   [
@@ -36,12 +36,12 @@ export const iOS_shortcut_link = <a href='https://www.icloud.com/shortcuts/d18cb
 
 let browserExtensionImage = ''
 if (isChrome) {
-  browserExtensionImage = <img alt="Add to Chrome" src={meta.chrome.img}/>
+  browserExtensionImage = <img alt="Add to Chrome" src={meta.chrome.img} />
 } else if (isFirefox) {
-  browserExtensionImage = <img alt="Add to Firefox" src={meta.firefox.img}/>
+  browserExtensionImage = <img alt="Add to Firefox" src={meta.firefox.img} />
 }
 
-export const RedditOrLocalLink = ({children, reddit, to}) => {
+export const RedditOrLocalLink = ({ children, reddit, to }) => {
   if (reddit) {
     return <NewWindowLink reddit={reddit}>{children}</NewWindowLink>
   } else if (to) {
@@ -50,12 +50,12 @@ export const RedditOrLocalLink = ({children, reddit, to}) => {
   return null
 }
 
-export const SamePageHashLink = ({id, children, onClick = () => {}, ...props}) => {
-  const hash='#'+id
-  return <Link to={hash} onClick={() => {jumpToHash(hash); onClick();}} {...props}>{children}</Link>
+export const SamePageHashLink = ({ id, children, onClick = () => { }, ...props }) => {
+  const hash = '#' + id
+  return <Link to={hash} onClick={() => { jumpToHash(hash); onClick(); }} {...props}>{children}</Link>
 }
 
-export const NewWindowLink = ({children, reddit, short=false, old=false, redesign=false, ...props}) => {
+export const NewWindowLink = ({ children, reddit, short = false, old = false, redesign = false, ...props }) => {
   let href
   if (reddit) {
     if (old) {
@@ -74,12 +74,12 @@ export const NewWindowLink = ({children, reddit, short=false, old=false, redesig
   return <a href={href} target='_blank' rel='noopener' {...props}>{children}</a>
 }
 
-export const LinkWithCloseModal = ({children, to}) => {
+export const LinkWithCloseModal = ({ children, to }) => {
   const modal = React.useContext(ModalContext)
   return <Link to={to} onClick={modal.closeModal}>{children}</Link>
 }
 
-export const ExtensionLink = ({image = false, extensionID = 'rt'}) => {
+export const ExtensionLink = ({ image = false, extensionID = 'rt' }) => {
   const extensionMeta = ext_urls[extensionID]
   let content = extensionMeta.n
   if (image) {
@@ -93,7 +93,29 @@ export const ExtensionLink = ({image = false, extensionID = 'rt'}) => {
   return <LinkWithCloseModal to='/add-ons/'>{content}</LinkWithCloseModal>
 }
 
-const getExtensionURL = (extCode='rt') => {
+export const redditChangePostUrl = 'https://www.reddit.com/r/reveddit/comments/1ngch51/'
+
+export const ExtensionLinks = ({ containerStyle = {}, linkStyle = {} }) => {
+  const extensionLink = (browser) => {
+    const href = ext_urls.rt[meta[browser].att]
+    if (href) {
+      return (
+        <a target="_blank" rel="noopener" href={href} style={{ marginRight: '10px', ...linkStyle }}>
+          <img alt={`Add to ${browser}`} src={meta[browser].img} style={{ height: '24px', verticalAlign: 'middle' }} />
+        </a>
+      )
+    }
+    return null
+  }
+  return (
+    <span style={containerStyle}>
+      {extensionLink('chrome')}
+      {extensionLink('firefox')}
+    </span>
+  )
+}
+
+const getExtensionURL = (extCode = 'rt') => {
   if (extCode in ext_urls) {
     if (isChrome) {
       return ext_urls[extCode].c
@@ -104,68 +126,72 @@ const getExtensionURL = (extCode='rt') => {
   return '/add-ons/'
 }
 
-export const ExtensionRedirect = ({extCode = 'rt'}) => {
+export const ExtensionRedirect = ({ extCode = 'rt' }) => {
   useEffect(() => {
     window.location.replace(getExtensionURL(extCode))
   }, [])
   return null
 }
 
-export const Tip = ({children}) => <p><span className='quarantined'>Tip</span> {children}</p>
+export const Tip = ({ children }) => <p><span className='quarantined'>Tip</span> {children}</p>
 
-export const Spin = ({width}) => {
-  const spin = <img className='spin' alt='spin' width={width} src='/images/spin.gif'/>
-  if (! width) {
+export const Spin = ({ width }) => {
+  const spin = <img className='spin' alt='spin' width={width} src='/images/spin.gif' />
+  if (!width) {
     return <div className='non-item'>{spin}</div>
   }
   return spin
 }
 
-export const MessageMods = ({permalink, subreddit = '', message_body = '', innerText = 'message mods', message_subject = ''}) => {
-  const mods_message_body = message_body || '\n\n\n'+www_reddit+permalink
+export const MessageMods = ({ permalink, subreddit = '', message_body = '', innerText = 'message mods', message_subject = '' }) => {
+  const mods_message_body = message_body || '\n\n\n' + www_reddit + permalink
   const search = new SimpleURLSearchParams().setParams({
-    to: '/r/'+subreddit,
+    to: '/r/' + subreddit,
     message: mods_message_body,
-    ...(message_subject && {subject: message_subject}),
+    ...(message_subject && { subject: message_subject }),
   })
-  const mods_link = '/message/compose'+search.toString()
+  const mods_link = '/message/compose' + search.toString()
   return <NewWindowLink reddit={mods_link} target="_blank">{innerText}</NewWindowLink>
 }
 
 //modalContent should be either {content: <>abc</>} or {hash: 'abc'}
-export const QuestionMarkModal = ({modalContent, fill, text, wh='20'}) => {
+export const QuestionMarkModal = ({ modalContent, fill, text, wh = '20' }) => {
   const modal = React.useContext(ModalContext)
   return (
     <a className='pointer' onClick={() => modal.openModal(modalContent)}>
-      { text ? text :
-        <QuestionMark style={{marginLeft: '10px'}} wh={wh} fill={fill}/>
+      {text ? text :
+        <QuestionMark style={{ marginLeft: '10px' }} wh={wh} fill={fill} />
       }
     </a>
   )
 }
 export const buttonClasses = 'pointer bubble medium lightblue'
 
-export const ModalWithButton = ({text, title, buttonText, buttonFn, children}) => {
+export const ModalWithButton = ({ text, title, buttonText, buttonFn, children }) => {
   const modal = React.useContext(ModalContext)
   return (
-    <a className='pointer' onClick={() => modal.openModal({content:
-      <StructuredContent {...{title: title || text,
-                              content:
-                              <>
-                                {children}
-                                <p style={{textAlign:'center'}}>
-                                  <a className={buttonClasses} onClick={() => {
-                                    modal.closeModal()
-                                    buttonFn()
-                                  }}>{buttonText}</a>
-                                </p>
-                              </>}}/>})}>
+    <a className='pointer' onClick={() => modal.openModal({
+      content:
+        <StructuredContent {...{
+          title: title || text,
+          content:
+            <>
+              {children}
+              <p style={{ textAlign: 'center' }}>
+                <a className={buttonClasses} onClick={() => {
+                  modal.closeModal()
+                  buttonFn()
+                }}>{buttonText}</a>
+              </p>
+            </>
+        }} />
+    })}>
       {text}
     </a>
   )
 }
 
-export const InternalPage = ({children, props}) => {
+export const InternalPage = ({ children, props }) => {
   useEffect(() => {
     if (props) {
       newUserModal(props)
@@ -182,15 +208,15 @@ export const InternalPage = ({children, props}) => {
   )
 }
 
-export const HelpModal = ({title = '', content = '', fill}) => {
-  return <QuestionMarkModal fill={fill} modalContent={{content: <Help {...{title, content}}/>}} />
+export const HelpModal = ({ title = '', content = '', fill }) => {
+  return <QuestionMarkModal fill={fill} modalContent={{ content: <Help {...{ title, content }} /> }} />
 }
 
-export const Help = ({title = '', content = ''}) => {
-  return <StructuredContent {...{title: title + ' help', content}}/>
+export const Help = ({ title = '', content = '' }) => {
+  return <StructuredContent {...{ title: title + ' help', content }} />
 }
 
-const StructuredContent = ({title = '', content = ''}) => {
+const StructuredContent = ({ title = '', content = '' }) => {
   return (
     <div>
       <h3>{title}</h3>
@@ -199,7 +225,7 @@ const StructuredContent = ({title = '', content = ''}) => {
   )
 }
 
-export const ShareLink = ({href, useHref=true}) => {
+export const ShareLink = ({ href, useHref = true }) => {
   return (
     <div className="revddit-sharing">
       <a href={href} onClick={(e) => copyLink(e, useHref)}>copy sharelink</a>
@@ -210,9 +236,9 @@ export const ShareLink = ({href, useHref=true}) => {
 
 export const SocialLinks = () => {
   return (
-    <div style={{textAlign:'center', marginTop:'10px'}}>
-      <TwitterWhite wh='20' style={{marginRight:'25px'}}/>
-      <NewWindowLink style={{marginRight:'25px'}} reddit='/r/reveddit'>r/reveddit</NewWindowLink>
+    <div style={{ textAlign: 'center', marginTop: '10px' }}>
+      <TwitterWhite wh='20' style={{ marginRight: '25px' }} />
+      <NewWindowLink style={{ marginRight: '25px' }} reddit='/r/reveddit'>r/reveddit</NewWindowLink>
       <NewWindowLink href='https://removed.substack.com'>removed.substack.com</NewWindowLink>
     </div>
   )
@@ -227,9 +253,9 @@ const submitUsername = (e) => {
   }
 }
 export const UserNameEntry = (props) => <div className='user-lookup'>
-<form onSubmit={submitUsername} {...props}>
-  <input type='text' placeholder='username' name='username'/>
-  <input type='submit' value='go' />
-  <span> (check your username's removed content. <a href='/about/faq/#need' target='_blank'>why?</a>)</span>
-</form>
+  <form onSubmit={submitUsername} {...props}>
+    <input type='text' placeholder='username' name='username' />
+    <input type='submit' value='go' />
+    <span> (check your username's removed content. <a href='/about/faq/#need' target='_blank'>why?</a>)</span>
+  </form>
 </div>

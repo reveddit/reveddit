@@ -256,3 +256,40 @@ code
 .video
   aspect-ratio: 16 / 9
   width: 100%
+
+.reddit-change-banner
+  background-color: #b8860b
+  color: white
+  padding: 10px 15px
+  display: flex
+  justify-content: space-between
+  align-items: center
+  font-size: 13px
+  .banner-content
+    display: flex
+    align-items: center
+    flex-wrap: wrap
+    gap: 8px
+  .banner-icon
+    font-size: 16px
+  .banner-text
+    margin-right: 5px
+  .banner-link
+    color: white
+    text-decoration: underline
+    margin-left: 10px
+  .banner-dismiss
+    color: white
+    text-decoration: none
+    font-size: 16px
+    margin-left: 15px
+    flex-shrink: 0
+    &:hover
+      text-decoration: none
+
+@media only screen and (max-width: 700px)
+  .reddit-change-banner
+    .banner-content
+      flex-direction: column
+      align-items: flex-start
+

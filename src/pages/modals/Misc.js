@@ -1,27 +1,28 @@
-import React, {useState} from 'react'
+import React, { useState } from 'react'
 import { NewWindowLink, SocialLinks } from 'components/Misc'
 import BlankUser from 'components/BlankUser'
 import Highlight from 'pages/common/Highlight'
 import { convertPathSub_reverse, get, put, shuffle } from 'utils'
+import { RedditBreakingChange } from 'pages/modals/RedditBreakingChange'
 
 const BlankUserBlurb = () => (<>
   <p>Look up your account's history:</p>
   <BlankUser message=' '
-              placeholder='username'
-              bottomMessage={<>
-                <Highlight showMobile={true}/>
-                <SocialLinks/>
-              </>}
+    placeholder='username'
+    bottomMessage={<>
+      <Highlight showMobile={true} />
+      <SocialLinks />
+    </>}
   />
 </>)
 
 export const Banned = () => {
-  const redditPath = convertPathSub_reverse(window.location.pathname).split('/').slice(0,3).join('/')
+  const redditPath = convertPathSub_reverse(window.location.pathname).split('/').slice(0, 3).join('/')
   return (
     <>
       <h3>Historical view</h3>
       <p><NewWindowLink reddit={redditPath}>{redditPath}</NewWindowLink> is either private, banned, or does not exist. This historical view may show some of the top removed content.</p>
-      <BlankUserBlurb/>
+      <BlankUserBlurb />
     </>
   )
 }
@@ -43,34 +44,34 @@ const startTimes = ['1372', '1538', '2073', '3438', '3887', '4319']
 const widespread = <p>Shadow banning is more widespread than you think. Spread the word!</p>
 
 // NOTE: id can contain param string
-const YoutubeVideo = ({id}) => {
+const YoutubeVideo = ({ id }) => {
   return <iframe className="video" src={`https://www.youtube-nocookie.com/embed/${id}`} title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen></iframe>
 }
 
-export const CoupSaveAmerica = ({topMessage = widespread}) => {
+export const CoupSaveAmerica = ({ topMessage = widespread }) => {
   return (<>
     {topMessage}
-    <YoutubeVideo id='2_Fw0NgFZXk'/>
-    <div className='space-around' style={{marginBottom: '30px'}}>
+    <YoutubeVideo id='2_Fw0NgFZXk' />
+    <div className='space-around' style={{ marginBottom: '30px' }}>
       <NewWindowLink href="https://podcasts.apple.com/us/podcast/exploring-shadow-banning-with-robert-hawkins/id1624175133?i=1000653301210">audio only</NewWindowLink>
     </div>
   </>)
 }
 
-export const YoutubeShadowRemovals = ({topMessage = widespread}) => {
+export const YoutubeShadowRemovals = ({ topMessage = widespread }) => {
   return (<>
     {topMessage}
-    <YoutubeVideo id='8e6BIkKBZpg'/>
+    <YoutubeVideo id='8e6BIkKBZpg' />
   </>)
 }
 
 
-export const FaithfullyEngaged = ({topMessage = widespread}) => {
+export const FaithfullyEngaged = ({ topMessage = widespread }) => {
   const [startTime] = useState(shuffle(startTimes)[0])
   return (<>
     {topMessage}
-    <YoutubeVideo id={`ndiAl6QEA6k?start=${startTime}`}/>
-    <div className='space-around' style={{marginBottom: '30px'}}>
+    <YoutubeVideo id={`ndiAl6QEA6k?start=${startTime}`} />
+    <div className='space-around' style={{ marginBottom: '30px' }}>
       <NewWindowLink href="https://podcasts.apple.com/us/podcast/the-problem-with-shadowbanning-on-reddit-and/id1665487526?i=1000617548040">audio only</NewWindowLink>
     </div>
   </>)
@@ -80,18 +81,27 @@ export const SpreadWord = FaithfullyEngaged
 
 export const OnlyFoolHumans = () => {
   return (<>
-    <NewWindowLink href={media.ofh.news_url} onClick={() => put(media.ofh.local_storage_var, true)}><img alt="Link to article titled: Shadow Bans Only Fool Humans, Not Bots" src="/images/substack-media-2024-01-02.jpg"/></NewWindowLink>
+    <NewWindowLink href={media.ofh.news_url} onClick={() => put(media.ofh.local_storage_var, true)}><img alt="Link to article titled: Shadow Bans Only Fool Humans, Not Bots" src="/images/substack-media-2024-01-02.jpg" /></NewWindowLink>
   </>)
 }
 
 
 export const CensorshipWorse = () => {
   return (<>
-    <NewWindowLink href={media.cw.news_url} onClick={() => put(media.cw.local_storage_var, true)}><img alt="Link to article titled: A new red army is here: Widespread secret suppression scales thought police to levels not seen since the days of Nazis and Communists, and it is time to speak up about it." src="/images/substack-media-2023-07-21.jpg"/></NewWindowLink>
+    <NewWindowLink href={media.cw.news_url} onClick={() => put(media.cw.local_storage_var, true)}><img alt="Link to article titled: A new red army is here: Widespread secret suppression scales thought police to levels not seen since the days of Nazis and Communists, and it is time to speak up about it." src="/images/substack-media-2023-07-21.jpg" /></NewWindowLink>
   </>)
 }
 
+export const REDDIT_BREAKING_CHANGE_VAR = 'hasSeenRedditBreakingChange_2024'
+
 export const media = {
+  'reddit_breaking_change': {
+    'content': RedditBreakingChange,
+    'local_storage_var': REDDIT_BREAKING_CHANGE_VAR,
+    'url_hash': 'reddit_breaking_change',
+    'news_url': 'https://www.reddit.com/r/reveddit/comments/1nqg0iw/',
+    'news_text': 'Reddit update breaks Reveddit',
+  },
   'ofh': {
     'content': OnlyFoolHumans,
     'local_storage_var': 'hasSeenOnlyFoolHumansv2',
@@ -142,16 +152,22 @@ export const newUserModal = (props) => {
   if (window.location.hash === '#say') {
     return
   }
-  if (! get('hasNotifierExtension', false) &&
-          ! get(hasVisitedSite, false)) {
-    props.openGenericModal({hash: 'welcome'})
+  const breakingChange = media['reddit_breaking_change']
+  if (!get(breakingChange.local_storage_var)) {
+    props.openGenericModal({ hash: breakingChange.url_hash })
+    put(breakingChange.local_storage_var, true)
+    return
+  }
+  if (!get('hasNotifierExtension', false) &&
+    !get(hasVisitedSite, false)) {
+    props.openGenericModal({ hash: 'welcome' })
     put(hasVisitedSite, true)
     return
   }
   for (const key of modals) {
     const media_item = media[key]
-    if (! get(media_item.local_storage_var)) {
-      props.openGenericModal({hash: media_item.url_hash})
+    if (!get(media_item.local_storage_var)) {
+      props.openGenericModal({ hash: media_item.url_hash })
       put(media_item.local_storage_var, true)
       return
     }
@@ -161,6 +177,6 @@ export const newUserModal = (props) => {
 export const SubredditViewUnavailable = () => {
   return (<>
     <p>Live subreddit view is unavailable. Some historic data may appear here.</p>
-    <BlankUserBlurb/>
+    <BlankUserBlurb />
   </>)
 }
