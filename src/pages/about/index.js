@@ -246,7 +246,8 @@ const About = ({ global, ...props }) => {
             moderators
           })
         }
-        document.querySelector('.spin').classList.add('display-none')
+        const spinner = document.querySelector('.spin')
+        if (spinner) spinner.classList.add('display-none')
       })
   }, [])
 
