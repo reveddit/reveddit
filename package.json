@@ -72,6 +72,7 @@
     "html-webpack-tags-plugin": "^2.0.17",
     "lodash-webpack-plugin": "^0.11.6",
     "netlify-lambda": "^1.4.13",
+    "react-snap": "^1.23.0",
     "sass": "^1.69.7",
     "scroll-to-element": "^2.0.2",
     "standard": "^11.0.1",
@@ -85,11 +86,26 @@
     "start-all": "concurrently \"yarn start\" \"yarn lambda-serve\"",
     "start": "yarn build-sass; webpack serve --mode development --host 0.0.0.0",
     "start-staging": "yarn build-sass; TARGET_ENV=staging webpack serve --mode development --host 0.0.0.0",
-    "build": "yarn clean; yarn build-sass; webpack --mode production && yarn lambda-build",
+    "build": "yarn clean; yarn prefetch-data; yarn build-sass; webpack --mode production && yarn lambda-build && react-snap",
+    "prefetch-data": "node scripts/fetch-prerender-data.js",
     "build-sass": "sass --style=compressed --load-path=node_modules/ src/sass/index.sass dist/x-files/main.css",
     "lambda-serve": "netlify-lambda serve lambda-src",
     "lambda-build": "netlify-lambda build lambda-src",
-    "clean": "del 'dist/x-files/*.js' 'dist/x-files/*.js.map' 'dist/x-files/*.css' 'dist/index.html' 'dist/*.js' 'dist/*.js.map'"
+    "clean": "del 'dist/x-files/*.js' 'dist/x-files/*.js.map' 'dist/x-files/*.css' 'dist/index.html' 'dist/*.js' 'dist/*.js.map' 'dist/200.html' 'dist/about'"
   },
-  "packageManager": "yarn@4.0.0-rc.25"
+  "packageManager": "yarn@4.0.0-rc.25",
+  "reactSnap": {
+    "source": "dist",
+    "include": [
+      "/",
+      "/about/faq"
+    ],
+    "crawl": false,
+    "inlineCss": false,
+    "puppeteerArgs": [
+      "--no-sandbox",
+      "--disable-setuid-sandbox"
+    ],
+    "puppeteerExecutablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+  }
 }

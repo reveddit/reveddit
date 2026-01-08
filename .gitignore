@@ -6,12 +6,15 @@ node_modules/
 
 # Generated files
 dist/index.html
+dist/200.html
+dist/about/faq/index.html
 dist/*js
 dist/*js.map
 dist/*css
 dist/x-files/
 lambda/
 .sass-cache/
+src/data/
 
 # Log files
 *.log
