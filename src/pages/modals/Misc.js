@@ -200,7 +200,11 @@ export const headlines = ['ofh']
 const modals = Object.keys(media)
 
 export const newUserModal = props => {
-  if (window.location.hash === '#say') {
+  if (
+    window.location.hash === '#say' ||
+    navigator.userAgent.includes('HeadlessChrome') ||
+    navigator.userAgent.includes('ReactSnap')
+  ) {
     return
   }
   const breakingChange = media['reddit_breaking_change']
