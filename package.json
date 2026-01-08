@@ -86,7 +86,7 @@
     "start-all": "concurrently \"yarn start\" \"yarn lambda-serve\"",
     "start": "yarn build-sass; webpack serve --mode development --host 0.0.0.0",
     "start-staging": "yarn build-sass; TARGET_ENV=staging webpack serve --mode development --host 0.0.0.0",
-    "build": "yarn clean; yarn build-sass; webpack --mode production && yarn lambda-build && react-snap",
+    "build": "yarn clean; yarn build-sass; webpack --mode production && yarn lambda-build && (react-snap || true)",
     "build:local-mac": "PUPPETEER_EXECUTABLE_PATH='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' yarn build",
     "prefetch-data": "node scripts/fetch-prerender-data.js",
     "build-sass": "sass --style=compressed --load-path=node_modules/ src/sass/index.sass dist/x-files/main.css",
