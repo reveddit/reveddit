@@ -8,42 +8,57 @@ import Highlight from 'pages/common/Highlight'
 import Pagination from 'components/Pagination'
 import { ShareLink } from 'components/Misc'
 
-const Info = (props) => {
-  const { page_type, viewableItems, selections, summary, topNotice,
-          oldestTimestamp, newestTimestamp, global,
-        } = props
-  const {items, loading, localSort, localSortReverse} = global.state
-  const noItemsFound = items.length === 0 && ! loading && window.location.search !== ''
+const Info = props => {
+  const {
+    page_type,
+    viewableItems,
+    selections,
+    summary,
+    topNotice,
+    oldestTimestamp,
+    newestTimestamp,
+    global,
+  } = props
+  const { items, loading, localSort, localSortReverse } = global.state
+  const noItemsFound =
+    items.length === 0 && !loading && window.location.search !== ''
 
   const ids = viewableItems.map(o => o.name)
-  const shareLink = ids.length && page_type === 'search' ? (
-    <ShareLink href={'/info?id='+ids.join(',')}/>
-  ) : ''
+  const shareLink =
+    ids.length && page_type === 'search' ? (
+      <ShareLink href={'/info?id=' + ids.join(',')} />
+    ) : (
+      ''
+    )
 
   let pagination = ''
   if (page_type === 'search') {
-    pagination = <Pagination {...{page_type, oldestTimestamp, newestTimestamp}}
-                             bottom={true}/>
+    pagination = (
+      <Pagination
+        {...{ page_type, oldestTimestamp, newestTimestamp }}
+        bottom={true}
+      />
+    )
   }
 
   return (
-    <div className='infopage'>
+    <div className="infopage">
       {shareLink}
       {selections}
       {summary}
-      <Highlight/>
+      <Highlight />
       {topNotice}
-      {
-        noItemsFound ?
-        <p>No items found</p> :
+      {noItemsFound ? (
+        <p>No items found</p>
+      ) : (
         viewableItems.map(item => {
-          if (item.name.slice(0,2) === 't3') {
+          if (item.name.slice(0, 2) === 't3') {
             return <Post key={item.name} {...item} page_type={page_type} />
           } else {
             return <Comment key={item.name} {...item} page_type={page_type} />
           }
         })
-      }
+      )}
       {pagination}
     </div>
   )

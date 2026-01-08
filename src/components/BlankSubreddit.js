@@ -1,9 +1,9 @@
 import React from 'react'
-import {PATH_STR_SUB} from 'utils'
+import { PATH_STR_SUB } from 'utils'
 import { create_qparams } from 'state'
 
-export default ({is_comments_page = false}) => {
-  const handleSubmitSub = (e) => {
+export default ({ is_comments_page = false }) => {
+  const handleSubmitSub = e => {
     e.preventDefault()
     const data = new FormData(e.target)
     const val = data.get('subreddit').trim().toLowerCase()
@@ -23,14 +23,20 @@ export default ({is_comments_page = false}) => {
     }
   }
   return (
-    <div className='blank_page'>
-      <div className='text'>
-        Enter a subreddit to view removed content:
-      </div>
+    <div className="blank_page">
+      <div className="text">Enter a subreddit to view removed content:</div>
       <form onSubmit={handleSubmitSub}>
-        <label htmlFor='subreddit' className='hide-element'>subreddit</label>
-        <input id='subreddit' type='text' name='subreddit' placeholder='subreddit' autoFocus='autoFocus'/>
-        <input type='submit' id='button_r' value='go' />
+        <label htmlFor="subreddit" className="hide-element">
+          subreddit
+        </label>
+        <input
+          id="subreddit"
+          type="text"
+          name="subreddit"
+          placeholder="subreddit"
+          autoFocus="autoFocus"
+        />
+        <input type="submit" id="button_r" value="go" />
       </form>
     </div>
   )

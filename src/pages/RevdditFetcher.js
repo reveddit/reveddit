@@ -1,46 +1,74 @@
-import React, {useState, useMemo} from 'react'
+import React, { useState, useMemo } from 'react'
 import { getRevdditCommentsBySubreddit } from 'data_processing/comments'
 import { getRevdditMissingComments } from 'data_processing/missing_comments'
 import { getRevdditPostsBySubreddit } from 'data_processing/subreddit_posts'
 import { getRevdditAggregations } from 'data_processing/aggregations'
-import { getRevdditPostsByDomain, getRevdditDuplicatePosts } from 'data_processing/posts'
+import {
+  getRevdditPostsByDomain,
+  getRevdditDuplicatePosts,
+} from 'data_processing/posts'
 import { getRevdditUserItems } from 'data_processing/user'
 import { getRevdditThreadItems } from 'data_processing/thread'
 import { getRevdditItems, getRevdditSearch } from 'data_processing/info'
-import { itemIsOneOfSelectedActions, itemIsOneOfSelectedTags, filterSelectedActions } from 'data_processing/filters'
+import {
+  itemIsOneOfSelectedActions,
+  itemIsOneOfSelectedTags,
+  filterSelectedActions,
+} from 'data_processing/filters'
 import { getSortFn } from 'data_processing/sort'
 import Selections from 'pages/common/selections'
 import SummaryAndPagination from 'pages/common/SummaryAndPagination'
-import { showAccountInfo_global, ClientIDForm, guideLink } from 'pages/modals/Settings'
+import {
+  showAccountInfo_global,
+  ClientIDForm,
+  guideLink,
+} from 'pages/modals/Settings'
 import { newUserModal, SpreadWord } from 'pages/modals/Misc'
 
-import { connect, removedFilter_types, getExtraGlobalStateVars, create_qparams,
-         urlParamKeys_max_min,
+import {
+  connect,
+  removedFilter_types,
+  getExtraGlobalStateVars,
+  create_qparams,
+  urlParamKeys_max_min,
 } from 'state'
 import { COLLAPSED, ORPHANED } from 'pages/common/RemovedBy'
-import { jumpToHash, get, put,
-         itemIsActioned, itemIsCollapsed, commentIsOrphaned,
-         commentIsMissingInThread, matchOrIncludes, now, reversible,
-         redirectToHistory, getCustomClientID,
+import {
+  jumpToHash,
+  get,
+  put,
+  itemIsActioned,
+  itemIsCollapsed,
+  commentIsOrphaned,
+  commentIsMissingInThread,
+  matchOrIncludes,
+  now,
+  reversible,
+  redirectToHistory,
+  getCustomClientID,
 } from 'utils'
 import { getAuthorInfoByName } from 'api/reddit'
 import { getAuth } from 'api/reddit/auth'
 import { getArchiveTimes } from 'api/reveddit'
-import {meta} from 'pages/about/AddOns'
-import {redditPrefsAppsLink} from 'pages/about/faq'
-import {Notice} from 'pages/common/Notice'
-import {RedditOrLocalLink} from 'components/Misc'
+import { meta } from 'pages/about/AddOns'
+import { redditPrefsAppsLink } from 'pages/about/faq'
+import { Notice } from 'pages/common/Notice'
+import { RedditOrLocalLink } from 'components/Misc'
 import BlankUser from 'components/BlankUser'
 import Highlight from 'pages/common/Highlight'
-import {SocialLinks, UserNameEntry} from 'components/Misc'
+import { SocialLinks, UserNameEntry } from 'components/Misc'
 
-const CAT_SUBREDDIT = {category: 'subreddit',
-                       category_title: 'Subreddit',
-                       category_unique_field: 'subreddit'}
+const CAT_SUBREDDIT = {
+  category: 'subreddit',
+  category_title: 'Subreddit',
+  category_unique_field: 'subreddit',
+}
 
-const CAT_POST_TITLE = {category: 'link_title',
-                        category_title: 'Post Title',
-                        category_unique_field: 'link_id'}
+const CAT_POST_TITLE = {
+  category: 'link_title',
+  category_title: 'Post Title',
+  category_unique_field: 'link_id',
+}
 
 const normalArchiveDelay = 60
 
@@ -50,69 +78,119 @@ export const handleRedditError = (error, connectedProps) => {
   REDDIT_ERROR_OCCURRED = true
   console.error(error)
   let content = getFirefoxError()
-  if (! content) {
+  if (!content) {
     // if client_id is set and message is too many requests, change below message
     const customClientID = getCustomClientID()
-    if (customClientID && error?.message?.toLowerCase().includes('too many requests')) {
-      content = <><p>Reddit said "{error.message}".</p><p>Try again in 5 minutes.</p></>
+    if (
+      customClientID &&
+      error?.message?.toLowerCase().includes('too many requests')
+    ) {
+      content = (
+        <>
+          <p>Reddit said "{error.message}".</p>
+          <p>Try again in 5 minutes.</p>
+        </>
+      )
     } else if (customClientID) {
-      content = <><p>Unable to connect to Reddit. Follow the {guideLink} to verify the API key below matches the one on {redditPrefsAppsLink}</p>
-                  <p>Or, check for conflicting extensions or privacy settings (see: {whatHappenedLink})</p><ClientIDForm/></>
+      content = (
+        <>
+          <p>
+            Unable to connect to Reddit. Follow the {guideLink} to verify the
+            API key below matches the one on {redditPrefsAppsLink}
+          </p>
+          <p>
+            Or, check for conflicting extensions or privacy settings (see:{' '}
+            {whatHappenedLink})
+          </p>
+          <ClientIDForm />
+        </>
+      )
     } else {
-      content = <>
-        <p>To use Reveddit, follow this {guideLink} to create an API key of type "installed app", and enter its ID here.</p>
-        {<ClientIDForm/>}
-      </>
+      content = (
+        <>
+          <p>
+            To use Reveddit, follow this {guideLink} to create an API key of
+            type "installed app", and enter its ID here.
+          </p>
+          {<ClientIDForm />}
+        </>
+      )
     }
   }
-  content = <>{content}<SocialLinks/></>
-  connectedProps.openGenericModal({content})
+  content = (
+    <>
+      {content}
+      <SocialLinks />
+    </>
+  )
+  connectedProps.openGenericModal({ content })
   connectedProps.global.setError()
 }
-const isFirefox = /firefox/i.test(navigator.userAgent) || typeof InstallTrigger !== 'undefined';
+const isFirefox =
+  /firefox/i.test(navigator.userAgent) || typeof InstallTrigger !== 'undefined'
 
-const whatHappenedLink = <RedditOrLocalLink to='/about/faq/#errors'>What happened?</RedditOrLocalLink>
+const whatHappenedLink = (
+  <RedditOrLocalLink to="/about/faq/#errors">What happened?</RedditOrLocalLink>
+)
 
 const getFirefoxError = () => {
-  if (navigator.doNotTrack == "1" && isFirefox) {
-    return <>
+  if (navigator.doNotTrack == '1' && isFirefox) {
+    return (
+      <>
         <p>Error: unable to connect to reddit</p>
-        <p>Tracking Protection on Firefox may be preventing this site from accessing reddit's API. <b>To fix this</b>, add an exception by clicking the shield icon next to the URL:</p>
-        <img src="/images/etp.png"/>
-        <p><RedditOrLocalLink to='/about/faq/#firefox'>Why should I disable tracking protection?</RedditOrLocalLink></p>
-        <p>If this does not resolve the issue, there may be a conflicting extension blocking connections to reddit from other websites. See {whatHappenedLink}</p>
-    </>
+        <p>
+          Tracking Protection on Firefox may be preventing this site from
+          accessing reddit's API. <b>To fix this</b>, add an exception by
+          clicking the shield icon next to the URL:
+        </p>
+        <img src="/images/etp.png" />
+        <p>
+          <RedditOrLocalLink to="/about/faq/#firefox">
+            Why should I disable tracking protection?
+          </RedditOrLocalLink>
+        </p>
+        <p>
+          If this does not resolve the issue, there may be a conflicting
+          extension blocking connections to reddit from other websites. See{' '}
+          {whatHappenedLink}
+        </p>
+      </>
+    )
   }
   return null
 }
 
 const getCategorySettings = (page_type, subreddit) => {
   const category_settings = {
-    'subreddit_comments': {
-      'other': CAT_POST_TITLE,
-      'all':   CAT_SUBREDDIT
+    subreddit_comments: {
+      other: CAT_POST_TITLE,
+      all: CAT_SUBREDDIT,
     },
-    'missing_comments': {
-      'other': CAT_POST_TITLE,
-      'all':   CAT_SUBREDDIT
+    missing_comments: {
+      other: CAT_POST_TITLE,
+      all: CAT_SUBREDDIT,
     },
-    'subreddit_posts': {
-      'other': {category: 'domain',
-                category_title: 'Domain',
-                category_unique_field: 'domain'},
-      'all':   CAT_SUBREDDIT
+    subreddit_posts: {
+      other: {
+        category: 'domain',
+        category_title: 'Domain',
+        category_unique_field: 'domain',
+      },
+      all: CAT_SUBREDDIT,
     },
-    'domain_posts': CAT_SUBREDDIT,
-    'duplicate_posts': CAT_SUBREDDIT,
-    'user': CAT_SUBREDDIT,
-    'info': CAT_SUBREDDIT,
-    'search': CAT_SUBREDDIT,
-    'thread': {category: 'author',
-               category_title: 'Author',
-               category_unique_field: 'author'},
+    domain_posts: CAT_SUBREDDIT,
+    duplicate_posts: CAT_SUBREDDIT,
+    user: CAT_SUBREDDIT,
+    info: CAT_SUBREDDIT,
+    search: CAT_SUBREDDIT,
+    thread: {
+      category: 'author',
+      category_title: 'Author',
+      category_unique_field: 'author',
+    },
   }
   if (page_type in category_settings) {
-    if (subreddit && ! ['duplicate_posts', 'thread'].includes(page_type)) {
+    if (subreddit && !['duplicate_posts', 'thread'].includes(page_type)) {
       let sub_type = subreddit.toLowerCase() === 'all' ? 'all' : 'other'
       return category_settings[page_type][sub_type]
     } else {
@@ -125,7 +203,7 @@ const getCategorySettings = (page_type, subreddit) => {
 
 const getPageTitle = (page_type, string) => {
   const subreddit = `r/${string}`
-  switch(page_type) {
+  switch (page_type) {
     case 'subreddit_posts': {
       return `${subreddit}`
       break
@@ -164,14 +242,24 @@ const getPageTitle = (page_type, string) => {
     }
   }
   return null
-
 }
-const getLoadDataFunctionAndParam = (
-  {page_type, subreddit, user, kind, threadID, commentID, context, domain,
-   add_user, user_kind, user_sort, user_time, before, after,
-  }
-) => {
-  switch(page_type) {
+const getLoadDataFunctionAndParam = ({
+  page_type,
+  subreddit,
+  user,
+  kind,
+  threadID,
+  commentID,
+  context,
+  domain,
+  add_user,
+  user_kind,
+  user_sort,
+  user_time,
+  before,
+  after,
+}) => {
+  switch (page_type) {
     case 'subreddit_posts': {
       return [getRevdditPostsBySubreddit, [subreddit]]
       break
@@ -197,10 +285,21 @@ const getLoadDataFunctionAndParam = (
       break
     }
     case 'thread': {
-      return [getRevdditThreadItems, [threadID, commentID, context,
-                                      add_user, user_kind, user_sort, user_time,
-                                      before, after, subreddit,
-                                     ]]
+      return [
+        getRevdditThreadItems,
+        [
+          threadID,
+          commentID,
+          context,
+          add_user,
+          user_kind,
+          user_sort,
+          user_time,
+          before,
+          after,
+          subreddit,
+        ],
+      ]
       break
     }
     case 'user': {
@@ -216,7 +315,7 @@ const getLoadDataFunctionAndParam = (
       break
     }
     default: {
-      console.error('Unrecognized page type: ['+page_type+']')
+      console.error('Unrecognized page type: [' + page_type + ']')
     }
   }
   return null
@@ -224,34 +323,47 @@ const getLoadDataFunctionAndParam = (
 const MAX_COLLAPSED_VISIBLE = 1
 const MAX_ORPHANED_VISIBLE = 1
 
-const charsToNormalize = {'‘': "'",
-                        '’': "'",
-                        '“': '"',
-                        '”': '"',
-                       }
+const charsToNormalize = { '‘': "'", '’': "'", '“': '"', '”': '"' }
 
-const normalizeCharsRegex = new RegExp('['+Object.keys(charsToNormalize).join('')+']', 'g')
+const normalizeCharsRegex = new RegExp(
+  '[' + Object.keys(charsToNormalize).join('') + ']',
+  'g'
+)
 
-const normalizeChars = (s) => s.replace(normalizeCharsRegex, (match) => charsToNormalize[match], 'g')
+const normalizeChars = s =>
+  s.replace(normalizeCharsRegex, match => charsToNormalize[match], 'g')
 
 export const textMatch = (gs, item, [globalVarName, fields]) => {
   const searchString = gs[globalVarName]
-  const keywords = searchString.toString().replace(/\s\s+/g, ' ').trim().toLocaleLowerCase().match(/(-?"[^"]+"|[^"\s]+)/g) || []
+  const keywords =
+    searchString
+      .toString()
+      .replace(/\s\s+/g, ' ')
+      .trim()
+      .toLocaleLowerCase()
+      .match(/(-?"[^"]+"|[^"\s]+)/g) || []
   for (let i = 0; i < keywords.length; i++) {
     const negateWord = keywords[i].startsWith('-') ? true : false
-    let word = keywords[i].replace(/^-/,'')
+    let word = keywords[i].replace(/^-/, '')
     const isPhraseRegex = word.startsWith('"') ? true : false
     if (isPhraseRegex) {
-      word = word.replace(/^"(.+)"$/,"$1")
+      word = word.replace(/^"(.+)"$/, '$1')
     }
     let word_in_item = false
     for (const field of fields) {
-      if (item[field] && matchOrIncludes(normalizeChars(item[field].toLocaleLowerCase()), normalizeChars(word), isPhraseRegex)) {
+      if (
+        item[field] &&
+        matchOrIncludes(
+          normalizeChars(item[field].toLocaleLowerCase()),
+          normalizeChars(word),
+          isPhraseRegex
+        )
+      ) {
         word_in_item = true
         break
       }
     }
-    if ((! negateWord && ! word_in_item) || (negateWord && word_in_item)) {
+    if ((!negateWord && !word_in_item) || (negateWord && word_in_item)) {
       return false
     }
   }
@@ -266,24 +378,35 @@ const minMaxMatch_quarantine = (gs, item, args) => {
   return minMaxMatch(gs, item, args)
 }
 
-const minMaxMatch = (gs, item, [globalVarBase, field, isAge=false,
-                                isLength=false, isAccountAge=false, isOtherAccountMeta = false]) => {
-  if ((field in item) || isAccountAge || isOtherAccountMeta) {
-    const min = gs[globalVarBase+'_min']
-    const max = gs[globalVarBase+'_max']
+const minMaxMatch = (
+  gs,
+  item,
+  [
+    globalVarBase,
+    field,
+    isAge = false,
+    isLength = false,
+    isAccountAge = false,
+    isOtherAccountMeta = false,
+  ]
+) => {
+  if (field in item || isAccountAge || isOtherAccountMeta) {
+    const min = gs[globalVarBase + '_min']
+    const max = gs[globalVarBase + '_max']
     const isMin = min !== ''
     const isMax = max !== ''
     if (isMin || isMax) {
       let value
       if (isAge) {
-        value = (now - item[field])/60
+        value = (now - item[field]) / 60
       } else if (isLength) {
-        value = typeof(item[field]) === 'string' ? item[field].length : 0
+        value = typeof item[field] === 'string' ? item[field].length : 0
       } else if (isAccountAge || isOtherAccountMeta) {
-        const accountFieldValue = (gs.author_fullnames[item['author_fullname']]?.[field]);
+        const accountFieldValue =
+          gs.author_fullnames[item['author_fullname']]?.[field]
         if (isAccountAge) {
           if (accountFieldValue) {
-            value = (item.created_utc - accountFieldValue)/86400
+            value = (item.created_utc - accountFieldValue) / 86400
           }
         } else {
           value = accountFieldValue
@@ -310,10 +433,10 @@ const asOfMatch = (gs, item) => {
 }
 
 const filterMatches = (filterIsUnset, fn, exclude) => {
-  if (! filterIsUnset) {
+  if (!filterIsUnset) {
     const oneOfSelected = fn()
     if (exclude) {
-      return ! oneOfSelected
+      return !oneOfSelected
     } else {
       return oneOfSelected
     }
@@ -321,13 +444,13 @@ const filterMatches = (filterIsUnset, fn, exclude) => {
   return true
 }
 
-export const withFetch = (WrappedComponent) =>
+export const withFetch = WrappedComponent =>
   class extends React.Component {
     componentDidMount() {
-      const {match, global} = this.props
+      const { match, global } = this.props
       let subreddit = (match.params.subreddit || '').toLowerCase()
       const domain = (match.params.domain || '').toLowerCase()
-      const user = (match.params.user || '' ).toLowerCase()
+      const user = (match.params.user || '').toLowerCase()
       const { threadID, commentID, kind = '' } = match.params
       const { page_type } = this.props
       const page_title = getPageTitle(page_type, subreddit || user || domain)
@@ -338,149 +461,234 @@ export const withFetch = (WrappedComponent) =>
       if (page_type === 'user') {
         setTimeout(this.maybeShowSubscribeUserModal, 3000)
       } else {
-        archive_times_promise = getArchiveTimes().then(archiveTimes => global.setState({archiveTimes}))
+        archive_times_promise = getArchiveTimes().then(archiveTimes =>
+          global.setState({ archiveTimes })
+        )
       }
       global.setQueryParamsFromSavedDefaults(page_type)
       const allQueryParams = create_qparams()
       newUserModal(this.props)
-      global.setStateFromQueryParams(
-                      page_type,
-                      allQueryParams,
-                      getExtraGlobalStateVars(page_type, allQueryParams.get('sort') ))
-      .then(result => {
-        if (page_type === 'info' && allQueryParams.toString() === '') {
-          return global.setSuccess()
-        }
-        getAuth().then(() => {
-          const {context, add_user, user_sort, user_kind, user_time, before, after,
-                } = global.state
-          const [loadDataFunction, params] = getLoadDataFunctionAndParam(
-            {page_type, subreddit, user, kind, threadID, commentID, context, domain,
-             add_user, user_kind, user_sort, user_time, before, after})
-          loadDataFunction(...params, global, archive_times_promise)
-          .then(async ([success, stateObj]) => {
-            const lookupAccountMeta = (showAccountInfo_global || global.accountFilterOrSortIsSet()) && (stateObj.items?.length || global.state.items?.length)
-            const successFn = (success ? global.setSuccess : global.setError).bind(global)
-            const setStateFn = lookupAccountMeta ? global.setState.bind(global) : successFn
-            await setStateFn(stateObj)
-            const {commentTree, items, threadPost, initialFocusCommentID, moderators} = global.state
-            if (items.length === 0 && ['subreddit_posts', 'subreddit_comments'].includes(page_type)) {
-              throw "no results"
-            }
-            const focusComment = global.state.itemsLookup[commentID]
-            if ((commentID && focusComment) || commentTree.length === 1) {
-              document.querySelectorAll('.threadComments .collapseToggle.hidden').forEach(toggle => {
-                const comment = toggle.closest('.comment')
-                if (comment
-                    && (commentTree.length === 1
-                     || comment.id.substr(3) in focusComment.ancestors)) {
-                  toggle.click()
-                }
+      global
+        .setStateFromQueryParams(
+          page_type,
+          allQueryParams,
+          getExtraGlobalStateVars(page_type, allQueryParams.get('sort'))
+        )
+        .then(result => {
+          if (page_type === 'info' && allQueryParams.toString() === '') {
+            return global.setSuccess()
+          }
+          getAuth()
+            .then(() => {
+              const {
+                context,
+                add_user,
+                user_sort,
+                user_kind,
+                user_time,
+                before,
+                after,
+              } = global.state
+              const [loadDataFunction, params] = getLoadDataFunctionAndParam({
+                page_type,
+                subreddit,
+                user,
+                kind,
+                threadID,
+                commentID,
+                context,
+                domain,
+                add_user,
+                user_kind,
+                user_sort,
+                user_time,
+                before,
+                after,
               })
-            }
-            if (window.scrollY === 0) {
-              let hash = window.location.hash
-              if (! hash && initialFocusCommentID) {
-                hash = '#t1_'+initialFocusCommentID
-              }
-              jumpToHash(hash)
-            }
-            if ((lookupAccountMeta || threadPost) && items.length) {
-              const authorIDs = new Set()
-              const authorNames = new Set()
-              const adminAuthors = new Set()
-              let itemsAndPost = items
-              if (threadPost && (threadPost.author || threadPost.author_fullname)) {
-                itemsAndPost = items.concat(threadPost)
-              }
-              for (const item of itemsAndPost) {
-                if (item.author_fullname) {
-                  authorIDs.add(item.author_fullname)
-                }
-                if (item.author) {
-                  authorNames.add(item.author)
-                  if (item.distinguished === 'admin') {
-                    adminAuthors.add(item.author)
-                  } else if (item.distinguished === 'moderator') {
-                    const subreddit_lc = item.subreddit.toLowerCase()
-                    if (! moderators[subreddit_lc]) {
-                      moderators[subreddit_lc] = {}
+              loadDataFunction(...params, global, archive_times_promise)
+                .then(async ([success, stateObj]) => {
+                  const lookupAccountMeta =
+                    (showAccountInfo_global ||
+                      global.accountFilterOrSortIsSet()) &&
+                    (stateObj.items?.length || global.state.items?.length)
+                  const successFn = (
+                    success ? global.setSuccess : global.setError
+                  ).bind(global)
+                  const setStateFn = lookupAccountMeta
+                    ? global.setState.bind(global)
+                    : successFn
+                  await setStateFn(stateObj)
+                  const {
+                    commentTree,
+                    items,
+                    threadPost,
+                    initialFocusCommentID,
+                    moderators,
+                  } = global.state
+                  if (
+                    items.length === 0 &&
+                    ['subreddit_posts', 'subreddit_comments'].includes(
+                      page_type
+                    )
+                  ) {
+                    throw 'no results'
+                  }
+                  const focusComment = global.state.itemsLookup[commentID]
+                  if ((commentID && focusComment) || commentTree.length === 1) {
+                    document
+                      .querySelectorAll(
+                        '.threadComments .collapseToggle.hidden'
+                      )
+                      .forEach(toggle => {
+                        const comment = toggle.closest('.comment')
+                        if (
+                          comment &&
+                          (commentTree.length === 1 ||
+                            comment.id.substr(3) in focusComment.ancestors)
+                        ) {
+                          toggle.click()
+                        }
+                      })
+                  }
+                  if (window.scrollY === 0) {
+                    let hash = window.location.hash
+                    if (!hash && initialFocusCommentID) {
+                      hash = '#t1_' + initialFocusCommentID
                     }
-                    moderators[subreddit_lc][item.author] = true
+                    jumpToHash(hash)
                   }
-                }
-              }
-              const setIsAdmin = (authors) => {
-                for (const a of adminAuthors) {
-                  if (a in authors) {
-                    authors[a].is_admin = true
+                  if ((lookupAccountMeta || threadPost) && items.length) {
+                    const authorIDs = new Set()
+                    const authorNames = new Set()
+                    const adminAuthors = new Set()
+                    let itemsAndPost = items
+                    if (
+                      threadPost &&
+                      (threadPost.author || threadPost.author_fullname)
+                    ) {
+                      itemsAndPost = items.concat(threadPost)
+                    }
+                    for (const item of itemsAndPost) {
+                      if (item.author_fullname) {
+                        authorIDs.add(item.author_fullname)
+                      }
+                      if (item.author) {
+                        authorNames.add(item.author)
+                        if (item.distinguished === 'admin') {
+                          adminAuthors.add(item.author)
+                        } else if (item.distinguished === 'moderator') {
+                          const subreddit_lc = item.subreddit.toLowerCase()
+                          if (!moderators[subreddit_lc]) {
+                            moderators[subreddit_lc] = {}
+                          }
+                          moderators[subreddit_lc][item.author] = true
+                        }
+                      }
+                    }
+                    const setIsAdmin = authors => {
+                      for (const a of adminAuthors) {
+                        if (a in authors) {
+                          authors[a].is_admin = true
+                        }
+                      }
+                    }
+                    if (lookupAccountMeta) {
+                      getAuthorInfoByName(Array.from(authorIDs)).then(
+                        ({ authors, author_fullnames }) => {
+                          setIsAdmin(authors)
+                          successFn({ authors, author_fullnames, moderators })
+                        }
+                      )
+                    } else {
+                      const authors = Array.from(authorNames).reduce(
+                        (map, val) => ((map[val] = {}), map),
+                        {}
+                      )
+                      setIsAdmin(authors)
+                      global.setState({ authors, moderators })
+                    }
                   }
-                }
-              }
-              if (lookupAccountMeta) {
-                getAuthorInfoByName(Array.from(authorIDs))
-                .then(({authors, author_fullnames}) => {
-                  setIsAdmin(authors)
-                  successFn({authors, author_fullnames, moderators})
                 })
-              } else {
-                const authors = Array.from(authorNames).reduce((map, val) => (map[val] = {}, map), {})
-                setIsAdmin(authors)
-                global.setState({authors, moderators})
-              }
-            }
-          })
-          .catch(this.handleError)
+                .catch(this.handleError)
+            })
+            .catch(e => handleRedditError(e, this.props))
         })
-        .catch(e => handleRedditError(e, this.props))
-      })
     }
     maybeShowSubscribeUserModal = () => {
       const hasSeenSubscribeUserModal_text = 'hasSeenSubscribeUserModal'
-      const extensionSaysNoSubscriptions = get('extensionSaysNoSubscriptions', false)
-      const hasSeenSubscribeUserModal = get(hasSeenSubscribeUserModal_text, false)
-      if (extensionSaysNoSubscriptions && ! hasSeenSubscribeUserModal) {
+      const extensionSaysNoSubscriptions = get(
+        'extensionSaysNoSubscriptions',
+        false
+      )
+      const hasSeenSubscribeUserModal = get(
+        hasSeenSubscribeUserModal_text,
+        false
+      )
+      if (extensionSaysNoSubscriptions && !hasSeenSubscribeUserModal) {
         put(hasSeenSubscribeUserModal_text, true)
-        this.props.openGenericModal({content:
-          <>
-            <p>To receive alerts when content from this user is removed, click 'subscribe' on the extension icon.</p>
-            <img src={meta.subscribe.img}/>
-            <p>This pop-up appears once per session on user pages while there are no subscriptions.</p>
-          </>
+        this.props.openGenericModal({
+          content: (
+            <>
+              <p>
+                To receive alerts when content from this user is removed, click
+                'subscribe' on the extension icon.
+              </p>
+              <img src={meta.subscribe.img} />
+              <p>
+                This pop-up appears once per session on user pages while there
+                are no subscriptions.
+              </p>
+            </>
+          ),
         })
       }
     }
-    handleError = (error) => {
+    handleError = error => {
       console.error(error)
       const subreddit = this.props.match.params.subreddit
       if (error.message === 'Forbidden') {
         redirectToHistory(subreddit)
       } else if (this.props.global.state.items.length === 0) {
         let content = getFirefoxError()
-        if (! content) {
+        if (!content) {
           if (this.props.page_type.match(/^subreddit_/)) {
             redirectToHistory(subreddit, '#subreddit_unavailable')
           } else {
             return handleRedditError(error, this.props)
           }
-          content =
+          content = (
             <>
-              <BlankUser message='During an outage, user pages still work:'
-                  placeholder='username'
-                  bottomMessage={<>
+              <BlankUser
+                message="During an outage, user pages still work:"
+                placeholder="username"
+                bottomMessage={
+                  <>
                     <div>{whatHappenedLink}</div>
-                    <Highlight showMobile={true}/>
-                  </>}/>
+                    <Highlight showMobile={true} />
+                  </>
+                }
+              />
             </>
+          )
         }
-        content = <>{content}<SocialLinks/></>
-        this.props.openGenericModal({content})
+        content = (
+          <>
+            {content}
+            <SocialLinks />
+          </>
+        )
+        this.props.openGenericModal({ content })
       }
       this.props.global.setError()
     }
 
-    render () {
-      return <GenericPostProcessor WrappedComponent={WrappedComponent} {...this.props}/>
+    render() {
+      return (
+        <GenericPostProcessor
+          WrappedComponent={WrappedComponent}
+          {...this.props}
+        />
+      )
     }
   }
 
@@ -493,20 +701,22 @@ const baseMatchFuncAndParams = [
   [minMaxMatch, ['link_age', 'link_created_utc', true]],
   [minMaxMatch, ['comment_length', 'body', false, true]],
   [minMaxMatch, ['account_age', 'created_utc', false, false, true]],
-  [minMaxMatch, ['account_combined_karma', 'combined_karma', false, false, false, true]],
+  [
+    minMaxMatch,
+    ['account_combined_karma', 'combined_karma', false, false, false, true],
+  ],
   [textMatch, ['post_flair', ['link_flair_text']]],
   [textMatch, ['user_flair', ['author_flair_text']]],
   [textMatch, ['filter_url', ['url']]],
   [asOfMatch, []],
 ]
 
-
-
-const GenericPostProcessor = connect((props) => {
+const GenericPostProcessor = connect(props => {
   const subreddit = (props.match.params.subreddit || '').toLowerCase()
   const domain = (props.match.params.domain || '').toLowerCase()
   const { WrappedComponent, page_type, global } = props
-  const { items, showContext, archiveTimes, localSort, localSortReverse } = global.state
+  const { items, showContext, archiveTimes, localSort, localSortReverse } =
+    global.state
   const gs = global.state
   const [showAllCollapsed, setShowAllCollapsed] = useState(false)
   const [showAllOrphaned, setShowAllOrphaned] = useState(false)
@@ -515,11 +725,18 @@ const GenericPostProcessor = connect((props) => {
 
   const getVisibleItemsWithoutCategoryFilter = () => {
     const visibleItems = []
-    const filteredActions = filterSelectedActions(Object.keys(gs.removedByFilter))
+    const filteredActions = filterSelectedActions(
+      Object.keys(gs.removedByFilter)
+    )
     gs.items.forEach(item => {
       const actionMatch = filterMatches(
         global.removedByFilterIsUnset(),
-        () => itemIsOneOfSelectedActions(item, ...filteredActions, gs.exclude_action),
+        () =>
+          itemIsOneOfSelectedActions(
+            item,
+            ...filteredActions,
+            gs.exclude_action
+          ),
         gs.exclude_action
       )
       const tagMatch = filterMatches(
@@ -529,15 +746,12 @@ const GenericPostProcessor = connect((props) => {
       )
       if (
         (gs.removedFilter === removedFilter_types.all ||
-          (
-            gs.removedFilter === removedFilter_types.not_removed &&
-            ! itemIsActioned(item)
-          ) ||
-          (
-            gs.removedFilter === removedFilter_types.removed &&
-            itemIsActioned(item)
-          )
-        ) && actionMatch && tagMatch
+          (gs.removedFilter === removedFilter_types.not_removed &&
+            !itemIsActioned(item)) ||
+          (gs.removedFilter === removedFilter_types.removed &&
+            itemIsActioned(item))) &&
+        actionMatch &&
+        tagMatch
       ) {
         const title_body_fields = ['body']
         if ('title' in item) {
@@ -561,35 +775,45 @@ const GenericPostProcessor = connect((props) => {
         }
       }
     })
-    return {visibleItemsWithoutCategoryFilter: visibleItems}
+    return { visibleItemsWithoutCategoryFilter: visibleItems }
   }
   const getViewableItems = (items, category_state, category_unique_field) => {
-    const stateSaysHideComments = (
-      ['user','subreddit_comments'].includes(page_type) &&
+    const stateSaysHideComments =
+      ['user', 'subreddit_comments'].includes(page_type) &&
       gs.removedFilter === removedFilter_types.removed &&
       global.removedByFilterIsUnset() &&
       global.tagsFilterIsUnset()
-    )
     const showAllCategories = category_state === 'all'
-    let numCollapsed = 0, numCollapsedNotShown = 0,
-         numOrphaned = 0,  numOrphanedNotShown = 0
+    let numCollapsed = 0,
+      numCollapsedNotShown = 0,
+      numOrphaned = 0,
+      numOrphanedNotShown = 0
     const viewableItems = items.filter(item => {
       let itemIsOneOfSelectedCategory = false
-      if (! category_state || showAllCategories || category_state.toLowerCase().split(',').includes(item[category_unique_field].toLowerCase())) {
+      if (
+        !category_state ||
+        showAllCategories ||
+        category_state
+          .toLowerCase()
+          .split(',')
+          .includes(item[category_unique_field].toLowerCase())
+      ) {
         itemIsOneOfSelectedCategory = true
       } else {
         // don't count items not in the selected category
         return false
       }
-      if (stateSaysHideComments && ! commentIsMissingInThread(item)) {
+      if (stateSaysHideComments && !commentIsMissingInThread(item)) {
         let hideItem = false
         const collapsed = itemIsCollapsed(item)
         const orphaned = commentIsOrphaned(item)
         if (collapsed) {
           numCollapsed += 1
-          if (! showAllCollapsed &&
-            ! (orphaned && showAllOrphaned) &&
-            ! gs.removedByFilter[COLLAPSED]) {
+          if (
+            !showAllCollapsed &&
+            !(orphaned && showAllOrphaned) &&
+            !gs.removedByFilter[COLLAPSED]
+          ) {
             if (numCollapsed > MAX_COLLAPSED_VISIBLE) {
               numCollapsedNotShown += 1
               hideItem = true
@@ -598,10 +822,14 @@ const GenericPostProcessor = connect((props) => {
         }
         if (orphaned) {
           numOrphaned += 1
-          if (! item.deleted && ! item.removed && ! item.locked &&
-            ! showAllOrphaned &&
-            ! (collapsed && showAllCollapsed) &&
-            ! gs.removedByFilter[ORPHANED]) {
+          if (
+            !item.deleted &&
+            !item.removed &&
+            !item.locked &&
+            !showAllOrphaned &&
+            !(collapsed && showAllCollapsed) &&
+            !gs.removedByFilter[ORPHANED]
+          ) {
             if (numOrphaned > MAX_ORPHANED_VISIBLE) {
               numOrphanedNotShown += 1
               hideItem = true
@@ -612,73 +840,120 @@ const GenericPostProcessor = connect((props) => {
           return false
         }
       }
-      return (showAllCategories || itemIsOneOfSelectedCategory)
+      return showAllCategories || itemIsOneOfSelectedCategory
     })
     if (sortFn) {
       // sort might be better implemented as a sort on gs.items
       // so that every filter change would not need to re-sort
       viewableItems.sort(reversible(sortFn, localSortReverse))
     }
-    return {viewableItems, numCollapsedNotShown, numOrphanedNotShown}
+    return { viewableItems, numCollapsedNotShown, numOrphanedNotShown }
   }
-  const filterDependencies = JSON.stringify(Object.keys(urlParamKeys_max_min).map(x => gs[x])
-    .concat(
-      gs.thread_before,
-      gs.keywords, gs.post_flair, gs.user_flair, gs.filter_url,
-      gs.removedFilter,
-      gs.removedByFilter, gs.exclude_action,
-      gs.tagsFilter, gs.exclude_tag,
-      gs.items.length,
-      gs.add_user, gs.add_user_on_page_load,
-      showAllOrphaned, showAllCollapsed,
-      gs.localSort, gs.localSortReverse,
-      gs.author_fullnames,
-    ))
+  const filterDependencies = JSON.stringify(
+    Object.keys(urlParamKeys_max_min)
+      .map(x => gs[x])
+      .concat(
+        gs.thread_before,
+        gs.keywords,
+        gs.post_flair,
+        gs.user_flair,
+        gs.filter_url,
+        gs.removedFilter,
+        gs.removedByFilter,
+        gs.exclude_action,
+        gs.tagsFilter,
+        gs.exclude_tag,
+        gs.items.length,
+        gs.add_user,
+        gs.add_user_on_page_load,
+        showAllOrphaned,
+        showAllCollapsed,
+        gs.localSort,
+        gs.localSortReverse,
+        gs.author_fullnames
+      )
+  )
   const visibleItemsWithoutCategoryFilter_meta = useMemo(
     getVisibleItemsWithoutCategoryFilter,
-    [filterDependencies])
-  const {visibleItemsWithoutCategoryFilter} = visibleItemsWithoutCategoryFilter_meta
-  const {category, category_title, category_unique_field} = getCategorySettings(page_type, subreddit)
-  const category_state = (gs['categoryFilter_'+category] || '').toString()
-  const {viewableItems, numCollapsedNotShown, numOrphanedNotShown} = useMemo(() =>
-    getViewableItems(visibleItemsWithoutCategoryFilter, category_state, category_unique_field),
-    [filterDependencies, category, category_state, category_unique_field])
-  const selections =
-    <Selections subreddit={subreddit}
-                page_type={page_type}
-                {...visibleItemsWithoutCategoryFilter_meta}
-                num_showing={viewableItems.length}
-                num_items={items.length}
-                category_type={category} category_title={category_title}
-                category_unique_field={category_unique_field}
-                filterDependencies={filterDependencies}/>
-  const summary =
-    <SummaryAndPagination num_items={items.length}
-                          num_showing={viewableItems.length}
-                          page_type={page_type}
-                          subreddit={subreddit}
-                          category_type={category}
-                          category_unique_field={category_unique_field}/>
+    [filterDependencies]
+  )
+  const { visibleItemsWithoutCategoryFilter } =
+    visibleItemsWithoutCategoryFilter_meta
+  const { category, category_title, category_unique_field } =
+    getCategorySettings(page_type, subreddit)
+  const category_state = (gs['categoryFilter_' + category] || '').toString()
+  const { viewableItems, numCollapsedNotShown, numOrphanedNotShown } = useMemo(
+    () =>
+      getViewableItems(
+        visibleItemsWithoutCategoryFilter,
+        category_state,
+        category_unique_field
+      ),
+    [filterDependencies, category, category_state, category_unique_field]
+  )
+  const selections = (
+    <Selections
+      subreddit={subreddit}
+      page_type={page_type}
+      {...visibleItemsWithoutCategoryFilter_meta}
+      num_showing={viewableItems.length}
+      num_items={items.length}
+      category_type={category}
+      category_title={category_title}
+      category_unique_field={category_unique_field}
+      filterDependencies={filterDependencies}
+    />
+  )
+  const summary = (
+    <SummaryAndPagination
+      num_items={items.length}
+      num_showing={viewableItems.length}
+      page_type={page_type}
+      subreddit={subreddit}
+      category_type={category}
+      category_unique_field={category_unique_field}
+    />
+  )
   let numCollapsedNotShownMsg = ''
   if (numCollapsedNotShown) {
-      numCollapsedNotShownMsg =
-        <div className='notice-with-link center' onClick={() => setShowAllCollapsed(true)}>
-          show {numCollapsedNotShown} collapsed comments
-        </div>
+    numCollapsedNotShownMsg = (
+      <div
+        className="notice-with-link center"
+        onClick={() => setShowAllCollapsed(true)}
+      >
+        show {numCollapsedNotShown} collapsed comments
+      </div>
+    )
   }
   let numOrphanedNotShownMsg = ''
   if (numOrphanedNotShown) {
-      numOrphanedNotShownMsg =
-        <div className='notice-with-link center' onClick={() => setShowAllOrphaned(true)}>
-          show {numOrphanedNotShown} orphaned comments
-        </div>
+    numOrphanedNotShownMsg = (
+      <div
+        className="notice-with-link center"
+        onClick={() => setShowAllOrphaned(true)}
+      >
+        show {numOrphanedNotShown} orphaned comments
+      </div>
+    )
   }
-  const notShownMsg = <>{numOrphanedNotShownMsg}{numCollapsedNotShownMsg}</>
-  const userEntryBox = <Notice title='your account history' message = {<UserNameEntry style={{marginTop:'5px'}}/>} />
+  const notShownMsg = (
+    <>
+      {numOrphanedNotShownMsg}
+      {numCollapsedNotShownMsg}
+    </>
+  )
+  const userEntryBox = (
+    <Notice
+      title="your account history"
+      message={<UserNameEntry style={{ marginTop: '5px' }} />}
+    />
+  )
 
   return (
     <React.Fragment>
-      <WrappedComponent {...props} {...{showAllCollapsed, showAllOrphaned}}
+      <WrappedComponent
+        {...props}
+        {...{ showAllCollapsed, showAllOrphaned }}
         selections={selections}
         summary={summary}
         viewableItems={viewableItems}

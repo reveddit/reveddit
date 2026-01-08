@@ -1,31 +1,47 @@
-import React, {useState, useEffect, useRef, useLayoutEffect} from 'react'
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react'
 import { Selection } from './SelectionBase'
-import {SimpleURLSearchParams,
-        unitInSeconds, parseDateISOString, convertToEpoch, DATE_UNIT,
-        parseNumberAndUnit,
+import {
+  SimpleURLSearchParams,
+  unitInSeconds,
+  parseDateISOString,
+  convertToEpoch,
+  DATE_UNIT,
+  parseNumberAndUnit,
 } from 'utils'
 import { updateURL } from 'state'
 import DayPickerInput from 'react-day-picker/DayPickerInput'
 import { useIsMobile } from 'hooks/mobile'
 import { usePrevious } from 'hooks/previous'
 
-const B = 'before', A = 'after'
+const B = 'before',
+  A = 'after'
 
 const beforeAndAfter = [B, A]
-const opposite = {[B]: A, [A]: [B]}
+const opposite = { [B]: A, [A]: [B] }
 const TIMESTAMP_UNIT = ''
-const units = { [DATE_UNIT]: 'date', [TIMESTAMP_UNIT]: 'timestamp', s: 'seconds', m: 'minutes', h: 'hours', d: 'days', w: 'weeks', M: 'months', y: 'years' }
+const units = {
+  [DATE_UNIT]: 'date',
+  [TIMESTAMP_UNIT]: 'timestamp',
+  s: 'seconds',
+  m: 'minutes',
+  h: 'hours',
+  d: 'days',
+  w: 'weeks',
+  M: 'months',
+  y: 'years',
+}
 
-const marginLeft = {marginLeft: '3px'}
+const marginLeft = { marginLeft: '3px' }
 const queryParamsOnPageLoad = new SimpleURLSearchParams(window.location.search)
-const valueOnPageLoad = queryParamsOnPageLoad.get(B) || queryParamsOnPageLoad.get(A)
+const valueOnPageLoad =
+  queryParamsOnPageLoad.get(B) || queryParamsOnPageLoad.get(A)
 
-const validUnit = (u) => u in units
+const validUnit = u => u in units
 
-const inputLooksLikeDate = (s) => s.match(DATE_UNIT) || s.match(/[./]/)
+const inputLooksLikeDate = s => s.match(DATE_UNIT) || s.match(/[./]/)
 const pxPerChar = 8.875
 const defaultNumChars = 8
-const defaultPxWidth = pxPerChar*defaultNumChars
+const defaultPxWidth = pxPerChar * defaultNumChars
 // from https://itnext.io/reusing-the-ref-from-forwardref-with-react-hooks-4ce9df693dd
 function useCombinedRefs(ref) {
   const targetRef = useRef()
@@ -42,46 +58,55 @@ function useCombinedRefs(ref) {
   return targetRef
 }
 
-const CustomOverlay = React.forwardRef(({classNames, selectedDay, children, ...props}, ref) => {
-  const combinedRef = useCombinedRefs(ref)
-  const [marginLeft, setMarginLeft] = useState(0)
-  useLayoutEffect(() => {
-    const rect = combinedRef.current.getBoundingClientRect()
-    const widthOfRightNotVisible = rect.right - document.documentElement.clientWidth
-    if (widthOfRightNotVisible > 0 && rect.left - widthOfRightNotVisible > 0 ) {
-      setMarginLeft(-widthOfRightNotVisible)
-    }
-  }, [ref])
-  return (
-    <div className={classNames.overlayWrapper} {...props}>
-      <div className={classNames.overlay} ref={combinedRef} style={{marginLeft}}>
-        {children}
+const CustomOverlay = React.forwardRef(
+  ({ classNames, selectedDay, children, ...props }, ref) => {
+    const combinedRef = useCombinedRefs(ref)
+    const [marginLeft, setMarginLeft] = useState(0)
+    useLayoutEffect(() => {
+      const rect = combinedRef.current.getBoundingClientRect()
+      const widthOfRightNotVisible =
+        rect.right - document.documentElement.clientWidth
+      if (
+        widthOfRightNotVisible > 0 &&
+        rect.left - widthOfRightNotVisible > 0
+      ) {
+        setMarginLeft(-widthOfRightNotVisible)
+      }
+    }, [ref])
+    return (
+      <div className={classNames.overlayWrapper} {...props}>
+        <div
+          className={classNames.overlay}
+          ref={combinedRef}
+          style={{ marginLeft }}
+        >
+          {children}
+        </div>
       </div>
-    </div>
-  )
-})
+    )
+  }
+)
 
-const zpad_time = (t) => ('0'+t).slice(-2)
+const zpad_time = t => ('0' + t).slice(-2)
 
-const convertEpochToDateString = (epoch) => {
+const convertEpochToDateString = epoch => {
   const d = new Date(0)
   d.setUTCSeconds(epoch)
-  const ymd_string = [
-    d.getFullYear(),
-    d.getMonth()+1,
-    d.getDate()].join('-')
+  const ymd_string = [d.getFullYear(), d.getMonth() + 1, d.getDate()].join('-')
   const [hours, mins, seconds] = [d.getHours(), d.getMinutes(), d.getSeconds()]
   let time_string = ''
   if (hours || mins || seconds) {
     const times = [hours, mins]
     if (seconds) times.push(seconds)
-    time_string = ' '+times.map(zpad_time).join(':')
+    time_string = ' ' + times.map(zpad_time).join(':')
   }
   return ymd_string + time_string
 }
 
-const getDefaults = (before_or_after) => {
-  let beforeOrAfter = B, number = '', unit = DATE_UNIT
+const getDefaults = before_or_after => {
+  let beforeOrAfter = B,
+    number = '',
+    unit = DATE_UNIT
   const param_b = queryParamsOnPageLoad.get(B)
   const param_a = queryParamsOnPageLoad.get(A)
   if (before_or_after === 'before') {
@@ -89,13 +114,13 @@ const getDefaults = (before_or_after) => {
   } else if (before_or_after === 'after') {
     beforeOrAfter = A
   }
-  if ((! before_or_after || before_or_after === 'before') && param_b) {
-    beforeOrAfter = B;
-    [number, unit] = parseNumberAndUnit(param_b)
+  if ((!before_or_after || before_or_after === 'before') && param_b) {
+    beforeOrAfter = B
+    ;[number, unit] = parseNumberAndUnit(param_b)
   }
-  if ((! before_or_after || before_or_after === 'after') && param_a) {
-    beforeOrAfter = A;
-    [number, unit] = parseNumberAndUnit(param_a)
+  if ((!before_or_after || before_or_after === 'after') && param_a) {
+    beforeOrAfter = A
+    ;[number, unit] = parseNumberAndUnit(param_a)
   }
   if (beforeOrAfter && number) {
     if (number.match(/^\d{10,}$/) && unit === TIMESTAMP_UNIT) {
@@ -103,10 +128,10 @@ const getDefaults = (before_or_after) => {
       unit = DATE_UNIT
     }
   }
-  return {beforeOrAfter, number, unit}
+  return { beforeOrAfter, number, unit }
 }
 
-const BeforeAfter = ({before_or_after, ...selectionProps}) => {
+const BeforeAfter = ({ before_or_after, ...selectionProps }) => {
   const queryParams = new SimpleURLSearchParams(window.location.search)
   let this_beforeAndAfter = beforeAndAfter
   if (before_or_after === 'before') {
@@ -127,31 +152,38 @@ const BeforeAfter = ({before_or_after, ...selectionProps}) => {
   }
   const getQueryParamsFromNumberAndUnit = (number, unit) => {
     const queryParams_temp = new SimpleURLSearchParams(window.location.search)
-    if (! this_beforeAndAfter) {
+    if (!this_beforeAndAfter) {
       queryParams_temp.delete(opposite[meta.beforeOrAfter])
     }
-    queryParams_temp.set(meta.beforeOrAfter, convertToEpoch(number,unit))
+    queryParams_temp.set(meta.beforeOrAfter, convertToEpoch(number, unit))
     return queryParams_temp
   }
-  const onSubmit = (e) => {
+  const onSubmit = e => {
     e.preventDefault()
     if (parseInt(meta.number) > 0) {
-      window.location.href = getQueryParamsFromNumberAndUnit(meta.number, meta.unit).toString()
+      window.location.href = getQueryParamsFromNumberAndUnit(
+        meta.number,
+        meta.unit
+      ).toString()
     } else if (valueOnPageLoad && (meta.number == 0 || meta.number == '')) {
       reset()
     }
   }
-  const onKeyPress = (e) => {
+  const onKeyPress = e => {
     if (e.keyCode === 13) {
       onSubmit(e)
     }
   }
   const sharedInputProps = {
     style: {
-      ...marginLeft, textAlign:'right',
-      width: Math.ceil(
-        meta.number && meta.number.length > defaultNumChars ? meta.number.length*pxPerChar : defaultPxWidth
-      ).toString()+'px',
+      ...marginLeft,
+      textAlign: 'right',
+      width:
+        Math.ceil(
+          meta.number && meta.number.length > defaultNumChars
+            ? meta.number.length * pxPerChar
+            : defaultPxWidth
+        ).toString() + 'px',
     },
     onKeyPress,
   }
@@ -163,32 +195,50 @@ const BeforeAfter = ({before_or_after, ...selectionProps}) => {
     }
   }, [meta.number, meta.unit])
   return (
-    <Selection className='beforeAfter' isFilter={true} isSet={valueOnPageLoad} {...selectionProps}>
+    <Selection
+      className="beforeAfter"
+      isFilter={true}
+      isSet={valueOnPageLoad}
+      {...selectionProps}
+    >
       <form onSubmit={onSubmit}>
-        <select value={meta.beforeOrAfter} onChange={(e) => {
-          setMeta({...meta, beforeOrAfter: e.target.value})
-        }}>
-          {this_beforeAndAfter.map(x => <option key={x} value={x}>{x}</option>)}
+        <select
+          value={meta.beforeOrAfter}
+          onChange={e => {
+            setMeta({ ...meta, beforeOrAfter: e.target.value })
+          }}
+        >
+          {this_beforeAndAfter.map(x => (
+            <option key={x} value={x}>
+              {x}
+            </option>
+          ))}
         </select>
-        {meta.unit !== DATE_UNIT ?
-          <input type='text' placeholder='0' value={meta.number} ref={agoInputRef}
-                 onChange={(e) => {
-                   let [number, unit] = parseNumberAndUnit(e.target.value)
-                   if (inputLooksLikeDate(number)) {
-                     unit = DATE_UNIT
-                   }
-                   if (validUnit(unit)) {
-                     setMeta({...meta, number, ...(unit && {unit})})
-                   }
-                 }}
-                 {...sharedInputProps}
-           />
-        :
-          <DayPickerInput value={meta.number} ref={dayPickerRef}
+        {meta.unit !== DATE_UNIT ? (
+          <input
+            type="text"
+            placeholder="0"
+            value={meta.number}
+            ref={agoInputRef}
+            onChange={e => {
+              let [number, unit] = parseNumberAndUnit(e.target.value)
+              if (inputLooksLikeDate(number)) {
+                unit = DATE_UNIT
+              }
+              if (validUnit(unit)) {
+                setMeta({ ...meta, number, ...(unit && { unit }) })
+              }
+            }}
+            {...sharedInputProps}
+          />
+        ) : (
+          <DayPickerInput
+            value={meta.number}
+            ref={dayPickerRef}
             onDayChange={(day, modifiers, dayPickerInput) => {
               const value = dayPickerInput.getInput().value
               let [number, unit] = parseNumberAndUnit(value)
-              if (! unit) {
+              if (!unit) {
                 number = value
               }
               if (inputLooksLikeDate(value)) {
@@ -197,9 +247,11 @@ const BeforeAfter = ({before_or_after, ...selectionProps}) => {
               if (before_or_after && parseInt(number) > 0) {
                 updateURL(getQueryParamsFromNumberAndUnit(number, unit))
               }
-              setMeta({...meta, number, ...(unit && {unit})})
+              setMeta({ ...meta, number, ...(unit && { unit }) })
             }}
-            overlayComponent={props => <CustomOverlay {...props} ref={overlayRef}/>}
+            overlayComponent={props => (
+              <CustomOverlay {...props} ref={overlayRef} />
+            )}
             parseDate={parseDateISOString}
             inputProps={{
               ...sharedInputProps,
@@ -207,18 +259,38 @@ const BeforeAfter = ({before_or_after, ...selectionProps}) => {
               placeholder: 'Y-m-d',
             }}
           />
-        }
-        <div style={{marginTop: '3px'}}>
-          <select value={meta.unit} onChange={(e) => {
-            // reset value when changing b/w date and any other unit
-            const number = [meta.unit, e.target.value].includes(DATE_UNIT) ? '' : meta.number
-            setMeta({...meta, number, unit: e.target.value})
-          }}>
-            {Object.entries(units).map(([k, v]) => <option key={k} value={k}>{v + (k in unitInSeconds ? ' ago':'')}</option>)}
+        )}
+        <div style={{ marginTop: '3px' }}>
+          <select
+            value={meta.unit}
+            onChange={e => {
+              // reset value when changing b/w date and any other unit
+              const number = [meta.unit, e.target.value].includes(DATE_UNIT)
+                ? ''
+                : meta.number
+              setMeta({ ...meta, number, unit: e.target.value })
+            }}
+          >
+            {Object.entries(units).map(([k, v]) => (
+              <option key={k} value={k}>
+                {v + (k in unitInSeconds ? ' ago' : '')}
+              </option>
+            ))}
           </select>
-          <input type='submit' value='go' style={marginLeft} onClick={onSubmit}/>
+          <input
+            type="submit"
+            value="go"
+            style={marginLeft}
+            onClick={onSubmit}
+          />
         </div>
-        {valueOnPageLoad && <div style={{textAlign:'center'}}><a className='pointer' onClick={reset}>[x] reset</a></div>}
+        {valueOnPageLoad && (
+          <div style={{ textAlign: 'center' }}>
+            <a className="pointer" onClick={reset}>
+              [x] reset
+            </a>
+          </div>
+        )}
       </form>
     </Selection>
   )

@@ -5,50 +5,83 @@ import {
   oauth_reddit,
 } from 'api/reddit'
 import { getModerators } from 'api/reveddit'
-import {
-  getCommentsBySubreddit as pushshiftGetCommentsBySubreddit
-} from 'api/pushshift'
+import { getCommentsBySubreddit as pushshiftGetCommentsBySubreddit } from 'api/pushshift'
 import { getModlogsPromises } from 'api/common'
 import {
-  commentIsDeleted, commentIsRemoved, postIsDeleted, isEmptyObj,
+  commentIsDeleted,
+  commentIsRemoved,
+  postIsDeleted,
+  isEmptyObj,
   redirectToHistory,
 } from 'utils'
 import {
-  AUTOMOD_REMOVED, AUTOMOD_REMOVED_MOD_APPROVED, MOD_OR_AUTOMOD_REMOVED,
-  UNKNOWN_REMOVED, NOT_REMOVED, ANTI_EVIL_REMOVED,
-  AUTOMOD_LATENCY_THRESHOLD
+  AUTOMOD_REMOVED,
+  AUTOMOD_REMOVED_MOD_APPROVED,
+  MOD_OR_AUTOMOD_REMOVED,
+  UNKNOWN_REMOVED,
+  NOT_REMOVED,
+  ANTI_EVIL_REMOVED,
+  AUTOMOD_LATENCY_THRESHOLD,
 } from 'pages/common/RemovedBy'
 import { combinedGetItemsBySubredditOrDomain } from 'data_processing/subreddit_posts'
 
 export let useProxy = false
 
-export const retrieveRedditComments_and_combineWithPushshiftComments = (pushshiftComments) => {
-  let quarantined_subreddits
-  if (useProxy) {
-    const comments_array = Object.values(pushshiftComments)
-    if (comments_array.length) {
-      // when useProxy=true, all comments are from the same subreddit
-      quarantined_subreddits = comments_array[0].subreddit
+export const retrieveRedditComments_and_combineWithPushshiftComments =
+  pushshiftComments => {
+    let quarantined_subreddits
+    if (useProxy) {
+      const comments_array = Object.values(pushshiftComments)
+      if (comments_array.length) {
+        // when useProxy=true, all comments are from the same subreddit
+        quarantined_subreddits = comments_array[0].subreddit
+      }
     }
-  }
-  return getRedditComments({ objects: pushshiftComments, quarantined_subreddits, useProxy })
-    .then(redditComments => {
-      return combinePushshiftAndRedditComments(pushshiftComments, redditComments)
+    return getRedditComments({
+      objects: pushshiftComments,
+      quarantined_subreddits,
+      useProxy,
+    }).then(redditComments => {
+      return combinePushshiftAndRedditComments(
+        pushshiftComments,
+        redditComments
+      )
     })
-}
+  }
 
-const copy_fields = ['permalink', 'score', 'controversiality',
-  'locked', 'collapsed', 'edited',
-  'subreddit_subscribers', 'quarantine', 'url',
+const copy_fields = [
+  'permalink',
+  'score',
+  'controversiality',
+  'locked',
+  'collapsed',
+  'edited',
+  'subreddit_subscribers',
+  'quarantine',
+  'url',
   'link_title',
   // below fields added for modlog comments that may not appear in pushshift yet
   // and were added to the pushshiftComments object
-  'subreddit', 'created_utc', 'parent_id']
+  'subreddit',
+  'created_utc',
+  'parent_id',
+]
 
-const copy_if_value_fields = ['distinguished', 'stickied', 'author_fullname', 'removal_reason', 'from_add_user', 'reveddit_note']
+const copy_if_value_fields = [
+  'distinguished',
+  'stickied',
+  'author_fullname',
+  'removal_reason',
+  'from_add_user',
+  'reveddit_note',
+]
 
 export const initializeComment = (comment, post) => {
-  if (post && post.author === comment.author && comment.author !== '[deleted]') {
+  if (
+    post &&
+    post.author === comment.author &&
+    comment.author !== '[deleted]'
+  ) {
     comment.is_op = true
   }
   comment.replies = []
@@ -57,7 +90,11 @@ export const initializeComment = (comment, post) => {
 
 const markRemoved = (redditComment, commentToMark, is_reddit = false) => {
   const commentSaysRemoved = commentIsRemoved(redditComment)
-  if (redditComment.removed || commentSaysRemoved || redditComment.removal_reason) {
+  if (
+    redditComment.removed ||
+    commentSaysRemoved ||
+    redditComment.removal_reason
+  ) {
     commentToMark.removed = true
     if (redditComment.removal_reason) {
       commentToMark.removedby_evil = ANTI_EVIL_REMOVED
@@ -73,10 +110,16 @@ const markRemoved = (redditComment, commentToMark, is_reddit = false) => {
 }
 
 export const set_link_permalink = (revedditComment, redditComment) => {
-  revedditComment.link_permalink = redditComment.permalink.split('/').slice(0, 6).join('/') + '/'
+  revedditComment.link_permalink =
+    redditComment.permalink.split('/').slice(0, 6).join('/') + '/'
 }
 
-export const combinePushshiftAndRedditComments = (pushshiftComments, redditComments, requirePushshiftData = false, post = undefined) => {
+export const combinePushshiftAndRedditComments = (
+  pushshiftComments,
+  redditComments,
+  requirePushshiftData = false,
+  post = undefined
+) => {
   const combinedComments = {}
   if (!requirePushshiftData) {
     Object.values(redditComments).forEach(comment => {
@@ -112,7 +155,13 @@ export const combinePushshiftAndRedditComments = (pushshiftComments, redditComme
 
 // if dont_overwrite is true and target[field] is not '' or null, then the field's value won't be copied
 // this allows displaying the originally archived value, if one exists, and only showing the live value if it doesn't overwrite a previous one
-export const copyFields = (fields, source, target, if_value = false, dont_overwrite = false) => {
+export const copyFields = (
+  fields,
+  source,
+  target,
+  if_value = false,
+  dont_overwrite = false
+) => {
   for (const field of fields) {
     if (!if_value || (source[field] && (!dont_overwrite || !target[field]))) {
       target[field] = source[field]
@@ -121,16 +170,26 @@ export const copyFields = (fields, source, target, if_value = false, dont_overwr
 }
 
 const setupCommentMeta = (archiveComment, redditComment) => {
-  const retrievalLatency = archiveComment.retrieved_on ? archiveComment.retrieved_on - archiveComment.created_utc : 9999
+  const retrievalLatency = archiveComment.retrieved_on
+    ? archiveComment.retrieved_on - archiveComment.created_utc
+    : 9999
   set_link_permalink(archiveComment, redditComment)
   copyFields(copy_fields, redditComment, archiveComment)
   copyFields(copy_if_value_fields, redditComment, archiveComment, true)
   // copying body and author for when publicmodlogs is the initial source of data (as opposed to pushshift)
-  copyFields(['author_flair_text', 'body', 'author'], redditComment, archiveComment, true, true)
+  copyFields(
+    ['author_flair_text', 'body', 'author'],
+    redditComment,
+    archiveComment,
+    true,
+    true
+  )
   if (!redditComment.link_title) {
-    archiveComment.link_title = redditComment.permalink.split('/')[5].replace(/_/g, ' ')
+    archiveComment.link_title = redditComment.permalink
+      .split('/')[5]
+      .replace(/_/g, ' ')
   }
-  if (typeof (redditComment.num_comments) !== 'undefined') {
+  if (typeof redditComment.num_comments !== 'undefined') {
     archiveComment.num_comments = redditComment.num_comments
   }
   if (!redditComment.deleted) {
@@ -145,12 +204,17 @@ const setupCommentMeta = (archiveComment, redditComment) => {
       // on r/subreddit/comments pages this is inaccurate b/c modlogs are only combined with the first set of results from pushshift
       // so, the 'temporarily visible' tag there is missing for older comments
       // works fine on thread pages: when combine is done, all results from pushshift are available to compare with modlogs
-      archiveComment.archive_body_removed_before_modlog_copy = commentIsRemoved(archiveComment)
+      archiveComment.archive_body_removed_before_modlog_copy =
+        commentIsRemoved(archiveComment)
     } else if (modlog && !commentIsRemoved(modlog)) {
       //handles case where the archive has no record of the comment
       archiveComment.archive_body_removed_before_modlog_copy = true
     }
-    if (modlog && !archiveComment.from_add_user && !redditComment.removal_reason) {
+    if (
+      modlog &&
+      !archiveComment.from_add_user &&
+      !redditComment.removal_reason
+    ) {
       archiveComment.author = modlog.author
       archiveComment.body = modlog.body
     }
@@ -173,8 +237,14 @@ const setupCommentMeta = (archiveComment, redditComment) => {
       //- comments removed by reddit, but not by a moderator, will also have .removed=true and ! commentIsRemoved(),
       //  which makes them land in this block. Do not add a mod/auto label for those
       if (!redditComment.removal_reason || commentIsRemoved(redditComment)) {
-        if (archiveComment.archive_body_removed || !archiveComment.retrieved_on) {
-          if (retrievalLatency <= AUTOMOD_LATENCY_THRESHOLD || modlog_says_bot_removed) {
+        if (
+          archiveComment.archive_body_removed ||
+          !archiveComment.retrieved_on
+        ) {
+          if (
+            retrievalLatency <= AUTOMOD_LATENCY_THRESHOLD ||
+            modlog_says_bot_removed
+          ) {
             archiveComment.removedby = AUTOMOD_REMOVED
           } else {
             archiveComment.removedby = UNKNOWN_REMOVED
@@ -202,9 +272,16 @@ const setupCommentMeta = (archiveComment, redditComment) => {
 }
 
 // Using Pushshift (getPushshiftPostsForCommentData) may be faster, but it is missing the quarantine field in submissions data
-export const getPostDataForComments = ({ comments = undefined, link_ids_set = undefined, quarantined_subreddits }) => {
+export const getPostDataForComments = ({
+  comments = undefined,
+  link_ids_set = undefined,
+  quarantined_subreddits,
+}) => {
   if (!link_ids_set) {
-    link_ids_set = Object.values(comments).reduce((map, obj) => (map[obj.link_id] = true, map), {})
+    link_ids_set = Object.values(comments).reduce(
+      (map, obj) => ((map[obj.link_id] = true), map),
+      {}
+    )
   }
   if (comments) {
     const comments_array = Object.values(comments)
@@ -213,11 +290,21 @@ export const getPostDataForComments = ({ comments = undefined, link_ids_set = un
       quarantined_subreddits = comments_array[0].subreddit
     }
   }
-  return getRedditItems({ ids: Object.keys(link_ids_set), quarantined_subreddits, key: 'name', useProxy })
-    .catch(() => { console.error(`Unable to retrieve full titles from ${source}`) })
+  return getRedditItems({
+    ids: Object.keys(link_ids_set),
+    quarantined_subreddits,
+    key: 'name',
+    useProxy,
+  }).catch(() => {
+    console.error(`Unable to retrieve full titles from ${source}`)
+  })
 }
 
-export const applyPostAndParentDataToComment = (postData, comment, applyPostLabels = true) => {
+export const applyPostAndParentDataToComment = (
+  postData,
+  comment,
+  applyPostLabels = true
+) => {
   const post = postData[comment.link_id]
   if (post.title) {
     comment.link_title = post.title
@@ -228,14 +315,17 @@ export const applyPostAndParentDataToComment = (postData, comment, applyPostLabe
   if (post.url) {
     comment.url = post.url
   }
-  if (typeof (post.num_comments) !== 'undefined') {
+  if (typeof post.num_comments !== 'undefined') {
     comment.num_comments = post.num_comments
   }
-  ['quarantine', 'subreddit_subscribers'].forEach(field => {
+  ;['quarantine', 'subreddit_subscribers'].forEach(field => {
     comment[field] = post[field]
   })
-  if ('author' in post && post.author === comment.author
-    && comment.author !== '[deleted]') {
+  if (
+    'author' in post &&
+    post.author === comment.author &&
+    comment.author !== '[deleted]'
+  ) {
     comment.is_op = true
   }
   if (!post.over_18 && !comment.over_18 && applyPostLabels) {
@@ -257,29 +347,46 @@ export const applyPostAndParentDataToComment = (postData, comment, applyPostLabe
   }
 }
 
-export const getRevdditComments = ({ pushshiftComments, subreddit_about_promise = Promise.resolve({}) }) => {
-  const postDataPromise = getPostDataForComments({ comments: pushshiftComments })
-  const combinePromise = retrieveRedditComments_and_combineWithPushshiftComments(pushshiftComments)
-  return Promise.all([postDataPromise, combinePromise, subreddit_about_promise])
-    .then(values => {
-      const show_comments = []
-      const postData = values[0]
-      const combinedComments = values[1]
-      const subredditAbout = values[2] || {}
-      Object.values(combinedComments).forEach(comment => {
-        if (postData && comment.link_id in postData) {
-          const post_thisComment = postData[comment.link_id]
-          if (!(post_thisComment.whitelist_status === 'promo_adult_nsfw' &&
-            (comment.removed || comment.deleted))) {
-            applyPostAndParentDataToComment(postData, comment, !subredditAbout.over18)
-            show_comments.push(comment)
-          }
-        } else {
+export const getRevdditComments = ({
+  pushshiftComments,
+  subreddit_about_promise = Promise.resolve({}),
+}) => {
+  const postDataPromise = getPostDataForComments({
+    comments: pushshiftComments,
+  })
+  const combinePromise =
+    retrieveRedditComments_and_combineWithPushshiftComments(pushshiftComments)
+  return Promise.all([
+    postDataPromise,
+    combinePromise,
+    subreddit_about_promise,
+  ]).then(values => {
+    const show_comments = []
+    const postData = values[0]
+    const combinedComments = values[1]
+    const subredditAbout = values[2] || {}
+    Object.values(combinedComments).forEach(comment => {
+      if (postData && comment.link_id in postData) {
+        const post_thisComment = postData[comment.link_id]
+        if (
+          !(
+            post_thisComment.whitelist_status === 'promo_adult_nsfw' &&
+            (comment.removed || comment.deleted)
+          )
+        ) {
+          applyPostAndParentDataToComment(
+            postData,
+            comment,
+            !subredditAbout.over18
+          )
           show_comments.push(comment)
         }
-      })
-      return show_comments
+      } else {
+        show_comments.push(comment)
+      }
     })
+    return show_comments
+  })
 }
 
 export const copyModlogItemsToArchiveItems = (modlogsItems, archiveItems) => {
@@ -312,7 +419,7 @@ export const copyModlogItemsToArchiveItems = (modlogsItems, archiveItems) => {
   }
 }
 
-export const combinedGetCommentsBySubreddit = (args) => {
+export const combinedGetCommentsBySubreddit = args => {
   return combinedGetItemsBySubredditOrDomain({
     ...args,
     pushshiftQueryFn: pushshiftGetCommentsBySubreddit,
@@ -326,12 +433,12 @@ export const setSubredditMeta = async (subreddit, global) => {
   let subreddit_about_promise = getSubredditAbout(subreddit)
   let over18 = false
   let quarantined = false
-  const setQuarantined = (value) => {
+  const setQuarantined = value => {
     quarantined = value
   }
   const subreddit_lc = subreddit.toLowerCase()
   await Promise.all([moderators_promise, subreddit_about_promise])
-    .catch((e) => {
+    .catch(e => {
       if (e.reason === 'quarantined') {
         useProxy = true
         setQuarantined(true)
@@ -340,9 +447,14 @@ export const setSubredditMeta = async (subreddit, global) => {
       return Promise.all([moderators_promise, subreddit_about_promise])
     })
     .then(([moderators, subreddit_about]) => {
-      if (((isEmptyObj(moderators) || moderators.error) && isEmptyObj(subreddit_about))
-        || [subreddit_about.reason, moderators.reason].some(w => /^\b(private|banned)\b$/.test(w))
-        || subreddit_about.message === 'Forbidden') {
+      if (
+        ((isEmptyObj(moderators) || moderators.error) &&
+          isEmptyObj(subreddit_about)) ||
+        [subreddit_about.reason, moderators.reason].some(w =>
+          /^\b(private|banned)\b$/.test(w)
+        ) ||
+        subreddit_about.message === 'Forbidden'
+      ) {
         redirectToHistory(subreddit)
       }
       over18 = subreddit_about.over18
@@ -358,7 +470,11 @@ export const setSubredditMeta = async (subreddit, global) => {
   return { subreddit_about_promise }
 }
 
-export const getRevdditCommentsBySubreddit = async (subreddit, global, archive_times_promise) => {
+export const getRevdditCommentsBySubreddit = async (
+  subreddit,
+  global,
+  archive_times_promise
+) => {
   const { n, before, before_id, after } = global.state
 
   if (subreddit === 'all') {
@@ -369,14 +485,22 @@ export const getRevdditCommentsBySubreddit = async (subreddit, global, archive_t
   await archive_times_promise
   const archiveTimes = global.state.archiveTimes
   return combinedGetCommentsBySubreddit({
-    global, subreddit, n, before, before_id, after,
-    subreddit_about_promise, modlogs_promises, archiveTimes
-  })
-    .then(global.returnSuccess)
+    global,
+    subreddit,
+    n,
+    before,
+    before_id,
+    after,
+    subreddit_about_promise,
+    modlogs_promises,
+    archiveTimes,
+  }).then(global.returnSuccess)
 }
 
 export const modlogSaysBotRemoved = (modlog, item) => {
-  return modlog &&
-    ((modlog.created_utc - item.created_utc) <= AUTOMOD_LATENCY_THRESHOLD
-      || ['automoderator', 'bot'].includes(modlog.mod.toLowerCase()))
+  return (
+    modlog &&
+    (modlog.created_utc - item.created_utc <= AUTOMOD_LATENCY_THRESHOLD ||
+      ['automoderator', 'bot'].includes(modlog.mod.toLowerCase()))
+  )
 }

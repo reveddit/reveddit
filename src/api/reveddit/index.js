@@ -1,44 +1,58 @@
 import { paramString, SimpleURLSearchParams, PATH_STR_SUB } from 'utils'
-import { getModeratorsPostProcess, flaskQuery,
-         getCount, subredditHasModlogs,
-         U_MODLOGS_CODE,
+import {
+  getModeratorsPostProcess,
+  flaskQuery,
+  getCount,
+  subredditHasModlogs,
+  U_MODLOGS_CODE,
 } from 'api/common'
 import { urlParamKeys, removedFilter_types, localSort_types } from 'state'
-import { AUTOMOD_REMOVED, MOD_OR_AUTOMOD_REMOVED, UNKNOWN_REMOVED } from 'pages/common/RemovedBy'
+import {
+  AUTOMOD_REMOVED,
+  MOD_OR_AUTOMOD_REMOVED,
+  UNKNOWN_REMOVED,
+} from 'pages/common/RemovedBy'
 
 const ARCHIVE_MAX_SIZE = 500
 
-export const getMissingComments = async ({subreddit, limit=100, page=1}) => {
+export const getMissingComments = async ({
+  subreddit,
+  limit = 100,
+  page = 1,
+}) => {
   const params = {
-    ...(subreddit && {subreddit}),
+    ...(subreddit && { subreddit }),
     limit,
-    ...(page && {page}),
-    c: getCount()
+    ...(page && { page }),
+    c: getCount(),
   }
-  return flaskQuery({path: 'missing-comments/get/', params})
+  return flaskQuery({ path: 'missing-comments/get/', params })
 }
 
-export const submitMissingComments = async (ids) => {
+export const submitMissingComments = async ids => {
   const params = {
     ids: ids.join(','),
-    c: getCount()
+    c: getCount(),
   }
-  return flaskQuery({path: 'missing-comments/post/', params})
+  return flaskQuery({ path: 'missing-comments/post/', params })
 }
 
 export const getWhatPeopleSay = async () => {
   const params = {
-    c: getCount(60*5)
+    c: getCount(60 * 5),
   }
-  return flaskQuery({path: 'what-people-say/', params, options: {timeout: 20000}})
+  return flaskQuery({
+    path: 'what-people-say/',
+    params,
+    options: { timeout: 20000 },
+  })
 }
 
 export const getArchiveTimes = async () => {
   const params = {
-    c: getCount(120)
+    c: getCount(120),
   }
-  return flaskQuery({path: 'archive-times/', params})
-  .catch(() => null)
+  return flaskQuery({ path: 'archive-times/', params }).catch(() => null)
 }
 
 const aggregationsPath = 'aggregations/'
@@ -50,24 +64,45 @@ export const agg_defaults_for_page = {
   type: 'comments',
 }
 
-export const getAggregations = ({subreddit,
-                                 type = agg_defaults_for_page.type,
-                                 limit = agg_defaults_for_page.limit,
-                                 sort = agg_defaults_for_page.sort,
-                                 before, after, rate_less, rate_more,
-                               }) => {
+export const getAggregations = ({
+  subreddit,
+  type = agg_defaults_for_page.type,
+  limit = agg_defaults_for_page.limit,
+  sort = agg_defaults_for_page.sort,
+  before,
+  after,
+  rate_less,
+  rate_more,
+}) => {
   const params = {
-    type, subreddit, limit, sort,
-    ...(before && {before}),
-    ...(after && {after}),
-    ...(rate_less && {rate_less}),
-    ...(rate_more && {rate_more}),
+    type,
+    subreddit,
+    limit,
+    sort,
+    ...(before && { before }),
+    ...(after && { after }),
+    ...(rate_less && { rate_less }),
+    ...(rate_more && { rate_more }),
   }
-  return flaskQuery({path: aggregationsPath, params, host: REVEDDIT_FLASK_HOST_SHORT})
+  return flaskQuery({
+    path: aggregationsPath,
+    params,
+    host: REVEDDIT_FLASK_HOST_SHORT,
+  })
 }
 
-export const getAggregationsURL = ({subreddit, type = agg_defaults_for_page.type, limit = agg_defaults_for_page.limit, sort = agg_defaults_for_page.sort}) => {
-  return REVEDDIT_FLASK_HOST_SHORT + aggregationsPath + '?' + paramString({type, subreddit, limit, sort})
+export const getAggregationsURL = ({
+  subreddit,
+  type = agg_defaults_for_page.type,
+  limit = agg_defaults_for_page.limit,
+  sort = agg_defaults_for_page.sort,
+}) => {
+  return (
+    REVEDDIT_FLASK_HOST_SHORT +
+    aggregationsPath +
+    '?' +
+    paramString({ type, subreddit, limit, sort })
+  )
 }
 
 export const numGraphPointsParamKey = 'rr_ngp'
@@ -81,7 +116,15 @@ export const aggregationPeriodParams = {
   [contentTypeParamKey]: agg_defaults_for_page.type,
 }
 
-export const getAggregationsPeriodURL = ({subreddit, type, numGraphPoints, limit, sort, last_created_utc: before, last_id: before_id}) => {
+export const getAggregationsPeriodURL = ({
+  subreddit,
+  type,
+  numGraphPoints,
+  limit,
+  sort,
+  last_created_utc: before,
+  last_id: before_id,
+}) => {
   const queryParams = new SimpleURLSearchParams()
   const translatedParams = {
     //these params describe how data will be queried
@@ -94,32 +137,45 @@ export const getAggregationsPeriodURL = ({subreddit, type, numGraphPoints, limit
     //below params describe how the loaded page will be filtered/sorted
     [urlParamKeys.removedFilter]: removedFilter_types.removed,
     [urlParamKeys.localSort]: localSort_types.score,
-    [urlParamKeys.removedByFilter]: [MOD_OR_AUTOMOD_REMOVED, AUTOMOD_REMOVED, UNKNOWN_REMOVED].join(','),
+    [urlParamKeys.removedByFilter]: [
+      MOD_OR_AUTOMOD_REMOVED,
+      AUTOMOD_REMOVED,
+      UNKNOWN_REMOVED,
+    ].join(','),
   }
   Object.keys(translatedParams).forEach(param => {
     //For params that have default values, only set param if value is not the default
     //Set all other params
-    if (! (param in aggregationPeriodParams) || translatedParams[param] != aggregationPeriodParams[param]) {
+    if (
+      !(param in aggregationPeriodParams) ||
+      translatedParams[param] != aggregationPeriodParams[param]
+    ) {
       queryParams.set(param, translatedParams[param])
     }
   })
   const commentsPath = type === 'comments' ? 'comments/' : ''
-  return `${PATH_STR_SUB}/${subreddit}/`+commentsPath+queryParams.toString()
+  return `${PATH_STR_SUB}/${subreddit}/` + commentsPath + queryParams.toString()
 }
 
 export const getUmodlogsThread = (subreddit, thread_id) => {
-  return getUmodlogs({subreddit, thread_id, actions:'approvelink,removelink,spamlink,removecomment,spamcomment'})
+  return getUmodlogs({
+    subreddit,
+    thread_id,
+    actions: 'approvelink,removelink,spamlink,removecomment,spamcomment',
+  })
 }
-export const getUmodlogsPosts = (subreddit) => {
-  return getUmodlogs({subreddit, actions:'removelink,spamlink'})
-  .then(r => r.posts)
+export const getUmodlogsPosts = subreddit => {
+  return getUmodlogs({ subreddit, actions: 'removelink,spamlink' }).then(
+    r => r.posts
+  )
 }
-export const getUmodlogsComments = (subreddit) => {
-  return getUmodlogs({subreddit, actions:'removecomment,spamcomment'})
-  .then(r => r.comments)
+export const getUmodlogsComments = subreddit => {
+  return getUmodlogs({ subreddit, actions: 'removecomment,spamcomment' }).then(
+    r => r.comments
+  )
 }
-export const getUmodlogs = async ({subreddit, thread_id, actions}) => {
-  const empty = {comments: {}, posts: {}}
+export const getUmodlogs = async ({ subreddit, thread_id, actions }) => {
+  const empty = { comments: {}, posts: {} }
   return empty // u/modlogs no longer works, requests to modlogs.fyi time out
   const hasModlogs = await subredditHasModlogs(subreddit, U_MODLOGS_CODE)
   if (hasModlogs) {
@@ -128,14 +184,18 @@ export const getUmodlogs = async ({subreddit, thread_id, actions}) => {
       params.link = `/r/comments/${thread_id}`
     }
     params.actions = actions
-    return flaskQuery({path: `r/${subreddit}/logs/`, params, host: U_MODLOGS_API})
-    .then(result => postProcessUmodlogs(result.logs, thread_id))
+    return flaskQuery({
+      path: `r/${subreddit}/logs/`,
+      params,
+      host: U_MODLOGS_API,
+    }).then(result => postProcessUmodlogs(result.logs, thread_id))
   }
   return empty
 }
 
 const postProcessUmodlogs = (list, thread_id) => {
-  const comments = {}, posts = {}
+  const comments = {},
+    posts = {}
   for (const item of list) {
     if (thread_id && thread_id !== item.submissionId) {
       continue
@@ -145,9 +205,13 @@ const postProcessUmodlogs = (list, thread_id) => {
     item.target_author = item.author || ''
     item.target_body = item.content || ''
     item.target_permalink = item.link || ''
-    item.created_utc = Math.floor(item.timestamp/1000) || 0
-    item.link_id = 't3_'+item.submissionId
-    item.details = ((item.details || '') + ' ' + (item.automodActionReason || '')).trim()
+    item.created_utc = Math.floor(item.timestamp / 1000) || 0
+    item.link_id = 't3_' + item.submissionId
+    item.details = (
+      (item.details || '') +
+      ' ' +
+      (item.automodActionReason || '')
+    ).trim()
     item.mod = item.mod || ''
     if (item.isComment) {
       comments[item.id] = item
@@ -155,91 +219,130 @@ const postProcessUmodlogs = (list, thread_id) => {
       posts[item.id] = item
     }
   }
-  return {comments, posts}
+  return { comments, posts }
 }
 
-export const getModerators = (subreddit) => {
-  return flaskQuery({path: 'moderators/', params: {subreddit}})
-  .catch(error => {return {}}) // ignore fetch errors, this is not critical data
-  .then(getModeratorsPostProcess)
+export const getModerators = subreddit => {
+  return flaskQuery({ path: 'moderators/', params: { subreddit } })
+    .catch(error => {
+      return {}
+    }) // ignore fetch errors, this is not critical data
+    .then(getModeratorsPostProcess)
 }
 
 export const getCommentsByThread = ({
-    link_id, after, root_comment_id, comment_id,
-    num_comments = '', post_created_utc = '', focus_comment_removed = '',
-  }) => {
+  link_id,
+  after,
+  root_comment_id,
+  comment_id,
+  num_comments = '',
+  post_created_utc = '',
+  focus_comment_removed = '',
+}) => {
   const params = {
     link_id,
-    ...(after && {after}),
-    ...(root_comment_id && {root_comment_id}),
-    ...(comment_id && {comment_id}),
-    ...(num_comments && {num_comments}), // number of comments reported by reddit post
-    ...(post_created_utc && {post_created_utc}),
-    ...(focus_comment_removed && {focus_comment_removed}),
+    ...(after && { after }),
+    ...(root_comment_id && { root_comment_id }),
+    ...(comment_id && { comment_id }),
+    ...(num_comments && { num_comments }), // number of comments reported by reddit post
+    ...(post_created_utc && { post_created_utc }),
+    ...(focus_comment_removed && { focus_comment_removed }),
     c: getCount(150),
   }
-  return flaskQuery({path: 'thread-comments/', params, options: extendedTimeout})
-  .catch(error => {return {}}) // ignore fetch errors, this is not critical data
+  return flaskQuery({
+    path: 'thread-comments/',
+    params,
+    options: extendedTimeout,
+  }).catch(error => {
+    return {}
+  }) // ignore fetch errors, this is not critical data
 }
 
-
-export const getRemovedCommentsByThread = (link_id, after, root_comment_id, comment_id) => {
+export const getRemovedCommentsByThread = (
+  link_id,
+  after,
+  root_comment_id,
+  comment_id
+) => {
   return Promise.all([
     getRemovedCommentsByThread_v1(link_id, after, root_comment_id, comment_id),
     getRemainingCommentsByThread(link_id, after, root_comment_id),
-  ])
-  .then(results => Object.assign({}, ...results))
+  ]).then(results => Object.assign({}, ...results))
 }
 
 const extendedTimeout = { timeout: 12000 }
 
-export const getRemovedCommentsByThread_v1 = (link_id, after, root_comment_id, comment_id) => {
+export const getRemovedCommentsByThread_v1 = (
+  link_id,
+  after,
+  root_comment_id,
+  comment_id
+) => {
   const params = {
     link_id,
-    ...(after && {after}),
-    ...(root_comment_id && {root_comment_id}),
-    ...(comment_id && {comment_id}),
+    ...(after && { after }),
+    ...(root_comment_id && { root_comment_id }),
+    ...(comment_id && { comment_id }),
     c: getCount(600),
   }
-  return flaskQuery({path: 'removed-comments/', params, options: extendedTimeout})
-  .catch(error => {return {}}) // ignore fetch errors, this is not critical data
+  return flaskQuery({
+    path: 'removed-comments/',
+    params,
+    options: extendedTimeout,
+  }).catch(error => {
+    return {}
+  }) // ignore fetch errors, this is not critical data
 }
 
-export const getRemainingCommentsByThread = async (link_id, after, root_comment_id) => {
+export const getRemainingCommentsByThread = async (
+  link_id,
+  after,
+  root_comment_id
+) => {
   const params = {
     link_id,
-    ...(after && {after}),
-    ...(root_comment_id && {root_comment_id}),
+    ...(after && { after }),
+    ...(root_comment_id && { root_comment_id }),
     c: getCount(1200),
   }
   return {}
-  return flaskQuery({path: 'linkid-comments/', params})
-  .catch(error => {return {}}) // ignore fetch errors, this is not critical data
+  return flaskQuery({ path: 'linkid-comments/', params }).catch(error => {
+    return {}
+  }) // ignore fetch errors, this is not critical data
 }
 
-export const getArchivedCommentsByID = (ids) => {
+export const getArchivedCommentsByID = ids => {
   const params = {
     ids: ids.slice(0, ARCHIVE_MAX_SIZE),
   }
-  return flaskQuery({path: 'comments-by-id/', params, options: extendedTimeout})
-  .catch(error => {return {}}) // ignore fetch errors, this is not critical data
+  return flaskQuery({
+    path: 'comments-by-id/',
+    params,
+    options: extendedTimeout,
+  }).catch(error => {
+    return {}
+  }) // ignore fetch errors, this is not critical data
 }
 
 // using REVEDDIT_FLASK_HOST_SHORT b/c wayback results will change for recent data
-export const getWaybackComments = ({link_id, ids, known_removed_ids}) => {
-  return flaskQuery({path: 'wayback-proxy/',
-                   params: {
-                     link_id,
-                     ids: ids.join(','),
-                     ...(known_removed_ids && {known_removed_ids: known_removed_ids.join(',')}),
-                   }})
-  .then(result => result.data || {})
-  .catch(error => {return {}}) // ignore fetch errors, this is not critical data
+export const getWaybackComments = ({ link_id, ids, known_removed_ids }) => {
+  return flaskQuery({
+    path: 'wayback-proxy/',
+    params: {
+      link_id,
+      ids: ids.join(','),
+      ...(known_removed_ids && {
+        known_removed_ids: known_removed_ids.join(','),
+      }),
+    },
+  })
+    .then(result => result.data || {})
+    .catch(error => {
+      return {}
+    }) // ignore fetch errors, this is not critical data
 }
 
-export const getUserStatus = (user) => {
-  const url = REVEDDIT_FLASK_HOST_SHORT+`/user-status/${user}`
-  return flaskQuery({path:`/user-status/${user}`})
-  .catch(e => e)
+export const getUserStatus = user => {
+  const url = REVEDDIT_FLASK_HOST_SHORT + `/user-status/${user}`
+  return flaskQuery({ path: `/user-status/${user}` }).catch(e => e)
 }
-

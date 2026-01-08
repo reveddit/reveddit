@@ -11312,6 +11312,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"prettier@npm:^3.7.4":
+  version: 3.7.4
+  resolution: "prettier@npm:3.7.4"
+  bin:
+    prettier: bin/prettier.cjs
+  checksum: 9315641aa34338de41eb4164e68a3936cc9e94b8ab9170f37f8cb2f20c2d8bfe6c8b895a2ce03bd882d2d28d0c70c168ed7d9f04cdb4aa1c77d9ed6c9d85849a
+  languageName: node
+  linkType: hard
+
 "pretty-bytes@npm:^5.3.0, pretty-bytes@npm:^5.4.1":
   version: 5.5.0
   resolution: "pretty-bytes@npm:5.5.0"
@@ -12340,6 +12349,7 @@ __metadata:
     html-webpack-tags-plugin: "npm:^2.0.17"
     lodash-webpack-plugin: "npm:^0.11.6"
     netlify-lambda: "npm:^1.4.13"
+    prettier: "npm:^3.7.4"
     react: "npm:16.14"
     react-day-picker: "npm:^7.4.8"
     react-dom: "npm:16.14"
