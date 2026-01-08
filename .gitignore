@@ -14,7 +14,6 @@ dist/*css
 dist/x-files/
 lambda/
 .sass-cache/
-src/data/
 
 # Log files
 *.log
