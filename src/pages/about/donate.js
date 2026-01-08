@@ -1,15 +1,15 @@
 import React from 'react'
-import {loadStripe} from '@stripe/stripe-js/pure'
+import { loadStripe } from '@stripe/stripe-js/pure'
 import { InternalPage } from 'components/Misc'
-import {ContentWithHeader} from 'pages/about'
-import {Row} from 'pages/about'
+import { ContentWithHeader } from 'pages/about'
+import { Row } from 'pages/about'
 
 const bch = 'qqfpw6cxep2tp53wcqws38j828mjlyw045rcrllckq'
 const eth = '0x22437792F98DFEecd0C59cBcAE042109c88309aC'
 const btc = '16GYNx9koeynunSjvNsVwch6wBs9bbnQGw'
 
 async function getSessionID(amount, frequency) {
-  const response =  await fetch(LAMBDA_ENDPOINT+'donate', {
+  const response = await fetch(LAMBDA_ENDPOINT + 'donate', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -28,7 +28,7 @@ const getStripe = () => {
   return stripePromise
 }
 
-const About_donate = (props) => {
+const About_donate = props => {
   // const [stripe, setStripe] = useState(null)
   // useEffect(() => {
   //   getStripe().then(setStripe)
@@ -55,35 +55,54 @@ const About_donate = (props) => {
   return (
     <InternalPage props={props}>
       <Row>
-        <ContentWithHeader header='Donate' half={true}>
+        <ContentWithHeader header="Donate" half={true}>
           <div className="donate-form-container">
-            {stripe &&
+            {stripe && (
               <form id="donate-form" onSubmit={formSubmit}>
                 <label htmlFor="amount">
                   <span>Donation amount</span>
                   <div className="amount-container">
                     <span className="dollar-sign">$ </span>
-                    <input type="number" name="amount" placeholder="1" className="donate-amount field" step="1" min="1" required />
+                    <input
+                      type="number"
+                      name="amount"
+                      placeholder="1"
+                      className="donate-amount field"
+                      step="1"
+                      min="1"
+                      required
+                    />
                   </div>
                 </label>
-                <div id='frequency'>
+                <div id="frequency">
                   <label>
-                    <input name='frequency' type='radio' value='once' defaultChecked />
+                    <input
+                      name="frequency"
+                      type="radio"
+                      value="once"
+                      defaultChecked
+                    />
                     one time
                   </label>
                   <label id="monthly">
-                    <input name='frequency' type='radio' value='monthly' />
+                    <input name="frequency" type="radio" value="monthly" />
                     monthly
                   </label>
                 </div>
-                <input type="submit" value="Donate!" className="donate-btn"/>
-                <div  style={{"marginTop":"14px", textAlign:"center", color: "white"}}>
+                <input type="submit" value="Donate!" className="donate-btn" />
+                <div
+                  style={{
+                    marginTop: '14px',
+                    textAlign: 'center',
+                    color: 'white',
+                  }}
+                >
                   <p>(not tax deductible)</p>
-                  <img src="/images/stripe.png"/>
+                  <img src="/images/stripe.png" />
                 </div>
               </form>
-            }
-            <hr style={{width:'100%'}}/>
+            )}
+            <hr style={{ width: '100%' }} />
             <div className="more-ways">
               <a href={`bitcoin:${btc}`}>BTC</a>
               <a href={`bitcoincash:${bch}`}>BCH</a>

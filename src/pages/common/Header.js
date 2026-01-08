@@ -3,59 +3,77 @@ import { Link, withRouter } from 'react-router-dom'
 import { connect } from 'state'
 import { Shuffle, TwitterWhite } from 'pages/common/svg'
 
-const getEntityName = (params) => {
-  const { user, subreddit = '', domain = ''} = params
+const getEntityName = params => {
+  const { user, subreddit = '', domain = '' } = params
   return (user || subreddit || domain).toLowerCase()
 }
 
 class Header extends React.Component {
   state = {
     entity_name: '',
-    random: false
+    random: false,
   }
   componentDidMount() {
     const entity_name = getEntityName(this.props.match.params)
-    this.setState({entity_name})
+    this.setState({ entity_name })
   }
   componentDidUpdate(prevProps) {
     const entity_name = getEntityName(this.props.match.params)
     const prev_entity_name = getEntityName(prevProps.match.params)
     if (entity_name !== prev_entity_name) {
-      this.setState({entity_name})
+      this.setState({ entity_name })
     }
   }
-  getForm = (value, display, path_type, item_type, path_suffix, opposite=false) => {
+  getForm = (
+    value,
+    display,
+    path_type,
+    item_type,
+    path_suffix,
+    opposite = false
+  ) => {
     let text_input_actions = {}
     let form_attributes = { className: `opposite ${path_type}` }
-    if (! opposite) {
-      form_attributes = {className: path_type}
+    if (!opposite) {
+      form_attributes = { className: path_type }
       text_input_actions = {
-        onClick: (e) => this.onClick(e, value),
-        onBlur: (e) =>  this.onBlur(e, value),
+        onClick: e => this.onClick(e, value),
+        onBlur: e => this.onBlur(e, value),
         value: this.state.entity_name,
-        onChange: this.handleNameChange
+        onChange: this.handleNameChange,
       }
     }
 
     return (
-      <form {...form_attributes} onSubmit={(e) => this.handleSubmit(e, value)}>
-        <span className='subheading'>{display}</span>
-        <label htmlFor={item_type} className='hide-element'>{item_type}</label>
-        <input id={item_type} type='text' {...text_input_actions}
-        name={path_type} placeholder={item_type} autoComplete={item_type}/>
-        {path_suffix &&
-          <span className='subheading'>{`/${path_suffix}/`}</span>
-        }
-        <input type='submit' id='button' value='go' />
-        {path_type === 'user' &&
-          <button title="Look up a random redditor" id='button_shuffle'
-            onClick={(e) => {
+      <form {...form_attributes} onSubmit={e => this.handleSubmit(e, value)}>
+        <span className="subheading">{display}</span>
+        <label htmlFor={item_type} className="hide-element">
+          {item_type}
+        </label>
+        <input
+          id={item_type}
+          type="text"
+          {...text_input_actions}
+          name={path_type}
+          placeholder={item_type}
+          autoComplete={item_type}
+        />
+        {path_suffix && (
+          <span className="subheading">{`/${path_suffix}/`}</span>
+        )}
+        <input type="submit" id="button" value="go" />
+        {path_type === 'user' && (
+          <button
+            title="Look up a random redditor"
+            id="button_shuffle"
+            onClick={e => {
               e.preventDefault()
-              this.setState({random:true})
-            }}>
-            <Shuffle wh='15'/>
+              this.setState({ random: true })
+            }}
+          >
+            <Shuffle wh="15" />
           </button>
-        }
+        )}
       </form>
     )
   }
@@ -64,9 +82,13 @@ class Header extends React.Component {
     e.preventDefault()
     const data = new FormData(e.target)
     const pair = Array.from(data.entries())[0]
-    const key = pair[0], val = pair[1].trim().toLowerCase()
-    if (val !== '' && (this.props.page_type === 'thread' || val !== defaultValue)) {
-      this.setState({entity_name: val})
+    const key = pair[0],
+      val = pair[1].trim().toLowerCase()
+    if (
+      val !== '' &&
+      (this.props.page_type === 'thread' || val !== defaultValue)
+    ) {
+      this.setState({ entity_name: val })
       window.location.href = `/${key}/${val}`
     }
   }
@@ -82,11 +104,11 @@ class Header extends React.Component {
       e.target.value = defaultValue
     }
   }
-  handleNameChange = (e) => {
-    this.setState({entity_name: e.target.value})
+  handleNameChange = e => {
+    this.setState({ entity_name: e.target.value })
   }
   settings = () => {
-    this.props.openGenericModal({hash: 'settings'})
+    this.props.openGenericModal({ hash: 'settings' })
   }
   render() {
     const props = this.props
@@ -95,11 +117,15 @@ class Header extends React.Component {
     if (this.state.random) {
       const sub = x_subreddit || 'all'
       // can't use history.push here b/c it won't reset state
-      window.location.href = `/r/${sub}/x/`+window.location.search
+      window.location.href = `/r/${sub}/x/` + window.location.search
     }
-    let { user, subreddit = '', domain = ''} = props.match.params
-    let path_type = '', value = '', path_suffix = '', item_type = '', display = ''
-    if (['subreddit_posts','thread'].includes(page_type)) {
+    let { user, subreddit = '', domain = '' } = props.match.params
+    let path_type = '',
+      value = '',
+      path_suffix = '',
+      item_type = '',
+      display = ''
+    if (['subreddit_posts', 'thread'].includes(page_type)) {
       path_type = 'r'
       value = subreddit
       item_type = 'subreddit'
@@ -119,32 +145,55 @@ class Header extends React.Component {
       item_type = 'domain'
     }
     value = value.toLowerCase()
-    if (! display) {
+    if (!display) {
       display = `${path_type}/`
     }
 
     return (
       <React.Fragment>
         <header>
-          <div id='header'>
-            <div id='site-name'><Link to="/about/">about <span className='rev'>rev</span>eddit</Link></div>
-            <div id='nav'>
-              <a href="#settings" onClick={this.settings} className="nav-item">⚙</a>
-              <Link to="/about/faq/" className="nav-item">F.A.Q.</Link>
-              <Link to="/add-ons/" className="nav-item">add-ons</Link>
-              <TwitterWhite className="nav-item"/>
+          <div id="header">
+            <div id="site-name">
+              <Link to="/about/">
+                about <span className="rev">rev</span>eddit
+              </Link>
             </div>
-            {value &&
-              <div id='subheading'>
-                {this.getForm(value, display, path_type, item_type, path_suffix, false)}
+            <div id="nav">
+              <a href="#settings" onClick={this.settings} className="nav-item">
+                ⚙
+              </a>
+              <Link to="/about/faq/" className="nav-item">
+                F.A.Q.
+              </Link>
+              <Link to="/add-ons/" className="nav-item">
+                add-ons
+              </Link>
+              <TwitterWhite className="nav-item" />
+            </div>
+            {value && (
+              <div id="subheading">
+                {this.getForm(
+                  value,
+                  display,
+                  path_type,
+                  item_type,
+                  path_suffix,
+                  false
+                )}
               </div>
-            }
+            )}
           </div>
-          <div id='status'>
-            {props.global.state.statusText &&
-            <p id='status-text'>{props.global.state.statusText}</p>}
-            {props.global.state.statusImage &&
-            <img id='status-image' src={props.global.state.statusImage} alt='status' />}
+          <div id="status">
+            {props.global.state.statusText && (
+              <p id="status-text">{props.global.state.statusText}</p>
+            )}
+            {props.global.state.statusImage && (
+              <img
+                id="status-image"
+                src={props.global.state.statusImage}
+                alt="status"
+              />
+            )}
           </div>
         </header>
       </React.Fragment>

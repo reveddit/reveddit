@@ -1,17 +1,27 @@
 import React from 'react'
 import { Subscribe, Container } from 'unstated'
-import { SimpleURLSearchParams, get, put, ifNumParseInt, swapKeysAndValues } from 'utils'
+import {
+  SimpleURLSearchParams,
+  get,
+  put,
+  ifNumParseInt,
+  swapKeysAndValues,
+} from 'utils'
 import { limitCommentDepth_global } from 'pages/modals/Settings'
 import { agg_defaults_for_page } from 'api/reveddit'
 import { pageTypes } from 'pages/DefaultLayout'
-import {UNKNOWN_REMOVED, USER_REMOVED} from 'pages/common/RemovedBy'
+import { UNKNOWN_REMOVED, USER_REMOVED } from 'pages/common/RemovedBy'
 const defaultFilters_str = 'defaultFilters'
 
 export const hasClickedRemovedUserCommentContext = () => {
   put('hasClickedRemovedUserCommentContext', true)
 }
 
-const loadingVars = {statusText: '', statusImage: '/images/loading.gif', loading:true}
+const loadingVars = {
+  statusText: '',
+  statusImage: '/images/loading.gif',
+  loading: true,
+}
 
 export const getExtraGlobalStateVars = (page_type, sort) => {
   //when condition is true, set the var to true, otherwise keep the locally stored var value
@@ -32,7 +42,7 @@ export const getExtraGlobalStateVars = (page_type, sort) => {
       put(varName, true)
     }
   }
-  return {...results, ...loadingVars}
+  return { ...results, ...loadingVars }
 }
 
 export const urlParamKeys_account_max_min_base = {
@@ -50,15 +60,20 @@ const urlParamKeys_max_min_base = {
   comment_length: 'comment_length',
   ...urlParamKeys_account_max_min_base,
 }
-const MIN = '_min', MAX = '_max'
-export const urlParamKeys_max_min = Object.keys(urlParamKeys_max_min_base)
-  .reduce((map,key) => {
-    map[key+MIN] = key+MIN
-    map[key+MAX] = key+MAX
-    return map
-  }, {})
+const MIN = '_min',
+  MAX = '_max'
+export const urlParamKeys_max_min = Object.keys(
+  urlParamKeys_max_min_base
+).reduce((map, key) => {
+  map[key + MIN] = key + MIN
+  map[key + MAX] = key + MAX
+  return map
+}, {})
 
-const urlParamKeys_max_min_defaults = Object.keys(urlParamKeys_max_min).reduce((m, k) => (m[k] = '', m), {})
+const urlParamKeys_max_min_defaults = Object.keys(urlParamKeys_max_min).reduce(
+  (m, k) => ((m[k] = ''), m),
+  {}
+)
 
 // separate b/c I don't want to remove backslashes from the value of these on page load in src/index.js.
 // need to remove backslashes from other param values due to bug with reddit text editor
@@ -108,10 +123,16 @@ export const urlParamKeys = {
   context: 'context',
   frontPage: 'frontPage',
   n: 'n',
-  q: 'q', author: 'author', subreddit: 's_subreddit', after: 'after', domain: 's_domain', or_domain: 's_or_domain',
+  q: 'q',
+  author: 'author',
+  subreddit: 's_subreddit',
+  after: 'after',
+  domain: 's_domain',
+  or_domain: 's_or_domain',
   s_user_flair: 's_user_flair',
   ps_after: 'ps_after',
-  title: 'title', selftext: 'selftext',
+  title: 'title',
+  selftext: 'selftext',
   content: 'content',
   url: 'url',
   selfposts: 'selfposts',
@@ -121,18 +142,26 @@ export const urlParamKeys = {
   user_sort: 'user_sort', // for legacy add_user code
   user_kind: 'user_kind', // for legacy add_user code
   user_time: 'user_time', // for legacy add_user code
-  t: 't', sort: 'sort', sort_type: 'sort_type', limit: 'limit', show: 'show', all:'all', stickied: 'stickied', distinguished: 'distinguished',
-  rate_less: 'rate_less', rate_more: 'rate_more',
+  t: 't',
+  sort: 'sort',
+  sort_type: 'sort_type',
+  limit: 'limit',
+  show: 'show',
+  all: 'all',
+  stickied: 'stickied',
+  distinguished: 'distinguished',
+  rate_less: 'rate_less',
+  rate_more: 'rate_more',
   x_subreddit: 'x_subreddit',
   quarantined: 'quarantined',
   quarantined_subreddits: 'quarantined_subreddits',
-  ...urlParamKeys_filters_for_reset_to_show_all_items
+  ...urlParamKeys_filters_for_reset_to_show_all_items,
 }
 
 export const removedFilter_types = {
   all: 'all',
   removed: 'removed',
-  not_removed: 'not_removed'
+  not_removed: 'not_removed',
 }
 export const removedFilter_text = {
   all: 'all',
@@ -162,7 +191,7 @@ export const filter_pageType_defaults = {
     subreddit_posts: removedFilter_types.removed,
     subreddit_comments: removedFilter_types.removed,
     domain_posts: removedFilter_types.removed,
-    duplicate_posts: removedFilter_types.all
+    duplicate_posts: removedFilter_types.all,
   },
   removedByFilter: '', // this is different than the state initialization value
   exclude_action: false,
@@ -197,24 +226,35 @@ export const filter_pageType_defaults = {
   before: '',
   before_id: '',
   keywords: '',
-  post_flair: '', user_flair: '', filter_url: '', thread_before: '',
+  post_flair: '',
+  user_flair: '',
+  filter_url: '',
+  thread_before: '',
   id: '',
   context: '',
   frontPage: false,
-  q: '', author: '', subreddit: '', after: '', domain: '', or_domain: '', title: '', selftext: '',
+  q: '',
+  author: '',
+  subreddit: '',
+  after: '',
+  domain: '',
+  or_domain: '',
+  title: '',
+  selftext: '',
   ps_after: '',
   url: '',
   selfposts: true,
   limitCommentDepth: limitCommentDepth_global,
   add_user: '',
   add_user_on_page_load: undefined,
-  limit: 100, t: 'all',
+  limit: 100,
+  t: 'all',
   stickied: undefined,
   distinguished: undefined,
   ...urlParamKeys_max_min_defaults,
 }
 
-const getMultiFilterSettings = (stringValue) => {
+const getMultiFilterSettings = stringValue => {
   const settings = {}
   stringValue.split(',').forEach(type => {
     if (type.trim()) {
@@ -226,9 +266,11 @@ const getMultiFilterSettings = (stringValue) => {
 
 const siteDefaultsThatAddParamsToURL = {
   subreddit_comments: {
-    removedByFilter: getMultiFilterSettings([UNKNOWN_REMOVED, USER_REMOVED].join(',')),
+    removedByFilter: getMultiFilterSettings(
+      [UNKNOWN_REMOVED, USER_REMOVED].join(',')
+    ),
     exclude_action: true,
-  }
+  },
 }
 
 const initialState = {
@@ -236,7 +278,10 @@ const initialState = {
   before: '',
   before_id: '',
   keywords: '',
-  post_flair: '', user_flair: '', filter_url: '', thread_before: '',
+  post_flair: '',
+  user_flair: '',
+  filter_url: '',
+  thread_before: '',
   items: [],
   threadPost: {},
   num_pages: 0,
@@ -263,9 +308,17 @@ const initialState = {
   id: '',
   context: '',
   frontPage: false,
-  q: '', author: '', subreddit: '', after: '', domain: '', or_domain: '', title: '', selftext: '',
+  q: '',
+  author: '',
+  subreddit: '',
+  after: '',
+  domain: '',
+  or_domain: '',
+  title: '',
+  selftext: '',
   ps_after: '',
-  content: 'all', url: '',
+  content: 'all',
+  url: '',
   over18: undefined,
   quarantined: undefined,
   selfposts: true,
@@ -279,15 +332,20 @@ const initialState = {
   moderators: {},
   moderated_subreddits: {},
   user_about: {},
-  authors: {}, author_fullnames: {},
+  authors: {},
+  author_fullnames: {},
   archiveTimes: null,
   add_user: '',
   alreadySearchedAuthors: {},
   all: false,
-  oldestTimestamp: undefined, newestTimestamp: undefined,
-  stickied: undefined, distinguished: undefined,
-  rate_less: undefined, rate_more: undefined,
-  rate_least: undefined, rate_most: undefined,
+  oldestTimestamp: undefined,
+  newestTimestamp: undefined,
+  stickied: undefined,
+  distinguished: undefined,
+  rate_less: undefined,
+  rate_more: undefined,
+  rate_least: undefined,
+  rate_most: undefined,
   ...urlParamKeys_max_min_defaults,
   agg_most_recent_created_utc: undefined,
   x_subreddit: '',
@@ -297,9 +355,12 @@ const initialState = {
 // pushshift max per call is now 100 (previously was 1000)
 const maxN = 2000
 
-export const create_qparams = (path_and_search) => new SimpleURLSearchParams(path_and_search ?
-                                                                             new URL(path_and_search, window.location.origin).search
-                                                                             : window.location.search)
+export const create_qparams = path_and_search =>
+  new SimpleURLSearchParams(
+    path_and_search
+      ? new URL(path_and_search, window.location.origin).search
+      : window.location.search
+  )
 
 export const create_qparams_and_adjust = (page_type, selection, value) => {
   const queryParams = create_qparams()
@@ -307,8 +368,8 @@ export const create_qparams_and_adjust = (page_type, selection, value) => {
   return queryParams
 }
 
-const parseType = (value) => {
-  if (value !== null && typeof(value) === 'object') {
+const parseType = value => {
+  if (value !== null && typeof value === 'object') {
     return Object.keys(value).join()
   } else if (value === 'false') {
     return false
@@ -320,15 +381,21 @@ const parseType = (value) => {
   return value
 }
 
-export const adjust_qparams_for_selection = (page_type, queryParams, selection, value) => {
+export const adjust_qparams_for_selection = (
+  page_type,
+  queryParams,
+  selection,
+  value
+) => {
   value = parseType(value)
-  if (value === filter_pageType_defaults[selection]
-       || (typeof(filter_pageType_defaults[selection]) === 'object'
-          && (value === filter_pageType_defaults[selection][page_type]
-            //don't set url parameter when the value is equal to the initial state
-            || (! (page_type in filter_pageType_defaults[selection])
-              && value === initialState[selection])))
-    ) {
+  if (
+    value === filter_pageType_defaults[selection] ||
+    (typeof filter_pageType_defaults[selection] === 'object' &&
+      (value === filter_pageType_defaults[selection][page_type] ||
+        //don't set url parameter when the value is equal to the initial state
+        (!(page_type in filter_pageType_defaults[selection]) &&
+          value === initialState[selection])))
+  ) {
     queryParams.delete(urlParamKeys[selection])
   } else {
     queryParams.set(urlParamKeys[selection], value)
@@ -336,25 +403,26 @@ export const adjust_qparams_for_selection = (page_type, queryParams, selection, 
   return queryParams
 }
 
-export const updateURL = (queryParams) => {
+export const updateURL = queryParams => {
   const to = `${window.location.pathname}${queryParams.toString()}${window.location.hash}`
-  window.history.replaceState(null,null,to)
+  window.history.replaceState(null, null, to)
 }
 
 const queryParamsOnPageLoad = create_qparams()
 
-export const getPageType = (page_type) => {
-  return (page_type === 'info' && queryParamsOnPageLoad.get('url')) ?
-    'duplicate_posts' : page_type
+export const getPageType = page_type => {
+  return page_type === 'info' && queryParamsOnPageLoad.get('url')
+    ? 'duplicate_posts'
+    : page_type
 }
 
 class GlobalState extends Container {
   constructor(props) {
-     super(props)
-     this.state = initialState
+    super(props)
+    this.state = initialState
   }
 
-  setStateFromCurrentURL = (page_type) => {
+  setStateFromCurrentURL = page_type => {
     return this.setStateFromQueryParams(page_type, create_qparams())
   }
   updateURLFromGivenState = (page_type, state) => {
@@ -365,25 +433,28 @@ class GlobalState extends Container {
     updateURL(queryParams)
   }
   getStateFromQueryParams(page_type, queryParams, extraGlobalStateVars = {}) {
-    if (! page_type) {
+    if (!page_type) {
       console.error('page_type is undefined')
     }
     page_type = getPageType(page_type)
     const stateVar = extraGlobalStateVars
     for (const [param, urlParamKey] of Object.entries(urlParamKeys)) {
       const paramValue = queryParams.get(urlParamKey)
-      const paramValue_decoded = paramValue === null ? paramValue : decodeURIComponent(paramValue)
+      const paramValue_decoded =
+        paramValue === null ? paramValue : decodeURIComponent(paramValue)
       this.setValuesForParam(param, paramValue_decoded, stateVar, page_type)
     }
     return stateVar
   }
   setStateFromQueryParams(page_type, queryParams, extraGlobalStateVars = {}) {
-    return this.setState(this.getStateFromQueryParams(page_type, queryParams, extraGlobalStateVars))
+    return this.setState(
+      this.getStateFromQueryParams(page_type, queryParams, extraGlobalStateVars)
+    )
   }
   setValuesForParam(param, value, stateVar, page_type) {
     if (value === null) {
       if (param in filter_pageType_defaults) {
-        if (typeof(filter_pageType_defaults[param]) !== 'object') {
+        if (typeof filter_pageType_defaults[param] !== 'object') {
           stateVar[param] = filter_pageType_defaults[param]
         } else if (page_type in filter_pageType_defaults[param]) {
           stateVar[param] = filter_pageType_defaults[param][page_type]
@@ -392,7 +463,7 @@ class GlobalState extends Container {
         }
       }
     } else {
-      switch(param) {
+      switch (param) {
         case 'removedFilter': {
           if (value !== removedFilter_types.removed) {
             stateVar.removedByFilter = {}
@@ -415,7 +486,7 @@ class GlobalState extends Container {
         }
         case 'after':
         case 'before': {
-          if (! value.includes('_')) {
+          if (!value.includes('_')) {
             stateVar[param] = parseType(value)
           } else if (page_type === 'user') {
             stateVar[param] = value
@@ -433,26 +504,47 @@ class GlobalState extends Container {
       }
     }
   }
-  saveDefaults = (page_type) => {
+  saveDefaults = page_type => {
     const filters = get(defaultFilters_str, {})
     filters[page_type] = [
-      'localSort', 'localSortReverse', 'removedFilter', 'removedByFilter', 'exclude_action', 'tagsFilter', 'exclude_tag',
-      'showContext', 'limitCommentDepth', 'n', 'sort', 't',
-      'categoryFilter_subreddit', 'categoryFilter_domain', 'categoryFilter_link_title', 'categoryFilter_author',
-      'num_subscribers_min', 'score_min', 'num_comments_min',
-      'num_subscribers_max', 'score_max', 'num_comments_max',
-      'keywords', 'post_flair', 'user_flair', 'filter_url',
-    ].reduce((map,varname) => (map[varname] = this.state[varname], map), {})
+      'localSort',
+      'localSortReverse',
+      'removedFilter',
+      'removedByFilter',
+      'exclude_action',
+      'tagsFilter',
+      'exclude_tag',
+      'showContext',
+      'limitCommentDepth',
+      'n',
+      'sort',
+      't',
+      'categoryFilter_subreddit',
+      'categoryFilter_domain',
+      'categoryFilter_link_title',
+      'categoryFilter_author',
+      'num_subscribers_min',
+      'score_min',
+      'num_comments_min',
+      'num_subscribers_max',
+      'score_max',
+      'num_comments_max',
+      'keywords',
+      'post_flair',
+      'user_flair',
+      'filter_url',
+    ].reduce((map, varname) => ((map[varname] = this.state[varname]), map), {})
     put(defaultFilters_str, filters)
   }
-  resetDefaults = (page_type) => {
+  resetDefaults = page_type => {
     const filters = get(defaultFilters_str, {})
     delete filters[page_type]
     put(defaultFilters_str, filters)
   }
-  setQueryParamsFromSavedDefaults = (page_type) => {
+  setQueryParamsFromSavedDefaults = page_type => {
     const userFilters = get(defaultFilters_str, {})
-    let filters_pageType, defaultsAreFromSite = false
+    let filters_pageType,
+      defaultsAreFromSite = false
     if (userFilters[page_type]) {
       filters_pageType = userFilters[page_type]
     } else {
@@ -463,21 +555,30 @@ class GlobalState extends Container {
       const origQueryParams = create_qparams()
       const queryParams = create_qparams()
       for (let [selection, value] of Object.entries(filters_pageType)) {
-        if (typeof(value) === 'object') {
+        if (typeof value === 'object') {
           value = Object.keys(value).join()
         }
         // don't set site defaults for Action when user has applied a status that is not 'removed'
-        if (  ['removedByFilter',excludeMapsReversed.removedByFilter].includes(selection)
-              && defaultsAreFromSite
-              && origQueryParams.get(urlParamKeys.removedFilter)
-              && filter_pageType_defaults.removedFilter[page_type] === removedFilter_types.removed) {
+        if (
+          ['removedByFilter', excludeMapsReversed.removedByFilter].includes(
+            selection
+          ) &&
+          defaultsAreFromSite &&
+          origQueryParams.get(urlParamKeys.removedFilter) &&
+          filter_pageType_defaults.removedFilter[page_type] ===
+            removedFilter_types.removed
+        ) {
           continue
         }
         // set the query param to the user's saved default if it is not already set
-        if (! queryParams.has(urlParamKeys[selection])) {
+        if (!queryParams.has(urlParamKeys[selection])) {
           // if exclude_[tag,action] is set to true by default,
           // and there is a value in the corresponding filter (tagsFilter or removedByFilter), don't set the exclude_ filter
-          if ( value && selection.match(/^exclude_/) && origQueryParams.get(urlParamKeys[excludeMaps[selection]])) {
+          if (
+            value &&
+            selection.match(/^exclude_/) &&
+            origQueryParams.get(urlParamKeys[excludeMaps[selection]])
+          ) {
             continue
           }
           adjust_qparams_for_selection(page_type, queryParams, selection, value)
@@ -492,17 +593,26 @@ class GlobalState extends Container {
     adjust_qparams_for_selection(page_type, queryParams, 'showContext', true)
     // if 'limit comment depth' and 'show context' are false, then the page freezes when clicking a context link
     // setting 'limit comment depth' to true here resolves that bug
-    adjust_qparams_for_selection(page_type, queryParams, 'limitCommentDepth', true)
+    adjust_qparams_for_selection(
+      page_type,
+      queryParams,
+      'limitCommentDepth',
+      true
+    )
     let queryParamsWithoutContextZero = queryParams
     if (context === 0) {
-      queryParamsWithoutContextZero = create_qparams(queryParams.toString()).delete('context')
+      queryParamsWithoutContextZero = create_qparams(
+        queryParams.toString()
+      ).delete('context')
     }
     if (path_and_search) {
       const url = new URL(path_and_search, window.location.origin)
-      const to = url.pathname + queryParamsWithoutContextZero.toString() + url.hash
+      const to =
+        url.pathname + queryParamsWithoutContextZero.toString() + url.hash
       history.push(to)
     } else {
-      const to = window.location.pathname + queryParamsWithoutContextZero.toString()
+      const to =
+        window.location.pathname + queryParamsWithoutContextZero.toString()
       history.replace(to)
     }
     return this.setStateFromQueryParams(page_type, queryParams, {})
@@ -516,7 +626,7 @@ class GlobalState extends Container {
     return this.setStateFromQueryParams(page_type, queryParams, other)
   }
   categoryFilter_update = (type, value, page_type) => {
-    this.selection_update('categoryFilter_'+type, value, page_type)
+    this.selection_update('categoryFilter_' + type, value, page_type)
   }
   removedFilter_update = (value, page_type) => {
     const queryParams = create_qparams()
@@ -530,7 +640,9 @@ class GlobalState extends Container {
   }
   removedByFilter_update = (target, page_type) => {
     const queryParams = create_qparams()
-    const removedby_settings = getMultiFilterSettings(queryParams.get(urlParamKeys.removedByFilter) || '')
+    const removedby_settings = getMultiFilterSettings(
+      queryParams.get(urlParamKeys.removedByFilter) || ''
+    )
     if (target.checked) {
       removedby_settings[target.value] = true
     } else {
@@ -538,12 +650,19 @@ class GlobalState extends Container {
     }
     const value = Object.keys(removedby_settings).join()
 
-    adjust_qparams_for_selection(page_type, queryParams, 'removedByFilter', value)
+    adjust_qparams_for_selection(
+      page_type,
+      queryParams,
+      'removedByFilter',
+      value
+    )
     return this.updateURLandState(queryParams, page_type)
   }
   tagsFilter_update = (target, page_type) => {
     const queryParams = create_qparams()
-    const settings = getMultiFilterSettings(queryParams.get(urlParamKeys.tagsFilter) || '')
+    const settings = getMultiFilterSettings(
+      queryParams.get(urlParamKeys.tagsFilter) || ''
+    )
     if (target.checked) {
       settings[target.value] = true
     } else {
@@ -566,18 +685,29 @@ class GlobalState extends Container {
     return new_ps_after
   }
 
-
-  removedByFilterIsUnset () {
+  removedByFilterIsUnset() {
     return Object.keys(this.state.removedByFilter).length === 0
   }
-  tagsFilterIsUnset () {
+  tagsFilterIsUnset() {
     return Object.keys(this.state.tagsFilter).length === 0
   }
   resetFilters = (page_type, set = {}) => {
     const queryParams = create_qparams()
-    adjust_qparams_for_selection(page_type, queryParams, 'removedFilter', removedFilter_types.all)
-    for (const globalVarName of Object.keys(urlParamKeys_filters_for_reset_to_show_all_items)) {
-      adjust_qparams_for_selection(page_type, queryParams, globalVarName, filter_pageType_defaults[globalVarName])
+    adjust_qparams_for_selection(
+      page_type,
+      queryParams,
+      'removedFilter',
+      removedFilter_types.all
+    )
+    for (const globalVarName of Object.keys(
+      urlParamKeys_filters_for_reset_to_show_all_items
+    )) {
+      adjust_qparams_for_selection(
+        page_type,
+        queryParams,
+        globalVarName,
+        filter_pageType_defaults[globalVarName]
+      )
     }
     for (const [globalVarName, value] of Object.entries(set)) {
       adjust_qparams_for_selection(page_type, queryParams, globalVarName, value)
@@ -589,7 +719,7 @@ class GlobalState extends Container {
       return true
     }
     for (const base of Object.keys(urlParamKeys_account_max_min_base)) {
-      if (this.state[base+MIN] !== '' || this.state[base+MAX] !== '') {
+      if (this.state[base + MIN] !== '' || this.state[base + MAX] !== '') {
         return true
       }
     }
@@ -598,7 +728,7 @@ class GlobalState extends Container {
   accountMetaQueryParamIsSet = () => {
     const qparams = create_qparams()
     for (const base of Object.values(urlParamKeys_account_max_min_base)) {
-      if ( qparams.has(base+MIN) || qparams.has(base+MAX) ) {
+      if (qparams.has(base + MIN) || qparams.has(base + MAX)) {
         return true
       }
     }
@@ -607,17 +737,34 @@ class GlobalState extends Container {
   returnError = async (stateObj = {}) => [false, stateObj]
   returnSuccess = async (stateObj = {}) => [true, stateObj]
   setSuccess = (other = {}) => {
-    if (! this.state.error) {
-      return this.setState({statusText: '', statusImage: '/images/success.png', loading:false, ...other})
+    if (!this.state.error) {
+      return this.setState({
+        statusText: '',
+        statusImage: '/images/success.png',
+        loading: false,
+        ...other,
+      })
     } else {
-      return this.setState({statusImage: '/images/error.png', loading:false, ...other})
+      return this.setState({
+        statusImage: '/images/error.png',
+        loading: false,
+        ...other,
+      })
     }
   }
   setError = (other = {}) => {
-    return this.setState({statusText: '', statusImage: '/images/error.png', loading:false, error: true, ...other})
+    return this.setState({
+      statusText: '',
+      statusImage: '/images/error.png',
+      loading: false,
+      error: true,
+      ...other,
+    })
   }
-  setLoading = (text = '', other = {}) => this.setState({...loadingVars, statusText: text, ...other})
-  clearStatus = () => this.setState({statusText: '', statusImage: undefined, loading:false})
+  setLoading = (text = '', other = {}) =>
+    this.setState({ ...loadingVars, statusText: text, ...other })
+  clearStatus = () =>
+    this.setState({ statusText: '', statusImage: undefined, loading: false })
 }
 
 // A redux-like connect function for Unstated

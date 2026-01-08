@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react'
+import React, { useState, useEffect } from 'react'
 
 const r = 'resize'
 export const useIsMobile = () => {
@@ -7,9 +7,9 @@ export const useIsMobile = () => {
     setWidth(window.innerWidth)
   }
   useEffect(() => {
-    window.addEventListener(r, handleWindowSizeChange);
+    window.addEventListener(r, handleWindowSizeChange)
     return () => {
-      window.removeEventListener(r, handleWindowSizeChange);
+      window.removeEventListener(r, handleWindowSizeChange)
     }
   }, [])
   return width <= 768

@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Allow: /about/faq
+
+Disallow: /user/
+Disallow: /u/
+Disallow: /r/
+Disallow: /y/

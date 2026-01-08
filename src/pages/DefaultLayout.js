@@ -7,8 +7,14 @@ import Welcome from 'pages/modals/Welcome'
 import Settings from 'pages/modals/Settings'
 import ActionHelp from 'pages/modals/ActionHelp'
 import {
-  Banned, SpreadWord, hasSeenSpreadWord, SubredditViewUnavailable,
-  CensorshipWorse, FaithfullyEngaged, YoutubeShadowRemovals, OnlyFoolHumans,
+  Banned,
+  SpreadWord,
+  hasSeenSpreadWord,
+  SubredditViewUnavailable,
+  CensorshipWorse,
+  FaithfullyEngaged,
+  YoutubeShadowRemovals,
+  OnlyFoolHumans,
   CoupSaveAmerica,
 } from 'pages/modals/Misc'
 import { RedditBreakingChange } from 'pages/modals/RedditBreakingChange'
@@ -27,25 +33,25 @@ const customStyles = {
     bottom: 'auto',
     marginRight: '-50%',
     transform: 'translate(-50%, -50%)',
-    padding: 0
+    padding: 0,
   },
   overlay: {
-    backgroundColor: 'rgba(255, 255, 255, 0.3)'
-  }
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+  },
 }
 
 export const pageTypes = {
   aggregations: 'aggregations',
   subreddit_posts: 'subreddit_posts',
   subreddit_comments: 'subreddit_comments',
-  missing_comments: 'missing_comments'
+  missing_comments: 'missing_comments',
 }
 
 // to make ribbon open a modal, set the modal hash here
 // to make ribbon open a link, set ribbonHash = ''
 const ribbonHash = 'news_ribbon'
 
-const getContentForHash = (hash) => {
+const getContentForHash = hash => {
   const action = hash.match(/^action_(.+)_help$/)
   if (action) {
     return <ActionHelp action={action[1]} />
@@ -62,19 +68,47 @@ const getContentForHash = (hash) => {
     case 'reddit_breaking_change':
       return <RedditBreakingChange />
     case 'faithfully_engaged':
-      return <><FaithfullyEngaged /><SocialLinks /></>
+      return (
+        <>
+          <FaithfullyEngaged />
+          <SocialLinks />
+        </>
+      )
     case 'spread_word':
-      return <><SpreadWord /><SocialLinks /></>
+      return (
+        <>
+          <SpreadWord />
+          <SocialLinks />
+        </>
+      )
     case 'youtube_shadow':
-      return <><YoutubeShadowRemovals /><SocialLinks /></>
+      return (
+        <>
+          <YoutubeShadowRemovals />
+          <SocialLinks />
+        </>
+      )
     // TODO: add scroller to show all news
     case 'news_ribbon': // news ribbon should show latest content
     case 'csa':
-      return <><CoupSaveAmerica /><SocialLinks /></>
+      return (
+        <>
+          <CoupSaveAmerica />
+          <SocialLinks />
+        </>
+      )
     case 'only_fool_humans':
-      return <><OnlyFoolHumans /></>
+      return (
+        <>
+          <OnlyFoolHumans />
+        </>
+      )
     case 'censorship_worse':
-      return <><CensorshipWorse /></>
+      return (
+        <>
+          <CensorshipWorse />
+        </>
+      )
     case 'subreddit_unavailable':
       return <SubredditViewUnavailable />
   }
@@ -86,25 +120,34 @@ export const clearHashFromURL = () => {
   history.replaceState({}, '', url)
 }
 
-const setHashInURL = (hash) => {
+const setHashInURL = hash => {
   const url = window.location.pathname + window.location.search + `#${hash}`
   history.replaceState({ [hash]: true }, hash, url)
 }
 
 const hideRibbon = (hide = true) => {
-  document.querySelector('#ribbon').style.visibility = hide ? 'hidden' : 'visible'
+  document.querySelector('#ribbon').style.visibility = hide
+    ? 'hidden'
+    : 'visible'
 }
 
 const existingHash = () => window.location.hash.replace('#', '')
 
-const DefaultLayout = (props) => {
+const DefaultLayout = props => {
   const [layoutState, setLayoutState] = useState({
     genericModalIsOpen: false,
     content: '',
-    hash: ''
+    hash: '',
   })
   const [pendingModals, setPendingModals] = useState([])
   useEffect(() => {
+    // Skip modal logic during react-snap prerendering
+    if (
+      navigator.userAgent.includes('ReactSnap') ||
+      navigator.userAgent.includes('HeadlessChrome')
+    ) {
+      return
+    }
     const hash = existingHash()
     const content = getContentForHash(hash)
     if (content) {
@@ -120,7 +163,7 @@ const DefaultLayout = (props) => {
     }
     const ribbon = document.querySelector('#ribbon')
     if (ribbon && ribbonHash) {
-      ribbon.onclick = (e) => {
+      ribbon.onclick = e => {
         e.preventDefault()
         openGenericModal({ hash: ribbonHash })
       }
@@ -149,7 +192,7 @@ const DefaultLayout = (props) => {
       setPendingModals(pendingModals)
       setLayoutState({ genericModalIsOpen: true, content, hash })
     } else {
-      setLayoutState({ genericModalIsOpen: false, hash: '', content: '' });
+      setLayoutState({ genericModalIsOpen: false, hash: '', content: '' })
     }
   }
   const { component: Component, ...rest } = props
@@ -170,38 +213,59 @@ const DefaultLayout = (props) => {
     }
   }, [genericModalIsOpen])
   return (
-    <Route {...rest} render={matchProps => {
-      return (
-        <React.Fragment>
-          <RedditChangeBanner />
-          <Header {...matchProps} {...rest} openGenericModal={openGenericModal} />
-          <div className={'main page_' + page_type + ' ' + threadClass}>
-            <Modal isOpen={genericModalIsOpen}
-              onRequestClose={closeGenericModal}
-              style={customStyles}>
-              <div id='modalContainer'>
-                <div id='genericModal' className={hash}>
-                  <div className='dismiss'>
-                    <a className='pointer' onClick={closeGenericModal}>✖&#xfe0e;</a>
+    <Route
+      {...rest}
+      render={matchProps => {
+        return (
+          <React.Fragment>
+            <RedditChangeBanner />
+            <Header
+              {...matchProps}
+              {...rest}
+              openGenericModal={openGenericModal}
+            />
+            <div className={'main page_' + page_type + ' ' + threadClass}>
+              <Modal
+                isOpen={genericModalIsOpen}
+                onRequestClose={closeGenericModal}
+                style={customStyles}
+              >
+                <div id="modalContainer">
+                  <div id="genericModal" className={hash}>
+                    <div className="dismiss">
+                      <a className="pointer" onClick={closeGenericModal}>
+                        ✖&#xfe0e;
+                      </a>
+                    </div>
+                    <ModalProvider
+                      value={{
+                        closeModal: closeGenericModal,
+                        openModal: openGenericModal,
+                      }}
+                    >
+                      {hash ? getContentForHash(hash) : content}
+                    </ModalProvider>
                   </div>
-                  <ModalProvider value={{ closeModal: closeGenericModal, openModal: openGenericModal }}>
-                    {hash ?
-                      getContentForHash(hash)
-                      :
-                      content
-                    }
-                  </ModalProvider>
                 </div>
-              </div>
-            </Modal>
-            <ModalProvider value={{ openModal: openGenericModal, closeModal: closeGenericModal }}>
-              <Component {...matchProps} {...rest} openGenericModal={openGenericModal} />
-            </ModalProvider>
-            <SocialLinks />
-          </div>
-        </React.Fragment>
-      )
-    }} />
+              </Modal>
+              <ModalProvider
+                value={{
+                  openModal: openGenericModal,
+                  closeModal: closeGenericModal,
+                }}
+              >
+                <Component
+                  {...matchProps}
+                  {...rest}
+                  openGenericModal={openGenericModal}
+                />
+              </ModalProvider>
+              <SocialLinks />
+            </div>
+          </React.Fragment>
+        )
+      }}
+    />
   )
 }
 

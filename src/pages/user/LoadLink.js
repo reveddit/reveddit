@@ -5,12 +5,11 @@ import { getRevdditUserItems } from 'data_processing/user'
 import { SimpleURLSearchParams } from 'utils'
 
 class LoadLink extends React.Component {
-
   render() {
-    const {userNext, show} = this.props.global.state
+    const { userNext, show } = this.props.global.state
     let className = 'load-next'
     let text = 'view more'
-    let to = window.location.pathname+window.location.search
+    let to = window.location.pathname + window.location.search
     const otherState = {}
     if (this.props.loadAll) {
       otherState.all = true
@@ -20,17 +19,25 @@ class LoadLink extends React.Component {
       className = 'load-all'
       text = 'load all'
     }
-    if (userNext && ! show) {
-      return <Link className={className} to={to} onClick={() => {
-        this.props.global.setLoading('', otherState)
-        .then(() => {
-          getRevdditUserItems(this.props.user,
-                              this.props.kind,
-                              this.props.global,
-                              false,
-                             )
-        })
-      }}>{text}</Link>
+    if (userNext && !show) {
+      return (
+        <Link
+          className={className}
+          to={to}
+          onClick={() => {
+            this.props.global.setLoading('', otherState).then(() => {
+              getRevdditUserItems(
+                this.props.user,
+                this.props.kind,
+                this.props.global,
+                false
+              )
+            })
+          }}
+        >
+          {text}
+        </Link>
+      )
     } else {
       return ''
     }
