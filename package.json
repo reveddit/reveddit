@@ -87,6 +87,7 @@
     "start": "yarn build-sass; webpack serve --mode development --host 0.0.0.0",
     "start-staging": "yarn build-sass; TARGET_ENV=staging webpack serve --mode development --host 0.0.0.0",
     "build": "yarn clean; yarn build-sass; webpack --mode production && yarn lambda-build && react-snap",
+    "build:local-mac": "PUPPETEER_EXECUTABLE_PATH='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' yarn build",
     "prefetch-data": "node scripts/fetch-prerender-data.js",
     "build-sass": "sass --style=compressed --load-path=node_modules/ src/sass/index.sass dist/x-files/main.css",
     "lambda-serve": "netlify-lambda serve lambda-src",
@@ -105,7 +106,6 @@
     "puppeteerArgs": [
       "--no-sandbox",
       "--disable-setuid-sandbox"
-    ],
-    "puppeteerExecutablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+    ]
   }
 }
