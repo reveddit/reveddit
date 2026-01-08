@@ -141,6 +141,10 @@ const DefaultLayout = props => {
   })
   const [pendingModals, setPendingModals] = useState([])
   useEffect(() => {
+    // Skip modal logic during react-snap prerendering
+    if (navigator.userAgent.includes('HeadlessChrome')) {
+      return
+    }
     const hash = existingHash()
     const content = getContentForHash(hash)
     if (content) {
