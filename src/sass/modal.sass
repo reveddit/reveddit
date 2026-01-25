@@ -38,3 +38,25 @@
     max-width: 100%
   .time
     color: #ddd
+  .carousel-nav
+    display: flex
+    justify-content: center
+    align-items: center
+    gap: 15px
+    margin-bottom: 10px
+    a.prev, a.next
+      white-space: nowrap
+      user-select: none
+    a.disabled
+      color: #666
+      cursor: default
+    a.active
+      cursor: pointer
+  .carousel-position
+    min-width: 50px
+    text-align: center
+  .carousel-title
+    text-align: center
+    font-weight: bold
+    margin-bottom: 15px
+    color: #fff

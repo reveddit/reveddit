@@ -11,7 +11,6 @@ export default () => {
         <ExtensionLink image={true} />
       </div>
       <Highlight showMobile={true} />
-      <SocialLinks />
     </>
   )
 }

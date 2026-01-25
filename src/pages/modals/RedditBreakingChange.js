@@ -40,7 +40,6 @@ export const RedditBreakingChange = () => {
       <p style={{ textAlign: 'center', marginTop: '15px' }}>
         <NewWindowLink href={redditChangePostUrl}>What changed?</NewWindowLink>
       </p>
-      <SocialLinks />
     </>
   )
 }

@@ -200,6 +200,8 @@ export const headlines = ['ofh']
 const modals = Object.keys(media)
 
 export const newUserModal = props => {
+  // Disabled - users can access this content via news ribbon carousel instead
+  return
   if (
     window.location.hash === '#say' ||
     navigator.userAgent.includes('HeadlessChrome') ||

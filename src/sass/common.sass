@@ -287,9 +287,26 @@ code
     &:hover
       text-decoration: none
 
+// Sticky banner on desktop only
+@media only screen and (min-width: 701px)
+  .reddit-change-banner
+    position: sticky
+    top: 0
+    z-index: 100
+
+// Mobile: keep icon inline with text, let other items wrap
 @media only screen and (max-width: 700px)
   .reddit-change-banner
     .banner-content
-      flex-direction: column
+      flex-wrap: wrap
       align-items: flex-start
+    .banner-icon
+      flex-shrink: 0
+    .banner-text
+      flex: 1 1 0
+      min-width: 200px
+    .banner-link
+      flex-basis: 100%
+      margin-left: 0
+      margin-top: 5px
 

@@ -18,6 +18,7 @@ import {
   CoupSaveAmerica,
 } from 'pages/modals/Misc'
 import { RedditBreakingChange } from 'pages/modals/RedditBreakingChange'
+import { NewsCarousel } from 'components/NewsCarousel'
 import { ModalProvider } from 'contexts/modal'
 import { SocialLinks } from 'components/Misc'
 import { RedditChangeBanner } from 'components/RedditChangeBanner'
@@ -88,8 +89,8 @@ const getContentForHash = hash => {
           <SocialLinks />
         </>
       )
-    // TODO: add scroller to show all news
-    case 'news_ribbon': // news ribbon should show latest content
+    case 'news_ribbon':
+      return <NewsCarousel />
     case 'csa':
       return (
         <>
