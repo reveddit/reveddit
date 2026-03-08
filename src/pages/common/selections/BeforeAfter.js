@@ -1,15 +1,13 @@
-import React, { useState, useEffect, useRef, useLayoutEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Selection } from './SelectionBase'
 import {
   SimpleURLSearchParams,
   unitInSeconds,
-  parseDateISOString,
   convertToEpoch,
   DATE_UNIT,
   parseNumberAndUnit,
 } from 'utils'
 import { updateURL } from 'state'
-import DayPickerInput from 'react-day-picker/DayPickerInput'
 import { useIsMobile } from 'hooks/mobile'
 import { usePrevious } from 'hooks/previous'
 
@@ -42,50 +40,7 @@ const inputLooksLikeDate = s => s.match(DATE_UNIT) || s.match(/[./]/)
 const pxPerChar = 8.875
 const defaultNumChars = 8
 const defaultPxWidth = pxPerChar * defaultNumChars
-// from https://itnext.io/reusing-the-ref-from-forwardref-with-react-hooks-4ce9df693dd
-function useCombinedRefs(ref) {
-  const targetRef = useRef()
-  useEffect(() => {
-    if (!ref) return
 
-    if (typeof ref === 'function') {
-      ref(targetRef.current)
-    } else {
-      ref.current = targetRef.current
-    }
-  }, [ref])
-
-  return targetRef
-}
-
-const CustomOverlay = React.forwardRef(
-  ({ classNames, selectedDay, children, ...props }, ref) => {
-    const combinedRef = useCombinedRefs(ref)
-    const [marginLeft, setMarginLeft] = useState(0)
-    useLayoutEffect(() => {
-      const rect = combinedRef.current.getBoundingClientRect()
-      const widthOfRightNotVisible =
-        rect.right - document.documentElement.clientWidth
-      if (
-        widthOfRightNotVisible > 0 &&
-        rect.left - widthOfRightNotVisible > 0
-      ) {
-        setMarginLeft(-widthOfRightNotVisible)
-      }
-    }, [ref])
-    return (
-      <div className={classNames.overlayWrapper} {...props}>
-        <div
-          className={classNames.overlay}
-          ref={combinedRef}
-          style={{ marginLeft }}
-        >
-          {children}
-        </div>
-      </div>
-    )
-  }
-)
 
 const zpad_time = t => ('0' + t).slice(-2)
 
@@ -143,7 +98,6 @@ const BeforeAfter = ({ before_or_after, ...selectionProps }) => {
   const prevMeta = usePrevious(meta)
   const dayPickerRef = useRef(null)
   const agoInputRef = useRef(null)
-  const overlayRef = useRef(null)
   const isMobile = useIsMobile()
   const reset = () => {
     queryParams.delete(B)
@@ -189,9 +143,9 @@ const BeforeAfter = ({ before_or_after, ...selectionProps }) => {
   }
   useEffect(() => {
     if (prevMeta && prevMeta.unit !== DATE_UNIT && meta.unit === DATE_UNIT) {
-      dayPickerRef.current.input.focus()
+      if (dayPickerRef.current) dayPickerRef.current.focus()
     } else if (meta.unit in unitInSeconds || meta.unit === '') {
-      agoInputRef.current.focus()
+      if (agoInputRef.current) agoInputRef.current.focus()
     }
   }, [meta.number, meta.unit])
   return (
@@ -232,11 +186,12 @@ const BeforeAfter = ({ before_or_after, ...selectionProps }) => {
             {...sharedInputProps}
           />
         ) : (
-          <DayPickerInput
-            value={meta.number}
+          <input
+            type="date"
             ref={dayPickerRef}
-            onDayChange={(day, modifiers, dayPickerInput) => {
-              const value = dayPickerInput.getInput().value
+            value={meta.number}
+            onChange={e => {
+              const value = e.target.value
               let [number, unit] = parseNumberAndUnit(value)
               if (!unit) {
                 number = value
@@ -244,19 +199,16 @@ const BeforeAfter = ({ before_or_after, ...selectionProps }) => {
               if (inputLooksLikeDate(value)) {
                 unit = DATE_UNIT
               }
-              if (before_or_after && parseInt(number) > 0) {
+              if (before_or_after && value && value.length === 10) {
+                // If it's a full valid date string YYYY-MM-DD
                 updateURL(getQueryParamsFromNumberAndUnit(number, unit))
               }
               setMeta({ ...meta, number, ...(unit && { unit }) })
             }}
-            overlayComponent={props => (
-              <CustomOverlay {...props} ref={overlayRef} />
-            )}
-            parseDate={parseDateISOString}
-            inputProps={{
-              ...sharedInputProps,
-              readOnly: isMobile,
-              placeholder: 'Y-m-d',
+            {...sharedInputProps}
+            style={{
+              ...sharedInputProps.style,
+              width: isMobile ? '130px' : '120px', // date inputs need a fixed width since they don't scale by char cleanly
             }}
           />
         )}

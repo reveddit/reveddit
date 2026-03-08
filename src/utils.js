@@ -6,7 +6,7 @@ import {
 } from 'pages/common/RemovedBy'
 import scrollToElement from 'scroll-to-element'
 import { useRef, useEffect } from 'react'
-import { DateUtils } from 'react-day-picker'
+
 import { NewWindowLink } from 'components/Misc'
 
 export const CLIENT_ID_SET_BY_USER_VAR_NAME = 'REVEDDIT_USER_CUSTOM_CLIENT_ID'
@@ -718,7 +718,7 @@ export const parseDateISOString = s => {
     ds[1] = ds[1] - 1 // adjust month
   }
   const date = new Date(...ds)
-  if (DateUtils.isDate(date)) {
+  if (!isNaN(date.valueOf())) {
     return date
   }
   return undefined

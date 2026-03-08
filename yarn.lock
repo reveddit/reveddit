@@ -9077,7 +9077,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"loose-envify@npm:^1.0.0, loose-envify@npm:^1.1.0, loose-envify@npm:^1.4.0":
+"loose-envify@npm:^1.0.0, loose-envify@npm:^1.4.0":
   version: 1.4.0
   resolution: "loose-envify@npm:1.4.0"
   dependencies:
@@ -10781,7 +10781,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prop-types@npm:^15.6.2, prop-types@npm:^15.7.2":
+"prop-types@npm:^15.7.2":
   version: 15.8.1
   resolution: "prop-types@npm:15.8.1"
   dependencies:
@@ -10970,26 +10970,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-day-picker@npm:^7.4.8":
-  version: 7.4.10
-  resolution: "react-day-picker@npm:7.4.10"
+"react-dom@npm:^19.0.0":
+  version: 19.2.4
+  resolution: "react-dom@npm:19.2.4"
   dependencies:
-    prop-types: "npm:^15.6.2"
+    scheduler: "npm:^0.27.0"
   peerDependencies:
-    react: ~0.13.x || ~0.14.x || ^15.0.0 || ^16.0.0 || ^17.0.0
-  checksum: 9b0bf2271a472b9686954bacb2bc6bbd45d8db93301f7f4c9ec242094a64a84d909a6354e5a286f97702817b3058a040c6b81837fbf0f71fcb3cea4912e9e021
-  languageName: node
-  linkType: hard
-
-"react-dom@npm:^18.3.1":
-  version: 18.3.1
-  resolution: "react-dom@npm:18.3.1"
-  dependencies:
-    loose-envify: "npm:^1.1.0"
-    scheduler: "npm:^0.23.2"
-  peerDependencies:
-    react: ^18.3.1
-  checksum: 2a10ad270423ce71a9f45442e37b26c8fda8d4527f972cac322972da380ab12c9cf47382751753f552f63e50126cc73b6257b7c40ed236d04beb72ff4d3dbabd
+    react: ^19.2.4
+  checksum: a65e36836009dfc1b964a75c26ed655626dcd75b09ce0d04629f2ec535478aeda7ef9c6f2d43b531d1e61b23d2e6e5694484366d5f903082d052a0ddc1aa34bb
   languageName: node
   linkType: hard
 
@@ -11015,17 +11003,17 @@ __metadata:
   linkType: hard
 
 "react-modal@npm:^3.8.2":
-  version: 3.16.1
-  resolution: "react-modal@npm:3.16.1"
+  version: 3.16.3
+  resolution: "react-modal@npm:3.16.3"
   dependencies:
     exenv: "npm:^1.2.0"
     prop-types: "npm:^15.7.2"
     react-lifecycles-compat: "npm:^3.0.0"
     warning: "npm:^4.0.3"
   peerDependencies:
-    react: ^0.14.0 || ^15.0.0 || ^16 || ^17 || ^18
-    react-dom: ^0.14.0 || ^15.0.0 || ^16 || ^17 || ^18
-  checksum: 0b5d2e2292fee26876d05ad01df953465c472dd8f2cd346644a7f2b552e266b26d9e629026ab0b0fd14c96e3c38d36290ddd97c30b0a0682a88f92404ce1027b
+    react: ^0.14.0 || ^15.0.0 || ^16 || ^17 || ^18 || ^19
+    react-dom: ^0.14.0 || ^15.0.0 || ^16 || ^17 || ^18 || ^19
+  checksum: b1f050691b8e502c28946c2fbd6dd2b7a40f7657902fae398b7f362f6c06cac14f34646c0cfbe72c6a7cbbd3dc0043ed577448a2d7c474f1dce4e069e9b97c53
   languageName: node
   linkType: hard
 
@@ -11053,12 +11041,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react@npm:^18.3.1":
-  version: 18.3.1
-  resolution: "react@npm:18.3.1"
-  dependencies:
-    loose-envify: "npm:^1.1.0"
-  checksum: 43339c7c92c16781013f310249d9058a9ff2bebb0d8e98fb563ee0cd78962e02a82ad51e2e02dbb1fb08b5af064da0972de1fa3dc30f12661e95551886429ec2
+"react@npm:^19.0.0":
+  version: 19.2.4
+  resolution: "react@npm:19.2.4"
+  checksum: 8c7b7b41592b3fafb62ba90c7956e033928bef8e5a3fa36235687617a782298e1e4c3cf88eb8a363d7648e4e08bb7197d331e5681e24d5c3f0ea6728bae18200
   languageName: node
   linkType: hard
 
@@ -11618,9 +11604,8 @@ __metadata:
     lodash-webpack-plugin: "npm:^0.11.6"
     netlify-lambda: "npm:^1.4.13"
     prettier: "npm:^3.7.4"
-    react: "npm:^18.3.1"
-    react-day-picker: "npm:^7.4.8"
-    react-dom: "npm:^18.3.1"
+    react: "npm:^19.0.0"
+    react-dom: "npm:^19.0.0"
     react-modal: "npm:^3.8.2"
     react-router-dom: "npm:^6.28.0"
     sass: "npm:^1.69.7"
@@ -11816,12 +11801,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"scheduler@npm:^0.23.2":
-  version: 0.23.2
-  resolution: "scheduler@npm:0.23.2"
-  dependencies:
-    loose-envify: "npm:^1.1.0"
-  checksum: b52515f8fd8f0962747491d3d532d174fff609959a57ce91a82e3393fa8a53e92bb892a673fc86df349659a567ee346ee2717bb25c9d4d0db437ef39c6b3067d
+"scheduler@npm:^0.27.0":
+  version: 0.27.0
+  resolution: "scheduler@npm:0.27.0"
+  checksum: c383b206a2ce7eb0d7a4d0303626d0084da1d66b3199a7f231321e5e2195199727748c4ac2c8429e905cdd1b16ee782873e02da6204608ab26ed6051ab52c433
   languageName: node
   linkType: hard
 
