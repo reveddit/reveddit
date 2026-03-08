@@ -133,7 +133,7 @@ export const getRevdditUserItems = async (
   global,
   isFirstTimeLoading = true
 ) => {
-  const gs = global.state
+  const gs = global.getState()
   let { sort, before, after, t, limit, all } = gs
   if (all) {
     limit = 100
@@ -189,7 +189,7 @@ export const getRevdditUserItems = async (
     ...params_post_after
   ).then(async pageLoad_or_loadAll_or_viewMore_userPageNext => {
     window.onscroll = ev => {
-      const { loading, userNext, show, error } = global.state
+      const { loading, userNext, show, error } = global.getState()
       if (
         userNext &&
         !loading &&
@@ -201,7 +201,6 @@ export const getRevdditUserItems = async (
         global.setLoading('').then(() => {
           getItems(...params_pre_after, userNext, ...params_post_after).then(
             () => {
-              const { userNext: updated_userNext, items } = global.state
               return global.setSuccess()
             }
           )
@@ -226,7 +225,7 @@ const getItems = async (
   limit,
   all = false
 ) => {
-  const gs = global.state
+  const gs = global.getState()
   const { commentParentsAndPosts, userCommentsByPost } = gs
   let { oldestTimestamp, newestTimestamp } = gs
   let quarantined_subreddits

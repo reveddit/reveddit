@@ -774,6 +774,8 @@ const useGlobalStore = create((set, getStore) => {
       return false
     },
 
+    getState: () => getStore().state,
+
     returnError: async (stateObj = {}) => [false, stateObj],
     returnSuccess: async (stateObj = {}) => [true, stateObj],
 
