@@ -1,5 +1,6 @@
 import React from 'react'
-import { Link, withRouter } from 'react-router-dom'
+import { Link } from 'react-router-dom'
+import { withRouter } from 'routerCompat'
 import { connect } from 'state'
 import { Shuffle, TwitterWhite } from 'pages/common/svg'
 

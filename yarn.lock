@@ -2345,15 +2345,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime@npm:^7.12.13":
-  version: 7.22.15
-  resolution: "@babel/runtime@npm:7.22.15"
-  dependencies:
-    regenerator-runtime: "npm:^0.14.0"
-  checksum: 9aef8be6d0d25451450475cc7f46f6de6a4b79d61928a2e8451d5c93edf98e0c068911c638647101f1f8693b444f596d8adcbfc4442fe5d5376869b64d532a37
-  languageName: node
-  linkType: hard
-
 "@babel/runtime@npm:^7.20.7":
   version: 7.20.7
   resolution: "@babel/runtime@npm:7.20.7"
@@ -2603,6 +2594,13 @@ __metadata:
     mkdirp: "npm:^1.0.4"
     rimraf: "npm:^3.0.2"
   checksum: 6fdcd5e51041da8d3d84f6ba89ff290900bf3adb736816c4b441b1fc8a41045db7253860c54a4ccdeb0e84e1c9548551bfb893f7392423de752a016a2a16952a
+  languageName: node
+  linkType: hard
+
+"@remix-run/router@npm:1.23.2":
+  version: 1.23.2
+  resolution: "@remix-run/router@npm:1.23.2"
+  checksum: 670cb3c932836353a41c721ce629a1b9b91fa15da1ba4b7d3d0cdacbe0b0a89bb46c69ca6e85933accd41052d0e125289873949445bff219227d1958ecdbfe44
   languageName: node
   linkType: hard
 
@@ -7955,7 +7953,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"history@npm:^4.7.2, history@npm:^4.9.0":
+"history@npm:^4.7.2":
   version: 4.10.1
   resolution: "history@npm:4.10.1"
   dependencies:
@@ -7977,15 +7975,6 @@ __metadata:
     minimalistic-assert: "npm:^1.0.0"
     minimalistic-crypto-utils: "npm:^1.0.1"
   checksum: 4e88d58ffc03e027990bbc31c0aa7b90dc4d2b3642ac3a8f3b71e3c43eb03416179ac601f36417312f0375cc382a9e39d80ade1ae239aff188701162bc84226d
-  languageName: node
-  linkType: hard
-
-"hoist-non-react-statics@npm:^3.1.0":
-  version: 3.3.2
-  resolution: "hoist-non-react-statics@npm:3.3.2"
-  dependencies:
-    react-is: "npm:^16.7.0"
-  checksum: fb03b1e426696928dfbae467baf12bdf123fccb051d92fd677c4f290d43dea52ebe7a555c3afc6f3babc657961df2ab50a70bb13739be72904f893598b98b8d7
   languageName: node
   linkType: hard
 
@@ -9026,13 +9015,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"isarray@npm:0.0.1":
-  version: 0.0.1
-  resolution: "isarray@npm:0.0.1"
-  checksum: 70b0db8fefa7d6552381a70ebd28e98abfa27f65077c019323741342014a6dfd0055cab5a341388c9fdd8a890273040fcbe01929ff77b89deae94317dd2679d1
-  languageName: node
-  linkType: hard
-
 "isarray@npm:1.0.0, isarray@npm:^1.0.0, isarray@npm:~1.0.0":
   version: 1.0.0
   resolution: "isarray@npm:1.0.0"
@@ -9527,7 +9509,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"loose-envify@npm:^1.0.0, loose-envify@npm:^1.1.0, loose-envify@npm:^1.2.0, loose-envify@npm:^1.3.1, loose-envify@npm:^1.4.0":
+"loose-envify@npm:^1.0.0, loose-envify@npm:^1.1.0, loose-envify@npm:^1.2.0, loose-envify@npm:^1.4.0":
   version: 1.4.0
   resolution: "loose-envify@npm:1.4.0"
   dependencies:
@@ -11033,15 +11015,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"path-to-regexp@npm:^1.7.0":
-  version: 1.8.0
-  resolution: "path-to-regexp@npm:1.8.0"
-  dependencies:
-    isarray: "npm:0.0.1"
-  checksum: cc75de7eced6c15d645e24de4751bfe51d61e9b5098f404cd799a7abdc21cf29b1a4559a31c08e19c4c2de3c2c7374415c2cbc7a66452e643151331f4c558d4a
-  languageName: node
-  linkType: hard
-
 "path-type@npm:^2.0.0":
   version: 2.0.0
   resolution: "path-type@npm:2.0.0"
@@ -11636,21 +11609,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-dom@npm:16.14":
-  version: 16.14.0
-  resolution: "react-dom@npm:16.14.0"
+"react-dom@npm:^18.3.1":
+  version: 18.3.1
+  resolution: "react-dom@npm:18.3.1"
   dependencies:
     loose-envify: "npm:^1.1.0"
-    object-assign: "npm:^4.1.1"
-    prop-types: "npm:^15.6.2"
-    scheduler: "npm:^0.19.1"
+    scheduler: "npm:^0.23.2"
   peerDependencies:
-    react: ^16.14.0
-  checksum: 08b4551b6d6b3563800b8498caa6458f409c16f6ce4784bb590c9990b224ee410edcf43644c3cb563704d2c508e457a1c5ebe40d2dea403d362951be5d64f930
+    react: ^18.3.1
+  checksum: 2a10ad270423ce71a9f45442e37b26c8fda8d4527f972cac322972da380ab12c9cf47382751753f552f63e50126cc73b6257b7c40ed236d04beb72ff4d3dbabd
   languageName: node
   linkType: hard
 
-"react-is@npm:^16.13.1, react-is@npm:^16.6.0, react-is@npm:^16.7.0":
+"react-is@npm:^16.13.1":
   version: 16.13.1
   resolution: "react-is@npm:16.13.1"
   checksum: 0c9adc5d984db733fb1dd298f3e94cdec66bc328d27fb11df65971d2cc9a299008bc64baab8fe8e79943df85b445a1008b2cc9e270825d0fd056e5a0d2df8de6
@@ -11686,39 +11657,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-router-dom@npm:^5.1.2":
-  version: 5.3.4
-  resolution: "react-router-dom@npm:5.3.4"
+"react-router-dom@npm:^6.28.0":
+  version: 6.30.3
+  resolution: "react-router-dom@npm:6.30.3"
   dependencies:
-    "@babel/runtime": "npm:^7.12.13"
-    history: "npm:^4.9.0"
-    loose-envify: "npm:^1.3.1"
-    prop-types: "npm:^15.6.2"
-    react-router: "npm:5.3.4"
-    tiny-invariant: "npm:^1.0.2"
-    tiny-warning: "npm:^1.0.0"
+    "@remix-run/router": "npm:1.23.2"
+    react-router: "npm:6.30.3"
   peerDependencies:
-    react: ">=15"
-  checksum: 882edb9d16b966639bd9f5f851a81d74da9bbdc50e7a19cda0cd2b167dd7de0c9af01d90f7a4162917643245fb532779cee7a92957ab63aae55fd9f10c754cdb
+    react: ">=16.8"
+    react-dom: ">=16.8"
+  checksum: 2a3c7bffcbf4ba7a7e645fd85709cb574716e4f2f408f043e56fe674385873f9eccf85d1a01cb894af1daaf64e1ca8159e9677800eadc0f45710673d8bf889d2
   languageName: node
   linkType: hard
 
-"react-router@npm:5.3.4, react-router@npm:^5.1.2":
-  version: 5.3.4
-  resolution: "react-router@npm:5.3.4"
+"react-router@npm:6.30.3":
+  version: 6.30.3
+  resolution: "react-router@npm:6.30.3"
   dependencies:
-    "@babel/runtime": "npm:^7.12.13"
-    history: "npm:^4.9.0"
-    hoist-non-react-statics: "npm:^3.1.0"
-    loose-envify: "npm:^1.3.1"
-    path-to-regexp: "npm:^1.7.0"
-    prop-types: "npm:^15.6.2"
-    react-is: "npm:^16.6.0"
-    tiny-invariant: "npm:^1.0.2"
-    tiny-warning: "npm:^1.0.0"
+    "@remix-run/router": "npm:1.23.2"
   peerDependencies:
-    react: ">=15"
-  checksum: 30f48a6f2d21988ef2a6dcd2a743b581d1080c351e0e81d42b3b3546bf39ddc5d8fe933a93204dfd95e13173fcc44eaf7281f6ef71aa61774e93c7a630b66982
+    react: ">=16.8"
+  checksum: e21efd7153bcafc9c8c28627fa5b0660758cb739b3ea03bc962c7d4ef1f8616d4b2d203ef2c23d7adb7274fd99ca2021a060cdd960e1d4765b449728b24bcf6b
   languageName: node
   linkType: hard
 
@@ -11742,14 +11701,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react@npm:16.14":
-  version: 16.14.0
-  resolution: "react@npm:16.14.0"
+"react@npm:^18.3.1":
+  version: 18.3.1
+  resolution: "react@npm:18.3.1"
   dependencies:
     loose-envify: "npm:^1.1.0"
-    object-assign: "npm:^4.1.1"
-    prop-types: "npm:^15.6.2"
-  checksum: 788a39b1997501aa7d6501a3bd4a85ddd704b9e9555199974853542564a663c03bbf58351cbf7fa11034c9cd65d578f77ef32c67d7e4a140a0181ab51a770187
+  checksum: 43339c7c92c16781013f310249d9058a9ff2bebb0d8e98fb563ee0cd78962e02a82ad51e2e02dbb1fb08b5af064da0972de1fa3dc30f12661e95551886429ec2
   languageName: node
   linkType: hard
 
@@ -11927,13 +11884,6 @@ __metadata:
   version: 0.13.5
   resolution: "regenerator-runtime@npm:0.13.5"
   checksum: 0e4104fc34b96f5d71b6e6126c89d581e04fa73042949d96a5e9f2917b082d4dd6717b005085f97ae8fffe9eab5af1d4298c5429387354815db2f6f281237d51
-  languageName: node
-  linkType: hard
-
-"regenerator-runtime@npm:^0.14.0":
-  version: 0.14.0
-  resolution: "regenerator-runtime@npm:0.14.0"
-  checksum: 7e3bbf049c59c5fe9091baff243fef420197f186a9d3325b747bc480aed3d48ad6d89f23c135142885cbc9bb390cacbb0e8620d2f4564f1db8819f318dc7a155
   languageName: node
   linkType: hard
 
@@ -12340,12 +12290,11 @@ __metadata:
     lodash-webpack-plugin: "npm:^0.11.6"
     netlify-lambda: "npm:^1.4.13"
     prettier: "npm:^3.7.4"
-    react: "npm:16.14"
+    react: "npm:^18.3.1"
     react-day-picker: "npm:^7.4.8"
-    react-dom: "npm:16.14"
+    react-dom: "npm:^18.3.1"
     react-modal: "npm:^3.8.2"
-    react-router: "npm:^5.1.2"
-    react-router-dom: "npm:^5.1.2"
+    react-router-dom: "npm:^6.28.0"
     react-snap: "npm:^1.23.0"
     sass: "npm:^1.69.7"
     scroll-to-element: "npm:^2.0.2"
@@ -12551,13 +12500,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"scheduler@npm:^0.19.1":
-  version: 0.19.1
-  resolution: "scheduler@npm:0.19.1"
+"scheduler@npm:^0.23.2":
+  version: 0.23.2
+  resolution: "scheduler@npm:0.23.2"
   dependencies:
     loose-envify: "npm:^1.1.0"
-    object-assign: "npm:^4.1.1"
-  checksum: e6d3488ad5b3012c7cadfd95625ad68c00730066781df46eb460ef35fd290594754992ecda68f894a0d7a1ce2d396d5fecdd7644b57aad19302359ff31b44cb9
+  checksum: b52515f8fd8f0962747491d3d532d174fff609959a57ce91a82e3393fa8a53e92bb892a673fc86df349659a567ee346ee2717bb25c9d4d0db437ef39c6b3067d
   languageName: node
   linkType: hard
 

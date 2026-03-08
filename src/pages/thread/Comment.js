@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Link, withRouter } from 'react-router-dom'
+import { Link } from 'react-router-dom'
+import { withRouter } from 'routerCompat'
 import {
   prettyScore,
   SimpleURLSearchParams,

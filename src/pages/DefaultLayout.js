@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Route } from 'react-router-dom'
+import { useParams, useLocation, useNavigate } from 'react-router-dom'
 import Modal from 'react-modal'
 import { connect } from 'state'
 import Header from 'pages/common/Header'
@@ -129,6 +129,16 @@ const setHashInURL = hash => {
 const existingHash = () => window.location.hash.replace('#', '')
 
 const DefaultLayout = props => {
+  const params = useParams()
+  const location = useLocation()
+  const navigate = useNavigate()
+  const match = { params }
+  const history = {
+    push: (to, state) => navigate(to, { state }),
+    replace: (to, state) => navigate(to, { replace: true, state }),
+  }
+  const routeProps = { match, location, history }
+
   const [layoutState, setLayoutState] = useState({
     genericModalIsOpen: false,
     content: '',
@@ -151,7 +161,7 @@ const DefaultLayout = props => {
     const newSearch = window.location.search.replace(/amp;/g, '')
     if (window.location.search !== newSearch) {
       const url = newSearch + window.location.hash
-      history.replaceState({}, '', url)
+      window.history.replaceState({}, '', url)
     }
     if (props.title) {
       document.title = props.title
@@ -195,59 +205,52 @@ const DefaultLayout = props => {
   }
 
   return (
-    <Route
-      {...rest}
-      render={matchProps => {
-        return (
-          <React.Fragment>
-            <RedditChangeBanner />
-            <Header
-              {...matchProps}
-              {...rest}
-              openGenericModal={openGenericModal}
-            />
-            <div className={'main page_' + page_type + ' ' + threadClass}>
-              <Modal
-                isOpen={genericModalIsOpen}
-                onRequestClose={closeGenericModal}
-                style={customStyles}
-              >
-                <div id="modalContainer">
-                  <div id="genericModal" className={hash}>
-                    <div className="dismiss">
-                      <a className="pointer" onClick={closeGenericModal}>
-                        ✖&#xfe0e;
-                      </a>
-                    </div>
-                    <ModalProvider
-                      value={{
-                        closeModal: closeGenericModal,
-                        openModal: openGenericModal,
-                      }}
-                    >
-                      {hash ? getContentForHash(hash) : content}
-                    </ModalProvider>
-                  </div>
-                </div>
-              </Modal>
+    <React.Fragment>
+      <RedditChangeBanner />
+      <Header
+        {...routeProps}
+        {...rest}
+        openGenericModal={openGenericModal}
+      />
+      <div className={'main page_' + page_type + ' ' + threadClass}>
+        <Modal
+          isOpen={genericModalIsOpen}
+          onRequestClose={closeGenericModal}
+          style={customStyles}
+        >
+          <div id="modalContainer">
+            <div id="genericModal" className={hash}>
+              <div className="dismiss">
+                <a className="pointer" onClick={closeGenericModal}>
+                  ✖&#xfe0e;
+                </a>
+              </div>
               <ModalProvider
                 value={{
-                  openModal: openGenericModal,
                   closeModal: closeGenericModal,
+                  openModal: openGenericModal,
                 }}
               >
-                <Component
-                  {...matchProps}
-                  {...rest}
-                  openGenericModal={openGenericModal}
-                />
+                {hash ? getContentForHash(hash) : content}
               </ModalProvider>
-              <SocialLinks />
             </div>
-          </React.Fragment>
-        )
-      }}
-    />
+          </div>
+        </Modal>
+        <ModalProvider
+          value={{
+            openModal: openGenericModal,
+            closeModal: closeGenericModal,
+          }}
+        >
+          <Component
+            {...routeProps}
+            {...rest}
+            openGenericModal={openGenericModal}
+          />
+        </ModalProvider>
+        <SocialLinks />
+      </div>
+    </React.Fragment>
   )
 }
 

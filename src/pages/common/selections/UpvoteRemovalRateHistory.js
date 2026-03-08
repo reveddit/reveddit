@@ -193,7 +193,7 @@ class Sparkline extends React.PureComponent {
       />
     ) : null
     return (
-      <svg width={width} height={height} ref="svg">
+      <svg width={width} height={height}>
         <path
           style={{ fill: 'none', strokeWidth: '2px', stroke: '#828282' }}
           d={this.line(data)}
