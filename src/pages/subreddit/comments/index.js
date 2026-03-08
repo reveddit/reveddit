@@ -1,6 +1,6 @@
 import React from 'react'
 import { connect } from 'state'
-import Comment from 'components/common/Comment'
+import Comment from 'components/comment/Comment'
 import { UserPageTip } from 'components/common/Notice'
 import { withFetch } from 'components/RevdditFetcher'
 import { getUrlWithTimestamp } from 'utils'

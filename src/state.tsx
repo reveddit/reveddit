@@ -11,6 +11,206 @@ import { limitCommentDepth_global } from 'components/modals/Settings'
 import { agg_defaults_for_page } from 'api/reveddit'
 import { pageTypes } from 'components/layout/DefaultLayout'
 import { UNKNOWN_REMOVED, USER_REMOVED } from 'components/common/RemovedBy'
+
+// ---------------------------------------------------------------------------
+// Type definitions for the global Zustand store
+// ---------------------------------------------------------------------------
+
+/** Values allowed for the removal status filter. */
+export type RemovedFilterType = 'all' | 'removed' | 'not_removed'
+
+/** Sort orders available in the local (client-side) sort dropdown. */
+export type LocalSortType =
+  | 'score'
+  | 'date'
+  | 'num_comments'
+  | 'controversiality'
+  | 'controversiality1'
+  | 'controversiality2'
+  | 'comment_length'
+  | 'num_crossposts'
+  | 'num_replies'
+  | 'subreddit_subscribers'
+  | 'date_observed'
+  | 'account_age'
+  | 'account_combined_karma'
+
+/** Shape of a single reddit item (post or comment) in the lookup map. */
+export interface RedditItem {
+  id: string
+  name: string
+  author: string
+  created_utc: number
+  score: number
+  [key: string]: any
+}
+
+/** Shape of the store's nested `state` object. */
+export interface GlobalState {
+  n: number
+  before: string
+  before_id: string
+  keywords: string
+  post_flair: string
+  user_flair: string
+  filter_url: string
+  thread_before: string
+  items: RedditItem[]
+  threadPost: Record<string, any>
+  num_pages: number
+  userNext: string | null
+  removedFilter: RemovedFilterType
+  removedByFilter: Record<string, boolean>
+  exclude_action: boolean
+  exclude_tag: boolean
+  tagsFilter: Record<string, boolean>
+  categoryFilter_subreddit: string
+  categoryFilter_domain: string
+  categoryFilter_link_title: string
+  categoryFilter_author: string
+  localSort: LocalSortType | string
+  localSortReverse: boolean
+  sort: string
+  sort_type: string
+  showContext: boolean
+  statusText: string
+  statusImage: string | undefined
+  loading: boolean
+  error: boolean
+  userIssueDescription: string
+  id: string
+  context: string
+  frontPage: boolean
+  q: string
+  author: string
+  subreddit: string
+  after: string
+  domain: string
+  or_domain: string
+  title: string
+  selftext: string
+  ps_after: string
+  content: string
+  url: string
+  over18: boolean | undefined
+  quarantined: boolean | undefined
+  selfposts: boolean
+  itemsLookup: Record<string, RedditItem>
+  commentTree: any[]
+  itemsSortedByDate: RedditItem[]
+  initialFocusCommentID: string
+  commentParentsAndPosts: Record<string, any>
+  userCommentsByPost: Record<string, any[]>
+  limitCommentDepth: boolean
+  moderators: Record<string, any>
+  moderated_subreddits: Record<string, any>
+  user_about: Record<string, any>
+  authors: Record<string, any>
+  author_fullnames: Record<string, any>
+  archiveTimes: any
+  add_user: string
+  alreadySearchedAuthors: Record<string, boolean>
+  all: boolean
+  oldestTimestamp: number | undefined
+  newestTimestamp: number | undefined
+  stickied: boolean | undefined
+  distinguished: string | undefined
+  rate_less: number | undefined
+  rate_more: number | undefined
+  rate_least: number | undefined
+  rate_most: number | undefined
+  agg_most_recent_created_utc: number | undefined
+  x_subreddit: string
+  quarantined_subreddits: string
+  [key: string]: any // allow min/max dynamic keys
+}
+
+/** Actions exposed by the Zustand store. */
+export interface GlobalActions {
+  state: GlobalState
+  setState: (partial: Partial<GlobalState>) => Promise<void>
+  setStateFromCurrentURL: (page_type: string) => Promise<void>
+  setStateFromQueryParams: (
+    page_type: string,
+    queryParams: any,
+    extraGlobalStateVars?: Record<string, any>
+  ) => Promise<void>
+  getStateFromQueryParams: (
+    page_type: string,
+    queryParams: any,
+    extraGlobalStateVars?: Record<string, any>
+  ) => Record<string, any>
+  setValuesForParam: (
+    param: string,
+    value: any,
+    stateVar: Record<string, any>,
+    page_type: string
+  ) => void
+  updateURLandState: (
+    queryParams: any,
+    page_type: string,
+    other?: Record<string, any>
+  ) => Promise<void>
+  selection_update: (
+    selection: string,
+    value: any,
+    page_type: string,
+    other?: Record<string, any>
+  ) => Promise<void>
+  updateURLFromGivenState: (
+    page_type: string,
+    stateObj: Record<string, any>
+  ) => void
+  context_update: (
+    context: number | string,
+    page_type: string,
+    history: any,
+    path_and_search?: string
+  ) => Promise<void>
+  categoryFilter_update: (
+    type: string,
+    value: string,
+    page_type: string
+  ) => Promise<void>
+  removedFilter_update: (
+    value: RemovedFilterType,
+    page_type: string
+  ) => Promise<void>
+  removedByFilter_update: (
+    target: { checked: boolean; value: string },
+    page_type: string
+  ) => Promise<void>
+  tagsFilter_update: (
+    target: { checked: boolean; value: string },
+    page_type: string
+  ) => Promise<void>
+  get_updated_ps_after: (
+    ps_after_entry: string,
+    ps_after?: string
+  ) => string
+  removedByFilterIsUnset: () => boolean
+  tagsFilterIsUnset: () => boolean
+  saveDefaults: (page_type: string) => void
+  resetDefaults: (page_type: string) => void
+  setQueryParamsFromSavedDefaults: (page_type: string) => void
+  resetFilters: (
+    page_type: string,
+    setObj?: Record<string, any>
+  ) => Promise<void>
+  accountFilterOrSortIsSet: () => boolean
+  accountMetaQueryParamIsSet: () => boolean
+  getState: () => GlobalState
+  returnError: (stateObj?: Record<string, any>) => Promise<[false, Record<string, any>]>
+  returnSuccess: (stateObj?: Record<string, any>) => Promise<[true, Record<string, any>]>
+  setSuccess: (other?: Partial<GlobalState>) => Promise<void>
+  setError: (other?: Partial<GlobalState>) => Promise<void>
+  setLoading: (text?: string, other?: Partial<GlobalState>) => Promise<void>
+  clearStatus: () => Promise<void>
+}
+
+/** Combined store type. */
+export type GlobalStore = GlobalActions
+
 const defaultFilters_str = 'defaultFilters'
 
 export const hasClickedRemovedUserCommentContext = () => {
@@ -159,9 +359,9 @@ export const urlParamKeys = {
 }
 
 export const removedFilter_types = {
-  all: 'all',
-  removed: 'removed',
-  not_removed: 'not_removed',
+  all: 'all' as const,
+  removed: 'removed' as const,
+  not_removed: 'not_removed' as const,
 }
 export const removedFilter_text = {
   all: 'all',
@@ -273,7 +473,7 @@ const siteDefaultsThatAddParamsToURL = {
   },
 }
 
-const initialState = {
+const initialState: GlobalState = {
   n: 300,
   before: '',
   before_id: '',
@@ -355,14 +555,14 @@ const initialState = {
 // pushshift max per call is now 100 (previously was 1000)
 const maxN = 2000
 
-export const create_qparams = path_and_search =>
+export const create_qparams = (path_and_search?: string) =>
   new SimpleURLSearchParams(
     path_and_search
       ? new URL(path_and_search, window.location.origin).search
       : window.location.search
   )
 
-export const create_qparams_and_adjust = (page_type, selection, value) => {
+export const create_qparams_and_adjust = (page_type: string, selection: string, value: any) => {
   const queryParams = create_qparams()
   adjust_qparams_for_selection(page_type, queryParams, selection, value)
   return queryParams
@@ -416,11 +616,11 @@ export const getPageType = page_type => {
     : page_type
 }
 
-const useGlobalStore = create((set, getStore) => {
+const useGlobalStore = create<GlobalStore>()((set, getStore) => {
   // Merges partial state into the nested state object, returns a Promise
   // to maintain compatibility with existing callers that do .then() / await.
-  const mergeState = obj => {
-    set(s => ({ state: { ...s.state, ...obj } }))
+  const mergeState = (obj: Partial<GlobalState>) => {
+    set((s: any) => ({ state: { ...s.state, ...obj } }))
     return Promise.resolve()
   }
 

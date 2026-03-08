@@ -1,16 +1,10 @@
 import React, { useState } from 'react'
 import {
-  prettyScore,
-  PATH_STR_USER,
-  PATH_STR_SUB,
   convertPathSub,
-  stripRedditLikeDomain,
 } from 'utils'
-import Time from 'components/common/Time'
 import RemovedBy, { QuarantinedLabel } from 'components/common/RemovedBy'
-import { ORPHANED } from 'components/common/RemovedBy'
-import CommentBody from 'components/common/CommentBody'
-import Author from 'components/common/Author'
+import CommentBody from 'components/comment/CommentBody'
+import CommentHead from 'components/comment/CommentHead'
 import {
   connect,
   hasClickedRemovedUserCommentContext,
@@ -19,8 +13,6 @@ import {
 import { AddUserParam } from 'data_processing/RestoreComment'
 import { MessageMods } from 'components/Misc'
 import { NewWindowLink } from 'components/Misc'
-import Flair from './Flair'
-import SubscribersCount from './SubscribersCount'
 
 const Comment = props => {
   const [displayBody, setDisplayBody] = useState(true)
@@ -121,7 +113,6 @@ const Comment = props => {
   if (post_removed_label) {
     post_parent_removed.push('link ' + post_removed_label)
   }
-  const rev_subreddit = PATH_STR_SUB + '/' + subreddit
   let rev_link_permalink = '',
     rev_link_permalink_with_add_user = ''
   if (link_permalink) {
@@ -139,67 +130,14 @@ const Comment = props => {
       data-fullname={name}
       data-created_utc={created_utc}
     >
-      <div className="comment-head">
-        <a
-          onClick={() => setDisplayBody(!displayBody)}
-          className="collapseToggle spaceRight"
-        >
-          {displayBody ? '[–]' : '[+]'}
-        </a>
-        <Flair
-          className="link-flair"
-          field="link_flair_text"
-          globalVarName="post_flair"
-          {...props}
-        />
-        <a
-          href={url ? stripRedditLikeDomain(url) : rev_link_permalink}
-          className="title"
-        >
-          {link_title}
-        </a>
-        {'link_author' in props && (
-          <>
-            <span> by </span>
-            <a href={`${PATH_STR_USER}/${link_author}`} className="author">
-              {link_author}
-            </a>
-          </>
-        )}
-        {'subreddit' in props && (
-          <>
-            <span> in </span>
-            <a
-              href={rev_subreddit + '/'}
-              className="subreddit-link subreddit"
-              data-subreddit={subreddit}
-            >
-              {`/r/${subreddit}`}
-            </a>{' '}
-            <SubscribersCount {...props} />
-          </>
-        )}
-      </div>
-      <div className="comment-head subhead">
-        <Author {...props} className="spaceRight" />
-        <span className="comment-score spaceRight">
-          {prettyScore(score)} point{score !== 1 && 's'}
-        </span>
-        <Time {...props} />
-        <div>
-          <RemovedBy
-            style={{ display: 'inline', marginRight: '5px' }}
-            {...props}
-          />
-          {post_parent_removed.length !== 0 && (
-            <RemovedBy
-              removedby={ORPHANED}
-              orphaned_label={post_parent_removed.join(', ')}
-              style={{ display: 'inline' }}
-            />
-          )}
-        </div>
-      </div>
+      <CommentHead
+        displayBody={displayBody}
+        setDisplayBody={setDisplayBody}
+        url={url}
+        rev_link_permalink={rev_link_permalink}
+        post_parent_removed={post_parent_removed}
+        {...props}
+      />
       <div
         className="comment-body-and-links"
         style={displayBody ? {} : { display: 'none' }}

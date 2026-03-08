@@ -48,6 +48,7 @@
     "prettier": "^3.7.4",
     "sass": "^1.69.7",
     "scroll-to-element": "^2.0.2",
+    "typescript": "^5.9.3",
     "vite": "^6.0.0",
     "vite-plugin-pwa": "^0.21.0"
   },

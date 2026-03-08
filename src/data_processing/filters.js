@@ -16,7 +16,7 @@ import {
   QUARANTINE,
   MOD,
   ADMIN,
-} from 'components/common/selections/TagsFilter'
+} from 'components/filters/TagsFilter'
 import {
   itemIsCollapsed,
   commentIsOrphaned,

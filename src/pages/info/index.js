@@ -1,7 +1,7 @@
 import React from 'react'
 import { connect, localSort_types } from 'state'
 import Post from 'components/common/Post'
-import Comment from 'components/common/Comment'
+import Comment from 'components/comment/Comment'
 import { withFetch } from 'components/RevdditFetcher'
 import { reversible } from 'utils'
 import Highlight from 'components/common/Highlight'

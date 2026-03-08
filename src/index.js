@@ -22,6 +22,20 @@ import { urlParamKeys_textFilters } from 'state'
 import { ExtensionRedirect } from 'components/Misc'
 import { old_reddit } from 'api/reddit'
 
+// Skeleton placeholder shown while lazy route chunks load.
+// Uses the .skeleton shimmer CSS already defined in common.sass.
+const PageSkeleton = () => (
+  <div style={{ padding: '20px 24px' }}>
+    <div className="skeleton" style={{ width: '40%', height: 18, marginBottom: 16 }} />
+    <div className="skeleton" style={{ width: '100%', height: 14, marginBottom: 10 }} />
+    <div className="skeleton" style={{ width: '90%', height: 14, marginBottom: 10 }} />
+    <div className="skeleton" style={{ width: '95%', height: 14, marginBottom: 10 }} />
+    <div className="skeleton" style={{ width: '60%', height: 14, marginBottom: 24 }} />
+    <div className="skeleton" style={{ width: '70%', height: 14, marginBottom: 10 }} />
+    <div className="skeleton" style={{ width: '85%', height: 14, marginBottom: 10 }} />
+  </div>
+)
+
 const PARAMKEYS_DONT_REMOVE_BACKSLASH = new Set(
   Object.values(urlParamKeys_textFilters)
 )
@@ -154,7 +168,7 @@ const App = () => (
   <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
     <URLNormalizer>
       <ErrorBoundary>
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<PageSkeleton />}>
           <Routes>
             <Route path="/about" element={<Navigate replace to="/" />} />
             <Route
@@ -421,11 +435,7 @@ const App = () => (
   </BrowserRouter>
 )
 
-// Clear any react-snap pre-rendered HTML before mounting.
-// react-snap pre-renders the "/" route into 200.html, which Netlify serves
-// for ALL routes as a SPA fallback. Hydrating that HTML on a different
-// route causes React 18 hydration errors (#418/#425/#423) and visual
-// bleed-through of the home page content.
+// Clear any stale content in the root element before mounting.
 const rootElement = document.getElementById('app')
 rootElement.textContent = ''
 createRoot(rootElement).render(<App />)

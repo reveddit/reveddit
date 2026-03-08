@@ -63,7 +63,7 @@ export default defineConfig(({ mode }) => {
         hooks: src('hooks'),
         pages: src('pages'),
         snuownd: src('snuownd.js'),
-        state: src('state.js'),
+        state: src('state.tsx'),
         svg: src('svg'),
         utils: src('utils.js'),
       },
@@ -83,15 +83,16 @@ export default defineConfig(({ mode }) => {
     // The project uses .js extension for JSX files (conventional for this codebase).
     // Vite's vite:esbuild plugin excludes .js files by default; override to include them
     // with the jsx loader so JSX syntax is handled correctly in production builds.
+    // .ts/.tsx files are included so they get processed during the TS migration.
     esbuild: {
-      loader: 'jsx',
-      include: /src\/.*\.js$/,
+      include: /src\/.*\.(js|jsx|ts|tsx)$/,
       exclude: /node_modules/,
+      loader: 'tsx',
     },
     optimizeDeps: {
       include: ['snuownd'],
       esbuildOptions: {
-        loader: { '.js': 'jsx' },
+        loader: { '.js': 'jsx', '.ts': 'ts', '.tsx': 'tsx' },
       },
     },
 

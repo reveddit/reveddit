@@ -19,8 +19,8 @@ import { MessageMods } from 'components/Misc'
 import { NewWindowLink } from 'components/Misc'
 import Flair from './Flair'
 import SubscribersCount from './SubscribersCount'
-import { getAddUserParamString } from './Comment'
-import { AuthorFocus } from 'pages/thread/Comment'
+import { getAddUserParamString } from 'components/comment/Comment'
+import { AuthorFocus } from 'components/thread/Comment'
 import { get_userPageSortAndTime } from 'data_processing/RestoreComment'
 
 const max_selftext_length = 100

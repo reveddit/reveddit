@@ -4,7 +4,7 @@ import { connect } from 'state'
 import Preview from 'components/common/Preview'
 import { getAggregationsPeriodURL } from 'api/reveddit'
 import { Notice } from 'components/common/Notice'
-import { urr_help } from 'components/common/selections/UpvoteRemovalRateHistory'
+import { urr_help } from 'components/filters/UpvoteRemovalRateHistory'
 import { QuestionMarkModal } from 'components/Misc'
 import Time from 'components/common/Time'
 

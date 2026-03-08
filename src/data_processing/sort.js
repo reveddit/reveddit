@@ -187,7 +187,7 @@ const page_type_map = {
   missing_comments: COMMENTS,
   search: ITEMS,
   info: ITEMS,
-  //thread: not included, thread sort is implemented in pages/thread/common.js
+  //thread: not included, thread sort is implemented in components/thread/common.js
 }
 
 export const wrappedSortFunctions = {

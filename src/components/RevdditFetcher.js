@@ -16,7 +16,7 @@ import {
   filterSelectedActions,
 } from 'data_processing/filters'
 import { getSortFn } from 'data_processing/sort'
-import Selections from 'components/common/selections'
+import Selections from 'components/filters'
 import SummaryAndPagination from 'components/common/SummaryAndPagination'
 import {
   showAccountInfo_global,

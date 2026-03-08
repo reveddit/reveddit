@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import Post from 'components/common/Post'
-import Comment from 'components/common/Comment'
+import Comment from 'components/comment/Comment'
 import LoadLink from './LoadLink'
 import { Notice, TipWithBackground } from 'components/common/Notice'
 import { connect } from 'state'

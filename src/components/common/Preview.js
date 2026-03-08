@@ -3,7 +3,7 @@ import Time from 'components/common/Time'
 import { prettyScore, roundToX, replaceAmpGTLT } from 'utils'
 import { NewWindowLink } from 'components/Misc'
 import { QuestionMarkModal, Help } from 'components/Misc'
-import { urr_help } from 'components/common/selections/UpvoteRemovalRateHistory'
+import { urr_help } from 'components/filters/UpvoteRemovalRateHistory'
 
 const COMMENTS = 'comments'
 const POSTS = 'posts'

@@ -8040,6 +8040,7 @@ __metadata:
     sass: "npm:^1.69.7"
     scroll-to-element: "npm:^2.0.2"
     stripe: "npm:^8.131.1"
+    typescript: "npm:^5.9.3"
     vite: "npm:^6.0.0"
     vite-plugin-pwa: "npm:^0.21.0"
     workbox-precaching: "npm:^6.0.2"
@@ -9258,6 +9259,26 @@ __metadata:
   version: 0.0.6
   resolution: "typedarray@npm:0.0.6"
   checksum: b0b2ee8d06d5827891346d2db9929fdbd2f719ef5b55afed90f5e48b36fc49df0f8280daf362a05b3d971972e13779011dd501b5a53bd36f938ae88f6b8552cb
+  languageName: node
+  linkType: hard
+
+"typescript@npm:^5.9.3":
+  version: 5.9.3
+  resolution: "typescript@npm:5.9.3"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: 723d00631b0f50b95ffa18cb6c85b2567212c0aadce2db8195a2fdc5bda5692da48131ffce1142fcba61c8ee7591da40bbf2a193bb0a37a941108258751b3dc3
+  languageName: node
+  linkType: hard
+
+"typescript@patch:typescript@npm%3A^5.9.3#optional!builtin<compat/typescript>":
+  version: 5.9.3
+  resolution: "typescript@patch:typescript@npm%3A5.9.3#optional!builtin<compat/typescript>::version=5.9.3&hash=701156"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: 6e279b2c6d7161119eece0e384fd6d93d2c79d1e02a6bf4c8ffc7a4ff0b31ee9ae9c212596892bbf8e3aab1353e39dbc33566001009b2123f7d45a2bd531ddfc
   languageName: node
   linkType: hard
 

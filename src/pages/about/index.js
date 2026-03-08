@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { connect } from 'state'
 import BlankUser from 'components/BlankUser'
-import Comment from 'components/common/Comment'
+import Comment from 'components/comment/Comment'
 import Time from 'components/common/Time'
 import { getWhatPeopleSay } from 'api/reveddit'
 import {
@@ -52,7 +52,7 @@ const filterDeletedComments = comments => {
   return result
 }
 
-// Process static data for initial render (used by react-snap prerendering)
+// Process static data for initial render
 const getInitialComments = () => {
   try {
     const { reddit, pushshift } = staticWhatPeopleSay
