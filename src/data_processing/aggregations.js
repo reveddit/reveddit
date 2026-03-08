@@ -11,7 +11,7 @@ export const getRevdditAggregations = async (subreddit, global) => {
     after,
     rate_less,
     rate_more,
-  } = global.state
+  } = global.getState()
   const subredditAbout = await getSubredditAbout(subreddit).catch(() => {
     return {}
   })

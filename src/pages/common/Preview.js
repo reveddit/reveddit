@@ -51,8 +51,10 @@ const Preview = ({
         {body_render}
         {periodUrl ?
           <div className='links'>
-            <a className='spaceRightLarge' href={link_path}>{link_text}</a>
-            <NewWindowLink className='spaceRightLarge' reddit={link_path}>reddit</NewWindowLink>
+            {(isPost || link_id) && <>
+              <a className='spaceRightLarge' href={link_path}>{link_text}</a>
+              <NewWindowLink className='spaceRightLarge' reddit={link_path}>reddit</NewWindowLink>
+            </>}
             <a href={periodUrl}>period</a> <QuestionMarkModal modalContent={{content: period_help}} wh='15' />
           </div>
           : null
