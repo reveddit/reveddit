@@ -42,7 +42,7 @@ function lookupAndSetRemovedBy(global) {
   const post_ids = []
   const comments_removedBy_undefined = []
   const posts_removedBy_undefined = []
-  const gs = global.state
+  const gs = global.getState()
   gs.items.forEach(item => {
     if (item.removedby === undefined && !item.unknown) {
       if (isComment(item)) {

@@ -148,8 +148,8 @@ export const getRevdditThreadItems = async (
   global,
   archive_times_promise
 ) => {
-  const { localSort, localSortReverse, ps_after } = global.state
-  let { quarantined } = global.state
+  const { localSort, localSortReverse, ps_after } = global.getState()
+  let { quarantined } = global.getState()
   let quarantined_subreddits
   if (quarantined) {
     useProxy = true
@@ -172,7 +172,7 @@ export const getRevdditThreadItems = async (
   let pushshift_remaining_promises = []
   const schedulePsAfter = async this_ps_after => {
     await archive_times_promise
-    const archiveTimes = global.state.archiveTimes
+    const archiveTimes = global.getState().archiveTimes
     pushshift_remaining_promises.push(
       pushshiftLimiter.schedule(() =>
         getPushshiftCommentsByThread({
@@ -321,7 +321,7 @@ export const getRevdditThreadItems = async (
         ]
         let root_comment_id
         await archive_times_promise
-        const archiveTimes = global.state.archiveTimes
+        const archiveTimes = global.getState().archiveTimes
         if (commentID) {
           root_comment_id = oldestComment.id
           const after = oldestComment.created_utc - 1
@@ -629,7 +629,7 @@ export const getRevdditThreadItems = async (
     early_combinedComments,
     false
   )
-  const { alreadySearchedAuthors } = global.state // should be empty on page load, getting in case that changes
+  const { alreadySearchedAuthors } = global.getState() // should be empty on page load, getting in case that changes
   // attempt to restore directly linked unarchived removed comment
   // if a directly linked comment is removed, auto-click the 'restore' button once.
   const restoreDirectlyLinkedUnarchivedRemovedComment = async (
@@ -828,7 +828,7 @@ export const getRevdditThreadItems = async (
   if (remaining_removed_comment_ids.length) {
     await archive_times_promise
     if (
-      global.state.archiveTimes?.beta_comment >
+      global.getState().archiveTimes?.beta_comment >
       oldestRemainingRemovedComment.created_utc
     ) {
       const remainingRemovedComments = await getArchivedCommentsByID(
@@ -918,7 +918,7 @@ export const insertParent = (child_id, global) => {
     threadPost,
     initialFocusCommentID,
     quarantined_subreddits,
-  } = global.state
+  } = global.getState()
   const child = itemsLookup[child_id]
   const [parent_kind, parent_id] = child.parent_id.split('_')
   const parent = itemsLookup[parent_id]

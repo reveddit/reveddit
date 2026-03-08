@@ -30,7 +30,7 @@ import {
 } from 'data_processing/posts'
 
 export const getRevdditItems = global => {
-  const gs = global.state
+  const gs = global.getState()
   const { quarantined_subreddits } = gs
   if (gs.url && gs.url.split('.').length > 1) {
     const url = decodeURI(gs.url)
@@ -159,8 +159,8 @@ export const getRevdditSearch = global => {
     distinguished,
     sort_type,
     s_user_flair,
-  } = global.state
-  let { author, subreddit } = global.state
+  } = global.getState()
+  let { author, subreddit } = global.getState()
   const promises = []
   const [notAuthors, authors] = separateNotsFromIncludes(author)
   const [notSubreddits, subreddits] = separateNotsFromIncludes(subreddit)

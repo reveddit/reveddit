@@ -276,7 +276,7 @@ const reduceDomain = (map, e) => {
 }
 
 export const getRevdditPostsByDomain = async (domain, global) => {
-  const { n, before, before_id, after, selfposts } = global.state
+  const { n, before, before_id, after, selfposts } = global.getState()
   const domains = Object.keys(domain.split('+').reduce(reduceDomain, {}))
   if (domains.length) {
     const linkpost_promise = combinedGetPostsBySubredditOrDomain({
@@ -510,7 +510,7 @@ const searchRedditAndPushshiftPosts = (global, searchInput) => {
     pushshift_urls,
     pushshift_selftext_urls,
   } = searchInput
-  const { before } = global.state
+  const { before } = global.getState()
   if (!before) {
     if (reddit_info_urls.length) {
       reddit_promises.push(getRedditPostsForURLs(reddit_info_urls))

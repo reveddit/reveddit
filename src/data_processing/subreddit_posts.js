@@ -19,7 +19,7 @@ export const getRevdditPostsBySubreddit = async (
   global,
   archive_times_promise
 ) => {
-  const { n, before, before_id, after, frontPage, page } = global.state
+  const { n, before, before_id, after, frontPage, page } = global.getState()
   // /r/sub/new , /r/sub/controversial etc. are not implemented, so change path to indicate that
   if (
     window.location.pathname.match(
@@ -59,7 +59,7 @@ export const getRevdditPostsBySubreddit = async (
     )
     const modlogs_promises = await getModlogsPromises(subreddit, 'posts')
     await archive_times_promise
-    const archiveTimes = global.state.archiveTimes
+    const archiveTimes = global.getState().archiveTimes
     return combinedGetPostsBySubredditOrDomain({
       global,
       subreddit,
@@ -123,8 +123,8 @@ export const combinedGetItemsBySubredditOrDomain = args => {
     .then(pushshiftItemsUnfiltered => {
       // make sure previous promise completes b/c it sets state
       const newCombinePromise = combinePromise.then(() => {
-        const { items, itemsLookup } = global.state
-        let { oldestTimestamp, newestTimestamp } = global.state
+        const { items, itemsLookup } = global.getState()
+        let { oldestTimestamp, newestTimestamp } = global.getState()
         let foundStartingPoint = false
         let pushshiftItems = {},
           pushshiftItemsAll = {}

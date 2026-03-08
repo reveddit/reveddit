@@ -12,7 +12,7 @@ import { sortCreatedAsc } from 'utils'
 
 const maxN = 100
 export const getRevdditMissingComments = async (subreddit, global) => {
-  const { page, n, quarantined } = global.state
+  const { page, n, quarantined } = global.getState()
   let quarantined_subreddits
   if (subreddit === 'all') {
     subreddit = ''

@@ -475,7 +475,7 @@ export const getRevdditCommentsBySubreddit = async (
   global,
   archive_times_promise
 ) => {
-  const { n, before, before_id, after } = global.state
+  const { n, before, before_id, after } = global.getState()
 
   if (subreddit === 'all') {
     subreddit = ''
@@ -483,7 +483,7 @@ export const getRevdditCommentsBySubreddit = async (
   const { subreddit_about_promise } = await setSubredditMeta(subreddit, global)
   const modlogs_promises = await getModlogsPromises(subreddit, 'comments')
   await archive_times_promise
-  const archiveTimes = global.state.archiveTimes
+  const archiveTimes = global.getState().archiveTimes
   return combinedGetCommentsBySubreddit({
     global,
     subreddit,

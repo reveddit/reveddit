@@ -488,7 +488,7 @@ export const withFetch = WrappedComponent => {
                 user_time,
                 before,
                 after,
-              } = global.state
+              } = global.getState()
               const [loadDataFunction, params] = getLoadDataFunctionAndParam({
                 page_type,
                 subreddit,
@@ -510,7 +510,7 @@ export const withFetch = WrappedComponent => {
                   const lookupAccountMeta =
                     (showAccountInfo_global ||
                       global.accountFilterOrSortIsSet()) &&
-                    (stateObj.items?.length || global.state.items?.length)
+                    (stateObj.items?.length || global.getState().items?.length)
                   const successFn = (
                     success ? global.setSuccess : global.setError
                   ).bind(global)
@@ -524,7 +524,7 @@ export const withFetch = WrappedComponent => {
                     threadPost,
                     initialFocusCommentID,
                     moderators,
-                  } = global.state
+                  } = global.getState()
                   if (
                     items.length === 0 &&
                     ['subreddit_posts', 'subreddit_comments'].includes(
@@ -533,7 +533,7 @@ export const withFetch = WrappedComponent => {
                   ) {
                     throw 'no results'
                   }
-                  const focusComment = global.state.itemsLookup[commentID]
+                  const focusComment = global.getState().itemsLookup[commentID]
                   if ((commentID && focusComment) || commentTree.length === 1) {
                     document
                       .querySelectorAll(
@@ -660,7 +660,7 @@ const handleError = (error, props) => {
   const subreddit = props.match.params.subreddit
   if (error.message === 'Forbidden') {
     redirectToHistory(subreddit)
-  } else if (props.global.state.items.length === 0) {
+  } else if (props.global.getState().items.length === 0) {
     let content = getFirefoxError()
     if (!content) {
       if (props.page_type.match(/^subreddit_/)) {

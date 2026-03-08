@@ -280,7 +280,7 @@ const RestoreComment = props => {
   const countRemaining = ({ alreadySearchedAuthors }) =>
     removedByReddit
       ? 0
-      : Object.keys(global.state.authors).length -
+      : Object.keys(global.getState().authors).length -
         Object.keys(alreadySearchedAuthors).length
   useEffect(() => {
     let isCancelled = false
@@ -288,7 +288,7 @@ const RestoreComment = props => {
       const searchAllLoop = async () => {
         const { userPageSort, userPageTime } = get_userPageSortAndTime_this()
         let meta_var = meta
-        let numRemaining = countRemaining(global.state)
+        let numRemaining = countRemaining(global.getState())
         setLocalLoading(true)
         let needToSetSuccess = false
         // either numRemaining > 0 or meta_var.aug.length() > 0 would be enough without the other.
@@ -323,7 +323,7 @@ const RestoreComment = props => {
   }, [searchAll])
 
   const searchFromMeta = async meta => {
-    const { alreadySearchedAuthors, add_user } = global.state
+    const { alreadySearchedAuthors, add_user } = global.getState()
     const { userPageSort, userPageTime } = get_userPageSortAndTime_this()
     const { authors, promises } = await meta.aug.query()
     const { user_comments, newComments } = await Promise.all(promises).then(
