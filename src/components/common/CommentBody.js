@@ -11,12 +11,12 @@ import {
   commentRemovedByReddit,
 } from 'utils'
 import { connect } from 'state'
-import { Notice } from 'pages/common/Notice'
+import { Notice } from 'components/common/Notice'
 import RestoreComment, {
   HideUnarchivedComments,
 } from 'data_processing/RestoreComment'
 import { NewWindowLink, UserNameEntry } from 'components/Misc'
-import { LabelWithModal, RESTORED } from 'pages/common/RemovedBy'
+import { LabelWithModal, RESTORED } from 'components/common/RemovedBy'
 
 const notices = {
   orphaned: 'hideOrphanedNotice',

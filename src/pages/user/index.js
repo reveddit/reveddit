@@ -1,11 +1,11 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import Post from 'pages/common/Post'
-import Comment from 'pages/common/Comment'
+import Post from 'components/common/Post'
+import Comment from 'components/common/Comment'
 import LoadLink from './LoadLink'
-import { Notice, TipWithBackground } from 'pages/common/Notice'
+import { Notice, TipWithBackground } from 'components/common/Notice'
 import { connect } from 'state'
-import { withFetch } from 'pages/RevdditFetcher'
+import { withFetch } from 'components/RevdditFetcher'
 import {
   SimpleURLSearchParams,
   copyLink,
@@ -14,7 +14,7 @@ import {
   PATH_STR_SUB,
   getCustomClientID,
 } from 'utils'
-import Highlight from 'pages/common/Highlight'
+import Highlight from 'components/common/Highlight'
 import ModalContext from 'contexts/modal'
 import { Spin, RedditOrLocalLink } from 'components/Misc'
 import { NewWindowLink } from 'components/Misc'

@@ -19,7 +19,7 @@ import { QuestionMarkModal, Help } from 'components/Misc'
 import BeforeAfter from './BeforeAfter'
 
 const UpvoteRemovalRateHistory = lazy(
-  () => import('pages/common/selections/UpvoteRemovalRateHistory')
+  () => import('components/common/selections/UpvoteRemovalRateHistory')
 )
 
 const showFiltersParamKey = 'showFilters'

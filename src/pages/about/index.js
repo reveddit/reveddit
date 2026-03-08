@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { connect } from 'state'
 import BlankUser from 'components/BlankUser'
-import Comment from 'pages/common/Comment'
-import Time from 'pages/common/Time'
+import Comment from 'components/common/Comment'
+import Time from 'components/common/Time'
 import { getWhatPeopleSay } from 'api/reveddit'
 import {
   itemIsRemovedOrDeleted,
@@ -13,7 +13,7 @@ import {
 } from 'utils'
 import { combinePushshiftAndRedditComments } from 'data_processing/comments'
 import { setPostAndParentDataForComments } from 'data_processing/info'
-import Highlight from 'pages/common/Highlight'
+import Highlight from 'components/common/Highlight'
 import { Link } from 'react-router-dom'
 import {
   InternalPage,
@@ -21,7 +21,7 @@ import {
   SamePageHashLink,
   Spin,
 } from 'components/Misc'
-import { media, headlines } from 'pages/modals/Misc'
+import { media, headlines } from 'components/modals/Misc'
 import staticWhatPeopleSay from 'data/what-people-say.json'
 
 const whatPeopleSay_id = 'say'

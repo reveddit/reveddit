@@ -10,7 +10,7 @@ import {
   MISSING_IN_THREAD_META,
   ORPHANED,
   ORPHANED_META,
-} from 'pages/common/RemovedBy'
+} from 'components/common/RemovedBy'
 import { Selection } from './SelectionBase'
 
 const ex = 'exclude'

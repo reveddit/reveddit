@@ -3,7 +3,7 @@ import SnuOwnd from 'snuownd'
 import {
   AUTOMOD_REMOVED_MOD_APPROVED,
   UNKNOWN_REMOVED,
-} from 'pages/common/RemovedBy'
+} from 'components/common/RemovedBy'
 import scrollToElement from 'scroll-to-element'
 import { useRef, useEffect } from 'react'
 

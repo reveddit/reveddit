@@ -38,7 +38,7 @@ import {
   USER_REMOVED,
   AUTOMOD_LATENCY_THRESHOLD,
   USER_DELETED_BUT_FIRST_REMOVED_BY,
-} from 'pages/common/RemovedBy'
+} from 'components/common/RemovedBy'
 import { combinedGetPostsBySubredditOrDomain } from 'data_processing/subreddit_posts'
 
 export const retrieveRedditPosts_and_combineWithPushshiftPosts = async ({

@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react'
 import { useParams, useLocation, useNavigate } from 'react-router-dom'
 import Modal from 'react-modal'
 import { connect } from 'state'
-import Header from 'pages/common/Header'
-import Welcome from 'pages/modals/Welcome'
-import Settings from 'pages/modals/Settings'
-import ActionHelp from 'pages/modals/ActionHelp'
+import Header from 'components/common/Header'
+import Welcome from 'components/modals/Welcome'
+import Settings from 'components/modals/Settings'
+import ActionHelp from 'components/modals/ActionHelp'
 import {
   Banned,
   SpreadWord,
@@ -16,8 +16,8 @@ import {
   YoutubeShadowRemovals,
   OnlyFoolHumans,
   CoupSaveAmerica,
-} from 'pages/modals/Misc'
-import { RedditBreakingChange } from 'pages/modals/RedditBreakingChange'
+} from 'components/modals/Misc'
+import { RedditBreakingChange } from 'components/modals/RedditBreakingChange'
 import { NewsCarousel } from 'components/NewsCarousel'
 import { ModalProvider } from 'contexts/modal'
 import { SocialLinks } from 'components/Misc'

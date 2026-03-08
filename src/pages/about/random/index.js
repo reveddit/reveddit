@@ -3,7 +3,7 @@ import { randomRedditor } from 'api/reddit'
 import { connect } from 'state'
 import { Spin } from 'components/Misc'
 import { PATH_STR_USER, SimpleURLSearchParams } from 'utils'
-import { handleRedditError } from 'pages/RevdditFetcher'
+import { handleRedditError } from 'components/RevdditFetcher'
 
 export const Random = props => {
   const subreddit = props.match.params.subreddit || 'all'

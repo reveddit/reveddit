@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react'
 import { www_reddit, old_reddit } from 'api/reddit'
-import { QuestionMark, TwitterWhite } from 'pages/common/svg'
+import { QuestionMark, TwitterWhite } from 'components/common/svg'
 import ModalContext from 'contexts/modal'
 import Bowser from 'bowser'
 import { ext_urls, jumpToHash, copyLink, SimpleURLSearchParams } from 'utils'
 import { meta } from 'pages/about/AddOns'
 import { Link } from 'react-router-dom'
-import { newUserModal } from 'pages/modals/Misc'
+import { newUserModal } from 'components/modals/Misc'
 
 const chromelike = ['chrome', 'chromium', 'opera', 'edge', 'vivaldi']
 const chromelike_fullnames = {}

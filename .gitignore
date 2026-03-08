@@ -4,13 +4,10 @@
 # Dependency directories
 node_modules/
 
-# Generated files
+# Generated files (Vite build output)
 dist/index.html
-dist/200.html
-dist/about/faq/index.html
-dist/*js
-dist/*js.map
-dist/*css
+dist/service-worker.js
+dist/service-worker.js.map
 dist/x-files/
 lambda/
 .sass-cache/

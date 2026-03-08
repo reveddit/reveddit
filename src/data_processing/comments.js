@@ -22,7 +22,7 @@ import {
   NOT_REMOVED,
   ANTI_EVIL_REMOVED,
   AUTOMOD_LATENCY_THRESHOLD,
-} from 'pages/common/RemovedBy'
+} from 'components/common/RemovedBy'
 import { combinedGetItemsBySubredditOrDomain } from 'data_processing/subreddit_posts'
 
 export let useProxy = false

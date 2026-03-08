@@ -10,13 +10,13 @@ import {
   UNKNOWN_REMOVED,
   ANTI_EVIL_REMOVED,
   AUTOMOD_REMOVED_MOD_APPROVED,
-} from 'pages/common/RemovedBy'
+} from 'components/common/RemovedBy'
 import {
   TAG_META,
   QUARANTINE,
   MOD,
   ADMIN,
-} from 'pages/common/selections/TagsFilter'
+} from 'components/common/selections/TagsFilter'
 import {
   itemIsCollapsed,
   commentIsOrphaned,

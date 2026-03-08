@@ -1,12 +1,12 @@
 import React from 'react'
-import { withFetch } from 'pages/RevdditFetcher'
+import { withFetch } from 'components/RevdditFetcher'
 import { connect } from 'state'
-import Preview from 'pages/common/Preview'
+import Preview from 'components/common/Preview'
 import { getAggregationsPeriodURL } from 'api/reveddit'
-import { Notice } from 'pages/common/Notice'
-import { urr_help } from 'pages/common/selections/UpvoteRemovalRateHistory'
+import { Notice } from 'components/common/Notice'
+import { urr_help } from 'components/common/selections/UpvoteRemovalRateHistory'
 import { QuestionMarkModal } from 'components/Misc'
-import Time from 'pages/common/Time'
+import Time from 'components/common/Time'
 
 const Aggregations = ({
   global,

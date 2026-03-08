@@ -12,10 +12,10 @@ import {
   copyToClipboard,
   reversible,
 } from 'utils'
-import Time from 'pages/common/Time'
-import RemovedBy, { preserve_desc } from 'pages/common/RemovedBy'
-import CommentBody from 'pages/common/CommentBody'
-import Author from 'pages/common/Author'
+import Time from 'components/common/Time'
+import RemovedBy, { preserve_desc } from 'components/common/RemovedBy'
+import CommentBody from 'components/common/CommentBody'
+import Author from 'components/common/Author'
 import { connect } from 'state'
 import { insertParent } from 'data_processing/thread'
 import { MessageMods } from 'components/Misc'
@@ -28,7 +28,7 @@ import {
 } from 'data_processing/RestoreComment'
 import { QuestionMarkModal, Help, ExtensionLink } from 'components/Misc'
 import { getSortFn } from './common'
-import { RestoreIcon } from 'pages/common/svg'
+import { RestoreIcon } from 'components/common/svg'
 
 const contextDefault = 3
 const MIN_COMMENT_DEPTH = 4

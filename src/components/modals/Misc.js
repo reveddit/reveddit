@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import { NewWindowLink, SocialLinks } from 'components/Misc'
 import BlankUser from 'components/BlankUser'
-import Highlight from 'pages/common/Highlight'
+import Highlight from 'components/common/Highlight'
 import { convertPathSub_reverse, get, put, shuffle } from 'utils'
-import { RedditBreakingChange } from 'pages/modals/RedditBreakingChange'
+import { RedditBreakingChange } from 'components/modals/RedditBreakingChange'
 
 const BlankUserBlurb = () => (
   <>

@@ -11,7 +11,7 @@ import {
   AUTOMOD_REMOVED,
   MOD_OR_AUTOMOD_REMOVED,
   UNKNOWN_REMOVED,
-} from 'pages/common/RemovedBy'
+} from 'components/common/RemovedBy'
 
 const ARCHIVE_MAX_SIZE = 500
 

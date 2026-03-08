@@ -1,3 +1,4 @@
+import './sass/index.sass'
 document.getElementById('javascript-root-error').style.display = 'none'
 import React, { Suspense, lazy } from 'react'
 import { createRoot } from 'react-dom/client'
@@ -8,7 +9,7 @@ import {
   Navigate,
   useLocation,
 } from 'react-router-dom'
-import DefaultLayout, { pageTypes } from 'pages/DefaultLayout'
+import DefaultLayout, { pageTypes } from 'components/layout/DefaultLayout'
 import ErrorBoundary from 'components/ErrorBoundary'
 import {
   PATH_STR_SUB,
@@ -25,7 +26,7 @@ const PARAMKEYS_DONT_REMOVE_BACKSLASH = new Set(
   Object.values(urlParamKeys_textFilters)
 )
 
-if ('serviceWorker' in navigator && IS_PRODUCTION === 'true') {
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => {
     navigator.serviceWorker
       .register('/service-worker.js')
@@ -150,7 +151,7 @@ const profile_search = new RegExp('^' + PATH_STR_USER + '/')
 const profile_replace = PATH_STR_SUB + '/u_'
 
 const App = () => (
-  <BrowserRouter basename={__dirname} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+  <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
     <URLNormalizer>
       <ErrorBoundary>
         <Suspense fallback={<div>Loading...</div>}>

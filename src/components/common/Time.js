@@ -1,6 +1,6 @@
 import React from 'react'
 import { getPrettyDate, getPrettyTimeLength } from 'utils'
-import { showRelDates_global } from 'pages/modals/Settings'
+import { showRelDates_global } from 'components/modals/Settings'
 
 export default ({
   showDate,

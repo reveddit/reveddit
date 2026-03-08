@@ -8,7 +8,7 @@ import {
 } from 'data_processing/filters'
 import { itemIsActioned, not, reversible } from 'utils'
 import { Spin } from 'components/Misc'
-import { textMatch } from 'pages/RevdditFetcher'
+import { textMatch } from 'components/RevdditFetcher'
 import { getSortFn } from './common'
 
 const MAX_COMMENTS_TO_SHOW = 200

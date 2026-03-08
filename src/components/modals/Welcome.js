@@ -1,7 +1,7 @@
 import React from 'react'
 import BlankUser from 'components/BlankUser'
 import { ExtensionLink, SocialLinks } from 'components/Misc'
-import Highlight from 'pages/common/Highlight'
+import Highlight from 'components/common/Highlight'
 
 export default () => {
   return (

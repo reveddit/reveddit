@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { getPrettyTimeLength, getPrettyDate, sortCreatedAsc } from 'utils'
-import Time from 'pages/common/Time'
+import Time from 'components/common/Time'
 import { connect } from 'state'
 
 const posts_page_title =

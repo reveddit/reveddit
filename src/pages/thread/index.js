@@ -1,12 +1,12 @@
 import React from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { connect, urlParamKeys } from 'state'
-import Post from 'pages/common/Post'
-import { Notice, UserPageTip } from 'pages/common/Notice'
+import Post from 'components/common/Post'
+import { Notice, UserPageTip } from 'components/common/Notice'
 import CommentSection from './CommentSection'
-import { withFetch } from 'pages/RevdditFetcher'
+import { withFetch } from 'components/RevdditFetcher'
 import { SimpleURLSearchParams, jumpToHash, PATH_STR_SUB } from 'utils'
-import Highlight from 'pages/common/Highlight'
+import Highlight from 'components/common/Highlight'
 import { ShareLink } from 'components/Misc'
 
 const Thread = connect(

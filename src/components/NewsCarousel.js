@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { media } from 'pages/modals/Misc'
-import { RedditBreakingChange } from 'pages/modals/RedditBreakingChange'
-import Welcome from 'pages/modals/Welcome'
+import { media } from 'components/modals/Misc'
+import { RedditBreakingChange } from 'components/modals/RedditBreakingChange'
+import Welcome from 'components/modals/Welcome'
 import { SocialLinks } from 'components/Misc'
 
 // Define the carousel items in display order

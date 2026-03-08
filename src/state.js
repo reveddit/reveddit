@@ -7,10 +7,10 @@ import {
   ifNumParseInt,
   swapKeysAndValues,
 } from 'utils'
-import { limitCommentDepth_global } from 'pages/modals/Settings'
+import { limitCommentDepth_global } from 'components/modals/Settings'
 import { agg_defaults_for_page } from 'api/reveddit'
-import { pageTypes } from 'pages/DefaultLayout'
-import { UNKNOWN_REMOVED, USER_REMOVED } from 'pages/common/RemovedBy'
+import { pageTypes } from 'components/layout/DefaultLayout'
+import { UNKNOWN_REMOVED, USER_REMOVED } from 'components/common/RemovedBy'
 const defaultFilters_str = 'defaultFilters'
 
 export const hasClickedRemovedUserCommentContext = () => {

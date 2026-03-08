@@ -9,8 +9,8 @@ import {
   getPrettyTimeLength,
 } from 'utils'
 import ModalContext from 'contexts/modal'
-import { QuestionMark } from 'pages/common/svg'
-import ActionHelp from 'pages/modals/ActionHelp'
+import { QuestionMark } from 'components/common/svg'
+import ActionHelp from 'components/modals/ActionHelp'
 import { modlogSaysBotRemoved } from 'data_processing/comments'
 import { LinkWithCloseModal, NewWindowLink } from 'components/Misc'
 

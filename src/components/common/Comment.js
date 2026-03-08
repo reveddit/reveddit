@@ -6,11 +6,11 @@ import {
   convertPathSub,
   stripRedditLikeDomain,
 } from 'utils'
-import Time from 'pages/common/Time'
-import RemovedBy, { QuarantinedLabel } from 'pages/common/RemovedBy'
-import { ORPHANED } from 'pages/common/RemovedBy'
-import CommentBody from 'pages/common/CommentBody'
-import Author from 'pages/common/Author'
+import Time from 'components/common/Time'
+import RemovedBy, { QuarantinedLabel } from 'components/common/RemovedBy'
+import { ORPHANED } from 'components/common/RemovedBy'
+import CommentBody from 'components/common/CommentBody'
+import Author from 'components/common/Author'
 import {
   connect,
   hasClickedRemovedUserCommentContext,

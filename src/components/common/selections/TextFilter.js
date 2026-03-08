@@ -8,7 +8,7 @@ import {
   updateURL,
   urlParamKeys_account_max_min_base,
 } from 'state'
-import { showAccountInfo_global } from 'pages/modals/Settings'
+import { showAccountInfo_global } from 'components/modals/Settings'
 
 const MIN = 'min',
   MAX = 'max'

@@ -26,7 +26,7 @@ import {
   ANTI_EVIL_REMOVED,
   NO_LABEL,
   AUTOMOD_LATENCY_THRESHOLD,
-} from 'pages/common/RemovedBy'
+} from 'components/common/RemovedBy'
 import {
   itemIsRemovedOrDeleted,
   isComment,

@@ -1,11 +1,11 @@
 import React from 'react'
-import Post from 'pages/common/Post'
-import { withFetch } from 'pages/RevdditFetcher'
+import Post from 'components/common/Post'
+import { withFetch } from 'components/RevdditFetcher'
 import { connect } from 'state'
 import { getUrlWithTimestamp, PATH_STR_SUB } from 'utils'
-import Highlight from 'pages/common/Highlight'
+import Highlight from 'components/common/Highlight'
 import Pagination from 'components/Pagination'
-import { TipWithBackground, UserPageTip } from 'pages/common/Notice'
+import { TipWithBackground, UserPageTip } from 'components/common/Notice'
 import { ShareLink } from 'components/Misc'
 
 const SubredditPosts = props => {

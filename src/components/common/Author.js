@@ -1,7 +1,7 @@
 import React from 'react'
 import { connect } from 'state'
 import { getPrettyTimeLength, PATH_STR_USER } from 'utils'
-import { showAccountInfo_global } from 'pages/modals/Settings'
+import { showAccountInfo_global } from 'components/modals/Settings'
 import Flair from './Flair'
 
 const now = Math.floor(new Date() / 1000)

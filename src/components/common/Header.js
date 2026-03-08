@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import { connect } from 'state'
-import { Shuffle, TwitterWhite } from 'pages/common/svg'
+import { Shuffle, TwitterWhite } from 'components/common/svg'
 
 const getEntityName = params => {
   const { user, subreddit = '', domain = '' } = params

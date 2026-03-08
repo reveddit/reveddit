@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { get, put, usePrevious, CLIENT_ID_SET_BY_USER_VAR_NAME } from 'utils'
-import { clearHashFromURL } from 'pages/DefaultLayout'
+import { clearHashFromURL } from 'components/layout/DefaultLayout'
 import { NewWindowLink } from 'components/Misc'
 const showRelDates_var = 'showRelativeDatesInThreads'
 const showAccountInfo_var = 'showAccountInfo'

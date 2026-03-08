@@ -1,9 +1,9 @@
 import React from 'react'
-import Time from 'pages/common/Time'
+import Time from 'components/common/Time'
 import { prettyScore, roundToX, replaceAmpGTLT } from 'utils'
 import { NewWindowLink } from 'components/Misc'
 import { QuestionMarkModal, Help } from 'components/Misc'
-import { urr_help } from 'pages/common/selections/UpvoteRemovalRateHistory'
+import { urr_help } from 'components/common/selections/UpvoteRemovalRateHistory'
 
 const COMMENTS = 'comments'
 const POSTS = 'posts'
@@ -15,7 +15,7 @@ const period_help =
         text='more info'
         modalContent={{content: urr_help}}
       /></p>
-      <p>The resulting page may take a minute to load. In some cases, a post may not be visible because a user deleted it after a moderator removed it. Such missing posts may reappear by selecting filters -> action -> user deleted.</p>
+      <p>The resulting page may take a minute to load. In some cases, a post may not be visible because a user deleted it after a moderator removed it. Such missing posts may reappear by selecting filters -{'>'} action -{'>'} user deleted.</p>
     </>
   }/>
 

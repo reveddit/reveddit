@@ -2,7 +2,7 @@ import React from 'react'
 import { connect, adjust_qparams_for_selection } from 'state'
 import { Selection } from './SelectionBase'
 import { SimpleURLSearchParams, truthyOrUndefined } from 'utils'
-import { pageTypes } from 'pages/DefaultLayout'
+import { pageTypes } from 'components/layout/DefaultLayout'
 import { NewWindowLink } from 'components/Misc'
 
 const SELECTED_CLASS = 'selected'

@@ -11,9 +11,9 @@ import {
   stripRedditLikeDomain,
   SimpleURLSearchParams,
 } from 'utils'
-import Time from 'pages/common/Time'
-import RemovedBy, { QuarantinedLabel } from 'pages/common/RemovedBy'
-import Author from 'pages/common/Author'
+import Time from 'components/common/Time'
+import RemovedBy, { QuarantinedLabel } from 'components/common/RemovedBy'
+import Author from 'components/common/Author'
 import { connect, urlParamKeys } from 'state'
 import { MessageMods } from 'components/Misc'
 import { NewWindowLink } from 'components/Misc'

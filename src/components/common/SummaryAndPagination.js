@@ -1,6 +1,6 @@
 import React from 'react'
 import Pagination from 'components/Pagination'
-import ResultsSummary from 'pages/common/ResultsSummary'
+import ResultsSummary from 'components/common/ResultsSummary'
 
 const SummaryAndPagination = ({
   page_type,

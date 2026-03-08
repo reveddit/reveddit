@@ -36,12 +36,12 @@ import {
   createCommentTree,
   ignoreArchiveErrors_comments,
 } from 'data_processing/thread'
-import { RestoreIcon } from 'pages/common/svg'
+import { RestoreIcon } from 'components/common/svg'
 import { getAuth } from 'api/reddit/auth'
 import { redditLimiter } from 'api/common'
 import { getCommentsByThread as getPushshiftCommentsByThread } from 'api/pushshift'
-import { unarchived_label_text } from 'pages/common/RemovedBy'
-import { EXCLUDE_UNARCHIVED_REGEX } from 'pages/common/selections/TextFilter'
+import { unarchived_label_text } from 'components/common/RemovedBy'
+import { EXCLUDE_UNARCHIVED_REGEX } from 'components/common/selections/TextFilter'
 
 const MAX_AUTHORS_NEARBY_BY_DATE = 25
 const MAX_AUTHORS_TO_SEARCH = 100

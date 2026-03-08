@@ -16,14 +16,14 @@ import {
   filterSelectedActions,
 } from 'data_processing/filters'
 import { getSortFn } from 'data_processing/sort'
-import Selections from 'pages/common/selections'
-import SummaryAndPagination from 'pages/common/SummaryAndPagination'
+import Selections from 'components/common/selections'
+import SummaryAndPagination from 'components/common/SummaryAndPagination'
 import {
   showAccountInfo_global,
   ClientIDForm,
   guideLink,
-} from 'pages/modals/Settings'
-import { newUserModal, SpreadWord } from 'pages/modals/Misc'
+} from 'components/modals/Settings'
+import { newUserModal, SpreadWord } from 'components/modals/Misc'
 
 import {
   connect,
@@ -32,7 +32,7 @@ import {
   create_qparams,
   urlParamKeys_max_min,
 } from 'state'
-import { COLLAPSED, ORPHANED } from 'pages/common/RemovedBy'
+import { COLLAPSED, ORPHANED } from 'components/common/RemovedBy'
 import {
   jumpToHash,
   get,
@@ -52,10 +52,10 @@ import { getAuth } from 'api/reddit/auth'
 import { getArchiveTimes } from 'api/reveddit'
 import { meta } from 'pages/about/AddOns'
 import { redditPrefsAppsLink } from 'pages/about/faq'
-import { Notice } from 'pages/common/Notice'
+import { Notice } from 'components/common/Notice'
 import { RedditOrLocalLink } from 'components/Misc'
 import BlankUser from 'components/BlankUser'
-import Highlight from 'pages/common/Highlight'
+import Highlight from 'components/common/Highlight'
 import { SocialLinks, UserNameEntry } from 'components/Misc'
 
 const CAT_SUBREDDIT = {

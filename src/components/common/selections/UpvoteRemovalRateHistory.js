@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { connect, adjust_qparams_for_selection, updateURL } from 'state'
 import * as d3 from 'd3'
-import Preview from 'pages/common/Preview'
+import Preview from 'components/common/Preview'
 import {
   prettyFormatBigNumber,
   SimpleURLSearchParams,
@@ -19,7 +19,7 @@ import {
   aggregationPeriodParams,
   agg_defaults_for_page,
 } from 'api/reveddit'
-import { pageTypes } from 'pages/DefaultLayout'
+import { pageTypes } from 'components/layout/DefaultLayout'
 
 const urr_title = 'Karma Removal Rate'
 const own_page_text = 'items preview page'
