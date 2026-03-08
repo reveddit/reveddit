@@ -25,10 +25,86 @@ import {
 } from 'components/common/RemovedBy'
 import { combinedGetItemsBySubredditOrDomain } from 'data_processing/subreddit_posts'
 
+// ---------------------------------------------------------------------------
+// Lightweight interfaces for the Reddit/Pushshift/Modlog shapes used here.
+// Using index signatures so extra fields pass through without complaint.
+// ---------------------------------------------------------------------------
+
+export interface CommentRecord {
+  id: string
+  name?: string
+  link_id?: string
+  subreddit?: string
+  removed?: boolean
+  deleted?: boolean
+  archive_processed?: boolean
+  link_title?: string
+  body?: string
+  author?: string
+  created_utc?: number
+  retrieved_on?: number
+  permalink?: string
+  parent_id?: string
+  removedby?: string
+  modlog?: ModlogEntry
+  from_add_user?: boolean
+  removal_reason?: string
+  over_18?: boolean
+  [key: string]: any
+}
+
+interface PostRecord {
+  title?: string
+  whitelist_status?: string
+  over_18?: boolean
+  over18?: boolean
+  is_robot_indexable?: boolean
+  name?: string
+  link_flair_text?: string
+  created_utc?: number
+  score?: number
+  url?: string
+  num_comments?: number
+  author?: string
+  quarantine?: boolean
+  subreddit_subscribers?: number
+  [key: string]: any
+}
+
+interface ModlogItem {
+  id?: string
+  link_id?: string
+  target_author?: string
+  target_body?: string
+  created_utc?: number
+  mod?: string
+  details?: string
+  log_source?: string
+  action?: string
+  automodActionReason?: string
+  [key: string]: any
+}
+
+interface ModlogEntry {
+  author?: string
+  body?: string
+  link_id?: string
+  created_utc?: number
+  mod?: string
+  details?: string
+  log_source?: string
+  action?: string
+  automodActionReason?: string
+}
+
+export type CommentMap = Record<string, CommentRecord>
+export type PostMap = Record<string, PostRecord>
+type ModlogMap = Record<string, ModlogItem>
+
 export let useProxy = false
 
 export const retrieveRedditComments_and_combineWithPushshiftComments =
-  pushshiftComments => {
+  (pushshiftComments: CommentMap) => {
     let quarantined_subreddits
     if (useProxy) {
       const comments_array = Object.values(pushshiftComments)
@@ -41,7 +117,7 @@ export const retrieveRedditComments_and_combineWithPushshiftComments =
       objects: pushshiftComments,
       quarantined_subreddits,
       useProxy,
-    }).then(redditComments => {
+    }).then((redditComments: CommentMap) => {
       return combinePushshiftAndRedditComments(
         pushshiftComments,
         redditComments
@@ -115,12 +191,12 @@ export const set_link_permalink = (revedditComment, redditComment) => {
 }
 
 export const combinePushshiftAndRedditComments = (
-  pushshiftComments,
-  redditComments,
+  pushshiftComments: CommentMap,
+  redditComments: CommentMap,
   requirePushshiftData = false,
-  post = undefined
+  post: PostRecord | undefined = undefined
 ) => {
-  const combinedComments = {}
+  const combinedComments: CommentMap = {}
   if (!requirePushshiftData) {
     Object.values(redditComments).forEach(comment => {
       initializeComment(comment, post)
@@ -273,13 +349,17 @@ const setupCommentMeta = (archiveComment, redditComment) => {
 
 // Using Pushshift (getPushshiftPostsForCommentData) may be faster, but it is missing the quarantine field in submissions data
 export const getPostDataForComments = ({
-  comments = undefined,
-  link_ids_set = undefined,
+  comments,
+  link_ids_set,
   quarantined_subreddits = '',
-}: Record<string, any> = {}) => {
+}: {
+  comments?: CommentMap
+  link_ids_set?: Record<string, boolean>
+  quarantined_subreddits?: string
+} = {}) => {
   if (!link_ids_set) {
-    link_ids_set = Object.values(comments).reduce(
-      (map, obj) => ((map[obj.link_id] = true), map),
+    link_ids_set = Object.values(comments!).reduce<Record<string, boolean>>(
+      (map, obj) => ((map[obj.link_id!] = true), map),
       {}
     )
   }
@@ -296,7 +376,7 @@ export const getPostDataForComments = ({
     key: 'name',
     useProxy,
   }).catch(() => {
-    console.error(`Unable to retrieve full titles from ${source}`)
+    console.error('Unable to retrieve full titles from reddit')
   })
 }
 
@@ -361,10 +441,10 @@ export const getRevdditComments = ({
     combinePromise,
     subreddit_about_promise,
   ]).then(values => {
-    const show_comments = []
-    const postData = values[0]
-    const combinedComments = values[1]
-    const subredditAbout = values[2] || {}
+    const show_comments: CommentRecord[] = []
+    const postData = values[0] as PostMap | undefined
+    const combinedComments = values[1] as CommentMap
+    const subredditAbout = (values[2] || {}) as PostRecord
     Object.values(combinedComments).forEach(comment => {
       if (postData && comment.link_id in postData) {
         const post_thisComment = postData[comment.link_id]
@@ -389,7 +469,7 @@ export const getRevdditComments = ({
   })
 }
 
-export const copyModlogItemsToArchiveItems = (modlogsItems, archiveItems) => {
+export const copyModlogItemsToArchiveItems = (modlogsItems: ModlogMap, archiveItems: CommentMap) => {
   for (const ml_item of Object.values(modlogsItems)) {
     const id = ml_item.id
     if (!id) {

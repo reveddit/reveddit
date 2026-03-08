@@ -23,6 +23,8 @@ import {
   getRevdditComments,
   getPostDataForComments,
   applyPostAndParentDataToComment,
+  type CommentMap,
+  type CommentRecord,
 } from 'data_processing/comments'
 import {
   combinePushshiftAndRedditPosts,
@@ -89,8 +91,8 @@ export const getRevdditItems = global => {
           const pushshiftComments = result[0]
           const pushshiftPosts = result[1]
           const combinedComments = combinePushshiftAndRedditComments(
-            pushshiftComments,
-            redditComments,
+            pushshiftComments as CommentMap,
+            redditComments as CommentMap,
             false
           )
           // have to set post data 2x, after reddit data retrieval and after pushshift retrieval,
@@ -236,7 +238,7 @@ export const getRevdditSearch = global => {
         newestTimestamp
       if (commentChildrenPromise) {
         const commentChildren = await commentChildrenPromise
-        childCounts = Object.values(commentChildren).reduce((acc, comment) => {
+        childCounts = Object.values(commentChildren).reduce<Record<string, number>>((acc, comment: any) => {
           acc[comment.parent_id] = (acc[comment.parent_id] || 0) + 1
           return acc
         }, {})

@@ -172,7 +172,7 @@ export const combinedGetItemsBySubredditOrDomain = args => {
         return Promise.all(modlogs_promises).then(async results => {
           for (const modlogsItems of results) {
             if (Object.keys(modlogsItems).length)
-              Object.values(modlogsItems).forEach(item => {
+              Object.values(modlogsItems).forEach((item: any) => {
                 itemsLookup[item.id] = item
               })
             copyModlogItemsToArchiveItems(modlogsItems, pushshiftItems)
@@ -221,7 +221,7 @@ export const combinedGetItemsBySubredditOrDomain = args => {
           pushshiftItemsUnfiltered[pushshiftItemsUnfiltered.length - 1]
         // unset before_id and modlogs_promises: they only need to be used once.
         // if pushshift supports before_id in the future, duplicate checking above is not needed
-        const beforeAfter = {}
+        const beforeAfter: { before?: number; after?: number } = {}
         if (!usingAfter) {
           beforeAfter.before = last.created_utc
         } else {

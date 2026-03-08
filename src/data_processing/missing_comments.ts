@@ -6,6 +6,7 @@ import {
   combinePushshiftAndRedditComments,
   set_link_permalink,
   setSubredditMeta,
+  type CommentMap,
 } from 'data_processing/comments'
 import { setPostAndParentDataForComments } from 'data_processing/info'
 import { sortCreatedAsc } from 'utils'
@@ -39,7 +40,7 @@ export const getRevdditMissingComments = async (subreddit, global) => {
       return Promise.all([postDataPromise, redditCommentsPromise]).then(
         ([postData, redditComments]) => {
           const combinedComments_array = Object.values(
-            combinePushshiftAndRedditComments({}, redditComments, false)
+            combinePushshiftAndRedditComments({} as CommentMap, redditComments as CommentMap, false)
           )
           for (const c of combinedComments_array) {
             setMissingCommentMeta(c, missingComments)

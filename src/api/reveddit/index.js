@@ -16,7 +16,7 @@ import {
 const ARCHIVE_MAX_SIZE = 500
 
 export const getMissingComments = async ({
-  subreddit,
+  subreddit = '',
   limit = 100,
   page = 1,
 }) => {
@@ -234,10 +234,10 @@ export const getCommentsByThread = ({
   link_id,
   after,
   root_comment_id,
-  comment_id,
-  num_comments = '',
-  post_created_utc = '',
-  focus_comment_removed = '',
+  comment_id = undefined,
+  num_comments = undefined,
+  post_created_utc = undefined,
+  focus_comment_removed = undefined,
 }) => {
   const params = {
     link_id,

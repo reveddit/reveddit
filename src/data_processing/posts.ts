@@ -47,7 +47,7 @@ export const retrieveRedditPosts_and_combineWithPushshiftPosts = async ({
   includePostsWithZeroComments = false,
   existingRedditPosts = {},
   subreddit_about_promise = Promise.resolve({}),
-  quarantined_subreddits,
+  quarantined_subreddits = '',
 }) => {
   const ids = []
   if (!pushshiftPosts) {
@@ -77,7 +77,7 @@ export const retrieveRedditPosts_and_combineWithPushshiftPosts = async ({
 
   return getRedditPosts({ ids, quarantined_subreddits, useProxy }).then(
     redditPosts => {
-      Object.values(existingRedditPosts).forEach(post => {
+      Object.values(existingRedditPosts).forEach((post: any) => {
         redditPosts[post.id] = post
       })
       return combinePushshiftAndRedditPosts({
@@ -101,7 +101,7 @@ export const combinePushshiftAndRedditPosts = async ({
   isInfoPage = false,
   subreddit_about_promise = Promise.resolve({}),
 }) => {
-  const subredditAbout = (await subreddit_about_promise) || {}
+  const subredditAbout = ((await subreddit_about_promise) || {}) as Record<string, any>
   const redditPosts_lookup = {}
   redditPosts.forEach(post => {
     redditPosts_lookup[post.id] = post
@@ -391,7 +391,12 @@ const getUrlMeta = url => {
 }
 
 class SearchInput {
-  constructor(meta = {}) {
+  pushshift_urls: string[]
+  pushshift_selftext_urls: string[]
+  reddit_info_urls: string[]
+  reddit_search_selftext: string[]
+  reddit_search_url: string[]
+  constructor(meta: Partial<SearchInput> = {}) {
     this.pushshift_urls = [...(meta.pushshift_urls || [])]
     this.pushshift_selftext_urls = [...(meta.pushshift_urls || [])] // using same value as pushshift_urls is intentional
     this.reddit_info_urls = [...(meta.reddit_info_urls || [])] // api/info?url=
@@ -544,7 +549,7 @@ const searchRedditAndPushshiftPosts = (global, searchInput) => {
     .then(reddit_results => {
       const redditPosts = {}
       reddit_results.forEach(posts => {
-        Object.values(posts).forEach(post => {
+        Object.values(posts).forEach((post: any) => {
           redditPosts[post.id] = post
         })
       })

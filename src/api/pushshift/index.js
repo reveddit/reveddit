@@ -364,7 +364,7 @@ const getPostsByID_chunk = async (ids, fields = post_fields) => {
 export const getPost = async ({
   id,
   use_fields_for_manually_approved_lookup = false,
-  archiveTimes,
+  archiveTimes = undefined,
 }) => {
   const options = {}
   if (archive_isOffline_for_extendedPeriod(archiveTimes)) {
@@ -428,9 +428,9 @@ export const commentsByThreadReturnValueDefaults = {
 }
 export const getCommentsByThread = async ({
   link_id,
-  after = '',
+  after = undefined,
   options = { timeout: 45000 },
-  archiveTimes,
+  archiveTimes = undefined,
 }) => {
   return commentsByThreadReturnValueDefaults
   if (archive_isOffline_for_extendedPeriod(archiveTimes)) {

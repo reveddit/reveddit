@@ -1,6 +1,7 @@
 import {
   combinePushshiftAndRedditComments,
   copyModlogItemsToArchiveItems,
+  type CommentMap,
 } from 'data_processing/comments'
 import { combineRedditAndPushshiftPost } from 'data_processing/posts'
 import {
@@ -93,7 +94,7 @@ const addRemainingRedditComments_andCombine = async (
   redditComments,
   ids,
   user_comments,
-  add_user,
+  add_user = undefined,
   updateURL = false
 ) => {
   if (ids.length) {
@@ -167,8 +168,8 @@ export const getRevdditThreadItems = async (
       ? sortMap[sort]
       : {}
   const sortsForRedditCommentThreadQuery = sort ? sort.split(',') : ['new']
-  let pushshift_comments_promise = Promise.resolve({})
-  let reveddit_comments_promise = Promise.resolve({})
+  let pushshift_comments_promise: Promise<any> = Promise.resolve({})
+  let reveddit_comments_promise: Promise<any> = Promise.resolve({})
   let pushshift_remaining_promises = []
   const schedulePsAfter = async this_ps_after => {
     await archive_times_promise
@@ -277,7 +278,7 @@ export const getRevdditThreadItems = async (
           //      is quarantined
           localStateForURLUpdate.quarantined = true
         }
-        const resetPath = commentID => {
+        const resetPath = (commentID?: any) => {
           const commentPath = commentID ? commentID + '/' : ''
           window.history.replaceState(
             null,
@@ -555,7 +556,7 @@ export const getRevdditThreadItems = async (
     }
   }
 
-  for (const c of Object.values(revedditComments)) {
+  for (const c of Object.values(revedditComments) as any[]) {
     const psComment = pushshiftComments[c.id]
     if (
       !psComment ||
@@ -691,7 +692,7 @@ export const getRevdditThreadItems = async (
   // when commentID is set, do additional checking to see if added comments would be in the tree or not
   Object.values(pushshiftComments)
     .sort(sortCreatedAsc)
-    .forEach(archiveComment => {
+    .forEach((archiveComment: any) => {
       const id = archiveComment.id
       const parentID =
         archiveComment.parent_id?.substr(0, 2) === 't1'
@@ -765,7 +766,7 @@ export const getRevdditThreadItems = async (
   const processAUP_addRemaining_combine = async (
     promises,
     combinedComments_input,
-    add_user,
+    add_user = undefined,
     updateURL = false
   ) => {
     const { user_comments, newComments } = await processAddUserPromises(
@@ -931,8 +932,8 @@ export const insertParent = (child_id, global) => {
       const comment = redditComments[parent_id]
       if (comment) {
         let combined = combinePushshiftAndRedditComments(
-          {},
-          redditComments,
+          {} as CommentMap,
+          redditComments as CommentMap,
           false,
           threadPost
         )
@@ -942,8 +943,8 @@ export const insertParent = (child_id, global) => {
             pushshiftComments => {
               if (pushshiftComments[parent_id]) {
                 combined = combinePushshiftAndRedditComments(
-                  pushshiftComments,
-                  redditComments,
+                  pushshiftComments as CommentMap,
+                  redditComments as CommentMap,
                   false,
                   threadPost
                 )
@@ -1044,7 +1045,7 @@ export const createCommentTree = (
   logErrors = false
 ) => {
   const commentTree = []
-  const commentsSortedByDate =
+  const commentsSortedByDate: any[] =
     Object.values(commentsLookup).sort(sortCreatedAsc)
   for (const [i, comment] of commentsSortedByDate.entries()) {
     comment.by_date_i = i

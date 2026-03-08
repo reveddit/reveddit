@@ -181,8 +181,8 @@ export const getRevdditUserItems = async (
       )
       .catch(() => {})
   }
-  const params_pre_after = [user, kind, global, sort, before]
-  const params_post_after = [t, limit, all]
+  const params_pre_after = [user, kind, global, sort, before] as const
+  const params_post_after = [t, limit, all] as const
   return getItems(
     ...params_pre_after,
     after || gs.userNext,
@@ -339,7 +339,7 @@ const getItems = async (
     })
   const redditInfoItems = data.info
   // posts do not appear in redditInfoItems
-  Object.values(redditInfoItems).forEach(info_item => {
+  Object.values(redditInfoItems).forEach((info_item: any) => {
     const userPage_item = userPage_item_lookup[info_item.name]
     if (itemIsRemovedOrDeleted(info_item, false)) {
       userPage_item.removed = true
