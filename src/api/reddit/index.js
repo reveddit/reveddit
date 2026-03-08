@@ -36,7 +36,7 @@ const errorHandler = e => {
 export const getComments = ({
   objects = undefined,
   ids = [],
-  quarantined_subreddits,
+  quarantined_subreddits = '',
   useProxy = false,
 }) => {
   const full_ids = getFullIDsForObjects(objects, ids, 't1_')
@@ -51,7 +51,7 @@ export const getComments = ({
 export const getPosts = ({
   objects = undefined,
   ids = [],
-  quarantined_subreddits,
+  quarantined_subreddits = '',
   useProxy = false,
 }) => {
   const full_ids = getFullIDsForObjects(objects, ids, 't3_')
@@ -137,7 +137,7 @@ const getFullIDsForObjects = (objects, ids, prefix) => {
 
 export const getItems = async ({
   ids,
-  quarantined_subreddits,
+  quarantined_subreddits = '',
   key = 'name',
   useProxy = false,
 }) => {
@@ -331,7 +331,7 @@ export const queryUserPage = async ({
   after,
   t,
   limit = 100,
-  quarantined_subreddits,
+  quarantined_subreddits = '',
   useProxy = false,
   include_info = false,
   include_parents = false,

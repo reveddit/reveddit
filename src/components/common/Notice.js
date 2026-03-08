@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { HelpModal } from 'components/Misc'
+import { HelpModal } from 'components/ui/Modals'
 import { PATH_STR_USER } from 'utils'
 
 // &#xfe0e; is variation selector-15. allows color to work on iOS

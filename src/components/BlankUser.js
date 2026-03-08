@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { SimpleURLSearchParams, useFocus } from 'utils'
-import { LinkWithCloseModal } from 'components/Misc'
+import { LinkWithCloseModal } from 'components/ui/Links'
 
 const sub_regex = /^\/?[rv]\/([^/]+)(\/c[^/]*)?(\/[^/]+)?/
 //const defaultPlaceholder = 'user, r/sub or url'

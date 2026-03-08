@@ -1,5 +1,5 @@
 import React from 'react'
-import { QuestionMarkModal } from 'components/Misc'
+import { QuestionMarkModal } from 'components/ui/Modals'
 import SortIcon from 'svg/sort.svg'
 
 export const Selection = ({

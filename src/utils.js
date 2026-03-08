@@ -7,7 +7,7 @@ import {
 import scrollToElement from 'scroll-to-element'
 import { useRef, useEffect } from 'react'
 
-import { NewWindowLink } from 'components/Misc'
+import { NewWindowLink } from 'components/ui/Links'
 
 export const CLIENT_ID_SET_BY_USER_VAR_NAME = 'REVEDDIT_USER_CUSTOM_CLIENT_ID'
 

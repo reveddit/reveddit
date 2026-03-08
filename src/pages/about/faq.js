@@ -1,12 +1,8 @@
 import React from 'react'
-import { InternalPage, NewWindowLink } from 'components/Misc'
+import { InternalPage, MessageMods } from 'components/Misc'
+import { NewWindowLink, SamePageHashLink, RedditOrLocalLink } from 'components/ui/Links'
 import { Link } from 'react-router-dom'
-import {
-  ExtensionLink,
-  MessageMods,
-  SamePageHashLink,
-  RedditOrLocalLink,
-} from 'components/Misc'
+import { ExtensionLink } from 'components/ui/Extensions'
 import { TwitterLink } from 'components/common/svg'
 import { ContentWithHeader } from 'pages/about'
 import {

@@ -15,7 +15,8 @@ import { Notice } from 'components/common/Notice'
 import RestoreComment, {
   HideUnarchivedComments,
 } from 'data_processing/RestoreComment'
-import { NewWindowLink, UserNameEntry } from 'components/Misc'
+import { NewWindowLink } from 'components/ui/Links'
+import { UserNameEntry } from 'components/Misc'
 import { LabelWithModal, RESTORED } from 'components/common/RemovedBy'
 
 const notices = {

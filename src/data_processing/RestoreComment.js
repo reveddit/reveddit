@@ -21,12 +21,14 @@ import { kindsReverse, queryUserPage, EmptyUserPageResult } from 'api/reddit'
 import { getWaybackComments } from 'api/reveddit'
 import {
   Spin,
+} from 'components/Misc'
+import {
   QuestionMarkModal,
   Help,
-  NewWindowLink,
   ModalWithButton,
   buttonClasses,
-} from 'components/Misc'
+} from 'components/ui/Modals'
+import { NewWindowLink } from 'components/ui/Links'
 import {
   copyFields,
   initializeComment,

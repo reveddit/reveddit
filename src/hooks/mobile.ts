@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
 
 const r = 'resize'
-export const useIsMobile = () => {
-  const [width, setWidth] = useState(window.innerWidth)
+export const useIsMobile = (): boolean => {
+  const [width, setWidth] = useState<number>(window.innerWidth)
   const handleWindowSizeChange = () => {
     setWidth(window.innerWidth)
   }

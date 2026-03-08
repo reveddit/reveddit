@@ -6,7 +6,7 @@ import { withFetch } from 'components/RevdditFetcher'
 import { reversible } from 'utils'
 import Highlight from 'components/common/Highlight'
 import Pagination from 'components/Pagination'
-import { ShareLink } from 'components/Misc'
+import { ShareLink } from 'components/ui/Links'
 
 const Info = props => {
   const {

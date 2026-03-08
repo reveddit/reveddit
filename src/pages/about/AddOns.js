@@ -1,6 +1,7 @@
 import React from 'react'
 import { ext_urls, copyLink } from 'utils'
-import { iOS_shortcut_link, InternalPage } from 'components/Misc'
+import { iOS_shortcut_link } from 'components/ui/Extensions'
+import { InternalPage } from 'components/Misc'
 
 export const meta = {
   chrome: {

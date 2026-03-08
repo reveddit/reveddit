@@ -17,10 +17,9 @@ import Highlight from 'components/common/Highlight'
 import { Link } from 'react-router-dom'
 import {
   InternalPage,
-  NewWindowLink,
-  SamePageHashLink,
   Spin,
 } from 'components/Misc'
+import { NewWindowLink, SamePageHashLink } from 'components/ui/Links'
 import { media, headlines } from 'components/modals/Misc'
 import staticWhatPeopleSay from 'data/what-people-say.json'
 

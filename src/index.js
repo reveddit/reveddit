@@ -19,7 +19,7 @@ import {
   SimpleURLSearchParams,
 } from 'utils'
 import { urlParamKeys_textFilters } from 'state'
-import { ExtensionRedirect } from 'components/Misc'
+import { ExtensionRedirect } from 'components/ui/Extensions'
 import { old_reddit } from 'api/reddit'
 
 // Skeleton placeholder shown while lazy route chunks load.

@@ -14,8 +14,8 @@ import MinMaxFilters from './MinMaxFilters'
 import TagsFilter from './TagsFilter'
 import Selfposts from './Selfposts'
 import { SimpleURLSearchParams } from 'utils'
-import { NewWindowLink } from 'components/Misc'
-import { QuestionMarkModal, Help } from 'components/Misc'
+import { NewWindowLink } from 'components/ui/Links'
+import { QuestionMarkModal, Help } from 'components/ui/Modals'
 import BeforeAfter from './BeforeAfter'
 
 const UpvoteRemovalRateHistory = lazy(

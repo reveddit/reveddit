@@ -1,5 +1,6 @@
 import React from 'react'
-import { Tip, ExtensionLink, is_iOS, iOS_shortcut_link } from 'components/Misc'
+import { Tip } from 'components/Misc'
+import { ExtensionLink, is_iOS, iOS_shortcut_link } from 'components/ui/Extensions'
 
 export default ({ showMobile = false }) => {
   return (

@@ -276,7 +276,7 @@ export const getPostDataForComments = ({
   comments = undefined,
   link_ids_set = undefined,
   quarantined_subreddits = '',
-}) => {
+}: Record<string, any> = {}) => {
   if (!link_ids_set) {
     link_ids_set = Object.values(comments).reduce(
       (map, obj) => ((map[obj.link_id] = true), map),

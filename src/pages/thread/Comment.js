@@ -26,7 +26,8 @@ import {
   addUserComments_updateURL_createTreeIfNeeded,
   get_userPageSortAndTime,
 } from 'data_processing/RestoreComment'
-import { QuestionMarkModal, Help, ExtensionLink } from 'components/Misc'
+import { QuestionMarkModal, Help } from 'components/ui/Modals'
+import { ExtensionLink } from 'components/ui/Extensions'
 import { getSortFn } from './common'
 import { RestoreIcon } from 'components/common/svg'
 

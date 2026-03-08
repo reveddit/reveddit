@@ -1,181 +1,18 @@
+// Components that remain directly in Misc:
+//   Tip, Spin, MessageMods, SocialLinks, InternalPage, UserNameEntry
+// All other components have moved to focused submodules:
+//   components/ui/Links     – NewWindowLink, LinkWithCloseModal, RedditOrLocalLink, SamePageHashLink, ShareLink
+//   components/ui/Extensions – ExtensionLink, ExtensionLinks, ExtensionRedirect, is_iOS, iOS_shortcut_link, redditChangePostUrl
+//   components/ui/Modals    – QuestionMarkModal, ModalWithButton, HelpModal, Help, buttonClasses
+
 import React, { useEffect } from 'react'
-import { www_reddit, old_reddit } from 'api/reddit'
-import { QuestionMark, TwitterWhite } from 'components/common/svg'
-import ModalContext from 'contexts/modal'
-import Bowser from 'bowser'
-import { ext_urls, jumpToHash, copyLink, SimpleURLSearchParams } from 'utils'
-import { meta } from 'pages/about/AddOns'
-import { Link } from 'react-router-dom'
+import { www_reddit } from 'api/reddit'
+import { TwitterWhite } from 'components/common/svg'
+import { SimpleURLSearchParams, jumpToHash } from 'utils'
 import { newUserModal } from 'components/modals/Misc'
+import { NewWindowLink } from 'components/ui/Links'
 
-const chromelike = ['chrome', 'chromium', 'opera', 'edge', 'vivaldi']
-const chromelike_fullnames = {}
-chromelike.forEach(name => {
-  chromelike_fullnames[Bowser.BROWSER_MAP[name]] = true
-})
-
-const bp = Bowser.getParser(window.navigator.userAgent)
-const browserName = bp.getBrowserName()
-
-const isChrome = !!chromelike_fullnames[browserName]
-const isFirefox = !!(Bowser.BROWSER_MAP['firefox'] == browserName)
-
-export const is_iOS =
-  [
-    'iPad Simulator',
-    'iPhone Simulator',
-    'iPod Simulator',
-    'iPad',
-    'iPhone',
-    'iPod',
-  ].includes(navigator.platform) ||
-  (navigator.userAgent.includes('Mac') && 'ontouchend' in document)
-
-export const iOS_shortcut_link = (
-  <a href="https://www.icloud.com/shortcuts/d18cb266c9b6494faf8aef38ab60c607">
-    iOS shortcut
-  </a>
-)
-
-let browserExtensionImage = ''
-if (isChrome) {
-  browserExtensionImage = <img alt="Add to Chrome" src={meta.chrome.img} />
-} else if (isFirefox) {
-  browserExtensionImage = <img alt="Add to Firefox" src={meta.firefox.img} />
-}
-
-export const RedditOrLocalLink = ({ children, reddit, to }) => {
-  if (reddit) {
-    return <NewWindowLink reddit={reddit}>{children}</NewWindowLink>
-  } else if (to) {
-    return <LinkWithCloseModal to={to}>{children}</LinkWithCloseModal>
-  }
-  return null
-}
-
-export const SamePageHashLink = ({
-  id,
-  children,
-  onClick = () => {},
-  ...props
-}) => {
-  const hash = '#' + id
-  return (
-    <Link
-      to={hash}
-      onClick={() => {
-        jumpToHash(hash)
-        onClick()
-      }}
-      {...props}
-    >
-      {children}
-    </Link>
-  )
-}
-
-export const NewWindowLink = ({
-  children,
-  reddit,
-  short = false,
-  old = false,
-  redesign = false,
-  ...props
-}) => {
-  let href
-  if (reddit) {
-    if (old) {
-      href = old_reddit
-    } else if (redesign) {
-      href = 'https://new.reddit.com'
-    } else if (short) {
-      href = 'https://redd.it'
-    } else {
-      href = www_reddit
-    }
-    href += reddit
-  } else {
-    href = props.href
-  }
-  return (
-    <a href={href} target="_blank" rel="noopener" {...props}>
-      {children}
-    </a>
-  )
-}
-
-export const LinkWithCloseModal = ({ children, to }) => {
-  const modal = React.useContext(ModalContext)
-  return (
-    <Link to={to} onClick={modal.closeModal}>
-      {children}
-    </Link>
-  )
-}
-
-export const ExtensionLink = ({ image = false, extensionID = 'rt' }) => {
-  const extensionMeta = ext_urls[extensionID]
-  let content = extensionMeta.n
-  if (image) {
-    content = browserExtensionImage
-  }
-  if (isChrome) {
-    return <NewWindowLink href={extensionMeta.c}>{content}</NewWindowLink>
-  } else if (isFirefox) {
-    return <NewWindowLink href={extensionMeta.f}>{content}</NewWindowLink>
-  }
-  return <LinkWithCloseModal to="/add-ons/">{content}</LinkWithCloseModal>
-}
-
-export const redditChangePostUrl =
-  'https://www.reddit.com/r/reveddit/comments/1ngch51/'
-
-export const ExtensionLinks = ({ containerStyle = {}, linkStyle = {} }) => {
-  const extensionLink = browser => {
-    const href = ext_urls.rt[meta[browser].att]
-    if (href) {
-      return (
-        <a
-          target="_blank"
-          rel="noopener"
-          href={href}
-          style={{ marginRight: '10px', ...linkStyle }}
-        >
-          <img
-            alt={`Add to ${browser}`}
-            src={meta[browser].img}
-            style={{ height: '24px', verticalAlign: 'middle' }}
-          />
-        </a>
-      )
-    }
-    return null
-  }
-  return (
-    <span style={containerStyle}>
-      {extensionLink('chrome')}
-      {extensionLink('firefox')}
-    </span>
-  )
-}
-
-const getExtensionURL = (extCode = 'rt') => {
-  if (extCode in ext_urls) {
-    if (isChrome) {
-      return ext_urls[extCode].c
-    } else if (isFirefox) {
-      return ext_urls[extCode].f
-    }
-  }
-  return '/add-ons/'
-}
-
-export const ExtensionRedirect = ({ extCode = 'rt' }) => {
-  useEffect(() => {
-    window.location.replace(getExtensionURL(extCode))
-  }, [])
-  return null
-}
+// Components that remain here (small, fewer imports, or cross-cutting)
 
 export const Tip = ({ children }) => (
   <p>
@@ -213,65 +50,6 @@ export const MessageMods = ({
   )
 }
 
-//modalContent should be either {content: <>abc</>} or {hash: 'abc'}
-export const QuestionMarkModal = ({ modalContent, fill, text, wh = '20' }) => {
-  const modal = React.useContext(ModalContext)
-  return (
-    <a className="pointer" onClick={() => modal.openModal(modalContent)}>
-      {text ? (
-        text
-      ) : (
-        <QuestionMark style={{ marginLeft: '10px' }} wh={wh} fill={fill} />
-      )}
-    </a>
-  )
-}
-export const buttonClasses = 'pointer bubble medium lightblue'
-
-export const ModalWithButton = ({
-  text,
-  title,
-  buttonText,
-  buttonFn,
-  children,
-}) => {
-  const modal = React.useContext(ModalContext)
-  return (
-    <a
-      className="pointer"
-      onClick={() =>
-        modal.openModal({
-          content: (
-            <StructuredContent
-              {...{
-                title: title || text,
-                content: (
-                  <>
-                    {children}
-                    <p style={{ textAlign: 'center' }}>
-                      <a
-                        className={buttonClasses}
-                        onClick={() => {
-                          modal.closeModal()
-                          buttonFn()
-                        }}
-                      >
-                        {buttonText}
-                      </a>
-                    </p>
-                  </>
-                ),
-              }}
-            />
-          ),
-        })
-      }
-    >
-      {text}
-    </a>
-  )
-}
-
 export const InternalPage = ({ children, props }) => {
   useEffect(() => {
     if (props) {
@@ -283,38 +61,6 @@ export const InternalPage = ({ children, props }) => {
   return (
     <div id="main">
       <div id="main-box">{children}</div>
-    </div>
-  )
-}
-
-export const HelpModal = ({ title = '', content = '', fill }) => {
-  return (
-    <QuestionMarkModal
-      fill={fill}
-      modalContent={{ content: <Help {...{ title, content }} /> }}
-    />
-  )
-}
-
-export const Help = ({ title = '', content = '' }) => {
-  return <StructuredContent {...{ title: title + ' help', content }} />
-}
-
-const StructuredContent = ({ title = '', content = '' }) => {
-  return (
-    <div>
-      <h3>{title}</h3>
-      {content}
-    </div>
-  )
-}
-
-export const ShareLink = ({ href, useHref = true }) => {
-  return (
-    <div className="revddit-sharing">
-      <a href={href} onClick={e => copyLink(e, useHref)}>
-        copy sharelink
-      </a>
     </div>
   )
 }

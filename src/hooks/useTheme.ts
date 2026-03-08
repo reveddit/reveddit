@@ -1,23 +1,23 @@
 import { useState, useEffect, useCallback } from 'react'
 
+type Theme = 'dark' | 'light'
 const STORAGE_KEY = 'reveddit-theme'
 
-const getTheme = () => localStorage.getItem(STORAGE_KEY) || 'dark'
+const getTheme = (): Theme =>
+  (localStorage.getItem(STORAGE_KEY) as Theme) || 'dark'
 
 /**
  * Hook for reading / toggling the site's dark / light theme.
  *
  * Keeps `document.documentElement[data-theme]` and `localStorage`
  * in sync with the returned value.
- *
- * @returns {{ theme: 'dark'|'light', toggleTheme: () => void }}
  */
-const useTheme = () => {
-  const [theme, setTheme] = useState(getTheme)
+const useTheme = (): { theme: Theme; toggleTheme: () => void } => {
+  const [theme, setTheme] = useState<Theme>(getTheme)
 
   const toggleTheme = useCallback(() => {
-    setTheme(prev => {
-      const next = prev === 'light' ? 'dark' : 'light'
+    setTheme((prev: Theme) => {
+      const next: Theme = prev === 'light' ? 'dark' : 'light'
       document.documentElement.setAttribute('data-theme', next)
       localStorage.setItem(STORAGE_KEY, next)
       return next

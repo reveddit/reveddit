@@ -1,7 +1,7 @@
 import React from 'react'
 import { connect, localSort_types, getPageType } from 'state'
 import { Selection } from './SelectionBase'
-import { Help } from 'components/Misc'
+import { Help } from 'components/ui/Modals'
 import { showAccountInfo_global } from 'components/modals/Settings'
 
 const paramKey_sortType = 'localSort'

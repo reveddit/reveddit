@@ -1,5 +1,6 @@
 import React from 'react'
-import { InternalPage, NewWindowLink } from 'components/Misc'
+import { InternalPage } from 'components/Misc'
+import { NewWindowLink } from 'components/ui/Links'
 import { ContentWithHeader } from 'pages/about'
 import { Row } from 'pages/about'
 

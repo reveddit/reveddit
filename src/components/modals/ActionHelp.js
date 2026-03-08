@@ -1,6 +1,6 @@
 import React from 'react'
 import { ALL_ACTIONS_META } from 'components/common/RemovedBy'
-import { RedditOrLocalLink } from 'components/Misc'
+import { RedditOrLocalLink } from 'components/ui/Links'
 
 const ActionHelpEntry = ({ meta }) => (
   <div>

@@ -2,18 +2,15 @@ import { useState, useEffect } from 'react'
 
 /**
  * Returns `true` when the viewport matches the given CSS media query.
- *
- * @param {string} query  e.g. `'(max-width: 768px)'`
- * @returns {boolean}
  */
-const useMediaQuery = query => {
-  const [matches, setMatches] = useState(
+const useMediaQuery = (query: string): boolean => {
+  const [matches, setMatches] = useState<boolean>(
     () => window.matchMedia(query).matches
   )
 
   useEffect(() => {
     const mql = window.matchMedia(query)
-    const handler = e => setMatches(e.matches)
+    const handler = (e: MediaQueryListEvent) => setMatches(e.matches)
     // Modern API; falls back for older browsers.
     if (mql.addEventListener) {
       mql.addEventListener('change', handler)

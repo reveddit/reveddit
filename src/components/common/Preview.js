@@ -1,8 +1,8 @@
 import React from 'react'
 import Time from 'components/common/Time'
 import { prettyScore, roundToX, replaceAmpGTLT } from 'utils'
-import { NewWindowLink } from 'components/Misc'
-import { QuestionMarkModal, Help } from 'components/Misc'
+import { NewWindowLink } from 'components/ui/Links'
+import { QuestionMarkModal, Help } from 'components/ui/Modals'
 import { urr_help } from 'components/filters/UpvoteRemovalRateHistory'
 
 const COMMENTS = 'comments'

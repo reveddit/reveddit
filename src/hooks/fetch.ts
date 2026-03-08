@@ -1,10 +1,21 @@
 import React from 'react'
 
-const fetch = 'fetch',
-  success = 'success',
-  error = 'error'
+const fetch = 'fetch' as const,
+  success = 'success' as const,
+  error = 'error' as const
 
-const fetchReducer = (state, action) => {
+interface FetchState {
+  data: any
+  loading: boolean
+  error: boolean
+}
+
+type FetchAction =
+  | { type: typeof fetch }
+  | { type: typeof success; data: any }
+  | { type: typeof error }
+
+const fetchReducer = (state: FetchState, action: FetchAction): FetchState => {
   switch (action.type) {
     case fetch:
       return {
@@ -31,9 +42,9 @@ const fetchReducer = (state, action) => {
 // using global cache b/c
 //   - useRef does not work when component is 'hidden'
 //   - using global state is too complex
-const cache = {}
+const cache: Record<string, any> = {}
 
-export const useFetch = url => {
+export const useFetch = (url: string): FetchState => {
   const [state, dispatch] = React.useReducer(fetchReducer, {
     data: null,
     loading: true,
@@ -74,7 +85,12 @@ export const useFetch = url => {
   return { ...state }
 }
 
-export const Fetch = ({ url, render }) => {
+interface FetchProps {
+  url: string
+  render?: (result: FetchState) => React.ReactNode
+}
+
+export const Fetch = ({ url, render }: FetchProps): React.ReactNode => {
   const result = useFetch(url)
   return render && result ? render(result) : null
 }

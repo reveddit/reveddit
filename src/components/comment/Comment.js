@@ -12,7 +12,7 @@ import {
 } from 'state'
 import { AddUserParam } from 'data_processing/RestoreComment'
 import { MessageMods } from 'components/Misc'
-import { NewWindowLink } from 'components/Misc'
+import { NewWindowLink } from 'components/ui/Links'
 
 const Comment = props => {
   const [displayBody, setDisplayBody] = useState(true)

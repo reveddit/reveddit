@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { NewWindowLink, SocialLinks } from 'components/Misc'
+import { NewWindowLink } from 'components/ui/Links'
+import { SocialLinks } from 'components/Misc'
 import BlankUser from 'components/BlankUser'
 import Highlight from 'components/common/Highlight'
 import { convertPathSub_reverse, get, put, shuffle } from 'utils'

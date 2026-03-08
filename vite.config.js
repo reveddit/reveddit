@@ -63,7 +63,7 @@ export default defineConfig(({ mode }) => {
         hooks: src('hooks'),
         pages: src('pages'),
         snuownd: src('snuownd.js'),
-        state: src('state.tsx'),
+        state: src('state.ts'),
         svg: src('svg'),
         utils: src('utils.js'),
       },
@@ -120,6 +120,14 @@ export default defineConfig(({ mode }) => {
       // live there and are committed to git. The clean script handles removing
       // stale generated files before each build.
       emptyOutDir: false,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+            'vendor-d3': ['d3'],
+          },
+        },
+      },
     },
 
     server: {

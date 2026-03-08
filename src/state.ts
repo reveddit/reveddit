@@ -359,9 +359,9 @@ export const urlParamKeys = {
 }
 
 export const removedFilter_types = {
-  all: 'all',
-  removed: 'removed',
-  not_removed: 'not_removed',
+  all: 'all' as const,
+  removed: 'removed' as const,
+  not_removed: 'not_removed' as const,
 }
 export const removedFilter_text = {
   all: 'all',
@@ -473,7 +473,7 @@ const siteDefaultsThatAddParamsToURL = {
   },
 }
 
-const initialState = {
+const initialState: GlobalState = {
   n: 300,
   before: '',
   before_id: '',
@@ -555,7 +555,7 @@ const initialState = {
 // pushshift max per call is now 100 (previously was 1000)
 const maxN = 2000
 
-export const create_qparams = path_and_search =>
+export const create_qparams = (path_and_search?: string) =>
   new SimpleURLSearchParams(
     path_and_search
       ? new URL(path_and_search, window.location.origin).search
@@ -616,7 +616,7 @@ export const getPageType = page_type => {
     : page_type
 }
 
-const useGlobalStore = create((set, getStore) => {
+const useGlobalStore = create<GlobalStore>()((set, getStore) => {
   // Merges partial state into the nested state object, returns a Promise
   // to maintain compatibility with existing callers that do .then() / await.
   const mergeState = obj => {
@@ -1016,6 +1016,6 @@ const useGlobalStore = create((set, getStore) => {
 export const connect = Component => {
   return function ConnectedComponent(props) {
     const global = useGlobalStore()
-    return <Component {...props} global={global} />
+    return React.createElement(Component, { ...props, global })
   }
 }

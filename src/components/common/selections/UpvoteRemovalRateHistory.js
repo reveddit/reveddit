@@ -10,7 +10,8 @@ import {
 } from 'utils'
 import { Fetch } from 'hooks/fetch'
 import { Selection } from './SelectionBase'
-import { QuestionMarkModal, Help, NewWindowLink } from 'components/Misc'
+import { QuestionMarkModal, Help } from 'components/ui/Modals'
+import { NewWindowLink } from 'components/ui/Links'
 import {
   getAggregationsURL,
   numGraphPointsParamKey,

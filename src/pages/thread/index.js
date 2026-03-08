@@ -7,7 +7,7 @@ import CommentSection from 'components/thread/CommentSection'
 import { withFetch } from 'components/RevdditFetcher'
 import { SimpleURLSearchParams, jumpToHash, PATH_STR_SUB } from 'utils'
 import Highlight from 'components/common/Highlight'
-import { ShareLink } from 'components/Misc'
+import { ShareLink } from 'components/ui/Links'
 
 const Thread = connect(
   withFetch(

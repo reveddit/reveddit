@@ -1,9 +1,9 @@
 import React from 'react'
+import { NewWindowLink } from 'components/ui/Links'
 import {
-  NewWindowLink,
   ExtensionLinks,
   redditChangePostUrl,
-} from 'components/Misc'
+} from 'components/ui/Extensions'
 import { get, put } from 'utils'
 import { Link } from 'react-router-dom'
 

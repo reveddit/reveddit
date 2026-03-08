@@ -16,8 +16,8 @@ import {
 } from 'utils'
 import Highlight from 'components/common/Highlight'
 import ModalContext from 'contexts/modal'
-import { Spin, RedditOrLocalLink } from 'components/Misc'
-import { NewWindowLink } from 'components/Misc'
+import { Spin } from 'components/Misc'
+import { RedditOrLocalLink, NewWindowLink } from 'components/ui/Links'
 import { pinPostLink } from 'pages/about/faq'
 
 const hidePinPostNotice_var = 'hidePinPostNotice'

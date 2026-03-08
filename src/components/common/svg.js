@@ -1,5 +1,5 @@
 import React from 'react'
-import { NewWindowLink } from 'components/Misc'
+import { NewWindowLink } from 'components/ui/Links'
 
 const SVG_WRAP = ({ children, wh, style = {}, ...props }) => {
   if (wh !== undefined) {

@@ -3,7 +3,7 @@ import { connect, adjust_qparams_for_selection } from 'state'
 import { Selection } from './SelectionBase'
 import { SimpleURLSearchParams, truthyOrUndefined } from 'utils'
 import { pageTypes } from 'components/layout/DefaultLayout'
-import { NewWindowLink } from 'components/Misc'
+import { NewWindowLink } from 'components/ui/Links'
 
 const SELECTED_CLASS = 'selected'
 

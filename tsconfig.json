@@ -24,7 +24,7 @@
       "hooks/*": ["hooks/*"],
       "pages/*": ["pages/*"],
       "snuownd": ["snuownd.js"],
-      "state": ["state.tsx"],
+      "state": ["state.ts"],
       "svg/*": ["svg/*"],
       "utils": ["utils.js"]
     }

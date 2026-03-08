@@ -12,7 +12,7 @@ import ModalContext from 'contexts/modal'
 import { QuestionMark } from 'components/common/svg'
 import ActionHelp from 'components/modals/ActionHelp'
 import { modlogSaysBotRemoved } from 'data_processing/comments'
-import { LinkWithCloseModal, NewWindowLink } from 'components/Misc'
+import { LinkWithCloseModal, NewWindowLink } from 'components/ui/Links'
 
 const APPROVED = 'approved'
 export const ANTI_EVIL_REMOVED = 'anti_evil_ops'

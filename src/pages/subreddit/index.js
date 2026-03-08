@@ -6,7 +6,7 @@ import { getUrlWithTimestamp, PATH_STR_SUB } from 'utils'
 import Highlight from 'components/common/Highlight'
 import Pagination from 'components/Pagination'
 import { TipWithBackground, UserPageTip } from 'components/common/Notice'
-import { ShareLink } from 'components/Misc'
+import { ShareLink } from 'components/ui/Links'
 
 const SubredditPosts = props => {
   const { subreddit } = props.match.params

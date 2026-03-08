@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import TextFilter from './TextFilter'
 import { connect, urlParamKeys } from 'state'
 import { SimpleURLSearchParams } from 'utils'
-import { QuestionMarkModal, Help } from 'components/Misc'
+import { QuestionMarkModal, Help } from 'components/ui/Modals'
 
 const appears = ' of the post in which the comment appears'
 const go = " Click 'go' after setting if the button appears"
