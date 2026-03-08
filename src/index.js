@@ -24,7 +24,13 @@ if ('serviceWorker' in navigator && IS_PRODUCTION === 'true') {
   window.addEventListener('load', () => {
     navigator.serviceWorker
       .register('/service-worker.js')
-      .then(registration => {})
+      .then(() => {
+        // Reload once when a new service worker takes control so users
+        // get updated code on a single refresh instead of closing all tabs.
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          window.location.reload()
+        })
+      })
       .catch(registrationError => {
         console.log('SW registration failed: ', registrationError)
       })
