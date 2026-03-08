@@ -5,6 +5,7 @@
 
 [build.environment]
   NODE_VERSION = "22"
+  NODE_OPTIONS = "--openssl-legacy-provider"
 
 
 # created in part using CSP Generator extension (csper.io)
