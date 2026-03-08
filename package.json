@@ -71,7 +71,6 @@
     "lodash-webpack-plugin": "^0.11.6",
     "netlify-lambda": "^1.4.13",
     "prettier": "^3.7.4",
-    "react-snap": "^1.23.0",
     "sass": "^1.69.7",
     "scroll-to-element": "^2.0.2",
     "standard": "^11.0.1",
@@ -85,7 +84,7 @@
     "start-all": "concurrently \"yarn start\" \"yarn lambda-serve\"",
     "start": "yarn build-sass; webpack serve --mode development --host 0.0.0.0",
     "start-staging": "yarn build-sass; TARGET_ENV=staging webpack serve --mode development --host 0.0.0.0",
-    "build": "yarn clean; yarn build-sass; webpack --mode production && yarn lambda-build && (react-snap || true)",
+    "build": "yarn clean; yarn build-sass; webpack --mode production && yarn lambda-build",
     "build:local-mac": "PUPPETEER_EXECUTABLE_PATH='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' yarn build",
     "prefetch-data": "node scripts/fetch-prerender-data.js",
     "build-sass": "sass --style=compressed --no-charset --load-path=node_modules/ src/sass/index.sass dist/x-files/main.css",
@@ -94,18 +93,5 @@
     "clean": "del 'dist/x-files/*.js' 'dist/x-files/*.js.map' 'dist/x-files/*.css' 'dist/index.html' 'dist/*.js' 'dist/*.js.map' 'dist/200.html' 'dist/about'",
     "format": "prettier --write 'src/**/*.js' 'scripts/**/*.js'"
   },
-  "packageManager": "yarn@4.0.0-rc.25",
-  "reactSnap": {
-    "source": "dist",
-    "include": [
-      "/",
-      "/about/faq"
-    ],
-    "crawl": false,
-    "inlineCss": false,
-    "puppeteerArgs": [
-      "--no-sandbox",
-      "--disable-setuid-sandbox"
-    ]
-  }
+  "packageManager": "yarn@4.0.0-rc.25"
 }

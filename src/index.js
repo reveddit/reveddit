@@ -1,7 +1,7 @@
 import 'core-js/stable'
 document.getElementById('javascript-root-error').style.display = 'none'
 import React, { Suspense, lazy } from 'react'
-import { createRoot, hydrateRoot } from 'react-dom/client'
+import { createRoot } from 'react-dom/client'
 import {
   BrowserRouter,
   Routes,
@@ -421,9 +421,11 @@ const App = () => (
   </BrowserRouter>
 )
 
+// Clear any react-snap pre-rendered HTML before mounting.
+// react-snap pre-renders the "/" route into 200.html, which Netlify serves
+// for ALL routes as a SPA fallback. Hydrating that HTML on a different
+// route causes React 18 hydration errors (#418/#425/#423) and visual
+// bleed-through of the home page content.
 const rootElement = document.getElementById('app')
-if (rootElement.hasChildNodes()) {
-  hydrateRoot(rootElement, <App />)
-} else {
-  createRoot(rootElement).render(<App />)
-}
+rootElement.textContent = ''
+createRoot(rootElement).render(<App />)
