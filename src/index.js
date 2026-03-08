@@ -3,7 +3,6 @@ document.getElementById('javascript-root-error').style.display = 'none'
 import React, { Suspense, lazy } from 'react'
 import ReactDOM from 'react-dom'
 import { BrowserRouter, Switch, Route, Redirect } from 'react-router-dom'
-import { Provider } from 'unstated'
 import DefaultLayout, { pageTypes } from 'pages/DefaultLayout'
 import ErrorBoundary from 'components/ErrorBoundary'
 import {
@@ -247,8 +246,7 @@ const routes = (
 class App extends React.Component {
   render() {
     return (
-      <Provider>
-        <BrowserRouter basename={__dirname}>
+      <BrowserRouter basename={__dirname}>
           <Route
             path="*"
             render={({ location }) => {
@@ -322,7 +320,6 @@ class App extends React.Component {
             }}
           />
         </BrowserRouter>
-      </Provider>
     )
   }
 }
