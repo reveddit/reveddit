@@ -38,41 +38,38 @@ export const TAG_META = {
   },
 }
 
-class TagsFilter extends React.Component {
-  render() {
-    const { page_type } = this.props
-    const tagsFilter = this.props.global.state.tagsFilter
-    const updateStateAndURL = this.props.global.tagsFilter_update
-    return (
-      <Selection
-        className="tagsFilter"
-        isFilter={true}
-        isSet={Object.keys(tagsFilter).length !== 0}
-        title="Tags"
-      >
-        {Object.keys(TAG_META).map(type => {
-          if (page_type === 'thread' && type === QUARANTINE) {
-            return null
-          }
-          return (
-            <div key={type}>
-              <label title={TAG_META[type].text}>
-                <input
-                  id={type}
-                  type="checkbox"
-                  checked={tagsFilter[type] !== undefined}
-                  value={type}
-                  onChange={e => updateStateAndURL(e.target, page_type)}
-                />
-                <span>{TAG_META[type].text}</span>
-              </label>
-            </div>
-          )
-        })}
-        <ExcludeLabel globalVarName="exclude_tag" page_type={page_type} />
-      </Selection>
-    )
-  }
-}
+const TagsFilter = connect(({ global, page_type }) => {
+  const tagsFilter = global.state.tagsFilter
+  const updateStateAndURL = global.tagsFilter_update
+  return (
+    <Selection
+      className="tagsFilter"
+      isFilter={true}
+      isSet={Object.keys(tagsFilter).length !== 0}
+      title="Tags"
+    >
+      {Object.keys(TAG_META).map(type => {
+        if (page_type === 'thread' && type === QUARANTINE) {
+          return null
+        }
+        return (
+          <div key={type}>
+            <label title={TAG_META[type].text}>
+              <input
+                id={type}
+                type="checkbox"
+                checked={tagsFilter[type] !== undefined}
+                value={type}
+                onChange={e => updateStateAndURL(e.target, page_type)}
+              />
+              <span>{TAG_META[type].text}</span>
+            </label>
+          </div>
+        )
+      })}
+      <ExcludeLabel globalVarName="exclude_tag" page_type={page_type} />
+    </Selection>
+  )
+})
 
-export default connect(TagsFilter)
+export default TagsFilter

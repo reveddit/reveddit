@@ -1,6 +1,5 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
-import { withRouter } from 'routerCompat'
+import { Link, useParams } from 'react-router-dom'
 import { connect, urlParamKeys } from 'state'
 import Post from 'pages/common/Post'
 import { Notice, UserPageTip } from 'pages/common/Notice'
@@ -12,7 +11,8 @@ import { ShareLink } from 'components/Misc'
 
 const Thread = connect(
   withFetch(
-    withRouter(({ global, ...props }) => {
+    ({ global, ...props }) => {
+      const params = useParams()
       const {
         itemsLookup: comments,
         threadPost: post,
@@ -29,7 +29,7 @@ const Thread = connect(
         threadID,
         urlTitle = '',
         commentID,
-      } = props.match.params
+      } = params
       const { selections, summary, page_type, topNotice, viewableItems } = props
       const queryParams = new SimpleURLSearchParams()
       if (add_user) {
@@ -120,7 +120,7 @@ const Thread = connect(
           )}
         </>
       )
-    })
+    }
   )
 )
 

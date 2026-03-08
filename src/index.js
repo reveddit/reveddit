@@ -1,4 +1,3 @@
-import 'core-js/stable'
 document.getElementById('javascript-root-error').style.display = 'none'
 import React, { Suspense, lazy } from 'react'
 import { createRoot } from 'react-dom/client'
@@ -151,7 +150,7 @@ const profile_search = new RegExp('^' + PATH_STR_USER + '/')
 const profile_replace = PATH_STR_SUB + '/u_'
 
 const App = () => (
-  <BrowserRouter basename={__dirname}>
+  <BrowserRouter basename={__dirname} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
     <URLNormalizer>
       <ErrorBoundary>
         <Suspense fallback={<div>Loading...</div>}>

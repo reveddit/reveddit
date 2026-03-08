@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { connect, adjust_qparams_for_selection, updateURL } from 'state'
 import * as d3 from 'd3'
 import Preview from 'pages/common/Preview'
@@ -76,89 +76,54 @@ export const urr_help = (
   />
 )
 
-class Sparkline extends React.PureComponent {
-  constructor(props) {
-    super(props)
-    this.xScale = d3.scaleLinear()
-    this.yScale = d3.scaleLinear()
-    this.line = d3.line()
-    this._updateDataTransforms(props)
-  }
-  componentDidMount() {
-    const self = this
-    d3.select('.graph svg')
-      .on('mousemove', function () {
-        self._onMouseMove(d3.mouse(this)[0])
-      })
-      .on('click', function () {
-        self._onMouseClick(d3.mouse(this)[0])
-      })
-      .on('mouseleave', function () {
-        self._onMouseMove(null)
-      })
-  }
-  componentDidUpdate(newProps) {
-    this._updateDataTransforms(newProps)
-  }
-  _updateDataTransforms(props) {
-    const { xAccessor, yAccessor, width, height, data } = props
-    let len = data.length,
-      min = Infinity,
-      max = -Infinity
-    while (len--) {
-      const val = data[len].y.rate
-      if (val < min) {
-        min = val
-      }
-      if (val > max) {
-        max = val
-      }
-    }
-    this.xScale.domain([0, data.length]).range([0, width])
-    this.yScale.domain([min, max]).range([height, 0])
-    this.line
-      .x((d, i) => this.xScale(xAccessor(d, i)))
-      .y((d, i) => this.yScale(yAccessor(d, i)))
-    this.bisectByX = d3.bisector(xAccessor).left
-  }
-  _onMouseClick(xPixelPos) {
-    const { data, onClick, xAccessor } = this.props
-    if (xPixelPos === null) {
-      onClick(null, null)
-    } else {
-      const xValue = this.xScale.invert(xPixelPos)
-      const i = this._findClosest(data, xValue, xAccessor)
-      onClick(data[i], i)
-    }
-  }
-  _onMouseMove(xPixelPos) {
-    const { data, onHover, xAccessor } = this.props
-    if (xPixelPos === null) {
-      onHover(null, null)
-    } else {
-      const xValue = this.xScale.invert(xPixelPos)
-      const i = this._findClosest(data, xValue, xAccessor)
-      onHover(data[i], i)
-    }
-  }
-  _findClosest(array, value, accessor) {
-    if (!array || !array.length) {
-      return null
-    }
+const defaultXAccessor = ({ x }) => x
+const defaultYAccessor = ({ y }) => y.rate
 
-    const bisect = d3.bisector(accessor).right
+const Sparkline = ({
+  data,
+  width,
+  height,
+  hovered,
+  onHover,
+  onClick,
+  xAccessor = defaultXAccessor,
+  yAccessor = defaultYAccessor,
+}) => {
+  const svgRef = useRef(null)
+  const scalesRef = useRef({
+    xScale: d3.scaleLinear(),
+    yScale: d3.scaleLinear(),
+    line: d3.line(),
+  })
+
+  // Update scales whenever data/dimensions change
+  const { xScale, yScale, line } = scalesRef.current
+  let len = data.length,
+    min = Infinity,
+    max = -Infinity
+  while (len--) {
+    const val = data[len].y.rate
+    if (val < min) min = val
+    if (val > max) max = val
+  }
+  xScale.domain([0, data.length]).range([0, width])
+  yScale.domain([min, max]).range([height, 0])
+  line
+    .x((d, i) => xScale(xAccessor(d, i)))
+    .y((d, i) => yScale(yAccessor(d, i)))
+
+  const findClosest = (array, value) => {
+    if (!array || !array.length) return null
+    const bisect = d3.bisector(xAccessor).right
     const pointIndex = bisect(array, value)
     const left_i = pointIndex - 1
     const right_i = pointIndex
     const left = array[left_i],
       right = array[right_i]
-
     let i
-
-    // take the closer element
     if (left && right) {
       i =
-        Math.abs(value - accessor(left)) < Math.abs(value - accessor(right))
+        Math.abs(value - xAccessor(left)) < Math.abs(value - xAccessor(right))
           ? left_i
           : right_i
     } else if (left) {
@@ -166,46 +131,62 @@ class Sparkline extends React.PureComponent {
     } else {
       i = right_i
     }
-
     return i
   }
 
-  render() {
-    const { data, width, height, xAccessor } = this.props
-    let { hovered } = this.props
-    const before_id = new SimpleURLSearchParams(window.location.search).get(
-      'before_id'
-    )
-    if (before_id) {
-      data.forEach(point => {
-        if (point.y.last_id == before_id && !hovered) {
-          hovered = point
-        }
+  // Attach D3 mouse handlers
+  useEffect(() => {
+    const svg = d3.select(svgRef.current)
+    svg
+      .on('mousemove', function () {
+        const xPixelPos = d3.mouse(this)[0]
+        const xValue = xScale.invert(xPixelPos)
+        const i = findClosest(data, xValue)
+        onHover(data[i], i)
       })
+      .on('click', function () {
+        const xPixelPos = d3.mouse(this)[0]
+        const xValue = xScale.invert(xPixelPos)
+        const i = findClosest(data, xValue)
+        onClick(data[i], i)
+      })
+      .on('mouseleave', function () {
+        onHover(null, null)
+      })
+    return () => {
+      svg.on('mousemove', null).on('click', null).on('mouseleave', null)
     }
-    const hoveredRender = hovered ? (
-      <line
-        x1={this.xScale(xAccessor(hovered))}
-        x2={this.xScale(xAccessor(hovered))}
-        y0={0}
-        y1={height}
-        style={{ strokeWidth: '2px', stroke: 'red', opacity: 0.65 }}
-      />
-    ) : null
-    return (
-      <svg width={width} height={height}>
-        <path
-          style={{ fill: 'none', strokeWidth: '2px', stroke: '#828282' }}
-          d={this.line(data)}
-        />
-        {hoveredRender}
-      </svg>
-    )
+  })
+
+  let resolvedHovered = hovered
+  const before_id = new SimpleURLSearchParams(window.location.search).get(
+    'before_id'
+  )
+  if (before_id) {
+    data.forEach(point => {
+      if (point.y.last_id == before_id && !resolvedHovered) {
+        resolvedHovered = point
+      }
+    })
   }
-}
-Sparkline.defaultProps = {
-  xAccessor: ({ x }) => x,
-  yAccessor: ({ y }) => y.rate,
+  const hoveredRender = resolvedHovered ? (
+    <line
+      x1={xScale(xAccessor(resolvedHovered))}
+      x2={xScale(xAccessor(resolvedHovered))}
+      y0={0}
+      y1={height}
+      style={{ strokeWidth: '2px', stroke: 'red', opacity: 0.65 }}
+    />
+  ) : null
+  return (
+    <svg ref={svgRef} width={width} height={height}>
+      <path
+        style={{ fill: 'none', strokeWidth: '2px', stroke: '#828282' }}
+        d={line(data)}
+      />
+      {hoveredRender}
+    </svg>
+  )
 }
 
 const commonFields = [
@@ -220,37 +201,35 @@ const commonFields = [
   'total_items',
 ]
 
-class UpvoteRemovalRateHistory extends React.Component {
-  toggleDisplayOptions = () => {
-    this.setState({ displayOptions: !this.state.displayOptions })
-  }
-  getDisplayOptionsText() {
-    if (this.state.displayOptions) {
-      return '[–] options'
-    } else {
-      return '[+] options'
+const UpvoteRemovalRateHistory = connect(({ global, page_type, subreddit }) => {
+  const queryParams_init = new SimpleURLSearchParams(window.location.search)
+  const initState = { ...aggregationPeriodParams }
+  Object.keys(aggregationPeriodParams).forEach(param => {
+    let paramVal = queryParams_init.get(param)
+    if (paramVal) {
+      initState[param] = ifNumParseInt(paramVal)
     }
-  }
-  constructor(props) {
-    super(props)
-    const state = {
-      hovered: null,
-      clicked: null,
-      displayOptions: false,
-      ...aggregationPeriodParams,
-    }
-    const queryParams = new SimpleURLSearchParams(window.location.search)
-    Object.keys(aggregationPeriodParams).forEach(param => {
-      let paramVal = queryParams.get(param)
-      if (paramVal) {
-        state[param] = ifNumParseInt(paramVal)
-      }
-    })
-    this.state = state
+  })
+
+  const [hovered, setHovered] = useState(null)
+  const [clicked, setClicked] = useState(null)
+  const [displayOptions, setDisplayOptions] = useState(false)
+  const [aggParams, setAggParams] = useState(initState)
+
+  const { over18, threadPost } = global.state
+  if (
+    (page_type !== 'thread' && truthyOrUndefined(over18)) ||
+    threadPost.over_18
+  ) {
+    return null
   }
 
-  updateStateAndURL = (paramKey, value, defaultValue) => {
-    this.setState({ [paramKey]: value })
+  const toggleDisplayOptions = () => setDisplayOptions(!displayOptions)
+  const getDisplayOptionsText = () =>
+    displayOptions ? '[–] options' : '[+] options'
+
+  const updateStateAndURL = (paramKey, value, defaultValue) => {
+    setAggParams(prev => ({ ...prev, [paramKey]: value }))
     const queryParams = new SimpleURLSearchParams(window.location.search)
     if (value !== defaultValue) {
       queryParams.set(paramKey, value)
@@ -260,214 +239,201 @@ class UpvoteRemovalRateHistory extends React.Component {
     updateURL(queryParams)
   }
 
-  render() {
-    const { global, page_type, subreddit } = this.props
-    const { over18, threadPost } = global.state
-    if (
-      (page_type !== 'thread' && truthyOrUndefined(over18)) ||
-      threadPost.over_18
-    ) {
-      return null
-    }
-    const { clicked } = this.state
-    let { hovered } = this.state
-    let sort = 'top'
-    let type = 'comments'
-    const limit = this.state[numGraphPointsParamKey]
-    if (this.state[sortByParamKey] === 'last_created_utc') {
-      sort = 'new'
-    }
-    if (this.state[contentTypeParamKey] === 'posts') {
-      type = 'posts'
-    }
-    const queryParams = new SimpleURLSearchParams()
+  let sort = 'top'
+  let type = 'comments'
+  const limit = aggParams[numGraphPointsParamKey]
+  if (aggParams[sortByParamKey] === 'last_created_utc') {
+    sort = 'new'
+  }
+  if (aggParams[contentTypeParamKey] === 'posts') {
+    type = 'posts'
+  }
+  const queryParams = new SimpleURLSearchParams()
+  adjust_qparams_for_selection(
+    pageTypes.aggregations,
+    queryParams,
+    'content',
+    type
+  )
+  if (limit > agg_defaults_for_page.limit) {
     adjust_qparams_for_selection(
       pageTypes.aggregations,
       queryParams,
-      'content',
-      type
-    )
-    if (limit > agg_defaults_for_page.limit) {
-      adjust_qparams_for_selection(
-        pageTypes.aggregations,
-        queryParams,
-        'n',
-        limit
-      )
-    }
-    adjust_qparams_for_selection(
-      pageTypes.aggregations,
-      queryParams,
-      'sort',
-      sort
-    )
-    const own_page = `/r/${subreddit}/history/` + queryParams.toString()
-    // Passing a render callback to a component: https://americanexpress.io/faccs-are-an-antipattern/#render-props:~:text=pass%20a%20render%20callback%20function%20to%20a%20component%20in%20a%20clean%20manner%3F
-    return (
-      <Fetch
-        url={getAggregationsURL({ type, subreddit, limit, sort })}
-        render={({ loading, error, data }) => {
-          if (loading) return <p>Loading...</p>
-          if (error) return <p>Error :(</p>
-          // turn data into graph points: [{x: 0, y: item}, {x: 1, y: item}]
-          data = data.data
-            .sort((a, b) => a.last_created_utc - b.last_created_utc)
-            .map((y, x) => {
-              return { x, y }
-            })
-          const before_id = new SimpleURLSearchParams(
-            window.location.search
-          ).get('before_id')
-          if (!hovered && before_id) {
-            data.forEach(point => {
-              if (point.y.last_id == before_id) {
-                hovered = point
-              }
-            })
-          }
-          return (
-            <Selection
-              className="upvoteRemovalRate"
-              title={urr_title}
-              titleTitle="percentage karma removed over time"
-            >
-              <div className="toggleOptions">
-                <a
-                  onClick={this.toggleDisplayOptions}
-                  className="collapseToggle"
-                >
-                  {this.getDisplayOptionsText()}
-                </a>
-                <QuestionMarkModal modalContent={{ content: urr_help }} />
-              </div>
-              {this.state.displayOptions && (
-                <div className="options">
-                  <div className="filter-menu">
-                    <label
-                      className="filter-name"
-                      title="each graph point represents a period of either 1,000 comments or 1,000 posts"
-                    >
-                      size
-                    </label>
-                    {[10, 50, 500, 1000].map(n => {
-                      let displayValue = prettyFormatBigNumber(n)
-                      return (
-                        <label key={n}>
-                          <input
-                            type="radio"
-                            value={n}
-                            checked={limit == n}
-                            onChange={e =>
-                              this.updateStateAndURL(
-                                numGraphPointsParamKey,
-                                parseInt(e.target.value),
-                                aggregationPeriodParams[numGraphPointsParamKey]
-                              )
-                            }
-                          />
-                          <span>{displayValue}</span>
-                        </label>
-                      )
-                    })}
-                  </div>
-                  <div className="filter-menu">
-                    <label
-                      className="filter-name"
-                      title="sort order of database retrieval. results are resorted by date for graph display"
-                    >
-                      sort
-                    </label>
-                    <label>
-                      <input
-                        type="radio"
-                        value="rate"
-                        checked={sort == 'top'}
-                        onChange={e =>
-                          this.updateStateAndURL(
-                            sortByParamKey,
-                            e.target.value,
-                            aggregationPeriodParams[sortByParamKey]
-                          )
-                        }
-                      />
-                      <span>top</span>
-                    </label>
-                    <label>
-                      <input
-                        type="radio"
-                        value="last_created_utc"
-                        checked={sort == 'new'}
-                        onChange={e =>
-                          this.updateStateAndURL(
-                            sortByParamKey,
-                            e.target.value,
-                            aggregationPeriodParams[sortByParamKey]
-                          )
-                        }
-                      />
-                      <span>new</span>
-                    </label>
-                  </div>
-                  <div className="filter-menu">
-                    <label className="filter-name">type</label>
-                    <label>
-                      <input
-                        type="radio"
-                        value="comments"
-                        checked={type === 'comments'}
-                        onChange={e =>
-                          this.updateStateAndURL(
-                            contentTypeParamKey,
-                            e.target.value,
-                            aggregationPeriodParams[contentTypeParamKey]
-                          )
-                        }
-                      />
-                      <span>comments</span>
-                    </label>
-                    <label>
-                      <input
-                        type="radio"
-                        value="posts"
-                        checked={type === 'posts'}
-                        onChange={e =>
-                          this.updateStateAndURL(
-                            contentTypeParamKey,
-                            e.target.value,
-                            aggregationPeriodParams[contentTypeParamKey]
-                          )
-                        }
-                      />
-                      <span>posts</span>
-                    </label>
-                  </div>
-                </div>
-              )}
-              <div className="graph">
-                <Sparkline
-                  data={data}
-                  width={200}
-                  height={50}
-                  hovered={hovered}
-                  onHover={(hovered, index) => this.setState({ hovered })}
-                  onClick={(clicked, index) =>
-                    (window.location.href =
-                      own_page + '#' + clicked.y.id_of_max_pos_removed_item)
-                  }
-                />
-                <div>
-                  <a href={own_page}>{own_page_text}</a>
-                </div>
-                <div>
-                  {hovered ? <Preview type={type} {...hovered.y} /> : null}
-                </div>
-              </div>
-            </Selection>
-          )
-        }}
-      />
+      'n',
+      limit
     )
   }
-}
+  adjust_qparams_for_selection(
+    pageTypes.aggregations,
+    queryParams,
+    'sort',
+    sort
+  )
+  const own_page = `/r/${subreddit}/history/` + queryParams.toString()
+  return (
+    <Fetch
+      url={getAggregationsURL({ type, subreddit, limit, sort })}
+      render={({ loading, error, data }) => {
+        if (loading) return <p>Loading...</p>
+        if (error) return <p>Error :(</p>
+        data = data.data
+          .sort((a, b) => a.last_created_utc - b.last_created_utc)
+          .map((y, x) => {
+            return { x, y }
+          })
+        const before_id = new SimpleURLSearchParams(
+          window.location.search
+        ).get('before_id')
+        let resolvedHovered = hovered
+        if (!resolvedHovered && before_id) {
+          data.forEach(point => {
+            if (point.y.last_id == before_id) {
+              resolvedHovered = point
+            }
+          })
+        }
+        return (
+          <Selection
+            className="upvoteRemovalRate"
+            title={urr_title}
+            titleTitle="percentage karma removed over time"
+          >
+            <div className="toggleOptions">
+              <a
+                onClick={toggleDisplayOptions}
+                className="collapseToggle"
+              >
+                {getDisplayOptionsText()}
+              </a>
+              <QuestionMarkModal modalContent={{ content: urr_help }} />
+            </div>
+            {displayOptions && (
+              <div className="options">
+                <div className="filter-menu">
+                  <label
+                    className="filter-name"
+                    title="each graph point represents a period of either 1,000 comments or 1,000 posts"
+                  >
+                    size
+                  </label>
+                  {[10, 50, 500, 1000].map(n => {
+                    let displayValue = prettyFormatBigNumber(n)
+                    return (
+                      <label key={n}>
+                        <input
+                          type="radio"
+                          value={n}
+                          checked={limit == n}
+                          onChange={e =>
+                            updateStateAndURL(
+                              numGraphPointsParamKey,
+                              parseInt(e.target.value),
+                              aggregationPeriodParams[numGraphPointsParamKey]
+                            )
+                          }
+                        />
+                        <span>{displayValue}</span>
+                      </label>
+                    )
+                  })}
+                </div>
+                <div className="filter-menu">
+                  <label
+                    className="filter-name"
+                    title="sort order of database retrieval. results are resorted by date for graph display"
+                  >
+                    sort
+                  </label>
+                  <label>
+                    <input
+                      type="radio"
+                      value="rate"
+                      checked={sort == 'top'}
+                      onChange={e =>
+                        updateStateAndURL(
+                          sortByParamKey,
+                          e.target.value,
+                          aggregationPeriodParams[sortByParamKey]
+                        )
+                      }
+                    />
+                    <span>top</span>
+                  </label>
+                  <label>
+                    <input
+                      type="radio"
+                      value="last_created_utc"
+                      checked={sort == 'new'}
+                      onChange={e =>
+                        updateStateAndURL(
+                          sortByParamKey,
+                          e.target.value,
+                          aggregationPeriodParams[sortByParamKey]
+                        )
+                      }
+                    />
+                    <span>new</span>
+                  </label>
+                </div>
+                <div className="filter-menu">
+                  <label className="filter-name">type</label>
+                  <label>
+                    <input
+                      type="radio"
+                      value="comments"
+                      checked={type === 'comments'}
+                      onChange={e =>
+                        updateStateAndURL(
+                          contentTypeParamKey,
+                          e.target.value,
+                          aggregationPeriodParams[contentTypeParamKey]
+                        )
+                      }
+                    />
+                    <span>comments</span>
+                  </label>
+                  <label>
+                    <input
+                      type="radio"
+                      value="posts"
+                      checked={type === 'posts'}
+                      onChange={e =>
+                        updateStateAndURL(
+                          contentTypeParamKey,
+                          e.target.value,
+                          aggregationPeriodParams[contentTypeParamKey]
+                        )
+                      }
+                    />
+                    <span>posts</span>
+                  </label>
+                </div>
+              </div>
+            )}
+            <div className="graph">
+              <Sparkline
+                data={data}
+                width={200}
+                height={50}
+                hovered={resolvedHovered}
+                onHover={(hovered, index) => setHovered(hovered)}
+                onClick={(clicked, index) =>
+                  (window.location.href =
+                    own_page + '#' + clicked.y.id_of_max_pos_removed_item)
+                }
+              />
+              <div>
+                <a href={own_page}>{own_page_text}</a>
+              </div>
+              <div>
+                {resolvedHovered ? <Preview type={type} {...resolvedHovered.y} /> : null}
+              </div>
+            </div>
+          </Selection>
+        )
+      }}
+    />
+  )
+})
 
-export default connect(UpvoteRemovalRateHistory)
+export default UpvoteRemovalRateHistory

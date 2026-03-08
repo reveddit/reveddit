@@ -972,7 +972,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/plugin-proposal-object-rest-spread@npm:^7.20.2, @babel/plugin-proposal-object-rest-spread@npm:^7.20.7":
+"@babel/plugin-proposal-object-rest-spread@npm:^7.20.2":
   version: 7.20.7
   resolution: "@babel/plugin-proposal-object-rest-spread@npm:7.20.7"
   dependencies:
@@ -2336,7 +2336,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime@npm:^7.1.2, @babel/runtime@npm:^7.11.2, @babel/runtime@npm:^7.8.4":
+"@babel/runtime@npm:^7.11.2, @babel/runtime@npm:^7.8.4":
   version: 7.12.5
   resolution: "@babel/runtime@npm:7.12.5"
   dependencies:
@@ -4844,13 +4844,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"core-js@npm:3.27.1":
-  version: 3.27.1
-  resolution: "core-js@npm:3.27.1"
-  checksum: eacca0971dcb9402e91f4933772acd56bdb4aaf32cc77c60445e17909b1275190ea4b9ef1cc8eb09569f5bd64ef447ec5be1fdbdf5be6222ba0a1307a2ad6e35
-  languageName: node
-  linkType: hard
-
 "core-util-is@npm:~1.0.0":
   version: 1.0.2
   resolution: "core-util-is@npm:1.0.2"
@@ -7254,13 +7247,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"github-fork-ribbon-css@npm:^0.2.3":
-  version: 0.2.3
-  resolution: "github-fork-ribbon-css@npm:0.2.3"
-  checksum: f79ae7248d82d9610c2fa1ed1a2c69e2efa974d1f043ac62a19c9d7d72036666697d0c1d6fdc8e8eaa79b2fae928bb470028a6a0cc7af200cde38df5ae5c4521
-  languageName: node
-  linkType: hard
-
 "glob-parent@npm:^3.1.0":
   version: 3.1.0
   resolution: "glob-parent@npm:3.1.0"
@@ -7613,20 +7599,6 @@ __metadata:
   bin:
     he: bin/he
   checksum: 624468c0a4a0086a722b756a53eddf35a141a16ab41ab965028d0280010753cd2e12a1181e2e638ffd4c9d5131949e198fd8e509b61645b02e8e36a7bdeadc97
-  languageName: node
-  linkType: hard
-
-"history@npm:^4.7.2":
-  version: 4.10.1
-  resolution: "history@npm:4.10.1"
-  dependencies:
-    "@babel/runtime": "npm:^7.1.2"
-    loose-envify: "npm:^1.2.0"
-    resolve-pathname: "npm:^3.0.0"
-    tiny-invariant: "npm:^1.0.2"
-    tiny-warning: "npm:^1.0.0"
-    value-equal: "npm:^1.0.1"
-  checksum: 44fc15ef0551655b09b9d68e770b8a25bba462eec6b1398dd5ddf19b4c015f7bdc1ac50263afc6c7bea691b58da92aa6b41d329a477b3d6593c2fd068cd834a8
   languageName: node
   linkType: hard
 
@@ -9105,7 +9077,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"loose-envify@npm:^1.0.0, loose-envify@npm:^1.1.0, loose-envify@npm:^1.2.0, loose-envify@npm:^1.4.0":
+"loose-envify@npm:^1.0.0, loose-envify@npm:^1.1.0, loose-envify@npm:^1.4.0":
   version: 1.4.0
   resolution: "loose-envify@npm:1.4.0"
   dependencies:
@@ -11505,13 +11477,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"resolve-pathname@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "resolve-pathname@npm:3.0.0"
-  checksum: ed7214dbc089a55942cb411ccba419a58a98e9e274e74ae59df7d1881a6e6a318357801629f9673256316575685a92ec21280fce647f69f1a4b1dc6aec6246a3
-  languageName: node
-  linkType: hard
-
 "resolve-url@npm:^0.2.1":
   version: 0.2.1
   resolution: "resolve-url@npm:0.2.1"
@@ -11629,9 +11594,6 @@ __metadata:
     "@babel/cli": "npm:^7.20.7"
     "@babel/core": "npm:^7.20.12"
     "@babel/eslint-parser": "npm:^7.19.1"
-    "@babel/plugin-proposal-class-properties": "npm:^7.18.6"
-    "@babel/plugin-proposal-object-rest-spread": "npm:^7.20.7"
-    "@babel/plugin-proposal-optional-chaining": "npm:^7.20.7"
     "@babel/plugin-syntax-dynamic-import": "npm:^7.8.3"
     "@babel/plugin-transform-runtime": "npm:^7.19.6"
     "@babel/preset-env": "npm:^7.20.2"
@@ -11644,7 +11606,6 @@ __metadata:
     bowser: "npm:^2.9.0"
     concurrently: "npm:^4.1.1"
     copy-webpack-plugin: "npm:^9.0.1"
-    core-js: "npm:3.27.1"
     crypto: "npm:^1.0.1"
     css-loader: "npm:^6.8.1"
     d3: "npm:^5.9.2"
@@ -11652,8 +11613,6 @@ __metadata:
     dotenv: "npm:^8.0.0"
     eslint: "npm:^8.31.0"
     fs: "npm:^0.0.1-security"
-    github-fork-ribbon-css: "npm:^0.2.3"
-    history: "npm:^4.7.2"
     html-webpack-plugin: "npm:^5.3.2"
     html-webpack-tags-plugin: "npm:^2.0.17"
     lodash-webpack-plugin: "npm:^0.11.6"
@@ -11676,7 +11635,7 @@ __metadata:
     workbox-precaching: "npm:^6.0.2"
     workbox-routing: "npm:^6.0.2"
     workbox-webpack-plugin: "npm:^7.0.0"
-    zustand: "npm:4"
+    zustand: "npm:^5"
   languageName: unknown
   linkType: soft
 
@@ -13067,20 +13026,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tiny-invariant@npm:^1.0.2":
-  version: 1.0.6
-  resolution: "tiny-invariant@npm:1.0.6"
-  checksum: c62620e377bf7807bda65041fe66152ec6aac5ae452adcb1754e7e8ff96476bfda1c295a0adac36ca876fe7bf8f9ea6083d4b3e830e08405e54b95e2106373cc
-  languageName: node
-  linkType: hard
-
-"tiny-warning@npm:^1.0.0":
-  version: 1.0.3
-  resolution: "tiny-warning@npm:1.0.3"
-  checksum: 2fe4472b8904b1682eaeb2f4ac980b4eef1af65d94b57c391e0f2cac2a0b1e84c5d8d0b64edf451695b6a6566cfc3b0460f1812ec18ace189a34f0cfed4c9875
-  languageName: node
-  linkType: hard
-
 "tmp@npm:^0.0.33":
   version: 0.0.33
   resolution: "tmp@npm:0.0.33"
@@ -13479,15 +13424,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"use-sync-external-store@npm:^1.2.2":
-  version: 1.6.0
-  resolution: "use-sync-external-store@npm:1.6.0"
-  peerDependencies:
-    react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-  checksum: a2a303c9133fe9d99d495b7c2e177fb4794b16db241f99666a1598e936f3b7e493498f299a445b8f5d65b2b2f00b60f0471d0b67d5264e5687d5762fdeaba907
-  languageName: node
-  linkType: hard
-
 "use@npm:^3.1.0":
   version: 3.1.1
   resolution: "use@npm:3.1.1"
@@ -13557,13 +13493,6 @@ __metadata:
     spdx-correct: "npm:^3.0.0"
     spdx-expression-parse: "npm:^3.0.0"
   checksum: f0557ce7f0d3489d177e001384945f8ec6d510ef3d30b8c6432da555abbc30d7c9ded1b9e692196afdbca736c3a970e5bd6ef36563349a25b1d327b8c9144ca7
-  languageName: node
-  linkType: hard
-
-"value-equal@npm:^1.0.1":
-  version: 1.0.1
-  resolution: "value-equal@npm:1.0.1"
-  checksum: 63a4b467ab2ecd0b4ae45844e891d724712f1bdc0ecb2a68fefc4682c549b542de29ef7e27fd56bb572b4da9e0e004568e5b2712d1309e9e9b5d9245a1da2258
   languageName: node
   linkType: hard
 
@@ -14373,15 +14302,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zustand@npm:4":
-  version: 4.5.7
-  resolution: "zustand@npm:4.5.7"
-  dependencies:
-    use-sync-external-store: "npm:^1.2.2"
+"zustand@npm:^5":
+  version: 5.0.11
+  resolution: "zustand@npm:5.0.11"
   peerDependencies:
-    "@types/react": ">=16.8"
+    "@types/react": ">=18.0.0"
     immer: ">=9.0.6"
-    react: ">=16.8"
+    react: ">=18.0.0"
+    use-sync-external-store: ">=1.2.0"
   peerDependenciesMeta:
     "@types/react":
       optional: true
@@ -14389,6 +14317,8 @@ __metadata:
       optional: true
     react:
       optional: true
-  checksum: b49b7ae0fab8bd1586ce1f7e1127d05e969ddfe52a2e7aaece18b2c446d3a4ef27541135cd95ffc864471b6a679af8e5a073e4df55f0f151d3bd80db66efd64a
+    use-sync-external-store:
+      optional: true
+  checksum: 7075255269c2c50acd71868497924e92f1c70fa1b2ab35cf1c98ea482ba01eea9f5e47865e6639078e3dced6c85ca7c9164c4591e3af6bad723b3c886a186e6d
   languageName: node
   linkType: hard

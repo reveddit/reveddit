@@ -1,6 +1,5 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
-import { withRouter } from 'routerCompat'
+import React, { useState, useEffect } from 'react'
+import { Link, useParams, useNavigate } from 'react-router-dom'
 import { connect } from 'state'
 import { Shuffle, TwitterWhite } from 'pages/common/svg'
 
@@ -21,24 +20,24 @@ const toggleTheme = () => {
   return next
 }
 
-class Header extends React.Component {
-  state = {
-    entity_name: '',
-    random: false,
-    theme: getTheme(),
+const Header = connect(props => {
+  const params = useParams()
+  const navigate = useNavigate()
+  const match = { params }
+  const history = {
+    push: (to, state) => navigate(to, { state }),
+    replace: (to, state) => navigate(to, { replace: true, state }),
   }
-  componentDidMount() {
-    const entity_name = getEntityName(this.props.match.params)
-    this.setState({ entity_name })
-  }
-  componentDidUpdate(prevProps) {
-    const entity_name = getEntityName(this.props.match.params)
-    const prev_entity_name = getEntityName(prevProps.match.params)
-    if (entity_name !== prev_entity_name) {
-      this.setState({ entity_name })
-    }
-  }
-  getForm = (
+
+  const [entity_name, setEntityName] = useState(() => getEntityName(params))
+  const [random, setRandom] = useState(false)
+  const [theme, setTheme] = useState(getTheme)
+
+  useEffect(() => {
+    setEntityName(getEntityName(params))
+  }, [params.user, params.subreddit, params.domain])
+
+  const getForm = (
     value,
     display,
     path_type,
@@ -51,15 +50,15 @@ class Header extends React.Component {
     if (!opposite) {
       form_attributes = { className: path_type }
       text_input_actions = {
-        onClick: e => this.onClick(e, value),
-        onBlur: e => this.onBlur(e, value),
-        value: this.state.entity_name,
-        onChange: this.handleNameChange,
+        onClick: e => onClick(e, value),
+        onBlur: e => onBlur(e, value),
+        value: entity_name,
+        onChange: handleNameChange,
       }
     }
 
     return (
-      <form {...form_attributes} onSubmit={e => this.handleSubmit(e, value)}>
+      <form {...form_attributes} onSubmit={e => handleSubmit(e, value)}>
         <span className="subheading">{display}</span>
         <label htmlFor={item_type} className="hide-element">
           {item_type}
@@ -82,7 +81,7 @@ class Header extends React.Component {
             id="button_shuffle"
             onClick={e => {
               e.preventDefault()
-              this.setState({ random: true })
+              setRandom(true)
             }}
           >
             <Shuffle wh="15" />
@@ -92,7 +91,7 @@ class Header extends React.Component {
     )
   }
 
-  handleSubmit = (e, defaultValue) => {
+  const handleSubmit = (e, defaultValue) => {
     e.preventDefault()
     const data = new FormData(e.target)
     const pair = Array.from(data.entries())[0]
@@ -100,131 +99,129 @@ class Header extends React.Component {
       val = pair[1].trim().toLowerCase()
     if (
       val !== '' &&
-      (this.props.page_type === 'thread' || val !== defaultValue)
+      (props.page_type === 'thread' || val !== defaultValue)
     ) {
-      this.setState({ entity_name: val })
-      this.props.history.push(`/${key}/${val}`)
+      setEntityName(val)
+      history.push(`/${key}/${val}`)
     }
   }
-  onClick = (e, defaultValue) => {
+  const onClick = (e, defaultValue) => {
     const val = e.target.value.trim().toLowerCase()
     if (val === defaultValue) {
       e.target.value = ''
     }
   }
-  onBlur = (e, defaultValue) => {
+  const onBlur = (e, defaultValue) => {
     const val = e.target.value.trim().toLowerCase()
     if (val === '') {
       e.target.value = defaultValue
     }
   }
-  handleNameChange = e => {
-    this.setState({ entity_name: e.target.value })
+  const handleNameChange = e => {
+    setEntityName(e.target.value)
   }
-  settings = () => {
-    this.props.openGenericModal({ hash: 'settings' })
+  const settings = () => {
+    props.openGenericModal({ hash: 'settings' })
   }
-  handleThemeToggle = () => {
+  const handleThemeToggle = () => {
     const newTheme = toggleTheme()
-    this.setState({ theme: newTheme })
+    setTheme(newTheme)
   }
-  render() {
-    const props = this.props
-    const { page_type } = props
-    const { x_subreddit } = props.global.state
-    if (this.state.random) {
-      const sub = x_subreddit || 'all'
-      // can't use history.push here b/c it won't reset state
-      window.location.href = `/r/${sub}/x/` + window.location.search
-    }
-    let { user, subreddit = '', domain = '' } = props.match.params
-    let path_type = '',
-      value = '',
-      path_suffix = '',
-      item_type = '',
-      display = ''
-    if (['subreddit_posts', 'thread'].includes(page_type)) {
-      path_type = 'r'
-      value = subreddit
-      item_type = 'subreddit'
-    } else if (page_type === 'subreddit_comments') {
-      path_type = 'r'
-      value = subreddit
-      path_suffix = 'comments'
-      item_type = 'subreddit'
-    } else if (user) {
-      path_type = 'user'
-      display = 'u/'
-      value = user
-      item_type = 'username'
-    } else if (domain) {
-      path_type = 'domain'
-      value = domain
-      item_type = 'domain'
-    }
-    value = value.toLowerCase()
-    if (!display) {
-      display = `${path_type}/`
-    }
 
-    return (
-      <React.Fragment>
-        <header>
-          <div id="header">
-            <div id="site-name">
-              <Link to="/about/">
-                about <span className="rev">rev</span>eddit
-              </Link>
-            </div>
-            <div id="nav">
-              <a href="#settings" onClick={this.settings} className="nav-item">
-                ⚙
-              </a>
-              <Link to="/about/faq/" className="nav-item">
-                F.A.Q.
-              </Link>
-              <Link to="/add-ons/" className="nav-item">
-                add-ons
-              </Link>
-              <TwitterWhite className="nav-item" />
-              <button
-                className="theme-toggle"
-                onClick={this.handleThemeToggle}
-                title="Toggle light/dark mode"
-                aria-label="Toggle light/dark mode"
-              >
-                {this.state.theme === 'dark' ? '☀️' : '🌙'}
-              </button>
-            </div>
-            {value && (
-              <div id="subheading">
-                {this.getForm(
-                  value,
-                  display,
-                  path_type,
-                  item_type,
-                  path_suffix,
-                  false
-                )}
-              </div>
-            )}
-          </div>
-          <div id="status">
-            {props.global.state.statusText && (
-              <p id="status-text">{props.global.state.statusText}</p>
-            )}
-            {props.global.state.statusImage && (
-              <img
-                id="status-image"
-                src={props.global.state.statusImage}
-                alt="status"
-              />
-            )}
-          </div>
-        </header>
-      </React.Fragment>
-    )
+  const { page_type } = props
+  const { x_subreddit } = props.global.state
+  if (random) {
+    const sub = x_subreddit || 'all'
+    // can't use history.push here b/c it won't reset state
+    window.location.href = `/r/${sub}/x/` + window.location.search
   }
-}
+  let { user, subreddit = '', domain = '' } = match.params
+  let path_type = '',
+    value = '',
+    path_suffix = '',
+    item_type = '',
+    display = ''
+  if (['subreddit_posts', 'thread'].includes(page_type)) {
+    path_type = 'r'
+    value = subreddit
+    item_type = 'subreddit'
+  } else if (page_type === 'subreddit_comments') {
+    path_type = 'r'
+    value = subreddit
+    path_suffix = 'comments'
+    item_type = 'subreddit'
+  } else if (user) {
+    path_type = 'user'
+    display = 'u/'
+    value = user
+    item_type = 'username'
+  } else if (domain) {
+    path_type = 'domain'
+    value = domain
+    item_type = 'domain'
+  }
+  value = value.toLowerCase()
+  if (!display) {
+    display = `${path_type}/`
+  }
 
-export default connect(withRouter(Header))
+  return (
+    <React.Fragment>
+      <header>
+        <div id="header">
+          <div id="site-name">
+            <Link to="/about/">
+              about <span className="rev">rev</span>eddit
+            </Link>
+          </div>
+          <div id="nav">
+            <a href="#settings" onClick={settings} className="nav-item">
+              ⚙
+            </a>
+            <Link to="/about/faq/" className="nav-item">
+              F.A.Q.
+            </Link>
+            <Link to="/add-ons/" className="nav-item">
+              add-ons
+            </Link>
+            <TwitterWhite className="nav-item" />
+            <button
+              className="theme-toggle"
+              onClick={handleThemeToggle}
+              title="Toggle light/dark mode"
+              aria-label="Toggle light/dark mode"
+            >
+              {theme === 'dark' ? '☀️' : '🌙'}
+            </button>
+          </div>
+          {value && (
+            <div id="subheading">
+              {getForm(
+                value,
+                display,
+                path_type,
+                item_type,
+                path_suffix,
+                false
+              )}
+            </div>
+          )}
+        </div>
+        <div id="status">
+          {props.global.state.statusText && (
+            <p id="status-text">{props.global.state.statusText}</p>
+          )}
+          {props.global.state.statusImage && (
+            <img
+              id="status-image"
+              src={props.global.state.statusImage}
+              alt="status"
+            />
+          )}
+        </div>
+      </header>
+    </React.Fragment>
+  )
+})
+
+export default Header

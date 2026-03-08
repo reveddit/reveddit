@@ -125,7 +125,7 @@ module.exports = async (env, argv) => {
           test: /\.js$/,
           exclude: /node_modules/,
           options: {
-            plugins: ['@babel/plugin-syntax-dynamic-import', 'lodash', '@babel/plugin-proposal-optional-chaining'],
+            plugins: ['@babel/plugin-syntax-dynamic-import', 'lodash'],
             presets: [['@babel/env', { 'targets': { 'node': 12, 'browsers': 'last 2 versions, safari >= 7, ios_saf >= 9, chrome >= 52' } }]]
           }
         },

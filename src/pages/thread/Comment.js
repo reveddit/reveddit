@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Link } from 'react-router-dom'
-import { withRouter } from 'routerCompat'
+import { Link, useNavigate } from 'react-router-dom'
 import {
   prettyScore,
   SimpleURLSearchParams,
@@ -105,11 +104,15 @@ export const threadFiltersToReset = [
   'tagsFilter',
 ]
 
-const Comment = withRouter(
+const Comment =
   connect(props => {
+    const navigate = useNavigate()
+    const history = {
+      push: (to, state) => navigate(to, { state }),
+      replace: (to, state) => navigate(to, { replace: true, state }),
+    }
     const {
       global,
-      history, //from HOC withRouter(connect(Comment))
       page_type,
       setShowSingleRoot,
       contextAncestors,
@@ -494,7 +497,7 @@ const Comment = withRouter(
       </div>
     )
   })
-)
+
 
 const finishPromise_then_jumpToHash = promise => {
   const y = window.scrollY

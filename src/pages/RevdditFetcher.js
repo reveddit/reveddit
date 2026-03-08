@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { getRevdditCommentsBySubreddit } from 'data_processing/comments'
 import { getRevdditMissingComments } from 'data_processing/missing_comments'
 import { getRevdditPostsBySubreddit } from 'data_processing/subreddit_posts'
@@ -444,22 +444,22 @@ const filterMatches = (filterIsUnset, fn, exclude) => {
   return true
 }
 
-export const withFetch = WrappedComponent =>
-  class extends React.Component {
-    componentDidMount() {
-      const { match, global } = this.props
+export const withFetch = WrappedComponent => {
+  const WithFetchComponent = props => {
+    const { match, global, page_type } = props
+
+    useEffect(() => {
       let subreddit = (match.params.subreddit || '').toLowerCase()
       const domain = (match.params.domain || '').toLowerCase()
       const user = (match.params.user || '').toLowerCase()
       const { threadID, commentID, kind = '' } = match.params
-      const { page_type } = this.props
       const page_title = getPageTitle(page_type, subreddit || user || domain)
       if (page_title) {
         document.title = page_title
       }
       let archive_times_promise = Promise.resolve({})
       if (page_type === 'user') {
-        setTimeout(this.maybeShowSubscribeUserModal, 3000)
+        setTimeout(() => maybeShowSubscribeUserModal(props), 3000)
       } else {
         archive_times_promise = getArchiveTimes().then(archiveTimes =>
           global.setState({ archiveTimes })
@@ -467,7 +467,7 @@ export const withFetch = WrappedComponent =>
       }
       global.setQueryParamsFromSavedDefaults(page_type)
       const allQueryParams = create_qparams()
-      newUserModal(this.props)
+      newUserModal(props)
       global
         .setStateFromQueryParams(
           page_type,
@@ -609,88 +609,90 @@ export const withFetch = WrappedComponent =>
                     }
                   }
                 })
-                .catch(this.handleError)
+                .catch(error => handleError(error, props))
             })
-            .catch(e => handleRedditError(e, this.props))
+            .catch(e => handleRedditError(e, props))
         })
-    }
-    maybeShowSubscribeUserModal = () => {
-      const hasSeenSubscribeUserModal_text = 'hasSeenSubscribeUserModal'
-      const extensionSaysNoSubscriptions = get(
-        'extensionSaysNoSubscriptions',
-        false
-      )
-      const hasSeenSubscribeUserModal = get(
-        hasSeenSubscribeUserModal_text,
-        false
-      )
-      if (extensionSaysNoSubscriptions && !hasSeenSubscribeUserModal) {
-        put(hasSeenSubscribeUserModal_text, true)
-        this.props.openGenericModal({
-          content: (
-            <>
-              <p>
-                To receive alerts when content from this user is removed, click
-                'subscribe' on the extension icon.
-              </p>
-              <img src={meta.subscribe.img} />
-              <p>
-                This pop-up appears once per session on user pages while there
-                are no subscriptions.
-              </p>
-            </>
-          ),
-        })
-      }
-    }
-    handleError = error => {
-      console.error(error)
-      const subreddit = this.props.match.params.subreddit
-      if (error.message === 'Forbidden') {
-        redirectToHistory(subreddit)
-      } else if (this.props.global.state.items.length === 0) {
-        let content = getFirefoxError()
-        if (!content) {
-          if (this.props.page_type.match(/^subreddit_/)) {
-            redirectToHistory(subreddit, '#subreddit_unavailable')
-          } else {
-            return handleRedditError(error, this.props)
-          }
-          content = (
-            <>
-              <BlankUser
-                message="During an outage, user pages still work:"
-                placeholder="username"
-                bottomMessage={
-                  <>
-                    <div>{whatHappenedLink}</div>
-                    <Highlight showMobile={true} />
-                  </>
-                }
-              />
-            </>
-          )
-        }
-        content = (
-          <>
-            {content}
-            <SocialLinks />
-          </>
-        )
-        this.props.openGenericModal({ content })
-      }
-      this.props.global.setError()
-    }
+    }, [])
 
-    render() {
-      return (
-        <GenericPostProcessor
-          WrappedComponent={WrappedComponent}
-          {...this.props}
-        />
+    return (
+      <GenericPostProcessor
+        WrappedComponent={WrappedComponent}
+        {...props}
+      />
+    )
+  }
+  return WithFetchComponent
+}
+
+const maybeShowSubscribeUserModal = (props) => {
+  const hasSeenSubscribeUserModal_text = 'hasSeenSubscribeUserModal'
+  const extensionSaysNoSubscriptions = get(
+    'extensionSaysNoSubscriptions',
+    false
+  )
+  const hasSeenSubscribeUserModal = get(
+    hasSeenSubscribeUserModal_text,
+    false
+  )
+  if (extensionSaysNoSubscriptions && !hasSeenSubscribeUserModal) {
+    put(hasSeenSubscribeUserModal_text, true)
+    props.openGenericModal({
+      content: (
+        <>
+          <p>
+            To receive alerts when content from this user is removed, click
+            'subscribe' on the extension icon.
+          </p>
+          <img src={meta.subscribe.img} />
+          <p>
+            This pop-up appears once per session on user pages while there
+            are no subscriptions.
+          </p>
+        </>
+      ),
+    })
+  }
+}
+
+const handleError = (error, props) => {
+  console.error(error)
+  const subreddit = props.match.params.subreddit
+  if (error.message === 'Forbidden') {
+    redirectToHistory(subreddit)
+  } else if (props.global.state.items.length === 0) {
+    let content = getFirefoxError()
+    if (!content) {
+      if (props.page_type.match(/^subreddit_/)) {
+        redirectToHistory(subreddit, '#subreddit_unavailable')
+      } else {
+        return handleRedditError(error, props)
+      }
+      content = (
+        <>
+          <BlankUser
+            message="During an outage, user pages still work:"
+            placeholder="username"
+            bottomMessage={
+              <>
+                <div>{whatHappenedLink}</div>
+                <Highlight showMobile={true} />
+              </>
+            }
+          />
+        </>
       )
     }
+    content = (
+      <>
+        {content}
+        <SocialLinks />
+      </>
+    )
+    props.openGenericModal({ content })
   }
+  props.global.setError()
+}
 
 const baseMatchFuncAndParams = [
   [minMaxMatch_quarantine, ['num_subscribers', 'subreddit_subscribers']],
