@@ -12367,7 +12367,6 @@ __metadata:
     webpack: "npm:^5.44.0"
     webpack-cli: "npm:^4.7.2"
     webpack-dev-server: "npm:^3.11.2"
-    whatwg-fetch: "npm:^2.0.4"
     workbox-precaching: "npm:^6.0.2"
     workbox-routing: "npm:^6.0.2"
     workbox-webpack-plugin: "npm:^7.0.0"
@@ -14655,13 +14654,6 @@ __metadata:
   version: 3.6.20
   resolution: "whatwg-fetch@npm:3.6.20"
   checksum: 7804ec384b7359c090c6d6b094f6749c26cb50a523fc6c133f636cb7d1121f43c316daef79ffaf6cf485e8a03fb83dc71903bad543d9881c546d59c48c9476ff
-  languageName: node
-  linkType: hard
-
-"whatwg-fetch@npm:^2.0.4":
-  version: 2.0.4
-  resolution: "whatwg-fetch@npm:2.0.4"
-  checksum: 8bba9a8db4b186733675a76cd17c0f878d789048f5c790103a4cba5ed72dd5cf5260d899f9e130de7ffb2860d3b8af71b02506f1d936b2c25ea464cd11f37c32
   languageName: node
   linkType: hard
 
