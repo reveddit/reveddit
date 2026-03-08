@@ -2,19 +2,19 @@ $selectionsMarginRight: -15px
 $selectionMarginTop: 10px
 $selectionMarginRight: 20px
 .selections
-  color: $metalabels
+  color: var(--meta)
   display: flex
   flex-wrap: wrap
   margin: (-$selectionMarginTop) ($selectionsMarginRight) 10px 0
   select
-    border: 2px solid
+    border: 1px solid var(--border)
     border-radius: 6px
   a
-    color: $metalabels
+    color: var(--meta)
     &.colorLink
-      color: $link
+      color: var(--link)
     &.disabled
-      color: $metalabelsdark
+      color: var(--meta-dark)
   .textFilter
     select
       margin-right: 5px
@@ -60,24 +60,24 @@ $selectionMarginRight: 20px
   #reverseSort
     margin-top: 5px
   input:checked ~ *, a.selected
-    color: white
+    color: var(--text-primary)
   .exclude
     margin-top: 7px
 
 .removedby
-  color: $metalabels
-  background: black
-  border-radius: 3px
+  color: var(--meta)
+  background: var(--bg-secondary)
+  border-radius: 4px
   font-weight: 700
   font-size: 12px
-  padding: 2px
-  border: 1px solid white
+  padding: 2px 4px
+  border: 1px solid var(--border)
   display: inline-block
   margin: 5px 0 0 0
 
 .removedby[data-removedby=automod-rem-mod-app], .removedby[data-removedby=approved]
-  background: green
-  color: white
+  background: var(--moderator)
+  color: var(--text-on-accent)
 
 .upvoteRemovalRate
   .preview

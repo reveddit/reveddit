@@ -1,45 +1,53 @@
 header
-  background-color: $red///*#19171c;/*#181818*/
+  background-color: var(--bg-secondary)
+  border-bottom: 1px solid var(--border)
   display: flex
   justify-content: space-between
   align-items: center
-  padding: 10px
-  color: white
+  padding: 12px 20px
+  color: var(--text-primary)
   form.user
+    display: flex
+    align-items: center
+    gap: 4px
     #button, #button_shuffle
-      height: 22px
-      vertical-align: bottom
-      line-height: 0px
-    #button_shuffle
-      margin-left: 3px
-      margin-top: 2px
+      padding: 5px 10px
+    #button_shuffle svg
+      fill: currentColor
   #nav
     display: flex
     align-items: center
+    gap: 4px
     *
-      font-weight: bold
+      font-weight: 600
   .nav-item
-    border-right: 1px solid white
-    padding: 0 10px
+    padding: 4px 10px
+    border-radius: 6px
+    transition: background-color 0.15s ease
+    color: var(--text-secondary)
+    &:hover
+      background-color: var(--bg-surface-hover)
+      text-decoration: none
+      color: var(--text-primary)
     &:first-child
-      padding-left: 0
+      padding-left: 10px
     &:last-child
       border-right: none
   #subheading
     *
-      font-weight: bold
+      font-weight: 600
     input[type="submit"], button
       cursor: pointer
     .user input[type="text"]
       width: 118px
     input[type="text"]
-      background: $background
-      color: white
-      font-family: verdana, arial, helvetica, sans-serif
+      background: var(--input-bg)
+      color: var(--text-primary)
+      font-family: inherit
       width: 150px
       &:-webkit-autofill
-        -webkit-box-shadow: 0 0 0 1000px $background inset
-        -webkit-text-fill-color: white
+        -webkit-box-shadow: 0 0 0 1000px var(--bg-secondary) inset
+        -webkit-text-fill-color: var(--text-primary)
   #subheading input[type="submit"]
     margin-left: 5px
   .opposite
@@ -55,30 +63,28 @@ header
     flex-direction: column
     gap: 10px
     a,label
-      color: #fff
+      color: var(--text-primary)
     h1
       margin: 0
     #site-name
       a
-        transition: color 0.3s
+        transition: color 0.2s ease
         &:hover
           text-decoration: none
-          color: #ff8b88
+          color: var(--accent-hover)
   #site-name
     font-size: 1.2em
-    font-weight: bold
+    font-weight: 700
     margin: 0
     .rev
-      color: white
-      -webkit-text-stroke-width: 1px
-      -webkit-text-stroke-color: black
+      color: var(--accent)
   #status
     display: flex
     justify-content: space-between
     align-items: center
 
     #status-text
-      color: #fff
+      color: var(--text-primary)
       margin: 0 20px 0 0
 
     #status-image
@@ -87,23 +93,31 @@ header
       border-radius: 32px
 
 nav
-  background-color: $red
+  background-color: var(--bg-secondary)
+  border-bottom: 1px solid var(--border)
   padding-bottom: 10px
   a
-    color: white
+    color: var(--text-secondary)
     margin: 0 7px
     font-size: 15px
     display: inline-block
+    transition: color 0.15s ease
+    &:hover
+      color: var(--text-primary)
   a.selected
     font-weight: bold
+    color: var(--text-primary)
 
-body .github-fork-ribbon
-  /*  visibility: hidden*/
-  &:before
-    background-color: #333
-  &.right-bottom:before
-    background-color: white
-  &.right-bottom:after
-    color: $red
-    border-color: $red
-    text-shadow: 0 -0.08em rgba($red, .5)
+.theme-toggle
+  background: var(--bg-surface)
+  border: 1px solid var(--border)
+  color: var(--text-primary)
+  border-radius: 8px
+  padding: 6px 10px
+  cursor: pointer
+  font-size: 16px
+  line-height: 1
+  transition: background-color 0.15s ease, border-color 0.15s ease
+  &:hover
+    background-color: var(--bg-surface-hover)
+    border-color: var(--border-light)

@@ -1,19 +1,19 @@
 #main-box
   margin: 0 auto
-  padding: 20px
-  border-radius: 5px
-  color: #fff
+  padding: 24px
+  border-radius: 12px
+  color: var(--text-primary)
   word-wrap: break-word
   max-width: 800px
-  background-color: #161616
+  background-color: var(--bg-secondary)
 
   h2
     margin: 20px 0px 12px
 
   h2.about
-    color: $red
+    color: var(--accent)
   h2.todo
-    color: #239f2b
+    color: var(--moderator)
   h2.contact
     color: #1b767a
 
@@ -24,26 +24,26 @@
       list-style-type: none
 
   .bookmarklet
-    background: $red
-    color: #fff
+    background: var(--accent)
+    color: var(--text-on-accent)
     padding: 0px 3px 1px
     font-size: large
     font-weight: bold
     display: inline-block
-    border-radius: 5px
+    border-radius: 6px
     margin: 0 7px
   .v
     font-weight: bold
-    color: white
-    background-color: rgb(42, 51, 64)
-    border: 1px solid rgb(88, 105, 123)
-    border-radius: 2px
+    color: var(--text-primary)
+    background-color: var(--code-bg)
+    border: 1px solid var(--code-border)
+    border-radius: 4px
     padding: 0 4px
     margin: 0 2px
     font-family: monospace
     font-size: larger
   .text
-    color: white
+    color: var(--text-primary)
     margin: 0 auto
     max-width: 600px
   .image-or-video
@@ -64,27 +64,24 @@
     flex-wrap: wrap
 a.disabled
   cursor: default
-  color: $metalabels
+  color: var(--meta)
 #user-form
   text-align: center
   margin-bottom: 10px
   #button_shuffle
     margin-top: 5px
-    height: 23px
   #button_u, #button_shuffle
     -webkit-appearance: none
     border: none
-    background-color: $buttongray
-    color: black
-    border-radius: 0
-    vertical-align: bottom
-  #button_u
-    height: 35px
+    background-color: var(--button-bg)
+    color: var(--button-text)
+    border-radius: 6px
+    vertical-align: middle
   input[type="text"]
     -webkit-appearance: none
-    border: 2px solid white
-    height: 29px
+    border: 2px solid var(--border)
     max-width: 150px
+    vertical-align: middle
 .blank_page
   #button_u
     margin-top: 5px

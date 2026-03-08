@@ -90,7 +90,7 @@
     "build": "yarn clean; yarn build-sass; webpack --mode production && yarn lambda-build && (react-snap || true)",
     "build:local-mac": "PUPPETEER_EXECUTABLE_PATH='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' yarn build",
     "prefetch-data": "node scripts/fetch-prerender-data.js",
-    "build-sass": "sass --style=compressed --load-path=node_modules/ src/sass/index.sass dist/x-files/main.css",
+    "build-sass": "sass --style=compressed --no-charset --load-path=node_modules/ src/sass/index.sass dist/x-files/main.css",
     "lambda-serve": "netlify-lambda serve lambda-src",
     "lambda-build": "netlify-lambda build lambda-src",
     "clean": "del 'dist/x-files/*.js' 'dist/x-files/*.js.map' 'dist/x-files/*.css' 'dist/index.html' 'dist/*.js' 'dist/*.js.map' 'dist/200.html' 'dist/about'",

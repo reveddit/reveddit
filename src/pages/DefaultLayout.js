@@ -48,9 +48,7 @@ export const pageTypes = {
   missing_comments: 'missing_comments',
 }
 
-// to make ribbon open a modal, set the modal hash here
-// to make ribbon open a link, set ribbonHash = ''
-const ribbonHash = 'news_ribbon'
+
 
 const getContentForHash = hash => {
   const action = hash.match(/^action_(.+)_help$/)
@@ -126,11 +124,7 @@ const setHashInURL = hash => {
   history.replaceState({ [hash]: true }, hash, url)
 }
 
-const hideRibbon = (hide = true) => {
-  document.querySelector('#ribbon').style.visibility = hide
-    ? 'hidden'
-    : 'visible'
-}
+
 
 const existingHash = () => window.location.hash.replace('#', '')
 
@@ -161,13 +155,6 @@ const DefaultLayout = props => {
     }
     if (props.title) {
       document.title = props.title
-    }
-    const ribbon = document.querySelector('#ribbon')
-    if (ribbon && ribbonHash) {
-      ribbon.onclick = e => {
-        e.preventDefault()
-        openGenericModal({ hash: ribbonHash })
-      }
     }
   }, [])
   const openGenericModal = ({ content, hash = '' }) => {
@@ -206,13 +193,7 @@ const DefaultLayout = props => {
   } else if (threadPost.deleted) {
     threadClass = 'thread-deleted'
   }
-  useEffect(() => {
-    if (genericModalIsOpen) {
-      hideRibbon()
-    } else {
-      hideRibbon(false)
-    }
-  }, [genericModalIsOpen])
+
   return (
     <Route
       {...rest}

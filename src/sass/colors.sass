@@ -1,22 +1,117 @@
-$background: #262626
-$background-darker: #161616
-$red: rgb(199,3,0)
-$lightred: rgb(255, 79, 77)
-$blue: #0000ff
-$link: #8cb3d9
-$author: #6a98af
-$submitter: #0055df
-$removed: linear-gradient(rgb(99, 54, 54), rgb(99, 54, 54))
-$unknown: #ffd7ad
-$deleted: linear-gradient(#214d95, #214d95)
-$deleted-lighter: #4545ea
-$moderator: #228822
-$admin: rgb(199,3,0)
-$quarantined: #ffd635
-$whitesmoke: #f5f5f5
-$buttongray: rgb(239, 239, 239)
-$notebg: #264d73
-$lightblue: #0055df
-$metalabels: #828282
-$metalabelsdark: #4c4949
-$pinned: #008985
+// Design tokens as CSS custom properties for light/dark theming
+// Sass variables below are kept ONLY for use in Sass functions (lighten/darken)
+// — all color references in other files should use var(--name)
+
+$red-raw: #e03e3e
+$red-dim-raw: #c13030
+
+:root
+  // Backgrounds
+  --bg-primary: #1a1b1e
+  --bg-secondary: #111214
+  --bg-surface: #25262b
+  --bg-surface-hover: #2c2d33
+
+  // Text
+  --text-primary: #e0e0e0
+  --text-secondary: #909296
+  --text-muted: #606368
+  --text-on-accent: #ffffff
+
+  // Accent / brand
+  --accent: #{$red-raw}
+  --accent-dim: #{$red-dim-raw}
+  --accent-hover: #e85555
+
+  // Links
+  --link: #74b3e0
+  --link-hover: #9ac8eb
+
+  // Semantic colors
+  --author: #6a98af
+  --submitter: #2b7de9
+  --moderator: #2ea043
+  --admin: #{$red-raw}
+  --quarantined: #ffd635
+  --pinned: #009985
+
+  // Removed / deleted indicators
+  --removed-bg: rgba(99, 54, 54, 1)
+  --removed-border: #{$red-raw}
+  --deleted-bg: rgba(33, 77, 149, 1)
+  --deleted-border: #4c6ef5
+  --deleted-lighter: #5c7cfa
+  --unknown-bg: #ffd7ad
+
+  // Borders & surfaces
+  --border: #373a40
+  --border-light: #4a4e54
+  --note-bg: #264d73
+  --code-bg: rgba(42, 51, 64, 1)
+  --code-border: rgba(88, 105, 123, 1)
+
+  // UI elements
+  --button-bg: #373a40
+  --button-text: #e0e0e0
+  --input-bg: #25262b
+  --input-border: #373a40
+  --input-focus: #74b3e0
+
+  // Scores & meta
+  --score: #b4b4b4
+  --meta: #909296
+  --meta-dark: #606368
+
+  // Comment alternation
+  --comment-odd: #16171a
+  --comment-even: #1a1b1e
+
+// Light theme overrides
+:root[data-theme="light"]
+  --bg-primary: #ffffff
+  --bg-secondary: #f8f9fa
+  --bg-surface: #f1f3f5
+  --bg-surface-hover: #e9ecef
+
+  --text-primary: #1a1b1e
+  --text-secondary: #495057
+  --text-muted: #868e96
+  --text-on-accent: #ffffff
+
+  --accent: #c92a2a
+  --accent-dim: #a82828
+  --accent-hover: #e03131
+
+  --link: #1971c2
+  --link-hover: #1c7ed6
+
+  --author: #3a6f8a
+  --submitter: #1864ab
+  --moderator: #2b8a3e
+  --admin: #c92a2a
+
+  --removed-bg: rgba(255, 230, 230, 1)
+  --removed-border: #c92a2a
+  --deleted-bg: rgba(219, 234, 254, 1)
+  --deleted-border: #1971c2
+  --deleted-lighter: #4263eb
+  --unknown-bg: #fff3e0
+
+  --border: #dee2e6
+  --border-light: #ced4da
+  --note-bg: #e7f5ff
+  --code-bg: #f1f3f5
+  --code-border: #dee2e6
+
+  --button-bg: #e9ecef
+  --button-text: #1a1b1e
+  --input-bg: #ffffff
+  --input-border: #ced4da
+  --input-focus: #1971c2
+
+  --score: #495057
+  --meta: #868e96
+  --meta-dark: #adb5bd
+
+  --comment-odd: #f8f9fa
+  --comment-even: #ffffff

@@ -3,9 +3,9 @@
     margin-bottom: 6px
 
   .comment-links a, .post-links a
-    color: $metalabels
+    color: var(--meta)
     &.dark
-      color: $metalabelsdark
+      color: var(--meta-dark)
     font-weight: bold
 
   .comment-links a, .post-links a, .quarantined
@@ -14,52 +14,52 @@
 
   .flair
     display: inline-block
-    color: #c8c8c8
-    background-color: #404040
+    color: var(--text-secondary)
+    background-color: var(--bg-surface)
     margin-right: 5px
-    border: 1px solid #4d4d4d
-    border-radius: 2px
-    padding: 0 2px
+    border: 1px solid var(--border)
+    border-radius: 4px
+    padding: 0 4px
     font-size: 10px
 
   .author
     &.distinguished
-      border-radius: 3px
-      color: white
+      border-radius: 4px
+      color: var(--text-on-accent)
       font-weight: 700
-      padding: 1px 2px
+      padding: 1px 4px
       &.moderator
-        background-color: $moderator
+        background-color: var(--moderator)
       &.admin,&.special
-        background-color: $admin
-        border: 1px solid white
+        background-color: var(--admin)
+        border: 1px solid var(--text-on-accent)
     &.is_moderator:not(.moderator)
       border-style: solid
-      border-color: $moderator
-      border-radius: 3px
+      border-color: var(--moderator)
+      border-radius: 4px
       padding: 2px
       &:not(.submitter):not(.admin):not(.special)
-        color: $moderator
+        color: var(--moderator)
         border-width: 1px
     &.is_admin:not(.admin)
       border-style: solid
-      border-color: $admin
-      border-radius: 3px
+      border-color: var(--admin)
+      border-radius: 4px
       padding: 2px
       &:not(.submitter):not(.special):not(.admin):not(.moderator)
         border-width: 1px
   .lockedTag
     font-size: 12px
     color: black
-    background: $quarantined
-    border-radius: 3px
+    background: var(--quarantined)
+    border-radius: 4px
     font-weight: 700
-    padding: 2px
-    border: 1px solid white
+    padding: 2px 4px
+    border: 1px solid var(--text-on-accent)
     display: inline-block
     margin: 5px 0 0 0
 
 .post.stickied
   .thread-title
-    color: $moderator
+    color: var(--moderator)
     font-weight: bold

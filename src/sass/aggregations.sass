@@ -5,25 +5,28 @@
 
 .preview
   padding: 5px 8px
-  background-color: $background
+  background-color: var(--bg-primary)
   display: flex
-  border: 1px solid #333
-  border-radius: 3px
+  border: 1px solid var(--border)
+  border-radius: 8px
   margin-bottom: 8px
+  transition: border-color 0.15s ease
+  &:hover
+    border-color: var(--border-light)
   &.comment
     .title
       font-size: 10px
   &.post
     font-size: 14px
   .links a
-    color: $metalabels
+    color: var(--meta)
     font-size: 10px
     font-weight: bold
   .title
-    color: $metalabels
+    color: var(--meta)
     font-weight: bold
   .rate
-    color: #646464
+    color: var(--score)
     font-size: 18px
     font-weight: bold
     margin: auto 5px
@@ -31,4 +34,4 @@
   .score, .time, .num_comments
     font-size: 10px
   .score, .num_comments
-    color: #b4b4b4
+    color: var(--score)

@@ -1,13 +1,13 @@
 .comment
   margin: 0 0 8px 0
-  padding: 5px 8px 5px 30px
-  border: 1px solid #333
-  border-radius: 3px
-  color: #ddd
+  padding: 8px 12px 8px 32px
+  border: 1px solid var(--border)
+  border-radius: 8px
+  color: var(--text-primary)
   font-size: 14px
   word-break: break-word
-  //overflow-wrap: break-word
   position: relative
+  transition: border-color 0.15s ease
 
   .user-lookup
     margin: 7px 0
@@ -18,16 +18,17 @@
     left: 0px
     top: 0px
     background-color: rgba(255, 255, 0, 0.05)
-    border-radius: 2px
+    border-radius: 6px 0 0 6px
     &:hover
-      background-color: rgba(140,179,217, .5)
+      background-color: rgba(116, 179, 224, .3)
       text-decoration: none
 
   &.focus > .comment-body-and-links > .comment-body
-    background-color: #333
+    background-color: var(--bg-surface)
     padding-left: 5px
     min-height: 35px
     margin-top: 3px
+    border-radius: 4px
 
   .comment-head
     font-size: 10px
@@ -35,28 +36,28 @@
   .author
     font-weight: bold
     &.submitter
-      background-color: $submitter
-      border-radius: 3px
-      color: white
+      background-color: var(--submitter)
+      border-radius: 4px
+      color: var(--text-on-accent)
       font-weight: 700
-      padding: 1px 2px
+      padding: 1px 4px
 
 
   .author:not([href])
-    color: $metalabels
+    color: var(--meta)
 
   .comment-score
-    color: #b4b4b4
+    color: var(--score)
     font-weight: bold
 
   .comment-time
-    color: $metalabels
+    color: var(--meta)
 
   .comment-links
     margin-bottom: 6px
 
   .comment-links a
-    color: $metalabels
+    color: var(--meta)
     font-weight: bold
     font-size: 10px
     margin-right: 16px
@@ -72,19 +73,19 @@
     text-decoration: none
 
 .comment-odd
-  background-color: #121212
+  background-color: var(--comment-odd)
 
 .comment-even
-  background-color: #161616
+  background-color: var(--comment-even)
 
 #comment-info
   margin-top: 13px
   font-weight: bold
   padding-bottom: 5px
-  border-bottom: 1px dotted #808080
+  border-bottom: 1px dotted var(--border-light)
   font-size: 16px
 
 #sort-by
-  color: $metalabels
+  color: var(--meta)
   font-size: 12px
   margin: 5px 0 10px

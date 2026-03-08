@@ -8,10 +8,23 @@ const getEntityName = params => {
   return (user || subreddit || domain).toLowerCase()
 }
 
+const getTheme = () => {
+  return localStorage.getItem('reveddit-theme') || 'dark'
+}
+
+const toggleTheme = () => {
+  const current = getTheme()
+  const next = current === 'light' ? 'dark' : 'light'
+  document.documentElement.setAttribute('data-theme', next)
+  localStorage.setItem('reveddit-theme', next)
+  return next
+}
+
 class Header extends React.Component {
   state = {
     entity_name: '',
     random: false,
+    theme: getTheme(),
   }
   componentDidMount() {
     const entity_name = getEntityName(this.props.match.params)
@@ -110,6 +123,10 @@ class Header extends React.Component {
   settings = () => {
     this.props.openGenericModal({ hash: 'settings' })
   }
+  handleThemeToggle = () => {
+    const newTheme = toggleTheme()
+    this.setState({ theme: newTheme })
+  }
   render() {
     const props = this.props
     const { page_type } = props
@@ -169,6 +186,14 @@ class Header extends React.Component {
                 add-ons
               </Link>
               <TwitterWhite className="nav-item" />
+              <button
+                className="theme-toggle"
+                onClick={this.handleThemeToggle}
+                title="Toggle light/dark mode"
+                aria-label="Toggle light/dark mode"
+              >
+                {this.state.theme === 'dark' ? '☀️' : '🌙'}
+              </button>
             </div>
             {value && (
               <div id="subheading">

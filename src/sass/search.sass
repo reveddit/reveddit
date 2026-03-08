@@ -3,7 +3,7 @@
 
   .search-row
     padding: 10px 6px 11px
-    border-bottom: 1px dotted #ccc
+    border-bottom: 1px dotted var(--border-light)
     min-height: 26px
   
   .search-left
@@ -15,16 +15,17 @@
   input[type="text"]
     font-size: 17px
     width: 400px
-    border-radius: 2px
-    padding-left: 3px
+    border-radius: 6px
+    padding-left: 8px
   
   .radioButton
-    background: #8a8888
-    color: black
-    border-radius: 3px
+    background: var(--bg-surface)
+    color: var(--text-primary)
+    border-radius: 6px
     display: inline-block
     margin-right: 9px
-    transition: all 0.3s
+    transition: all 0.2s ease
+    border: 1px solid var(--border)
 
     label 
       padding: 7px 10px 7px 3px
@@ -39,14 +40,18 @@
   select
     padding: 3px
     font-size: 15px
-    border-radius: 2px
+    border-radius: 6px
 
   input[type="submit"]
     margin: 16px auto 0px
     display: block
     padding: 9px 16px
     font-size: 18px
-    background: #239f2b
+    background: var(--moderator)
     border: 0
-    border-radius: 2px
-    color: white
+    border-radius: 6px
+    color: var(--text-on-accent)
+    font-weight: 600
+    transition: opacity 0.15s ease
+    &:hover
+      opacity: 0.9

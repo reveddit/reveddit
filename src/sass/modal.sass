@@ -1,6 +1,6 @@
 .ReactModal__Overlay
   opacity: 0
-  transition: opacity 500ms ease-in-out
+  transition: opacity 300ms ease-in-out
 
 .ReactModal__Overlay--after-open
   opacity: 1
@@ -11,15 +11,22 @@
 .ReactModal__Body--open
   overflow: hidden
 
+.ReactModal__Content
+  background: transparent !important
+  border: none !important
+  padding: 0 !important
+
 #modalContainer
   max-height: 85vh
   max-width: 90vw
 
 #genericModal
   max-width: 475px
-  padding: 5px
-  background-color: #262626
-  color: #ddd
+  padding: 8px
+  background-color: var(--bg-surface)
+  color: var(--text-primary)
+  border-radius: 12px
+  border: 1px solid var(--border)
   &.welcome
     padding: 15px
   .modal-close
@@ -36,8 +43,9 @@
   img
     max-height: 100%
     max-width: 100%
+    border-radius: 4px
   .time
-    color: #ddd
+    color: var(--text-primary)
   .carousel-nav
     display: flex
     justify-content: center
@@ -48,7 +56,7 @@
       white-space: nowrap
       user-select: none
     a.disabled
-      color: #666
+      color: var(--text-muted)
       cursor: default
     a.active
       cursor: pointer
@@ -59,4 +67,4 @@
     text-align: center
     font-weight: bold
     margin-bottom: 15px
-    color: #fff
+    color: var(--text-primary)
