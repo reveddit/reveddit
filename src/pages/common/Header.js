@@ -102,7 +102,7 @@ class Header extends React.Component {
       (this.props.page_type === 'thread' || val !== defaultValue)
     ) {
       this.setState({ entity_name: val })
-      window.location.href = `/${key}/${val}`
+      this.props.history.push(`/${key}/${val}`)
     }
   }
   onClick = (e, defaultValue) => {

@@ -184,9 +184,8 @@ export const Tip = ({ children }) => (
 )
 
 export const Spin = ({ width }) => {
-  const spin = (
-    <img className="spin" alt="spin" width={width} src="/images/spin.gif" />
-  )
+  const style = width ? { width, height: width } : undefined
+  const spin = <div className="spinner" style={style} />
   if (!width) {
     return <div className="non-item">{spin}</div>
   }

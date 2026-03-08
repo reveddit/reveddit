@@ -294,6 +294,33 @@ input[type="submit"], button
   &:hover
     background-color: var(--accent-hover)
 
+@keyframes spin
+  to
+    transform: rotate(360deg)
+
+.spinner
+  display: inline-block
+  width: 20px
+  height: 20px
+  border: 2px solid var(--bg-surface-hover)
+  border-top-color: var(--accent)
+  border-radius: 50%
+  animation: spin 0.7s linear infinite
+  vertical-align: middle
+  flex-shrink: 0
+
+@keyframes shimmer
+  0%
+    background-position: 200% 0
+  100%
+    background-position: -200% 0
+
+.skeleton
+  background: linear-gradient(90deg, var(--bg-surface) 25%, var(--bg-surface-hover) 50%, var(--bg-surface) 75%)
+  background-size: 200% 100%
+  animation: shimmer 1.5s infinite
+  border-radius: 4px
+
 .reddit-change-banner
   background-color: #b8860b
   color: white

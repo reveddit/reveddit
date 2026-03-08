@@ -40,7 +40,6 @@
     "react-router-dom": "^5.1.2",
     "stripe": "^8.131.1",
     "unstated": "^2.1.1",
-    "whatwg-fetch": "^2.0.4",
     "workbox-precaching": "^6.0.2",
     "workbox-routing": "^6.0.2",
     "workbox-webpack-plugin": "^7.0.0"

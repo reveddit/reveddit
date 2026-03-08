@@ -108,7 +108,6 @@ module.exports = async (env, argv) => {
 
   return {
     entry: [
-      'whatwg-fetch',
       './src/index.js'
     ],
     devServer: {
