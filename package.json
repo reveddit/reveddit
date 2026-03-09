@@ -42,7 +42,6 @@
     "@eslint/js": "^10.0.1",
     "@vitejs/plugin-react": "^4.3.0",
     "concurrently": "^4.1.1",
-    "d3": "^5.9.2",
     "del-cli": "^5.0.0",
     "dotenv": "^8.0.0",
     "eslint": "^10.0.3",

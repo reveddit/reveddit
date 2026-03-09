@@ -183,10 +183,7 @@ export interface GlobalActions {
     target: { checked: boolean; value: string },
     page_type: string
   ) => Promise<void>
-  get_updated_ps_after: (
-    ps_after_entry: string,
-    ps_after?: string
-  ) => string
+  get_updated_ps_after: (ps_after_entry: string, ps_after?: string) => string
   removedByFilterIsUnset: () => boolean
   tagsFilterIsUnset: () => boolean
   saveDefaults: (page_type: string) => void
@@ -199,8 +196,12 @@ export interface GlobalActions {
   accountFilterOrSortIsSet: () => boolean
   accountMetaQueryParamIsSet: () => boolean
   getState: () => GlobalState
-  returnError: (stateObj?: Record<string, any>) => Promise<[false, Record<string, any>]>
-  returnSuccess: (stateObj?: Record<string, any>) => Promise<[true, Record<string, any>]>
+  returnError: (
+    stateObj?: Record<string, any>
+  ) => Promise<[false, Record<string, any>]>
+  returnSuccess: (
+    stateObj?: Record<string, any>
+  ) => Promise<[true, Record<string, any>]>
   setSuccess: (other?: Partial<GlobalState>) => Promise<void>
   setError: (other?: Partial<GlobalState>) => Promise<void>
   setLoading: (text?: string, other?: Partial<GlobalState>) => Promise<void>
@@ -391,6 +392,8 @@ export const filter_pageType_defaults = {
     subreddit_comments: removedFilter_types.removed,
     domain_posts: removedFilter_types.removed,
     duplicate_posts: removedFilter_types.all,
+    aggregations: removedFilter_types.all,
+    missing_comments: removedFilter_types.all,
   },
   removedByFilter: '', // this is different than the state initialization value
   exclude_action: false,
@@ -404,6 +407,7 @@ export const filter_pageType_defaults = {
     domain_posts: localSort_types.date,
     duplicate_posts: localSort_types.num_comments,
     missing_comments: localSort_types.date,
+    aggregations: localSort_types.date,
   },
   localSortReverse: false,
   showContext: true,

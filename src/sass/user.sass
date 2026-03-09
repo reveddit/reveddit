@@ -40,3 +40,21 @@
 .thread.pinned .thread-title
   color: var(--pinned)
   font-weight: bold
+
+// Button-style links for "view more" and "load all"
+.load-next, .load-all
+  display: inline-block
+  background-color: var(--accent)
+  color: var(--text-on-accent)
+  border: none
+  border-radius: 6px
+  padding: 6px 14px
+  font-weight: 600
+  font-size: 13px
+  cursor: pointer
+  text-decoration: none
+  transition: background-color 0.15s ease
+  &:hover
+    background-color: var(--accent-hover)
+    text-decoration: none
+    color: var(--text-on-accent)

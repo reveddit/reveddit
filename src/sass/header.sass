@@ -92,6 +92,36 @@ header
       width: 64px
       border-radius: 32px
 
+// On narrow screens, float the status image as a temporary overlay so it
+// doesn't widen the page and cause horizontal scroll (e.g. iPhone SE).
+@media only screen and (max-width: 480px)
+  header
+    flex-wrap: wrap
+    #status
+      position: fixed
+      top: 12px
+      right: 12px
+      z-index: 1000
+      pointer-events: none
+      #status-text
+        display: none
+      #status-image
+        height: 48px
+        width: 48px
+        border-radius: 24px
+        animation: statusFadeInOut 3.5s ease forwards
+        opacity: 0
+
+@keyframes statusFadeInOut
+  0%
+    opacity: 0
+  10%
+    opacity: 1
+  75%
+    opacity: 1
+  100%
+    opacity: 0
+
 nav
   background-color: var(--bg-secondary)
   border-bottom: 1px solid var(--border)

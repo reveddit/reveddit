@@ -1,0 +1,24 @@
+--- src/components/filters/UpvoteRemovalRateHistory.tsx
++++ src/components/filters/UpvoteRemovalRateHistory.tsx
+@@ -83,12 +83,14 @@
+   const getIndexFromEvent = (e: MouseEvent) => {
+     const svgEl = svgRef.current
+     if (!svgEl) return null
+-    const rect = svgEl.getBoundingClientRect()
+-    // Use SVG coordinate width (prop), not rendered width (getBoundingClientRect),
+-    // because without a viewBox the SVG can be stretched by flex layout
+-    // while the path coordinates stay within [0, width].
+-    const pixelX = e.clientX - rect.left
+-    if (pixelX < 0 || pixelX > width) return null
+-    const xValue = (pixelX / width) * data.length
++
++    let point = svgEl.createSVGPoint()
++    point.x = e.clientX
++    point.y = e.clientY
++    const ctm = svgEl.getScreenCTM()
++    if (!ctm) return null
++    point = point.matrixTransform(ctm.inverse())
++
++    const xValue = scalesRef.current.xScale.invert(point.x)
+     return findClosest(data, xValue)
+   }
