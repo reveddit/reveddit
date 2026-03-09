@@ -163,8 +163,8 @@ const Sparkline = ({
     <line
       x1={xScale(xAccessor(resolvedHovered))}
       x2={xScale(xAccessor(resolvedHovered))}
-      y0={0}
-      y1={height}
+      y1={0}
+      y2={height}
       style={{ strokeWidth: '2px', stroke: 'red', opacity: 0.65 }}
     />
   ) : null
