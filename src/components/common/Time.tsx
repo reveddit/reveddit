@@ -1,6 +1,7 @@
 import React from 'react'
 import { getPrettyDate, getPrettyTimeLength } from 'utils'
 import { showRelDates_global } from 'components/modals/Settings'
+import { usePageType } from 'contexts/page'
 
 export default ({
   showDate = false,
@@ -10,13 +11,13 @@ export default ({
   global = null,
   name = '',
   parent_id = '',
-  page_type = '',
   noAgo = false,
   className = '',
   suffix = '',
   prefix = '',
   title_prefix = '',
 }) => {
+  const page_type = usePageType()
   var localTime = new Date(0)
   let displayTime = '',
     edited_text = ''

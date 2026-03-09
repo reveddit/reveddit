@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import { getPrettyTimeLength, getPrettyDate, sortCreatedAsc } from 'utils'
 import Time from 'components/common/Time'
 import { useGlobalStore } from 'state'
+import { usePageType } from 'contexts/page'
 
 const posts_page_title =
   'user-deleted posts that have no comments are not shown'
@@ -9,8 +10,9 @@ const posts_page_title =
 const ConditionalWrapper = ({ condition, wrapper, children }) =>
   condition ? wrapper(<>▾ {children}</>) : children
 
-const ResultsSummary = ({ num_showing, page_type, ...rest }) => {
+const ResultsSummary = ({ num_showing, ...rest }) => {
   const global = useGlobalStore()
+  const page_type = usePageType()
   const { before, before_id, items, paginationMeta } = global.state
   let { itemsSortedByDate = [] } = global.state
   let { oldestTimestamp, newestTimestamp } = global.state

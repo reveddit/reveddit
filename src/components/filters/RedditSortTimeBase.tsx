@@ -2,6 +2,7 @@ import React from 'react'
 import { useGlobalStore, create_qparams, adjust_qparams_for_selection } from 'state'
 import { Selection } from './SelectionBase'
 import { clearPaginationParams } from 'components/Pagination'
+import { usePageType } from 'contexts/page'
 
 const types = {
   user: {
@@ -37,11 +38,11 @@ const displayPrefixes = {
 }
 
 const RedditSortTimeBase = ({
-  page_type,
   globalVarName,
   ...selectionProps
 }) => {
   const global = useGlobalStore()
+  const page_type = usePageType()
   const selectedValue = global.state[globalVarName]
   const sortIsHotOrControversial = ['top', 'controversial'].includes(
     global.state.sort

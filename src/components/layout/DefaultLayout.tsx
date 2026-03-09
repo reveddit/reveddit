@@ -20,6 +20,7 @@ import {
 import { RedditBreakingChange } from 'components/modals/RedditBreakingChange'
 import { NewsCarousel } from 'components/NewsCarousel'
 import { ModalProvider } from 'contexts/modal'
+import { PageTypeProvider } from 'contexts/page'
 import { SocialLinks } from 'components/Misc'
 import { RedditChangeBanner } from 'components/RedditChangeBanner'
 import { put } from 'utils'
@@ -199,6 +200,7 @@ const DefaultLayout = props => {
   }
 
   return (
+    <PageTypeProvider value={page_type}>
     <React.Fragment>
       <RedditChangeBanner />
       <Header
@@ -245,6 +247,7 @@ const DefaultLayout = props => {
         <SocialLinks />
       </div>
     </React.Fragment>
+    </PageTypeProvider>
   )
 }
 

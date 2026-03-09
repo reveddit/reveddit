@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { SimpleURLSearchParams } from 'utils'
 import { Spin } from 'components/Misc'
 import { useGlobalStore, create_qparams } from 'state'
+import { usePageType } from 'contexts/page'
 
 const before_param = 'before',
   after_param = 'after'
@@ -31,8 +32,9 @@ export const clearPaginationParams = queryParams => {
   }
 }
 
-const Pagination = ({ bottom = false, subreddit = '', page_type, children = null }) => {
+const Pagination = ({ bottom = false, subreddit = '', children = null }) => {
   const global = useGlobalStore()
+  const page_type = usePageType()
   let content = <>{children}</>
   let prev, next
   const {

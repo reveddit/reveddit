@@ -84,7 +84,7 @@ const minMax_help = (
   />
 )
 
-const MinMaxFilters = ({ page_type }) => {
+const MinMaxFilters = () => {
   const [visibleFilters, setVisibleFilters] = useState({})
   const [minMax, setMinMax] = useState({})
 
@@ -122,7 +122,6 @@ const MinMaxFilters = ({ page_type }) => {
       {(Object.entries(visibleFilters) as [string, any][]).map(([key, value]) => (
         <TextFilter
           key={key}
-          page_type={page_type}
           globalVarName={value.globalVarBase}
           placeholder={value.placeholder}
           title={value.text}

@@ -21,6 +21,7 @@ import {
   agg_defaults_for_page,
 } from 'api/reveddit'
 import { pageTypes } from 'components/layout/DefaultLayout'
+import { usePageType } from 'contexts/page'
 
 const urr_title = 'Karma Removal Rate'
 const own_page_text = 'items preview page'
@@ -202,8 +203,9 @@ const commonFields = [
   'total_items',
 ]
 
-const UpvoteRemovalRateHistory = ({ page_type, subreddit }) => {
+const UpvoteRemovalRateHistory = ({ subreddit }) => {
   const global = useGlobalStore()
+  const page_type = usePageType()
   const queryParams_init = new SimpleURLSearchParams(window.location.search)
   const initState = { ...aggregationPeriodParams }
   Object.keys(aggregationPeriodParams).forEach(param => {

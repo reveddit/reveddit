@@ -4,6 +4,7 @@ import { Selection } from './SelectionBase'
 import { SimpleURLSearchParams, truthyOrUndefined } from 'utils'
 import { pageTypes } from 'components/layout/DefaultLayout'
 import { NewWindowLink } from 'components/ui/Links'
+import { usePageType } from 'contexts/page'
 
 const SELECTED_CLASS = 'selected'
 
@@ -83,8 +84,9 @@ const content_help = (
   </>
 )
 
-const Content = ({ subreddit = '', page_type }) => {
+const Content = ({ subreddit = '' }) => {
   const global = useGlobalStore()
+  const page_type = usePageType()
   return (
     <Selection
       className="content"

@@ -17,6 +17,7 @@ import { SimpleURLSearchParams } from 'utils'
 import { NewWindowLink } from 'components/ui/Links'
 import { QuestionMarkModal, Help } from 'components/ui/Modals'
 import BeforeAfter from './BeforeAfter'
+import { usePageType } from 'contexts/page'
 
 const UpvoteRemovalRateHistory = lazy(
   () => import('components/filters/UpvoteRemovalRateHistory')
@@ -93,7 +94,6 @@ const beforeAfter_help = (
 
 const Selections = ({
   subreddit,
-  page_type,
   visibleItemsWithoutCategoryFilter,
   category_type,
   category_title,
@@ -101,6 +101,7 @@ const Selections = ({
   filterDependencies,
 }) => {
   const global = useGlobalStore()
+  const page_type = usePageType()
   const [showFiltersMeta, setShowFiltersMeta] = useState({
     showFilters: false,
     filtersHaveBeenShown: false,
@@ -153,17 +154,15 @@ const Selections = ({
         <Suspense fallback={<></>}>
           <UpvoteRemovalRateHistory
             subreddit={subreddit}
-            page_type={page_type}
           />
         </Suspense>
       </ErrorBoundary>
     )
   }
-  const minMaxFilters = <MinMaxFilters page_type={page_type} />
+  const minMaxFilters = <MinMaxFilters />
 
   const categoryFilter = (
     <CategoryFilter
-      page_type={page_type}
       visibleItemsWithoutCategoryFilter={visibleItemsWithoutCategoryFilter}
       type={category_type}
       title={category_title}
@@ -175,7 +174,6 @@ const Selections = ({
     page_type === 'thread' ? 'Body' : 'Title/Body'
   const textFilter_content = (
     <TextFilter
-      page_type={page_type}
       globalVarName="keywords"
       placeholder="keywords"
       key="kw"
@@ -185,7 +183,6 @@ const Selections = ({
   )
   const flairFilter_user = (
     <FlairFilter
-      page_type={page_type}
       globalVarName="user_flair"
       placeholder="user flair"
       key="uf"
@@ -196,7 +193,6 @@ const Selections = ({
   const textFilters = [
     textFilter_content,
     <FlairFilter
-      page_type={page_type}
       globalVarName="post_flair"
       placeholder="post flair"
       key="pf"
@@ -205,7 +201,6 @@ const Selections = ({
     />,
     flairFilter_user,
     <TextFilter
-      page_type={page_type}
       globalVarName="filter_url"
       placeholder="url"
       key="url"
@@ -215,7 +210,6 @@ const Selections = ({
   ]
   const beforeAfter = (
     <BeforeAfter
-      page_type={page_type}
       title="Date"
       titleHelpModal={{ content: beforeAfter_help }}
     />
@@ -283,21 +277,21 @@ const Selections = ({
                 return (
                   <>
                     {page_type === 'subreddit_posts' && (
-                      <Content page_type={page_type} subreddit={subreddit} />
+                      <Content subreddit={subreddit} />
                     )}
                     {page_type === 'domain_posts' && (
-                      <Selfposts page_type={page_type} />
+                      <Selfposts />
                     )}
-                    <LocalSort page_type={page_type} />
+                    <LocalSort />
                     <div>
-                      <RemovedFilter page_type={page_type} />
+                      <RemovedFilter />
                       <ItemsPerPage />
                       {!['duplicate_posts', 'info'].includes(page_type) &&
                         beforeAfter}
                     </div>
-                    <RemovedByFilter page_type={page_type} />
+                    <RemovedByFilter />
                     <div>
-                      <TagsFilter page_type={page_type} />
+                      <TagsFilter />
                       {minMaxFilters}
                     </div>
                     <div>{textFilters}</div>
@@ -311,16 +305,16 @@ const Selections = ({
               case 'missing_comments':
                 return (
                   <>
-                    <Content page_type={page_type} subreddit={subreddit} />
-                    <LocalSort page_type={page_type} />
+                    <Content subreddit={subreddit} />
+                    <LocalSort />
                     <div>
-                      <RemovedFilter page_type={page_type} />
+                      <RemovedFilter />
                       <ItemsPerPage />
                       {page_type !== 'missing_comments' && beforeAfter}
                     </div>
-                    <RemovedByFilter page_type={page_type} />
+                    <RemovedByFilter />
                     <div>
-                      <TagsFilter page_type={page_type} />
+                      <TagsFilter />
                       {minMaxFilters}
                     </div>
                     <div>{textFilters}</div>
@@ -333,27 +327,25 @@ const Selections = ({
               case 'user':
                 return (
                   <>
-                    <Content page_type={page_type} />
+                    <Content />
                     <RedditSortTimeBase
-                      page_type={page_type}
                       globalVarName="sort"
                       className="redditSort"
                       title="Sort By"
                     />
                     <RedditSortTimeBase
-                      page_type={page_type}
                       globalVarName="t"
                       className="redditTime"
                       title="From"
                       titleHelpModal={{ content: from_help }}
                     />
                     <div>
-                      <RemovedFilter page_type={page_type} />
+                      <RemovedFilter />
                       {categoryFilter}
                     </div>
-                    <RemovedByFilter page_type={page_type} />
+                    <RemovedByFilter />
                     <div>
-                      <TagsFilter page_type={page_type} />
+                      <TagsFilter />
                       {minMaxFilters}
                     </div>
                     <div>{textFilters}</div>
@@ -362,18 +354,17 @@ const Selections = ({
               case 'thread':
                 return (
                   <>
-                    <LocalSort page_type={page_type} />
-                    <RemovedFilter page_type={page_type} />
-                    <RemovedByFilter page_type={page_type} />
+                    <LocalSort />
+                    <RemovedFilter />
+                    <RemovedByFilter />
                     <div>
                       {categoryFilter}
                       {textFilter_content}
                       {flairFilter_user}
                     </div>
                     <div>
-                      <TagsFilter page_type={page_type} />
+                      <TagsFilter />
                       <TextFilter
-                        page_type={page_type}
                         globalVarName="thread_before"
                         placeholder="UTC timestamp"
                         title={'As of'}
@@ -389,7 +380,6 @@ const Selections = ({
                     {upvoteRemovalRateHistory}
                     <div>
                       <RedditSortTimeBase
-                        page_type={page_type}
                         globalVarName="sort"
                         className="aggSort"
                         title="Sort By"
@@ -398,19 +388,17 @@ const Selections = ({
                     </div>
                     <div>
                       <BeforeAfter
-                        page_type={page_type}
                         before_or_after="after"
                         title="After"
                         titleHelpModal={{ content: beforeAfter_help }}
                       />
                       <BeforeAfter
-                        page_type={page_type}
                         before_or_after="before"
                         title="Before"
                         titleHelpModal={{ content: beforeAfter_help }}
                       />
                     </div>
-                    <Content page_type={page_type} subreddit={subreddit} />
+                    <Content subreddit={subreddit} />
                     {textFilter_content}
                   </>
                 )

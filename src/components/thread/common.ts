@@ -65,4 +65,5 @@ export const getSortFn = (localSort, gs) => {
   } else if (localSort in wrappedSortFunctions) {
     return wrappedSortFunctions[localSort](gs)
   }
+  return undefined
 }

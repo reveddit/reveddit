@@ -164,7 +164,7 @@ const User = ({
 
   const shownItems = []
   const removedCommentIDs = []
-  const constantProps = { page_type, kind }
+  const constantProps = { kind }
   viewableItems.forEach(item => {
     if (
       !selectedItems ||

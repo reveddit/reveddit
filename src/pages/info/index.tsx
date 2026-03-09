@@ -35,7 +35,7 @@ const Info = props => {
   if (page_type === 'search') {
     pagination = (
       <Pagination
-        {...{ page_type, oldestTimestamp, newestTimestamp }}
+        {...{ oldestTimestamp, newestTimestamp }}
         bottom={true}
       />
     )
@@ -53,9 +53,9 @@ const Info = props => {
       ) : (
         viewableItems.map(item => {
           if (item.name.slice(0, 2) === 't3') {
-            return <Post key={item.name} {...item} page_type={page_type} />
+            return <Post key={item.name} {...item} />
           } else {
-            return <Comment key={item.name} {...item} page_type={page_type} />
+            return <Comment key={item.name} {...item} />
           }
         })
       )}

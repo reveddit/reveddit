@@ -10,6 +10,8 @@ import { itemIsActioned, not, reversible } from 'utils'
 import { Spin } from 'components/Misc'
 import { textMatch } from 'components/RevdditFetcher'
 import { getSortFn } from './common'
+import { usePageType } from 'contexts/page'
+import { ThreadProvider } from 'contexts/thread'
 
 const MAX_COMMENTS_TO_SHOW = 200
 
@@ -80,7 +82,8 @@ const countReplies = (
 
 const CommentSection = props => {
   const global = useGlobalStore()
-  const { focusCommentID, root, page_type, viewableItems } = props
+  const page_type = usePageType()
+  const { focusCommentID, root, viewableItems } = props
   const {
     removedFilter,
     removedByFilter,
@@ -312,11 +315,6 @@ const CommentSection = props => {
         ].join('|')}
         {...comment}
         depth={0}
-        page_type={page_type}
-        focusCommentID={focusCommentID}
-        contextAncestors={contextAncestors}
-        setShowSingleRoot={setShowSingleRoot}
-        visibleComments={visibleComments}
         is_root={root === comment.id}
       />
     )
@@ -340,13 +338,13 @@ const CommentSection = props => {
     )
   }
   return (
-    <>
+    <ThreadProvider value={{ focusCommentID, contextAncestors, setShowSingleRoot, visibleComments }}>
       {loading && !rootComments.length && <Spin />}
       <div className="threadComments">
         {comments_render}
         {status}
       </div>
-    </>
+    </ThreadProvider>
   )
 }
 

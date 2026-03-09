@@ -44,6 +44,7 @@ import { redditLimiter } from 'api/common'
 import { getCommentsByThread as getPushshiftCommentsByThread } from 'api/pushshift'
 import { unarchived_label_text } from 'components/common/RemovedBy'
 import { EXCLUDE_UNARCHIVED_REGEX } from 'components/filters/TextFilter'
+import { usePageType } from 'contexts/page'
 
 const MAX_AUTHORS_NEARBY_BY_DATE = 25
 const MAX_AUTHORS_TO_SEARCH = 100
@@ -222,6 +223,7 @@ export const getAddUserMeta = (
 
 const RestoreComment = props => {
   const global = useGlobalStore()
+  const page_type = usePageType()
   const [localLoading, setLocalLoading] = useState(false)
   const [meta, setMeta] = useState({ distance: 0, aug: null })
   const [searchAll, setSearchAll] = useState(false)
@@ -236,7 +238,6 @@ const RestoreComment = props => {
     controversiality,
     retrieved_on,
     link_id,
-    page_type,
   } = props
   const {
     itemsLookup,
@@ -556,20 +557,21 @@ const RestoreComment = props => {
           ) : (
             <></>
           )}
-          <HideUnarchivedComments page_type={page_type} />
+          <HideUnarchivedComments />
         </div>
       </Wrap>
     )
   } else {
     searchButton = (
-      <HideUnarchivedComments page_type={page_type} />
+      <HideUnarchivedComments />
     )
   }
   return searchButton
 }
 
-export const HideUnarchivedComments = ({ page_type }) => {
+export const HideUnarchivedComments = () => {
   const global = useGlobalStore()
+  const page_type = usePageType()
   return (
     <BodyButton>
       <a

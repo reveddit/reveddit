@@ -3,7 +3,6 @@ import Pagination from 'components/Pagination'
 import ResultsSummary from 'components/common/ResultsSummary'
 
 const SummaryAndPagination = ({
-  page_type,
   subreddit,
   num_items,
   num_showing,
@@ -11,12 +10,11 @@ const SummaryAndPagination = ({
   category_unique_field,
 }) => {
   return num_items ? (
-    <Pagination subreddit={subreddit} page_type={page_type}>
+    <Pagination subreddit={subreddit}>
       <ResultsSummary
         num_showing={num_showing}
         category_type={category_type}
         category_unique_field={category_unique_field}
-        page_type={page_type}
       />
     </Pagination>
   ) : (

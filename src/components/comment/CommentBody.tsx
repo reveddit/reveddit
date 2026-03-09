@@ -18,6 +18,7 @@ import RestoreComment, {
 import { NewWindowLink } from 'components/ui/Links'
 import { UserNameEntry } from 'components/Misc'
 import { LabelWithModal, RESTORED } from 'components/common/RemovedBy'
+import { usePageType } from 'contexts/page'
 
 const notices = {
   orphaned: 'hideOrphanedNotice',
@@ -41,13 +42,14 @@ if (!hasVisitedUserPage) {
 
 const CommentBody = props => {
   const global = useGlobalStore()
+  const page_type = usePageType()
   let innerHTML = '',
     actionDescription = '',
     searchAuthorsForm = '',
     restoredTag = '',
     hideUnarchivedButton = '',
     removedMessage = <></>
-  const isThread = props.page_type === 'thread'
+  const isThread = page_type === 'thread'
   const comment_Is_Removed =
     commentIsRemoved(props) || commentRemovedByReddit(props)
   if (!props.deleted) {
@@ -93,13 +95,11 @@ const CommentBody = props => {
       }
       if (comment_Is_Removed && !searchAuthorsForm) {
         hideUnarchivedButton = (
-          <HideUnarchivedComments
-            page_type={props.page_type}
-          />
+          <HideUnarchivedComments />
         )
       }
     } else {
-      if (props.page_type === 'user') {
+      if (page_type === 'user') {
         if (!props.removed) {
           if (commentIsMissingInThread(props)) {
             if (!get(notices.missing, false)) {

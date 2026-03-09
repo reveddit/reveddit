@@ -3,6 +3,7 @@ import { useGlobalStore, localSort_types, getPageType } from 'state'
 import { Selection } from './SelectionBase'
 import { Help } from 'components/ui/Modals'
 import { showAccountInfo_global } from 'components/modals/Settings'
+import { usePageType } from 'contexts/page'
 
 const paramKey_sortType = 'localSort'
 const paramKey_reverse = 'localSortReverse'
@@ -30,8 +31,9 @@ const sortby_help = (
   />
 )
 
-const LocalSort = ({ page_type }) => {
+const LocalSort = () => {
   const global = useGlobalStore()
+  let page_type = usePageType()
   const { localSort, localSortReverse, showContext, limitCommentDepth } =
     global.state
   const updateStateAndURL = global.selection_update

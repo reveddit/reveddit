@@ -9,6 +9,7 @@ import {
   urlParamKeys_account_max_min_base,
 } from 'state'
 import { showAccountInfo_global } from 'components/modals/Settings'
+import { usePageType } from 'contexts/page'
 
 const MIN = 'min',
   MAX = 'max'
@@ -31,7 +32,6 @@ const associatedValues = {
 const anyNoneOpposite = { any: 'none', none: 'any' }
 const marginLeft = { marginLeft: '3px' }
 const TextFilter = ({
-    page_type,
     globalVarName,
     placeholder,
     minMax = false,
@@ -40,6 +40,7 @@ const TextFilter = ({
     ...selectionProps
   }) => {
     const global = useGlobalStore()
+    const page_type = usePageType()
     const { loading, author_fullnames } = global.state
     const queryParams = new SimpleURLSearchParams(window.location.search)
     let adjusted_globalVarName = globalVarName

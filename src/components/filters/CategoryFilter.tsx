@@ -1,10 +1,12 @@
 import React, { useState, useMemo } from 'react'
 import { useGlobalStore } from 'state'
 import { Selection } from './SelectionBase'
+import { usePageType } from 'contexts/page'
 
 const CategoryFilter = props => {
   const global = useGlobalStore()
-  const { type, title, page_type, filterDependencies } = props
+  const page_type = usePageType()
+  const { type, title, filterDependencies } = props
   let unique_field = type
   if (props.unique_field) {
     unique_field = props.unique_field

@@ -472,7 +472,7 @@ const queryByID = async (
         can_use_oauth_reddit_rev = false
         return queryForHost(oauth_reddit).catch(errorHandler)
       }
-      errorHandler(e)
+      return errorHandler(e)
     })
 }
 

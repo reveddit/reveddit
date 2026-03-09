@@ -269,6 +269,7 @@ export const getPrettyTimeLength = (seconds, conservative = false) => {
     }
     time = time / divisor
   }
+  return String(Math.floor(time)) + ' millenia'
 }
 export const getPrettyDate = (createdUTC, noAgo = false) => {
   const seconds = Math.floor(new Date().getTime() / 1000) - createdUTC

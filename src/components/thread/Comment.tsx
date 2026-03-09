@@ -30,6 +30,8 @@ import { QuestionMarkModal, Help } from 'components/ui/Modals'
 import { ExtensionLink } from 'components/ui/Extensions'
 import { getSortFn } from './common'
 import { RestoreIcon } from 'components/common/svg'
+import { usePageType } from 'contexts/page'
+import { useThreadContext } from 'contexts/thread'
 
 const contextDefault = 3
 const MIN_COMMENT_DEPTH = 4
@@ -108,17 +110,14 @@ export const threadFiltersToReset = [
 const Comment =
   props => {
     const global = useGlobalStore()
+    const page_type = usePageType()
+    const { focusCommentID, contextAncestors, setShowSingleRoot, visibleComments } = useThreadContext()
     const navigate = useNavigate()
     const history = {
       push: (to: string, state?: any) => navigate(to, { state }),
       replace: (to: string, state?: any) => navigate(to, { replace: true, state }),
     }
     const {
-      page_type,
-      setShowSingleRoot,
-      contextAncestors,
-      focusCommentID,
-      visibleComments,
       is_root, //from parent component
       id,
       parent_id,
@@ -236,11 +235,6 @@ const Comment =
     if (showContext) {
       const rest = {
         depth: depth + 1,
-        page_type,
-        focusCommentID,
-        contextAncestors,
-        setShowSingleRoot,
-        visibleComments,
       }
       const showReplies = !limitCommentDepth || depth < maxCommentDepth
       const continue_link = [
@@ -374,7 +368,7 @@ const Comment =
           className="comment-body-and-links"
           style={displayBody ? {} : { display: 'none' }}
         >
-          <CommentBody {...props} page_type={page_type} />
+          <CommentBody {...props} />
           <div>
             <span className="comment-links">
               {!deleted && <>{<Permalink text="permalink" />}</>}

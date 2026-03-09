@@ -39,16 +39,22 @@
     "zustand": "^5"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@vitejs/plugin-react": "^4.3.0",
     "concurrently": "^4.1.1",
     "d3": "^5.9.2",
     "del-cli": "^5.0.0",
     "dotenv": "^8.0.0",
+    "eslint": "^10.0.3",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
     "netlify-lambda": "^1.4.13",
     "prettier": "^3.7.4",
     "sass": "^1.69.7",
     "scroll-to-element": "^2.0.2",
     "typescript": "^5.9.3",
+    "typescript-eslint": "^8.56.1",
     "vite": "^6.0.0",
     "vite-plugin-pwa": "^0.21.0"
   },
@@ -62,7 +68,9 @@
     "lambda-serve": "netlify-lambda serve lambda-src",
     "lambda-build": "NODE_OPTIONS=--openssl-legacy-provider netlify-lambda build lambda-src",
     "clean": "del 'dist/x-files/' 'dist/index.html' 'dist/service-worker.js' 'dist/service-worker.js.map'",
-    "format": "prettier --write 'src/**/*.js' 'scripts/**/*.js'"
+    "format": "prettier --write 'src/**/*.{ts,tsx}' 'scripts/**/*.js'",
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix"
   },
   "packageManager": "yarn@4.0.0-rc.25"
 }

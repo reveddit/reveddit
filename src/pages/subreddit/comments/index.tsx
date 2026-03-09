@@ -22,7 +22,7 @@ const SubredditComments = props => {
   const noItemsFound = items.length === 0 && !loading
 
   const pagination = (
-    <Pagination {...{ page_type }} bottom={true} subreddit={subreddit} />
+    <Pagination bottom={true} subreddit={subreddit} />
   )
 
   return (
@@ -39,7 +39,7 @@ const SubredditComments = props => {
       ) : (
         viewableItems.map(item => {
           return (
-            <Comment key={item.id} {...item} depth={0} page_type={page_type} />
+            <Comment key={item.id} {...item} depth={0} />
           )
         })
       )}

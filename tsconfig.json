@@ -8,6 +8,8 @@
     "allowJs": true,
     "checkJs": false,
     "strict": false,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
     "noEmit": true,
     "isolatedModules": true,
     "esModuleInterop": true,

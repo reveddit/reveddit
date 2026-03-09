@@ -90,7 +90,7 @@ const Thread = withFetch(
         <>
           <ShareLink href={shareLink} />
           {selections}
-          <Post {...post} page_type={page_type} />
+          <Post {...post} />
           {summary}
           <Highlight />
           {topNotice}
@@ -111,7 +111,6 @@ const Thread = withFetch(
               )}
               <CommentSection
                 root={root}
-                page_type={page_type}
                 focusCommentID={commentID}
                 viewableItems={viewableItems}
               />

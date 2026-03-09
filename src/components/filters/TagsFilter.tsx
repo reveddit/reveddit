@@ -2,6 +2,7 @@ import React from 'react'
 import { useGlobalStore } from 'state'
 import { Selection } from './SelectionBase'
 import { ExcludeLabel } from './RemovedByFilter'
+import { usePageType } from 'contexts/page'
 
 export const IS_OP = 'is_op'
 export const MOD = 'mod'
@@ -38,8 +39,9 @@ export const TAG_META = {
   },
 }
 
-const TagsFilter = ({ page_type }) => {
+const TagsFilter = () => {
   const global = useGlobalStore()
+  const page_type = usePageType()
   const tagsFilter = global.state.tagsFilter
   const updateStateAndURL = global.tagsFilter_update
   return (
@@ -68,7 +70,7 @@ const TagsFilter = ({ page_type }) => {
           </div>
         )
       })}
-      <ExcludeLabel globalVarName="exclude_tag" page_type={page_type} />
+      <ExcludeLabel globalVarName="exclude_tag" />
     </Selection>
   )
 }

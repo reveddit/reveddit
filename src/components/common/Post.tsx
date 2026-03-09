@@ -3,26 +3,19 @@ import {
   prettyScore,
   parse,
   redditThumbnails,
-  replaceAmpGTLT,
   postIsRemovedAndSelftextSaysRemoved,
   getRemovedMessage,
   PATH_STR_SUB,
-  convertPathSub,
   stripRedditLikeDomain,
   SimpleURLSearchParams,
 } from 'utils'
-import Time from 'components/common/Time'
-import RemovedBy, { QuarantinedLabel } from 'components/common/RemovedBy'
-import Author from 'components/common/Author'
 import { useGlobalStore, urlParamKeys } from 'state'
-import { MessageMods } from 'components/Misc'
-import { NewWindowLink } from 'components/ui/Links'
-import Flair from './Flair'
-import SubscribersCount from './SubscribersCount'
 import { Selftext, getImageList, BestImage, Image } from './PostMedia'
 import { getAddUserParamString } from 'components/comment/Comment'
-import { AuthorFocus } from 'components/thread/Comment'
 import { get_userPageSortAndTime } from 'data_processing/RestoreComment'
+import { usePageType } from 'contexts/page'
+import PostHeader from './PostHeader'
+import PostActions from './PostActions'
 
 const max_selftext_length = 100
 
@@ -37,9 +30,9 @@ const clear = (
 
 const Post = props => {
   const global = useGlobalStore()
+  const page_type = usePageType()
   const {
     rev_position,
-    page_type,
     kind,
     author,
     name,
@@ -245,56 +238,25 @@ const Post = props => {
       </div>
       {thumbnail}
       <div className="thread-content">
-        <Flair
-          className="link-flair"
-          field="link_flair_text"
-          globalVarName="post_flair"
-          {...props}
+        <PostHeader {...props} url={url} domain={domain} />
+        <PostActions
+          post={props}
+          permalink={props.permalink}
+          paramString={paramString}
+          num_comments={props.num_comments}
+          subreddit={props.subreddit}
+          id={props.id}
+          num_crossposts={props.num_crossposts}
+          subreddit_index={subreddit_index}
+          directlink={directlink}
+          domain_index={domain_index}
+          loading={loading}
+          setLocalLoading={setLocalLoading}
+          userPageSort={userPageSort}
+          userPageTime={userPageTime}
+          author={author}
+          deleted={props.deleted}
         />
-        <a className="thread-title" href={url}>
-          {replaceAmpGTLT(title)}
-        </a>
-        <span className="domain">({domain})</span>
-        <div className="thread-info">
-          submitted <Time {...props} /> by <Author {...props} /> to{' '}
-          <a className="subreddit-link" href={rev_subreddit + '/'}>
-            /r/{props.subreddit}
-          </a>{' '}
-          <SubscribersCount {...props} />
-          <div>
-            <RemovedBy {...props} />
-          </div>
-        </div>
-        <div>
-          <span className="total-comments post-links">
-            <QuarantinedLabel {...props} />
-            <a
-              href={convertPathSub(props.permalink) + paramString}
-              className="nowrap"
-            >
-              {props.num_comments} comments
-            </a>
-            <NewWindowLink reddit={props.permalink}>reddit</NewWindowLink>
-            <a href={`${rev_subreddit}/duplicates/${props.id}`}>
-              other-discussions
-              {props.num_crossposts ? ` (${props.num_crossposts}+)` : ''}
-            </a>
-            {subreddit_index}
-            {directlink && <a href={directlink}>directlink</a>}
-            <MessageMods {...props} />
-            {page_type === 'thread' && (
-              <AuthorFocus
-                post={props}
-                author={author}
-                deleted={props.deleted}
-                {...{ loading, setLocalLoading, userPageSort, userPageTime }}
-                text="op-focus"
-                addIcon={true}
-              />
-            )}
-            {domain_index}
-          </span>
-        </div>
       </div>
       {clear}
       {page_type === 'thread' && media_metadata && !props.deleted && (

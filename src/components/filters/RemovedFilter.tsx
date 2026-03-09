@@ -1,9 +1,11 @@
 import React from 'react'
 import { useGlobalStore, removedFilter_types, removedFilter_text } from 'state'
 import { Selection } from './SelectionBase'
+import { usePageType } from 'contexts/page'
 
-const RemovedFilter = ({ page_type }) => {
+const RemovedFilter = () => {
   const global = useGlobalStore()
+  const page_type = usePageType()
   const removedFilter = global.state.removedFilter
   const updateStateAndURL = global.removedFilter_update
   return (

@@ -481,7 +481,7 @@ export const withFetch = WrappedComponent => {
           if (page_type === 'info' && allQueryParams.toString() === '') {
             return global.setSuccess()
           }
-          getAuth()
+          return getAuth()
             .then(() => {
               const {
                 context,
@@ -901,7 +901,6 @@ const GenericPostProcessor = props => {
   const selections = (
     <Selections
       subreddit={subreddit}
-      page_type={page_type}
       {...visibleItemsWithoutCategoryFilter_meta}
       num_showing={viewableItems.length}
       num_items={items.length}
@@ -915,7 +914,6 @@ const GenericPostProcessor = props => {
     <SummaryAndPagination
       num_items={items.length}
       num_showing={viewableItems.length}
-      page_type={page_type}
       subreddit={subreddit}
       category_type={category}
       category_unique_field={category_unique_field}

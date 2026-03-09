@@ -20,7 +20,7 @@ const SubredditPosts = props => {
   } = global.state
   const noItemsFound = items.length === 0 && !loading
   const pagination = (
-    <Pagination {...{ page_type }} bottom={true} subreddit={subreddit} />
+    <Pagination bottom={true} subreddit={subreddit} />
   )
   let instructionalNotice = ''
   if (!hasVisitedUserPage) {
@@ -50,7 +50,7 @@ const SubredditPosts = props => {
         <p>No posts found</p>
       ) : (
         viewableItems.map(item => {
-          return <Post key={item.id} {...item} page_type={page_type} />
+          return <Post key={item.id} {...item} />
         })
       )}
       {pagination}

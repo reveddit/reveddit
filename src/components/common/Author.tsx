@@ -16,7 +16,6 @@ const Author = ({
   name,
   author_flair_text,
   created_utc,
-  page_type,
   className = '',
 }) => {
   const global = useGlobalStore()
@@ -62,7 +61,6 @@ const Author = ({
           field="author_flair_text"
           globalVarName="user_flair"
           author_flair_text={author_flair_text}
-          page_type={page_type}
         />
       )}
     </span>

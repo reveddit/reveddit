@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import { useGlobalStore } from 'state'
 import { Shuffle, TwitterWhite } from 'components/common/svg'
+import { usePageType } from 'contexts/page'
 
 const getEntityName = params => {
   const { user, subreddit = '', domain = '' } = params
@@ -100,7 +101,7 @@ const Header = props => {
       val = (pair[1] as string).trim().toLowerCase()
     if (
       val !== '' &&
-      (props.page_type === 'thread' || val !== defaultValue)
+      (page_type === 'thread' || val !== defaultValue)
     ) {
       setEntityName(val)
       history.push(`/${key}/${val}`)
@@ -129,7 +130,7 @@ const Header = props => {
     setTheme(newTheme)
   }
 
-  const { page_type } = props
+  const page_type = usePageType()
   const { x_subreddit } = global.state
   if (random) {
     const sub = x_subreddit || 'all'

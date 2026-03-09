@@ -12,11 +12,12 @@ import {
   ORPHANED_META,
 } from 'components/common/RemovedBy'
 import { Selection } from './SelectionBase'
+import { usePageType } from 'contexts/page'
 
 const ex = 'exclude'
 const RemovedByFilter = props => {
   const global = useGlobalStore()
-  const { page_type } = props
+  const page_type = usePageType()
   const { removedByFilter, exclude_action } = global.state
   let removal_meta = REMOVAL_META
   if (page_type !== 'user') {
@@ -69,13 +70,14 @@ const RemovedByFilter = props => {
           </div>
         )
       })}
-      <ExcludeLabel globalVarName="exclude_action" page_type={page_type} />
+      <ExcludeLabel globalVarName="exclude_action" />
     </Selection>
   )
 }
 
-export const ExcludeLabel = ({ globalVarName, page_type }) => {
+export const ExcludeLabel = ({ globalVarName }) => {
   const global = useGlobalStore()
+  const page_type = usePageType()
   const value = global.state[globalVarName]
   return (
     <label title={ex}>

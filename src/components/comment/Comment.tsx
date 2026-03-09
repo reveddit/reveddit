@@ -13,9 +13,11 @@ import {
 import { AddUserParam } from 'data_processing/RestoreComment'
 import { MessageMods } from 'components/Misc'
 import { NewWindowLink } from 'components/ui/Links'
+import { usePageType } from 'contexts/page'
 
 const Comment = props => {
   const global = useGlobalStore()
+  const page_type = usePageType()
   const [displayBody, setDisplayBody] = useState(true)
   const {
     t,
@@ -48,7 +50,6 @@ const Comment = props => {
     post_removed_label,
     link_permalink, //from reveddit post processing
     kind,
-    page_type, //from parent component
   } = props
   let { prev, next } = props // from reveddit post processing
   let classNames = ['comment', 'user']

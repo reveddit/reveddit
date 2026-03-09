@@ -79,6 +79,7 @@ redditLimiter.on('depleted', empty => {
         })
       }
     }
+    return undefined
   })
 })
 
