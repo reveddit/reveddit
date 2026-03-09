@@ -1,5 +1,5 @@
 import Bottleneck from 'bottleneck'
-import { get, put, getNow, paramString, sleeper } from 'utils'
+import { get, put, getNow, paramString } from 'utils'
 
 declare const REVEDDIT_FLASK_HOST_SHORT: string
 
@@ -20,7 +20,7 @@ const MAX_URLS_IN_CACHE = 30
 // }
 export const fetchWithCache = async (url, options, age) => {
   let fetch_cache = get(FETCH_CACHE, {})
-  let url_cache = fetch_cache[url] || {}
+  const url_cache = fetch_cache[url] || {}
   const now = getNow()
   // only fetch data if it's older than age seconds
   if (!url_cache?.updated || now - url_cache.updated > age) {
@@ -38,7 +38,10 @@ export const fetchWithCache = async (url, options, age) => {
       })
     if (url_cache.data) {
       fetch_cache = Object.entries(fetch_cache)
-        .sort(([_akey, a]: [string, any], [_bkey, b]: [string, any]) => b.updated - a.updated)
+        .sort(
+          ([_akey, a]: [string, any], [_bkey, b]: [string, any]) =>
+            b.updated - a.updated
+        )
         .slice(0, MAX_URLS_IN_CACHE - 1)
         .reduce((obj, item) => {
           obj[item[0]] = item[1]
@@ -64,7 +67,7 @@ export const redditLimiter = new Bottleneck({
   reservoirRefreshInterval: 60 * 1000, // ms, must be divisible by 250
   maxConcurrent: 30,
 })
-const wait = ms => new Promise((resolve, reject) => setTimeout(resolve, ms))
+const wait = ms => new Promise((resolve, _reject) => setTimeout(resolve, ms))
 redditLimiter.on('depleted', empty => {
   fetchRatelimitHeaders().then(({ reset, used, remaining }) => {
     if (!empty && reset) {
@@ -143,7 +146,10 @@ export const getCount = (
   return 'mxc' + count_within_period.toString(36)
 }
 
-export const fetchWithTimeout = async (resource: RequestInfo, options: RequestInit & { timeout?: number } = {}) => {
+export const fetchWithTimeout = async (
+  resource: RequestInfo | URL,
+  options: RequestInit & { timeout?: number } = {}
+) => {
   const { timeout = 8000 } = options
   const controller = new AbortController()
   const id = setTimeout(() => controller.abort(), timeout)
@@ -161,7 +167,12 @@ export const flaskQuery = ({
   params = {},
   host = REVEDDIT_FLASK_HOST_SHORT,
   options,
-}: { path: string; params?: Record<string, any>; host?: string; options?: RequestInit & { timeout?: number } }) => {
+}: {
+  path: string
+  params?: Record<string, any>
+  host?: string
+  options?: RequestInit & { timeout?: number }
+}) => {
   const param_str =
     params && Object.keys(params).length ? '?' + paramString(params) : ''
   const url = host + path + param_str

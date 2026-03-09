@@ -107,236 +107,241 @@ export const threadFiltersToReset = [
   'tagsFilter',
 ]
 
-const Comment =
-  props => {
-    const global = useGlobalStore()
-    const page_type = usePageType()
-    const { focusCommentID, contextAncestors, setShowSingleRoot, visibleComments } = useThreadContext()
-    const navigate = useNavigate()
-    const history = {
-      push: (to: string, state?: any) => navigate(to, { state }),
-      replace: (to: string, state?: any) => navigate(to, { replace: true, state }),
+const Comment = props => {
+  const global = useGlobalStore()
+  const page_type = usePageType()
+  const {
+    focusCommentID,
+    contextAncestors,
+    setShowSingleRoot,
+    visibleComments,
+  } = useThreadContext()
+  const navigate = useNavigate()
+  const history = {
+    push: (to: string, state?: any) => navigate(to, { state }),
+    replace: (to: string, state?: any) =>
+      navigate(to, { replace: true, state }),
+  }
+  const {
+    is_root, //from parent component
+    id,
+    parent_id,
+    stickied,
+    permalink,
+    subreddit,
+    link_id,
+    score,
+    created_utc, //from reddit comment data
+    removed,
+    deleted,
+    locked,
+    depth, //from reveddit post processing
+    ancestors: _ancestors,
+    replies, //from reveddit post processing
+  } = props
+  let { author } = props
+  const {
+    showContext,
+    limitCommentDepth,
+    itemsLookup: _itemsLookup,
+    threadPost,
+    add_user: _add_user,
+    loading: globalLoading,
+    localSort,
+    localSortReverse,
+    categoryFilter_author,
+  } = global.state
+  const [localLoading, setLocalLoading] = useState(false)
+  const loading = localLoading || globalLoading
+  const { selection_update: _updateStateAndURL, context_update } = global
+  const name = `t1_${id}` //some older pushshift data does not have name
+  const visibleReplies = visibleComments[name] || []
+  const [repliesMeta, setRepliesMeta] = useState({
+    showHiddenReplies: false,
+    hideReplies: !visibleReplies.length && replies.length,
+  })
+  const { showHiddenReplies, hideReplies } = repliesMeta
+  const [displayBody, setDisplayBody] = useState(
+    !stickied ||
+      !limitCommentDepth ||
+      contextAncestors[id] ||
+      id === focusCommentID
+  )
+  const { userPageSort, userPageTime } = get_userPageSortAndTime(props)
+  const maxCommentDepth = getMaxCommentDepth()
+  let even_odd = ''
+  if (!removed && !deleted) {
+    even_odd = depth % 2 === 0 ? 'comment-even' : 'comment-odd'
+  }
+
+  if (deleted) {
+    author = '[deleted]'
+  }
+  // per https://stackoverflow.com/questions/55647287/how-to-send-request-on-click-react-hooks-way/55647571#55647571
+  const isMounted = useRef(true)
+  useEffect(() => {
+    return () => {
+      isMounted.current = false
     }
-    const {
-      is_root, //from parent component
-      id,
-      parent_id,
-      stickied,
-      permalink,
-      subreddit,
-      link_id,
-      score,
-      created_utc, //from reddit comment data
-      removed,
-      deleted,
-      locked,
-      depth, //from reveddit post processing
-      ancestors,
-      replies, //from reveddit post processing
-    } = props
-    let { author } = props
-    const {
-      showContext,
-      limitCommentDepth,
-      itemsLookup,
-      threadPost,
-      add_user,
-      loading: globalLoading,
-      localSort,
-      localSortReverse,
-      categoryFilter_author,
-    } = global.state
-    const [localLoading, setLocalLoading] = useState(false)
-    const loading = localLoading || globalLoading
-    const { selection_update: updateStateAndURL, context_update } = global
-    const name = `t1_${id}` //some older pushshift data does not have name
-    const visibleReplies = visibleComments[name] || []
-    const [repliesMeta, setRepliesMeta] = useState({
-      showHiddenReplies: false,
-      hideReplies: !visibleReplies.length && replies.length,
-    })
-    const { showHiddenReplies, hideReplies } = repliesMeta
-    const [displayBody, setDisplayBody] = useState(
-      !stickied ||
-        !limitCommentDepth ||
-        contextAncestors[id] ||
-        id === focusCommentID
+  }, [])
+  const stopLocalLoading = () => {
+    if (isMounted.current) {
+      return setLocalLoading(false)
+    }
+  }
+  const permalink_nohash = permalink
+    ? convertPathSub(permalink)
+    : `${PATH_STR_SUB}/${subreddit}/comments/${link_id}/_/${id}/`
+
+  const searchParams = new SimpleURLSearchParams(window.location.search)
+    .delete('context')
+    .delete('showContext')
+    .delete('showFilters')
+  const searchParams_nocontext = searchParams.toString()
+  const thisCommentHash = `#${name}`
+  const replies_id = name + '_replies'
+  const contextLink =
+    permalink_nohash +
+    searchParams.set('context', contextDefault).toString() +
+    thisCommentHash
+  const permalink_with_hash =
+    permalink_nohash + searchParams_nocontext + thisCommentHash
+  const Permalink = ({ text, onClick = undefined as any, ..._rest }: any) => (
+    <Link
+      to={permalink_with_hash}
+      onClick={_e => {
+        context_update(0, page_type, history)
+          .then(onClick)
+          .then(jumpToCurrentHash)
+      }}
+    >
+      {text}
+    </Link>
+  )
+  let parent_link = undefined
+  if ('parent_id' in props && parent_id.substr(0, 2) === 't1') {
+    parent_link =
+      permalink_nohash.split('/').slice(0, 6).join('/') +
+      '/' +
+      parent_id.substr(3) +
+      '/' +
+      searchParams_nocontext +
+      '#' +
+      parent_id
+  }
+  let expandIcon = '[+]',
+    hidden = 'hidden'
+  if (displayBody) {
+    expandIcon = '[–]'
+    hidden = ''
+  }
+  let replies_viewable = [],
+    num_replies_text = ''
+  if (showContext) {
+    const rest = {
+      depth: depth + 1,
+    }
+    const showReplies = !limitCommentDepth || depth < maxCommentDepth
+    const continue_link = [
+      <Permalink
+        key="c"
+        text="continue this thread⟶"
+        onClick={() => setShowSingleRoot(true)}
+      />,
+    ]
+    const createComment = comment => (
+      <Comment
+        key={[
+          comment.id,
+          comment.removedby,
+          (visibleComments[comment.name] || []).length.toString(),
+        ].join('|')}
+        {...comment}
+        {...rest}
+      />
     )
-    const { userPageSort, userPageTime } = get_userPageSortAndTime(props)
-    const maxCommentDepth = getMaxCommentDepth()
-    let even_odd = ''
-    if (!removed && !deleted) {
-      even_odd = depth % 2 === 0 ? 'comment-even' : 'comment-odd'
-    }
-
-    if (deleted) {
-      author = '[deleted]'
-    }
-    // per https://stackoverflow.com/questions/55647287/how-to-send-request-on-click-react-hooks-way/55647571#55647571
-    const isMounted = useRef(true)
-    useEffect(() => {
-      return () => {
-        isMounted.current = false
-      }
-    }, [])
-    const stopLocalLoading = () => {
-      if (isMounted.current) {
-        return setLocalLoading(false)
+    let showingContinueLink = false
+    const getReplies_or_continueLink = visibleReplies => {
+      if (showReplies) {
+        return visibleReplies.map(c => createComment(c))
+      } else {
+        showingContinueLink = true
+        return continue_link
       }
     }
-    const permalink_nohash = permalink
-      ? convertPathSub(permalink)
-      : `${PATH_STR_SUB}/${subreddit}/comments/${link_id}/_/${id}/`
-
-    const searchParams = new SimpleURLSearchParams(window.location.search)
-      .delete('context')
-      .delete('showContext')
-      .delete('showFilters')
-    const searchParams_nocontext = searchParams.toString()
-    const thisCommentHash = `#${name}`
-    const replies_id = name + '_replies'
-    const contextLink =
-      permalink_nohash +
-      searchParams.set('context', contextDefault).toString() +
-      thisCommentHash
-    const permalink_with_hash =
-      permalink_nohash + searchParams_nocontext + thisCommentHash
-    const Permalink = ({ text, onClick = undefined as any, ...rest }: any) => (
-      <Link
-        to={permalink_with_hash}
-        onClick={e => {
-          context_update(0, page_type, history)
-            .then(onClick)
-            .then(jumpToCurrentHash)
+    const sortFn = getSortFn(localSort, undefined)
+    // [...replies] so that state is not modified
+    const getAllReplies = () =>
+      getReplies_or_continueLink(
+        [...replies].sort(reversible(sortFn, localSortReverse))
+      )
+    const ShowHiddenRepliesLink = ({ num_replies_text, ..._rest }: any) => (
+      <Button_noHref
+        onClick={() => {
+          setRepliesMeta({ showHiddenReplies: true, hideReplies: false })
+          jumpToHash(`#${replies_id}`)
         }}
       >
-        {text}
-      </Link>
+        ▾ show hidden replies{num_replies_text}
+      </Button_noHref>
     )
-    let parent_link = undefined
-    if ('parent_id' in props && parent_id.substr(0, 2) === 't1') {
-      parent_link =
-        permalink_nohash.split('/').slice(0, 6).join('/') +
-        '/' +
-        parent_id.substr(3) +
-        '/' +
-        searchParams_nocontext +
-        '#' +
-        parent_id
+    if (replies && replies.length) {
+      num_replies_text = ' (' + replies.length + ')'
     }
-    let expandIcon = '[+]',
-      hidden = 'hidden'
-    if (displayBody) {
-      expandIcon = '[–]'
-      hidden = ''
-    }
-    let replies_viewable = [],
-      num_replies_text = ''
-    if (showContext) {
-      const rest = {
-        depth: depth + 1,
-      }
-      const showReplies = !limitCommentDepth || depth < maxCommentDepth
-      const continue_link = [
-        <Permalink
-          key="c"
-          text="continue this thread⟶"
-          onClick={() => setShowSingleRoot(true)}
-        />,
-      ]
-      const createComment = comment => (
-        <Comment
-          key={[
-            comment.id,
-            comment.removedby,
-            (visibleComments[comment.name] || []).length.toString(),
-          ].join('|')}
-          {...comment}
-          {...rest}
-        />
-      )
-      let showingContinueLink = false
-      const getReplies_or_continueLink = visibleReplies => {
-        if (showReplies) {
-          return visibleReplies.map(c => createComment(c))
-        } else {
-          showingContinueLink = true
-          return continue_link
-        }
-      }
-      const sortFn = getSortFn(localSort, undefined)
-      // [...replies] so that state is not modified
-      const getAllReplies = () =>
-        getReplies_or_continueLink(
-          [...replies].sort(reversible(sortFn, localSortReverse))
-        )
-      const ShowHiddenRepliesLink = ({ num_replies_text, ...rest }: any) => (
-        <Button_noHref
-          onClick={() => {
-            setRepliesMeta({ showHiddenReplies: true, hideReplies: false })
-            jumpToHash(`#${replies_id}`)
-          }}
-        >
-          ▾ show hidden replies{num_replies_text}
-        </Button_noHref>
-      )
-      if (replies && replies.length) {
-        num_replies_text = ' (' + replies.length + ')'
-      }
-      if (showHiddenReplies && !hideReplies) {
-        replies_viewable = getAllReplies()
-      } else if (visibleReplies.length && !hideReplies) {
-        replies_viewable = getReplies_or_continueLink(visibleReplies)
-        if (!showingContinueLink) {
-          const extra_key = id + '_extra_replies'
-          // must check visibleReplies.length < replies.length b/c replies can be empty when it is reset and repopulated in createCommentTree()
-          // temp fix, later will get rid of createCommentTree and replace with something that incrementally updates instead of recreating the tree
-          if (visibleReplies.length < replies.length) {
-            replies_viewable.push(
-              <ShowHiddenRepliesLink
-                key={extra_key}
-                num_replies_text={
-                  ' (' + (replies.length - visibleReplies.length) + ')'
-                }
-              />
-            )
-          }
-        }
-      } else if ((replies && replies.length) || hideReplies) {
-        replies_viewable =
-          showHiddenReplies && !hideReplies ? (
-            getAllReplies()
-          ) : showReplies ? (
-            <ShowHiddenRepliesLink num_replies_text={num_replies_text} />
-          ) : (
-            continue_link
+    if (showHiddenReplies && !hideReplies) {
+      replies_viewable = getAllReplies()
+    } else if (visibleReplies.length && !hideReplies) {
+      replies_viewable = getReplies_or_continueLink(visibleReplies)
+      if (!showingContinueLink) {
+        const extra_key = id + '_extra_replies'
+        // must check visibleReplies.length < replies.length b/c replies can be empty when it is reset and repopulated in createCommentTree()
+        // temp fix, later will get rid of createCommentTree and replace with something that incrementally updates instead of recreating the tree
+        if (visibleReplies.length < replies.length) {
+          replies_viewable.push(
+            <ShowHiddenRepliesLink
+              key={extra_key}
+              num_replies_text={
+                ' (' + (replies.length - visibleReplies.length) + ')'
+              }
+            />
           )
+        }
       }
+    } else if ((replies && replies.length) || hideReplies) {
+      replies_viewable =
+        showHiddenReplies && !hideReplies ? (
+          getAllReplies()
+        ) : showReplies ? (
+          <ShowHiddenRepliesLink num_replies_text={num_replies_text} />
+        ) : (
+          continue_link
+        )
     }
-    const ShowHideRepliesButton = ({ hideReplies, ...other }) => {
-      const show_hide = hideReplies ? 'hide' : 'show'
-      return (
-        <Button_noHref
-          onClick={() =>
-            setRepliesMeta({ ...repliesMeta, ...other, hideReplies })
-          }
-        >
-          {show_hide} replies{num_replies_text}
-        </Button_noHref>
-      )
-    }
-    const locallyClickableFilters_data = {
-      categoryFilter_author: author,
-      thread_before: created_utc,
-    }
-    const locallyClickableFilters_set = globalVarName => {
-      const value = locallyClickableFilters_data[globalVarName]
-      return global.resetFilters(page_type, { [globalVarName]: value })
-    }
+  }
+  const ShowHideRepliesButton = ({ hideReplies, ...other }) => {
+    const show_hide = hideReplies ? 'hide' : 'show'
     return (
-      <div
-        id={name}
-        className={`comment
+      <Button_noHref
+        onClick={() =>
+          setRepliesMeta({ ...repliesMeta, ...other, hideReplies })
+        }
+      >
+        {show_hide} replies{num_replies_text}
+      </Button_noHref>
+    )
+  }
+  const locallyClickableFilters_data = {
+    categoryFilter_author: author,
+    thread_before: created_utc,
+  }
+  const locallyClickableFilters_set = globalVarName => {
+    const value = locallyClickableFilters_data[globalVarName]
+    return global.resetFilters(page_type, { [globalVarName]: value })
+  }
+  return (
+    <div
+      id={name}
+      className={`comment
           ${removed ? 'removed' : ''}
           ${deleted ? 'deleted' : ''}
           ${locked ? 'locked' : ''}
@@ -349,150 +354,149 @@ const Comment =
               : ''
           }
     `}
-      >
-        <div className="comment-head">
-          <a
-            onClick={() => setDisplayBody(!displayBody)}
-            className={`collapseToggle spaceRight ${hidden}`}
-          >
-            {expandIcon}
-          </a>
-          <Author {...props} className="spaceRight" />
-          <span className="comment-score spaceRight">
-            {prettyScore(score)} point{score !== 1 && 's'}
-          </span>
-          <Time {...props} />
-          <RemovedBy {...props} />
-        </div>
-        <div
-          className="comment-body-and-links"
-          style={displayBody ? {} : { display: 'none' }}
+    >
+      <div className="comment-head">
+        <a
+          onClick={() => setDisplayBody(!displayBody)}
+          className={`collapseToggle spaceRight ${hidden}`}
         >
-          <CommentBody {...props} />
-          <div>
-            <span className="comment-links">
-              {!deleted && <>{<Permalink text="permalink" />}</>}
-              {parent_link && (
-                // using <a> instead of <Link> for parent & context links b/c
-                // <Link> causes comments to disappear momentarily when inserting a parent
-                <>
+          {expandIcon}
+        </a>
+        <Author {...props} className="spaceRight" />
+        <span className="comment-score spaceRight">
+          {prettyScore(score)} point{score !== 1 && 's'}
+        </span>
+        <Time {...props} />
+        <RemovedBy {...props} />
+      </div>
+      <div
+        className="comment-body-and-links"
+        style={displayBody ? {} : { display: 'none' }}
+      >
+        <CommentBody {...props} />
+        <div>
+          <span className="comment-links">
+            {!deleted && <>{<Permalink text="permalink" />}</>}
+            {parent_link && (
+              // using <a> instead of <Link> for parent & context links b/c
+              // <Link> causes comments to disappear momentarily when inserting a parent
+              <>
+                <LoadingOrButton
+                  loading={loading}
+                  Button={
+                    <a
+                      href={parent_link}
+                      onClick={e => {
+                        setLocalLoading(true)
+                        e.preventDefault()
+                        finishPromise_then_jumpToHash(
+                          insertParent(id, global)
+                            .then(stopLocalLoading)
+                            .then(() => {
+                              const to =
+                                window.location.pathname +
+                                window.location.search +
+                                '#' +
+                                parent_id
+                              if (!is_root) {
+                                history.replace(to)
+                                jumpToCurrentHash()
+                              } else {
+                                context_update(
+                                  0,
+                                  page_type,
+                                  history,
+                                  parent_link
+                                )
+                              }
+                            })
+                        )
+                      }}
+                    >
+                      parent
+                    </a>
+                  }
+                />
+                {!deleted && (
                   <LoadingOrButton
                     loading={loading}
                     Button={
                       <a
-                        href={parent_link}
+                        href={contextLink}
                         onClick={e => {
                           setLocalLoading(true)
                           e.preventDefault()
                           finishPromise_then_jumpToHash(
                             insertParent(id, global)
+                              // parent_id will never be t3_ b/c context link is not rendered for topmost comments
+                              .then(() =>
+                                insertParent(parent_id.substr(3), global)
+                              )
                               .then(stopLocalLoading)
-                              .then(() => {
-                                const to =
-                                  window.location.pathname +
-                                  window.location.search +
-                                  '#' +
-                                  parent_id
-                                if (!is_root) {
-                                  history.replace(to)
-                                  jumpToCurrentHash()
-                                } else {
-                                  context_update(
-                                    0,
-                                    page_type,
-                                    history,
-                                    parent_link
-                                  )
-                                }
-                              })
+                              .then(() =>
+                                context_update(
+                                  2,
+                                  page_type,
+                                  history,
+                                  contextLink
+                                )
+                              )
                           )
                         }}
                       >
-                        parent
+                        context
                       </a>
                     }
                   />
-                  {!deleted && (
-                    <LoadingOrButton
-                      loading={loading}
-                      Button={
-                        <a
-                          href={contextLink}
-                          onClick={e => {
-                            setLocalLoading(true)
-                            e.preventDefault()
-                            finishPromise_then_jumpToHash(
-                              insertParent(id, global)
-                                // parent_id will never be t3_ b/c context link is not rendered for topmost comments
-                                .then(() =>
-                                  insertParent(parent_id.substr(3), global)
-                                )
-                                .then(stopLocalLoading)
-                                .then(() =>
-                                  context_update(
-                                    2,
-                                    page_type,
-                                    history,
-                                    contextLink
-                                  )
-                                )
-                            )
-                          }}
-                        >
-                          context
-                        </a>
-                      }
-                    />
-                  )}
-                </>
-              )}
-              {num_replies_text ? (
-                hideReplies ? (
-                  <ShowHideRepliesButton
-                    hideReplies={false}
-                    showHiddenReplies={true}
-                  />
-                ) : (
-                  <ShowHideRepliesButton hideReplies={true} />
+                )}
+              </>
+            )}
+            {num_replies_text ? (
+              hideReplies ? (
+                <ShowHideRepliesButton
+                  hideReplies={false}
+                  showHiddenReplies={true}
+                />
+              ) : (
+                <ShowHideRepliesButton hideReplies={true} />
+              )
+            ) : null}
+            <AuthorFocus
+              post={threadPost}
+              author={author}
+              deleted={deleted}
+              {...{
+                loading,
+                setLocalLoading,
+                thisCommentHash,
+                userPageSort,
+                userPageTime,
+              }}
+            />
+            <Button_noHref
+              onClick={() =>
+                locallyClickableFilters_set('thread_before').then(() =>
+                  jumpToHash(thisCommentHash)
                 )
-              ) : null}
-              <AuthorFocus
-                post={threadPost}
-                author={author}
-                deleted={deleted}
-                {...{
-                  loading,
-                  setLocalLoading,
-                  thisCommentHash,
-                  userPageSort,
-                  userPageTime,
-                }}
-              />
-              <Button_noHref
-                onClick={() =>
-                  locallyClickableFilters_set('thread_before').then(() =>
-                    jumpToHash(thisCommentHash)
-                  )
-                }
-              >
-                as-of
-              </Button_noHref>
-              <PreserveButton
-                post={threadPost}
-                author={author}
-                deleted={deleted}
-                {...{ loading, setLocalLoading, userPageSort, userPageTime }}
-              />
-              {!deleted && removed && <MessageMods {...props} />}
-            </span>
-            {CommentButtonsHelp}
-          </div>
-          <div id={replies_id}>{replies_viewable}</div>
+              }
+            >
+              as-of
+            </Button_noHref>
+            <PreserveButton
+              post={threadPost}
+              author={author}
+              deleted={deleted}
+              {...{ loading, setLocalLoading, userPageSort, userPageTime }}
+            />
+            {!deleted && removed && <MessageMods {...props} />}
+          </span>
+          {CommentButtonsHelp}
         </div>
+        <div id={replies_id}>{replies_viewable}</div>
       </div>
-    )
-  }
-
+    </div>
+  )
+}
 
 const finishPromise_then_jumpToHash = promise => {
   const y = window.scrollY
@@ -518,150 +522,154 @@ const Button_noHref = ({ onClick, children }) => {
   )
 }
 
-export const AuthorFocus =
-  ({ thisCommentHash = undefined, text = 'author-focus', addIcon = false, ...props }: any) => {
-    const global = useGlobalStore()
-    return (
-      <PreserveButton
-        {...props}
-        {...{ text, addIcon }}
-        forceUrlUpdate={false}
-        beforeFunc={() => {
-          return global
-            .resetFilters('thread', { categoryFilter_author: props.author })
-            .then(() => {
-              if (thisCommentHash) {
-                jumpToHash(thisCommentHash)
-              }
-            })
-        }}
-      />
-    )
-  }
+export const AuthorFocus = ({
+  thisCommentHash = undefined,
+  text = 'author-focus',
+  addIcon = false,
+  ...props
+}: any) => {
+  const global = useGlobalStore()
+  return (
+    <PreserveButton
+      {...props}
+      {...{ text, addIcon }}
+      forceUrlUpdate={false}
+      beforeFunc={() => {
+        return global
+          .resetFilters('thread', { categoryFilter_author: props.author })
+          .then(() => {
+            if (thisCommentHash) {
+              jumpToHash(thisCommentHash)
+            }
+          })
+      }}
+    />
+  )
+}
 
-const PreserveButton =
-  ({
-    post,
-    author,
-    deleted,
-    loading,
-    setLocalLoading,
-    text = 'preserve',
-    addIcon = true,
-    beforeFunc = () => Promise.resolve(),
-    forceUrlUpdate = true,
-    userPageSort,
-    userPageTime,
-  }) => {
-    const global = useGlobalStore()
-    if (deleted || !validAuthor(author)) {
-      return null
+const PreserveButton = ({
+  post,
+  author,
+  deleted,
+  loading,
+  setLocalLoading,
+  text = 'preserve',
+  addIcon = true,
+  beforeFunc = () => Promise.resolve(),
+  forceUrlUpdate = true,
+  userPageSort,
+  userPageTime,
+}) => {
+  const global = useGlobalStore()
+  // per https://stackoverflow.com/questions/55647287/how-to-send-request-on-click-react-hooks-way/55647571#55647571
+  const isMounted = useRef(true)
+  useEffect(() => {
+    return () => {
+      isMounted.current = false
     }
-    // per https://stackoverflow.com/questions/55647287/how-to-send-request-on-click-react-hooks-way/55647571#55647571
-    const isMounted = useRef(true)
-    useEffect(() => {
-      return () => {
-        isMounted.current = false
-      }
-    }, [])
+  }, [])
 
-    return (
-      <LoadingOrButton
-        loading={loading}
-        Button={
-          <Button_noHref
-            onClick={() => {
-              const stateUpdate_promise = beforeFunc()
-              const {
-                add_user,
-                itemsLookup,
-                threadPost,
-                items,
-                commentTree,
-                alreadySearchedAuthors,
-              } = global.state
-              if (
-                forceUrlUpdate ||
-                (!alreadySearchedAuthors[author] &&
-                  !localAlreadySearchedAuthors[author])
-              ) {
-                setLocalLoading(true)
-                localAlreadySearchedAuthors[author] = true
-                // the idea of setting userPageSort to something other than 'new' here is, if the thread is old and the comment's score is high or low,
-                // then maybe the score of a removed comment from the same author is high/low, so change sort to 'top' or 'controversial'
-                const aui = new AddUserItem({
-                  author,
-                  sort: userPageSort,
-                  time: userPageTime,
-                  kind: 'c',
-                })
-                aui
-                  .query()
-                  .then(userPage =>
-                    getUserCommentsForPost(post, itemsLookup, [userPage])
-                  )
-                  .then(async ({ user_comments, newComments }) => {
-                    const { new_commentTree, new_add_user } =
-                      await addUserComments_updateURL_createTreeIfNeeded({
-                        user_comments,
-                        itemsLookup,
-                        add_user,
-                        threadPost,
-                        newComments,
-                        items,
-                        commentTree,
-                        userPageSort,
-                        userPageTime,
-                      })
-                    let add_user_for_preserve
-                    if (forceUrlUpdate) {
-                      // passing an empty itemsLookup allows the url to update even when removed or new comments are not found
-                      // this reruns one of the functions encapsulated above but it's short and only happens when user clicks
-                      ;({ new_add_user: add_user_for_preserve } =
-                        addUserComments_and_updateURL(
-                          user_comments,
-                          {},
-                          new_add_user || add_user,
-                          userPageSort,
-                          userPageTime
-                        ))
-                    }
-                    copyToClipboard(window.location.href)
-                    if (isMounted.current) {
-                      await setLocalLoading(false)
-                    }
-                    await stateUpdate_promise
-                    const final_add_user =
-                      add_user_for_preserve || new_add_user || add_user
-                    const final_commentTree = new_commentTree || commentTree
-                    if (
-                      final_add_user !== add_user ||
-                      final_commentTree !== commentTree
-                    ) {
-                      global.setSuccess({
-                        add_user: final_add_user,
-                        commentTree: final_commentTree,
-                      })
-                    }
-                  })
-                  .catch(e => {
-                    console.error(e)
-                    global.setError()
-                  })
-              }
-            }}
-          >
-            {text}
-            {addIcon && (
-              <>
-                {' '}
-                <RestoreIcon wh="12" fill={loading ? '#4c4949' : '#828282'} />
-              </>
-            )}
-          </Button_noHref>
-        }
-      />
-    )
+  if (deleted || !validAuthor(author)) {
+    return null
   }
+
+  return (
+    <LoadingOrButton
+      loading={loading}
+      Button={
+        <Button_noHref
+          onClick={() => {
+            const stateUpdate_promise = beforeFunc()
+            const {
+              add_user,
+              itemsLookup,
+              threadPost,
+              items,
+              commentTree,
+              alreadySearchedAuthors,
+            } = global.state
+            if (
+              forceUrlUpdate ||
+              (!alreadySearchedAuthors[author] &&
+                !localAlreadySearchedAuthors[author])
+            ) {
+              setLocalLoading(true)
+              localAlreadySearchedAuthors[author] = true
+              // the idea of setting userPageSort to something other than 'new' here is, if the thread is old and the comment's score is high or low,
+              // then maybe the score of a removed comment from the same author is high/low, so change sort to 'top' or 'controversial'
+              const aui = new AddUserItem({
+                author,
+                sort: userPageSort,
+                time: userPageTime,
+                kind: 'c',
+              })
+              aui
+                .query()
+                .then(userPage =>
+                  getUserCommentsForPost(post, itemsLookup, [userPage])
+                )
+                .then(async ({ user_comments, newComments }) => {
+                  const { new_commentTree, new_add_user } =
+                    await addUserComments_updateURL_createTreeIfNeeded({
+                      user_comments,
+                      itemsLookup,
+                      add_user,
+                      threadPost,
+                      newComments,
+                      items,
+                      commentTree,
+                      userPageSort,
+                      userPageTime,
+                    })
+                  let add_user_for_preserve
+                  if (forceUrlUpdate) {
+                    // passing an empty itemsLookup allows the url to update even when removed or new comments are not found
+                    // this reruns one of the functions encapsulated above but it's short and only happens when user clicks
+                    ;({ new_add_user: add_user_for_preserve } =
+                      addUserComments_and_updateURL(
+                        user_comments,
+                        {},
+                        new_add_user || add_user,
+                        userPageSort,
+                        userPageTime
+                      ))
+                  }
+                  copyToClipboard(window.location.href)
+                  if (isMounted.current) {
+                    await setLocalLoading(false)
+                  }
+                  await stateUpdate_promise
+                  const final_add_user =
+                    add_user_for_preserve || new_add_user || add_user
+                  const final_commentTree = new_commentTree || commentTree
+                  if (
+                    final_add_user !== add_user ||
+                    final_commentTree !== commentTree
+                  ) {
+                    global.setSuccess({
+                      add_user: final_add_user,
+                      commentTree: final_commentTree,
+                    })
+                  }
+                })
+                .catch(e => {
+                  console.error(e)
+                  global.setError()
+                })
+            }
+          }}
+        >
+          {text}
+          {addIcon && (
+            <>
+              {' '}
+              <RestoreIcon wh="12" fill={loading ? '#4c4949' : '#828282'} />
+            </>
+          )}
+        </Button_noHref>
+      }
+    />
+  )
+}
 
 export default Comment

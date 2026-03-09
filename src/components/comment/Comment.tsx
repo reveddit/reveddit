@@ -1,8 +1,6 @@
 import React, { useState } from 'react'
-import {
-  convertPathSub,
-} from 'utils'
-import RemovedBy, { QuarantinedLabel } from 'components/common/RemovedBy'
+import { convertPathSub } from 'utils'
+import { QuarantinedLabel } from 'components/common/RemovedBy'
 import CommentBody from 'components/comment/CommentBody'
 import CommentHead from 'components/comment/CommentHead'
 import {
@@ -13,11 +11,9 @@ import {
 import { AddUserParam } from 'data_processing/RestoreComment'
 import { MessageMods } from 'components/Misc'
 import { NewWindowLink } from 'components/ui/Links'
-import { usePageType } from 'contexts/page'
 
 const Comment = props => {
   const global = useGlobalStore()
-  const page_type = usePageType()
   const [displayBody, setDisplayBody] = useState(true)
   const {
     t,
@@ -33,13 +29,10 @@ const Comment = props => {
     locked,
     link_id,
     subreddit,
-    score,
     permalink, //from reddit comment data
     quarantine,
     url,
     num_comments, //from reddit post data
-    link_title,
-    link_author, //from reddit post data, renamed
     removed,
     deleted,
     is_op,
@@ -52,10 +45,10 @@ const Comment = props => {
     kind,
   } = props
   let { prev, next } = props // from reveddit post processing
-  let classNames = ['comment', 'user']
-  let submitter = ''
+  const classNames = ['comment', 'user']
+  let _submitter = ''
   if (is_op) {
-    submitter = ' submitter' + ' '
+    _submitter = ' submitter' + ' '
   }
   if (removed) {
     classNames.push('removed')
@@ -69,12 +62,12 @@ const Comment = props => {
     classNames.push('quarantine')
     quarantined_subreddits = subreddit
   }
-  locked && classNames.push('locked')
+  if (locked) {
+    classNames.push('locked')
+  }
 
   let directlink = ''
-  let after_before = '',
-    after = '',
-    before = ''
+  let after_before = ''
   let add_user = ''
   if (!prev && after_gs) {
     prev = after_gs
@@ -84,10 +77,8 @@ const Comment = props => {
   }
   if (prev) {
     after_before = `after=${prev}&`
-    after = prev
   } else if (next) {
     after_before = `before=${next}&`
-    before = next
   }
   // after_before only has a value for user pages
   if (after_before) {
@@ -108,7 +99,7 @@ const Comment = props => {
       prev,
     })
   }
-  let post_parent_removed = []
+  const post_parent_removed = []
   if (parent_removed_label) {
     post_parent_removed.push('parent ' + parent_removed_label)
   }

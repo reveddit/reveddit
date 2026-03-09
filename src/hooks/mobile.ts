@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 
 const r = 'resize'
 export const useIsMobile = (): boolean => {

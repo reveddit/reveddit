@@ -5,8 +5,8 @@ import { Help } from 'components/ui/Modals'
 import { showAccountInfo_global } from 'components/modals/Settings'
 import { usePageType } from 'contexts/page'
 
-const paramKey_sortType = 'localSort'
-const paramKey_reverse = 'localSortReverse'
+const _paramKey_sortType = 'localSort'
+const _paramKey_reverse = 'localSortReverse'
 const sortby_help = (
   <Help
     title="Sort by"

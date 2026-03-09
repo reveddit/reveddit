@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useState, useEffect } from 'react'
+import React, { Suspense, lazy, useState, useEffect, useCallback } from 'react'
 import ErrorBoundary from 'components/ErrorBoundary'
 import { useGlobalStore, updateURL } from 'state'
 import RemovedFilter from './RemovedFilter'
@@ -18,6 +18,7 @@ import { NewWindowLink } from 'components/ui/Links'
 import { QuestionMarkModal, Help } from 'components/ui/Modals'
 import BeforeAfter from './BeforeAfter'
 import { usePageType } from 'contexts/page'
+import FilterPanel from './FilterPanel'
 
 const UpvoteRemovalRateHistory = lazy(
   () => import('components/filters/UpvoteRemovalRateHistory')
@@ -122,7 +123,7 @@ const Selections = ({
     }
   }, [])
   const { showFilters, filtersHaveBeenShown } = showFiltersMeta
-  const toggleShowFilters = () => {
+  const toggleShowFilters = useCallback(() => {
     const newShowFiltersMeta = {
       showFilters: !showFilters,
       filtersHaveBeenShown,
@@ -136,10 +137,9 @@ const Selections = ({
     }
     updateURL(queryParams)
     setShowFiltersMeta(newShowFiltersMeta)
-  }
-  const showFiltersText = showFilters ? '[–] hide filters' : '[+] show filters'
-  let upvoteRemovalRateHistory = '',
-    save_reset_buttons = ''
+  }, [showFilters, filtersHaveBeenShown])
+  let upvoteRemovalRateHistory = ''
+  let save_reset_buttons: any = ''
   if (
     [
       'subreddit_posts',
@@ -152,9 +152,7 @@ const Selections = ({
     upvoteRemovalRateHistory = (
       <ErrorBoundary>
         <Suspense fallback={<></>}>
-          <UpvoteRemovalRateHistory
-            subreddit={subreddit}
-          />
+          <UpvoteRemovalRateHistory subreddit={subreddit} />
         </Suspense>
       </ErrorBoundary>
     )
@@ -209,22 +207,22 @@ const Selections = ({
     />,
   ]
   const beforeAfter = (
-    <BeforeAfter
-      title="Date"
-      titleHelpModal={{ content: beforeAfter_help }}
-    />
+    <BeforeAfter title="Date" titleHelpModal={{ content: beforeAfter_help }} />
   )
-  if (showFilters) {
+  if (showFilters || filtersHaveBeenShown) {
     const save_reset_help = (
       <Help
-        title="Save/Reset"
+        title="Filter Defaults"
         content={
           <>
             <p>
-              Save: Saves the currently selected filters as the default on page
-              loads for the current page type, [{page_type}]
+              <strong>Save defaults:</strong> Saves the currently selected
+              filters as your default for [{page_type}] pages.
             </p>
-            <p>Reset: Resets saved custom filters to the default values.</p>
+            <p>
+              <strong>Reset defaults:</strong> Clears any saved custom defaults,
+              restoring the original filter settings.
+            </p>
             <p>
               <span className="quarantined">Tip</span> To show all items on a
               page, click the link on the number of items shown, for example "4
@@ -234,34 +232,33 @@ const Selections = ({
         }
       />
     )
-    const save = (
-      <a className="pointer" onClick={() => global.saveDefaults(page_type)}>
-        save
-      </a>
-    )
-    const reset = (
-      <a className="pointer" onClick={() => global.resetDefaults(page_type)}>
-        reset
-      </a>
-    )
     save_reset_buttons = (
-      <span>
-        {' '}
-        | {save} / {reset}
+      <span className="filter-defaults-buttons">
+        <button
+          className="filter-defaults-btn save"
+          onClick={() => global.saveDefaults(page_type)}
+          title="Save current filters as defaults for this page type"
+        >
+          Save defaults
+        </button>
+        <button
+          className="filter-defaults-btn reset"
+          onClick={() => global.resetDefaults(page_type)}
+          title="Clear saved defaults and restore original settings"
+        >
+          Reset defaults
+        </button>
         <QuestionMarkModal modalContent={{ content: save_reset_help }} />
       </span>
     )
   }
 
   return (
-    <>
-      <div className="toggleFilters">
-        <a onClick={toggleShowFilters} className="collapseToggle">
-          {showFiltersText}
-        </a>
-        {save_reset_buttons}
-      </div>
-      <div style={{ clear: 'both' }}></div>
+    <FilterPanel
+      showFilters={showFilters}
+      onToggle={toggleShowFilters}
+      saveResetButtons={save_reset_buttons}
+    >
       {filtersHaveBeenShown && (
         <div
           className="selections"
@@ -279,9 +276,7 @@ const Selections = ({
                     {page_type === 'subreddit_posts' && (
                       <Content subreddit={subreddit} />
                     )}
-                    {page_type === 'domain_posts' && (
-                      <Selfposts />
-                    )}
+                    {page_type === 'domain_posts' && <Selfposts />}
                     <LocalSort />
                     <div>
                       <RemovedFilter />
@@ -408,7 +403,7 @@ const Selections = ({
           })()}
         </div>
       )}
-    </>
+    </FilterPanel>
   )
 }
 

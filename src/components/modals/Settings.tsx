@@ -12,7 +12,7 @@ export const limitCommentDepth_global = get(limitCommentDepth_var, true)
 
 export const API_REGISTRATION_LINK = 'https://www.reddit.com/prefs/apps/'
 
-const getSetting = (initValue, varName) => {
+const useSetting = (initValue, varName) => {
   const value_current = initValue
   const [value, set_value] = useState(value_current)
   const prev_value = usePrevious(value)
@@ -77,14 +77,14 @@ export const api_key_info = (
   <>Follow this {guideLink} to create an API key and enter it here:</>
 )
 export default () => {
-  const [showRelDates, update_showRelDates, prev_showRelDates] = getSetting(
+  const [showRelDates, update_showRelDates, prev_showRelDates] = useSetting(
     showRelDates_global,
     showRelDates_var
   )
   const [showAccountInfo, update_showAccountInfo, prev_showAccountInfo] =
-    getSetting(showAccountInfo_global, showAccountInfo_var)
+    useSetting(showAccountInfo_global, showAccountInfo_var)
   const [limitCommentDepth, update_limitCommentDepth, prev_limitCommentDepth] =
-    getSetting(limitCommentDepth_global, limitCommentDepth_var)
+    useSetting(limitCommentDepth_global, limitCommentDepth_var)
 
   const changes =
     showRelDates !== prev_showRelDates ||

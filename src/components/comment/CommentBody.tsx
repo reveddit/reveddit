@@ -28,7 +28,7 @@ const notices = {
 
 const dismiss = noticeType => {
   put(notices[noticeType], true)
-  for (let el of document.querySelectorAll(
+  for (const el of document.querySelectorAll(
     `.comment .notice-with-link.${noticeType}`
   )) {
     ;(el as HTMLElement).style.display = 'none'
@@ -87,16 +87,14 @@ const CommentBody = props => {
         } else {
           removedMessage = (
             <>
-              <p>{getRemovedMessage(props, 'comment')}</p>
+              <p>{getRemovedMessage(props, 'comment', global.state)}</p>
               {usernameEntry}
             </>
           )
         }
       }
       if (comment_Is_Removed && !searchAuthorsForm) {
-        hideUnarchivedButton = (
-          <HideUnarchivedComments />
-        )
+        hideUnarchivedButton = <HideUnarchivedComments />
       }
     } else {
       if (page_type === 'user') {

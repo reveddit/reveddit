@@ -10,7 +10,7 @@ const posts_page_title =
 const ConditionalWrapper = ({ condition, wrapper, children }) =>
   condition ? wrapper(<>▾ {children}</>) : children
 
-const ResultsSummary = ({ num_showing, ...rest }) => {
+const ResultsSummary = ({ num_showing, ..._rest }) => {
   const global = useGlobalStore()
   const page_type = usePageType()
   const { before, before_id, items, paginationMeta } = global.state
@@ -30,7 +30,7 @@ const ResultsSummary = ({ num_showing, ...rest }) => {
   const youngest_pretty = getPrettyDate(newestTimestamp)
   const oldest_pretty = getPrettyDate(oldestTimestamp)
 
-  let timeFrame = ''
+  let timeFrame: React.ReactNode
   let numPagesText = '',
     totalPagesText = ''
   if (paginationMeta && paginationMeta.num_pages > 1) {

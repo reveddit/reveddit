@@ -56,13 +56,13 @@ const comments_byCommentLength = (a, b) => {
   )
 }
 const comments_byControversiality1 = (a, b) => {
-  let a_score_noneg = a.score < 0 ? 0 : a.score
-  let b_score_noneg = b.score < 0 ? 0 : b.score
+  const a_score_noneg = a.score < 0 ? 0 : a.score
+  const b_score_noneg = b.score < 0 ? 0 : b.score
   return a_score_noneg - b_score_noneg
 }
 const comments_byControversiality2 = (a, b) => {
-  let a_score_abs = Math.abs(a.score)
-  let b_score_abs = Math.abs(b.score)
+  const a_score_abs = Math.abs(a.score)
+  const b_score_abs = Math.abs(b.score)
   return b.controversiality - a.controversiality || a_score_abs - b_score_abs
 }
 

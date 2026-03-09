@@ -9,19 +9,23 @@ import { ShareLink } from 'components/ui/Links'
 
 const SubredditPosts = props => {
   const { subreddit } = props.match.params
-  const { page_type, viewableItems, selections, summary, topNotice, global } =
-    props
+  const {
+    page_type: _page_type,
+    viewableItems,
+    selections,
+    summary,
+    topNotice,
+    global,
+  } = props
   const {
     items,
     loading,
-    localSort,
+    localSort: _localSort,
     hasVisitedUserPage,
     hasVisitedTopRemovedPage,
   } = global.state
   const noItemsFound = items.length === 0 && !loading
-  const pagination = (
-    <Pagination bottom={true} subreddit={subreddit} />
-  )
+  const pagination = <Pagination bottom={true} subreddit={subreddit} />
   let instructionalNotice = ''
   if (!hasVisitedUserPage) {
     instructionalNotice = <UserPageTip />

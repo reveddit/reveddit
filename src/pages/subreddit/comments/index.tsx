@@ -10,7 +10,7 @@ import { ShareLink } from 'components/ui/Links'
 const SubredditComments = props => {
   const { subreddit } = props.match.params
   const {
-    page_type,
+    page_type: _page_type,
     viewableItems,
     selections,
     summary,
@@ -18,12 +18,15 @@ const SubredditComments = props => {
     topNotice,
     global,
   } = props
-  const { items, loading, localSort, hasVisitedUserPage } = global.state
+  const {
+    items,
+    loading,
+    localSort: _localSort,
+    hasVisitedUserPage,
+  } = global.state
   const noItemsFound = items.length === 0 && !loading
 
-  const pagination = (
-    <Pagination bottom={true} subreddit={subreddit} />
-  )
+  const pagination = <Pagination bottom={true} subreddit={subreddit} />
 
   return (
     <React.Fragment>
@@ -38,9 +41,7 @@ const SubredditComments = props => {
         <p>No comments found</p>
       ) : (
         viewableItems.map(item => {
-          return (
-            <Comment key={item.id} {...item} depth={0} />
-          )
+          return <Comment key={item.id} {...item} depth={0} />
         })
       )}
       {pagination}

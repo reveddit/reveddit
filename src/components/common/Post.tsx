@@ -20,7 +20,7 @@ import PostActions from './PostActions'
 const max_selftext_length = 100
 
 const decodeHtml = html => {
-  var txt = document.createElement('textarea')
+  const txt = document.createElement('textarea')
   txt.innerHTML = html
   return txt.value || html
 }
@@ -31,18 +31,7 @@ const clear = (
 const Post = props => {
   const global = useGlobalStore()
   const page_type = usePageType()
-  const {
-    rev_position,
-    kind,
-    author,
-    name,
-    next,
-    prev,
-    title,
-  } = props
-  if (!title) {
-    return <div />
-  }
+  const { rev_position, kind, author, name, next, prev, title } = props
 
   const {
     sort,
@@ -51,10 +40,12 @@ const Post = props => {
     initialFocusCommentID,
     limitCommentDepth,
   } = global.state
-  let { add_user, loading: globalLoading, user_about, over18 } = global.state
+  const { add_user, loading: globalLoading, user_about, over18 } = global.state
   const nsfw = props.over_18 || user_about?.subreddit?.over_18 || over18
   const { media_metadata } = nsfw ? {} : props
-  const url = stripRedditLikeDomain(props.url.replace(/&amp;/g, '&'))
+  const url = title
+    ? stripRedditLikeDomain(props.url.replace(/&amp;/g, '&'))
+    : ''
   const [selftextMeta, setSelftextMeta] = useState({
     displayFullSelftext: true,
     manuallyDisplayedSelftext: false,
@@ -117,6 +108,10 @@ const Post = props => {
     setSelftextMeta({ ...selftextMeta, displayFullSelftext: display })
   }, [limitCommentDepth])
 
+  if (!title) {
+    return <div />
+  }
+
   let thumbnail
   const thumbnailWidth = props.thumbnail_width
     ? props.thumbnail_width * 0.5
@@ -155,7 +150,7 @@ const Post = props => {
   if (selftext) {
     if (postIsRemovedAndSelftextSaysRemoved(props)) {
       selftext = ' ' // set to space so that it evaluates to true
-      removedMessage = getRemovedMessage(props, 'submission')
+      removedMessage = getRemovedMessage(props, 'submission', global.state)
     } else if (selftext.length > max_selftext_length + 10) {
       snippet_is_set = true
       selftext_snippet = selftext.substring(0, max_selftext_length) + '...'

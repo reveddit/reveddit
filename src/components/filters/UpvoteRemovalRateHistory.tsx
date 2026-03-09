@@ -10,8 +10,8 @@ import {
 } from 'utils'
 import { Fetch } from 'hooks/fetch'
 import { Selection } from './SelectionBase'
-import { QuestionMarkModal, Help } from 'components/ui/Modals'
-import { NewWindowLink } from 'components/ui/Links'
+import { QuestionMarkModal } from 'components/ui/Modals'
+import { urr_help, urr_title, own_page_text } from 'components/filters/urr-help'
 import {
   getAggregationsURL,
   numGraphPointsParamKey,
@@ -22,61 +22,6 @@ import {
 } from 'api/reveddit'
 import { pageTypes } from 'components/layout/DefaultLayout'
 import { usePageType } from 'contexts/page'
-
-const urr_title = 'Karma Removal Rate'
-const own_page_text = 'items preview page'
-export const urr_help = (
-  <Help
-    title={urr_title}
-    content={
-      <>
-        <p>
-          This shows highly upvoted removed content for any subreddit. Code that
-          generates the data is available here:{' '}
-          <NewWindowLink href="https://github.com/reveddit/ragger">
-            github.com/reveddit/ragger
-          </NewWindowLink>
-        </p>
-        <p>
-          <b>How is it calculated?</b>
-        </p>
-        <p>
-          The rate shown is the percentage of karma removed in periods of either
-          1,000 comments or 1,000 posts over time. Each item represents the
-          summed score of removed items in that period divided by the summed
-          score of all items for that period. The comment or post next to the
-          rate is a preview of the removed item with the highest score in the
-          period.
-        </p>
-        <p>
-          For example, if 1,000 items have a combined score of 20,000 and the
-          removed items have a combined score of 10,000, then the removal rate
-          for that period is 50%, and the previewed item may have had a high
-          score such as 7,000.
-        </p>
-        <p>
-          <b>How do I view items on their own page?</b>
-        </p>
-        <p>
-          Visit /r/subreddit/history or use the '{own_page_text}' link below the{' '}
-          {urr_title} graph found under filters.
-        </p>
-        <p>
-          <b>How do I use the graph?</b>
-        </p>
-        <p>
-          Hover the mouse to show a preview of the highest-scored removed item.
-          Click on a point to show that item. The 'period' link on the next page
-          will load all items for that period. This may take a minute to load.
-        </p>
-        <p>
-          <b>How up-to-date is this?</b>
-        </p>
-        <p>Sort by 'new' to see the most recent data.</p>
-      </>
-    }
-  />
-)
 
 const defaultXAccessor = ({ x }: any, _i?: number) => x
 const defaultYAccessor = ({ y }: any, _i?: number) => y.rate
@@ -110,9 +55,7 @@ const Sparkline = ({
   }
   xScale.domain([0, data.length]).range([0, width])
   yScale.domain([min, max]).range([height, 0])
-  line
-    .x((d, i) => xScale(xAccessor(d, i)))
-    .y((d, i) => yScale(yAccessor(d, i)))
+  line.x((d, i) => xScale(xAccessor(d, i))).y((d, i) => yScale(yAccessor(d, i)))
 
   const findClosest = (array, value) => {
     if (!array || !array.length) return null
@@ -140,13 +83,13 @@ const Sparkline = ({
   useEffect(() => {
     const svg = d3.select(svgRef.current)
     svg
-      .on('mousemove', function () {
+      .on('mousemove', function (this: SVGSVGElement) {
         const xPixelPos = d3.mouse(this)[0]
         const xValue = xScale.invert(xPixelPos)
         const i = findClosest(data, xValue)
         onHover(data[i], i)
       })
-      .on('click', function () {
+      .on('click', function (this: SVGSVGElement) {
         const xPixelPos = d3.mouse(this)[0]
         const xValue = xScale.invert(xPixelPos)
         const i = findClosest(data, xValue)
@@ -191,7 +134,7 @@ const Sparkline = ({
   )
 }
 
-const commonFields = [
+const _commonFields = [
   'created_utc',
   'id_of_max_pos_removed_item',
   'last_created_utc',
@@ -209,14 +152,14 @@ const UpvoteRemovalRateHistory = ({ subreddit }) => {
   const queryParams_init = new SimpleURLSearchParams(window.location.search)
   const initState = { ...aggregationPeriodParams }
   Object.keys(aggregationPeriodParams).forEach(param => {
-    let paramVal = queryParams_init.get(param)
+    const paramVal = queryParams_init.get(param)
     if (paramVal) {
       initState[param] = ifNumParseInt(paramVal)
     }
   })
 
   const [hovered, setHovered] = useState(null)
-  const [clicked, setClicked] = useState(null)
+  const [_clicked, _setClicked] = useState(null)
   const [displayOptions, setDisplayOptions] = useState(false)
   const [aggParams, setAggParams] = useState(initState)
 
@@ -278,16 +221,22 @@ const UpvoteRemovalRateHistory = ({ subreddit }) => {
     <Fetch
       url={getAggregationsURL({ type, subreddit, limit, sort })}
       render={({ loading, error, data }) => {
-        if (loading) return <div className="skeleton" style={{ width: '100%', height: 80, marginTop: 8 }} />
+        if (loading)
+          return (
+            <div
+              className="skeleton"
+              style={{ width: '100%', height: 80, marginTop: 8 }}
+            />
+          )
         if (error) return <p>Error :(</p>
         data = data.data
           .sort((a, b) => a.last_created_utc - b.last_created_utc)
           .map((y, x) => {
             return { x, y }
           })
-        const before_id = new SimpleURLSearchParams(
-          window.location.search
-        ).get('before_id')
+        const before_id = new SimpleURLSearchParams(window.location.search).get(
+          'before_id'
+        )
         let resolvedHovered = hovered
         if (!resolvedHovered && before_id) {
           data.forEach(point => {
@@ -303,10 +252,7 @@ const UpvoteRemovalRateHistory = ({ subreddit }) => {
             titleTitle="percentage karma removed over time"
           >
             <div className="toggleOptions">
-              <a
-                onClick={toggleDisplayOptions}
-                className="collapseToggle"
-              >
+              <a onClick={toggleDisplayOptions} className="collapseToggle">
                 {getDisplayOptionsText()}
               </a>
               <QuestionMarkModal modalContent={{ content: urr_help }} />
@@ -321,7 +267,7 @@ const UpvoteRemovalRateHistory = ({ subreddit }) => {
                     size
                   </label>
                   {[10, 50, 500, 1000].map(n => {
-                    let displayValue = prettyFormatBigNumber(n)
+                    const displayValue = prettyFormatBigNumber(n)
                     return (
                       <label key={n}>
                         <input
@@ -420,8 +366,8 @@ const UpvoteRemovalRateHistory = ({ subreddit }) => {
                 width={200}
                 height={50}
                 hovered={resolvedHovered}
-                onHover={(hovered, index) => setHovered(hovered)}
-                onClick={(clicked, index) =>
+                onHover={(hovered, _index) => setHovered(hovered)}
+                onClick={(clicked, _index) =>
                   (window.location.href =
                     own_page + '#' + clicked.y.id_of_max_pos_removed_item)
                 }
@@ -430,7 +376,9 @@ const UpvoteRemovalRateHistory = ({ subreddit }) => {
                 <a href={own_page}>{own_page_text}</a>
               </div>
               <div>
-                {resolvedHovered ? <Preview type={type} {...resolvedHovered.y} /> : null}
+                {resolvedHovered ? (
+                  <Preview type={type} {...resolvedHovered.y} />
+                ) : null}
               </div>
             </div>
           </Selection>

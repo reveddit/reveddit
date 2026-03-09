@@ -48,7 +48,7 @@ const hasVisitedSite = 'hasVisitedSite'
 // NOTE: Var vals for first two uses should remain the same
 //         'hasSeenSpreadWord' -> Faithfully Engaged podcast, 1st appearance
 //         'hasSeenSpreadWord_v2' -> Demo of YouTube comment shadow removals
-const hasSeenFaithfullyEngaged = 'hasSeenSpreadWord'
+const _hasSeenFaithfullyEngaged = 'hasSeenSpreadWord'
 export const hasSeenSpreadWord = 'hasSeenSpreadWord_v2'
 
 const startTimes = ['1372', '1538', '2073', '3438', '3887', '4319']

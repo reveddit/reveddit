@@ -1,12 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { media } from 'components/modals/Misc'
 import { RedditBreakingChange } from 'components/modals/RedditBreakingChange'
-import Welcome from 'components/modals/Welcome'
 import { SocialLinks } from 'components/Misc'
 
 // Define the carousel items in display order
 const CAROUSEL_ITEMS = [
-  { key: 'reddit_breaking_change', component: RedditBreakingChange, title: 'Reddit Breaking Change' },
+  {
+    key: 'reddit_breaking_change',
+    component: RedditBreakingChange,
+    title: 'Reddit Breaking Change',
+  },
   { key: 'ofh', title: 'Shadow Bans Only Fool Humans' },
   { key: 'fe', title: 'Faithfully Engaged Podcast' },
   { key: 'yt', title: 'YouTube Shadow Removals' },
@@ -27,7 +30,7 @@ export const NewsCarousel = () => {
 
   // Keyboard navigation
   useEffect(() => {
-    const handleKeyDown = (e) => {
+    const handleKeyDown = e => {
       if (e.key === 'ArrowLeft') {
         goPrev()
       } else if (e.key === 'ArrowRight') {

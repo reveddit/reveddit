@@ -15,11 +15,11 @@ import { Selection } from './SelectionBase'
 import { usePageType } from 'contexts/page'
 
 const ex = 'exclude'
-const RemovedByFilter = props => {
+const RemovedByFilter = _props => {
   const global = useGlobalStore()
   const page_type = usePageType()
-  const { removedByFilter, exclude_action } = global.state
-  let removal_meta = REMOVAL_META
+  const { removedByFilter, exclude_action: _exclude_action } = global.state
+  const removal_meta = REMOVAL_META
   if (page_type !== 'user') {
     removal_meta[USER_REMOVED] = USER_REMOVED_META
   }

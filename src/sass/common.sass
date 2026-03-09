@@ -373,3 +373,48 @@ input[type="submit"], button
       flex-basis: 100%
       margin-left: 0
       margin-top: 5px
+
+// ---------------------------
+// Copy button
+// ---------------------------
+.copy-btn
+  background: transparent
+  color: var(--link)
+  border: 1px solid var(--link)
+  border-radius: 4px
+  padding: 3px 10px
+  font-size: 12px
+  font-weight: 600
+  cursor: pointer
+  line-height: 1.4
+  transition: background 0.12s ease, color 0.12s ease
+  &:hover
+    background: var(--link)
+    color: var(--text-on-accent)
+
+// ---------------------------
+// Snackbar (toast notification)
+// ---------------------------
+.snackbar
+  position: fixed
+  bottom: 24px
+  left: 50%
+  transform: translateX(-50%)
+  background: var(--text-primary)
+  color: var(--bg-primary)
+  padding: 10px 24px
+  border-radius: 6px
+  font-size: 14px
+  font-weight: 600
+  z-index: 9999
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4)
+  animation: snackbarIn 0.2s ease-out
+  pointer-events: none
+
+@keyframes snackbarIn
+  from
+    opacity: 0
+    transform: translateX(-50%) translateY(12px)
+  to
+    opacity: 1
+    transform: translateX(-50%) translateY(0)

@@ -40,8 +40,8 @@ const byControversiality1 = (a, b) => {
   )
 }
 const byControversiality2 = (a, b) => {
-  let a_score_abs = Math.abs(a.score)
-  let b_score_abs = Math.abs(b.score)
+  const a_score_abs = Math.abs(a.score)
+  const b_score_abs = Math.abs(b.score)
   return (
     b.stickied - a.stickied ||
     b.controversiality - a.controversiality ||

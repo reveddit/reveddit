@@ -15,7 +15,7 @@ export const ThreadRedirect = props => {
       global.setError()
     }
     getPostWithComments({ threadID, limit: 0 })
-      .catch(e => getPostWithComments({ threadID, limit: 0, useProxy: true }))
+      .catch(_e => getPostWithComments({ threadID, limit: 0, useProxy: true }))
       .then(result => {
         if (result.post) {
           window.location.href =

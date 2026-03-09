@@ -2,7 +2,6 @@ import {
   getComments as getRedditComments,
   getItems as getRedditItems,
   getSubredditAbout,
-  oauth_reddit,
 } from 'api/reddit'
 import { getModerators } from 'api/reveddit'
 import { getCommentsBySubreddit as pushshiftGetCommentsBySubreddit } from 'api/pushshift'
@@ -103,27 +102,25 @@ type ModlogMap = Record<string, ModlogItem>
 
 export let useProxy = false
 
-export const retrieveRedditComments_and_combineWithPushshiftComments =
-  (pushshiftComments: CommentMap) => {
-    let quarantined_subreddits
-    if (useProxy) {
-      const comments_array = Object.values(pushshiftComments)
-      if (comments_array.length) {
-        // when useProxy=true, all comments are from the same subreddit
-        quarantined_subreddits = comments_array[0].subreddit
-      }
+export const retrieveRedditComments_and_combineWithPushshiftComments = (
+  pushshiftComments: CommentMap
+) => {
+  let quarantined_subreddits
+  if (useProxy) {
+    const comments_array = Object.values(pushshiftComments)
+    if (comments_array.length) {
+      // when useProxy=true, all comments are from the same subreddit
+      quarantined_subreddits = comments_array[0].subreddit
     }
-    return getRedditComments({
-      objects: pushshiftComments,
-      quarantined_subreddits,
-      useProxy,
-    }).then((redditComments: CommentMap) => {
-      return combinePushshiftAndRedditComments(
-        pushshiftComments,
-        redditComments
-      )
-    })
   }
+  return getRedditComments({
+    objects: pushshiftComments,
+    quarantined_subreddits,
+    useProxy,
+  }).then((redditComments: CommentMap) => {
+    return combinePushshiftAndRedditComments(pushshiftComments, redditComments)
+  })
+}
 
 const copy_fields = [
   'permalink',
@@ -469,7 +466,10 @@ export const getRevdditComments = ({
   })
 }
 
-export const copyModlogItemsToArchiveItems = (modlogsItems: ModlogMap, archiveItems: CommentMap) => {
+export const copyModlogItemsToArchiveItems = (
+  modlogsItems: ModlogMap,
+  archiveItems: CommentMap
+) => {
   for (const ml_item of Object.values(modlogsItems)) {
     const id = ml_item.id
     if (!id) {
@@ -509,7 +509,7 @@ export const combinedGetCommentsBySubreddit = args => {
 }
 
 export const setSubredditMeta = async (subreddit, global) => {
-  let moderators_promise = getModerators(subreddit)
+  const moderators_promise = getModerators(subreddit)
   let subreddit_about_promise = getSubredditAbout(subreddit)
   let over18 = false
   let quarantined = false
@@ -538,7 +538,10 @@ export const setSubredditMeta = async (subreddit, global) => {
         redirectToHistory(subreddit)
       }
       over18 = subreddit_about.over18
-      if (!quarantined && subreddit_about.hasOwnProperty('quarantine')) {
+      if (
+        !quarantined &&
+        Object.prototype.hasOwnProperty.call(subreddit_about, 'quarantine')
+      ) {
         setQuarantined(subreddit_about.quarantine)
       }
       global.setState({

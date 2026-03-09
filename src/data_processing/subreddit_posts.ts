@@ -104,7 +104,7 @@ export const combinedGetItemsBySubredditOrDomain = args => {
     pushshiftQueryFn,
     archiveTimes,
     postProcessCombine_Fn,
-    postProcessCombine_Args,
+    postProcessCombine_Args: _postProcessCombine_Args,
     postProcessCombine_ItemsArgName,
   } = args
   const usingAfter = after && !before
@@ -117,7 +117,7 @@ export const combinedGetItemsBySubredditOrDomain = args => {
     after,
     archiveTimes,
   })
-    .catch(error => {
+    .catch(_error => {
       return []
     }) // if ps is down, can still return modlog results
     .then(pushshiftItemsUnfiltered => {
@@ -126,8 +126,8 @@ export const combinedGetItemsBySubredditOrDomain = args => {
         const { items, itemsLookup } = global.getState()
         let { oldestTimestamp, newestTimestamp } = global.getState()
         let foundStartingPoint = false
-        let pushshiftItems = {},
-          pushshiftItemsAll = {}
+        let pushshiftItems = {}
+        const pushshiftItemsAll = {}
         // this loop does duplicate checking b/c pushshift does not support before_id.
         // pushshiftItemsUnfiltered must be ordered as date desc
         for (const item of pushshiftItemsUnfiltered) {

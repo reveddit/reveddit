@@ -24,7 +24,6 @@ import {
   getPostDataForComments,
   applyPostAndParentDataToComment,
   type CommentMap,
-  type CommentRecord,
 } from 'data_processing/comments'
 import {
   combinePushshiftAndRedditPosts,
@@ -86,7 +85,7 @@ export const getRevdditItems = global => {
       quarantined_subreddits,
     }).then(postData => {
       setPostAndParentDataForComments(Object.values(redditComments), postData)
-      return global.setState({ items: redditItemsArray }).then(result => {
+      return global.setState({ items: redditItemsArray }).then(_result => {
         return Promise.all(pushshift_promises).then(result => {
           const pushshiftComments = result[0]
           const pushshiftPosts = result[1]
@@ -201,7 +200,7 @@ export const getRevdditSearch = global => {
       )
     }
   }
-  let commentChildrenPromise = undefined
+  const commentChildrenPromise = undefined
   return Promise.all(promises)
     .then(results => {
       const nextPromises = []
@@ -227,7 +226,7 @@ export const getRevdditSearch = global => {
         nextPromises.push(getRevdditPosts(posts))
       }
       if (include_comments) {
-        const commentIDs = Object.keys(results[0])
+        const _commentIDs = Object.keys(results[0])
         //commentChildrenPromise = getPushshiftComments({ids: commentIDs, field: 'parent_id', fields: ['parent_id', 'id']})
       }
       return Promise.all(nextPromises)
@@ -238,7 +237,9 @@ export const getRevdditSearch = global => {
         newestTimestamp
       if (commentChildrenPromise) {
         const commentChildren = await commentChildrenPromise
-        childCounts = Object.values(commentChildren).reduce<Record<string, number>>((acc, comment: any) => {
+        childCounts = Object.values(commentChildren).reduce<
+          Record<string, number>
+        >((acc, comment: any) => {
           acc[comment.parent_id] = (acc[comment.parent_id] || 0) + 1
           return acc
         }, {})

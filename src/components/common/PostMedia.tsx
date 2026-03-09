@@ -20,7 +20,7 @@ export const Selftext = ({ selftext, media_metadata }) => {
   }
 }
 
-const SelftextPart = ({ selftext, ...rest }: any) => (
+const SelftextPart = ({ selftext, ..._rest }: any) => (
   <div dangerouslySetInnerHTML={{ __html: parse(selftext) }} />
 )
 
@@ -36,7 +36,7 @@ const SelftextInParts = ({ selftext, media_metadata }) => {
       )
     )
     if (match) {
-      const [, caption, url, id] = match
+      const [, caption, _url, id] = match
       const list = getImageList({ media_metadata, id })
       if (list) {
         const marginTop = caption ? '' : '5px'
@@ -84,7 +84,7 @@ export const BestImage = ({
   list,
   onClick = undefined,
   maxWidth = calculateMaxImageSizeForScreen(),
-  ...rest
+  ..._rest
 }: any) => {
   for (const preview of list.slice().reverse()) {
     if (preview.x < maxWidth) {

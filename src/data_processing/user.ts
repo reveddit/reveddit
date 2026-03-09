@@ -3,7 +3,6 @@ import {
   usernameAvailable,
   getModeratedSubreddits,
   getUserAbout,
-  www_reddit,
   OVERVIEW,
   SUBMITTED,
   COMMENTS,
@@ -17,7 +16,6 @@ import {
   comment_fields_for_user_page_lookup,
 } from 'api/pushshift'
 import {
-  REMOVAL_META,
   AUTOMOD_REMOVED,
   AUTOMOD_REMOVED_MOD_APPROVED,
   MOD_OR_AUTOMOD_REMOVED,
@@ -32,12 +30,11 @@ import {
   isComment,
   isPost,
   SimpleURLSearchParams,
-  commentIsRemoved,
 } from 'utils'
 import { setPostAndParentDataForComments } from 'data_processing/info'
 import { setMissingCommentMeta } from 'data_processing/missing_comments'
 
-function lookupAndSetRemovedBy(global) {
+function _lookupAndSetRemovedBy(global) {
   const comment_ids = []
   const post_ids = []
   const comments_removedBy_undefined = []
@@ -187,8 +184,8 @@ export const getRevdditUserItems = async (
     ...params_pre_after,
     after || gs.userNext,
     ...params_post_after
-  ).then(async pageLoad_or_loadAll_or_viewMore_userPageNext => {
-    window.onscroll = ev => {
+  ).then(async _pageLoad_or_loadAll_or_viewMore_userPageNext => {
+    window.onscroll = _ev => {
       const { loading, userNext, show, error } = global.getState()
       if (
         userNext &&

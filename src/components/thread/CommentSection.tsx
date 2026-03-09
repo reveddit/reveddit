@@ -17,7 +17,9 @@ const MAX_COMMENTS_TO_SHOW = 200
 
 const flattenTree = (rootFullID, visibleComments) => {
   const flattenedComments: any[] = []
-  for (const comment of Object.values(visibleComments[rootFullID] || {}) as any[]) {
+  for (const comment of Object.values(
+    visibleComments[rootFullID] || {}
+  ) as any[]) {
     flattenedComments.push(
       comment,
       ...flattenTree('t1_' + comment.id, visibleComments)
@@ -82,8 +84,8 @@ const countReplies = (
 
 const CommentSection = props => {
   const global = useGlobalStore()
-  const page_type = usePageType()
-  const { focusCommentID, root, viewableItems } = props
+  const _page_type = usePageType()
+  const { focusCommentID, root, viewableItems: _viewableItems } = props
   const {
     removedFilter,
     removedByFilter,
@@ -116,7 +118,7 @@ const CommentSection = props => {
   const [numVisibleReplies, setNumVisibleReplies] = useState({})
   const removedByFilterIsUnset = global.removedByFilterIsUnset()
   const tagsFilterIsUnset = global.tagsFilterIsUnset()
-  let numRootCommentsMatchOriginalCount = true
+  const _numRootCommentsMatchOriginalCount = true
   let removedByFilter_str = '',
     tagsFilter_str = ''
   let contextAncestors = {}
@@ -130,7 +132,9 @@ const CommentSection = props => {
         item.ancestors[focusCommentID]
     )
   }
-  const origRootComments = (root ? commentsLookup[root] || [] : commentTree) as any[]
+  const origRootComments = (
+    root ? commentsLookup[root] || [] : commentTree
+  ) as any[]
   if (removedFilter === removedFilter_types.removed) {
     filterFunctions.push(itemIsActioned)
   } else if (removedFilter === removedFilter_types.not_removed) {
@@ -193,7 +197,9 @@ const CommentSection = props => {
     const numVisibleReplies = {}
     if (showContext) {
       const maxCommentDepth = getMaxCommentDepth()
-      for (const [parent_fullID, children] of Object.entries(visibleComments)) {
+      for (const [parent_fullID, _children] of Object.entries(
+        visibleComments
+      )) {
         if (parent_fullID.substr(0, 2) !== 't3') {
           numVisibleReplies[parent_fullID] = 0
           for (const comment of visibleComments[parent_fullID]) {
@@ -269,7 +275,7 @@ const CommentSection = props => {
       setAndCountVisibleComments({ ...visibleComments }, showContext)
     }
   }, [showFilteredRootComments, showSingleRoot, origRootComments.length])
-  let comments_render = []
+  const comments_render = []
   let status = ''
   let numCommentsShown = 0
 
@@ -338,7 +344,14 @@ const CommentSection = props => {
     )
   }
   return (
-    <ThreadProvider value={{ focusCommentID, contextAncestors, setShowSingleRoot, visibleComments }}>
+    <ThreadProvider
+      value={{
+        focusCommentID,
+        contextAncestors,
+        setShowSingleRoot,
+        visibleComments,
+      }}
+    >
       {loading && !rootComments.length && <Spin />}
       <div className="threadComments">
         {comments_render}

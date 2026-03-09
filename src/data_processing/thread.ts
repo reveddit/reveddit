@@ -27,9 +27,6 @@ import {
 } from 'api/reveddit'
 import { redditLimiter, pushshiftLimiter } from 'api/common'
 import {
-  itemIsRemovedOrDeleted,
-  postIsDeleted,
-  postIsRemoved,
   jumpToHash,
   convertPathSub,
   sortCreatedAsc,
@@ -55,7 +52,7 @@ import {
 const NumAddUserItemsToLoadAtFirst = 10
 const numCommentsWithPost = 200 // lower threshold returns more "more" comment IDs. unclear why
 const NumPushshiftResultsConsideredAsFull = PUSHSHIFT_MAX_COUNT_PER_QUERY * 0.8
-let archiveError = false
+const archiveError = false
 
 export const ignoreArchiveErrors_comments = () =>
   ignoreArchiveErrors(commentsByThreadReturnValueDefaults)
@@ -121,8 +118,7 @@ const addRemainingRedditComments_andCombine = async (
     false,
     reddit_post
   )
-  let changed = [],
-    new_add_user
+  let changed, new_add_user
   if (updateURL) {
     ;({ new_add_user, changed } = addUserComments_and_updateURL(
       user_comments,
@@ -170,7 +166,7 @@ export const getRevdditThreadItems = async (
   const sortsForRedditCommentThreadQuery = sort ? sort.split(',') : ['new']
   let pushshift_comments_promise: Promise<any> = Promise.resolve({})
   let reveddit_comments_promise: Promise<any> = Promise.resolve({})
-  let pushshift_remaining_promises = []
+  const pushshift_remaining_promises = []
   const schedulePsAfter = async this_ps_after => {
     await archive_times_promise
     const archiveTimes = global.getState().archiveTimes
@@ -259,8 +255,7 @@ export const getRevdditThreadItems = async (
           link_id: reddit_post.id,
           limit: 500,
         })
-        let modlogs_posts_promise = Promise.resolve({})
-        modlogs_posts_promise = getModlogsPosts({
+        const modlogs_posts_promise = getModlogsPosts({
           subreddit: reddit_post.subreddit,
           link_id: reddit_post.id,
         })
@@ -526,7 +521,7 @@ export const getRevdditThreadItems = async (
     reddit_post.num_comments > num_comments_in_last_ps_query &&
     num_comments_in_last_ps_query > NumPushshiftResultsConsideredAsFull
   ) {
-    let this_psComments = undefined
+    let this_psComments
     let next_ps_after = (last_ps_created_utc - 1).toString()
     // if the first next_ps_after was already queried, start from most recent ps comment
     // (only if the last query had a nearly full result)
@@ -572,7 +567,6 @@ export const getRevdditThreadItems = async (
   // 2. the content will probably be retrievable in the future, since lookup method is by link ID.
   //    And, when log_source == u_modlogs, then 'temporarily visible' label is not shown
   copyModlogItemsToArchiveItems(uModlogsItems.comments, pushshiftComments)
-  let focusComment_pushshift = pushshiftComments[commentID]
   const focusComment_reddit = redditComments[commentID]
 
   // fill in focus comment: not needed when querying for all pushshift results
@@ -587,8 +581,7 @@ export const getRevdditThreadItems = async (
   //   }
   // }
 
-  // must update focusComment_pushshift b/c it will be overwritten if "fill in focus comment" code above succeeds
-  focusComment_pushshift = pushshiftComments[commentID]
+  const focusComment_pushshift = pushshiftComments[commentID]
 
   let new_add_user
   let forURL_timeSort_meta = { userPageSort: 'new', userPageTime: 'all' }
@@ -736,14 +729,14 @@ export const getRevdditThreadItems = async (
     Object.keys(remainingRedditIDs),
     user_comments
   )
-  let changed
-  ;({ new_add_user, changed } = addUserComments_and_updateURL(
+  const { new_add_user: newAddUser, changed } = addUserComments_and_updateURL(
     user_comments_forURL,
     combinedComments,
     add_user,
     forURL_timeSort_meta.userPageSort,
     forURL_timeSort_meta.userPageTime
-  ))
+  )
+  new_add_user = newAddUser
   //could: check if pushshiftComments has any parent_ids that are not in combinedComments
   //      and do a reddit query for these. Possibly query twice if the result has items whose parent IDs
   //      are not in combinedComments after adding the result of the first query
@@ -912,10 +905,10 @@ export const getRevdditThreadItems = async (
 
 export const insertParent = (child_id, global) => {
   let promise = Promise.resolve()
-  let {
+  let { commentTree } = global.getState()
+  const {
     items,
     itemsLookup,
-    commentTree,
     threadPost,
     initialFocusCommentID,
     quarantined_subreddits,

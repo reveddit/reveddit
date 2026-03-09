@@ -11,7 +11,7 @@ const bch = 'qqfpw6cxep2tp53wcqws38j828mjlyw045rcrllckq'
 const eth = '0x22437792F98DFEecd0C59cBcAE042109c88309aC'
 const btc = '16GYNx9koeynunSjvNsVwch6wBs9bbnQGw'
 
-async function getSessionID(amount, frequency) {
+async function _getSessionID(amount, frequency) {
   const response = await fetch(LAMBDA_ENDPOINT + 'donate', {
     method: 'POST',
     headers: {
@@ -24,7 +24,7 @@ async function getSessionID(amount, frequency) {
 }
 
 let stripePromise
-const getStripe = () => {
+const _getStripe = () => {
   if (!stripePromise) {
     stripePromise = loadStripe(STRIPE_PUBLISHABLE_KEY)
   }

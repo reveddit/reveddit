@@ -1,9 +1,7 @@
 import React from 'react'
-import { localSort_types } from 'state'
 import Post from 'components/common/Post'
 import Comment from 'components/comment/Comment'
 import { withFetch } from 'components/RevdditFetcher'
-import { reversible } from 'utils'
 import Highlight from 'components/common/Highlight'
 import Pagination from 'components/Pagination'
 import { ShareLink } from 'components/ui/Links'
@@ -19,7 +17,12 @@ const Info = props => {
     newestTimestamp,
     global,
   } = props
-  const { items, loading, localSort, localSortReverse } = global.state
+  const {
+    items,
+    loading,
+    localSort: _localSort,
+    localSortReverse: _localSortReverse,
+  } = global.state
   const noItemsFound =
     items.length === 0 && !loading && window.location.search !== ''
 
@@ -34,10 +37,7 @@ const Info = props => {
   let pagination = ''
   if (page_type === 'search') {
     pagination = (
-      <Pagination
-        {...{ oldestTimestamp, newestTimestamp }}
-        bottom={true}
-      />
+      <Pagination {...{ oldestTimestamp, newestTimestamp }} bottom={true} />
     )
   }
 

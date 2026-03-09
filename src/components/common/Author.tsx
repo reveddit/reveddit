@@ -4,7 +4,7 @@ import { getPrettyTimeLength, PATH_STR_USER } from 'utils'
 import { showAccountInfo_global } from 'components/modals/Settings'
 import Flair from './Flair'
 
-const now = Math.floor(Date.now() / 1000)
+const _now = Math.floor(Date.now() / 1000)
 
 const Author = ({
   author,

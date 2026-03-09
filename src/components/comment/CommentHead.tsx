@@ -6,7 +6,7 @@ import {
   stripRedditLikeDomain,
 } from 'utils'
 import Time from 'components/common/Time'
-import RemovedBy, { QuarantinedLabel } from 'components/common/RemovedBy'
+import RemovedBy from 'components/common/RemovedBy'
 import { ORPHANED } from 'components/common/RemovedBy'
 import Author from 'components/common/Author'
 import Flair from 'components/common/Flair'
@@ -27,13 +27,7 @@ const CommentHead = ({
   post_parent_removed,
   ...props
 }: any) => {
-  const {
-    author,
-    score,
-    subreddit,
-    link_title,
-    link_author,
-  } = props
+  const { author: _author, score, subreddit, link_title, link_author } = props
 
   const rev_subreddit = PATH_STR_SUB + '/' + subreddit
 

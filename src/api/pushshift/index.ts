@@ -69,7 +69,7 @@ const post_fields_for_comment_data = [
 
 const postURL = 'https://api.pushshift.io/reddit/search/submission'
 const commentURL = 'https://api.pushshift.io/reddit/search/comment'
-const elastic_commentURL =
+const _elastic_commentURL =
   'https://elastic.pushshift.io/rc/comments/_search?source='
 const maxNumItems = 1000
 const maxNumCommentsByID = 500
@@ -185,9 +185,12 @@ const queryItems = async (
 }
 
 const fetchUrlWithParams = (
-  url,
-  queryParams,
-  fetchFn = window.fetch,
+  url: string,
+  queryParams: Record<string, any>,
+  fetchFn: (
+    input: RequestInfo | URL,
+    init?: any
+  ) => Promise<Response> = window.fetch,
   options = {}
 ) => {
   // (Dec 2022) Earlier in the year, this q=* was required to get results. Now it makes queries time out
@@ -246,7 +249,10 @@ export const getPostsByIDForCommentData = ids => {
     ids: ids.map(id => id.slice(3)),
     fields: post_fields_for_comment_data,
   }).then(posts => {
-    return (posts as any[]).reduce((map: any, obj: any) => ((map[obj.name] = obj), map), {})
+    return (posts as any[]).reduce(
+      (map: any, obj: any) => ((map[obj.name] = obj), map),
+      {}
+    )
   })
 }
 

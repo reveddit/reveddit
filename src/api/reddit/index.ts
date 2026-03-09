@@ -96,7 +96,7 @@ export const getSubredditAbout = (subreddit, useProxy = false) => {
   return getAuth()
     .then(auth => window.fetch(url, auth))
     .then(response => response.json())
-    .catch(error => {
+    .catch(_error => {
       return {}
     })
     .then(results => {
@@ -113,7 +113,7 @@ export const getPostsForURLs = async (urls, auth = null) => {
     auth = await getAuth()
   }
   return groupRequests(getPostsByURL, urls, [auth, results], 1)
-    .then(res => results)
+    .then(_res => results)
     .catch(errorHandler)
 }
 
@@ -124,7 +124,7 @@ const getPostsByURL = (urlParam, auth = null, results) => {
 }
 
 const getFullIDsForObjects = (objects, ids, prefix) => {
-  let full_ids = []
+  let full_ids: string[]
   if (typeof objects === 'object') {
     if (Array.isArray(objects)) {
       full_ids = objects.map(o => prefix + o.id)
@@ -196,7 +196,7 @@ export const getPostWithComments = ({
     ...(comment && { comment }),
     ...(context && { context }),
   }
-  const thisQueryParams = {
+  const _thisQueryParams = {
     ...params,
     subreddit: subreddit,
   }
@@ -218,8 +218,7 @@ export const getPostWithComments = ({
       const comments = {},
         moreComments = {},
         moreCommentIDs = {}
-      let oldestComment: any = {},
-        newestComment: any = {}
+      let oldestComment: any = {}
       items.forEach(item => {
         const itemData = item.data
         if (item.kind === 't1') {
@@ -354,7 +353,7 @@ export const queryUserPage = async ({
       params.quarantined_subreddits = quarantined_subreddits
     }
   }
-  let auth: any = await getAuth(host)
+  const auth: any = await getAuth(host)
   if (host_is_proxy) {
     auth.method = 'POST'
     auth.body = auth.headers.Authorization
@@ -366,7 +365,7 @@ export const queryUserPage = async ({
       host + `user/${user}/${kinds[kind]}.json` + '?' + paramString(params),
       auth
     )
-  } catch (e) {
+  } catch (e: any) {
     if (host !== notProxy_host && e.message !== 'Forbidden') {
       can_use_oauth_reddit_rev = false
       return queryUserPageCombined({ user, kind, ...params }) // host will be notProxy_host for this query
@@ -428,7 +427,7 @@ export const queryUserPage = async ({
       }
     }
   } else {
-    let empty: Record<string, any> = { ...EmptyUserPageResult }
+    const empty: Record<string, any> = { ...EmptyUserPageResult }
     if ('message' in json && 'error' in json) {
       empty.message = json.message
       empty.error = json.error
@@ -438,7 +437,7 @@ export const queryUserPage = async ({
 }
 
 export const usernameAvailable = user => {
-  var params = { user: user, raw_json: 1 }
+  const params = { user: user, raw_json: 1 }
   const url =
     oauth_reddit + 'api/username_available' + '?' + paramString(params)
   return getAuth()
@@ -575,7 +574,7 @@ export const querySubredditPage = async ({
 }
 
 export const querySearch = ({ selftexts = [], urls = [] }) => {
-  var params = { q: '', sort: 'new', limit: 100, t: 'all' }
+  const params = { q: '', sort: 'new', limit: 100, t: 'all' }
   if (selftexts.length) {
     params.q += encodeURIComponent(
       selftexts.map(x => `selftext:"${x}"`).join(' OR ')
@@ -701,7 +700,7 @@ export const getAuthorInfoByName = ids => {
     .then(() => {
       const authors: Record<string, any> = {}
       if (!('error' in results) || !('message' in results)) {
-        (Object.values(results) as any[]).forEach(obj => {
+        ;(Object.values(results) as any[]).forEach(obj => {
           obj.combined_karma = obj.link_karma + obj.comment_karma
           authors[obj.name] = obj
         })
@@ -730,7 +729,7 @@ const getModlogsItems = async ({
 
   let auth = {}
   const urls = []
-  const subreddit_lower = subreddit.toLowerCase()
+  const _subreddit_lower = subreddit.toLowerCase()
   const params = `?feed=${u_publicmodlogs_feed}&user=publicmodlogs`
   const baseUrl = oauth_reddit + `r/${subreddit}/about/log/.json${params}`
   const spamParams = `${params}&only=links&limit=50`
@@ -752,11 +751,19 @@ const getModlogsItems = async ({
   )
 }
 
-export const getModlogsPosts = ({ subreddit, limit = 100, link_id = undefined }) => {
+export const getModlogsPosts = ({
+  subreddit,
+  limit = 100,
+  link_id = undefined,
+}) => {
   return getModlogsItems({ subreddit, itemType: 'link', limit, link_id })
 }
 
-export const getModlogsComments = ({ subreddit, limit = 500, link_id = undefined }) => {
+export const getModlogsComments = ({
+  subreddit,
+  limit = 500,
+  link_id = undefined,
+}) => {
   return getModlogsItems({ subreddit, itemType: 'comment', limit, link_id })
 }
 
@@ -811,14 +818,14 @@ export const getSticky = async (subreddit, num) => {
       }
       return prevStickyPermalink
     })
-    .catch(error => '')
+    .catch(_error => '')
 }
 
 export const getJson = (url, options, valueOnError = {}) => {
   return window
     .fetch(url, options)
     .then(response => response.json())
-    .catch(error => {
+    .catch(_error => {
       return valueOnError
     })
 }

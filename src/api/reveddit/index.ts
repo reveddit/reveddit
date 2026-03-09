@@ -178,7 +178,15 @@ export const getUmodlogsComments = subreddit => {
     r => r.comments
   )
 }
-export const getUmodlogs = async ({ subreddit, thread_id = undefined, actions }: { subreddit: any; thread_id?: any; actions: any }) => {
+export const getUmodlogs = async ({
+  subreddit,
+  thread_id = undefined,
+  actions,
+}: {
+  subreddit: any
+  thread_id?: any
+  actions: any
+}) => {
   const empty = { comments: {}, posts: {} }
   return empty // u/modlogs no longer works, requests to modlogs.fyi time out
   const hasModlogs = await subredditHasModlogs(subreddit, U_MODLOGS_CODE)
@@ -228,7 +236,7 @@ const postProcessUmodlogs = (list, thread_id) => {
 
 export const getModerators = subreddit => {
   return flaskQuery({ path: 'moderators/', params: { subreddit } })
-    .catch(error => {
+    .catch(_error => {
       return {}
     }) // ignore fetch errors, this is not critical data
     .then(getModeratorsPostProcess)
@@ -257,7 +265,7 @@ export const getCommentsByThread = ({
     path: 'thread-comments/',
     params,
     options: extendedTimeout,
-  }).catch(error => {
+  }).catch(_error => {
     return {}
   }) // ignore fetch errors, this is not critical data
 }
@@ -293,7 +301,7 @@ export const getRemovedCommentsByThread_v1 = (
     path: 'removed-comments/',
     params,
     options: extendedTimeout,
-  }).catch(error => {
+  }).catch(_error => {
     return {}
   }) // ignore fetch errors, this is not critical data
 }
@@ -310,7 +318,7 @@ export const getRemainingCommentsByThread = async (
     c: getCount(1200),
   }
   return {}
-  return flaskQuery({ path: 'linkid-comments/', params }).catch(error => {
+  return flaskQuery({ path: 'linkid-comments/', params }).catch(_error => {
     return {}
   }) // ignore fetch errors, this is not critical data
 }
@@ -323,7 +331,7 @@ export const getArchivedCommentsByID = ids => {
     path: 'comments-by-id/',
     params,
     options: extendedTimeout,
-  }).catch(error => {
+  }).catch(_error => {
     return {}
   }) // ignore fetch errors, this is not critical data
 }
@@ -341,12 +349,12 @@ export const getWaybackComments = ({ link_id, ids, known_removed_ids }) => {
     },
   })
     .then(result => result.data || {})
-    .catch(error => {
+    .catch(_error => {
       return {}
     }) // ignore fetch errors, this is not critical data
 }
 
 export const getUserStatus = user => {
-  const url = REVEDDIT_FLASK_HOST_SHORT + `/user-status/${user}`
+  const _url = REVEDDIT_FLASK_HOST_SHORT + `/user-status/${user}`
   return flaskQuery({ path: `/user-status/${user}` }).catch(e => e)
 }

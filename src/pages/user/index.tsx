@@ -7,7 +7,6 @@ import { Notice, TipWithBackground } from 'components/common/Notice'
 import { withFetch } from 'components/RevdditFetcher'
 import {
   SimpleURLSearchParams,
-  copyLink,
   get,
   put,
   PATH_STR_SUB,
@@ -16,7 +15,11 @@ import {
 import Highlight from 'components/common/Highlight'
 import ModalContext from 'contexts/modal'
 import { Spin } from 'components/Misc'
-import { RedditOrLocalLink, NewWindowLink } from 'components/ui/Links'
+import {
+  RedditOrLocalLink,
+  NewWindowLink,
+  CopyButton,
+} from 'components/ui/Links'
 import { pinPostLink } from 'pages/about/faq'
 
 const hidePinPostNotice_var = 'hidePinPostNotice'
@@ -29,7 +32,7 @@ const dismiss = () => {
 const User = ({
   match,
   global,
-  page_type,
+  page_type: _page_type,
   viewableItems,
   selections,
   summary,
@@ -44,7 +47,7 @@ const User = ({
     loading,
     userIssueDescription,
     items,
-    show,
+    show: _show,
     after,
     hasVisitedUserPage_sortTop,
     hasVisitedSubredditPage,
@@ -183,6 +186,7 @@ const User = ({
     }
   })
   const shareLink =
+    window.location.origin +
     window.location.pathname.replace(/^\/user/, '/y') +
     window.location.search +
     window.location.hash
@@ -257,9 +261,7 @@ const User = ({
           <div className="top-selections">
             <div id="buttons-right">
               <div>
-                <a href={shareLink} onClick={e => copyLink(e, true)}>
-                  copy sharelink
-                </a>
+                <CopyButton url={shareLink}>copy sharelink</CopyButton>
               </div>
               <div>{loadAllLink}</div>
             </div>

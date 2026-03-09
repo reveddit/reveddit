@@ -131,9 +131,9 @@ export const itemIsRemovedOrDeleted = (item, checkCommentBody = true) => {
     }
   } else if (item.name.slice(0, 2) === 't3') {
     // older archives may not have these properties
-    if (item.hasOwnProperty('is_robot_indexable')) {
+    if (Object.prototype.hasOwnProperty.call(item, 'is_robot_indexable')) {
       return !item.is_robot_indexable
-    } else if (item.hasOwnProperty('is_crosspostable')) {
+    } else if (Object.prototype.hasOwnProperty.call(item, 'is_crosspostable')) {
       return !item.is_crosspostable
     } else {
       return false
@@ -178,7 +178,12 @@ export const postIsRemovedAndSelftextSaysRemoved = post => {
   )
 }
 
-export const display_post = (list, post, ps_item = undefined, isInfoPage = false) => {
+export const display_post = (
+  list,
+  post,
+  ps_item = undefined,
+  isInfoPage = false
+) => {
   if (
     post.subreddit_type !== 'user' &&
     (isInfoPage ||
@@ -243,12 +248,12 @@ export const getPrettyTimeLength = (seconds, conservative = false) => {
   ]
   if (seconds < 60) return Math.round(seconds) + ' seconds'
   let time = seconds
-  for (var i = 0; i < thresholds.length; i++) {
-    let divisor = thresholds[i][0]
+  for (let i = 0; i < thresholds.length; i++) {
+    const divisor = thresholds[i][0]
     let text = thresholds[i][1]
-    let textPlural = thresholds[i][2]
+    const textPlural = thresholds[i][2]
     if (time < divisor) {
-      let extra = time - Math.floor(time)
+      const extra = time - Math.floor(time)
       let prevUnitTime = Math.round(extra * thresholds[i - 1][0])
       if (thresholds[i - 1][0] === prevUnitTime) {
         time += 1
@@ -277,8 +282,8 @@ export const getPrettyDate = (createdUTC, noAgo = false) => {
 }
 
 export const getQueryString = queryParams => {
-  let queryVals = []
-  for (var key in queryParams) {
+  const queryVals = []
+  for (const key in queryParams) {
     queryVals.push(key + '=' + queryParams[key])
   }
   return '?' + queryVals.join('&')
@@ -340,8 +345,8 @@ export class SimpleURLSearchParams {
     return this
   }
   toString() {
-    let queryVals = []
-    for (var key in this.params) {
+    const queryVals = []
+    for (const key in this.params) {
       queryVals.push(key + '=' + this.params[key])
     }
     if (queryVals.length) {
@@ -428,7 +433,7 @@ export const jumpToHash = (hash, offset = -10) => {
   if (hash) {
     try {
       scrollToElement(hash.replace(/\\|%5C/g, ''), { offset })
-    } catch (err) {
+    } catch (_err) {
       console.warn('error in hash', hash)
     }
   }
@@ -491,9 +496,9 @@ export const commentIsMissingInThread = comment => {
   return comment.missing_in_thread
 }
 
-export const not = f => {
-  return function () {
-    return !f.apply(this, arguments)
+export const not = (f: (...args: any[]) => any) => {
+  return function (this: any, ...args: any[]) {
+    return !f.apply(this, args)
   }
 }
 
@@ -510,7 +515,7 @@ export const getRandomElement = items => {
 }
 
 export const shuffle = array => {
-  var currentIndex = array.length,
+  let currentIndex = array.length,
     temporaryValue,
     randomIndex
   while (0 !== currentIndex) {
@@ -534,7 +539,7 @@ export const usePrevious = value => {
 export const useFocus = () => {
   const ref = useRef(null)
   const setFocus = () => {
-    ref.current && ref.current.focus()
+    ref.current?.focus()
   }
   return [ref, setFocus]
 }
@@ -561,10 +566,10 @@ export const time_is_in_archive_storage_window = (created_utc, archiveTimes) =>
   created_utc >
     archiveTimes.created_utc_of_most_recent_overwrite - OVERWRITE_BUFFER
 
-export const getRemovedMessage = (props, itemType) => {
+export const getRemovedMessage = (props, itemType, globalState) => {
   let prefix = '[removed]'
   let removedMessage = ''
-  const { archiveTimes, error, loading } = props.global.state
+  const { archiveTimes, error, loading } = globalState
   const is_comment = 'body' in props
   if (props.retrieved_on) {
     // In August or September 2021, archive started overwriting comments after a day or two
@@ -676,13 +681,11 @@ export const stripRedditLikeDomain = url => {
 
 export const matchOrIncludes = (str, search, useMatch = true) => {
   if (useMatch) {
-    let result = false
     try {
-      result = str.match(search)
-    } catch (err) {
+      return str.match(search)
+    } catch (_err) {
       return false
     }
-    return result
   }
   return str.includes(search)
 }

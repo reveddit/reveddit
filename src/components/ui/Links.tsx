@@ -43,9 +43,18 @@ export const LinkWithCloseModal = ({ children, to }) => {
   )
 }
 
-export const RedditOrLocalLink = ({ children, reddit = '', to = '', ...rest }) => {
+export const RedditOrLocalLink = ({
+  children,
+  reddit = '',
+  to = '',
+  ...rest
+}) => {
   if (reddit) {
-    return <NewWindowLink reddit={reddit} {...rest}>{children}</NewWindowLink>
+    return (
+      <NewWindowLink reddit={reddit} {...rest}>
+        {children}
+      </NewWindowLink>
+    )
   } else if (to) {
     return <LinkWithCloseModal to={to}>{children}</LinkWithCloseModal>
   }
@@ -73,15 +82,53 @@ export const SamePageHashLink = ({
   )
 }
 
+export const CopyButton = ({
+  url,
+  useTimestamp = false,
+  children = 'copy sharelink',
+  className = '',
+}: {
+  url?: string
+  useTimestamp?: boolean
+  children?: React.ReactNode
+  className?: string
+}) => {
+  const [copied, setCopied] = React.useState(false)
+
+  const handleCopy = () => {
+    let text: string
+    if (useTimestamp) {
+      text = getUrlWithTimestamp()
+    } else if (url && url.startsWith('/')) {
+      text = window.location.origin + url
+    } else {
+      text = url || ''
+    }
+    copyToClipboard(text)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  return (
+    <>
+      <button
+        type="button"
+        className={`copy-btn ${className}`}
+        onClick={handleCopy}
+      >
+        {children}
+      </button>
+      {copied && <div className="snackbar">Link copied!</div>}
+    </>
+  )
+}
+
 export const ShareLink = ({ href, useHref = true }) => {
   return (
     <div className="revddit-sharing">
-      <a href={href} onClick={e => copyLink(e, useHref)}>
-        copy sharelink
-      </a>
+      <CopyButton url={href} useTimestamp={!useHref} />
     </div>
   )
 }
 
-// Re-import copyLink lazily to avoid circular dependency with utils
-import { copyLink } from 'utils'
+import { copyToClipboard, getUrlWithTimestamp } from 'utils'

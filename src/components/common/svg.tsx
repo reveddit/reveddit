@@ -50,7 +50,11 @@ export const Shuffle = ({ wh = '25', ...props }) => {
   )
 }
 
-export const QuestionMark = ({ wh = '16', fill = '#828282', ...props }) => {
+export const QuestionMark = ({
+  wh = '16',
+  fill = 'currentColor',
+  ...props
+}) => {
   props.id = 'qmark'
   props.alt = 'Help icon'
   props.wh = wh

@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-globals */
 // @ts-nocheck
 
 import { clientsClaim, skipWaiting } from 'workbox-core'

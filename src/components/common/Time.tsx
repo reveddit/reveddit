@@ -9,7 +9,7 @@ export default ({
   created_utc,
   edited = 0,
   global = null,
-  name = '',
+  name: _name = '',
   parent_id = '',
   noAgo = false,
   className = '',
@@ -18,7 +18,7 @@ export default ({
   title_prefix = '',
 }) => {
   const page_type = usePageType()
-  var localTime = new Date(0)
+  const localTime = new Date(0)
   let displayTime = '',
     edited_text = ''
   if (created_utc) localTime.setUTCSeconds(created_utc)
@@ -51,7 +51,7 @@ export default ({
     displayTime = getPrettyDate(created_utc, noAgo)
   }
   if (edited) {
-    var edited_localTime = new Date(0)
+    const edited_localTime = new Date(0)
     edited_localTime.setUTCSeconds(edited)
     const edited_displayTime = getPrettyTimeLength(edited - created_utc)
     edited_text = (

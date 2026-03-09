@@ -1,5 +1,6 @@
 import React from 'react'
-import { ext_urls, copyLink } from 'utils'
+import { ext_urls } from 'utils'
+import { CopyButton } from 'components/ui/Links'
 import { iOS_shortcut_link } from 'components/ui/Extensions'
 import { InternalPage } from 'components/Misc'
 
@@ -23,7 +24,7 @@ export const bookmarklet = (
       node &&
       node.setAttribute(
         'href',
-        'javascript: if (location.hostname.match(/reddit\.com$/)) {location.host = "reveddit.com";}'
+        'javascript: if (location.hostname.match(/reddit\\.com$/)) {location.host = "reveddit.com";}'
       )
     }
   >
@@ -43,9 +44,9 @@ export default () => {
             Notifies you when any of your content on reddit has been removed.
           </p>
           <p>
-            <a href="direct/" onClick={e => copyLink(e, true)}>
+            <CopyButton url={window.location.origin + '/add-ons/direct/'}>
               Copy a direct sharelink
-            </a>{' '}
+            </CopyButton>{' '}
             - copies a link that navigates directly according to the browser.
           </p>
         </>

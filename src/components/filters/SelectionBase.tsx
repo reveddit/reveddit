@@ -15,7 +15,7 @@ export const Selection = ({
   const classes = []
   if (isSet) classes.push('set')
   if (isFilter) classes.push('filter')
-  let titleChildren = [title]
+  const titleChildren = [title]
   if (titleHelpModal) {
     titleChildren.push(
       <QuestionMarkModal key="q" modalContent={titleHelpModal} />

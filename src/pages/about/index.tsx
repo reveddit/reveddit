@@ -15,10 +15,7 @@ import { combinePushshiftAndRedditComments } from 'data_processing/comments'
 import { setPostAndParentDataForComments } from 'data_processing/info'
 import Highlight from 'components/common/Highlight'
 import { Link } from 'react-router-dom'
-import {
-  InternalPage,
-  Spin,
-} from 'components/Misc'
+import { InternalPage, Spin } from 'components/Misc'
 import { NewWindowLink, SamePageHashLink } from 'components/ui/Links'
 import { media, headlines } from 'components/modals/Misc'
 import staticWhatPeopleSay from 'data/what-people-say.json'
@@ -77,10 +74,15 @@ export const ContentWithHeader = ({
   id = '',
   className = '',
   onClick = () => {},
-  ...rest
+  ..._rest
 }) => {
   return (
-    <div id={id} className={'section ' + (half ? 'half' : '') + (className ? ' ' + className : '')}>
+    <div
+      id={id}
+      className={
+        'section ' + (half ? 'half' : '') + (className ? ' ' + className : '')
+      }
+    >
       {id ? (
         <SamePageHashLink
           id={id}
@@ -374,11 +376,11 @@ const About = ({ ...props }) => {
     singleDisplayComment = comments[singleDisplayIndex]
     if (singleDisplayIndex > 0) {
       hasPrev = true
-      prevAttr = { onClick: e => changeView(singleDisplayIndex - 1) }
+      prevAttr = { onClick: _e => changeView(singleDisplayIndex - 1) }
     }
     if (singleDisplayIndex < comments.length - 1) {
       hasNext = true
-      nextAttr = { onClick: e => changeView(singleDisplayIndex + 1) }
+      nextAttr = { onClick: _e => changeView(singleDisplayIndex + 1) }
     }
   }
   const status =
@@ -425,7 +427,7 @@ const About = ({ ...props }) => {
                 </a>
               </div>
               <div className="non-item">
-                <a onClick={e => changeView(-1)} className="collapseToggle">
+                <a onClick={_e => changeView(-1)} className="collapseToggle">
                   [+] view all ({comments.length})
                 </a>
               </div>
@@ -452,7 +454,7 @@ const About = ({ ...props }) => {
           ) : (
             <React.Fragment>
               <div className="non-item">
-                <a onClick={e => changeView(0)} className="collapseToggle">
+                <a onClick={_e => changeView(0)} className="collapseToggle">
                   [–] show less
                 </a>
               </div>
@@ -460,7 +462,7 @@ const About = ({ ...props }) => {
                 <Comment key={c.id} {...c} />
               ))}
               <div className="non-item">
-                <a onClick={e => changeView(0)} className="collapseToggle">
+                <a onClick={_e => changeView(0)} className="collapseToggle">
                   [–] show less
                 </a>
               </div>

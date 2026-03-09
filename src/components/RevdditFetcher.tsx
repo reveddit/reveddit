@@ -25,7 +25,7 @@ import {
   ClientIDForm,
   guideLink,
 } from 'components/modals/Settings'
-import { newUserModal, SpreadWord } from 'components/modals/Misc'
+import { newUserModal } from 'components/modals/Misc'
 
 import {
   useGlobalStore,
@@ -72,12 +72,12 @@ const CAT_POST_TITLE = {
   category_unique_field: 'link_id',
 }
 
-const normalArchiveDelay = 60
+const _normalArchiveDelay = 60
 
-let REDDIT_ERROR_OCCURRED = false
+let _REDDIT_ERROR_OCCURRED = false
 
 export const handleRedditError = (error, connectedProps) => {
-  REDDIT_ERROR_OCCURRED = true
+  _REDDIT_ERROR_OCCURRED = true
   console.error(error)
   let content = getFirefoxError()
   if (!content) {
@@ -193,7 +193,7 @@ const getCategorySettings = (page_type, subreddit) => {
   }
   if (page_type in category_settings) {
     if (subreddit && !['duplicate_posts', 'thread'].includes(page_type)) {
-      let sub_type = subreddit.toLowerCase() === 'all' ? 'all' : 'other'
+      const sub_type = subreddit.toLowerCase() === 'all' ? 'all' : 'other'
       return category_settings[page_type][sub_type]
     } else {
       return category_settings[page_type]
@@ -452,7 +452,7 @@ export const withFetch = WrappedComponent => {
     const global = useGlobalStore()
 
     useEffect(() => {
-      let subreddit = (match.params.subreddit || '').toLowerCase()
+      const subreddit = (match.params.subreddit || '').toLowerCase()
       const domain = (match.params.domain || '').toLowerCase()
       const user = (match.params.user || '').toLowerCase()
       const { threadID, commentID, kind = '' } = match.params
@@ -477,7 +477,7 @@ export const withFetch = WrappedComponent => {
           allQueryParams,
           getExtraGlobalStateVars(page_type, allQueryParams.get('sort'))
         )
-        .then(result => {
+        .then(_result => {
           if (page_type === 'info' && allQueryParams.toString() === '') {
             return global.setSuccess()
           }
@@ -549,7 +549,7 @@ export const withFetch = WrappedComponent => {
                           (commentTree.length === 1 ||
                             comment.id.substr(3) in focusComment.ancestors)
                         ) {
-                          (toggle as HTMLElement).click()
+                          ;(toggle as HTMLElement).click()
                         }
                       })
                   }
@@ -604,7 +604,10 @@ export const withFetch = WrappedComponent => {
                       )
                     } else {
                       const authors = Array.from(authorNames).reduce(
-                        (map: Record<string, any>, val: any) => ((map[val] = {}), map),
+                        (map: Record<string, any>, val: any) => (
+                          (map[val] = {}),
+                          map
+                        ),
                         {} as Record<string, any>
                       )
                       setIsAdmin(authors)
@@ -629,16 +632,13 @@ export const withFetch = WrappedComponent => {
   return WithFetchComponent
 }
 
-const maybeShowSubscribeUserModal = (props) => {
+const maybeShowSubscribeUserModal = props => {
   const hasSeenSubscribeUserModal_text = 'hasSeenSubscribeUserModal'
   const extensionSaysNoSubscriptions = get(
     'extensionSaysNoSubscriptions',
     false
   )
-  const hasSeenSubscribeUserModal = get(
-    hasSeenSubscribeUserModal_text,
-    false
-  )
+  const hasSeenSubscribeUserModal = get(hasSeenSubscribeUserModal_text, false)
   if (extensionSaysNoSubscriptions && !hasSeenSubscribeUserModal) {
     put(hasSeenSubscribeUserModal_text, true)
     props.openGenericModal({
@@ -650,8 +650,8 @@ const maybeShowSubscribeUserModal = (props) => {
           </p>
           <img src={meta.subscribe.img} />
           <p>
-            This pop-up appears once per session on user pages while there
-            are no subscriptions.
+            This pop-up appears once per session on user pages while there are
+            no subscriptions.
           </p>
         </>
       ),
@@ -719,11 +719,16 @@ const baseMatchFuncAndParams = [
 
 const GenericPostProcessor = props => {
   const subreddit = (props.match.params.subreddit || '').toLowerCase()
-  const domain = (props.match.params.domain || '').toLowerCase()
+  const _domain = (props.match.params.domain || '').toLowerCase()
   const { WrappedComponent, page_type } = props
   const global = useGlobalStore()
-  const { items, showContext, archiveTimes, localSort, localSortReverse } =
-    global.state
+  const {
+    items,
+    showContext: _showContext,
+    archiveTimes: _archiveTimes,
+    localSort,
+    localSortReverse,
+  } = global.state
   const gs = global.state
   const [showAllCollapsed, setShowAllCollapsed] = useState(false)
   const [showAllOrphaned, setShowAllOrphaned] = useState(false)
@@ -796,17 +801,14 @@ const GenericPostProcessor = props => {
       numOrphaned = 0,
       numOrphanedNotShown = 0
     const viewableItems = items.filter(item => {
-      let itemIsOneOfSelectedCategory = false
       if (
-        !category_state ||
-        showAllCategories ||
-        category_state
+        category_state &&
+        !showAllCategories &&
+        !category_state
           .toLowerCase()
           .split(',')
           .includes(item[category_unique_field].toLowerCase())
       ) {
-        itemIsOneOfSelectedCategory = true
-      } else {
         // don't count items not in the selected category
         return false
       }
@@ -847,7 +849,7 @@ const GenericPostProcessor = props => {
           return false
         }
       }
-      return showAllCategories || itemIsOneOfSelectedCategory
+      return true
     })
     if (sortFn) {
       // sort might be better implemented as a sort on gs.items

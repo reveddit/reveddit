@@ -63,7 +63,7 @@ const filters = {
   },
 }
 
-const HelpEntry = ({ text, desc, ...rest }: any) => (
+const HelpEntry = ({ text, desc, ..._rest }: any) => (
   <p>
     <span style={{ fontWeight: 'bold' }}>{text}: </span>
     {desc}.
@@ -86,7 +86,7 @@ const minMax_help = (
 
 const MinMaxFilters = () => {
   const [visibleFilters, setVisibleFilters] = useState({})
-  const [minMax, setMinMax] = useState({})
+  const [_minMax, _setMinMax] = useState({})
 
   const addThisFilter = e => {
     e.preventDefault()
@@ -119,16 +119,18 @@ const MinMaxFilters = () => {
   const hiddenFilters = Object.keys(filters).filter(x => !visibleFilters[x])
   return (
     <div className="selection numeric">
-      {(Object.entries(visibleFilters) as [string, any][]).map(([key, value]) => (
-        <TextFilter
-          key={key}
-          globalVarName={value.globalVarBase}
-          placeholder={value.placeholder}
-          title={value.text}
-          minMax={true}
-          removeFilter={() => removeFilter(key)}
-        />
-      ))}
+      {(Object.entries(visibleFilters) as [string, any][]).map(
+        ([key, value]) => (
+          <TextFilter
+            key={key}
+            globalVarName={value.globalVarBase}
+            placeholder={value.placeholder}
+            title={value.text}
+            minMax={true}
+            removeFilter={() => removeFilter(key)}
+          />
+        )
+      )}
       {Object.keys(visibleFilters).length < Object.keys(filters).length ? (
         <div className="selection">
           <select value="" onChange={addThisFilter}>

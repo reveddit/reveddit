@@ -2,7 +2,7 @@ import React from 'react'
 import { ALL_ACTIONS_META } from 'components/common/RemovedBy'
 import { RedditOrLocalLink } from 'components/ui/Links'
 
-const ActionHelpEntry = ({ meta, ...rest }: any) => (
+const ActionHelpEntry = ({ meta, ..._rest }: any) => (
   <div>
     <h4>{meta.filter_text}</h4>
     <div>

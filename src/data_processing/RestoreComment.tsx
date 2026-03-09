@@ -19,9 +19,7 @@ import {
 } from 'state'
 import { kindsReverse, queryUserPage, EmptyUserPageResult } from 'api/reddit'
 import { getWaybackComments } from 'api/reveddit'
-import {
-  Spin,
-} from 'components/Misc'
+import { Spin } from 'components/Misc'
 import {
   QuestionMarkModal,
   Help,
@@ -163,7 +161,13 @@ export const getAddUserMeta = (
   distance_input,
   userPageSort,
   userPageTime,
-  state = {}
+  state: {
+    itemsLookup?: any
+    alreadySearchedAuthors?: any
+    threadPost?: any
+    itemsSortedByDate?: any
+    quarantined?: any
+  } = {}
 ) => {
   const {
     itemsLookup,
@@ -171,7 +175,7 @@ export const getAddUserMeta = (
     threadPost,
     itemsSortedByDate,
     quarantined,
-  } = props.global?.state || state
+  } = state
   const grandparentComment = getAncestor(props, itemsLookup, 2)
   const grandchildComment = ((props.replies[0] || {}).replies || [])[0] || {}
   // START nearby authors
@@ -223,28 +227,22 @@ export const getAddUserMeta = (
 
 const RestoreComment = props => {
   const global = useGlobalStore()
-  const page_type = usePageType()
+  const _page_type = usePageType()
   const [localLoading, setLocalLoading] = useState(false)
   const [meta, setMeta] = useState({ distance: 0, aug: null })
   const [searchAll, setSearchAll] = useState(false)
   const [archiveSearched, setArchiveSearched] = useState(false)
   const [waybackSearched, setWaybackSearched] = useState(false)
 
-  let searchButton = ''
-  const {
-    id,
-    created_utc,
-    score,
-    controversiality,
-    retrieved_on,
-    link_id,
-  } = props
+  let searchButton: React.ReactNode
+  const { id, created_utc, score, controversiality, retrieved_on, link_id } =
+    props
   const {
     itemsLookup,
     alreadySearchedAuthors,
     threadPost,
-    itemsSortedByDate,
-    add_user,
+    itemsSortedByDate: _itemsSortedByDate,
+    add_user: _add_user,
     authors: globalAuthors,
     loading: globalLoading,
     items,
@@ -273,7 +271,15 @@ const RestoreComment = props => {
   useEffect(() => {
     if (!loading) {
       const { userPageSort, userPageTime } = get_userPageSortAndTime_this()
-      setMeta(getAddUserMeta(props, meta.distance, userPageSort, userPageTime))
+      setMeta(
+        getAddUserMeta(
+          props,
+          meta.distance,
+          userPageSort,
+          userPageTime,
+          global.state
+        )
+      )
     }
     // the result of this effect changes each time it runs b/c the output is used as input (distance)
     // it should only run once per comment per search
@@ -303,7 +309,8 @@ const RestoreComment = props => {
             props,
             meta_var.distance,
             userPageSort,
-            userPageTime
+            userPageTime,
+            global.state
           )
           if (numRemaining > 0 && meta_var.aug.length() > 0) {
             needToSetSuccess = true
@@ -329,9 +336,9 @@ const RestoreComment = props => {
     const { alreadySearchedAuthors, add_user } = global.getState()
     const { userPageSort, userPageTime } = get_userPageSortAndTime_this()
     const { authors, promises } = await meta.aug.query()
-    const { user_comments, newComments } = await Promise.all(promises).then(
+    const { user_comments, newComments } = (await Promise.all(promises).then(
       getUserCommentsForPost.bind(null, threadPost, itemsLookup)
-    ) as any
+    )) as any
     Object.assign(alreadySearchedAuthors, authors)
     const { new_commentTree, new_add_user } =
       await addUserComments_updateURL_createTreeIfNeeded({
@@ -562,9 +569,7 @@ const RestoreComment = props => {
       </Wrap>
     )
   } else {
-    searchButton = (
-      <HideUnarchivedComments />
-    )
+    searchButton = <HideUnarchivedComments />
   }
   return searchButton
 }
@@ -705,7 +710,7 @@ export class AddUserItem {
       t: this.time,
       limit: this.limit || 100,
       ...getQuarantinedParams(this.quarantined_subreddits),
-    }).catch(e => {
+    }).catch(_e => {
       console.error('USER PAGE LOOKUP FAILED:', this.author || '[]')
       return EmptyUserPageResult
     })
@@ -739,7 +744,10 @@ const getAncestor = (props, itemsLookup, n) => {
 const ADDUSERPARAM_SEPARATOR = ','
 export class AddUserParam {
   items: AddUserItem[]
-  constructor({ string = undefined, items = undefined }: { string?: string; items?: AddUserItem[] } = {}) {
+  constructor({
+    string = undefined,
+    items = undefined,
+  }: { string?: string; items?: AddUserItem[] } = {}) {
     if (string) {
       this.items = string
         .split(ADDUSERPARAM_SEPARATOR)
@@ -826,7 +834,10 @@ const updateUrlFromChangedAuthors = (
 ) => {
   if (Object.keys(changedAuthors).length) {
     const aup = new AddUserParam({ string: add_user })
-    for (const [author, comment] of Object.entries(changedAuthors) as [string, any][]) {
+    for (const [author, comment] of Object.entries(changedAuthors) as [
+      string,
+      any,
+    ][]) {
       const item = new AddUserItem({
         author,
         kind: 'c',

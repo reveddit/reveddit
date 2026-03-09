@@ -28,7 +28,8 @@ const Header = props => {
   const match = { params }
   const history = {
     push: (to: string, state?: any) => navigate(to, { state }),
-    replace: (to: string, state?: any) => navigate(to, { replace: true, state }),
+    replace: (to: string, state?: any) =>
+      navigate(to, { replace: true, state }),
   }
 
   const [entity_name, setEntityName] = useState(() => getEntityName(params))
@@ -99,10 +100,7 @@ const Header = props => {
     const pair = Array.from(data.entries())[0]
     const key = pair[0],
       val = (pair[1] as string).trim().toLowerCase()
-    if (
-      val !== '' &&
-      (page_type === 'thread' || val !== defaultValue)
-    ) {
+    if (val !== '' && (page_type === 'thread' || val !== defaultValue)) {
       setEntityName(val)
       history.push(`/${key}/${val}`)
     }
@@ -137,7 +135,7 @@ const Header = props => {
     // can't use history.push here b/c it won't reset state
     window.location.href = `/r/${sub}/x/` + window.location.search
   }
-  let { user, subreddit = '', domain = '' } = match.params
+  const { user, subreddit = '', domain = '' } = match.params
   let path_type = '',
     value = '',
     path_suffix = '',

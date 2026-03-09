@@ -28,7 +28,6 @@ import {
   useProxy,
 } from 'data_processing/comments'
 import {
-  REMOVAL_META,
   ANTI_EVIL_REMOVED,
   AUTOMOD_REMOVED,
   AUTOMOD_REMOVED_MOD_APPROVED,
@@ -101,7 +100,10 @@ export const combinePushshiftAndRedditPosts = async ({
   isInfoPage = false,
   subreddit_about_promise = Promise.resolve({}),
 }) => {
-  const subredditAbout = ((await subreddit_about_promise) || {}) as Record<string, any>
+  const subredditAbout = ((await subreddit_about_promise) || {}) as Record<
+    string,
+    any
+  >
   const redditPosts_lookup = {}
   redditPosts.forEach(post => {
     redditPosts_lookup[post.id] = post
@@ -349,7 +351,7 @@ const getUrlMeta = url => {
     new RegExp('^/[' + PATHS_STR_SUB + ']/[^/]*/comments/[a-z0-9]', 'i')
   )
   let pushshift_urls = [url_nohttp]
-  let reddit_info_urls = [url]
+  const reddit_info_urls = [url]
   let reddit_search_selftext = [url_nohttp]
   let reddit_search_url = [url_nohttp]
   const isYoutubeURL = url.match(
@@ -363,7 +365,7 @@ const getUrlMeta = url => {
     ]
     reddit_search_url = [minPostPath]
   } else if (isYoutubeURL && isYoutubeURL[2]) {
-    let id = ''
+    let id: string
     if (isYoutubeURL[1] === 'youtube.com') {
       const params = new SimpleURLSearchParams(isYoutubeURL[2].split('?')[1])
       id = params.get('v')
@@ -460,9 +462,11 @@ export const getRevdditDuplicatePosts = async (threadID, global) => {
       }
       const secondary_lookup_ids = Object.keys(secondary_lookup_ids_set)
       if (secondary_lookup_ids.length) {
-        ;(Object.values(
-          await getRedditPosts({ ids: secondary_lookup_ids })
-        ) as any[]).forEach((secondary_post: any) => {
+        ;(
+          Object.values(
+            await getRedditPosts({ ids: secondary_lookup_ids })
+          ) as any[]
+        ).forEach((secondary_post: any) => {
           const meta = getUrlMeta(secondary_post.url)
           if (meta.isRedditPostURL) {
             searchInput.pushshift_urls.push(...meta.pushshift_urls)

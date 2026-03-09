@@ -1,5 +1,4 @@
 import {
-  REMOVAL_META,
   USER_REMOVED,
   LOCKED,
   COLLAPSED,
@@ -11,12 +10,7 @@ import {
   ANTI_EVIL_REMOVED,
   AUTOMOD_REMOVED_MOD_APPROVED,
 } from 'components/common/RemovedBy'
-import {
-  TAG_META,
-  QUARANTINE,
-  MOD,
-  ADMIN,
-} from 'components/filters/TagsFilter'
+import { TAG_META, MOD, ADMIN } from 'components/filters/TagsFilter'
 import {
   itemIsCollapsed,
   commentIsOrphaned,
