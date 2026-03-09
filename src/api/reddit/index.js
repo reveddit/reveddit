@@ -750,11 +750,11 @@ const getModlogsItems = async ({
   )
 }
 
-export const getModlogsPosts = ({ subreddit, limit = 100, link_id }) => {
+export const getModlogsPosts = ({ subreddit, limit = 100, link_id = undefined }) => {
   return getModlogsItems({ subreddit, itemType: 'link', limit, link_id })
 }
 
-export const getModlogsComments = ({ subreddit, limit = 500, link_id }) => {
+export const getModlogsComments = ({ subreddit, limit = 500, link_id = undefined }) => {
   return getModlogsItems({ subreddit, itemType: 'comment', limit, link_id })
 }
 

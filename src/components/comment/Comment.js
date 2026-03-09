@@ -6,7 +6,7 @@ import RemovedBy, { QuarantinedLabel } from 'components/common/RemovedBy'
 import CommentBody from 'components/comment/CommentBody'
 import CommentHead from 'components/comment/CommentHead'
 import {
-  connect,
+  useGlobalStore,
   hasClickedRemovedUserCommentContext,
   urlParamKeys,
 } from 'state'
@@ -15,6 +15,7 @@ import { MessageMods } from 'components/Misc'
 import { NewWindowLink } from 'components/ui/Links'
 
 const Comment = props => {
+  const global = useGlobalStore()
   const [displayBody, setDisplayBody] = useState(true)
   const {
     t,
@@ -22,7 +23,7 @@ const Comment = props => {
     userCommentsByPost,
     after: after_gs,
     before: before_gs,
-  } = props.global.state
+  } = global.state
   const {
     author,
     name,
@@ -246,4 +247,4 @@ export const getAddUserParamString = ({
   return addUserParam.toString()
 }
 
-export default connect(Comment)
+export default Comment

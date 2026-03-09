@@ -20,7 +20,7 @@ export const Tip = ({ children }) => (
   </p>
 )
 
-export const Spin = ({ width }) => {
+export const Spin = ({ width = '' }) => {
   const style = width ? { width, height: width } : undefined
   const spin = <div className="spinner" style={style} />
   if (!width) {
@@ -30,7 +30,7 @@ export const Spin = ({ width }) => {
 }
 
 export const MessageMods = ({
-  permalink,
+  permalink = '',
   subreddit = '',
   message_body = '',
   innerText = 'message mods',
@@ -50,7 +50,7 @@ export const MessageMods = ({
   )
 }
 
-export const InternalPage = ({ children, props }) => {
+export const InternalPage = ({ children, props = undefined }) => {
   useEffect(() => {
     if (props) {
       newUserModal(props)

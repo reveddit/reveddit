@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
-import { connect } from 'state'
+import { useGlobalStore } from 'state'
 import { Shuffle, TwitterWhite } from 'components/common/svg'
 
 const getEntityName = params => {
@@ -20,7 +20,8 @@ const toggleTheme = () => {
   return next
 }
 
-const Header = connect(props => {
+const Header = props => {
+  const global = useGlobalStore()
   const params = useParams()
   const navigate = useNavigate()
   const match = { params }
@@ -129,7 +130,7 @@ const Header = connect(props => {
   }
 
   const { page_type } = props
-  const { x_subreddit } = props.global.state
+  const { x_subreddit } = global.state
   if (random) {
     const sub = x_subreddit || 'all'
     // can't use history.push here b/c it won't reset state
@@ -208,13 +209,13 @@ const Header = connect(props => {
           )}
         </div>
         <div id="status">
-          {props.global.state.statusText && (
-            <p id="status-text">{props.global.state.statusText}</p>
+          {global.state.statusText && (
+            <p id="status-text">{global.state.statusText}</p>
           )}
-          {props.global.state.statusImage && (
+          {global.state.statusImage && (
             <img
               id="status-image"
-              src={props.global.state.statusImage}
+              src={global.state.statusImage}
               alt="status"
             />
           )}
@@ -222,6 +223,6 @@ const Header = connect(props => {
       </header>
     </React.Fragment>
   )
-})
+}
 
 export default Header

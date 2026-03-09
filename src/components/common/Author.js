@@ -1,5 +1,5 @@
 import React from 'react'
-import { connect } from 'state'
+import { useGlobalStore } from 'state'
 import { getPrettyTimeLength, PATH_STR_USER } from 'utils'
 import { showAccountInfo_global } from 'components/modals/Settings'
 import Flair from './Flair'
@@ -18,8 +18,8 @@ const Author = ({
   created_utc,
   page_type,
   className = '',
-  global,
 }) => {
+  const global = useGlobalStore()
   const { moderators, moderated_subreddits, authors, author_fullnames } =
     global.state
   const subreddit_lc = subreddit.toLowerCase()
@@ -69,4 +69,4 @@ const Author = ({
   )
 }
 
-export default connect(Author)
+export default Author

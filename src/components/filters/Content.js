@@ -1,5 +1,5 @@
 import React from 'react'
-import { connect, adjust_qparams_for_selection } from 'state'
+import { useGlobalStore, adjust_qparams_for_selection } from 'state'
 import { Selection } from './SelectionBase'
 import { SimpleURLSearchParams, truthyOrUndefined } from 'utils'
 import { pageTypes } from 'components/layout/DefaultLayout'
@@ -7,15 +7,14 @@ import { NewWindowLink } from 'components/ui/Links'
 
 const SELECTED_CLASS = 'selected'
 
-const ContentLink = connect(
-  ({
+const ContentLink = ({
     expected_suffix,
     description,
-    global,
     page_type,
     param_name,
     expected_param_value,
   }) => {
+    const global = useGlobalStore()
     const path_parts = window.location.pathname.split('/')
     const suffix = path_parts.slice(3, 4)[0] || ''
     const link_path_parts = path_parts.slice(0, 3)
@@ -50,7 +49,6 @@ const ContentLink = connect(
       </div>
     )
   }
-)
 const out = 'May be several months out of date.'
 const un = 'r/undelete'
 const pushshift = (
@@ -85,7 +83,8 @@ const content_help = (
   </>
 )
 
-const Content = ({ global, subreddit, page_type }) => {
+const Content = ({ subreddit, page_type }) => {
+  const global = useGlobalStore()
   return (
     <Selection
       className="content"
@@ -154,4 +153,4 @@ const Content = ({ global, subreddit, page_type }) => {
   )
 }
 
-export default connect(Content)
+export default Content

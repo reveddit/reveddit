@@ -1,15 +1,15 @@
 import React from 'react'
-import { connect } from 'state'
+import { useGlobalStore } from 'state'
 import { replaceAmpGTLT, escapeRegExp } from 'utils'
 
 const Flair = ({
   page_type,
-  global,
   className = '',
   field,
   globalVarName,
   ...props
 }) => {
+  const global = useGlobalStore()
   if (props[field]) {
     return (
       <span
@@ -29,4 +29,4 @@ const Flair = ({
   return null
 }
 
-export default connect(Flair)
+export default Flair

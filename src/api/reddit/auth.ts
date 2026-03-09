@@ -1,0 +1,59 @@
+import { www_reddit, www_reddit_slash } from 'api/reddit'
+import { getCustomClientID } from 'utils'
+
+declare const REDDIT_API_CLIENT_ID: string
+
+// Token for reddit API
+let token: string | undefined, expires: number | undefined
+
+let client_id: string = REDDIT_API_CLIENT_ID
+
+const getToken = async () => {
+  // already have an unexpired token
+  if (token !== undefined && expires > Date.now() / 1000) {
+    return Promise.resolve(token)
+  }
+  const user_client_id = getCustomClientID()
+  // use user-set client ID if it exists and is non-empty, otherwise use Reveddit client ID
+  client_id = user_client_id || client_id
+
+  if (!client_id) {
+    console.error('REDDIT_API_CLIENT_ID is undefined')
+    return null
+  }
+  // Headers for getting reddit api token
+  const tokenInit = {
+    headers: {
+      Authorization: 'Basic ' + window.btoa(client_id + ':'),
+      'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
+    },
+    method: 'POST',
+    body: `grant_type=${encodeURIComponent('https://oauth.reddit.com/grants/installed_client')}&device_id=DO_NOT_TRACK_THIS_DEVICE`,
+  }
+
+  return window
+    .fetch(www_reddit + '/api/v1/access_token', tokenInit)
+    .then(response => response.json())
+    .then(response => {
+      token = response.access_token
+      expires = Date.now() / 1000 + response.expires_in - 1
+      return token
+    })
+}
+
+// Get header for general api calls
+export const getAuth = async (host?: string) => {
+  if (host === www_reddit_slash) {
+    return {}
+  }
+  const token = await getToken()
+  if (token) {
+    return {
+      headers: {
+        Authorization: `bearer ${token}`,
+        'Accept-Language': 'en',
+      },
+    }
+  }
+  return {}
+}

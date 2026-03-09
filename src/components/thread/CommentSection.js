@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import Comment, { getMaxCommentDepth } from './Comment'
-import { connect, removedFilter_types, removedFilter_text } from 'state'
+import { useGlobalStore, removedFilter_types, removedFilter_text } from 'state'
 import {
   itemIsOneOfSelectedActions,
   itemIsOneOfSelectedTags,
@@ -79,7 +79,8 @@ const countReplies = (
 }
 
 const CommentSection = props => {
-  const { global, focusCommentID, root, page_type, viewableItems } = props
+  const global = useGlobalStore()
+  const { focusCommentID, root, page_type, viewableItems } = props
   const {
     removedFilter,
     removedByFilter,
@@ -349,4 +350,4 @@ const CommentSection = props => {
   )
 }
 
-export default connect(CommentSection)
+export default CommentSection

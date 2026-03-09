@@ -1,5 +1,5 @@
 import React from 'react'
-import { connect, localSort_types, getPageType } from 'state'
+import { useGlobalStore, localSort_types, getPageType } from 'state'
 import { Selection } from './SelectionBase'
 import { Help } from 'components/ui/Modals'
 import { showAccountInfo_global } from 'components/modals/Settings'
@@ -30,7 +30,8 @@ const sortby_help = (
   />
 )
 
-const LocalSort = connect(({ global, page_type }) => {
+const LocalSort = ({ page_type }) => {
+  const global = useGlobalStore()
   const { localSort, localSortReverse, showContext, limitCommentDepth } =
     global.state
   const updateStateAndURL = global.selection_update
@@ -150,6 +151,6 @@ const LocalSort = connect(({ global, page_type }) => {
       )}
     </Selection>
   )
-})
+}
 
 export default LocalSort

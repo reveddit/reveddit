@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { connect, adjust_qparams_for_selection, updateURL } from 'state'
+import { useGlobalStore, adjust_qparams_for_selection, updateURL } from 'state'
 import * as d3 from 'd3'
 import Preview from 'components/common/Preview'
 import {
@@ -202,7 +202,8 @@ const commonFields = [
   'total_items',
 ]
 
-const UpvoteRemovalRateHistory = connect(({ global, page_type, subreddit }) => {
+const UpvoteRemovalRateHistory = ({ page_type, subreddit }) => {
+  const global = useGlobalStore()
   const queryParams_init = new SimpleURLSearchParams(window.location.search)
   const initState = { ...aggregationPeriodParams }
   Object.keys(aggregationPeriodParams).forEach(param => {
@@ -435,6 +436,6 @@ const UpvoteRemovalRateHistory = connect(({ global, page_type, subreddit }) => {
       }}
     />
   )
-})
+}
 
 export default UpvoteRemovalRateHistory

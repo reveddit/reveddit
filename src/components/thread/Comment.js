@@ -16,7 +16,7 @@ import Time from 'components/common/Time'
 import RemovedBy, { preserve_desc } from 'components/common/RemovedBy'
 import CommentBody from 'components/comment/CommentBody'
 import Author from 'components/common/Author'
-import { connect } from 'state'
+import { useGlobalStore } from 'state'
 import { insertParent } from 'data_processing/thread'
 import { MessageMods } from 'components/Misc'
 import {
@@ -106,14 +106,14 @@ export const threadFiltersToReset = [
 ]
 
 const Comment =
-  connect(props => {
+  props => {
+    const global = useGlobalStore()
     const navigate = useNavigate()
     const history = {
       push: (to, state) => navigate(to, { state }),
       replace: (to, state) => navigate(to, { replace: true, state }),
     }
     const {
-      global,
       page_type,
       setShowSingleRoot,
       contextAncestors,
@@ -497,7 +497,7 @@ const Comment =
         </div>
       </div>
     )
-  })
+  }
 
 
 const finishPromise_then_jumpToHash = promise => {
@@ -524,15 +524,16 @@ const Button_noHref = ({ onClick, children }) => {
   )
 }
 
-export const AuthorFocus = connect(
+export const AuthorFocus =
   ({ thisCommentHash, text = 'author-focus', addIcon = false, ...props }) => {
+    const global = useGlobalStore()
     return (
       <PreserveButton
         {...props}
         {...{ text, addIcon }}
         forceUrlUpdate={false}
         beforeFunc={() => {
-          return props.global
+          return global
             .resetFilters('thread', { categoryFilter_author: props.author })
             .then(() => {
               if (thisCommentHash) {
@@ -543,11 +544,9 @@ export const AuthorFocus = connect(
       />
     )
   }
-)
 
-const PreserveButton = connect(
+const PreserveButton =
   ({
-    global,
     post,
     author,
     deleted,
@@ -560,6 +559,7 @@ const PreserveButton = connect(
     userPageSort,
     userPageTime,
   }) => {
+    const global = useGlobalStore()
     if (deleted || !validAuthor(author)) {
       return null
     }
@@ -669,6 +669,5 @@ const PreserveButton = connect(
       />
     )
   }
-)
 
 export default Comment

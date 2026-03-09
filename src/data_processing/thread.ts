@@ -103,7 +103,7 @@ const addRemainingRedditComments_andCombine = async (
       quarantined_subreddits,
       useProxy,
     })
-    Object.values(remainingRedditComments).forEach(comment => {
+    ;(Object.values(remainingRedditComments) as any[]).forEach(comment => {
       redditComments[comment.id] = comment
     })
   }
@@ -211,7 +211,7 @@ export const getRevdditThreadItems = async (
       addUserItems.reduce((map, item) => ((map[item.author] = 1), map), {})
     )
   }
-  let root_comment_promise = Promise.resolve({})
+  let root_comment_promise: Promise<any> = Promise.resolve({})
   let pushshift_post_promise = Promise.resolve(undefined)
   if (commentID) {
     root_comment_promise = getRedditComments({

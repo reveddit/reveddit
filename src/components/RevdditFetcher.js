@@ -26,7 +26,7 @@ import {
 import { newUserModal, SpreadWord } from 'components/modals/Misc'
 
 import {
-  connect,
+  useGlobalStore,
   removedFilter_types,
   getExtraGlobalStateVars,
   create_qparams,
@@ -446,7 +446,8 @@ const filterMatches = (filterIsUnset, fn, exclude) => {
 
 export const withFetch = WrappedComponent => {
   const WithFetchComponent = props => {
-    const { match, global, page_type } = props
+    const { match, page_type } = props
+    const global = useGlobalStore()
 
     useEffect(() => {
       let subreddit = (match.params.subreddit || '').toLowerCase()
@@ -609,9 +610,9 @@ export const withFetch = WrappedComponent => {
                     }
                   }
                 })
-                .catch(error => handleError(error, props))
+                .catch(error => handleError(error, { ...props, global }))
             })
-            .catch(e => handleRedditError(e, props))
+            .catch(e => handleRedditError(e, { ...props, global }))
         })
     }, [])
 
@@ -619,6 +620,7 @@ export const withFetch = WrappedComponent => {
       <GenericPostProcessor
         WrappedComponent={WrappedComponent}
         {...props}
+        global={global}
       />
     )
   }
@@ -713,10 +715,11 @@ const baseMatchFuncAndParams = [
   [asOfMatch, []],
 ]
 
-const GenericPostProcessor = connect(props => {
+const GenericPostProcessor = props => {
   const subreddit = (props.match.params.subreddit || '').toLowerCase()
   const domain = (props.match.params.domain || '').toLowerCase()
-  const { WrappedComponent, page_type, global } = props
+  const { WrappedComponent, page_type } = props
+  const global = useGlobalStore()
   const { items, showContext, archiveTimes, localSort, localSortReverse } =
     global.state
   const gs = global.state
@@ -955,6 +958,7 @@ const GenericPostProcessor = connect(props => {
     <React.Fragment>
       <WrappedComponent
         {...props}
+        global={global}
         {...{ showAllCollapsed, showAllOrphaned }}
         selections={selections}
         summary={summary}
@@ -965,4 +969,4 @@ const GenericPostProcessor = connect(props => {
       />
     </React.Fragment>
   )
-})
+}

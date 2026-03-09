@@ -36,7 +36,7 @@ export const getRevdditPostsBySubreddit = async (
     return getRemovedPostIDs(subreddit, page || 1)
       .then(ids => getRedditPosts({ ids }))
       .then(posts => {
-        const posts_array = Object.values(posts)
+        const posts_array = Object.values(posts) as any[]
         posts_array.forEach(post => {
           markSelftextRemoved(post)
           if (postIsDeleted(post)) {

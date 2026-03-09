@@ -4,7 +4,7 @@ import ModalContext from 'contexts/modal'
 
 export const buttonClasses = 'pointer bubble medium lightblue'
 
-export const QuestionMarkModal = ({ modalContent, fill, text, wh = '20' }) => {
+export const QuestionMarkModal = ({ modalContent, fill = '', text = undefined, wh = '20' }) => {
   const modal = React.useContext(ModalContext)
   return (
     <a className="pointer" onClick={() => modal.openModal(modalContent)}>

@@ -411,7 +411,7 @@ export const getRevdditDuplicatePosts = async (threadID, global) => {
     async redditPosts => {
       const searchInput = new SearchInput()
       const secondary_lookup_ids_set = {}
-      for (const drivingPost of Object.values(redditPosts)) {
+      for (const drivingPost of Object.values(redditPosts) as any[]) {
         let firstLink = ''
         let meta
         if (
@@ -460,9 +460,9 @@ export const getRevdditDuplicatePosts = async (threadID, global) => {
       }
       const secondary_lookup_ids = Object.keys(secondary_lookup_ids_set)
       if (secondary_lookup_ids.length) {
-        Object.values(
+        ;(Object.values(
           await getRedditPosts({ ids: secondary_lookup_ids })
-        ).forEach(secondary_post => {
+        ) as any[]).forEach((secondary_post: any) => {
           const meta = getUrlMeta(secondary_post.url)
           if (meta.isRedditPostURL) {
             searchInput.pushshift_urls.push(...meta.pushshift_urls)

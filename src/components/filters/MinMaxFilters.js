@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import TextFilter from './TextFilter'
-import { connect, urlParamKeys } from 'state'
+import { urlParamKeys } from 'state'
 import { SimpleURLSearchParams } from 'utils'
 import { QuestionMarkModal, Help } from 'components/ui/Modals'
 
@@ -84,7 +84,7 @@ const minMax_help = (
   />
 )
 
-const MinMaxFilters = ({ page_type, global }) => {
+const MinMaxFilters = ({ page_type }) => {
   const [visibleFilters, setVisibleFilters] = useState({})
   const [minMax, setMinMax] = useState({})
 
@@ -149,4 +149,4 @@ const MinMaxFilters = ({ page_type, global }) => {
   )
 }
 
-export default connect(MinMaxFilters)
+export default MinMaxFilters

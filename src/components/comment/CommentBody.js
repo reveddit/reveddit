@@ -10,7 +10,7 @@ import {
   getRemovedWithinText,
   commentRemovedByReddit,
 } from 'utils'
-import { connect } from 'state'
+import { useGlobalStore } from 'state'
 import { Notice } from 'components/common/Notice'
 import RestoreComment, {
   HideUnarchivedComments,
@@ -40,6 +40,7 @@ if (!hasVisitedUserPage) {
 }
 
 const CommentBody = props => {
+  const global = useGlobalStore()
   let innerHTML = '',
     actionDescription = '',
     searchAuthorsForm = '',
@@ -93,7 +94,6 @@ const CommentBody = props => {
       if (comment_Is_Removed && !searchAuthorsForm) {
         hideUnarchivedButton = (
           <HideUnarchivedComments
-            global={props.global}
             page_type={props.page_type}
           />
         )
@@ -172,4 +172,4 @@ const CommentBody = props => {
   )
 }
 
-export default connect(CommentBody)
+export default CommentBody

@@ -23,10 +23,10 @@
       "data_processing/*": ["data_processing/*"],
       "hooks/*": ["hooks/*"],
       "pages/*": ["pages/*"],
-      "snuownd": ["snuownd.js"],
+      "snuownd": ["snuownd.ts"],
       "state": ["state.ts"],
       "svg/*": ["svg/*"],
-      "utils": ["utils.js"]
+      "utils": ["utils.tsx"]
     }
   },
   "include": ["src"],

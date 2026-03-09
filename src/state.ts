@@ -1,4 +1,3 @@
-import React from 'react'
 import { create } from 'zustand'
 import {
   SimpleURLSearchParams,
@@ -616,7 +615,7 @@ export const getPageType = page_type => {
     : page_type
 }
 
-const useGlobalStore = create<GlobalStore>()((set, getStore) => {
+export const useGlobalStore = create<GlobalStore>()((set, getStore) => {
   // Merges partial state into the nested state object, returns a Promise
   // to maintain compatibility with existing callers that do .then() / await.
   const mergeState = obj => {
@@ -1012,10 +1011,3 @@ const useGlobalStore = create<GlobalStore>()((set, getStore) => {
       mergeState({ statusText: '', statusImage: undefined, loading: false }),
   }
 })
-
-export const connect = Component => {
-  return function ConnectedComponent(props) {
-    const global = useGlobalStore()
-    return React.createElement(Component, { ...props, global })
-  }
-}

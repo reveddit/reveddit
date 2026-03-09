@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { connect } from 'state'
+import { useGlobalStore } from 'state'
 import BlankUser from 'components/BlankUser'
 import Comment from 'components/comment/Comment'
 import Time from 'components/common/Time'
@@ -283,7 +283,8 @@ const news = [
   },
 ]
 const sub = '<sub>'
-const About = ({ global, ...props }) => {
+const About = ({ ...props }) => {
+  const global = useGlobalStore()
   const url = new URL(window.location.href)
   const hashIsSay = url.hash.match(/^#say/)
   const initialIndex =
@@ -539,4 +540,4 @@ const About = ({ global, ...props }) => {
 
 export const Row = ({ children }) => <div className="sections">{children}</div>
 
-export default connect(About)
+export default About

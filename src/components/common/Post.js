@@ -14,11 +14,12 @@ import {
 import Time from 'components/common/Time'
 import RemovedBy, { QuarantinedLabel } from 'components/common/RemovedBy'
 import Author from 'components/common/Author'
-import { connect, urlParamKeys } from 'state'
+import { useGlobalStore, urlParamKeys } from 'state'
 import { MessageMods } from 'components/Misc'
 import { NewWindowLink } from 'components/ui/Links'
 import Flair from './Flair'
 import SubscribersCount from './SubscribersCount'
+import { Selftext, getImageList, BestImage, Image } from './PostMedia'
 import { getAddUserParamString } from 'components/comment/Comment'
 import { AuthorFocus } from 'components/thread/Comment'
 import { get_userPageSortAndTime } from 'data_processing/RestoreComment'
@@ -34,9 +35,9 @@ const clear = (
   <div className="clearBoth" style={{ flexBasis: '100%', height: '0' }}></div>
 )
 
-const Post = connect(props => {
+const Post = props => {
+  const global = useGlobalStore()
   const {
-    global,
     rev_position,
     page_type,
     kind,
@@ -370,97 +371,6 @@ const Post = connect(props => {
       )}
     </div>
   )
-})
-
-const redditPreview_regexpString_base = 'https://preview\\.redd\\.it/'
-const redditPreview_regexpString_withParen =
-  redditPreview_regexpString_base + '[^\\s]+'
-const redditPreview_regexpString_noParen =
-  redditPreview_regexpString_base + '([^.]+)\\.[^)\\s]+'
-const splitOnPreview_regexp = new RegExp(
-  '((?:\\[[^\\]]*\\]\\()?' + redditPreview_regexpString_withParen + ')'
-)
-const maxWidthInsideSelftextBox = 835
-const calculateMaxImageSizeForScreen = () => window.innerWidth - 40
-const Selftext = ({ selftext, media_metadata }) => {
-  if (media_metadata) {
-    return <SelftextInParts {...{ selftext, media_metadata }} />
-  } else {
-    return <SelftextPart selftext={selftext} />
-  }
-}
-
-const SelftextPart = ({ selftext }) => (
-  <div dangerouslySetInnerHTML={{ __html: parse(selftext) }} />
-)
-
-const SelftextInParts = ({ selftext, media_metadata }) => {
-  const selftextParts = selftext.split(splitOnPreview_regexp)
-  const result = []
-  const maxImageSizeForScreen = calculateMaxImageSizeForScreen()
-  const maxWidth = Math.min(maxImageSizeForScreen, maxWidthInsideSelftextBox)
-  for (const [i, part] of selftextParts.entries()) {
-    const match = part.match(
-      new RegExp(
-        '(?:\\[([^\\]]*)\\]\\()?(' + redditPreview_regexpString_noParen + ')'
-      )
-    )
-    if (match) {
-      const [, caption, url, id] = match
-      const list = getImageList({ media_metadata, id })
-      if (list) {
-        const marginTop = caption ? '' : '5px'
-        result.push(
-          <div key={i} style={{ textAlign: 'center', marginTop }}>
-            {caption && <h4>{caption}</h4>}
-            <BestImage key={i} list={list} maxWidth={maxWidth} />
-          </div>
-        )
-      }
-      continue
-    }
-    result.push(<SelftextPart key={i} selftext={part} />)
-  }
-  return result
-}
-
-const getImageList = ({ media_metadata, id }) => {
-  if (media_metadata && id) {
-    const imageData = media_metadata[id]
-    if (imageData) {
-      const list = imageData.p
-      if (list && imageData.s) {
-        list.push(imageData.s)
-      }
-      return list
-    }
-  }
-  return undefined
-}
-
-const Image = ({ x, y, u, onClick }) => {
-  return (
-    <img
-      className={onClick ? 'pointer' : ''}
-      width={x}
-      height={y}
-      src={replaceAmpGTLT(u)}
-      onClick={onClick}
-    />
-  )
-}
-
-const BestImage = ({
-  list,
-  onClick,
-  maxWidth = calculateMaxImageSizeForScreen(),
-}) => {
-  for (const preview of list.slice().reverse()) {
-    if (preview.x < maxWidth) {
-      return <Image {...preview} onClick={onClick} />
-    }
-  }
-  return <Image {...list[0]} onClick={onClick} />
 }
 
 export default Post

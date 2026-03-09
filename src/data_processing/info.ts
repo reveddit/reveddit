@@ -55,7 +55,7 @@ export const getRevdditItems = global => {
     const redditComments = {}
     const redditPosts = []
     const link_ids_set = {}
-    const redditItemsArray = Object.values(redditItems)
+    const redditItemsArray = Object.values(redditItems) as any[]
     redditItemsArray.forEach(item => {
       item.link_title = item.permalink.split('/')[5].replace(/_/g, ' ')
       item.link_permalink =

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
-import { connect } from 'state'
+import { useGlobalStore } from 'state'
 import { SimpleURLSearchParams } from 'utils'
 import debounce from 'lodash/debounce'
 import { Selection } from './SelectionBase'
@@ -30,9 +30,7 @@ const associatedValues = {
 }
 const anyNoneOpposite = { any: 'none', none: 'any' }
 const marginLeft = { marginLeft: '3px' }
-const TextFilter = connect(
-  ({
-    global,
+const TextFilter = ({
     page_type,
     globalVarName,
     placeholder,
@@ -41,6 +39,7 @@ const TextFilter = connect(
     removeFilter,
     ...selectionProps
   }) => {
+    const global = useGlobalStore()
     const { loading, author_fullnames } = global.state
     const queryParams = new SimpleURLSearchParams(window.location.search)
     let adjusted_globalVarName = globalVarName
@@ -233,7 +232,6 @@ const TextFilter = connect(
       </Selection>
     )
   }
-)
 
 export const FlairFilter = props => {
   return <TextFilter anyNone={true} {...props} />

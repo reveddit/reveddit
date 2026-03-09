@@ -6,7 +6,7 @@ const sub_regex = /^\/?[rv]\/([^/]+)(\/c[^/]*)?(\/[^/]+)?/
 //const defaultPlaceholder = 'user, r/sub or url'
 const defaultPlaceholder = 'user or r/sub'
 
-export default ({ message, bottomMessage, placeholder }) => {
+export default ({ message = null, bottomMessage = null, placeholder = defaultPlaceholder }) => {
   const [random, setRandom] = useState(false)
   const [input, setInput] = useState('')
   const [inputRef, setInputFocus] = useFocus()
