@@ -32,6 +32,18 @@
     X-XSS-Protection = "1; mode=block"
 
 [[headers]]
+  for = "/images/favicon*"
+
+  [headers.values]
+    cache-control = "public, max-age=86400"
+
+[[headers]]
+  for = "/images/apple-touch-icon*"
+
+  [headers.values]
+    cache-control = "public, max-age=86400"
+
+[[headers]]
   for = "/images/*"
 
   [headers.values]
