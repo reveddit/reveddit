@@ -1,6 +1,10 @@
 import React from 'react'
 import { InternalPage, MessageMods } from 'components/Misc'
-import { NewWindowLink, SamePageHashLink, RedditOrLocalLink } from 'components/ui/Links'
+import {
+  NewWindowLink,
+  SamePageHashLink,
+  RedditOrLocalLink,
+} from 'components/ui/Links'
 import { Link } from 'react-router-dom'
 import { ExtensionLink } from 'components/ui/Extensions'
 import { TwitterLink } from 'components/common/svg'
@@ -253,6 +257,12 @@ const About_faq = props => {
             way Reddit handles removals:
           </p>
           <ul className="news">
+            <NewsItem
+              reddit="/r/self/comments/1mweelp/the_number_of_silently_deleted_comments_on_reddit/"
+              created_utc="1755790629"
+              title="r/self"
+              newsText="It explains why so many of my posts didn't get any traction. A post I made in this very thread was removed."
+            />
             <NewsItem
               archive="https://archive.ph/2qThg"
               href="/v/dataisbeautiful/comments/uoz0dj/oc_graph_of_the_popularity_of_a_post_i_made_about/?ps_after=1652483097%2C1652496777%2C1652514012%2C1652611296&add_user=Spokker..c.new..t1_i8hkwxn..%2CAlaska_Jack..c.new..t1_i8hkreu..%2Cpastdecisions..c.new..t1_i8hr4pm..%2CSoDakZak..c.new..t1_i8hnmz9..%2Cboomer_stoke..c.new..t1_i8g55uw..%2Crhaksw..c.new..t1_i8h0rcz..%2CQueasy-Dingo-8586..c.new..t1_i8hfcx2..%2CKinexity..c.new..t1_i8ii8uk..%2Cdeath_of_gnats..c.new..t1_i8ipe62..%2CMason11987..c.new..t1_i8int54..%2CVenkman_P..c.new..t1_i8ih1sg..%2Creidmrdotcom..c.new..t1_i8dmamu..%2Cbradles0..c.new..t1_i8iv02z..%2Cgratefulyme..c.new..t1_i8csgpm..%2CMaxTHC..c.new..t1_i8jv0pl..%2CLanzus_Longus..c.new..t1_i8jx4j8..%2C4xTHESPEED..c.new..t1_i8k7nqm..%2COk-Hamster5571..c.new..t1_i8j40de..&keywords=-%22%5E%5C%5B%28removed%7Cdeleted%29%5C%5D%24%22&limitCommentDepth=false"
