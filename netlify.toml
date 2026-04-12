@@ -76,3 +76,13 @@
     no-store,
     must-revalidate
     '''
+
+[[headers]]
+  for = "/extension-news.json"
+  [headers.values]
+    cache-control = '''
+    public,
+    max-age=600,
+    must-revalidate
+    '''
+    Access-Control-Allow-Origin = "*"
