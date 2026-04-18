@@ -354,7 +354,13 @@ export const getWaybackComments = ({ link_id, ids, known_removed_ids }) => {
     }) // ignore fetch errors, this is not critical data
 }
 
-export const getUserStatus = user => {
-  const _url = REVEDDIT_FLASK_HOST_SHORT + `/user-status/${user}`
-  return flaskQuery({ path: `/user-status/${user}` }).catch(e => e)
+export const getUserStatus = (user: string, turnstileToken: string) => {
+  return flaskQuery({
+    path: `/user-status/${user}`,
+    options: {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ turnstile_token: turnstileToken }),
+    },
+  }).catch(e => e)
 }

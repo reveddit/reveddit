@@ -8,7 +8,7 @@ import {
   COMMENTS,
   GILDED,
 } from 'api/reddit'
-import { getMissingComments, getUserStatus } from 'api/reveddit'
+import { getMissingComments } from 'api/reveddit'
 import {
   getCommentsByID,
   getPostsByID,
@@ -250,13 +250,7 @@ const getItems = async (
       if (avail === true) {
         user_issue_description = 'does not exist'
       } else {
-        const data = await getUserStatus(user)
-        if (data.error || !data.user_status) {
-          console.error(data.error)
-          user_issue_description = 'deleted_shadowbanned'
-        } else {
-          user_issue_description = data.user_status
-        }
+        user_issue_description = 'needs_shadowban_check'
       }
     } else if (data?.message.toLowerCase() == 'forbidden') {
       user_issue_description = 'suspended'

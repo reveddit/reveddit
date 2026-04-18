@@ -15,6 +15,7 @@ import {
 import Highlight from 'components/common/Highlight'
 import ModalContext from 'contexts/modal'
 import { Spin } from 'components/Misc'
+import ShadowbanCheckButton from './ShadowbanCheckButton'
 import {
   RedditOrLocalLink,
   NewWindowLink,
@@ -95,7 +96,17 @@ const User = ({
     }
     if (userIssueDescription) {
       let message
-      if (userIssueDescription.toLowerCase().startsWith('error')) {
+      if (userIssueDescription === 'needs_shadowban_check') {
+        message = (
+          <>
+            <p>
+              Reddit returned 404 for /u/{user}. The account may be
+              shadowbanned.
+            </p>
+            <ShadowbanCheckButton user={user} global={global} />
+          </>
+        )
+      } else if (userIssueDescription.toLowerCase().startsWith('error')) {
         message = userIssueDescription
       } else if (userIssueDescription.includes('shadowbanned')) {
         const deleted_txt = userIssueDescription.includes('deleted')

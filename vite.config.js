@@ -78,6 +78,7 @@ export default defineConfig(({ mode }) => {
       U_MODLOGS_API: JSON.stringify(MODLOGS_API),
       OAUTH_REDDIT_REV: JSON.stringify(OAUTH_REDDIT_REV),
       EXTENSION_ID: JSON.stringify(EXTENSION_ID),
+      TURNSTILE_SITEKEY: JSON.stringify(env.TURNSTILE_SITEKEY || '1x00000000000000000000AA'),
     },
 
     // The project uses .js extension for JSX files (conventional for this codebase).
