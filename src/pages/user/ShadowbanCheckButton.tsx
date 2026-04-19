@@ -65,7 +65,6 @@ const ShadowbanCheckButton: React.FC<ShadowbanCheckButtonProps> = ({
     } else if (containerRef.current) {
       widgetIdRef.current = window.turnstile.render(containerRef.current, {
         sitekey: TURNSTILE_SITEKEY,
-        size: 'invisible',
         callback: handleToken,
         'error-callback': () => {
           setError('Verification failed. Please try again.')
