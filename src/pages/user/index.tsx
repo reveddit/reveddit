@@ -108,6 +108,10 @@ const User = ({
         )
       } else if (userIssueDescription.toLowerCase().startsWith('error')) {
         message = userIssueDescription
+      } else if (userIssueDescription === 'unknown') {
+        message = (
+          <p>{`Couldn't check status for ${user}. The check is temporarily unavailable. Try again in a few minutes.`}</p>
+        )
       } else if (userIssueDescription.includes('shadowbanned')) {
         const deleted_txt = userIssueDescription.includes('deleted')
           ? ' deleted or '
