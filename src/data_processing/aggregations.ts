@@ -29,7 +29,8 @@ export const getRevdditAggregations = async (subreddit, global) => {
     rate_less,
     rate_more,
   }).then(res => {
-    const { data: temp_items = [], meta = {} } = res || {}
+    const { data, meta = {} } = res || {}
+    const temp_items = Array.isArray(data) ? data : []
     const items = []
     for (const item of temp_items) {
       display_post(items, item)
