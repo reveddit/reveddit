@@ -51,7 +51,6 @@ import {
 } from 'utils'
 import { getAuthorInfoByName } from 'api/reddit'
 import { getAuth } from 'api/reddit/auth'
-import { getArchiveTimes } from 'api/reveddit'
 import { meta } from 'pages/about/AddOns'
 import { redditPrefsAppsLink } from 'pages/about/faq'
 import { Notice } from 'components/common/Notice'
@@ -460,13 +459,9 @@ export const withFetch = WrappedComponent => {
       if (page_title) {
         document.title = page_title
       }
-      let archive_times_promise: Promise<any> = Promise.resolve({})
+      const archive_times_promise: Promise<any> = Promise.resolve({})
       if (page_type === 'user') {
         setTimeout(() => maybeShowSubscribeUserModal(props), 3000)
-      } else {
-        archive_times_promise = getArchiveTimes().then(archiveTimes =>
-          global.setState({ archiveTimes })
-        )
       }
       global.setQueryParamsFromSavedDefaults(page_type)
       const allQueryParams = create_qparams()
