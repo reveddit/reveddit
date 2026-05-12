@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTurnstile } from 'hooks/useTurnstile'
 
 const fetch = 'fetch' as const,
   success = 'success' as const,
@@ -44,12 +45,13 @@ const fetchReducer = (state: FetchState, action: FetchAction): FetchState => {
 //   - using global state is too complex
 const cache: Record<string, any> = {}
 
-export const useFetch = (url: string): FetchState => {
+export const useFetch = (url: string, { turnstile: requireTurnstile = false } = {}): FetchState => {
   const [state, dispatch] = React.useReducer(fetchReducer, {
     data: null,
     loading: true,
     error: false,
   })
+  const { getToken } = useTurnstile()
   React.useEffect(() => {
     dispatch({ type: fetch })
     let isCancelled = false
@@ -62,21 +64,29 @@ export const useFetch = (url: string): FetchState => {
         }
       }, 30)
     } else {
-      window
-        .fetch(url)
-        .then(response => response.json())
-        .then(data => {
-          cache[url] = data
-          if (!isCancelled) {
-            dispatch({ type: success, data })
-          }
-        })
-        .catch(e => {
-          console.warn(e.message)
-          if (!isCancelled) {
-            dispatch({ type: error })
-          }
-        })
+      const tokenPromise = requireTurnstile
+        ? getToken().catch(() => undefined)
+        : Promise.resolve(undefined)
+      tokenPromise.then(token => {
+        const fetchUrl = token
+          ? url + (url.includes('?') ? '&' : '?') + 'turnstile_token=' + encodeURIComponent(token)
+          : url
+        window
+          .fetch(fetchUrl)
+          .then(response => response.json())
+          .then(data => {
+            cache[url] = data
+            if (!isCancelled) {
+              dispatch({ type: success, data })
+            }
+          })
+          .catch(e => {
+            console.warn(e.message)
+            if (!isCancelled) {
+              dispatch({ type: error })
+            }
+          })
+      })
     }
     return () => {
       isCancelled = true
@@ -87,10 +97,11 @@ export const useFetch = (url: string): FetchState => {
 
 interface FetchProps {
   url: string
+  turnstile?: boolean
   render?: (result: FetchState) => React.ReactNode
 }
 
-export const Fetch = ({ url, render }: FetchProps): React.ReactNode => {
-  const result = useFetch(url)
+export const Fetch = ({ url, turnstile = false, render }: FetchProps): React.ReactNode => {
+  const result = useFetch(url, { turnstile })
   return render && result ? render(result) : null
 }

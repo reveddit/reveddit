@@ -271,6 +271,7 @@ const UpvoteRemovalRateHistory = ({ subreddit }) => {
   return (
     <Fetch
       url={getAggregationsURL({ type, subreddit, limit, sort })}
+      turnstile
       render={({ loading, error, data }) => {
         if (loading)
           return (
