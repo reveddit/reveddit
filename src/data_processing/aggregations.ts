@@ -46,7 +46,7 @@ export const getRevdditAggregations = async (subreddit, global, _archive_times_p
           lookup_ids.push(item.id_of_max_pos_removed_item)
         }
       }
-      info_promise = getComments({ ids: lookup_ids })
+      info_promise = getComments({ ids: lookup_ids }).catch(() => ({}))
     }
     return info_promise
       .then(comments => {
