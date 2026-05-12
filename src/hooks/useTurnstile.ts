@@ -18,6 +18,8 @@ declare global {
 export const useTurnstile = () => {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const widgetIdRef = useRef<string | null>(null)
+  const callbackRef = useRef<((token: string) => void) | null>(null)
+  const errorRef = useRef<(() => void) | null>(null)
 
   const getToken = useCallback((): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -31,15 +33,17 @@ export const useTurnstile = () => {
         document.body.appendChild(div)
         containerRef.current = div
       }
+      callbackRef.current = resolve
+      errorRef.current = () => reject(new Error('Turnstile verification failed'))
       if (widgetIdRef.current) {
         window.turnstile.reset(widgetIdRef.current)
         window.turnstile.execute(widgetIdRef.current)
       } else {
         widgetIdRef.current = window.turnstile.render(containerRef.current, {
           sitekey: TURNSTILE_SITEKEY,
-          size: 'invisible',
-          callback: resolve,
-          'error-callback': () => reject(new Error('Turnstile verification failed')),
+          size: 'flexible',
+          callback: (token: string) => callbackRef.current?.(token),
+          'error-callback': () => errorRef.current?.(),
         })
       }
     })
