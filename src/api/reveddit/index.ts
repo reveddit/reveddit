@@ -77,6 +77,7 @@ export const getAggregations = ({
   after,
   rate_less,
   rate_more,
+  turnstile_token = undefined as string | undefined,
 }) => {
   const params = {
     type,
@@ -87,6 +88,7 @@ export const getAggregations = ({
     ...(after && { after }),
     ...(rate_less && { rate_less }),
     ...(rate_more && { rate_more }),
+    ...(turnstile_token && { turnstile_token }),
   }
   return flaskQuery({
     path: aggregationsPath,
@@ -250,6 +252,7 @@ export const getCommentsByThread = ({
   num_comments = undefined,
   post_created_utc = undefined,
   focus_comment_removed = undefined,
+  turnstile_token = undefined as string | undefined,
 }) => {
   const params = {
     link_id,
@@ -259,6 +262,7 @@ export const getCommentsByThread = ({
     ...(num_comments && { num_comments }), // number of comments reported by reddit post
     ...(post_created_utc && { post_created_utc }),
     ...(focus_comment_removed && { focus_comment_removed }),
+    ...(turnstile_token && { turnstile_token }),
     c: getCount(150),
   }
   return flaskQuery({

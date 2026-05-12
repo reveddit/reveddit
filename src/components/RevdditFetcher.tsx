@@ -58,6 +58,9 @@ import { RedditOrLocalLink } from 'components/ui/Links'
 import BlankUser from 'components/BlankUser'
 import Highlight from 'components/common/Highlight'
 import { SocialLinks, UserNameEntry } from 'components/Misc'
+import { useTurnstile } from 'hooks/useTurnstile'
+
+const TURNSTILE_PAGE_TYPES = ['aggregations', 'thread']
 
 const CAT_SUBREDDIT = {
   category: 'subreddit',
@@ -449,6 +452,7 @@ export const withFetch = WrappedComponent => {
   const WithFetchComponent = props => {
     const { match, page_type } = props
     const global = useGlobalStore()
+    const { getToken } = useTurnstile()
 
     useEffect(() => {
       const subreddit = (match.params.subreddit || '').toLowerCase()
@@ -503,7 +507,11 @@ export const withFetch = WrappedComponent => {
                 before,
                 after,
               }) as [(...args: any[]) => Promise<any>, any[]]
-              loadDataFunction(...params, global, archive_times_promise)
+              const turnstilePromise = TURNSTILE_PAGE_TYPES.includes(page_type)
+                ? getToken().catch(() => undefined)
+                : Promise.resolve(undefined)
+              turnstilePromise.then(turnstile_token => {
+              loadDataFunction(...params, global, archive_times_promise, turnstile_token)
                 .then(async ([success, stateObj]) => {
                   const lookupAccountMeta =
                     (showAccountInfo_global ||
@@ -611,6 +619,7 @@ export const withFetch = WrappedComponent => {
                   }
                 })
                 .catch(error => handleError(error, { ...props, global }))
+              })
             })
             .catch(e => handleRedditError(e, { ...props, global }))
         })

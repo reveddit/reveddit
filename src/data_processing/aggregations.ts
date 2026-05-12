@@ -2,7 +2,7 @@ import { getAggregations } from 'api/reveddit'
 import { getComments, getSubredditAbout } from 'api/reddit'
 import { sortCreatedAsc, display_post } from 'utils'
 
-export const getRevdditAggregations = async (subreddit, global) => {
+export const getRevdditAggregations = async (subreddit, global, _archive_times_promise?, turnstile_token?) => {
   const {
     content: type,
     n: limit,
@@ -28,6 +28,7 @@ export const getRevdditAggregations = async (subreddit, global) => {
     after,
     rate_less,
     rate_more,
+    turnstile_token,
   }).then(res => {
     const { data, meta = {} } = res || {}
     const temp_items = Array.isArray(data) ? data : []

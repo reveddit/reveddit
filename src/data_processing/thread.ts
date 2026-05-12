@@ -143,7 +143,8 @@ export const getRevdditThreadItems = async (
   after,
   subreddit,
   global,
-  archive_times_promise
+  archive_times_promise,
+  turnstile_token?
 ) => {
   const { localSort, localSortReverse, ps_after } = global.getState()
   let { quarantined } = global.getState()
@@ -332,6 +333,7 @@ export const getRevdditThreadItems = async (
             root_comment_id,
             num_comments: reddit_post.num_comments,
             post_created_utc: reddit_post.created_utc,
+            turnstile_token,
           })
           pushshift_comments_promise = pushshiftLimiter.schedule(() =>
             getPushshiftCommentsByThread({
@@ -354,6 +356,7 @@ export const getRevdditThreadItems = async (
             root_comment_id,
             num_comments: reddit_post.num_comments,
             post_created_utc: reddit_post.created_utc,
+            turnstile_token,
           })
         }
         pushshift_post_promise = pushshiftLimiter.schedule(() =>
