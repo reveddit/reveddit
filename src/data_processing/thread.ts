@@ -250,7 +250,7 @@ export const getRevdditThreadItems = async (
         oldestComment,
         moreCommentIDs,
       }) => {
-        const moderators_promise = getModerators(reddit_post.subreddit)
+        const moderators_promise = getModerators(reddit_post.subreddit, turnstile_token)
         const modlogs_comments_promise = getModlogsComments({
           subreddit: reddit_post.subreddit,
           link_id: reddit_post.id,

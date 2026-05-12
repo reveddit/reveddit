@@ -236,8 +236,8 @@ const postProcessUmodlogs = (list, thread_id) => {
   return { comments, posts }
 }
 
-export const getModerators = subreddit => {
-  return flaskQuery({ path: 'moderators/', params: { subreddit } })
+export const getModerators = (subreddit, turnstile_token?: string) => {
+  return flaskQuery({ path: 'moderators/', params: { subreddit, ...(turnstile_token && { turnstile_token }) } })
     .catch(_error => {
       return {}
     }) // ignore fetch errors, this is not critical data
