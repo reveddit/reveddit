@@ -22,8 +22,6 @@ import Selections from 'components/filters'
 import SummaryAndPagination from 'components/common/SummaryAndPagination'
 import {
   showAccountInfo_global,
-  ClientIDForm,
-  guideLink,
 } from 'components/modals/Settings'
 import { newUserModal } from 'components/modals/Misc'
 
@@ -52,7 +50,6 @@ import {
 import { getAuthorInfoByName } from 'api/reddit'
 import { getAuth } from 'api/reddit/auth'
 import { meta } from 'pages/about/AddOns'
-import { redditPrefsAppsLink } from 'pages/about/faq'
 import { Notice } from 'components/common/Notice'
 import { RedditOrLocalLink } from 'components/ui/Links'
 import BlankUser from 'components/BlankUser'
@@ -95,28 +92,14 @@ export const handleRedditError = (error, connectedProps) => {
           <p>Try again in 5 minutes.</p>
         </>
       )
-    } else if (customClientID) {
-      content = (
-        <>
-          <p>
-            Unable to connect to Reddit. Follow the {guideLink} to verify the
-            API key below matches the one on {redditPrefsAppsLink}
-          </p>
-          <p>
-            Or, check for conflicting extensions or privacy settings (see:{' '}
-            {whatHappenedLink})
-          </p>
-          <ClientIDForm />
-        </>
-      )
     } else {
       content = (
         <>
+          <p>Unable to connect to Reddit.</p>
           <p>
-            To use Reveddit, follow this {guideLink} to create an API key of
-            type "installed app", and enter its ID here.
+            Check for conflicting extensions or privacy settings (see:{' '}
+            {whatHappenedLink})
           </p>
-          {<ClientIDForm />}
         </>
       )
     }
