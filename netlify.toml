@@ -1,11 +1,13 @@
 [build]
   command = "yarn build"
   publish = "dist"
-  functions = "lambda"
 
 [build.environment]
   NODE_VERSION = "22"
-  NODE_OPTIONS = "--openssl-legacy-provider"
+  # Supply-chain hardening: refuse lockfile drift and validate the lockfile
+  # against the registry during Netlify's pre-build `yarn install`.
+  YARN_ENABLE_IMMUTABLE_INSTALLS = "true"
+  YARN_ENABLE_HARDENED_MODE = "1"
 
 
 # created in part using CSP Generator extension (csper.io)
@@ -15,13 +17,13 @@
   [headers.values]
     Content-Security-Policy = '''
       default-src 'self';
-      script-src 'self' 'unsafe-inline' https://js.stripe.com/v3 https://js.stripe.com/v3/ https://www.google-analytics.com https://ssl.google-analytics.com https://www.googletagmanager.com/gtag/js *.cloudflareinsights.com https://challenges.cloudflare.com;
+      script-src 'self' 'unsafe-inline' https://www.google-analytics.com https://ssl.google-analytics.com https://www.googletagmanager.com/gtag/js *.cloudflareinsights.com https://challenges.cloudflare.com;
       style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
       object-src 'none';
       base-uri 'self';
       connect-src 'self' https://api.pushshift.io https://elastic.pushshift.io https://oauth.reddit.com https://ored.reveddit.com https://cred2.reveddit.com https://api.reveddit.com https://www.reddit.com https://removeddit.com https://www.google-analytics.com https://region1.google-analytics.com https://region1.analytics.google.com cloudflareinsights.com https://challenges.cloudflare.com;
       font-src 'self' https://fonts.gstatic.com;
-      frame-src 'self' https://js.stripe.com https://www.youtube-nocookie.com/ https://challenges.cloudflare.com;
+      frame-src 'self' https://www.youtube-nocookie.com/ https://challenges.cloudflare.com;
       img-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://region1.analytics.google.com https://pbs.twimg.com data: https:;
       manifest-src 'self';
       media-src 'self';

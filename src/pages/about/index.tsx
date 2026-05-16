@@ -6,7 +6,6 @@ import Time from 'components/common/Time'
 import { getWhatPeopleSay } from 'api/reveddit'
 import {
   itemIsRemovedOrDeleted,
-  SimpleURLSearchParams,
   PATH_STR_USER,
   PATH_STR_SUB,
   getRandomElement,
@@ -383,18 +382,9 @@ const About = ({ ...props }) => {
       nextAttr = { onClick: _e => changeView(singleDisplayIndex + 1) }
     }
   }
-  const status =
-    new SimpleURLSearchParams(window.location.search).get('status') || ''
-  let message = ''
-  if (status === 'donate-success') {
-    message = 'Thank you for your donation!'
-  } else if (status === 'donate-cancel') {
-    message = 'Your donation has been cancelled.'
-  }
   return (
     <InternalPage props={props}>
       <div className="about section">
-        {message && <div className="message">{message}</div>}
         <ContentWithHeader header="About">
           <BlankUser bottomMessage={<></>} />
           <Highlight showMobile={true} />

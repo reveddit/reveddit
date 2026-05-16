@@ -71,8 +71,6 @@ export default defineConfig(({ mode }) => {
 
     define: {
       REDDIT_API_CLIENT_ID: JSON.stringify(env.REDDIT_API_CLIENT_ID),
-      LAMBDA_ENDPOINT: JSON.stringify(env.LAMBDA_ENDPOINT),
-      STRIPE_PUBLISHABLE_KEY: JSON.stringify(env.STRIPE_PUBLISHABLE_KEY),
       REVEDDIT_FLASK_HOST_SHORT: JSON.stringify(flask_host + short),
       REVEDDIT_FLASK_HOST_LONG: JSON.stringify(flask_host + long),
       U_MODLOGS_API: JSON.stringify(MODLOGS_API),

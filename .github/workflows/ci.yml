@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  install-audit:
+    runs-on: ubuntu-latest
+    env:
+      # Validate the lockfile against the registry (detects lockfile tampering).
+      YARN_ENABLE_HARDENED_MODE: "1"
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: '.nvmrc'
+
+      - run: corepack enable
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Audit dependencies
+        run: yarn npm audit --all --recursive
+        continue-on-error: true
+
+  socket-firewall:
+    # Install-time malware gate: blocks known-malicious packages before fetch.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: '.nvmrc'
+
+      - run: corepack enable
+
+      - name: Install Socket Firewall
+        run: npm install -g sfw
+
+      - name: Install dependencies through Socket Firewall
+        run: sfw yarn install --immutable
