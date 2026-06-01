@@ -84,7 +84,7 @@ const DELETED = '[deleted]'
 const REMOVED = '[removed]'
 
 const removeBackslash = str => {
-  return str.replace(/\\/g, '')
+  return (str || '').replace(/\\/g, '')
 }
 
 const removeBackslashEquals = (str, constant) => {

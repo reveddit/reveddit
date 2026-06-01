@@ -20,6 +20,9 @@ import PostActions from './PostActions'
 const max_selftext_length = 100
 
 const decodeHtml = html => {
+  if (html == null) {
+    return ''
+  }
   const txt = document.createElement('textarea')
   txt.innerHTML = html
   return txt.value || html

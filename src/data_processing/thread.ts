@@ -455,9 +455,12 @@ export const getRevdditThreadItems = async (
       combined_post.removed &&
       (combined_post.is_self || ps_exists_and_has_selftext)
     ) {
-      if (modlog) {
+      // publicmodlogs entries carry no body, so target_body can be undefined.
+      // Only override selftext from a source that actually has one, otherwise
+      // fall through (leaving e.g. reddit's '[removed]') instead of blanking it.
+      if (modlog && modlog.target_body != null) {
         combined_post.selftext = modlog.target_body
-      } else if (uModlogsPost) {
+      } else if (uModlogsPost && uModlogsPost.target_body != null) {
         combined_post.selftext = uModlogsPost.target_body
       } else if (ps_exists_and_has_selftext) {
         combined_post.selftext = ps_post.selftext
