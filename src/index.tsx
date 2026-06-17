@@ -26,13 +26,34 @@ import { old_reddit } from 'api/reddit'
 // Uses the .skeleton shimmer CSS already defined in common.sass.
 const PageSkeleton = () => (
   <div style={{ padding: '20px 24px' }}>
-    <div className="skeleton" style={{ width: '40%', height: 18, marginBottom: 16 }} />
-    <div className="skeleton" style={{ width: '100%', height: 14, marginBottom: 10 }} />
-    <div className="skeleton" style={{ width: '90%', height: 14, marginBottom: 10 }} />
-    <div className="skeleton" style={{ width: '95%', height: 14, marginBottom: 10 }} />
-    <div className="skeleton" style={{ width: '60%', height: 14, marginBottom: 24 }} />
-    <div className="skeleton" style={{ width: '70%', height: 14, marginBottom: 10 }} />
-    <div className="skeleton" style={{ width: '85%', height: 14, marginBottom: 10 }} />
+    <div
+      className="skeleton"
+      style={{ width: '40%', height: 18, marginBottom: 16 }}
+    />
+    <div
+      className="skeleton"
+      style={{ width: '100%', height: 14, marginBottom: 10 }}
+    />
+    <div
+      className="skeleton"
+      style={{ width: '90%', height: 14, marginBottom: 10 }}
+    />
+    <div
+      className="skeleton"
+      style={{ width: '95%', height: 14, marginBottom: 10 }}
+    />
+    <div
+      className="skeleton"
+      style={{ width: '60%', height: 14, marginBottom: 24 }}
+    />
+    <div
+      className="skeleton"
+      style={{ width: '70%', height: 14, marginBottom: 10 }}
+    />
+    <div
+      className="skeleton"
+      style={{ width: '85%', height: 14, marginBottom: 10 }}
+    />
   </div>
 )
 
@@ -64,6 +85,7 @@ const About = lazy(() => import('pages/about'))
 const About_faq = lazy(() => import('pages/about/faq'))
 const About_contact = lazy(() => import('pages/about/contact'))
 const About_donate = lazy(() => import('pages/about/donate'))
+const About_redditChange = lazy(() => import('pages/about/reddit-change'))
 const AddOns = lazy(() => import('pages/about/AddOns'))
 const Info = lazy(() => import('pages/info'))
 const SubredditPosts = lazy(() => import('pages/subreddit'))
@@ -143,10 +165,7 @@ const URLNormalizer = ({ children }) => {
     if (match) {
       if (match[2] === 'me') {
         window.location.replace(
-          old_reddit +
-            '/user/me' +
-            match[3] +
-            window.location.search
+          old_reddit + '/user/me' + match[3] + window.location.search
         )
         return null
       }
@@ -166,7 +185,9 @@ const profile_search = new RegExp('^' + PATH_STR_USER + '/')
 const profile_replace = PATH_STR_SUB + '/u_'
 
 const App = () => (
-  <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+  <BrowserRouter
+    future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+  >
     <URLNormalizer>
       <ErrorBoundary>
         <Suspense fallback={<PageSkeleton />}>
@@ -175,7 +196,10 @@ const App = () => (
             <Route
               path={PATH_STR_USER + '/:user/posts/*'}
               element={
-                <RouteRedirectWithParams search={/\/posts/} replace="/submitted" />
+                <RouteRedirectWithParams
+                  search={/\/posts/}
+                  replace="/submitted"
+                />
               }
             />
             <Route
@@ -198,7 +222,10 @@ const App = () => (
             <Route
               path="/api/info/*"
               element={
-                <RouteRedirectWithParams search={/\/api\/info/} replace="/info" />
+                <RouteRedirectWithParams
+                  search={/\/api\/info/}
+                  replace="/info"
+                />
               }
             />
             <Route
@@ -221,7 +248,9 @@ const App = () => (
             />
             <Route
               path="/"
-              element={<DefaultLayout component={About} title="About reveddit" />}
+              element={
+                <DefaultLayout component={About} title="About reveddit" />
+              }
             />
             <Route
               path="/about/faq/*"
@@ -242,6 +271,15 @@ const App = () => (
               path="/about/donate/*"
               element={
                 <DefaultLayout component={About_donate} title="Donate" />
+              }
+            />
+            <Route
+              path="/about/reddit-change/*"
+              element={
+                <DefaultLayout
+                  component={About_redditChange}
+                  title="A recent Reddit update breaks Reveddit"
+                />
               }
             />
             <Route
@@ -313,23 +351,15 @@ const App = () => (
                 PATH_STR_SUB +
                 '/:subreddit/comments/:threadID/:urlTitle/:commentID'
               }
-              element={
-                <DefaultLayout page_type="thread" component={Thread} />
-              }
+              element={<DefaultLayout page_type="thread" component={Thread} />}
             />
             <Route
-              path={
-                PATH_STR_SUB + '/:subreddit/comments/:threadID/:urlTitle'
-              }
-              element={
-                <DefaultLayout page_type="thread" component={Thread} />
-              }
+              path={PATH_STR_SUB + '/:subreddit/comments/:threadID/:urlTitle'}
+              element={<DefaultLayout page_type="thread" component={Thread} />}
             />
             <Route
               path={PATH_STR_SUB + '/:subreddit/comments/:threadID'}
-              element={
-                <DefaultLayout page_type="thread" component={Thread} />
-              }
+              element={<DefaultLayout page_type="thread" component={Thread} />}
             />
             <Route
               path={PATH_STR_SUB + '/:subreddit/comments/*'}
@@ -343,10 +373,7 @@ const App = () => (
             <Route
               path={PATH_STR_SUB + '/:subreddit/duplicates/:threadID'}
               element={
-                <DefaultLayout
-                  page_type="duplicate_posts"
-                  component={Info}
-                />
+                <DefaultLayout page_type="duplicate_posts" component={Info} />
               }
             />
             <Route

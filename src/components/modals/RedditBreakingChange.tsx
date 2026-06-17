@@ -1,6 +1,5 @@
 import React from 'react'
-import { NewWindowLink } from 'components/ui/Links'
-import { ExtensionLinks, redditChangePostUrl } from 'components/ui/Extensions'
+import { ExtensionLinks } from 'components/ui/Extensions'
 import { get } from 'utils'
 import { Link } from 'react-router-dom'
 
@@ -34,7 +33,7 @@ export const RedditBreakingChange = () => {
         </>
       )}
       <p style={{ textAlign: 'center', marginTop: '15px' }}>
-        <NewWindowLink href={redditChangePostUrl}>What changed?</NewWindowLink>
+        <Link to="/about/reddit-change">What changed?</Link>
       </p>
     </>
   )

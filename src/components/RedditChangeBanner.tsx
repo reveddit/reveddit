@@ -1,9 +1,5 @@
 import React from 'react'
-import { NewWindowLink } from 'components/ui/Links'
-import {
-  ExtensionLinks,
-  redditChangePostUrl,
-} from 'components/ui/Extensions'
+import { ExtensionLinks } from 'components/ui/Extensions'
 import { get, put } from 'utils'
 import { Link } from 'react-router-dom'
 
@@ -46,9 +42,9 @@ export const RedditChangeBanner = () => {
           )}
         </span>
         {!hasExtension && <ExtensionLinks />}
-        <NewWindowLink href={redditChangePostUrl} className="banner-link">
+        <Link to="/about/reddit-change" className="banner-link">
           What changed?
-        </NewWindowLink>
+        </Link>
       </div>
       <a className="banner-dismiss pointer" onClick={dismiss}>
         ✖&#xfe0e;
