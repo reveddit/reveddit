@@ -139,9 +139,10 @@ const About_redditChange = props => {
             <b>
               TL;DR: A Reddit update now lets mods delete comments from your
               profile (a power previously held by admins). You get no
-              notification. This breaks Reveddit's ability to easily track your
-              removed content. I'll keep looking for ways to surface hidden
-              removals.
+              notification. This breaks Reveddit.com's ability to easily track
+              your removed content, but the{' '}
+              <Link to="/add-ons/direct">browser extension</Link> still works.
+              I'll keep looking for ways to surface hidden removals.
             </b>
           </p>
         </ContentWithHeader>
