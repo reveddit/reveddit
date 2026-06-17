@@ -2,6 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { InternalPage } from 'components/Misc'
 import { NewWindowLink } from 'components/ui/Links'
+import Time from 'components/common/Time'
 import { ContentWithHeader, Row } from 'pages/about'
 
 const title =
@@ -19,7 +20,7 @@ const About_redditChange = props => {
               fontSize: '0.9em',
             }}
           >
-            September 13, 2025 at 7:52 PM EDT
+            <Time created_utc={1757807520} />
           </p>
           <p>
             Reddit recently changed how moderator removals work, and the change
