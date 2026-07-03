@@ -137,6 +137,24 @@ export default () => {
       {linkWrap('rager')}
       {linkWrap('q')}
       {linkWrap('ios_shortcut')}
+      <h2 className="about">GhostedWatch</h2>
+      <div style={{ margin: '0 5%' }}>
+        <p>
+          Detects silent removals on patriots.win, scored.co, and
+          communities.win. The same problem reveddit solves on Reddit — your
+          content gets removed and you're never told. GhostedWatch monitors your
+          posts and notifies you when it happens.
+        </p>
+        <p>
+          <a
+            href="https://ghostedwatch.com"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            ghostedwatch.com
+          </a>
+        </p>
+      </div>
     </InternalPage>
   )
 }

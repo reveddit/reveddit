@@ -148,6 +148,11 @@ const contact = '/about/contact/'
 const donate = '/about/donate/'
 const news = [
   {
+    href: 'https://ghostedwatch.com',
+    title: 'GhostedWatch — reveddit for patriots.win & scored.co',
+    created_utc: '1783049145',
+  },
+  {
     href: media.ofh.news_url,
     title: media.ofh.news_text,
     created_utc: '1704206700',
@@ -527,6 +532,9 @@ const About = ({ ...props }) => {
         <Link to={contact}>contact</Link>
         <Link to={contact + '#privacy'}>privacy</Link>
         <Link to={donate}>donate</Link>
+        <NewWindowLink href="https://ghostedwatch.com">
+          GhostedWatch
+        </NewWindowLink>
       </footer>
     </InternalPage>
   )
