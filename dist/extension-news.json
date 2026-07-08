@@ -1,1 +1,11 @@
-{"messages": []}
+{
+  "messages": [
+    {
+      "id": "ghostedwatch-launch",
+      "published_utc": 1783512000000,
+      "title": "New: GhostedWatch — reveddit for patriots.win & scored.co",
+      "body_markdown": "Know the moment your posts are silently removed on the .win sites — even the ones only you can still see. [Get it free →](https://ghostedwatch.com)",
+      "severity": "info"
+    }
+  ]
+}
