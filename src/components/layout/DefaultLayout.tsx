@@ -23,6 +23,8 @@ import { ModalProvider } from 'contexts/modal'
 import { PageTypeProvider } from 'contexts/page'
 import { SocialLinks } from 'components/Misc'
 import { RedditChangeBanner } from 'components/RedditChangeBanner'
+import StuckExtensionBanner from 'components/StuckExtensionBanner'
+import { useExtensionVersion, isStuckVersion } from 'hooks/useExtensionVersion'
 import { put } from 'utils'
 
 Modal.setAppElement('#app')
@@ -48,8 +50,6 @@ export const pageTypes = {
   subreddit_comments: 'subreddit_comments',
   missing_comments: 'missing_comments',
 }
-
-
 
 const getContentForHash = hash => {
   const action = hash.match(/^action_(.+)_help$/)
@@ -125,8 +125,6 @@ const setHashInURL = hash => {
   history.replaceState({ [hash]: true }, hash, url)
 }
 
-
-
 const existingHash = () => window.location.hash.replace('#', '')
 
 const DefaultLayout = props => {
@@ -147,6 +145,7 @@ const DefaultLayout = props => {
     hash: '',
   })
   const [pendingModals, setPendingModals] = useState([])
+  const extensionVersion = useExtensionVersion()
   useEffect(() => {
     const hash = existingHash()
     const content = getContentForHash(hash)
@@ -201,52 +200,52 @@ const DefaultLayout = props => {
 
   return (
     <PageTypeProvider value={page_type}>
-    <React.Fragment>
-      <RedditChangeBanner />
-      <Header
-        {...routeProps}
-        {...rest}
-        openGenericModal={openGenericModal}
-      />
-      <div className={'main page_' + page_type + ' ' + threadClass}>
-        <Modal
-          isOpen={genericModalIsOpen}
-          onRequestClose={closeGenericModal}
-          style={customStyles}
-        >
-          <div id="modalContainer">
-            <div id="genericModal" className={hash}>
-              <div className="dismiss">
-                <a className="pointer" onClick={closeGenericModal}>
-                  ✖&#xfe0e;
-                </a>
+      <React.Fragment>
+        {extensionVersion && isStuckVersion(extensionVersion) ? (
+          <StuckExtensionBanner version={extensionVersion} />
+        ) : (
+          <RedditChangeBanner />
+        )}
+        <Header {...routeProps} {...rest} openGenericModal={openGenericModal} />
+        <div className={'main page_' + page_type + ' ' + threadClass}>
+          <Modal
+            isOpen={genericModalIsOpen}
+            onRequestClose={closeGenericModal}
+            style={customStyles}
+          >
+            <div id="modalContainer">
+              <div id="genericModal" className={hash}>
+                <div className="dismiss">
+                  <a className="pointer" onClick={closeGenericModal}>
+                    ✖&#xfe0e;
+                  </a>
+                </div>
+                <ModalProvider
+                  value={{
+                    closeModal: closeGenericModal,
+                    openModal: openGenericModal,
+                  }}
+                >
+                  {hash ? getContentForHash(hash) : content}
+                </ModalProvider>
               </div>
-              <ModalProvider
-                value={{
-                  closeModal: closeGenericModal,
-                  openModal: openGenericModal,
-                }}
-              >
-                {hash ? getContentForHash(hash) : content}
-              </ModalProvider>
             </div>
-          </div>
-        </Modal>
-        <ModalProvider
-          value={{
-            openModal: openGenericModal,
-            closeModal: closeGenericModal,
-          }}
-        >
-          <Component
-            {...routeProps}
-            {...rest}
-            openGenericModal={openGenericModal}
-          />
-        </ModalProvider>
-        <SocialLinks />
-      </div>
-    </React.Fragment>
+          </Modal>
+          <ModalProvider
+            value={{
+              openModal: openGenericModal,
+              closeModal: closeGenericModal,
+            }}
+          >
+            <Component
+              {...routeProps}
+              {...rest}
+              openGenericModal={openGenericModal}
+            />
+          </ModalProvider>
+          <SocialLinks />
+        </div>
+      </React.Fragment>
     </PageTypeProvider>
   )
 }

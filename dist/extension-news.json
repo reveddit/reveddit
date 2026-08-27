@@ -1,6 +1,13 @@
 {
   "messages": [
     {
+      "id": "stuck-on-0-0-5-14",
+      "published_utc": 1787848984000,
+      "title": "Stuck on version 0.0.5.14?",
+      "body_markdown": "About 1 in 5 installs stopped updating in early August. Check yours at chrome://extensions: if it shows 0.0.5.14 or older, turn on Developer mode (top right) and press Update.\n\nStill stuck after that? Please tell us which browser you use at [www.reveddit.com/update-help](https://www.reveddit.com/update-help). Already on a newer version? Dismiss this.",
+      "severity": "warning"
+    },
+    {
       "id": "ghostedwatch-launch",
       "published_utc": 1783512000000,
       "title": "New: GhostedWatch — reveddit for patriots.win & scored.co",

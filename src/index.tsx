@@ -86,6 +86,7 @@ const About_faq = lazy(() => import('pages/about/faq'))
 const About_contact = lazy(() => import('pages/about/contact'))
 const About_donate = lazy(() => import('pages/about/donate'))
 const About_redditChange = lazy(() => import('pages/about/reddit-change'))
+const UpdateHelp = lazy(() => import('pages/about/update-help'))
 const AddOns = lazy(() => import('pages/about/AddOns'))
 const Info = lazy(() => import('pages/info'))
 const SubredditPosts = lazy(() => import('pages/subreddit'))
@@ -279,6 +280,15 @@ const App = () => (
                 <DefaultLayout
                   component={About_redditChange}
                   title="A recent Reddit update breaks Reveddit"
+                />
+              }
+            />
+            <Route
+              path="/update-help/*"
+              element={
+                <DefaultLayout
+                  component={UpdateHelp}
+                  title="Extension update help"
                 />
               }
             />
