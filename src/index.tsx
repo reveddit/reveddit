@@ -68,7 +68,15 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
       .then(() => {
         // Reload once when a new service worker takes control so users
         // get updated code on a single refresh instead of closing all tabs.
+        // Skip the first controllerchange on uncontrolled pages: that's
+        // clientsClaim() claiming a first visit, whose content just came from
+        // the network, not an update.
+        let hadController = Boolean(navigator.serviceWorker.controller)
         navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (!hadController) {
+            hadController = true
+            return
+          }
           window.location.reload()
         })
       })
