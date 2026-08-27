@@ -12,9 +12,6 @@ const About_privacy = props => {
         <ContentWithHeader header="Feedback" half={true}>
           <ul>
             <li>
-              <NewWindowLink reddit="/r/reveddit/">/r/reveddit</NewWindowLink>
-            </li>
-            <li>
               <NewWindowLink href="https://github.com/reveddit/reveddit">
                 github.com/reveddit/reveddit
               </NewWindowLink>

@@ -53,8 +53,7 @@ const UpdateHelp = props => {
       </ContentWithHeader>
       <ContentWithHeader header="If it did not update, please tell us">
         <p>
-          Report on{' '}
-          <NewWindowLink reddit="/r/reveddit/">/r/reveddit</NewWindowLink> or{' '}
+          Report by opening an issue on{' '}
           <NewWindowLink href="https://github.com/reveddit/real-time-extension/issues">
             GitHub
           </NewWindowLink>

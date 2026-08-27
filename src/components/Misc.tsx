@@ -69,8 +69,11 @@ export const SocialLinks = () => {
   return (
     <div style={{ textAlign: 'center', marginTop: '10px' }}>
       <TwitterWhite wh="20" style={{ marginRight: '25px' }} />
-      <NewWindowLink style={{ marginRight: '25px' }} reddit="/r/reveddit">
-        r/reveddit
+      <NewWindowLink
+        style={{ marginRight: '25px' }}
+        href="https://github.com/reveddit/reveddit"
+      >
+        GitHub
       </NewWindowLink>
       <NewWindowLink href="https://removed.substack.com">
         removed.substack.com
@@ -82,8 +85,7 @@ export const SocialLinks = () => {
 const submitUsername = e => {
   e.preventDefault()
   const data = new FormData(e.target)
-  const username = (data
-    .get('username') as string)
+  const username = (data.get('username') as string)
     .trim()
     .replace(/^u(?:ser)?\//i, '')
   if (username) {
