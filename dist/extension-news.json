@@ -5,7 +5,8 @@
       "published_utc": 1787848984000,
       "title": "Stuck on version 0.0.5.14?",
       "body_markdown": "About 1 in 5 installs stopped updating in early August. Check yours at chrome://extensions: if it shows 0.0.5.14 or older, turn on Developer mode (top right) and press Update.\n\nStill stuck after that? Please tell us which browser you use at [www.reveddit.com/update-help](https://www.reveddit.com/update-help). Already on a newer version? Dismiss this.",
-      "severity": "warning"
+      "severity": "warning",
+      "max_version": "0.0.5.14"
     },
     {
       "id": "ghostedwatch-launch",
@@ -14,5 +15,7 @@
       "body_markdown": "Know the moment your posts are silently removed on the .win sites — even the ones only you can still see. [Get it free →](https://ghostedwatch.com)",
       "severity": "info"
     }
-  ]
+  ],
+  "latest_version": "0.0.5.20",
+  "latest_version_published_utc": 1787955148614
 }
