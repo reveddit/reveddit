@@ -384,7 +384,15 @@ export const queryUserPage = async ({
       // failure (about.json succeeds) to keep the shadowban-check flow working
       const about = await getUserAbout(user).catch(() => null)
       if (!about) {
-        return { ...EmptyUserPageResult, error: 404, message: 'Not Found' }
+        // control request: only report account-gone when reddit is otherwise
+        // reachable, else a rate-limited IP (e.g. CGNAT/cellular) would
+        // misreport every account as possibly shadowbanned
+        const controlOk = await getItems({ ids: ['t3_1a2b3c'] })
+          .then(r => Object.keys(r).length > 0)
+          .catch(() => false)
+        if (controlOk) {
+          return { ...EmptyUserPageResult, error: 404, message: 'Not Found' }
+        }
       }
     }
     return e
