@@ -27,3 +27,7 @@ lambda/
 !.yarn/sdks
 !.yarn/versions
 .pnp.*
+
+# scripts/sync-store-version.py run lock
+.sync-store-version.lock
+scripts/__pycache__/
