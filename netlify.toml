@@ -15,22 +15,9 @@
 [[headers]]
   for = "/*"
   [headers.values]
-    Content-Security-Policy = '''
-      default-src 'self';
-      script-src 'self' 'unsafe-inline' https://www.reddit.com https://www.google-analytics.com https://ssl.google-analytics.com https://www.googletagmanager.com/gtag/js *.cloudflareinsights.com https://challenges.cloudflare.com;
-      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-      object-src 'none';
-      base-uri 'self';
-      connect-src 'self' https://api.pushshift.io https://elastic.pushshift.io https://oauth.reddit.com https://ored.reveddit.com https://cred2.reveddit.com https://api.reveddit.com https://www.reddit.com https://removeddit.com https://www.google-analytics.com https://region1.google-analytics.com https://region1.analytics.google.com cloudflareinsights.com https://challenges.cloudflare.com;
-      font-src 'self' https://fonts.gstatic.com;
-      frame-src 'self' https://www.youtube-nocookie.com/ https://challenges.cloudflare.com;
-      img-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://region1.analytics.google.com https://pbs.twimg.com data: https:;
-      manifest-src 'self';
-      media-src 'self';
-      worker-src 'self';
-    '''
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.reddit.com https://www.google-analytics.com https://ssl.google-analytics.com https://www.googletagmanager.com/gtag/js *.cloudflareinsights.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; object-src 'none'; base-uri 'self'; connect-src 'self' https://api.pushshift.io https://elastic.pushshift.io https://oauth.reddit.com https://ored.reveddit.com https://cred2.reveddit.com https://api.reveddit.com https://www.reddit.com https://removeddit.com https://www.google-analytics.com https://region1.google-analytics.com https://region1.analytics.google.com cloudflareinsights.com https://challenges.cloudflare.com; font-src 'self' https://fonts.gstatic.com; frame-src 'self' https://www.youtube-nocookie.com/ https://challenges.cloudflare.com; img-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://region1.analytics.google.com https://pbs.twimg.com data: https:; manifest-src 'self'; media-src 'self'; worker-src 'self';"
     X-Content-Type-Options = "nosniff"
-    X-Reveddit-Headers-Rev = "jsonp-1"
+    X-Reveddit-Headers-Rev = "jsonp-2"
     X-Frame-Options = "DENY"
     X-XSS-Protection = "1; mode=block"
 
@@ -50,42 +37,27 @@
   for = "/images/*"
 
   [headers.values]
-    cache-control = '''
-    public,
-    max-age=31536000'''
+    cache-control = "public, max-age=31536000"
 
 [[headers]]
   for = "/*.js"
 
   [headers.values]
-    cache-control = '''
-    public,
-    max-age=31536000'''
+    cache-control = "public, max-age=31536000"
 
 [[headers]]
   for = "/*.css"
 
   [headers.values]
-    cache-control = '''
-    public,
-    max-age=31536000'''
+    cache-control = "public, max-age=31536000"
 
 [[headers]]
   for = "/service-worker.js"
   [headers.values]
-    cache-control = '''
-    max-age=0,
-    no-cache,
-    no-store,
-    must-revalidate
-    '''
+    cache-control = "max-age=0, no-cache, no-store, must-revalidate"
 
 [[headers]]
   for = "/extension-news.json"
   [headers.values]
-    cache-control = '''
-    public,
-    max-age=600,
-    must-revalidate
-    '''
+    cache-control = "public, max-age=600, must-revalidate"
     Access-Control-Allow-Origin = "*"
