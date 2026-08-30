@@ -1,4 +1,5 @@
 import { getCustomClientID } from 'utils'
+import { bridgeFetch } from './bridge'
 
 // In 2026 Reddit deleted Reveddit's registered API apps (token requests 401
 // for every client_id), and no reddit host serves CORS headers on content
@@ -148,10 +149,17 @@ const jsonpResponse = (data: any) => ({
   headers: { get: (_name: string) => null },
 })
 
+// Endpoints reddit's JSONP support cannot serve (script error every time);
+// only the extension bridge can. Everything else tries JSONP first so page
+// traffic spends the page's own budget, not the extension's monitoring budget.
+const BRIDGE_ONLY_PATHS =
+  /\/(api\/(user_data_by_account_ids|username_available|morechildren)|moderated_subreddits|about\/(log|spam))\.json$/
+
 // Drop-in replacement for window.fetch on reddit URLs. With a user-supplied
 // API key (Settings), oauth.reddit.com requests keep using real fetch, which
 // still has healthy CORS; only the token mint died. Everything else
-// reddit-bound goes over JSONP. Non-reddit URLs pass through.
+// reddit-bound goes over JSONP, with the extension bridge (bridge.ts) for
+// what JSONP cannot serve and as fallback. Non-reddit URLs pass through.
 export const redditFetch = (url: string, init: any = {}): Promise<any> => {
   const is_oauth = url.startsWith(oauth_reddit)
   const is_www = url.startsWith(www_reddit_slash)
@@ -161,5 +169,13 @@ export const redditFetch = (url: string, init: any = {}): Promise<any> => {
   if (is_oauth && getCustomClientID()) {
     return window.fetch(url, init)
   }
-  return jsonpFetch(toWwwJsonUrl(url)).then(jsonpResponse)
+  const wwwUrl = toWwwJsonUrl(url)
+  if (BRIDGE_ONLY_PATHS.test(new URL(wwwUrl).pathname)) {
+    return bridgeFetch(wwwUrl).catch(() =>
+      jsonpFetch(wwwUrl).then(jsonpResponse)
+    )
+  }
+  return jsonpFetch(wwwUrl)
+    .then(jsonpResponse)
+    .catch(e => bridgeFetch(wwwUrl).catch(() => Promise.reject(e)))
 }
