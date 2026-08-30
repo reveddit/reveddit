@@ -109,7 +109,37 @@ const ensureFrame = () => {
   document.body.appendChild(iframe)
 }
 
-export const jsonpFetch = (url: string): Promise<any> =>
+// Pacing: reddit rate-flags a browser session (its loid cookie, partitioned
+// per top-level site) after enough volume, and page loads otherwise fire
+// bursts with nothing throttling the non-api/info calls. One gate here covers
+// every jsonp request.
+const MAX_CONCURRENT = 5
+const SPACING_MS = 150
+let active = 0
+const waiting: (() => void)[] = []
+const acquire = (): Promise<void> =>
+  new Promise(resolve => {
+    if (active < MAX_CONCURRENT) {
+      active++
+      resolve()
+    } else {
+      waiting.push(() => {
+        active++
+        resolve()
+      })
+    }
+  })
+const release = () => {
+  setTimeout(() => {
+    active--
+    const next = waiting.shift()
+    if (next) {
+      next()
+    }
+  }, SPACING_MS)
+}
+
+const jsonpFetch_nolimit = (url: string): Promise<any> =>
   new Promise((resolve, reject) => {
     ensureFrame()
     const id = nextID++
@@ -126,6 +156,15 @@ export const jsonpFetch = (url: string): Promise<any> =>
       preReadyQueue.push(msg)
     }
   })
+
+export const jsonpFetch = async (url: string): Promise<any> => {
+  await acquire()
+  try {
+    return await jsonpFetch_nolimit(url)
+  } finally {
+    release()
+  }
+}
 
 // oauth.reddit.com paths omit the .json suffix that www requires
 const toWwwJsonUrl = (url: string) => {
