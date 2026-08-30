@@ -6,6 +6,7 @@ import {
   getCustomClientID,
 } from 'utils'
 import { getAuth } from './auth'
+import { redditFetch } from './jsonp'
 import {
   mapRedditObj,
   subredditHasModlogs,
@@ -94,7 +95,7 @@ export const getSubredditAbout = (subreddit, useProxy = false) => {
   const host = getHost(useProxy)
   const url = host + `r/${subreddit}/about/.json`
   return getAuth()
-    .then(auth => window.fetch(url, auth))
+    .then(auth => redditFetch(url, auth))
     .then(response => response.json())
     .catch(_error => {
       return {}
@@ -301,6 +302,13 @@ export const queryUserPageCombined = async params => {
 const notProxy_host = www_reddit_slash
 
 const getHost = (useProxy = false) => {
+  // Reddit deleted Reveddit's API apps in 2026: no token for oauth.reddit.com,
+  // and reddit network-policy-blocks the cred2 worker's egress. All requests
+  // go to www.reddit.com over JSONP (jsonp.ts) unless the user supplied an
+  // API key in Settings.
+  if (!getCustomClientID()) {
+    return www_reddit_slash
+  }
   if (useProxy) {
     if (can_use_oauth_reddit_rev) {
       return OAUTH_REDDIT_REV
@@ -369,6 +377,15 @@ export const queryUserPage = async ({
     if (host !== notProxy_host && e.message !== 'Forbidden') {
       can_use_oauth_reddit_rev = false
       return queryUserPageCombined({ user, kind, ...params }) // host will be notProxy_host for this query
+    }
+    if (!getCustomClientID()) {
+      // JSONP hides the HTTP status, so distinguish "account gone" (about.json
+      // also fails: nonexistent, suspended, or shadowbanned) from a transient
+      // failure (about.json succeeds) to keep the shadowban-check flow working
+      const about = await getUserAbout(user).catch(() => null)
+      if (!about) {
+        return { ...EmptyUserPageResult, error: 404, message: 'Not Found' }
+      }
     }
     return e
   }
@@ -440,10 +457,13 @@ export const usernameAvailable = user => {
   const params = { user: user, raw_json: 1 }
   const url =
     oauth_reddit + 'api/username_available' + '?' + paramString(params)
-  return getAuth()
-    .then(auth => window.fetch(url, auth))
-    .then(response => response.json())
-    .catch(errorHandler)
+  return (
+    getAuth()
+      .then(auth => redditFetch(url, auth))
+      .then(response => response.json())
+      // not JSONP-able; null = indeterminate (vs. true/false from the API)
+      .catch(() => null)
+  )
 }
 
 const queryByID = async (
@@ -467,7 +487,12 @@ const queryByID = async (
   return redditLimiter
     .schedule(() => queryForHost(host))
     .catch(e => {
-      if (host !== oauth_reddit && e.message !== 'Forbidden') {
+      // the oauth retry can only succeed when a user API key can mint a token
+      if (
+        host !== oauth_reddit &&
+        e.message !== 'Forbidden' &&
+        getCustomClientID()
+      ) {
         can_use_oauth_reddit_rev = false
         return queryForHost(oauth_reddit).catch(errorHandler)
       }
@@ -478,6 +503,11 @@ const queryByID = async (
 const getNumberFromHeader = (response, header) =>
   Number(response?.headers?.get(header))
 export const fetchRatelimitHeaders = async () => {
+  // JSONP responses expose no headers; without a user API key, report a fixed
+  // budget so redditLimiter's depleted handler just waits for its refresh
+  if (!getCustomClientID()) {
+    return { reset: 600, used: 0, remaining: 100 }
+  }
   const auth = await getAuth()
   const response = await fetch(oauth_reddit, auth)
   const reset = getNumberFromHeader(response, 'X-Ratelimit-Reset')
@@ -494,7 +524,7 @@ const fetchJsonAndValidate = async (url, init: any = {}) => {
   if (getCustomClientID() || url.startsWith(www_reddit_slash)) {
     init.cache = 'reload'
   }
-  const response = await window.fetch(url, init)
+  const response = await redditFetch(url, init)
   let json
   try {
     json = await response.json()
@@ -553,8 +583,7 @@ export const querySubredditPage = async ({
   addQuarantineParam(host, params)
   const url = host + `r/${subreddit}/${sort}.json` + '?' + paramString(params)
   const auth = await getAuth(host)
-  return window
-    .fetch(url, auth)
+  return redditFetch(url, auth)
     .then(response => response.json())
     .then(results => {
       if (results.data) {
@@ -565,7 +594,8 @@ export const querySubredditPage = async ({
         }
       } else if (
         results.reason === 'quarantined' &&
-        host !== OAUTH_REDDIT_REV
+        host !== OAUTH_REDDIT_REV &&
+        getHost(true) !== host
       ) {
         return querySubredditPage({ subreddit, sort, after, t, useProxy: true })
       }
@@ -585,7 +615,7 @@ export const querySearch = ({ selftexts = [], urls = [] }) => {
   }
   const url = oauth_reddit + 'search/.json' + '?' + paramString(params)
   return getAuth()
-    .then(auth => window.fetch(url, auth))
+    .then(auth => redditFetch(url, auth))
     .then(response => response.json())
     .then(json =>
       json.data.children.reduce((map, obj) => mapRedditObj(map, obj, 'id'), {})
@@ -636,13 +666,16 @@ export const selectRandomCommenter = async (
     '?' +
     paramString(params)
   const auth = await getAuth(host)
-  return window
-    .fetch(url, auth)
+  return redditFetch(url, auth)
     .then(response => response.json())
     .then(result => result[1].data.children)
     .then(traverseComments_collectAuthors)
-    .then(authors => getAuthorInfo(Object.keys(authors)))
-    .then(async authorInfo => {
+    .then(async authors => {
+      // user_data_by_account_ids is not JSONP-able; on failure fall back to
+      // the author names already collected from the thread
+      const authorInfo = await getAuthorInfo(Object.keys(authors)).catch(
+        () => ({})
+      )
       const mods = await Promise.resolve(mods_promise)
       const authorsWithoutMods = (Object.values(authorInfo) as any[]).filter(
         x => !mods[x.name]
@@ -654,6 +687,12 @@ export const selectRandomCommenter = async (
         authors_with_most_comment_karma = authorsWithoutMods
           .sort((a: any, b: any) => b.comment_karma - a.comment_karma)
           .slice(0, NUM_AUTHORS_WHEN_COMMENT_KARMA_IS_LOW)
+      }
+      if (!authors_with_most_comment_karma.length) {
+        const names = (Object.values(authors) as string[]).filter(
+          name => !mods[name]
+        )
+        return names[getRandomInt(names.length)]
       }
       const author =
         authors_with_most_comment_karma[
@@ -686,7 +725,7 @@ export const getAuthorInfo = (ids, results = {}) => {
     oauth_reddit + `api/user_data_by_account_ids.json?ids=${ids.join(',')}`
 
   return getAuth()
-    .then(auth => window.fetch(url, auth))
+    .then(auth => redditFetch(url, auth))
     .then(result => result.json())
     .then(data => {
       Object.assign(results, data)
@@ -696,21 +735,25 @@ export const getAuthorInfo = (ids, results = {}) => {
 
 export const getAuthorInfoByName = ids => {
   const results: Record<string, any> = {}
-  return groupRequests(getAuthorInfo, ids, [results], 200)
-    .then(() => {
-      const authors: Record<string, any> = {}
-      if (!('error' in results) || !('message' in results)) {
-        ;(Object.values(results) as any[]).forEach(obj => {
-          obj.combined_karma = obj.link_karma + obj.comment_karma
-          authors[obj.name] = obj
-        })
-      }
-      return {
-        authors,
-        author_fullnames: results,
-      }
-    })
-    .catch(errorHandler)
+  return (
+    groupRequests(getAuthorInfo, ids, [results], 200)
+      .then(() => {
+        const authors: Record<string, any> = {}
+        if (!('error' in results) || !('message' in results)) {
+          ;(Object.values(results) as any[]).forEach(obj => {
+            obj.combined_karma = obj.link_karma + obj.comment_karma
+            authors[obj.name] = obj
+          })
+        }
+        return {
+          authors,
+          author_fullnames: results,
+        }
+      })
+      // author meta comes from user_data_by_account_ids, which is not
+      // JSONP-able; pages render without karma/admin info rather than failing
+      .catch(() => ({ authors: {}, author_fullnames: {} }))
+  )
 }
 
 const getModlogsItems = async ({
@@ -822,8 +865,7 @@ export const getSticky = async (subreddit, num) => {
 }
 
 export const getJson = (url, options, valueOnError = {}) => {
-  return window
-    .fetch(url, options)
+  return redditFetch(url, options)
     .then(response => response.json())
     .catch(_error => {
       return valueOnError

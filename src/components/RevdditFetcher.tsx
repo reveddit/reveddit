@@ -20,9 +20,7 @@ import {
 import { getSortFn } from 'data_processing/sort'
 import Selections from 'components/filters'
 import SummaryAndPagination from 'components/common/SummaryAndPagination'
-import {
-  showAccountInfo_global,
-} from 'components/modals/Settings'
+import { showAccountInfo_global } from 'components/modals/Settings'
 import { newUserModal } from 'components/modals/Misc'
 
 import {
@@ -55,6 +53,7 @@ import { RedditOrLocalLink } from 'components/ui/Links'
 import BlankUser from 'components/BlankUser'
 import Highlight from 'components/common/Highlight'
 import { SocialLinks, UserNameEntry } from 'components/Misc'
+import { ExtensionLink } from 'components/ui/Extensions'
 import { useTurnstile } from 'hooks/useTurnstile'
 
 const TURNSTILE_PAGE_TYPES = ['aggregations', 'thread']
@@ -97,9 +96,21 @@ export const handleRedditError = (error, connectedProps) => {
         <>
           <p>Unable to connect to Reddit.</p>
           <p>
-            Check for conflicting extensions or privacy settings (see:{' '}
+            Reddit restricts websites' access to its data, and the public access
+            Reveddit relies on can change without notice (see:{' '}
             {whatHappenedLink})
           </p>
+          {get('hasNotifierExtension', false) ? (
+            <p>
+              The Reveddit extension you have installed is unaffected and
+              continues to track removed content.
+            </p>
+          ) : (
+            <p>
+              <ExtensionLink /> is unaffected and tracks removed content in real
+              time.
+            </p>
+          )}
         </>
       )
     }
@@ -464,6 +475,7 @@ export const withFetch = WrappedComponent => {
             return global.setSuccess()
           }
           return getAuth()
+            .catch(() => ({}))
             .then(() => {
               const {
                 context,
@@ -494,114 +506,124 @@ export const withFetch = WrappedComponent => {
                 ? getToken().catch(() => undefined)
                 : Promise.resolve(undefined)
               turnstilePromise.then(turnstile_token => {
-              loadDataFunction(...params, global, archive_times_promise, turnstile_token)
-                .then(async ([success, stateObj]) => {
-                  const lookupAccountMeta =
-                    (showAccountInfo_global ||
-                      global.accountFilterOrSortIsSet()) &&
-                    (stateObj.items?.length || global.getState().items?.length)
-                  const successFn = (
-                    success ? global.setSuccess : global.setError
-                  ).bind(global)
-                  const setStateFn = lookupAccountMeta
-                    ? global.setState.bind(global)
-                    : successFn
-                  await setStateFn(stateObj)
-                  const {
-                    commentTree,
-                    items,
-                    threadPost,
-                    initialFocusCommentID,
-                    moderators,
-                  } = global.getState()
-                  if (
-                    items.length === 0 &&
-                    ['subreddit_posts', 'subreddit_comments'].includes(
-                      page_type
-                    )
-                  ) {
-                    throw 'no results'
-                  }
-                  const focusComment = global.getState().itemsLookup[commentID]
-                  if ((commentID && focusComment) || commentTree.length === 1) {
-                    document
-                      .querySelectorAll(
-                        '.threadComments .collapseToggle.hidden'
-                      )
-                      .forEach(toggle => {
-                        const comment = toggle.closest('.comment')
-                        if (
-                          comment &&
-                          (commentTree.length === 1 ||
-                            comment.id.substr(3) in focusComment.ancestors)
-                        ) {
-                          ;(toggle as HTMLElement).click()
-                        }
-                      })
-                  }
-                  if (window.scrollY === 0) {
-                    let hash = window.location.hash
-                    if (!hash && initialFocusCommentID) {
-                      hash = '#t1_' + initialFocusCommentID
-                    }
-                    jumpToHash(hash)
-                  }
-                  if ((lookupAccountMeta || threadPost) && items.length) {
-                    const authorIDs = new Set()
-                    const authorNames = new Set()
-                    const adminAuthors = new Set()
-                    let itemsAndPost = items
+                loadDataFunction(
+                  ...params,
+                  global,
+                  archive_times_promise,
+                  turnstile_token
+                )
+                  .then(async ([success, stateObj]) => {
+                    const lookupAccountMeta =
+                      (showAccountInfo_global ||
+                        global.accountFilterOrSortIsSet()) &&
+                      (stateObj.items?.length ||
+                        global.getState().items?.length)
+                    const successFn = (
+                      success ? global.setSuccess : global.setError
+                    ).bind(global)
+                    const setStateFn = lookupAccountMeta
+                      ? global.setState.bind(global)
+                      : successFn
+                    await setStateFn(stateObj)
+                    const {
+                      commentTree,
+                      items,
+                      threadPost,
+                      initialFocusCommentID,
+                      moderators,
+                    } = global.getState()
                     if (
-                      threadPost &&
-                      (threadPost.author || threadPost.author_fullname)
+                      items.length === 0 &&
+                      ['subreddit_posts', 'subreddit_comments'].includes(
+                        page_type
+                      )
                     ) {
-                      itemsAndPost = items.concat(threadPost as any)
+                      throw 'no results'
                     }
-                    for (const item of itemsAndPost) {
-                      if (item.author_fullname) {
-                        authorIDs.add(item.author_fullname)
-                      }
-                      if (item.author) {
-                        authorNames.add(item.author)
-                        if (item.distinguished === 'admin') {
-                          adminAuthors.add(item.author)
-                        } else if (item.distinguished === 'moderator') {
-                          const subreddit_lc = item.subreddit.toLowerCase()
-                          if (!moderators[subreddit_lc]) {
-                            moderators[subreddit_lc] = {}
+                    const focusComment =
+                      global.getState().itemsLookup[commentID]
+                    if (
+                      (commentID && focusComment) ||
+                      commentTree.length === 1
+                    ) {
+                      document
+                        .querySelectorAll(
+                          '.threadComments .collapseToggle.hidden'
+                        )
+                        .forEach(toggle => {
+                          const comment = toggle.closest('.comment')
+                          if (
+                            comment &&
+                            (commentTree.length === 1 ||
+                              comment.id.substr(3) in focusComment.ancestors)
+                          ) {
+                            ;(toggle as HTMLElement).click()
                           }
-                          moderators[subreddit_lc][item.author] = true
+                        })
+                    }
+                    if (window.scrollY === 0) {
+                      let hash = window.location.hash
+                      if (!hash && initialFocusCommentID) {
+                        hash = '#t1_' + initialFocusCommentID
+                      }
+                      jumpToHash(hash)
+                    }
+                    if ((lookupAccountMeta || threadPost) && items.length) {
+                      const authorIDs = new Set()
+                      const authorNames = new Set()
+                      const adminAuthors = new Set()
+                      let itemsAndPost = items
+                      if (
+                        threadPost &&
+                        (threadPost.author || threadPost.author_fullname)
+                      ) {
+                        itemsAndPost = items.concat(threadPost as any)
+                      }
+                      for (const item of itemsAndPost) {
+                        if (item.author_fullname) {
+                          authorIDs.add(item.author_fullname)
+                        }
+                        if (item.author) {
+                          authorNames.add(item.author)
+                          if (item.distinguished === 'admin') {
+                            adminAuthors.add(item.author)
+                          } else if (item.distinguished === 'moderator') {
+                            const subreddit_lc = item.subreddit.toLowerCase()
+                            if (!moderators[subreddit_lc]) {
+                              moderators[subreddit_lc] = {}
+                            }
+                            moderators[subreddit_lc][item.author] = true
+                          }
                         }
                       }
-                    }
-                    const setIsAdmin = (authors: Record<string, any>) => {
-                      for (const a of adminAuthors) {
-                        if ((a as string) in authors) {
-                          authors[a as string].is_admin = true
+                      const setIsAdmin = (authors: Record<string, any>) => {
+                        for (const a of adminAuthors) {
+                          if ((a as string) in authors) {
+                            authors[a as string].is_admin = true
+                          }
                         }
                       }
+                      if (lookupAccountMeta) {
+                        getAuthorInfoByName(Array.from(authorIDs)).then(
+                          ({ authors, author_fullnames }) => {
+                            setIsAdmin(authors)
+                            successFn({ authors, author_fullnames, moderators })
+                          }
+                        )
+                      } else {
+                        const authors = Array.from(authorNames).reduce(
+                          (map: Record<string, any>, val: any) => (
+                            (map[val] = {}),
+                            map
+                          ),
+                          {} as Record<string, any>
+                        )
+                        setIsAdmin(authors)
+                        global.setState({ authors, moderators })
+                      }
                     }
-                    if (lookupAccountMeta) {
-                      getAuthorInfoByName(Array.from(authorIDs)).then(
-                        ({ authors, author_fullnames }) => {
-                          setIsAdmin(authors)
-                          successFn({ authors, author_fullnames, moderators })
-                        }
-                      )
-                    } else {
-                      const authors = Array.from(authorNames).reduce(
-                        (map: Record<string, any>, val: any) => (
-                          (map[val] = {}),
-                          map
-                        ),
-                        {} as Record<string, any>
-                      )
-                      setIsAdmin(authors)
-                      global.setState({ authors, moderators })
-                    }
-                  }
-                })
-                .catch(error => handleError(error, { ...props, global }))
+                  })
+                  .catch(error => handleError(error, { ...props, global }))
               })
             })
             .catch(e => handleRedditError(e, { ...props, global }))
@@ -662,7 +684,7 @@ const handleError = (error, props) => {
       content = (
         <>
           <BlankUser
-            message="During an outage, user pages still work:"
+            message="Look up removals on a user page:"
             placeholder="username"
             bottomMessage={
               <>

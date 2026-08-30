@@ -25,7 +25,8 @@ export const RedditChangeBanner = () => {
       <div className="banner-content">
         <span className="banner-icon">⚠️</span>
         <span className="banner-text">
-          Reddit changed how removals work, which breaks Reveddit's website.
+          Reddit restricts websites' access to its data, which limits Reveddit's
+          website and may break it without notice.
           {hasExtension ? (
             <>
               {' '}
@@ -38,7 +39,7 @@ export const RedditChangeBanner = () => {
               , which you have installed, continues to work.
             </>
           ) : (
-            <> Install the extension to track removed content:</>
+            <> Install the extension for reliable tracking and alerts:</>
           )}
         </span>
         {!hasExtension && <ExtensionLinks />}

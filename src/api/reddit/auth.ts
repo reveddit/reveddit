@@ -39,11 +39,18 @@ const getToken = async () => {
       expires = Date.now() / 1000 + response.expires_in - 1
       return token
     })
+    .catch(() => null)
 }
 
 // Get header for general api calls
 export const getAuth = async (host?: string) => {
   if (host === www_reddit_slash) {
+    return {}
+  }
+  // Reddit deleted Reveddit's registered apps in 2026, so there is no token to
+  // mint. Requests go unauthenticated over the JSONP transport (see jsonp.ts)
+  // unless the user supplied their own API key in Settings.
+  if (!getCustomClientID()) {
     return {}
   }
   const token = await getToken()

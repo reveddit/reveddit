@@ -1,5 +1,6 @@
 import Bottleneck from 'bottleneck'
 import { get, put, getNow, paramString } from 'utils'
+import { redditFetch } from 'api/reddit/jsonp'
 
 declare const REVEDDIT_FLASK_HOST_SHORT: string
 
@@ -24,8 +25,7 @@ export const fetchWithCache = async (url, options, age) => {
   const now = getNow()
   // only fetch data if it's older than age seconds
   if (!url_cache?.updated || now - url_cache.updated > age) {
-    url_cache.data = await window
-      .fetch(url, options)
+    url_cache.data = await redditFetch(url, options)
       .then(response => {
         if (!response.ok) {
           // return stale data (or undefined) if fetch fails

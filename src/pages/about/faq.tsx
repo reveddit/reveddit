@@ -647,6 +647,12 @@ const About_faq = props => {
           </p>
           <ul>
             <li>
+              Reddit blocks most website access to its data. Since 2026,
+              Reveddit's website relies on a limited public fallback that Reddit
+              may cut off at any time. The <ExtensionLink /> is not affected by
+              this.
+            </li>
+            <li>
               conflicting extensions, or strict browser privacy settings that
               block connections (see{' '}
               <SamePageHashLink id="firefox">FAQ: trackers</SamePageHashLink>)
