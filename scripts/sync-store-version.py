@@ -37,6 +37,22 @@ import urllib.request
 CHROME_ID = 'ickfhlplfbipnfahjbeongebnmojbnhm'
 EDGE_CRX_ID = 'cchkadjmggcjoldlfmccdindjgadjgbj'
 AMO_SLUG = 'reveddit-real-time'
+# Identity assertions. A store id that is changed or mistyped can resolve to
+# SOMEONE ELSE'S extension and answer 200 with their version, which would push
+# a wrong latest_version to every user. Echoing the requested id back proves
+# nothing (these endpoints always do), so each store is checked against
+# something it reports independently of the id we sent:
+#   edge     - product name
+#   firefox  - guid (we query by slug, so guid is a separate identifier)
+#   chrome   - the update manifest exposes no name; an unknown id answers
+#              status="error-unknownApplication", and the family guard below
+#              catches an id that lands on a real but foreign extension.
+AMO_GUID = 'real-time-stable@reveddit.com'
+EXPECTED_NAME_SUBSTRING = 'reveddit'
+# A foreign extension's version looks nothing like ours (uBlock Origin Lite
+# answers 2026.825.1619). Refuse a jump of more than one major version; a
+# deliberate 0.x -> 1.0 release still passes.
+MAX_MAJOR_JUMP = 1
 
 NEWS_PATH = 'dist/extension-news.json'
 UA = 'reveddit-store-version-check (+https://www.reveddit.com)'
@@ -87,6 +103,9 @@ def get_chrome():
     xml = fetch(url, 'application/xml')
     if 'status="ok"' not in xml:
         raise RuntimeError(f'chrome: no ok status in manifest: {xml[:200]}')
+    appid = re.search(r'<app[^>]*\bappid="([^"]+)"', xml)
+    if not appid or appid.group(1) != CHROME_ID:
+        raise RuntimeError(f'chrome: manifest describes {appid and appid.group(1)!r}, expected {CHROME_ID!r}')
     m = re.search(r'<updatecheck[^>]*\bversion="([0-9.]+)"', xml)
     if not m:
         raise RuntimeError(f'chrome: no version in manifest: {xml[:200]}')
@@ -96,12 +115,21 @@ def get_chrome():
 def get_edge():
     url = f'https://microsoftedge.microsoft.com/addons/getproductdetailsbycrxid/{EDGE_CRX_ID}'
     data = json.loads(fetch(url, 'application/json'))
+    got = data.get('crxId')
+    if got != EDGE_CRX_ID:
+        raise RuntimeError(f'edge: response describes {got!r}, expected {EDGE_CRX_ID!r}')
+    name = (data.get('name') or '')
+    if EXPECTED_NAME_SUBSTRING not in name.lower():
+        raise RuntimeError(f'edge: id resolves to {name!r}, not a reveddit extension')
     return parse_version(data.get('version'), 'edge')
 
 
 def get_firefox():
     url = f'https://addons.mozilla.org/api/v5/addons/addon/{AMO_SLUG}/'
     data = json.loads(fetch(url, 'application/json'))
+    got = data.get('guid')
+    if got != AMO_GUID:
+        raise RuntimeError(f'firefox: response describes {got!r}, expected {AMO_GUID!r}')
     return parse_version((data.get('current_version') or {}).get('version'), 'firefox')
 
 
@@ -125,9 +153,29 @@ def main():
     ap.add_argument('--stores', default='chrome,edge,firefox',
                     help='comma-separated subset to require (default: all three)')
     ap.add_argument('--check', action='store_true', help='print store versions and exit')
+    ap.add_argument('--self-test', action='store_true', help='verify version ordering offline and exit')
     ap.add_argument('--dry-run', action='store_true', help='report what would change, write nothing')
     ap.add_argument('--no-push', action='store_true', help='commit locally but do not push')
     args = ap.parse_args()
+
+    if args.self_test:
+        # Ordering must be numeric, not lexicographic: '0.0.5.9' < '0.0.5.21'
+        # is true numerically and false as strings, and a future 1.0.0 must
+        # outrank every 0.x.
+        pairs = [('0.5.21', '1.0.0'), ('0.0.5.9', '0.0.5.21'), ('0.0.9.0', '0.0.10.0'),
+                 ('0.0.5.21', '0.1.0'), ('1.0.0', '1.0.0.1'), ('0.0.5.21', '1.0')]
+        for lo, hi in pairs:
+            assert version_tuple(lo) < version_tuple(hi), f'{lo} should sort below {hi}'
+        assert version_tuple('1.0') == version_tuple('1.0.0.0')
+        for bad in ('', 'v1.0', '1', '1.2.3.4.5', 'latest', '1.2.3-beta'):
+            try:
+                parse_version(bad, 'test')
+            except RuntimeError:
+                pass
+            else:
+                raise AssertionError(f'{bad!r} should have been rejected')
+        log(f'self-test OK ({len(pairs)} ordering pairs, 6 rejections)')
+        return 0
 
     stores = [s.strip() for s in args.stores.split(',') if s.strip()]
     unknown = [s for s in stores if s not in GETTERS]
@@ -177,6 +225,15 @@ def main():
         # Slowest store wins: the newest version available to EVERY user.
         target = min(versions.values(), key=version_tuple)
         log(f'feed latest_version={current} target={target} (min across {",".join(stores)})')
+
+        # Family guard: a wrong-but-live store id would otherwise publish a
+        # stranger's version number to every user.
+        if current:
+            jump = version_tuple(target)[0] - version_tuple(current)[0]
+            if jump > MAX_MAJOR_JUMP:
+                log(f'ERROR refusing {current} -> {target}: major jumps by {jump}. '
+                    'If this release is real, raise MAX_MAJOR_JUMP; otherwise check the store ids.')
+                return 1
 
         if len(set(versions.values())) > 1:
             log('stores disagree (rollout in progress); using the minimum')
