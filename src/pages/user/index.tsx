@@ -5,13 +5,7 @@ import Comment from 'components/comment/Comment'
 import LoadLink from './LoadLink'
 import { Notice, TipWithBackground } from 'components/common/Notice'
 import { withFetch } from 'components/RevdditFetcher'
-import {
-  SimpleURLSearchParams,
-  get,
-  put,
-  PATH_STR_SUB,
-  getCustomClientID,
-} from 'utils'
+import { SimpleURLSearchParams, get, put, PATH_STR_SUB } from 'utils'
 import Highlight from 'components/common/Highlight'
 import ModalContext from 'contexts/modal'
 import { Spin } from 'components/Misc'
@@ -22,9 +16,7 @@ import {
   CopyButton,
 } from 'components/ui/Links'
 import { pinPostLink } from 'pages/about/faq'
-import { ExtensionLink } from 'components/ui/Extensions'
-import { getTransportSummary } from 'api/reddit/status'
-import { getExtensionVersion } from 'api/reddit/bridge'
+import { ConnectErrorContent } from 'components/ConnectError'
 
 const hidePinPostNotice_var = 'hidePinPostNotice'
 
@@ -110,43 +102,7 @@ const User = ({
           </>
         )
       } else if (userIssueDescription === 'transport_failed') {
-        message = (
-          <>
-            <p>Could not connect to Reddit.</p>
-            <p>
-              {getCustomClientID() ? (
-                <>
-                  Requests using your API key failed. Verify the key in{' '}
-                  <Link
-                    to="#settings"
-                    onClick={() => modal.openModal({ hash: 'settings' })}
-                  >
-                    settings
-                  </Link>
-                  , or try again in a few minutes.
-                </>
-              ) : (
-                <>
-                  Use <ExtensionLink />, which tracks removed content in real
-                  time. If you already have a Reddit API key, adding it in{' '}
-                  <Link
-                    to="#settings"
-                    onClick={() => modal.openModal({ hash: 'settings' })}
-                  >
-                    settings
-                  </Link>{' '}
-                  also reconnects this site. Reddit no longer issues new keys.
-                </>
-              )}
-            </p>
-            <p style={{ opacity: 0.7 }}>
-              {getTransportSummary({
-                extensionVersion: getExtensionVersion(),
-                hasApiKey: Boolean(getCustomClientID()),
-              })}
-            </p>
-          </>
-        )
+        message = <ConnectErrorContent />
       } else if (userIssueDescription.toLowerCase().startsWith('error')) {
         message = userIssueDescription
       } else if (userIssueDescription === 'unknown') {

@@ -53,9 +53,7 @@ import { RedditOrLocalLink } from 'components/ui/Links'
 import BlankUser from 'components/BlankUser'
 import Highlight from 'components/common/Highlight'
 import { SocialLinks, UserNameEntry } from 'components/Misc'
-import { ExtensionLink } from 'components/ui/Extensions'
-import { getTransportSummary } from 'api/reddit/status'
-import { getExtensionVersion } from 'api/reddit/bridge'
+import { ConnectErrorContent } from 'components/ConnectError'
 import { useTurnstile } from 'hooks/useTurnstile'
 
 const TURNSTILE_PAGE_TYPES = ['aggregations', 'thread']
@@ -94,34 +92,7 @@ export const handleRedditError = (error, connectedProps) => {
         </>
       )
     } else {
-      content = (
-        <>
-          <p>Unable to connect to Reddit.</p>
-          <p>
-            Reddit restricts websites' access to its data, and the public access
-            Reveddit relies on can change without notice (see:{' '}
-            {whatHappenedLink})
-          </p>
-          {get('hasNotifierExtension', false) ? (
-            <p>
-              The Reveddit extension you have installed is unaffected and
-              continues to track removed content.
-            </p>
-          ) : (
-            <p>
-              <ExtensionLink /> is unaffected and tracks removed content in real
-              time.
-            </p>
-          )}
-          <p style={{ opacity: 0.7 }}>
-            {getTransportSummary({
-              extensionVersion: getExtensionVersion(),
-              hasApiKey: Boolean(getCustomClientID()),
-            })}
-            {error?.message ? ` · page error: ${error.message}` : ''}
-          </p>
-        </>
-      )
+      content = <ConnectErrorContent pageError={error?.message || ''} />
     }
   }
   content = (

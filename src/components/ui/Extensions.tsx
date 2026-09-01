@@ -16,6 +16,11 @@ const browserName = bp.getBrowserName()
 const isChrome = !!chromelike_fullnames[browserName]
 const isFirefox = !!(Bowser.BROWSER_MAP['firefox'] == browserName)
 
+// phones and tablets cannot install the desktop extension
+export const isMobileDevice = ['mobile', 'tablet'].includes(
+  bp.getPlatformType()
+)
+
 export const is_iOS =
   [
     'iPad Simulator',

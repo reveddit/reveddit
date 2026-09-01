@@ -30,6 +30,9 @@ export const getExtensionVersion = (): string | null => {
   }
 }
 
+export const extensionSupportsBridge = (): boolean =>
+  extensionVersionAtLeast(BRIDGE_MIN_VERSION)
+
 const extensionVersionAtLeast = (min: number[]): boolean => {
   try {
     const v = getExtensionVersion()
