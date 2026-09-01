@@ -518,15 +518,22 @@ export const fetchRatelimitHeaders = async () => {
     return { reset: 600, used: 0, remaining: 100 }
   }
   const auth = await getAuth()
-  const response = await fetch(oauth_reddit, auth)
-  const reset = getNumberFromHeader(response, 'X-Ratelimit-Reset')
-  const remaining = getNumberFromHeader(response, 'X-Ratelimit-Remaining')
-  const used = getNumberFromHeader(response, 'X-Ratelimit-Used')
-  if (reset) {
-    return { reset, remaining, used }
-  } else {
+  // that getAuth may have just discovered the key is dead
+  if (customKeyMintFailed()) {
     return { reset: 600, used: 0, remaining: 100 }
   }
+  try {
+    const response = await fetch(oauth_reddit, auth)
+    const reset = getNumberFromHeader(response, 'X-Ratelimit-Reset')
+    const remaining = getNumberFromHeader(response, 'X-Ratelimit-Remaining')
+    const used = getNumberFromHeader(response, 'X-Ratelimit-Used')
+    if (reset) {
+      return { reset, remaining, used }
+    }
+  } catch {
+    // opaque CORS failure; fall through to the fixed budget
+  }
+  return { reset: 600, used: 0, remaining: 100 }
 }
 
 const fetchJsonAndValidate = async (url, init: any = {}) => {

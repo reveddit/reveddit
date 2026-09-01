@@ -7,10 +7,12 @@ declare const REDDIT_API_CLIENT_ID: string
 // Token for reddit API
 let token: string | undefined, expires: number | undefined
 
-// Reddit deletes app registrations; a mint that answers without a token means
-// the user's key is dead (401 Unauthorized), and redditFetch then routes that
-// browser over the public transports instead of unauthenticated oauth calls
-// that fail as opaque CORS errors. Network failures do NOT set this.
+// Reddit deletes app registrations; a mint that ends without a token means
+// this session cannot use oauth, and redditFetch then routes over the public
+// transports instead of firing unauthenticated oauth calls that fail as
+// opaque CORS errors. Set on ANY tokenless outcome: reddit omits CORS headers
+// on error responses, so a dead key's 401 reaches JS as a rejected fetch,
+// indistinguishable from offline (where jsonp/bridge fail too, harmlessly).
 let custom_key_mint_failed = false
 export const customKeyMintFailed = () => custom_key_mint_failed
 
@@ -62,7 +64,10 @@ const getToken = async () => {
       return token
     })
     .catch(() => {
-      recordTransport('apikey', 'token mint failed (network)')
+      if (getCustomClientID()) {
+        custom_key_mint_failed = true
+      }
+      recordTransport('apikey', 'token mint failed (unreadable or network)')
       return null
     })
 }
