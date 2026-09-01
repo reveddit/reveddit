@@ -118,6 +118,7 @@ export const handleRedditError = (error, connectedProps) => {
               extensionVersion: getExtensionVersion(),
               hasApiKey: Boolean(getCustomClientID()),
             })}
+            {error?.message ? ` · page error: ${error.message}` : ''}
           </p>
         </>
       )

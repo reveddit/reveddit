@@ -3,11 +3,12 @@
 // messages can say which paths failed instead of guessing at a cause.
 // In-memory only; resets on page load.
 
-export type TransportName = 'jsonp' | 'bridge'
+export type TransportName = 'jsonp' | 'bridge' | 'apikey'
 
 const status: Record<TransportName, string> = {
   jsonp: 'untried',
   bridge: 'untried',
+  apikey: 'untried',
 }
 
 export const recordTransport = (name: TransportName, outcome: string) => {
@@ -27,4 +28,9 @@ export const getTransportSummary = ({
   (extensionVersion
     ? `${status.bridge} (v${extensionVersion})`
     : 'not detected') +
-  ` · API key: ${hasApiKey ? 'set' : 'none'}`
+  ` · API key: ` +
+  (hasApiKey
+    ? status.apikey === 'untried'
+      ? 'set, untried'
+      : status.apikey
+    : 'none')

@@ -1,5 +1,6 @@
 import { www_reddit, www_reddit_slash } from 'api/reddit'
 import { getCustomClientID } from 'utils'
+import { recordTransport } from './status'
 
 declare const REDDIT_API_CLIENT_ID: string
 
@@ -37,9 +38,19 @@ const getToken = async () => {
     .then(response => {
       token = response.access_token
       expires = Date.now() / 1000 + response.expires_in - 1
+      if (!token) {
+        // reddit answers 401 {"message": "Unauthorized"} for deleted apps
+        recordTransport(
+          'apikey',
+          `token mint failed (${response.message || response.error || 'no token'})`
+        )
+      }
       return token
     })
-    .catch(() => null)
+    .catch(() => {
+      recordTransport('apikey', 'token mint failed (network)')
+      return null
+    })
 }
 
 // Get header for general api calls

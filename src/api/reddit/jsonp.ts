@@ -215,7 +215,21 @@ export const redditFetch = (url: string, init: any = {}): Promise<any> => {
     return window.fetch(url, init)
   }
   if (is_oauth && getCustomClientID()) {
-    return window.fetch(url, init)
+    // record the outcome so the connect-error status line can name a key-path
+    // failure (dead key, network) instead of showing every transport untried
+    return window.fetch(url, init).then(
+      response => {
+        recordTransport(
+          'apikey',
+          response.ok ? 'ok' : `HTTP ${response.status}`
+        )
+        return response
+      },
+      e => {
+        recordTransport('apikey', 'network error')
+        throw e
+      }
+    )
   }
   const wwwUrl = toWwwJsonUrl(url)
   if (BRIDGE_ONLY_PATHS.test(new URL(wwwUrl).pathname)) {
