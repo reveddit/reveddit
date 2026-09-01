@@ -133,8 +133,8 @@ const User = ({
                   >
                     Setup an API key
                   </Link>{' '}
-                  to reconnect, or use the <ExtensionLink />, which tracks
-                  removed content in real time.
+                  to reconnect, or use <ExtensionLink />, which tracks removed
+                  content in real time.
                 </>
               )}
             </p>
