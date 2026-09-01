@@ -1,5 +1,6 @@
 import { getCustomClientID } from 'utils'
 import { bridgeFetch } from './bridge'
+import { customKeyMintFailed } from './auth'
 import { recordTransport } from './status'
 
 // In 2026 Reddit deleted Reveddit's registered API apps (token requests 401
@@ -214,7 +215,8 @@ export const redditFetch = (url: string, init: any = {}): Promise<any> => {
   if (!is_oauth && !is_www) {
     return window.fetch(url, init)
   }
-  if (is_oauth && getCustomClientID()) {
+  // a dead key (mint refused) falls through to the public transports below
+  if (is_oauth && getCustomClientID() && !customKeyMintFailed()) {
     // record the outcome so the connect-error status line can name a key-path
     // failure (dead key, network) instead of showing every transport untried
     return window.fetch(url, init).then(

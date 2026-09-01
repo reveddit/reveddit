@@ -5,7 +5,7 @@ import {
   paramString,
   getCustomClientID,
 } from 'utils'
-import { getAuth } from './auth'
+import { getAuth, customKeyMintFailed } from './auth'
 import { redditFetch } from './jsonp'
 import {
   mapRedditObj,
@@ -378,7 +378,7 @@ export const queryUserPage = async ({
       can_use_oauth_reddit_rev = false
       return queryUserPageCombined({ user, kind, ...params }) // host will be notProxy_host for this query
     }
-    if (!getCustomClientID()) {
+    if (!getCustomClientID() || customKeyMintFailed()) {
       // JSONP hides the HTTP status, so distinguish "account gone" (about.json
       // also fails: nonexistent, suspended, or shadowbanned) from a transient
       // failure (about.json succeeds) to keep the shadowban-check flow working
@@ -511,9 +511,10 @@ const queryByID = async (
 const getNumberFromHeader = (response, header) =>
   Number(response?.headers?.get(header))
 export const fetchRatelimitHeaders = async () => {
-  // JSONP responses expose no headers; without a user API key, report a fixed
-  // budget so redditLimiter's depleted handler just waits for its refresh
-  if (!getCustomClientID()) {
+  // JSONP responses expose no headers; without a working user API key, report
+  // a fixed budget so redditLimiter's depleted handler just waits for its
+  // refresh
+  if (!getCustomClientID() || customKeyMintFailed()) {
     return { reset: 600, used: 0, remaining: 100 }
   }
   const auth = await getAuth()

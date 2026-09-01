@@ -7,12 +7,23 @@ declare const REDDIT_API_CLIENT_ID: string
 // Token for reddit API
 let token: string | undefined, expires: number | undefined
 
+// Reddit deletes app registrations; a mint that answers without a token means
+// the user's key is dead (401 Unauthorized), and redditFetch then routes that
+// browser over the public transports instead of unauthenticated oauth calls
+// that fail as opaque CORS errors. Network failures do NOT set this.
+let custom_key_mint_failed = false
+export const customKeyMintFailed = () => custom_key_mint_failed
+
 let client_id: string = REDDIT_API_CLIENT_ID
 
 const getToken = async () => {
   // already have an unexpired token
   if (token !== undefined && expires > Date.now() / 1000) {
     return Promise.resolve(token)
+  }
+  // don't repeat a mint that reddit already refused
+  if (custom_key_mint_failed) {
+    return null
   }
   const user_client_id = getCustomClientID()
   // use user-set client ID if it exists and is non-empty, otherwise use Reveddit client ID
@@ -40,6 +51,9 @@ const getToken = async () => {
       expires = Date.now() / 1000 + response.expires_in - 1
       if (!token) {
         // reddit answers 401 {"message": "Unauthorized"} for deleted apps
+        if (getCustomClientID()) {
+          custom_key_mint_failed = true
+        }
         recordTransport(
           'apikey',
           `token mint failed (${response.message || response.error || 'no token'})`
