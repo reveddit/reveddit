@@ -62,7 +62,11 @@ export const ExtensionLink = ({ image = false, extensionID = 'rt' }) => {
   return <LinkWithCloseModal to="/add-ons/">{content}</LinkWithCloseModal>
 }
 
-export const ExtensionLinks = ({ containerStyle = {}, linkStyle = {} }) => {
+export const ExtensionLinks = ({
+  containerStyle = {},
+  linkStyle = {},
+  imgStyle = {},
+}) => {
   const extensionLink = browser => {
     const href = ext_urls.rt[meta[browser].att]
     if (href) {
@@ -76,7 +80,7 @@ export const ExtensionLinks = ({ containerStyle = {}, linkStyle = {} }) => {
           <img
             alt={`Add to ${browser}`}
             src={meta[browser].img}
-            style={{ height: '24px', verticalAlign: 'middle' }}
+            style={{ height: '24px', verticalAlign: 'middle', ...imgStyle }}
           />
         </a>
       )

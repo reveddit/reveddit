@@ -63,7 +63,7 @@ export const ConnectErrorContent = ({ pageError = '' }) => {
           removals of your own content in real time and notifies you:
         </p>
         <div style={{ margin: '15px 0' }}>
-          <ExtensionLinks />
+          <ExtensionLinks imgStyle={{ height: '48px' }} />
         </div>
       </>
     )
