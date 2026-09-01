@@ -127,14 +127,15 @@ const User = ({
                 </>
               ) : (
                 <>
+                  Use <ExtensionLink />, which tracks removed content in real
+                  time. If you already have a Reddit API key, adding it in{' '}
                   <Link
                     to="#settings"
                     onClick={() => modal.openModal({ hash: 'settings' })}
                   >
-                    Setup an API key
+                    settings
                   </Link>{' '}
-                  to reconnect, or use <ExtensionLink />, which tracks removed
-                  content in real time.
+                  also reconnects this site. Reddit no longer issues new keys.
                 </>
               )}
             </p>
@@ -177,22 +178,10 @@ const User = ({
       }
       let suffix = <></>
       if (userIssueDescription.toLowerCase().includes('too many requests')) {
-        let api_key_message = ''
-        if (!getCustomClientID()) {
-          api_key_message = (
-            <>
-              {' '}
-              or{' '}
-              <Link
-                to="#settings"
-                onClick={() => modal.openModal({ hash: 'settings' })}
-              >
-                setup an API key
-              </Link>
-            </>
-          )
-        }
-        suffix = <>. Try again in 5 minutes{api_key_message}.</>
+        // no "setup an API key" CTA here: reddit stopped issuing keys, so
+        // that only helps people who already have one (settings still accepts
+        // it; the transport_failed branch above mentions it)
+        suffix = <>. Try again in 5 minutes.</>
       }
       errorMessage = (
         <div className="centered-note non-item text">

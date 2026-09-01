@@ -74,7 +74,10 @@ export const guideLink = (
   </NewWindowLink>
 )
 export const api_key_info = (
-  <>Follow this {guideLink} to create an API key and enter it here:</>
+  <>
+    If you have a Reddit API key, enter it here. Reddit no longer issues new
+    keys ({guideLink} for the old steps, should that change):
+  </>
 )
 export default () => {
   const [showRelDates, update_showRelDates, prev_showRelDates] = useSetting(
