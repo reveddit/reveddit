@@ -13,6 +13,8 @@
 // - Firefox (no externally_connectable): window.postMessage relayed by the
 //   content script
 
+import { recordTransport } from './status'
+
 declare const EXTENSION_ID: string
 
 const BRIDGE_MIN_VERSION = [0, 0, 5, 21]
@@ -20,9 +22,17 @@ const BRIDGE_TIMEOUT_MS = 10000
 
 // The content script stamps its version in localStorage on every load (also
 // pre-bridge versions, which would otherwise swallow relay messages).
+export const getExtensionVersion = (): string | null => {
+  try {
+    return window.localStorage.getItem('notifierExtensionVersion')
+  } catch {
+    return null
+  }
+}
+
 const extensionVersionAtLeast = (min: number[]): boolean => {
   try {
-    const v = window.localStorage.getItem('notifierExtensionVersion')
+    const v = getExtensionVersion()
     if (!v) {
       return false
     }
@@ -42,9 +52,11 @@ const extensionVersionAtLeast = (min: number[]): boolean => {
   }
 }
 
-// 'no' only means absent (no listener/timeout), never a refusal — refusals
-// prove the bridge exists
-let bridgeState: 'unknown' | 'yes' | 'no' = 'unknown'
+// A miss (no listener/timeout) pauses bridge attempts briefly, not for the
+// whole visit: a service worker that was still waking shouldn't cost the rest
+// of the session. Refusals prove the bridge exists and clear the pause.
+const BRIDGE_ABSENT_RETRY_MS = 60 * 1000
+let bridgeAbsentUntil = 0
 
 const chromeRuntime = (): any => {
   try {
@@ -129,22 +141,32 @@ const sendViaRelay = (url: string): Promise<any> =>
 // Response-like result so existing .then(response => response.json()) chains
 // work unchanged; rejects on refusal or absence so callers can fall back
 export const bridgeFetch = async (url: string): Promise<any> => {
-  if (bridgeState === 'no' || !extensionVersionAtLeast(BRIDGE_MIN_VERSION)) {
+  if (!extensionVersionAtLeast(BRIDGE_MIN_VERSION)) {
+    recordTransport(
+      'bridge',
+      getExtensionVersion() ? 'needs update' : 'not detected'
+    )
+    throw new Error('bridge unavailable')
+  }
+  if (Date.now() < bridgeAbsentUntil) {
     throw new Error('bridge unavailable')
   }
   let resp
   try {
     resp = await (chromeRuntime() ? sendViaChrome(url) : sendViaRelay(url))
   } catch (e) {
-    bridgeState = 'no'
+    bridgeAbsentUntil = Date.now() + BRIDGE_ABSENT_RETRY_MS
+    recordTransport('bridge', 'no response')
     throw e
   }
-  bridgeState = 'yes'
+  bridgeAbsentUntil = 0
   if (!resp.ok) {
     // rate_limited | busy | budget_exhausted | invalid url | http failure —
     // the extension exists but declined; the caller falls back to JSONP
+    recordTransport('bridge', `refused (${resp.error || resp.status})`)
     throw new Error(`bridge refused: ${resp.error || resp.status}`)
   }
+  recordTransport('bridge', 'ok')
   return {
     ok: true,
     status: resp.status,

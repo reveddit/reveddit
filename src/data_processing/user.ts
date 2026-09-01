@@ -260,7 +260,9 @@ const getItems = async (
     return global.setError({ userIssueDescription: user_issue_description })
   }
   if (!userPageData) {
-    return global.setError({ userIssueDescription: 'ERROR: Too Many Requests' })
+    // no data and no HTTP error to report: every reddit transport failed.
+    // (A real 429 arrives as data.message above, via the API-key path.)
+    return global.setError({ userIssueDescription: 'transport_failed' })
   }
   const { comments: missingComments } = await missing_comments_promise
   const num_pages = gs.num_pages + 1

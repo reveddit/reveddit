@@ -22,6 +22,9 @@ import {
   CopyButton,
 } from 'components/ui/Links'
 import { pinPostLink } from 'pages/about/faq'
+import { ExtensionLink } from 'components/ui/Extensions'
+import { getTransportSummary } from 'api/reddit/status'
+import { getExtensionVersion } from 'api/reddit/bridge'
 
 const hidePinPostNotice_var = 'hidePinPostNotice'
 
@@ -104,6 +107,43 @@ const User = ({
               shadowbanned.
             </p>
             <ShadowbanCheckButton user={user} global={global} />
+          </>
+        )
+      } else if (userIssueDescription === 'transport_failed') {
+        message = (
+          <>
+            <p>Could not connect to Reddit.</p>
+            <p>
+              {getCustomClientID() ? (
+                <>
+                  Requests using your API key failed. Verify the key in{' '}
+                  <Link
+                    to="#settings"
+                    onClick={() => modal.openModal({ hash: 'settings' })}
+                  >
+                    settings
+                  </Link>
+                  , or try again in a few minutes.
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="#settings"
+                    onClick={() => modal.openModal({ hash: 'settings' })}
+                  >
+                    Setup an API key
+                  </Link>{' '}
+                  to reconnect, or use the <ExtensionLink />, which tracks
+                  removed content in real time.
+                </>
+              )}
+            </p>
+            <p style={{ opacity: 0.7 }}>
+              {getTransportSummary({
+                extensionVersion: getExtensionVersion(),
+                hasApiKey: Boolean(getCustomClientID()),
+              })}
+            </p>
           </>
         )
       } else if (userIssueDescription.toLowerCase().startsWith('error')) {

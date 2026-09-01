@@ -54,6 +54,8 @@ import BlankUser from 'components/BlankUser'
 import Highlight from 'components/common/Highlight'
 import { SocialLinks, UserNameEntry } from 'components/Misc'
 import { ExtensionLink } from 'components/ui/Extensions'
+import { getTransportSummary } from 'api/reddit/status'
+import { getExtensionVersion } from 'api/reddit/bridge'
 import { useTurnstile } from 'hooks/useTurnstile'
 
 const TURNSTILE_PAGE_TYPES = ['aggregations', 'thread']
@@ -111,6 +113,12 @@ export const handleRedditError = (error, connectedProps) => {
               time.
             </p>
           )}
+          <p style={{ opacity: 0.7 }}>
+            {getTransportSummary({
+              extensionVersion: getExtensionVersion(),
+              hasApiKey: Boolean(getCustomClientID()),
+            })}
+          </p>
         </>
       )
     }

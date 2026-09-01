@@ -1,5 +1,6 @@
 import { getCustomClientID } from 'utils'
 import { bridgeFetch } from './bridge'
+import { recordTransport } from './status'
 
 // In 2026 Reddit deleted Reveddit's registered API apps (token requests 401
 // for every client_id), and no reddit host serves CORS headers on content
@@ -160,7 +161,15 @@ const jsonpFetch_nolimit = (url: string): Promise<any> =>
 export const jsonpFetch = async (url: string): Promise<any> => {
   await acquire()
   try {
-    return await jsonpFetch_nolimit(url)
+    const data = await jsonpFetch_nolimit(url)
+    recordTransport('jsonp', 'ok')
+    return data
+  } catch (e: any) {
+    recordTransport(
+      'jsonp',
+      e?.message?.includes('timeout') ? 'timed out' : 'blocked'
+    )
+    throw e
   } finally {
     release()
   }
