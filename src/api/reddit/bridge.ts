@@ -143,7 +143,12 @@ const sendViaRelay = (url: string): Promise<any> =>
 
 // Response-like result so existing .then(response => response.json()) chains
 // work unchanged; rejects on refusal or absence so callers can fall back
-export const bridgeFetch = async (url: string): Promise<any> => {
+const BRIDGE_BUSY_RETRY_MAX_MS = 20000
+
+export const bridgeFetch = async (
+  url: string,
+  isRetry = false
+): Promise<any> => {
   if (!extensionVersionAtLeast(BRIDGE_MIN_VERSION)) {
     recordTransport(
       'bridge',
@@ -164,8 +169,22 @@ export const bridgeFetch = async (url: string): Promise<any> => {
   }
   bridgeAbsentUntil = 0
   if (!resp.ok) {
-    // rate_limited | busy | budget_exhausted | invalid url | http failure —
-    // the extension exists but declined; the caller falls back to JSONP
+    // busy means the user's own monitoring cycle is in flight; it finishes
+    // within seconds, so wait the suggested interval and ask once more before
+    // giving up (JSONP, the other transport, rarely works any more)
+    if (
+      !isRetry &&
+      resp.error === 'busy' &&
+      typeof resp.retryAfterMs === 'number' &&
+      resp.retryAfterMs > 0 &&
+      resp.retryAfterMs <= BRIDGE_BUSY_RETRY_MAX_MS
+    ) {
+      await new Promise(r => setTimeout(r, resp.retryAfterMs))
+      return bridgeFetch(url, true)
+    }
+    // rate_limited | busy | budget_exhausted | no_identity | invalid url |
+    // http failure — the extension exists but declined; the caller falls
+    // back to JSONP
     recordTransport('bridge', `refused (${resp.error || resp.status})`)
     throw new Error(`bridge refused: ${resp.error || resp.status}`)
   }

@@ -1,5 +1,5 @@
 import { getCustomClientID } from 'utils'
-import { bridgeFetch } from './bridge'
+import { bridgeFetch, extensionSupportsBridge } from './bridge'
 import { customKeyMintFailed } from './auth'
 import { recordTransport } from './status'
 
@@ -159,13 +159,25 @@ const jsonpFetch_nolimit = (url: string): Promise<any> =>
     }
   })
 
+// Once reddit has refused a JSONP request, the next ones are refused too (its
+// edge blocks cookie-less script loads outright), and each refusal downloads a
+// 189 KB block page. Remember the refusal so redditFetch can lead with the
+// extension bridge for a while; JSONP still runs as the fallback, so recovery
+// is noticed.
+const JSONP_BLOCKED_MEMORY_MS = 10 * 60 * 1000
+let jsonpBlockedUntil = 0
+export const jsonpRecentlyBlocked = (): boolean =>
+  Date.now() < jsonpBlockedUntil
+
 export const jsonpFetch = async (url: string): Promise<any> => {
   await acquire()
   try {
     const data = await jsonpFetch_nolimit(url)
+    jsonpBlockedUntil = 0
     recordTransport('jsonp', 'ok')
     return data
   } catch (e: any) {
+    jsonpBlockedUntil = Date.now() + JSONP_BLOCKED_MEMORY_MS
     recordTransport(
       'jsonp',
       e?.message?.includes('timeout') ? 'timed out' : 'blocked'
@@ -234,7 +246,10 @@ export const redditFetch = (url: string, init: any = {}): Promise<any> => {
     )
   }
   const wwwUrl = toWwwJsonUrl(url)
-  if (BRIDGE_ONLY_PATHS.test(new URL(wwwUrl).pathname)) {
+  if (
+    BRIDGE_ONLY_PATHS.test(new URL(wwwUrl).pathname) ||
+    (jsonpRecentlyBlocked() && extensionSupportsBridge())
+  ) {
     return bridgeFetch(wwwUrl).catch(() =>
       jsonpFetch(wwwUrl).then(jsonpResponse)
     )
