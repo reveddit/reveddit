@@ -15,6 +15,11 @@ declare global {
   }
 }
 
+// Turnstile can stall silently (widget never renders, challenge never
+// resolves): thread and history pages used to hang blank behind it. Give up
+// after this long; callers treat a rejection as "no token" and proceed.
+const TURNSTILE_TIMEOUT_MS = 9000
+
 export const useTurnstile = () => {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const widgetIdRef = useRef<string | null>(null)
@@ -33,8 +38,22 @@ export const useTurnstile = () => {
         document.body.appendChild(div)
         containerRef.current = div
       }
-      callbackRef.current = resolve
-      errorRef.current = () => reject(new Error('Turnstile verification failed'))
+      let settled = false
+      const settle = (fn: () => void) => {
+        if (settled) return
+        settled = true
+        window.clearTimeout(timer)
+        callbackRef.current = null
+        errorRef.current = null
+        fn()
+      }
+      const timer = window.setTimeout(
+        () => settle(() => reject(new Error('Turnstile timed out'))),
+        TURNSTILE_TIMEOUT_MS
+      )
+      callbackRef.current = token => settle(() => resolve(token))
+      errorRef.current = () =>
+        settle(() => reject(new Error('Turnstile verification failed')))
       if (widgetIdRef.current) {
         window.turnstile.reset(widgetIdRef.current)
         window.turnstile.execute(widgetIdRef.current)

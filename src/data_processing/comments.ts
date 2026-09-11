@@ -10,7 +10,6 @@ import {
   commentIsDeleted,
   commentIsRemoved,
   postIsDeleted,
-  isEmptyObj,
   redirectToHistory,
 } from 'utils'
 import {
@@ -527,9 +526,10 @@ export const setSubredditMeta = async (subreddit, global) => {
       return Promise.all([moderators_promise, subreddit_about_promise])
     })
     .then(([moderators, subreddit_about]) => {
+      // Empty results alone no longer redirect: since August 2026 they are
+      // the shape of a failed transport, and the posts fetch below surfaces
+      // that as a connect error. Only an explicit reason means unavailable.
       if (
-        ((isEmptyObj(moderators) || moderators.error) &&
-          isEmptyObj(subreddit_about)) ||
         [subreddit_about.reason, moderators.reason].some(w =>
           /^\b(private|banned)\b$/.test(w)
         ) ||

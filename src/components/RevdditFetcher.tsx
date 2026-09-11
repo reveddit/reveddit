@@ -77,7 +77,7 @@ let _REDDIT_ERROR_OCCURRED = false
 export const handleRedditError = (error, connectedProps) => {
   _REDDIT_ERROR_OCCURRED = true
   console.error(error)
-  let content = getFirefoxError()
+  let content = null
   if (!content) {
     // if client_id is set and message is too many requests, change below message
     const customClientID = getCustomClientID()
@@ -104,39 +104,10 @@ export const handleRedditError = (error, connectedProps) => {
   connectedProps.openGenericModal({ content })
   connectedProps.global.setError()
 }
-const isFirefox =
-  /firefox/i.test(navigator.userAgent) || typeof InstallTrigger !== 'undefined'
 
 const whatHappenedLink = (
   <RedditOrLocalLink to="/about/faq/#errors">What happened?</RedditOrLocalLink>
 )
-
-const getFirefoxError = () => {
-  if (navigator.doNotTrack == '1' && isFirefox) {
-    return (
-      <>
-        <p>Error: unable to connect to reddit</p>
-        <p>
-          Tracking Protection on Firefox may be preventing this site from
-          accessing reddit's API. <b>To fix this</b>, add an exception by
-          clicking the shield icon next to the URL:
-        </p>
-        <img src="/images/etp.png" />
-        <p>
-          <RedditOrLocalLink to="/about/faq/#firefox">
-            Why should I disable tracking protection?
-          </RedditOrLocalLink>
-        </p>
-        <p>
-          If this does not resolve the issue, there may be a conflicting
-          extension blocking connections to reddit from other websites. See{' '}
-          {whatHappenedLink}
-        </p>
-      </>
-    )
-  }
-  return null
-}
 
 const getCategorySettings = (page_type, subreddit) => {
   const category_settings = {
@@ -654,9 +625,16 @@ const handleError = (error, props) => {
   if (error.message === 'Forbidden') {
     redirectToHistory(subreddit)
   } else if (props.global.getState().items.length === 0) {
-    let content = getFirefoxError()
+    let content = null
     if (!content) {
-      if (props.page_type.match(/^subreddit_/)) {
+      // A subreddit page redirects to /history only when reddit named a
+      // reason; a failed transport (JSONP/bridge) is a connect error like any
+      // other page's, with the extension advice instead of a "banned" banner.
+      const reason = String(error?.reason || error?.message || '')
+      if (
+        props.page_type.match(/^subreddit_/) &&
+        /\b(private|banned|quarantined)\b/.test(reason)
+      ) {
         redirectToHistory(subreddit, '#subreddit_unavailable')
       } else {
         return handleRedditError(error, props)

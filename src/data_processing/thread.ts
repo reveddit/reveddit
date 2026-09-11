@@ -250,7 +250,9 @@ export const getRevdditThreadItems = async (
         oldestComment,
         moreCommentIDs,
       }) => {
-        const moderators_promise = getModerators(reddit_post.subreddit, turnstile_token)
+        // No token: moderators/ is not Turnstile-gated (the page's one token
+        // is single-use and belongs to thread-comments/ below).
+        const moderators_promise = getModerators(reddit_post.subreddit)
         const modlogs_comments_promise = getModlogsComments({
           subreddit: reddit_post.subreddit,
           link_id: reddit_post.id,
