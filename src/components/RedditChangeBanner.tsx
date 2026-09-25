@@ -24,28 +24,32 @@ export const RedditChangeBanner = () => {
     <div className="reddit-change-banner">
       <div className="banner-content">
         <span className="banner-icon">⚠️</span>
-        <span className="banner-text">
-          Reddit restricts websites' access to its data, which limits Reveddit's
-          website and may break it without notice.
-          {hasExtension ? (
-            <>
-              {' '}
-              <Link
-                to="/add-ons/direct"
-                style={{ color: 'white', textDecoration: 'underline' }}
-              >
-                Reveddit's extension
-              </Link>
-              , which you have installed, continues to work.
-            </>
-          ) : (
-            <> Install the extension for reliable tracking and alerts:</>
-          )}
-        </span>
-        {!hasExtension && <ExtensionLinks />}
-        <Link to="/about/reddit-change" className="banner-link">
-          What changed?
-        </Link>
+        <div className="banner-body">
+          <span className="banner-text">
+            Reddit restricts websites' access to its data, which limits
+            Reveddit's website and may break it without notice.
+            {hasExtension ? (
+              <>
+                {' '}
+                <Link
+                  to="/add-ons/direct"
+                  style={{ color: 'white', textDecoration: 'underline' }}
+                >
+                  Reveddit's extension
+                </Link>
+                , which you have installed, continues to work.
+              </>
+            ) : (
+              <> Install the extension for reliable tracking and alerts:</>
+            )}
+          </span>{' '}
+          <span className="banner-actions">
+            {!hasExtension && <ExtensionLinks />}
+            <Link to="/about/reddit-change" className="banner-link">
+              What changed?
+            </Link>
+          </span>
+        </div>
       </div>
       <a className="banner-dismiss pointer" onClick={dismiss}>
         ✖&#xfe0e;

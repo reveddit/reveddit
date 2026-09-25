@@ -329,19 +329,30 @@ input[type="submit"], button
   justify-content: space-between
   align-items: center
   font-size: 13px
+  line-height: 1.5
+  // The icon sits beside one paragraph that holds the text and its links, so
+  // the banner is only as many lines as the words need at any width
   .banner-content
     display: flex
-    align-items: center
-    flex-wrap: wrap
+    align-items: baseline
     gap: 8px
+    flex: 1 1 auto
+    min-width: 0
   .banner-icon
+    flex: none
     font-size: 16px
-  .banner-text
-    margin-right: 5px
+  .banner-body
+    min-width: 0
+  // Store badges and links follow the text and wrap to a new line together
+  .banner-actions
+    display: inline-flex
+    flex-wrap: wrap
+    align-items: center
+    gap: 4px 10px
+    vertical-align: middle
   .banner-link
     color: white
     text-decoration: underline
-    margin-left: 10px
   .banner-dismiss
     color: white
     text-decoration: none
@@ -358,35 +369,18 @@ input[type="submit"], button
     top: 0
     z-index: 100
 
-// Mobile: keep icon inline with text, let other items wrap
-@media only screen and (max-width: 700px)
-  .reddit-change-banner
-    .banner-content
-      flex-wrap: wrap
-      align-items: flex-start
-    .banner-icon
-      flex-shrink: 0
-    .banner-text
-      flex: 1 1 0
-      min-width: 200px
-    .banner-link
-      flex-basis: 100%
-      margin-left: 0
-      margin-top: 5px
-
 // Stuck-extension variant: a call to action for the affected user rather
 // than ambient site news, so slightly larger and centered with a capped
 // line length
 .stuck-extension-banner
   font-size: 15px
+  line-height: 1.45
   .banner-content
-    flex: 1 1 auto
     justify-content: center
-    text-align: center
-  .banner-text
+    align-items: center
+  .banner-body
     max-width: 62ch
-    line-height: 1.45
-    margin-right: 0
+    text-align: center
 
 // ---------------------------
 // Copy button

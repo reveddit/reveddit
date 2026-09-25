@@ -30,14 +30,18 @@ export const StuckExtensionBanner = ({ version }: { version: string }) => {
     <div className="reddit-change-banner stuck-extension-banner">
       <div className="banner-content">
         <span className="banner-icon">⚠️</span>
-        <span className="banner-text">
-          Your reveddit real-time extension is stuck on version {version} and no
-          longer updates. Fix: open chrome://extensions, turn on Developer mode
-          (top right), press Update.
-        </span>
-        <Link to="/update-help" className="banner-link">
-          Still stuck? Tell us which browser you use
-        </Link>
+        <div className="banner-body">
+          <span className="banner-text">
+            Your reveddit real-time extension is stuck on version {version} and
+            no longer updates. Fix: open chrome://extensions, turn on Developer
+            mode (top right), press Update.
+          </span>{' '}
+          <span className="banner-actions">
+            <Link to="/update-help" className="banner-link">
+              Still stuck? Tell us which browser you use
+            </Link>
+          </span>
+        </div>
       </div>
       <a className="banner-dismiss pointer" onClick={dismiss}>
         ✖&#xfe0e;
