@@ -2,9 +2,27 @@ import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import { fileURLToPath } from 'url'
+import fs from 'fs'
 import path from 'path'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
+// Writes dist/_headers giving each hashed asset a one-year cache. A blanket
+// /*.css rule would also cover 404s, and then an asset requested before its
+// deploy went live stays "not found" in Cloudflare and browsers for a year.
+const assetCacheHeaders = () => ({
+  name: 'asset-cache-headers',
+  apply: 'build',
+  closeBundle() {
+    const distDir = path.resolve(__dirname, 'dist')
+    const rules = fs
+      .readdirSync(path.join(distDir, 'x-files'))
+      .map(
+        file => `/x-files/${file}\n  cache-control: public, max-age=31536000\n`
+      )
+    fs.writeFileSync(path.join(distDir, '_headers'), rules.join(''))
+  },
+})
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, __dirname, '')
@@ -51,6 +69,7 @@ export default defineConfig(({ mode }) => {
           injectRegister: null,
           manifest: false,
         }),
+      assetCacheHeaders(),
     ].filter(Boolean),
 
     resolve: {

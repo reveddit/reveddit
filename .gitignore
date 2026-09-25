@@ -5,6 +5,7 @@
 node_modules/
 
 # Generated files (Vite build output)
+dist/_headers
 dist/index.html
 dist/service-worker.js
 dist/service-worker.js.map

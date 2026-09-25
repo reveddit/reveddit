@@ -39,17 +39,9 @@
   [headers.values]
     cache-control = "public, max-age=31536000"
 
-[[headers]]
-  for = "/*.js"
-
-  [headers.values]
-    cache-control = "public, max-age=31536000"
-
-[[headers]]
-  for = "/*.css"
-
-  [headers.values]
-    cache-control = "public, max-age=31536000"
+# Hashed build assets (/x-files/*) get their one-year cache-control from the
+# _headers file the build writes (see vite.config.js). It lists only files that
+# exist, so a 404 for an asset isn't cached for a year.
 
 [[headers]]
   for = "/service-worker.js"
