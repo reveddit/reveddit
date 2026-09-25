@@ -31,13 +31,8 @@ export const RedditChangeBanner = () => {
             {hasExtension ? (
               <>
                 {' '}
-                <Link
-                  to="/add-ons/direct"
-                  style={{ color: 'white', textDecoration: 'underline' }}
-                >
-                  Reveddit's extension
-                </Link>
-                , which you have installed, continues to work.
+                <Link to="/add-ons/direct">Reveddit's extension</Link>, which
+                you have installed, continues to work.
               </>
             ) : (
               <> Install the extension for reliable tracking and alerts:</>
