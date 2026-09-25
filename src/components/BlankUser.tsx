@@ -6,7 +6,13 @@ const sub_regex = /^\/?[rv]\/([^/]+)(\/c[^/]*)?(\/[^/]+)?/
 //const defaultPlaceholder = 'user, r/sub or url'
 const defaultPlaceholder = 'user or r/sub'
 
-export default ({ message = null, bottomMessage = null, placeholder = defaultPlaceholder }) => {
+export default ({
+  message = null,
+  bottomMessage = null,
+  placeholder = defaultPlaceholder,
+  showRandom = true,
+  autoFocus = true,
+}) => {
   const [random, setRandom] = useState(false)
   const [input, setInput] = useState('')
   const [inputRef, setInputFocus] = useFocus()
@@ -26,8 +32,7 @@ export default ({ message = null, bottomMessage = null, placeholder = defaultPla
     const queryParams = new SimpleURLSearchParams(window.location.search)
     queryParams.set('all', 'true')
 
-    const val = (data
-      .get('username') as string)
+    const val = (data.get('username') as string)
       .trim()
       .replace(/^u(?:ser)?\//i, '')
     // remove amp from user-entered URLs
@@ -37,7 +42,7 @@ export default ({ message = null, bottomMessage = null, placeholder = defaultPla
     )
     let url = '/'
     if (val === '') {
-      setRandom(true)
+      if (showRandom) setRandom(true)
     } else {
       const sub = val.match(sub_regex)
       const domain = val.match(/^(?!https?:\/\/)([^./ ]+\.[^/ ]+)\/*$/i)
@@ -107,24 +112,26 @@ export default ({ message = null, bottomMessage = null, placeholder = defaultPla
           type="text"
           name="username"
           placeholder={placeholder || defaultPlaceholder}
-          autoFocus="autoFocus"
+          autoFocus={autoFocus}
           value={input}
           onChange={e => setInput(e.target.value)}
           autoComplete="username"
         />
         <input type="submit" id="button_u" value="go" />
-        <div>
-          <button
-            title="Look up a random redditor"
-            id="button_shuffle"
-            onClick={e => {
-              e.preventDefault()
-              setRandom(true)
-            }}
-          >
-            random
-          </button>
-        </div>
+        {showRandom && (
+          <div>
+            <button
+              title="Look up a random redditor"
+              id="button_shuffle"
+              onClick={e => {
+                e.preventDefault()
+                setRandom(true)
+              }}
+            >
+              random
+            </button>
+          </div>
+        )}
       </form>
       {bottomMessage ? (
         bottomMessage

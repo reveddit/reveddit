@@ -15,6 +15,17 @@ const browserName = bp.getBrowserName()
 
 const isChrome = !!chromelike_fullnames[browserName]
 const isFirefox = !!(Bowser.BROWSER_MAP['firefox'] == browserName)
+const isEdge = Bowser.BROWSER_MAP['edge'] == browserName
+
+// Which ext_urls store key fits this browser: 'c' (Chrome Web Store, also
+// Opera/Vivaldi/Brave), 'f' (Firefox add-ons), 'e' (Edge add-ons), or null.
+export const browserStore: 'c' | 'f' | 'e' | null = isEdge
+  ? 'e'
+  : isChrome
+    ? 'c'
+    : isFirefox
+      ? 'f'
+      : null
 
 // phones and tablets cannot install the desktop extension
 export const isMobileDevice = ['mobile', 'tablet'].includes(

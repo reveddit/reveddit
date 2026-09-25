@@ -12,7 +12,7 @@ import {
 } from 'utils'
 import { combinePushshiftAndRedditComments } from 'data_processing/comments'
 import { setPostAndParentDataForComments } from 'data_processing/info'
-import Highlight from 'components/common/Highlight'
+import ExtensionHero from 'pages/about/ExtensionHero'
 import { Link } from 'react-router-dom'
 import { InternalPage, Spin } from 'components/Misc'
 import { NewWindowLink, SamePageHashLink } from 'components/ui/Links'
@@ -389,11 +389,15 @@ const About = ({ ...props }) => {
   }
   return (
     <InternalPage props={props}>
-      <div className="about section">
-        <ContentWithHeader header="About">
-          <BlankUser bottomMessage={<></>} />
-          <Highlight showMobile={true} />
-        </ContentWithHeader>
+      <ExtensionHero />
+      <div className="rt-lookup">
+        <BlankUser
+          message={<>Look up a subreddit or a Reddit thread:</>}
+          placeholder="r/subreddit or link"
+          showRandom={false}
+          autoFocus={false}
+          bottomMessage={<></>}
+        />
       </div>
       <ContentWithHeader
         header="What people say"

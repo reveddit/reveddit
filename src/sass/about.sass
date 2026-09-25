@@ -97,3 +97,150 @@ footer
     margin-right: 20px
     &:last-child
       margin-right: 0
+
+// Home page: Reveddit Real-Time pitch with the explainer video
+.rt-hero
+  text-align: center
+  margin: 4px auto 0
+  h1
+    font-size: 30px
+    font-weight: 700
+    line-height: 1.2
+    letter-spacing: -0.02em
+    color: var(--text-primary)
+    max-width: 620px
+    margin: 6px auto 12px
+  .rt-lede
+    color: var(--text-secondary)
+    font-size: 16px
+    line-height: 1.55
+    max-width: 640px
+    margin: 0 auto 18px
+    b
+      color: var(--text-primary)
+      font-weight: 600
+  .rt-cta
+    display: flex
+    flex-wrap: wrap
+    align-items: center
+    justify-content: center
+    gap: 10px 16px
+    margin: 0 auto 20px
+  a.rt-button
+    display: inline-block
+    background-color: var(--accent)
+    color: var(--text-on-accent)
+    font-weight: 700
+    font-size: 16px
+    padding: 11px 22px
+    border-radius: 8px
+    text-decoration: none
+    transition: background-color 0.15s ease
+    &:hover
+      background-color: var(--accent-hover)
+      color: var(--text-on-accent)
+  .rt-other
+    color: var(--text-secondary)
+    font-size: 14px
+  p.rt-other
+    margin: 0 auto 20px
+  .rt-installed
+    color: var(--moderator)
+    font-weight: 600
+    margin: 0 auto 20px
+  .rt-video-note
+    color: var(--text-muted)
+    font-size: 13px
+    margin: 10px auto 4px
+
+.rt-video
+  position: relative
+  aspect-ratio: 16 / 9
+  border-radius: 12px
+  overflow: hidden
+  background-color: #0f1013
+  border: 1px solid var(--border)
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35)
+  video
+    display: block
+    width: 100%
+    height: 100%
+
+button.rt-play
+  position: absolute
+  inset: 0
+  display: flex
+  align-items: flex-end
+  justify-content: center
+  padding: 0 0 6.5%
+  background: transparent
+  border-radius: 0
+  &:hover
+    background: transparent
+  .rt-play-pill
+    display: inline-flex
+    align-items: center
+    gap: 9px
+    padding: 11px 20px 11px 16px
+    border-radius: 999px
+    background-color: var(--accent)
+    color: #fff
+    font-weight: 700
+    font-size: 16px
+    box-shadow: 0 8px 24px rgba(224, 62, 62, 0.35)
+    transition: background-color 0.15s ease, transform 0.15s ease
+    svg
+      width: 16px
+      height: 16px
+  &:hover .rt-play-pill, &:focus-visible .rt-play-pill
+    background-color: var(--accent-hover)
+    transform: scale(1.04)
+  .rt-play-len
+    font-weight: 600
+    opacity: 0.8
+
+.rt-transcript
+  text-align: left
+  max-width: 640px
+  margin: 4px auto 0
+  color: var(--text-secondary)
+  font-size: 14px
+  summary
+    cursor: pointer
+    text-align: center
+    color: var(--link)
+  ol
+    margin: 12px 0 0
+    padding-left: 1.3em
+  li
+    margin-bottom: 6px
+
+.rt-lookup
+  margin: 28px auto 0
+  padding-top: 18px
+  border-top: 1px solid var(--border)
+  .blank_page .text
+    text-align: center
+    color: var(--text-secondary)
+    font-size: 16px
+    margin-bottom: 8px
+  #user-form input[type="text"]
+    width: 220px
+    max-width: 60vw
+
+@media (max-width: 600px)
+  .rt-hero h1
+    font-size: 24px
+  .rt-hero .rt-lede
+    font-size: 15px
+  .rt-video
+    border-radius: 8px
+  button.rt-play
+    padding-bottom: 4%
+    .rt-play-pill
+      gap: 6px
+      padding: 6px 12px 6px 10px
+      font-size: 13px
+      svg
+        width: 11px
+        height: 11px

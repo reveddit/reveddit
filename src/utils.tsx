@@ -14,6 +14,7 @@ export const CLIENT_ID_SET_BY_USER_VAR_NAME = 'REVEDDIT_USER_CUSTOM_CLIENT_ID'
 const markdown = (SnuOwnd as any).getParser()
 const chrome_base = 'https://chrome.google.com/webstore/detail/'
 const ff_base = 'https://addons.mozilla.org/en-US/firefox/addon/'
+const edge_base = 'https://microsoftedge.microsoft.com/addons/detail/'
 export const now = Math.floor(Date.now() / 1000)
 export const getNow = () => Math.floor(Date.now() / 1000)
 
@@ -22,6 +23,7 @@ export const ext_urls = {
     n: 'Reveddit Real-Time',
     c: chrome_base + 'reveddit-real-time/ickfhlplfbipnfahjbeongebnmojbnhm',
     f: ff_base + 'reveddit-real-time/',
+    e: edge_base + 'reveddit-realtime/cchkadjmggcjoldlfmccdindjgadjgbj',
   },
   linker: {
     n: 'Reveddit Linker',
