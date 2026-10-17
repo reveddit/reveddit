@@ -343,13 +343,20 @@ export const getArchivedCommentsByID = ids => {
   }) // ignore fetch errors, this is not critical data
 }
 
+export type WaybackStatus = 'found' | 'not_found' | 'timed_out' | 'failed'
+// Must match WAYBACK_TIMED_OUT in the API's WaybackReddit.py
+const WAYBACK_TIMED_OUT = 'timed out'
+// The API answers within about 45s (its lookup deadline plus a hard limit), so wait a little longer
+const WAYBACK_TIMEOUT_MS = 50000
+
 // using REVEDDIT_FLASK_HOST_SHORT b/c wayback results will change for recent data
 export const getWaybackComments = ({
   link_id,
   ids,
   known_removed_ids,
   path = undefined,
-}) => {
+  retry = false,
+}): Promise<{ comments: Record<string, any>; status: WaybackStatus }> => {
   return flaskQuery({
     path: 'wayback-proxy/',
     params: {
@@ -360,14 +367,30 @@ export const getWaybackComments = ({
       ...(known_removed_ids && {
         known_removed_ids: known_removed_ids.join(','),
       }),
+      // A retry gets its own cache key, in case a failed answer was cached
+      ...(retry && { retry: Date.now().toString(36) }),
     },
-    // Wayback lookups take 10-15s, more than the default timeout
-    options: { timeout: 30000 },
+    options: { timeout: WAYBACK_TIMEOUT_MS },
   })
-    .then(result => result.data || {})
-    .catch(_error => {
-      return {}
-    }) // ignore fetch errors, this is not critical data
+    .then(result => {
+      const comments = result.data || {}
+      let status: WaybackStatus = 'not_found'
+      if (Object.keys(comments).length) {
+        status = 'found'
+      } else if (result.error === WAYBACK_TIMED_OUT) {
+        status = 'timed_out'
+      } else if (result.error) {
+        status = 'failed'
+      }
+      return { comments, status }
+    })
+    .catch(error => {
+      // flaskQuery rewraps errors as text, so the browser's timeout shows up as AbortError in the message
+      const status: WaybackStatus = String(error).includes('AbortError')
+        ? 'timed_out'
+        : 'failed'
+      return { comments: {}, status }
+    })
 }
 
 export const getUserStatus = (user: string, turnstileToken: string) => {

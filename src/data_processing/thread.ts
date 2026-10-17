@@ -324,12 +324,9 @@ export const getRevdditThreadItems = async (
         if (commentID) {
           root_comment_id = oldestComment.id
           const after = oldestComment.created_utc - 1
-          const focus_comment_removed =
-            redditComments[commentID] &&
-            commentIsRemoved(redditComments[commentID])
+          // The focused comment's archive.org search runs from RestoreComment, which shows its progress
           reveddit_comments_promise = getCommentsByThread({
             comment_id: commentID,
-            ...(focus_comment_removed && { focus_comment_removed }),
             link_id: threadID,
             after,
             root_comment_id,

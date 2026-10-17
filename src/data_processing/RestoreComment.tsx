@@ -18,7 +18,7 @@ import {
   updateURL,
 } from 'state'
 import { kindsReverse, queryUserPage, EmptyUserPageResult } from 'api/reddit'
-import { getWaybackComments } from 'api/reveddit'
+import { getWaybackComments, WaybackStatus } from 'api/reveddit'
 import { Spin } from 'components/Misc'
 import {
   QuestionMarkModal,
@@ -152,6 +152,13 @@ const search_comment_help = (
   />
 )
 
+const waybackMessages: Partial<Record<WaybackStatus, string>> = {
+  not_found: 'Not found on archive.org.',
+  timed_out:
+    'Searching archive.org ran out of time. Click Restore to try again.',
+  failed: "Searching archive.org didn't work. Click Restore to try again.",
+}
+
 const Wrap = ({ children }) => (
   <div style={{ padding: '8px 0', minHeight: '25px' }}>{children}</div>
 )
@@ -233,6 +240,10 @@ const RestoreComment = props => {
   const [searchAll, setSearchAll] = useState(false)
   const [archiveSearched, setArchiveSearched] = useState(false)
   const [waybackSearched, setWaybackSearched] = useState(false)
+  const [waybackStatus, setWaybackStatus] = useState<
+    WaybackStatus | 'searching'
+  >()
+  const waybackAutoSearchStarted = useRef(false)
 
   let searchButton: React.ReactNode
   const { id, created_utc, score, controversiality, retrieved_on, link_id } =
@@ -370,6 +381,46 @@ const RestoreComment = props => {
     !ps_after_list.includes(this_query_ps_after)
   const canRunWaybackSearch =
     !waybackSearched && comment_age_in_seconds > 161243 // ~ 44 hours
+  const searchWayback = async () => {
+    const known_removed_ids = []
+    for (const c of Object.values(itemsLookup) as any[]) {
+      if (c.score !== 1 && commentIsRemoved(c) && c.id !== id) {
+        known_removed_ids.push(c.id)
+      }
+    }
+    // A search that ran out of time or failed may have left a cached answer, so a retry skips the cache
+    const retry = waybackStatus === 'timed_out' || waybackStatus === 'failed'
+    setWaybackStatus('searching')
+    const { comments, status } = await getWaybackComments({
+      link_id: link_id.substr(3),
+      ids: [id],
+      known_removed_ids,
+      path: itemsLookup[id]?.permalink,
+      retry,
+    })
+    if (!isMounted.current) {
+      return {}
+    }
+    setWaybackStatus(status)
+    // After a timeout or failure, Restore stays available to try again
+    if (status === 'found' || status === 'not_found') {
+      setWaybackSearched(true)
+    }
+    if (!Object.keys(comments).length) {
+      return {}
+    }
+    for (const [id, comment] of Object.entries(comments)) {
+      if (itemsLookup[id]) {
+        Object.assign(itemsLookup[id], comment)
+        itemsLookup[id].archive_processed = true
+        delete itemsLookup[id].archive_body_removed
+      }
+    }
+    return {
+      itemsLookup,
+      add_user_on_page_load: add_user_on_page_load + 1, // triggers re-render
+    }
+  }
   const search = async () => {
     let state = {}
     await setLocalLoading(true)
@@ -419,30 +470,7 @@ const RestoreComment = props => {
       setArchiveSearched(true)
     }
     if (targetNotFound() && canRunWaybackSearch) {
-      const known_removed_ids = []
-      for (const c of Object.values(itemsLookup) as any[]) {
-        if (c.score !== 1 && commentIsRemoved(c) && c.id !== id) {
-          known_removed_ids.push(c.id)
-        }
-      }
-      const comments = await getWaybackComments({
-        link_id: link_id.substr(3),
-        ids: [id],
-        known_removed_ids,
-        path: itemsLookup[id]?.permalink,
-      })
-      if (Object.keys(comments).length) {
-        for (const [id, comment] of Object.entries(comments)) {
-          Object.assign(itemsLookup[id], comment)
-          itemsLookup[id].archive_processed = true
-          delete itemsLookup[id].archive_body_removed
-        }
-        state = {
-          itemsLookup,
-          add_user_on_page_load: add_user_on_page_load + 1, // triggers re-render
-        }
-      }
-      setWaybackSearched(true)
+      Object.assign(state, await searchWayback())
     }
     if (targetNotFound() && !removedByReddit) {
       state = await searchFromMeta(meta)
@@ -450,6 +478,28 @@ const RestoreComment = props => {
     await setLocalLoading(false)
     return global.setSuccess(state)
   }
+  // When the page was loaded from this comment's link, search archive.org right away
+  // instead of waiting for a click on Restore
+  useEffect(() => {
+    if (
+      !globalLoading &&
+      !waybackAutoSearchStarted.current &&
+      id === initialFocusCommentID &&
+      canRunWaybackSearch &&
+      (!itemsLookup[id] || commentIsRemoved(itemsLookup[id]) || removedByReddit)
+    ) {
+      waybackAutoSearchStarted.current = true
+      const autoSearch = async () => {
+        setLocalLoading(true)
+        const state = await searchWayback()
+        await stopLocalLoading()
+        if (Object.keys(state).length) {
+          global.setSuccess(state)
+        }
+      }
+      autoSearch()
+    }
+  }, [globalLoading])
 
   //states:
   //  loading && needToFindAuthors (! aug) => show spin
@@ -459,6 +509,12 @@ const RestoreComment = props => {
   //  ! loading && hasAuthors => show button
   //  ! loading && noAuthors => show nothing
   const numAuthorsRemaining = countRemaining({ alreadySearchedAuthors })
+  const waybackMessage =
+    waybackStatus && waybackMessages[waybackStatus] ? (
+      <div style={{ marginBottom: '8px' }}>
+        {waybackMessages[waybackStatus]}
+      </div>
+    ) : null
   // Check for > 0 b/c globalAuthors is not populated until end of page load
   const numAuthorsRemainingDiv =
     numAuthorsRemaining > 0 ? (
@@ -483,7 +539,14 @@ const RestoreComment = props => {
     //    if (! meta.aug || meta.aug.length()) {
     searchButton = (
       <Wrap>
-        <Spin width="20px" />
+        {waybackStatus === 'searching' ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Spin width="20px" />
+            <span>Searching archive.org…</span>
+          </div>
+        ) : (
+          <Spin width="20px" />
+        )}
         {cancel}
         {numAuthorsRemainingDiv}
       </Wrap>
@@ -496,6 +559,7 @@ const RestoreComment = props => {
   ) {
     searchButton = (
       <Wrap>
+        {waybackMessage}
         <div>
           <a className={buttonClasses} onClick={search}>
             <RestoreIcon /> {unarchived_search_button_word}
@@ -570,7 +634,12 @@ const RestoreComment = props => {
       </Wrap>
     )
   } else {
-    searchButton = <HideUnarchivedComments />
+    searchButton = (
+      <>
+        {waybackMessage}
+        <HideUnarchivedComments />
+      </>
+    )
   }
   return searchButton
 }
