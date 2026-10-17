@@ -203,9 +203,10 @@ export const bridgeFetch = async (
       await new Promise(r => setTimeout(r, resp.retryAfterMs))
       return bridgeFetch(url, true)
     }
-    // rate_limited | busy | budget_exhausted | no_identity | invalid url |
-    // http failure — the extension exists but declined; the caller falls
-    // back to JSONP
+    // rate_limited | busy | budget_exhausted | not_logged_in (no reddit login
+    // in this browser; ConnectError says so) | no_identity (older versions) |
+    // invalid url | http failure — the extension exists but declined; the
+    // caller falls back to JSONP
     recordTransport('bridge', `refused (${resp.error || resp.status})`)
     throw new Error(`bridge refused: ${resp.error || resp.status}`)
   }

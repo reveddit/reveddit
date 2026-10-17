@@ -65,9 +65,11 @@ export const ConnectErrorContent = ({ pageError = '' }) => {
         <p>
           {bridgeStatus === 'no response'
             ? "It didn't answer this page, though. Reload the page, and if that keeps happening, restart your browser."
-            : bridgeStatus.startsWith('refused')
-              ? "It couldn't get this page's data from Reddit just now; the status below says why. Try again in a few minutes."
-              : 'This page could not load through it just now; the status below says why. Reload the page to try again.'}
+            : bridgeStatus === 'refused (not_logged_in)'
+              ? "It reaches Reddit through your Reddit login, and this browser isn't logged in to Reddit. Log in at www.reddit.com or old.reddit.com, then reload this page."
+              : bridgeStatus.startsWith('refused')
+                ? "It couldn't get this page's data from Reddit just now; the status below says why. Try again in a few minutes."
+                : 'This page could not load through it just now; the status below says why. Reload the page to try again.'}
         </p>
       </>
     )
