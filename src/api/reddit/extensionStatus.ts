@@ -57,7 +57,7 @@ let marked = false
 let started = false
 const listeners = new Set<() => void>()
 let settledWaiters: Array<(s: ExtensionStatus) => void> = []
-// Firefox's bridge relay (bridge.ts) goes through the content script, which
+// The bridge relay (bridge.ts) goes through the content script, which
 // starts listening at document_idle, right after it writes the stamp. A mark
 // shows the extension running well before that. Null until known.
 let relayReady: boolean | null = null

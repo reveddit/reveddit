@@ -10,8 +10,8 @@
 // Two transports, one message shape:
 // - Chrome/Edge: chrome.runtime.sendMessage(EXTENSION_ID, ...) via
 //   externally_connectable
-// - Firefox (no externally_connectable): window.postMessage relayed by the
-//   content script
+// - Firefox (no externally_connectable), and builds with another ID (Edge
+//   Add-ons, unpacked): window.postMessage relayed by the content script
 
 import { recordTransport } from './status'
 import {
@@ -72,6 +72,12 @@ const chromeRuntime = (): any => {
   }
 }
 
+// chrome.runtime's lastError when nothing is installed under the ID. Edge
+// Add-ons and unpacked builds have other IDs, but their externally_connectable
+// still puts chrome.runtime on reveddit pages.
+const NO_RECEIVER =
+  'Could not establish connection. Receiving end does not exist.'
+
 const sendViaChrome = (url: string): Promise<any> =>
   new Promise((resolve, reject) => {
     const runtime = chromeRuntime()
@@ -90,6 +96,9 @@ const sendViaChrome = (url: string): Promise<any> =>
           clearTimeout(timer)
           // lastError must be read to avoid an unchecked-error console warning
           const err = (window as any).chrome?.runtime?.lastError
+          if (err?.message === NO_RECEIVER) {
+            return reject(new Error(NO_RECEIVER))
+          }
           if (err || !resp) {
             return reject(new Error('bridge unavailable'))
           }
@@ -149,6 +158,24 @@ const sendViaRelay = async (url: string): Promise<any> => {
   })
 }
 
+// Set once nothing answers at EXTENSION_ID, so the rest of this page load goes
+// straight to the relay, which every build runs
+let relayOnly = false
+
+const sendRequest = async (url: string): Promise<any> => {
+  if (chromeRuntime() && !relayOnly) {
+    try {
+      return await sendViaChrome(url)
+    } catch (e: any) {
+      if (e?.message !== NO_RECEIVER) {
+        throw e
+      }
+      relayOnly = true
+    }
+  }
+  return sendViaRelay(url)
+}
+
 // Response-like result so existing .then(response => response.json()) chains
 // work unchanged; rejects on refusal or absence so callers can fall back
 const BRIDGE_BUSY_RETRY_MAX_MS = 20000
@@ -182,7 +209,7 @@ export const bridgeFetch = async (
   }
   let resp
   try {
-    resp = await (chromeRuntime() ? sendViaChrome(url) : sendViaRelay(url))
+    resp = await sendRequest(url)
   } catch (e) {
     bridgeAbsentUntil = Date.now() + BRIDGE_ABSENT_RETRY_MS
     recordTransport('bridge', 'no response')
