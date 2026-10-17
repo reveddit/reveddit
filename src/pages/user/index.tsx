@@ -9,7 +9,6 @@ import { SimpleURLSearchParams, get, put, PATH_STR_SUB } from 'utils'
 import Highlight from 'components/common/Highlight'
 import ModalContext from 'contexts/modal'
 import { Spin } from 'components/Misc'
-import ShadowbanCheckButton from './ShadowbanCheckButton'
 import {
   RedditOrLocalLink,
   NewWindowLink,
@@ -91,24 +90,10 @@ const User = ({
     }
     if (userIssueDescription) {
       let message
-      if (userIssueDescription === 'needs_shadowban_check') {
-        message = (
-          <>
-            <p>
-              Reddit returned 404 for /u/{user}. The account may be
-              shadowbanned.
-            </p>
-            <ShadowbanCheckButton user={user} global={global} />
-          </>
-        )
-      } else if (userIssueDescription === 'transport_failed') {
+      if (userIssueDescription === 'transport_failed') {
         message = <ConnectErrorContent />
       } else if (userIssueDescription.toLowerCase().startsWith('error')) {
         message = userIssueDescription
-      } else if (userIssueDescription === 'unknown') {
-        message = (
-          <p>{`Couldn't check status for ${user}. The check is temporarily unavailable. Try again in a few minutes.`}</p>
-        )
       } else if (userIssueDescription.includes('shadowbanned')) {
         const deleted_txt = userIssueDescription.includes('deleted')
           ? ' deleted or '

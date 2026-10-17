@@ -250,7 +250,10 @@ const getItems = async (
       if (avail === true) {
         user_issue_description = 'does not exist'
       } else {
-        user_issue_description = 'needs_shadowban_check'
+        // a taken (or uncheckable) name that 404s: deleted or shadowbanned.
+        // Telling those apart needs reddit's HTML profile page, which
+        // api.reveddit.com can no longer fetch (reddit blocks its IP)
+        user_issue_description = 'deleted_shadowbanned'
       }
     } else if (data?.message.toLowerCase() == 'forbidden') {
       user_issue_description = 'suspended'
