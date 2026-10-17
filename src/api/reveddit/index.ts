@@ -237,7 +237,10 @@ const postProcessUmodlogs = (list, thread_id) => {
 }
 
 export const getModerators = (subreddit, turnstile_token?: string) => {
-  return flaskQuery({ path: 'moderators/', params: { subreddit, ...(turnstile_token && { turnstile_token }) } })
+  return flaskQuery({
+    path: 'moderators/',
+    params: { subreddit, ...(turnstile_token && { turnstile_token }) },
+  })
     .catch(_error => {
       return {}
     }) // ignore fetch errors, this is not critical data
@@ -341,16 +344,25 @@ export const getArchivedCommentsByID = ids => {
 }
 
 // using REVEDDIT_FLASK_HOST_SHORT b/c wayback results will change for recent data
-export const getWaybackComments = ({ link_id, ids, known_removed_ids }) => {
+export const getWaybackComments = ({
+  link_id,
+  ids,
+  known_removed_ids,
+  path = undefined,
+}) => {
   return flaskQuery({
     path: 'wayback-proxy/',
     params: {
       link_id,
       ids: ids.join(','),
+      // Comment permalink from reddit's data, so the server can find captures without querying reddit
+      ...(path && { path }),
       ...(known_removed_ids && {
         known_removed_ids: known_removed_ids.join(','),
       }),
     },
+    // Wayback lookups take 10-15s, more than the default timeout
+    options: { timeout: 30000 },
   })
     .then(result => result.data || {})
     .catch(_error => {

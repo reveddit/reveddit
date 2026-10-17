@@ -429,6 +429,7 @@ const RestoreComment = props => {
         link_id: link_id.substr(3),
         ids: [id],
         known_removed_ids,
+        path: itemsLookup[id]?.permalink,
       })
       if (Object.keys(comments).length) {
         for (const [id, comment] of Object.entries(comments)) {
