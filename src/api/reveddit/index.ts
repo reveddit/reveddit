@@ -355,6 +355,8 @@ export const getWaybackComments = ({
   ids,
   known_removed_ids,
   path = undefined,
+  created_utc = undefined,
+  turnstile_token = undefined as string | undefined,
   retry = false,
 }): Promise<{ comments: Record<string, any>; status: WaybackStatus }> => {
   return flaskQuery({
@@ -364,6 +366,10 @@ export const getWaybackComments = ({
       ids: ids.join(','),
       // Comment permalink from reddit's data, so the server can find captures without querying reddit
       ...(path && { path }),
+      // When the comment was posted, so the server picks captures from after it
+      ...(created_utc && { created_utc }),
+      // The server only starts a lookup for visitors who pass Turnstile
+      ...(turnstile_token && { turnstile_token }),
       ...(known_removed_ids && {
         known_removed_ids: known_removed_ids.join(','),
       }),

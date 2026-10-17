@@ -43,6 +43,7 @@ import { getCommentsByThread as getPushshiftCommentsByThread } from 'api/pushshi
 import { unarchived_label_text } from 'components/common/RemovedBy'
 import { EXCLUDE_UNARCHIVED_REGEX } from 'components/filters/TextFilter'
 import { usePageType } from 'contexts/page'
+import { useTurnstile } from 'hooks/useTurnstile'
 
 const MAX_AUTHORS_NEARBY_BY_DATE = 25
 const MAX_AUTHORS_TO_SEARCH = 100
@@ -244,6 +245,7 @@ const RestoreComment = props => {
     WaybackStatus | 'searching'
   >()
   const waybackAutoSearchStarted = useRef(false)
+  const { getToken } = useTurnstile()
 
   let searchButton: React.ReactNode
   const { id, created_utc, score, controversiality, retrieved_on, link_id } =
@@ -391,11 +393,23 @@ const RestoreComment = props => {
     // A search that ran out of time or failed may have left a cached answer, so a retry skips the cache
     const retry = waybackStatus === 'timed_out' || waybackStatus === 'failed'
     setWaybackStatus('searching')
+    // Without a token the server refuses the search, which shows as failed and leaves Restore available
+    const turnstile_token = await getToken().catch(() => undefined)
+    if (!isMounted.current) {
+      return {}
+    }
+    // The server finds the thread's archived pages from this path
+    const path =
+      itemsLookup[id]?.permalink ||
+      (threadPost?.subreddit &&
+        `/r/${threadPost.subreddit}/comments/${link_id.substr(3)}/_/${id}/`)
     const { comments, status } = await getWaybackComments({
       link_id: link_id.substr(3),
       ids: [id],
       known_removed_ids,
-      path: itemsLookup[id]?.permalink,
+      path,
+      created_utc: itemsLookup[id]?.created_utc || created_utc,
+      turnstile_token,
       retry,
     })
     if (!isMounted.current) {
