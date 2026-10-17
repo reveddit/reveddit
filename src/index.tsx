@@ -21,6 +21,7 @@ import {
 import { urlParamKeys_textFilters } from 'state'
 import { ExtensionRedirect } from 'components/ui/Extensions'
 import { old_reddit } from 'api/reddit'
+import { startExtensionCheck } from 'api/reddit/extensionStatus'
 
 // Skeleton placeholder shown while lazy route chunks load.
 // Uses the .skeleton shimmer CSS already defined in common.sass.
@@ -484,4 +485,6 @@ const App = () => (
 // Clear any stale content in the root element before mounting.
 const rootElement = document.getElementById('app')
 rootElement.textContent = ''
+// Before rendering, so the first paint already uses its prediction
+startExtensionCheck()
 createRoot(rootElement).render(<App />)

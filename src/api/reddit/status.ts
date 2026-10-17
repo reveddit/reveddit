@@ -3,6 +3,11 @@
 // messages can say which paths failed instead of guessing at a cause.
 // In-memory only; resets on page load.
 
+import {
+  getShownExtensionStatus,
+  getKnownExtensionVersion,
+} from './extensionStatus'
+
 export type TransportName = 'jsonp' | 'bridge' | 'apikey'
 
 const status: Record<TransportName, string> = {
@@ -17,25 +22,28 @@ export const recordTransport = (name: TransportName, outcome: string) => {
 
 export const getTransportStatus = (name: TransportName): string => status[name]
 
-// One line for error UIs. Callers pass extension/API-key state to avoid
-// import cycles (bridge.ts imports recordTransport from this module).
+// One line for error UIs. The caller passes API-key state to avoid an import
+// cycle with utils.
 export const getTransportSummary = ({
-  extensionVersion,
   hasApiKey,
 }: {
-  extensionVersion: string | null
   hasApiKey: boolean
-}): string =>
-  `direct reddit: ${status.jsonp} · extension bridge: ` +
-  (extensionVersion
-    ? `${status.bridge} (v${extensionVersion})`
-    : // the stamps may have just been forgotten after a miss (bridge.ts)
-      status.bridge === 'no response'
-      ? 'no response'
-      : 'not detected') +
-  ` · API key: ` +
-  (hasApiKey
-    ? status.apikey === 'untried'
-      ? 'set, untried'
-      : status.apikey
-    : 'none')
+}): string => {
+  const shown = getShownExtensionStatus()
+  const v = getKnownExtensionVersion()
+  const extension =
+    shown === 'running'
+      ? `running${v ? ` (v${v})` : ''}`
+      : shown === 'not-running'
+        ? `not running${v ? ` (last seen v${v})` : ''}`
+        : 'not detected'
+  return (
+    `direct reddit: ${status.jsonp} · extension: ${extension} · bridge: ` +
+    `${status.bridge} · API key: ` +
+    (hasApiKey
+      ? status.apikey === 'untried'
+        ? 'set, untried'
+        : status.apikey
+      : 'none')
+  )
+}

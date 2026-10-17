@@ -14,21 +14,22 @@
 //   content script
 
 import { recordTransport } from './status'
+import {
+  getExtensionStatus,
+  getShownExtensionStatus,
+  extensionStatusSettled,
+  getKnownExtensionVersion,
+} from './extensionStatus'
 
 declare const EXTENSION_ID: string
 
 const BRIDGE_MIN_VERSION = [0, 0, 5, 21]
 const BRIDGE_TIMEOUT_MS = 10000
 
-// The content script stamps its version in localStorage on every load (also
-// pre-bridge versions, which would otherwise swallow relay messages).
-export const getExtensionVersion = (): string | null => {
-  try {
-    return window.localStorage.getItem('notifierExtensionVersion')
-  } catch {
-    return null
-  }
-}
+// The version running in this browser, or the last one seen there. Whether it
+// is running now comes from extensionStatus.ts.
+export const getExtensionVersion = (): string | null =>
+  getKnownExtensionVersion()
 
 export const extensionSupportsBridge = (): boolean =>
   extensionVersionAtLeast(BRIDGE_MIN_VERSION)
@@ -60,42 +61,6 @@ const extensionVersionAtLeast = (min: number[]): boolean => {
 // of the session. Refusals prove the bridge exists and clear the pause.
 const BRIDGE_ABSENT_RETRY_MS = 60 * 1000
 let bridgeAbsentUntil = 0
-
-// A disabled or removed extension leaves its localStorage stamps behind, so the
-// site would keep calling it installed and wait out the timeout on every load.
-// After this many page loads in a row without an answer, forget the stamps. An
-// enabled extension writes them again on its next page load.
-const MISSED_LOADS_BEFORE_FORGETTING = 2
-const MISSED_LOADS_KEY = 'notifierExtensionMissedLoads'
-let missCountedThisLoad = false
-
-const countMissedLoad = () => {
-  if (missCountedThisLoad) {
-    return
-  }
-  missCountedThisLoad = true
-  try {
-    const missed =
-      Number(window.localStorage.getItem(MISSED_LOADS_KEY) || 0) + 1
-    if (missed >= MISSED_LOADS_BEFORE_FORGETTING) {
-      window.localStorage.removeItem('notifierExtensionVersion')
-      window.localStorage.removeItem('hasNotifierExtension')
-      window.localStorage.removeItem(MISSED_LOADS_KEY)
-    } else {
-      window.localStorage.setItem(MISSED_LOADS_KEY, String(missed))
-    }
-  } catch {
-    // storage unavailable: nothing to forget
-  }
-}
-
-const clearMissedLoads = () => {
-  try {
-    window.localStorage.removeItem(MISSED_LOADS_KEY)
-  } catch {
-    // storage unavailable
-  }
-}
 
 const chromeRuntime = (): any => {
   try {
@@ -185,11 +150,25 @@ export const bridgeFetch = async (
   url: string,
   isRetry = false
 ): Promise<any> => {
-  if (!extensionVersionAtLeast(BRIDGE_MIN_VERSION)) {
+  // Wait for the live check unless it expects no extension at all. That skips
+  // the timeout when the extension is off, and keeps relay messages from being
+  // posted before the content script is listening.
+  let extensionStatus = getExtensionStatus()
+  if (
+    extensionStatus === 'checking' &&
+    getShownExtensionStatus() !== 'absent'
+  ) {
+    extensionStatus = await extensionStatusSettled()
+  }
+  if (extensionStatus !== 'running') {
     recordTransport(
       'bridge',
-      getExtensionVersion() ? 'needs update' : 'not detected'
+      extensionStatus === 'not-running' ? 'not running' : 'not detected'
     )
+    throw new Error('bridge unavailable')
+  }
+  if (!extensionVersionAtLeast(BRIDGE_MIN_VERSION)) {
+    recordTransport('bridge', 'needs update')
     throw new Error('bridge unavailable')
   }
   if (Date.now() < bridgeAbsentUntil) {
@@ -201,11 +180,9 @@ export const bridgeFetch = async (
   } catch (e) {
     bridgeAbsentUntil = Date.now() + BRIDGE_ABSENT_RETRY_MS
     recordTransport('bridge', 'no response')
-    countMissedLoad()
     throw e
   }
   bridgeAbsentUntil = 0
-  clearMissedLoads()
   if (!resp.ok) {
     // busy means the user's own monitoring cycle is in flight; it finishes
     // within seconds, so wait the suggested interval and ask once more before

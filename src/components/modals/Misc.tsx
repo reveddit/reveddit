@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { getShownExtensionStatus } from 'api/reddit/extensionStatus'
 import { NewWindowLink } from 'components/ui/Links'
 import { SocialLinks } from 'components/Misc'
 import BlankUser from 'components/BlankUser'
@@ -216,7 +217,7 @@ export const newUserModal = props => {
     put(breakingChange.local_storage_var, true)
     return
   }
-  if (!get('hasNotifierExtension', false) && !get(hasVisitedSite, false)) {
+  if (getShownExtensionStatus() === 'absent' && !get(hasVisitedSite, false)) {
     props.openGenericModal({ hash: 'welcome' })
     put(hasVisitedSite, true)
     return

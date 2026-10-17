@@ -1,67 +1,55 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { get, getCustomClientID } from 'utils'
+import { getCustomClientID } from 'utils'
 import ModalContext from 'contexts/modal'
 import { RedditOrLocalLink } from 'components/ui/Links'
 import { ExtensionLinks, isMobileDevice } from 'components/ui/Extensions'
 import { getTransportSummary, getTransportStatus } from 'api/reddit/status'
-import { getExtensionVersion, extensionSupportsBridge } from 'api/reddit/bridge'
+import { extensionSupportsBridge } from 'api/reddit/bridge'
+import { useExtensionStatus } from 'api/reddit/extensionStatus'
 
 const whatHappenedLink = (
   <RedditOrLocalLink to="/about/faq/#errors">What happened?</RedditOrLocalLink>
 )
 
 // The one connect-failure message, shared by the error modal
-// (RevdditFetcher) and the user page so they never drift apart. Branches on
-// what would actually reconnect this visitor: turning the extension back on
-// when it didn't answer this page (a disabled or removed extension leaves its
-// stamps behind, so "installed" alone proves nothing), an extension update for
-// the stuck-on-old-version cohort, the store badges for desktop visitors
-// without the extension, and a desktop-only note on mobile, where no extension
-// can install.
+// (RevdditFetcher) and the user page so they never drift apart. It leads with
+// the extension, the only way most visitors still reach Reddit, as the landing
+// page does: green when it's running (so something else failed), red when it
+// ran in this browser before but isn't running now, an update for the
+// stuck-on-old-version cohort, the store badges for visitors who never had it,
+// and a desktop-only note on mobile, where no extension can install.
 export const ConnectErrorContent = ({ pageError = '' }) => {
   const modal = React.useContext(ModalContext)
-  const extensionVersion = getExtensionVersion()
-  const hasExtension =
-    Boolean(extensionVersion) || get('hasNotifierExtension', false)
+  const extension = useExtensionStatus()
   const hasApiKey = Boolean(getCustomClientID())
+  const bridgeStatus = getTransportStatus('bridge')
   const settingsLink = (
     <Link to="#settings" onClick={() => modal.openModal({ hash: 'settings' })}>
       settings
     </Link>
   )
-  const bridgeStatus = getTransportStatus('bridge')
-  const extensionDidNotAnswer = bridgeStatus === 'no response'
   const storeLinks = (
     <div style={{ margin: '15px 0' }}>
       <ExtensionLinks imgStyle={{ height: '48px' }} />
     </div>
   )
   let path
-  if (extensionDidNotAnswer) {
+  if (extension === 'not-running') {
     path = (
       <>
+        <p className="extension-status off">
+          ✗ Reveddit Real-Time isn't running in this browser.
+        </p>
         <p>
-          Reveddit connects to Reddit through its browser extension, and yours
-          didn't answer this page. It may be turned off or removed. Check your
-          browser's extensions page, then reload this page, or install it:
+          This site reaches Reddit through it. It may be turned off or removed:
+          turn it on in your browser's extensions page and reload this page, or
+          reinstall it:
         </p>
         {storeLinks}
       </>
     )
-  } else if (hasExtension && extensionSupportsBridge()) {
-    path = bridgeStatus.startsWith('refused') ? (
-      <p>
-        Your Reveddit extension answered, but couldn't get this page's data from
-        Reddit just now; the status below says why. Try again in a few minutes.
-      </p>
-    ) : (
-      <p>
-        This page could not load through your Reveddit extension just now; the
-        status below says why. Reload the page to try again.
-      </p>
-    )
-  } else if (hasExtension) {
+  } else if (extension === 'running' && !extensionSupportsBridge()) {
     path = (
       <p>
         Your installed Reveddit extension continues to track removed content,
@@ -69,6 +57,19 @@ export const ConnectErrorContent = ({ pageError = '' }) => {
         Yours has not updated: see{' '}
         <RedditOrLocalLink to="/update-help/">update help</RedditOrLocalLink>.
       </p>
+    )
+  } else if (extension === 'running') {
+    path = (
+      <>
+        <p className="extension-status on">✓ Reveddit Real-Time is running.</p>
+        <p>
+          {bridgeStatus === 'no response'
+            ? "It didn't answer this page, though. Reload the page, and if that keeps happening, restart your browser."
+            : bridgeStatus.startsWith('refused')
+              ? "It couldn't get this page's data from Reddit just now; the status below says why. Try again in a few minutes."
+              : 'This page could not load through it just now; the status below says why. Reload the page to try again.'}
+        </p>
+      </>
     )
   } else if (isMobileDevice) {
     path = (
@@ -101,7 +102,7 @@ export const ConnectErrorContent = ({ pageError = '' }) => {
         {settingsLink}.
       </p>
     )
-  } else if (!hasApiKey && (!hasExtension || extensionDidNotAnswer)) {
+  } else if (!hasApiKey && extension !== 'running') {
     apiKeyNote = (
       <p>
         If you already have a Reddit API key, adding it in {settingsLink} also
@@ -119,10 +120,7 @@ export const ConnectErrorContent = ({ pageError = '' }) => {
       {path}
       {apiKeyNote}
       <p style={{ opacity: 0.7 }}>
-        {getTransportSummary({
-          extensionVersion,
-          hasApiKey,
-        })}
+        {getTransportSummary({ hasApiKey })}
         {pageError ? ` · page error: ${pageError}` : ''}
       </p>
     </>

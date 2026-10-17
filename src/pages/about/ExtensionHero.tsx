@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { ext_urls, get } from 'utils'
+import { ext_urls } from 'utils'
 import { browserStore, isMobileDevice } from 'components/ui/Extensions'
 import { NewWindowLink } from 'components/ui/Links'
-import { useExtensionVersion } from 'hooks/useExtensionVersion'
+import { useExtensionStatus } from 'api/reddit/extensionStatus'
 
 // The explainer's source (HTML animation + render scripts) lives outside this
 // repo; these are its web encode (~10 MB) and poster frame.
@@ -123,8 +123,7 @@ const useVideoJsonLd = () => {
 }
 
 const ExtensionHero = () => {
-  const version = useExtensionVersion()
-  const installed = Boolean(version) || get('hasNotifierExtension', false)
+  const extension = useExtensionStatus()
   useVideoJsonLd()
   return (
     <section className="rt-hero" aria-labelledby="rt-hero-title">
@@ -138,11 +137,19 @@ const ExtensionHero = () => {
         browser extension, watches your account and notifies you when it
         happens.
       </p>
-      {installed ? (
+      {extension === 'running' ? (
         <p className="rt-installed">
-          ✓ Reveddit Real-Time is installed. Click its toolbar icon to see your
+          ✓ Reveddit Real-Time is running. Click its toolbar icon to see your
           history.
         </p>
+      ) : extension === 'not-running' ? (
+        <>
+          <p className="rt-not-running">
+            ✗ Reveddit Real-Time isn't running in this browser. It may be turned
+            off: check your browser's extensions page, or reinstall it.
+          </p>
+          <InstallButtons />
+        </>
       ) : (
         <InstallButtons />
       )}

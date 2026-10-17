@@ -370,6 +370,21 @@ input[type="submit"], button
     top: 0
     z-index: 100
 
+// Extension status variants: green while Reveddit Real-Time is running, red
+// when it ran in this browser before but isn't running now
+.extension-on-banner
+  background-color: #2b8a3e
+.extension-off-banner
+  background-color: #c92a2a
+
+// Status line in the connect-error modal, matching the landing page's
+.extension-status
+  font-weight: 600
+  &.on
+    color: var(--moderator)
+  &.off
+    color: var(--admin)
+
 // Stuck-extension variant: a call to action for the affected user rather
 // than ambient site news, so slightly larger and centered with a capped
 // line length
