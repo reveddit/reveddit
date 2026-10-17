@@ -15,6 +15,8 @@ export const recordTransport = (name: TransportName, outcome: string) => {
   status[name] = outcome
 }
 
+export const getTransportStatus = (name: TransportName): string => status[name]
+
 // One line for error UIs. Callers pass extension/API-key state to avoid
 // import cycles (bridge.ts imports recordTransport from this module).
 export const getTransportSummary = ({
@@ -27,7 +29,10 @@ export const getTransportSummary = ({
   `direct reddit: ${status.jsonp} · extension bridge: ` +
   (extensionVersion
     ? `${status.bridge} (v${extensionVersion})`
-    : 'not detected') +
+    : // the stamps may have just been forgotten after a miss (bridge.ts)
+      status.bridge === 'no response'
+      ? 'no response'
+      : 'not detected') +
   ` · API key: ` +
   (hasApiKey
     ? status.apikey === 'untried'

@@ -4,7 +4,7 @@ import { get, getCustomClientID } from 'utils'
 import ModalContext from 'contexts/modal'
 import { RedditOrLocalLink } from 'components/ui/Links'
 import { ExtensionLinks, isMobileDevice } from 'components/ui/Extensions'
-import { getTransportSummary } from 'api/reddit/status'
+import { getTransportSummary, getTransportStatus } from 'api/reddit/status'
 import { getExtensionVersion, extensionSupportsBridge } from 'api/reddit/bridge'
 
 const whatHappenedLink = (
@@ -13,10 +13,12 @@ const whatHappenedLink = (
 
 // The one connect-failure message, shared by the error modal
 // (RevdditFetcher) and the user page so they never drift apart. Branches on
-// what would actually reconnect this visitor: an extension update for the
-// stuck-on-old-version cohort, the store badges for desktop visitors without
-// the extension, and a desktop-only note on mobile, where no extension can
-// install.
+// what would actually reconnect this visitor: turning the extension back on
+// when it didn't answer this page (a disabled or removed extension leaves its
+// stamps behind, so "installed" alone proves nothing), an extension update for
+// the stuck-on-old-version cohort, the store badges for desktop visitors
+// without the extension, and a desktop-only note on mobile, where no extension
+// can install.
 export const ConnectErrorContent = ({ pageError = '' }) => {
   const modal = React.useContext(ModalContext)
   const extensionVersion = getExtensionVersion()
@@ -28,13 +30,35 @@ export const ConnectErrorContent = ({ pageError = '' }) => {
       settings
     </Link>
   )
+  const bridgeStatus = getTransportStatus('bridge')
+  const extensionDidNotAnswer = bridgeStatus === 'no response'
+  const storeLinks = (
+    <div style={{ margin: '15px 0' }}>
+      <ExtensionLinks imgStyle={{ height: '48px' }} />
+    </div>
+  )
   let path
-  if (hasExtension && extensionSupportsBridge()) {
+  if (extensionDidNotAnswer) {
     path = (
+      <>
+        <p>
+          Reveddit connects to Reddit through its browser extension, and yours
+          didn't answer this page. It may be turned off or removed. Check your
+          browser's extensions page, then reload this page, or install it:
+        </p>
+        {storeLinks}
+      </>
+    )
+  } else if (hasExtension && extensionSupportsBridge()) {
+    path = bridgeStatus.startsWith('refused') ? (
       <p>
-        Your installed Reveddit extension is unaffected and continues to track
-        removed content. This page could not load through it just now; the
-        status below says why.
+        Your Reveddit extension answered, but couldn't get this page's data from
+        Reddit just now; the status below says why. Try again in a few minutes.
+      </p>
+    ) : (
+      <p>
+        This page could not load through your Reveddit extension just now; the
+        status below says why. Reload the page to try again.
       </p>
     )
   } else if (hasExtension) {
@@ -62,10 +86,27 @@ export const ConnectErrorContent = ({ pageError = '' }) => {
           The Reveddit Real-Time extension reconnects this site. It also tracks
           removals of your own content in real time and notifies you:
         </p>
-        <div style={{ margin: '15px 0' }}>
-          <ExtensionLinks imgStyle={{ height: '48px' }} />
-        </div>
+        {storeLinks}
       </>
+    )
+  }
+  // The extension is the way back in, so the key comes second, and only says it
+  // failed when it was actually tried
+  const apiKeyStatus = getTransportStatus('apikey')
+  let apiKeyNote: React.ReactNode = null
+  if (hasApiKey && apiKeyStatus !== 'untried' && apiKeyStatus !== 'ok') {
+    apiKeyNote = (
+      <p>
+        Requests using your API key also failed. Verify the key in{' '}
+        {settingsLink}.
+      </p>
+    )
+  } else if (!hasApiKey && (!hasExtension || extensionDidNotAnswer)) {
+    apiKeyNote = (
+      <p>
+        If you already have a Reddit API key, adding it in {settingsLink} also
+        reconnects this site. Reddit no longer issues new keys.
+      </p>
     )
   }
   return (
@@ -76,19 +117,7 @@ export const ConnectErrorContent = ({ pageError = '' }) => {
         Reveddit relies on can change without notice (see: {whatHappenedLink})
       </p>
       {path}
-      <p>
-        {hasApiKey ? (
-          <>
-            Requests using your API key failed. Verify the key in {settingsLink}
-            , or try again in a few minutes.
-          </>
-        ) : (
-          <>
-            If you already have a Reddit API key, adding it in {settingsLink}{' '}
-            also reconnects this site. Reddit no longer issues new keys.
-          </>
-        )}
-      </p>
+      {apiKeyNote}
       <p style={{ opacity: 0.7 }}>
         {getTransportSummary({
           extensionVersion,

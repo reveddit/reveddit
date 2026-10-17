@@ -61,6 +61,42 @@ const extensionVersionAtLeast = (min: number[]): boolean => {
 const BRIDGE_ABSENT_RETRY_MS = 60 * 1000
 let bridgeAbsentUntil = 0
 
+// A disabled or removed extension leaves its localStorage stamps behind, so the
+// site would keep calling it installed and wait out the timeout on every load.
+// After this many page loads in a row without an answer, forget the stamps. An
+// enabled extension writes them again on its next page load.
+const MISSED_LOADS_BEFORE_FORGETTING = 2
+const MISSED_LOADS_KEY = 'notifierExtensionMissedLoads'
+let missCountedThisLoad = false
+
+const countMissedLoad = () => {
+  if (missCountedThisLoad) {
+    return
+  }
+  missCountedThisLoad = true
+  try {
+    const missed =
+      Number(window.localStorage.getItem(MISSED_LOADS_KEY) || 0) + 1
+    if (missed >= MISSED_LOADS_BEFORE_FORGETTING) {
+      window.localStorage.removeItem('notifierExtensionVersion')
+      window.localStorage.removeItem('hasNotifierExtension')
+      window.localStorage.removeItem(MISSED_LOADS_KEY)
+    } else {
+      window.localStorage.setItem(MISSED_LOADS_KEY, String(missed))
+    }
+  } catch {
+    // storage unavailable: nothing to forget
+  }
+}
+
+const clearMissedLoads = () => {
+  try {
+    window.localStorage.removeItem(MISSED_LOADS_KEY)
+  } catch {
+    // storage unavailable
+  }
+}
+
 const chromeRuntime = (): any => {
   try {
     const runtime = (window as any).chrome?.runtime
@@ -165,9 +201,11 @@ export const bridgeFetch = async (
   } catch (e) {
     bridgeAbsentUntil = Date.now() + BRIDGE_ABSENT_RETRY_MS
     recordTransport('bridge', 'no response')
+    countMissedLoad()
     throw e
   }
   bridgeAbsentUntil = 0
+  clearMissedLoads()
   if (!resp.ok) {
     // busy means the user's own monitoring cycle is in flight; it finishes
     // within seconds, so wait the suggested interval and ask once more before
