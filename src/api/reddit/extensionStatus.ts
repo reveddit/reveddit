@@ -7,6 +7,11 @@ import { useSyncExternalStore } from 'react'
 // nothing.
 //
 // Live evidence, fastest first:
+// - Every browser, versions after 0.0.5.23: the extension marks the page
+//   before any of its scripts run (<html data-reveddit-extension="version">,
+//   from real-time-extension src/src/content-revddit-start.ts). The mark
+//   lives in this page, so unlike the stamp it can't be left over from an
+//   earlier visit.
 // - Chromium browsers: the extension answers {action: 'version'} through
 //   externally_connectable within milliseconds. That also puts chrome.runtime
 //   on reveddit pages, so outside Edge (whose store build has another ID) no
@@ -16,7 +21,8 @@ import { useSyncExternalStore } from 'react'
 //   back.
 //
 // The last confirmed sighting is kept, so a visitor whose extension stopped
-// running is asked to turn it back on rather than shown an install pitch.
+// running is asked to turn it back on rather than shown an install pitch. When
+// that sighting was a mark, a page without one means it isn't running.
 
 declare const EXTENSION_ID: string
 
@@ -46,9 +52,16 @@ let status: ExtensionStatus = 'absent'
 // Shown while checking, so a running extension doesn't flash an install pitch
 let expected: ShownExtensionStatus = 'absent'
 let version: string | null = null
+// Whether the extension marked this page
+let marked = false
 let started = false
 const listeners = new Set<() => void>()
 let settledWaiters: Array<(s: ExtensionStatus) => void> = []
+// Firefox's bridge relay (bridge.ts) goes through the content script, which
+// starts listening at document_idle, right after it writes the stamp. A mark
+// shows the extension running well before that. Null until known.
+let relayReady: boolean | null = null
+let relayWaiters: Array<(ready: boolean) => void> = []
 
 const storage = (): Storage | null => {
   try {
@@ -57,6 +70,9 @@ const storage = (): Storage | null => {
     return null
   }
 }
+
+const readMark = (): string | null =>
+  document.documentElement.dataset.revedditExtension ?? null
 
 const readStamp = (): string | null => {
   const s = storage()
@@ -67,7 +83,11 @@ const readStamp = (): string | null => {
   return s.getItem(STAMP_VERSION) || (s.getItem(STAMP_PRESENT) ? '' : null)
 }
 
-const readLastSeen = (): { version: string; at: number } | null => {
+const readLastSeen = (): {
+  version: string
+  at: number
+  marked?: boolean
+} | null => {
   try {
     const seen = JSON.parse(storage()?.getItem(LAST_SEEN) || 'null')
     if (seen && Date.now() - seen.at < LAST_SEEN_MAX_AGE_MS) {
@@ -83,7 +103,7 @@ const writeLastSeen = () => {
   try {
     storage()?.setItem(
       LAST_SEEN,
-      JSON.stringify({ version: version || '', at: Date.now() })
+      JSON.stringify({ version: version || '', at: Date.now(), marked })
     )
   } catch {
     // storage full or blocked
@@ -110,6 +130,16 @@ const settle = (next: ShownExtensionStatus, seenVersion?: string | null) => {
   const waiters = settledWaiters
   settledWaiters = []
   waiters.forEach(resolve => resolve(status))
+}
+
+const settleRelay = (ready: boolean) => {
+  if (relayReady !== null) {
+    return
+  }
+  relayReady = ready
+  const waiters = relayWaiters
+  relayWaiters = []
+  waiters.forEach(resolve => resolve(ready))
 }
 
 const isChromiumOutsideEdge = (): boolean => {
@@ -160,17 +190,15 @@ const watchStamp = () => {
     if (stamp !== null) {
       window.clearInterval(timer)
       settle('running', stamp || version)
-      return
-    }
-    if (status === 'running') {
-      // Chromium already confirmed it; the content script may not run in this
-      // tab (opened before the extension was turned on)
-      window.clearInterval(timer)
+      settleRelay(true)
       return
     }
     if (loadedAt && Date.now() - loadedAt > STAMP_WAIT_AFTER_LOAD_MS) {
       window.clearInterval(timer)
+      // A "running" from the mark or Chromium stands: the content script may
+      // not run in this tab (opened before the extension was turned on)
       settle(expected === 'absent' ? 'absent' : 'not-running')
+      settleRelay(false)
     }
   }, POLL_MS)
 }
@@ -185,11 +213,19 @@ export const startExtensionCheck = () => {
   if (test && TEST_STATES[test]) {
     status = TEST_STATES[test]
     version = status === 'absent' ? null : '0.0.5.23'
+    // Previews don't watch the relay; bridge requests go straight out
+    settleRelay(true)
     return
   }
+  const mark = readMark()
+  marked = mark !== null
   const s = storage()
   if (!s) {
-    status = 'absent'
+    // The content script can't run without storage either, so only the mark
+    // can tell
+    status = marked ? 'running' : 'absent'
+    version = mark || null
+    settleRelay(false)
     return
   }
   s.removeItem(OLD_MISSED_LOADS)
@@ -207,7 +243,16 @@ export const startExtensionCheck = () => {
   // A running content script writes these again during this load
   s.removeItem(STAMP_VERSION)
   s.removeItem(STAMP_PRESENT)
-  askChromium()
+  if (mark !== null) {
+    settle('running', mark)
+  } else {
+    if (lastSeen?.marked) {
+      // The version seen here last marks every page it runs on. Chromium or
+      // the stamp can still overturn this.
+      settle('not-running')
+    }
+    askChromium()
+  }
   watchStamp()
 }
 
@@ -223,6 +268,13 @@ export const extensionStatusSettled = (): Promise<ExtensionStatus> =>
   status === 'checking'
     ? new Promise(resolve => settledWaiters.push(resolve))
     : Promise.resolve(status)
+
+// Whether the content script relays bridge requests on this page: true once it
+// starts, false if it hasn't by the time the check gives up
+export const extensionRelayReady = (): Promise<boolean> =>
+  relayReady === null
+    ? new Promise(resolve => relayWaiters.push(resolve))
+    : Promise.resolve(relayReady)
 
 const subscribe = (listener: () => void) => {
   listeners.add(listener)

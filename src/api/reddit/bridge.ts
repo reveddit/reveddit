@@ -18,6 +18,7 @@ import {
   getExtensionStatus,
   getShownExtensionStatus,
   extensionStatusSettled,
+  extensionRelayReady,
   getKnownExtensionVersion,
 } from './extensionStatus'
 
@@ -108,8 +109,13 @@ const relayPending = new Map<
   { resolve: (r: any) => void; timer: any }
 >()
 
-const sendViaRelay = (url: string): Promise<any> =>
-  new Promise((resolve, reject) => {
+const sendViaRelay = async (url: string): Promise<any> => {
+  // The content script starts relaying at document_idle, which can be well
+  // after the extension's mark showed it running
+  if (!(await extensionRelayReady())) {
+    throw new Error('bridge unavailable')
+  }
+  return new Promise((resolve, reject) => {
     if (!relayListening) {
       relayListening = true
       window.addEventListener('message', e => {
@@ -141,6 +147,7 @@ const sendViaRelay = (url: string): Promise<any> =>
       window.location.origin
     )
   })
+}
 
 // Response-like result so existing .then(response => response.json()) chains
 // work unchanged; rejects on refusal or absence so callers can fall back
@@ -150,9 +157,8 @@ export const bridgeFetch = async (
   url: string,
   isRetry = false
 ): Promise<any> => {
-  // Wait for the live check unless it expects no extension at all. That skips
-  // the timeout when the extension is off, and keeps relay messages from being
-  // posted before the content script is listening.
+  // Wait for the live check unless it expects no extension at all, which skips
+  // the timeout when the extension is off
   let extensionStatus = getExtensionStatus()
   if (
     extensionStatus === 'checking' &&
