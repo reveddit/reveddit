@@ -11,7 +11,8 @@ import { useSyncExternalStore } from 'react'
 //   before any of its scripts run (<html data-reveddit-extension="version">,
 //   from real-time-extension src/src/content-revddit-start.ts). The mark
 //   lives in this page, so unlike the stamp it can't be left over from an
-//   earlier visit.
+//   earlier visit. Versions after 0.0.5.24 also mark which store's build is
+//   running (data-reveddit-extension-store="chrome|edge|firefox").
 // - Chromium browsers: the extension answers {action: 'version'} through
 //   externally_connectable within milliseconds. That also puts chrome.runtime
 //   on reveddit pages, so outside Edge (whose store build has another ID) no
@@ -41,11 +42,14 @@ const LAST_SEEN_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000
 const STAMP_WAIT_AFTER_LOAD_MS = 3000
 const POLL_MS = 100
 
-// ?extension_test=on|off|none previews each state without changing anything
+// ?extension_test=on|off|none previews each state without changing anything,
+// and =behind previews a running extension that is out of date
+// (hooks/useExtensionUpdate.ts)
 const TEST_STATES: Record<string, ShownExtensionStatus> = {
   on: 'running',
   off: 'not-running',
   none: 'absent',
+  behind: 'running',
 }
 
 let status: ExtensionStatus = 'absent'
@@ -54,6 +58,8 @@ let expected: ShownExtensionStatus = 'absent'
 let version: string | null = null
 // Whether the extension marked this page
 let marked = false
+// The ?extension_test value being previewed, if any
+let preview: string | null = null
 let started = false
 const listeners = new Set<() => void>()
 let settledWaiters: Array<(s: ExtensionStatus) => void> = []
@@ -211,6 +217,7 @@ export const startExtensionCheck = () => {
   started = true
   const test = new URLSearchParams(window.location.search).get('extension_test')
   if (test && TEST_STATES[test]) {
+    preview = test
     status = TEST_STATES[test]
     version = status === 'absent' ? null : '0.0.5.23'
     // Previews don't watch the relay; bridge requests go straight out
@@ -264,6 +271,16 @@ export const getShownExtensionStatus = (): ShownExtensionStatus =>
 // The running version, or the last one seen when it isn't running
 export const getKnownExtensionVersion = (): string | null => version
 
+// The version running in this browser, once the check has settled on running
+const getRunningExtensionVersion = (): string | null =>
+  status === 'running' ? version : null
+
+// The store whose build is running, when its mark says so
+export const getMarkedExtensionStore = (): string | null =>
+  document.documentElement.dataset.revedditExtensionStore ?? null
+
+export const getExtensionPreview = (): string | null => preview
+
 export const extensionStatusSettled = (): Promise<ExtensionStatus> =>
   status === 'checking'
     ? new Promise(resolve => settledWaiters.push(resolve))
@@ -285,3 +302,6 @@ const subscribe = (listener: () => void) => {
 
 export const useExtensionStatus = (): ShownExtensionStatus =>
   useSyncExternalStore(subscribe, getShownExtensionStatus)
+
+export const useRunningExtensionVersion = (): string | null =>
+  useSyncExternalStore(subscribe, getRunningExtensionVersion)

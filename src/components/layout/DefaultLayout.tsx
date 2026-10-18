@@ -24,7 +24,9 @@ import { PageTypeProvider } from 'contexts/page'
 import { SocialLinks } from 'components/Misc'
 import { RedditChangeBanner } from 'components/RedditChangeBanner'
 import StuckExtensionBanner from 'components/StuckExtensionBanner'
+import ExtensionUpdateBanner from 'components/ExtensionUpdateBanner'
 import { useExtensionVersion, isStuckVersion } from 'hooks/useExtensionVersion'
+import { useExtensionUpdate } from 'hooks/useExtensionUpdate'
 import { put } from 'utils'
 
 Modal.setAppElement('#app')
@@ -146,6 +148,7 @@ const DefaultLayout = props => {
   })
   const [pendingModals, setPendingModals] = useState([])
   const extensionVersion = useExtensionVersion()
+  const extensionUpdate = useExtensionUpdate()
   useEffect(() => {
     const hash = existingHash()
     const content = getContentForHash(hash)
@@ -203,6 +206,8 @@ const DefaultLayout = props => {
       <React.Fragment>
         {extensionVersion && isStuckVersion(extensionVersion) ? (
           <StuckExtensionBanner version={extensionVersion} />
+        ) : extensionUpdate ? (
+          <ExtensionUpdateBanner {...extensionUpdate} />
         ) : (
           <RedditChangeBanner />
         )}
