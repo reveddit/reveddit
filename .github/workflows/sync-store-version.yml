@@ -1,0 +1,27 @@
+name: Sync extension store version
+
+# Sets latest_version in dist/extension-news.json once every store serves a
+# new extension version (scripts/sync-store-version.py). Its push deploys
+# through Netlify like any other commit to master.
+on:
+  schedule:
+    - cron: '23 */3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-store-version
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - name: Update latest_version if every store has a newer one
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          python3 scripts/sync-store-version.py
