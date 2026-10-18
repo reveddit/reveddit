@@ -1,13 +1,24 @@
 #!/usr/bin/env python3
-"""Bump latest_version in dist/extension-news.json once a release is live in every store.
+"""Keep dist/extension-news.json in step with the extension's store versions.
 
-The extension's popup nudges users whose browser has not installed an available
-update (news.ts shouldShowUpdateNotice, after a 5-day grace). That nudge is only
-honest when the version really is downloadable for that user, so this script
-takes the MINIMUM version across the stores: it waits for the slowest one
-(Chrome is usually last) instead of over-claiming a version some users cannot
-get yet. It never downgrades, and it makes no change unless every enabled store
-answered.
+Two fields:
+  latest_version  - the extension's popup nudges users whose browser has not
+                    installed an available update (news.ts
+                    shouldShowUpdateNotice, after a 5-day grace). That nudge is
+                    only honest when the version really is downloadable for that
+                    user, so this is the MINIMUM version across the stores: it
+                    waits for the slowest one (Chrome is usually last) instead of
+                    over-claiming a version some users cannot get yet. It never
+                    downgrades.
+  store_versions  - each store's live version, e.g. {"chrome": "0.0.5.24",
+                    "edge": "0.0.5.23", "firefox": "0.0.5.24"}. Chrome and Edge
+                    builds ask their browser to check for updates as soon as
+                    their own store is ahead (news.ts), and reveddit.com tells
+                    users of a store that is ahead that their version is out of
+                    date, so one store's slow review doesn't hold back the
+                    others.
+
+It makes no change unless every enabled store answered.
 
 Stores are queried through their own machine-readable endpoints, not by scraping
 store HTML (both Chrome and Edge render versions client-side, so HTML would be
@@ -19,8 +30,9 @@ brittle):
 Run it from cron on a checkout that exists only for this purpose. It commits and
 pushes dist/extension-news.json, and Netlify deploys the result.
 
-Exit codes: 0 ok (changed or already current), 1 error, 2 stores disagree or a
-store is behind (normal during a rollout; the next run picks it up).
+Exit codes: 0 ok (changed or already current), 1 error, 2 latest_version is
+ahead of a store (a pulled release or stale store data; store_versions is
+still updated).
 """
 
 import argparse
@@ -136,6 +148,54 @@ def get_firefox():
 GETTERS = {'chrome': get_chrome, 'edge': get_edge, 'firefox': get_firefox}
 
 
+def plan_update(feed, versions, now_ms):
+    """The feed fields to change for freshly fetched store versions.
+
+    Pure, so --self-test covers it. Returns (changes, error, warning): changes
+    maps feed keys to new values and is empty when the feed is current; error
+    is a reason to change nothing; warning is a reason to exit 2 after writing.
+    """
+    current = feed.get('latest_version')
+    old_stores = feed.get('store_versions')
+    if not isinstance(old_stores, dict):
+        old_stores = {}
+
+    # Family guard: a wrong-but-live store id would otherwise publish a
+    # stranger's version number to every user. Each store is checked on its
+    # own, because store_versions publishes even a version the minimum hides.
+    for s, v in versions.items():
+        base = old_stores.get(s) or current
+        if not (isinstance(base, str) and VERSION_RE.match(base)):
+            continue
+        jump = version_tuple(v)[0] - version_tuple(base)[0]
+        if jump > MAX_MAJOR_JUMP:
+            return {}, (f'refusing {s} {base} -> {v}: major jumps by {jump}. '
+                        'If this release is real, raise MAX_MAJOR_JUMP; otherwise check the store ids.'), None
+
+    changes = {}
+    # A store left out of --stores keeps the version it had
+    stores = {**old_stores, **versions}
+    if stores != old_stores:
+        changes['store_versions'] = {s: stores[s] for s in sorted(stores, key=store_order)}
+
+    # Slowest store wins: the newest version available to EVERY user.
+    target = min(versions.values(), key=version_tuple)
+    warning = None
+    if not current or version_tuple(target) > version_tuple(current):
+        changes['latest_version'] = target
+        changes['latest_version_published_utc'] = now_ms
+    elif version_tuple(target) < version_tuple(current):
+        # Feed claims a version some store doesn't serve: a pulled release, or
+        # a store reporting stale data. Never downgrade; surface it instead.
+        warning = f'feed ({current}) is ahead of the slowest store ({target}); leaving latest_version alone'
+    return changes, None, warning
+
+
+def store_order(store):
+    order = list(GETTERS)
+    return (order.index(store) if store in order else len(order), store)
+
+
 def git(repo, *args, check=True):
     p = subprocess.run(
         ['git', '-C', repo, *args], capture_output=True, text=True, timeout=180
@@ -153,7 +213,8 @@ def main():
     ap.add_argument('--stores', default='chrome,edge,firefox',
                     help='comma-separated subset to require (default: all three)')
     ap.add_argument('--check', action='store_true', help='print store versions and exit')
-    ap.add_argument('--self-test', action='store_true', help='verify version ordering offline and exit')
+    ap.add_argument('--self-test', action='store_true',
+                    help='verify version ordering and feed updates offline and exit')
     ap.add_argument('--dry-run', action='store_true', help='report what would change, write nothing')
     ap.add_argument('--no-push', action='store_true', help='commit locally but do not push')
     args = ap.parse_args()
@@ -174,7 +235,35 @@ def main():
                 pass
             else:
                 raise AssertionError(f'{bad!r} should have been rejected')
-        log(f'self-test OK ({len(pairs)} ordering pairs, 6 rejections)')
+
+        # One store ahead: only store_versions moves, so that store's users
+        # hear of the release without waiting for the slowest store.
+        feed = {'latest_version': '0.0.5.23', 'latest_version_published_utc': 1}
+        rollout = {'chrome': '0.0.5.23', 'edge': '0.0.5.23', 'firefox': '0.0.5.24'}
+        changes, error, warning = plan_update(feed, rollout, 2)
+        assert (error, warning) == (None, None), (error, warning)
+        assert changes == {'store_versions': rollout}, changes
+        assert list(changes['store_versions']) == ['chrome', 'edge', 'firefox']
+        feed.update(changes)
+        assert plan_update(feed, rollout, 3) == ({}, None, None)
+        # Every store has it: latest_version follows, with its release time
+        live = {'chrome': '0.0.5.24', 'edge': '0.0.5.24', 'firefox': '0.0.5.24'}
+        changes, _, _ = plan_update(feed, live, 4)
+        assert changes == {'store_versions': live, 'latest_version': '0.0.5.24',
+                           'latest_version_published_utc': 4}, changes
+        feed.update(changes)
+        # A store left out of --stores keeps its version
+        changes, _, _ = plan_update(feed, {'firefox': '0.0.5.25'}, 5)
+        assert changes['store_versions'] == {**live, 'firefox': '0.0.5.25'}, changes
+        # A stranger's version in one store refuses every change, even though
+        # the minimum would hide it
+        changes, error, _ = plan_update(feed, {**live, 'chrome': '2026.825.1619'}, 6)
+        assert error and changes == {}, (changes, error)
+        # A store behind latest_version: record it, keep latest_version, warn
+        changes, error, warning = plan_update(feed, {**live, 'edge': '0.0.5.23'}, 7)
+        assert warning and not error, (error, warning)
+        assert changes == {'store_versions': {**live, 'edge': '0.0.5.23'}}, changes
+        log(f'self-test OK ({len(pairs)} ordering pairs, 6 rejections, 7 feed updates)')
         return 0
 
     stores = [s.strip() for s in args.stores.split(',') if s.strip()]
@@ -221,39 +310,35 @@ def main():
         with open(news_file, encoding='utf-8') as f:
             feed = json.load(f)
 
-        current = feed.get('latest_version')
-        # Slowest store wins: the newest version available to EVERY user.
-        target = min(versions.values(), key=version_tuple)
-        log(f'feed latest_version={current} target={target} (min across {",".join(stores)})')
-
-        # Family guard: a wrong-but-live store id would otherwise publish a
-        # stranger's version number to every user.
-        if current:
-            jump = version_tuple(target)[0] - version_tuple(current)[0]
-            if jump > MAX_MAJOR_JUMP:
-                log(f'ERROR refusing {current} -> {target}: major jumps by {jump}. '
-                    'If this release is real, raise MAX_MAJOR_JUMP; otherwise check the store ids.')
-                return 1
-
+        log(f'feed latest_version={feed.get("latest_version")} store_versions={feed.get("store_versions")}')
         if len(set(versions.values())) > 1:
-            log('stores disagree (rollout in progress); using the minimum')
+            log('stores disagree (rollout in progress); latest_version uses the minimum')
 
-        if current and version_tuple(target) == version_tuple(current):
+        changes, error, warning = plan_update(feed, versions, int(time.time() * 1000))
+        if error:
+            log(f'ERROR {error}')
+            return 1
+        if warning:
+            log(f'WARNING {warning}')
+        done = 2 if warning else 0
+        if not changes:
             log('nothing to do: feed is current')
-            return 0
-        if current and version_tuple(target) < version_tuple(current):
-            # Feed claims a version no store serves: a pulled release, or a
-            # store reporting stale data. Never downgrade; surface it instead.
-            log(f'WARNING feed ({current}) is ahead of every store ({target}); leaving it alone')
-            return 2
+            return done
 
-        feed['latest_version'] = target
-        feed['latest_version_published_utc'] = int(time.time() * 1000)
+        if 'latest_version' in changes:
+            summary = f'latest_version {changes["latest_version"]}'
+        else:
+            old_stores = feed.get('store_versions')
+            if not isinstance(old_stores, dict):
+                old_stores = {}
+            moved = [f'{s} {v}' for s, v in changes['store_versions'].items() if old_stores.get(s) != v]
+            summary = f'store_versions {", ".join(moved)}'
 
         if args.dry_run:
-            log(f'DRY RUN would set latest_version={target}')
-            return 0
+            log(f'DRY RUN would set {summary}')
+            return done
 
+        feed.update(changes)
         tmp = news_file + '.tmp'
         with open(tmp, 'w', encoding='utf-8') as f:
             json.dump(feed, f, indent=2, ensure_ascii=False)
@@ -267,15 +352,15 @@ def main():
         # --no-verify: husky hooks need node_modules, which a cron checkout
         # has no reason to install for a one-field JSON edit.
         git(args.repo, 'commit', '--no-verify', '-m',
-            f'news: latest_version {target}\n\n'
+            f'news: {summary}\n\n'
             f'Live in {", ".join(f"{s} {v}" for s, v in sorted(versions.items()))}. '
             'Set automatically by scripts/sync-store-version.py.')
         if args.no_push:
-            log(f'committed (not pushed): latest_version={target}')
+            log(f'committed (not pushed): {summary}')
         else:
             git(args.repo, 'push', 'origin', args.branch)
-            log(f'pushed: latest_version={target}')
-        return 0
+            log(f'pushed: {summary}')
+        return done
 
 
 if __name__ == '__main__':
