@@ -2,7 +2,7 @@
 //   Tip, Spin, MessageMods, SocialLinks, InternalPage, UserNameEntry
 // All other components have moved to focused submodules:
 //   components/ui/Links     – NewWindowLink, LinkWithCloseModal, RedditOrLocalLink, SamePageHashLink, ShareLink
-//   components/ui/Extensions – ExtensionLink, ExtensionLinks, ExtensionRedirect, is_iOS, iOS_shortcut_link, redditChangePostUrl
+//   components/ui/Extensions – ExtensionLink, ExtensionLinks, ExtensionRedirect, is_iOS, iOS_shortcut_link
 //   components/ui/Modals    – QuestionMarkModal, ModalWithButton, HelpModal, Help, buttonClasses
 
 import React, { useEffect } from 'react'

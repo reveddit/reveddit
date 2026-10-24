@@ -56,9 +56,6 @@ if (isChrome) {
   browserExtensionImage = <img alt="Add to Firefox" src={meta.firefox.img} />
 }
 
-export const redditChangePostUrl =
-  'https://www.reddit.com/r/reveddit/comments/1ngch51/'
-
 export const ExtensionLink = ({ image = false, extensionID = 'rt' }) => {
   const extensionMeta = ext_urls[extensionID]
   let content = extensionMeta.n
