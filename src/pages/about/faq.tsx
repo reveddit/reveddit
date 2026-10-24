@@ -370,29 +370,6 @@ const About_faq = props => {
         </>
       ),
     },
-    firefox: {
-      header: 'Why should I disable tracking protection in Firefox?',
-      content: (
-        <>
-          <p>
-            A Firefox partner named disconnect.me maintains a list of domains
-            that it calls trackers. Reddit is{' '}
-            <NewWindowLink href="https://github.com/disconnectme/disconnect-tracking-protection/blob/b3f9cdcea541ab876e63970daadc490f9de2befa/services.json#L10851">
-              on that list
-            </NewWindowLink>
-            , so requests to Reddit are blocked. The only way to fix this right
-            now is to disable the feature.{' '}
-            <NewWindowLink reddit="/r/technology/comments/jp4j76/_/gbfqdf2/?context=1">
-              more info
-            </NewWindowLink>
-          </p>
-          <p>
-            Extensions that block trackers can also disable Reveddit since they
-            sometimes block connections to Reddit.
-          </p>
-        </>
-      ),
-    },
     javascript: {
       header: 'Why is javascript required?',
       content: (
@@ -643,45 +620,75 @@ const About_faq = props => {
       content: (
         <>
           <p>
-            Reveddit was unable to connect to Reddit. Possible causes include:
+            Reddit restricts websites' access to its data. Since 2026,
+            Reveddit's website can't reach Reddit by itself for most visitors.
+            It loads Reddit data through the <ExtensionLink /> extension
+            instead, which makes those requests with your own Reddit login in
+            that browser. What to do depends on what the error message said:
           </p>
           <ul>
             <li>
-              Reddit blocks most website access to its data. Since 2026,
-              Reveddit's website relies on a limited public fallback that Reddit
-              may cut off at any time. The <ExtensionLink /> is not affected by
-              this.
+              <b>Reveddit Real-Time is running.</b> The extension works, but
+              this page's data didn't come through it.
+              <ul>
+                <li>
+                  If it says this browser isn't logged in to Reddit, log in at
+                  www.reddit.com and reload the page.
+                </li>
+                <li>
+                  If Reddit refused or rate-limited the request, wait a few
+                  minutes and try again. The extension checks your own account
+                  first and serves this site in between.
+                </li>
+                <li>
+                  If the extension didn't answer, reload the page. If that keeps
+                  happening, restart your browser.
+                </li>
+              </ul>
             </li>
             <li>
-              conflicting extensions, or strict browser privacy settings that
-              block connections (see{' '}
-              <SamePageHashLink id="firefox">FAQ: trackers</SamePageHashLink>)
-            </li>
-            <li>temporary network outage</li>
-            <li>
-              the page contains <span className="quarantined">quarantined</span>{' '}
-              content that requires <ExtensionLink /> to view accurately.
+              <b>Reveddit Real-Time isn't running in this browser.</b> It ran
+              here before but is now turned off or removed. Turn it on in your
+              browser's extensions page and reload, or install it again.
             </li>
             <li>
-              if your{' '}
-              <Link
-                to="#settings"
-                onClick={() => modal.openModal({ hash: 'settings' })}
-              >
-                Reveddit settings
-              </Link>{' '}
-              contain an API key:
+              <b>Your extension has not updated.</b> Versions older than
+              0.0.5.21 still track your removed content but can't connect this
+              website. See{' '}
+              <RedditOrLocalLink to="/update-help/">
+                update help
+              </RedditOrLocalLink>
+              .
             </li>
-            <ul>
-              <li>
-                your key may have a typo. Check it on {redditPrefsAppsLink}
-              </li>
-              <li>
-                you hit the API request limit and need to wait 5 minutes to try
-                again.
-              </li>
-            </ul>
+            <li>
+              <b>No extension.</b> Install the <ExtensionLink /> extension for
+              Chrome, Edge or Firefox on a computer, then reload the page.
+            </li>
+            <li>
+              <b>On a phone.</b> The extension runs in desktop browsers, so
+              there's currently no way to connect from most mobile browsers.
+            </li>
           </ul>
+          <p>
+            If you already have a Reddit API key, adding it in{' '}
+            <Link
+              to="#settings"
+              onClick={() => modal.openModal({ hash: 'settings' })}
+            >
+              Reveddit settings
+            </Link>{' '}
+            also reconnects the site. When requests using it fail, check the key
+            on {redditPrefsAppsLink}. Reddit no longer issues new keys.
+          </p>
+          <p>
+            The grey line at the end of the error lists each way the page tried
+            to reach Reddit and what happened. Include it when you report a
+            problem on{' '}
+            <NewWindowLink href="https://github.com/reveddit/reveddit/issues">
+              GitHub
+            </NewWindowLink>
+            .
+          </p>
         </>
       ),
     },
@@ -722,6 +729,28 @@ const About_faq = props => {
             </NewWindowLink>{' '}
             for more info.
           </p>
+          <h3>IV. Lost in 2026</h3>
+          <p>
+            Reddit closed the access Reveddit's servers used, so these no longer
+            work:
+          </p>
+          <ul>
+            <li>
+              Moderator tags. Comments by moderators who didn't mark them as
+              moderator comments no longer get the [M] tag, and the moderator
+              filter misses them.
+            </li>
+            <li>
+              Telling deleted accounts from shadowbanned ones. A user page now
+              says the account may be either. Suspended accounts still show as
+              suspended.
+            </li>
+            <li>
+              Quarantined subreddits. Reveddit reached them through its own
+              Reddit accounts, which no longer work, so their pages may not
+              load.
+            </li>
+          </ul>
         </>
       ),
     },
