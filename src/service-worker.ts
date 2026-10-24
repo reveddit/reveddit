@@ -2,9 +2,9 @@
 
 import { clientsClaim, skipWaiting } from 'workbox-core'
 import { ExpirationPlugin } from 'workbox-expiration'
-import { precacheAndRoute, createHandlerBoundToURL } from 'workbox-precaching'
+import { precacheAndRoute, matchPrecache } from 'workbox-precaching'
 import { registerRoute } from 'workbox-routing'
-import { StaleWhileRevalidate } from 'workbox-strategies'
+import { NetworkOnly, StaleWhileRevalidate } from 'workbox-strategies'
 
 self.__WB_DISABLE_DEV_LOGS = true //disable logging in dev builds
 
@@ -17,9 +17,20 @@ clientsClaim()
 // even if you decide not to use precaching. See https://cra.link/PWA
 precacheAndRoute(self.__WB_MANIFEST)
 
-// Set up App Shell-style routing, so that all navigation requests
-// are fulfilled with your index.html shell. Learn more at
-// https://developers.google.com/web/fundamentals/architecture/app-shell
+// Navigations go to the network first, so a deploy that changes only the
+// headers (the CSP fix of 2026-08-29 was one) reaches visitors on their next
+// page load. The precached index.html, the app shell, answers when the network
+// fails or takes longer than 3 s. Network-only rather than network-first, so
+// the many /y/<user>/ paths don't each fill a cache.
+const navigationHandler = new NetworkOnly({
+  networkTimeoutSeconds: 3,
+  plugins: [
+    {
+      handlerDidError: async () =>
+        (await matchPrecache('/index.html')) || Response.error(),
+    },
+  ],
+})
 const fileExtensionRegexp = new RegExp('/[^/?]+\\.[^/]+$')
 registerRoute(
   // Return false to exempt requests from being fulfilled by index.html.
@@ -39,7 +50,7 @@ registerRoute(
 
     return true
   },
-  createHandlerBoundToURL('/index.html')
+  navigationHandler
 )
 
 // An example runtime caching route for requests that aren't handled by the
