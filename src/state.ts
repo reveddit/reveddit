@@ -77,6 +77,8 @@ export interface GlobalState {
   loading: boolean
   error: boolean
   userIssueDescription: string
+  // A user page loaded without its removal check (api/info refused)
+  removalCheckUnavailable: boolean
   id: string
   context: string
   frontPage: boolean
@@ -508,6 +510,7 @@ const initialState: GlobalState = {
   loading: false,
   error: false,
   userIssueDescription: '',
+  removalCheckUnavailable: false,
   id: '',
   context: '',
   frontPage: false,

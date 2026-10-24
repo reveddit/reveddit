@@ -48,6 +48,7 @@ const User = ({
     hasVisitedSubredditPage,
     hasClickedRemovedUserCommentContext,
     error,
+    removalCheckUnavailable,
   } = global.state
   let loadAllLink = '',
     nextLink = '',
@@ -256,6 +257,12 @@ const User = ({
           <Highlight />
           {instructionalNotice}
           {notShownMsg}
+          {removalCheckUnavailable && (
+            <Notice
+              title="Removal check unavailable"
+              message="Reddit refused the request that shows which of these comments were removed, so removed comments may not be marked here. Reload the page later to try again."
+            />
+          )}
           {removedCommentsLink && (
             <Notice
               message={

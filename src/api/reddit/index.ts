@@ -429,27 +429,39 @@ export const queryUserPage = async ({
           parents_set.add(item.link_id)
         }
       }
+      // Both are extra lookups (api/info) on top of the listing. When one
+      // fails, the page shows the listing anyway and says what's missing:
+      // reddit's edge refused api/info.json through the extension on
+      // 2026-10-24 while the listing itself loaded, and every user page
+      // failed whole.
       const promises = []
       if (include_info) {
         promises.push(
-          getItems({ ids: commentIDs }).then(info => {
-            result.info = info
-          })
+          getItems({ ids: commentIDs })
+            .then(info => {
+              result.info = info
+            })
+            .catch(e => {
+              console.error('removal check (api/info) failed:', e)
+              result.info = {}
+              result.infoUnavailable = true
+            })
         )
       }
       if (include_parents) {
         promises.push(
-          getItems({ ids: Array.from(parents_set) }).then(parents => {
-            result.parents = parents
-          })
+          getItems({ ids: Array.from(parents_set) })
+            .then(parents => {
+              result.parents = parents
+            })
+            .catch(e => {
+              console.error('parent lookup (api/info) failed:', e)
+              result.parents = {}
+            })
         )
       }
-      try {
-        await Promise.all(promises)
-        return result
-      } catch (e) {
-        return e
-      }
+      await Promise.all(promises)
+      return result
     }
   } else {
     const empty: Record<string, any> = { ...EmptyUserPageResult }

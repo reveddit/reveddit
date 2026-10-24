@@ -355,6 +355,10 @@ const getItems = async (
     commentParentsAndPosts,
     oldestTimestamp,
     newestTimestamp,
+    // once any page of this user loaded without the removal check
+    removalCheckUnavailable:
+      Boolean(data.infoUnavailable) ||
+      (num_pages > 1 && Boolean(gs.removalCheckUnavailable)),
   })
   if (userPageData.after && all) {
     return getItems(
