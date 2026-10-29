@@ -22,5 +22,10 @@
     "chrome": "0.0.5.28",
     "edge": "0.0.5.28",
     "firefox": "0.0.5.28"
+  },
+  "options": {
+    "mechanisms": {
+      "legacyOldReddit": "off"
+    }
   }
 }
