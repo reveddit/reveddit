@@ -1,0 +1,25 @@
+name: Website problem
+description: Something isn't working right on reveddit.com.
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A sentence or two is enough. What did you expect instead?
+    validations:
+      required: true
+  - type: input
+    id: url
+    attributes:
+      label: Page address (optional)
+      description: The reveddit.com link where it happened.
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and device (optional)
+      placeholder: Chrome on Windows, Safari on iPhone
+  - type: textarea
+    id: more
+    attributes:
+      label: Anything else? (optional)
+      description: Screenshots, steps to reproduce, or other links.

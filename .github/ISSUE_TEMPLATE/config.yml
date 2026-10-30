@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Problem with the Reveddit Real-Time extension
+    url: https://github.com/reveddit/real-time-extension/issues/new?template=problem.yml
+    about: The extension has its own issue tracker. Its popup's "report a problem" link fills in the details for you.
