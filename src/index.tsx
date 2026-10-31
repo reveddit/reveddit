@@ -95,6 +95,10 @@ const About_faq = lazy(() => import('pages/about/faq'))
 const About_contact = lazy(() => import('pages/about/contact'))
 const About_donate = lazy(() => import('pages/about/donate'))
 const About_redditChange = lazy(() => import('pages/about/reddit-change'))
+const About_redditLogin = lazy(() => import('pages/about/reddit-login'))
+const About_extensionPrivacy = lazy(
+  () => import('pages/about/extension-privacy')
+)
 const UpdateHelp = lazy(() => import('pages/about/update-help'))
 const AddOns = lazy(() => import('pages/about/AddOns'))
 const Info = lazy(() => import('pages/info'))
@@ -289,6 +293,24 @@ const App = () => (
                 <DefaultLayout
                   component={About_redditChange}
                   title="A recent Reddit update breaks Reveddit"
+                />
+              }
+            />
+            <Route
+              path="/about/reddit-login/*"
+              element={
+                <DefaultLayout
+                  component={About_redditLogin}
+                  title="Reddit's login screen and the Reveddit extension"
+                />
+              }
+            />
+            <Route
+              path="/about/extension-privacy/*"
+              element={
+                <DefaultLayout
+                  component={About_extensionPrivacy}
+                  title="Reveddit Real-Time extension privacy"
                 />
               }
             />

@@ -1,0 +1,91 @@
+import React from 'react'
+import { Link } from 'react-router-dom'
+import { InternalPage } from 'components/Misc'
+import { NewWindowLink } from 'components/ui/Links'
+import { ContentWithHeader, Row } from 'pages/about'
+
+const title = 'Reveddit Real-Time extension privacy'
+
+// Linked from the browser stores' privacy-policy fields, not from the site
+const About_extensionPrivacy = props => {
+  return (
+    <InternalPage props={props}>
+      <Row>
+        <ContentWithHeader header={title}>
+          <p
+            style={{
+              color: 'var(--text-secondary)',
+              marginTop: '-4px',
+              fontSize: '0.9em',
+            }}
+          >
+            Last updated October 30, 2026
+          </p>
+          <p>
+            This covers the <Link to="/add-ons/direct">Reveddit Real-Time</Link>{' '}
+            browser extension. The reveddit.com website has its own{' '}
+            <Link to="/about/contact/#privacy">privacy policy</Link>.
+          </p>
+          <h3>What it keeps, in your browser</h3>
+          <ul>
+            <li>Your settings.</li>
+            <li>
+              The posts and comments it checks for you, with their text and a
+              history of what happened to them.
+            </li>
+            <li>A copy of your Reddit login, so its checks keep working.</li>
+            <li>
+              If you connect one, the login of a second Reddit account it checks
+              through.
+            </li>
+            <li>
+              A diagnostic log of its checks. It leaves out your username, and
+              lists the ids of your recent posts and comments unless you choose
+              to hide them when you copy it.
+            </li>
+          </ul>
+          <h3>Where it goes</h3>
+          <ul>
+            <li>
+              Your Reddit logins are only ever sent to reddit.com, to read
+              Reddit as you or as your second account.
+            </li>
+            <li>
+              The lists of items you follow use your browser's own sync, if you
+              have it turned on.
+            </li>
+            <li>
+              Reveddit pages you open can ask the extension to load Reddit data
+              for them. It hands that data to the page in your browser.
+            </li>
+            <li>
+              The extension downloads a small settings file from reveddit.com.
+              It sends nothing about you to Reveddit or anyone else: no
+              analytics and no tracking.
+            </li>
+            <li>
+              The diagnostic log only leaves your browser if you copy it
+              yourself, for example into a problem report.
+            </li>
+          </ul>
+          <h3>Removing it</h3>
+          <p>
+            Disconnecting the second account in the extension's options deletes
+            its saved login. Uninstalling the extension removes what it stored
+            in your browser.
+          </p>
+          <h3>Questions</h3>
+          <p>
+            Ask on{' '}
+            <NewWindowLink href="https://github.com/reveddit/real-time-extension/issues">
+              GitHub
+            </NewWindowLink>
+            .
+          </p>
+        </ContentWithHeader>
+      </Row>
+    </InternalPage>
+  )
+}
+
+export default About_extensionPrivacy
