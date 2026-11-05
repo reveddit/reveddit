@@ -36,7 +36,8 @@ const About_extensionPrivacy = props => {
             </li>
             <li>
               A copy of your Reddit cookies, login included, so its checks keep
-              working.
+              working. It puts back any your browser loses, and gives a login
+              that would end with the browser session the expiry stored in it.
             </li>
             <li>
               If you connect one, the Reddit cookies of a second account it
@@ -55,7 +56,7 @@ const About_extensionPrivacy = props => {
               Reddit as you or as your second account.
             </li>
             <li>
-              Your settings, the lists of items you follow, and each item's
+              Your settings, the usernames and items you follow, and each item's
               status and recent changes use your browser's own sync, if you have
               it turned on.
             </li>
@@ -80,8 +81,9 @@ const About_extensionPrivacy = props => {
           <p>
             Disconnecting the second account in the extension's options deletes
             its saved login. Uninstalling the extension removes what it stored
-            in your browser. A synced copy may stay with your browser account
-            and come back if you reinstall.
+            in its own storage. A synced copy may stay with your browser account
+            and come back if you reinstall. Cookies it put back, and small flags
+            it set in the storage of reddit.com and reveddit.com pages, stay.
           </p>
           <h3>Questions</h3>
           <p>
