@@ -19,7 +19,7 @@ const About_extensionPrivacy = props => {
               fontSize: '0.9em',
             }}
           >
-            Last updated October 30, 2026
+            Last updated November 5, 2026
           </p>
           <p>
             This covers the <Link to="/add-ons/direct">Reveddit Real-Time</Link>{' '}
@@ -29,6 +29,7 @@ const About_extensionPrivacy = props => {
           <h3>What it keeps, in your browser</h3>
           <ul>
             <li>Your settings.</li>
+            <li>Your Reddit username, and any others you subscribe to.</li>
             <li>
               The posts and comments it checks for you, with their text and a
               history of what happened to them.
@@ -39,9 +40,9 @@ const About_extensionPrivacy = props => {
               through.
             </li>
             <li>
-              A diagnostic log of its checks. It leaves out your username, and
-              lists the ids of your recent posts and comments unless you choose
-              to hide them when you copy it.
+              A diagnostic log of its checks. Copies of it leave out your
+              username unless you include it, and list the ids of your recent
+              posts and comments unless you hide them.
             </li>
           </ul>
           <h3>Where it goes</h3>
@@ -51,17 +52,21 @@ const About_extensionPrivacy = props => {
               Reddit as you or as your second account.
             </li>
             <li>
-              The lists of items you follow use your browser's own sync, if you
-              have it turned on.
+              Your settings, the lists of items you follow, and each item's
+              status and recent changes use your browser's own sync, if you have
+              it turned on.
             </li>
             <li>
               Reveddit pages you open can ask the extension to load Reddit data
-              for them. It hands that data to the page in your browser.
+              for them. It reads that data with your Reddit login, and hands the
+              data, never the login, to the page in your browser.
             </li>
             <li>
               The extension downloads a small settings file from reveddit.com.
-              It sends nothing about you to Reveddit or anyone else: no
-              analytics and no tracking.
+              Besides asking Reddit about the items it checks, it sends nothing
+              about you to Reveddit or anyone else on its own: no analytics and
+              no tracking. Links you open to reveddit.com carry the ids or
+              username they show.
             </li>
             <li>
               The diagnostic log only leaves your browser if you copy it
@@ -72,7 +77,8 @@ const About_extensionPrivacy = props => {
           <p>
             Disconnecting the second account in the extension's options deletes
             its saved login. Uninstalling the extension removes what it stored
-            in your browser.
+            in your browser. A synced copy may stay with your browser account
+            and come back if you reinstall.
           </p>
           <h3>Questions</h3>
           <p>
