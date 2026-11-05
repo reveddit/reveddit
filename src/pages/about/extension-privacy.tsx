@@ -34,10 +34,13 @@ const About_extensionPrivacy = props => {
               The posts and comments it checks for you, with their text and a
               history of what happened to them.
             </li>
-            <li>A copy of your Reddit login, so its checks keep working.</li>
             <li>
-              If you connect one, the login of a second Reddit account it checks
-              through.
+              A copy of your Reddit cookies, login included, so its checks keep
+              working.
+            </li>
+            <li>
+              If you connect one, the Reddit cookies of a second account it
+              checks through, login included.
             </li>
             <li>
               A diagnostic log of its checks. Copies of it leave out your
