@@ -20,8 +20,8 @@
   "latest_version_published_utc": 1793549326167,
   "store_versions": {
     "chrome": "0.0.5.30",
-    "edge": "0.0.5.30",
-    "firefox": "0.0.5.30"
+    "edge": "0.0.5.31",
+    "firefox": "0.0.5.31"
   },
   "options": {
     "mechanisms": {
