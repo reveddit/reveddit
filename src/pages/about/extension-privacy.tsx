@@ -19,7 +19,7 @@ const About_extensionPrivacy = props => {
               fontSize: '0.9em',
             }}
           >
-            Last updated November 5, 2026
+            Last updated November 9, 2026
           </p>
           <p>
             This covers the <Link to="/add-ons/direct">Reveddit Real-Time</Link>{' '}
@@ -84,6 +84,13 @@ const About_extensionPrivacy = props => {
             in its own storage. A synced copy may stay with your browser account
             and come back if you reinstall. Cookies it put back, and small flags
             it set in the storage of reddit.com and reveddit.com pages, stay.
+          </p>
+          <p>
+            In Chrome and Edge, the feedback form that opens after you uninstall
+            it has its browser question filled in: your browser's name and
+            version, your system and the extension's version. Google, which
+            hosts the form, receives that with the page. Reveddit gets it only
+            if you send the form, and you can change or clear it first.
           </p>
           <h3>Questions</h3>
           <p>
