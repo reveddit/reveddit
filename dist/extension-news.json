@@ -21,7 +21,7 @@
   "store_versions": {
     "chrome": "0.0.5.35",
     "edge": "0.0.5.35",
-    "firefox": "0.0.5.35"
+    "firefox": "0.0.5.36"
   },
   "options": {
     "mechanisms": {
