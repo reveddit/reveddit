@@ -19,7 +19,7 @@ const About_extensionPrivacy = props => {
               fontSize: '0.9em',
             }}
           >
-            Last updated November 9, 2026
+            Last updated November 15, 2026
           </p>
           <p>
             This covers the <Link to="/add-ons/direct">Reveddit Real-Time</Link>{' '}
