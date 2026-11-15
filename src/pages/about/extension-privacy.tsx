@@ -44,6 +44,12 @@ const About_extensionPrivacy = props => {
               checks through, login included.
             </li>
             <li>
+              The cookies Reddit gives its logged-out checks, which it sends
+              back on the next ones, as a logged-out browser does. They're
+              Reddit's logged-out cookies, not your login, and they're kept
+              apart from your browser's.
+            </li>
+            <li>
               A diagnostic log of its checks. Copies of it leave out your
               username unless you include it, and list the ids of your recent
               posts and comments unless you hide them.
@@ -52,8 +58,9 @@ const About_extensionPrivacy = props => {
           <h3>Where it goes</h3>
           <ul>
             <li>
-              Your Reddit logins are only ever sent to reddit.com, to read
-              Reddit as you or as your second account.
+              Your Reddit logins, and the logged-out cookies of its checks, are
+              only ever sent to reddit.com, to read Reddit as you, as your
+              second account, or logged out.
             </li>
             <li>
               Your settings, the usernames and items you follow, and each item's
