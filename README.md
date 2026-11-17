@@ -50,4 +50,4 @@ Code-contributions are welcome. Feel free to submit a PR, or if it is a signific
 
 # Discussion
 
-Use [r/reveddit](https://www.reddit.com/r/reveddit/) for general questions or discussion. Bug reports can be made here on Github or in that subreddit.
+Questions, discussion and bug reports go in [GitHub issues](https://github.com/reveddit/reveddit/issues). For the real-time extension, use [its issues page](https://github.com/reveddit/real-time-extension/issues).
