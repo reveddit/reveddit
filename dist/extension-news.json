@@ -16,10 +16,10 @@
       "severity": "info"
     }
   ],
-  "latest_version": "0.0.5.36",
-  "latest_version_published_utc": 1794831332119,
+  "latest_version": "0.0.5.37",
+  "latest_version_published_utc": 1794998829543,
   "store_versions": {
-    "chrome": "0.0.5.36",
+    "chrome": "0.0.5.37",
     "edge": "0.0.5.37",
     "firefox": "0.0.5.37"
   },
