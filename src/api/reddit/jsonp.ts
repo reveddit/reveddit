@@ -34,6 +34,9 @@ const SHIM_HTML =
   `<script>
 'use strict'
 window.addEventListener('message', function (e) {
+  // only reveddit's page asks: another window holding a reveddit tab could
+  // otherwise answer that page's pending requests with data of its choosing
+  if (e.source !== parent) return
   var d = e.data || {}
   if (d.type !== 'jsonp-request' || typeof d.url !== 'string' || typeof d.id !== 'number') return
   if (d.url.indexOf('https://www.reddit.com/') !== 0) {
