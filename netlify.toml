@@ -20,7 +20,6 @@
     X-Reveddit-Headers-Rev = "jsonp-3"
     X-Frame-Options = "DENY"
     X-XSS-Protection = "1; mode=block"
-    # Another site that opens reveddit gets no handle to its window
     Cross-Origin-Opener-Policy = "same-origin"
 
 [[headers]]
