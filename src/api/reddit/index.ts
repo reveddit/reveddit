@@ -16,11 +16,10 @@ import {
 } from 'api/common'
 import { getModerators } from 'api/reveddit'
 
-declare const OAUTH_REDDIT_REV: string
-
 const https = 'https://'
 export const oauth_reddit = https + 'oauth.reddit.com/'
-let can_use_oauth_reddit_rev = true
+// With a user's API key, reads go to oauth.reddit.com until one fails there
+let can_use_oauth_reddit = true
 export const www_reddit = https + 'www.reddit.com'
 export const www_reddit_slash = www_reddit + '/'
 export const old_reddit = https + 'old.reddit.com'
@@ -36,34 +35,14 @@ const errorHandler = e => {
   throw new Error(`Could not connect to Reddit: ${e}`)
 }
 
-export const getComments = ({
-  objects = undefined,
-  ids = [],
-  quarantined_subreddits = '',
-  useProxy = false,
-}) => {
+export const getComments = ({ objects = undefined, ids = [] }) => {
   const full_ids = getFullIDsForObjects(objects, ids, 't1_')
-  return getItems({
-    ids: full_ids,
-    quarantined_subreddits,
-    key: 'id',
-    useProxy,
-  })
+  return getItems({ ids: full_ids, key: 'id' })
 }
 
-export const getPosts = ({
-  objects = undefined,
-  ids = [],
-  quarantined_subreddits = '',
-  useProxy = false,
-}) => {
+export const getPosts = ({ objects = undefined, ids = [] }) => {
   const full_ids = getFullIDsForObjects(objects, ids, 't3_')
-  return getItems({
-    ids: full_ids,
-    quarantined_subreddits,
-    key: 'id',
-    useProxy,
-  }).then(posts => {
+  return getItems({ ids: full_ids, key: 'id' }).then(posts => {
     for (const p of Object.values(posts) as any[]) {
       p.url = p.url || ''
       p.domain = p.domain || ''
@@ -91,8 +70,8 @@ export const getUserAbout = async user => {
   return fetchWithCache(url, auth, 60 * 60 * 24).then(data => data.data)
 }
 
-export const getSubredditAbout = (subreddit, useProxy = false) => {
-  const host = getHost(useProxy)
+export const getSubredditAbout = subreddit => {
+  const host = getHost()
   const url = host + `r/${subreddit}/about/.json`
   return getAuth()
     .then(auth => redditFetch(url, auth))
@@ -138,29 +117,18 @@ const getFullIDsForObjects = (objects, ids, prefix) => {
   return full_ids
 }
 
-export const getItems = async ({
-  ids,
-  quarantined_subreddits = '',
-  key = 'name',
-  useProxy = false,
-}) => {
+export const getItems = async ({ ids, key = 'name' }) => {
   const results = {}
   if (!ids.length) {
     return results
   }
-  if (quarantined_subreddits) {
-    useProxy = true
-  }
-  const host = getHost(useProxy)
+  const host = getHost()
   await getAuth()
-  return groupRequests(
-    queryByID,
-    ids,
-    [quarantined_subreddits, key, results, host],
-    maxNumItems
-  ).then(() => {
-    return results
-  })
+  return groupRequests(queryByID, ids, [key, results, host], maxNumItems).then(
+    () => {
+      return results
+    }
+  )
 }
 
 const groupRequests = async (func, items, params, localMaxNumItems) => {
@@ -185,8 +153,6 @@ export const getPostWithComments = ({
   context = 0,
   sort = 'old',
   limit = 500,
-  useProxy = false,
-  subreddit = '',
 }) => {
   const params: Record<string, any> = {
     limit,
@@ -197,14 +163,7 @@ export const getPostWithComments = ({
     ...(comment && { comment }),
     ...(context && { context }),
   }
-  const _thisQueryParams = {
-    ...params,
-    subreddit: subreddit,
-  }
-  const host = getHost(useProxy)
-  if (host === OAUTH_REDDIT_REV && subreddit) {
-    params.quarantined_subreddits = subreddit
-  }
+  const host = getHost()
   const url = host + `comments/${threadID}.json` + '?' + paramString(params)
   return getAuth(host)
     .then(auth => fetchJsonAndValidate(url, auth))
@@ -292,42 +251,21 @@ export const kindsReverse = {
 
 export const queryUserPageCombined = async params => {
   return queryUserPage({
-    useProxy: false,
     include_info: true,
     include_parents: true,
     ...params,
   })
 }
 
-const notProxy_host = www_reddit_slash
-
-const getHost = (useProxy = false) => {
-  // Reddit deleted Reveddit's API apps in 2026: no token for oauth.reddit.com,
-  // and reddit network-policy-blocks the cred2 worker's egress. All requests
-  // go to www.reddit.com over JSONP (jsonp.ts) unless the user supplied an
-  // API key in Settings.
-  if (!getCustomClientID()) {
+const getHost = () => {
+  // Reddit deleted Reveddit's API apps in 2026: no token for oauth.reddit.com.
+  // All requests go to www.reddit.com over JSONP (jsonp.ts), unless the user
+  // supplied an API key in Settings: then to oauth.reddit.com until a read
+  // fails there.
+  if (!getCustomClientID() || !can_use_oauth_reddit) {
     return www_reddit_slash
   }
-  if (useProxy) {
-    if (can_use_oauth_reddit_rev) {
-      return OAUTH_REDDIT_REV
-    } else {
-      return notProxy_host
-    }
-  } else {
-    if (can_use_oauth_reddit_rev) {
-      return oauth_reddit
-    } else {
-      return notProxy_host
-    }
-  }
-}
-
-const addQuarantineParam = (host, params) => {
-  if (host === OAUTH_REDDIT_REV) {
-    params.quarantined = true
-  }
+  return oauth_reddit
 }
 
 export const EmptyUserPageResult = { items: [], after: null }
@@ -340,13 +278,10 @@ export const queryUserPage = async ({
   after,
   t,
   limit = 100,
-  quarantined_subreddits = '',
-  useProxy = false,
   include_info = false,
   include_parents = false,
 }) => {
-  const host = getHost(useProxy)
-  const host_is_proxy = host === OAUTH_REDDIT_REV
+  const host = getHost()
   const params: Record<string, any> = {
     ...(sort && { sort }),
     ...(limit && { limit }),
@@ -354,19 +289,7 @@ export const queryUserPage = async ({
     ...(after && { after }),
     ...(before && { before }),
   }
-  if (host_is_proxy) {
-    params.include_info = include_info
-    params.include_parents = include_parents
-    if (quarantined_subreddits) {
-      params.quarantined_subreddits = quarantined_subreddits
-    }
-  }
   const auth: any = await getAuth(host)
-  if (host_is_proxy) {
-    auth.method = 'POST'
-    auth.body = auth.headers.Authorization
-    delete auth.headers.Authorization
-  }
   let json
   try {
     json = await fetchJsonAndValidate(
@@ -374,9 +297,9 @@ export const queryUserPage = async ({
       auth
     )
   } catch (e: any) {
-    if (host !== notProxy_host && e.message !== 'Forbidden') {
-      can_use_oauth_reddit_rev = false
-      return queryUserPageCombined({ user, kind, ...params }) // host will be notProxy_host for this query
+    if (host !== www_reddit_slash && e.message !== 'Forbidden') {
+      can_use_oauth_reddit = false
+      return queryUserPageCombined({ user, kind, ...params }) // host will be www_reddit_slash for this query
     }
     if (!getCustomClientID() || customKeyMintFailed()) {
       // JSONP hides the HTTP status, so distinguish "account gone" (about.json
@@ -397,13 +320,7 @@ export const queryUserPage = async ({
     }
     return e
   }
-  if (host === OAUTH_REDDIT_REV) {
-    if (!include_info && !include_parents && json.user) {
-      return json.user
-    } else {
-      return json
-    }
-  } else if (json.data?.children) {
+  if (json.data?.children) {
     let items = []
     if (!include_info && !include_parents) {
       items = json.data.children.map(item => item.data)
@@ -488,15 +405,11 @@ export const usernameAvailable = user => {
 
 const queryByID = async (
   ids,
-  quarantined_subreddits,
   key = 'name',
   results = {},
   host = oauth_reddit
 ) => {
   const params: Record<string, any> = { id: ids.join(), raw_json: 1 }
-  if (host === OAUTH_REDDIT_REV && quarantined_subreddits) {
-    params.quarantined_subreddits = quarantined_subreddits
-  }
   const auth = await getAuth(host)
   let path = 'api/info'
   if (host === www_reddit_slash) {
@@ -513,7 +426,7 @@ const queryByID = async (
         e.message !== 'Forbidden' &&
         getCustomClientID()
       ) {
-        can_use_oauth_reddit_rev = false
+        can_use_oauth_reddit = false
         return queryForHost(oauth_reddit).catch(errorHandler)
       }
       return errorHandler(e)
@@ -599,16 +512,14 @@ export const querySubredditPage = async ({
   sort,
   after = '',
   t = '',
-  useProxy = false,
 }) => {
-  const host = getHost(useProxy)
+  const host = getHost()
   const params = {
     ...(after && { after }),
     ...(t && { t }),
     limit: 100,
     raw_json: 1,
   }
-  addQuarantineParam(host, params)
   const url = host + `r/${subreddit}/${sort}.json` + '?' + paramString(params)
   const auth = await getAuth(host)
   return redditFetch(url, auth)
@@ -618,15 +529,10 @@ export const querySubredditPage = async ({
         return {
           posts: results.data.children.map(post => post.data),
           after: results.data.after,
-          useProxy: host === OAUTH_REDDIT_REV,
         }
-      } else if (
-        results.reason === 'quarantined' &&
-        host !== OAUTH_REDDIT_REV &&
-        getHost(true) !== host
-      ) {
-        return querySubredditPage({ subreddit, sort, after, t, useProxy: true })
       }
+      // a quarantined or banned subreddit: no listing
+      return undefined
     })
     .catch(errorHandler)
 }
@@ -668,8 +574,7 @@ export const randomRedditor = async (subreddit = 'all') => {
       return selectRandomCommenter(
         post,
         commentSortOptions[getRandomInt(commentSortOptions.length)],
-        mods_promise,
-        data.useProxy
+        mods_promise
       )
     }
   )
@@ -679,15 +584,13 @@ const NUM_AUTHORS_WHEN_COMMENT_KARMA_IS_LOW = 20
 export const selectRandomCommenter = async (
   post,
   sort = 'new',
-  mods_promise,
-  useProxy = false
+  mods_promise
 ) => {
-  const host = getHost(useProxy)
+  const host = getHost()
   const params = {
     sort,
     limit: 200,
   }
-  addQuarantineParam(host, params)
   const url =
     host +
     `r/${post.subreddit}/comments/${post.id}.json` +

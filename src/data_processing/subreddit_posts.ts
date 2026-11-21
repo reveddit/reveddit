@@ -10,7 +10,6 @@ import { retrieveRedditPosts_and_combineWithPushshiftPosts } from 'data_processi
 import {
   copyModlogItemsToArchiveItems,
   setSubredditMeta,
-  useProxy,
 } from 'data_processing/comments'
 import { PATHS_STR_SUB, sortCreatedAsc, markSelftextRemoved } from 'utils'
 
@@ -177,11 +176,9 @@ export const combinedGetItemsBySubredditOrDomain = args => {
               })
             copyModlogItemsToArchiveItems(modlogsItems, pushshiftItems)
           }
-          const quarantined_subreddits = useProxy ? subreddit : null
           const combinedItems = await postProcessCombine_Fn({
             [postProcessCombine_ItemsArgName]: pushshiftItems,
             subreddit_about_promise,
-            quarantined_subreddits,
           })
           const allItems = items.concat(combinedItems)
           return global

@@ -22,11 +22,7 @@ import {
   sortCreatedAsc,
   markSelftextRemoved,
 } from 'utils'
-import {
-  modlogSaysBotRemoved,
-  copyFields,
-  useProxy,
-} from 'data_processing/comments'
+import { modlogSaysBotRemoved, copyFields } from 'data_processing/comments'
 import {
   ANTI_EVIL_REMOVED,
   AUTOMOD_REMOVED,
@@ -46,7 +42,6 @@ export const retrieveRedditPosts_and_combineWithPushshiftPosts = async ({
   includePostsWithZeroComments = false,
   existingRedditPosts = {},
   subreddit_about_promise = Promise.resolve({}),
-  quarantined_subreddits = '',
 }) => {
   const ids = []
   if (!pushshiftPosts) {
@@ -74,19 +69,17 @@ export const retrieveRedditPosts_and_combineWithPushshiftPosts = async ({
     pushshiftPosts.push(...Object.values(morePushshiftPosts))
   }
 
-  return getRedditPosts({ ids, quarantined_subreddits, useProxy }).then(
-    redditPosts => {
-      Object.values(existingRedditPosts).forEach((post: any) => {
-        redditPosts[post.id] = post
-      })
-      return combinePushshiftAndRedditPosts({
-        pushshiftPosts,
-        redditPosts: Object.values(redditPosts),
-        includePostsWithZeroComments,
-        subreddit_about_promise,
-      })
-    }
-  )
+  return getRedditPosts({ ids }).then(redditPosts => {
+    Object.values(existingRedditPosts).forEach((post: any) => {
+      redditPosts[post.id] = post
+    })
+    return combinePushshiftAndRedditPosts({
+      pushshiftPosts,
+      redditPosts: Object.values(redditPosts),
+      includePostsWithZeroComments,
+      subreddit_about_promise,
+    })
+  })
 }
 
 export const getRevdditPosts = pushshiftPosts => {

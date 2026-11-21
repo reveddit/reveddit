@@ -62,7 +62,6 @@ const ignoreArchiveErrors = (returnValue = {}) => {
   // clone here so that the passed in object doesn't get used later and potentially modified
   return JSON.parse(JSON.stringify(returnValue))
 }
-let useProxy = false
 
 // maps reddit sort value to reveddit sort
 const sortMap = {
@@ -85,7 +84,6 @@ const processAddUserPromises = async (
 }
 
 const addRemainingRedditComments_andCombine = async (
-  quarantined_subreddits,
   reddit_post,
   pushshiftComments,
   redditComments,
@@ -95,11 +93,7 @@ const addRemainingRedditComments_andCombine = async (
   updateURL = false
 ) => {
   if (ids.length) {
-    const remainingRedditComments = await getRedditComments({
-      ids,
-      quarantined_subreddits,
-      useProxy,
-    })
+    const remainingRedditComments = await getRedditComments({ ids })
     ;(Object.values(remainingRedditComments) as any[]).forEach(comment => {
       redditComments[comment.id] = comment
     })
@@ -148,11 +142,6 @@ export const getRevdditThreadItems = async (
 ) => {
   const { localSort, localSortReverse, ps_after } = global.getState()
   let { quarantined } = global.getState()
-  let quarantined_subreddits
-  if (quarantined) {
-    useProxy = true
-    quarantined_subreddits = subreddit
-  }
   const ps_after_set = ps_after
     ? new Set(ps_after.split(',').slice(0, 20))
     : new Set()
@@ -211,10 +200,7 @@ export const getRevdditThreadItems = async (
   let root_comment_promise: Promise<any> = Promise.resolve({})
   let pushshift_post_promise = Promise.resolve(undefined)
   if (commentID) {
-    root_comment_promise = getRedditComments({
-      ids: [commentID],
-      quarantined_subreddits,
-    })
+    root_comment_promise = getRedditComments({ ids: [commentID] })
   }
   const uModlogs_promise = getUmodlogsThread(subreddit, threadID)
   const reddit_pwc_baseArgs = {
@@ -222,220 +208,187 @@ export const getRevdditThreadItems = async (
     commentID,
     context,
     limit: numCommentsWithPost,
-    subreddit,
   }
-  const reddit_pwc_baseArgs_firstQuery = {
+  const reddit_pwc_promise = getRedditPostWithComments({
     ...reddit_pwc_baseArgs,
     sort: 'top',
-    useProxy,
-  }
-  const reddit_pwc_promise = getRedditPostWithComments(
-    reddit_pwc_baseArgs_firstQuery
+  }).then(
+    async ({
+      post: reddit_post,
+      comments: redditComments,
+      moreComments,
+      oldestComment,
+      moreCommentIDs,
+    }) => {
+      // No token: moderators/ is not Turnstile-gated (the page's one token
+      // is single-use and belongs to thread-comments/ below).
+      const moderators_promise = getModerators(reddit_post.subreddit)
+      const modlogs_comments_promise = getModlogsComments({
+        subreddit: reddit_post.subreddit,
+        link_id: reddit_post.id,
+        limit: 500,
+      })
+      const modlogs_posts_promise = getModlogsPosts({
+        subreddit: reddit_post.subreddit,
+        link_id: reddit_post.id,
+      })
+      document.title = reddit_post.title
+      if (reddit_post.quarantine && !quarantined) {
+        quarantined = true
+        // the URL marks the thread as quarantined, so a shared link shows it from the start
+        localStateForURLUpdate.quarantined = true
+      }
+      const resetPath = (commentID?: any) => {
+        const commentPath = commentID ? commentID + '/' : ''
+        window.history.replaceState(
+          null,
+          null,
+          convertPathSub(reddit_post.permalink) +
+            commentPath +
+            window.location.search +
+            window.location.hash
+        )
+      }
+      if ((window.location.pathname.match(/\//g) || []).length < 6) {
+        resetPath()
+      }
+      const post_without_pushshift_data = combineRedditAndPushshiftPost(
+        reddit_post,
+        undefined
+      )
+
+      // comments/article lookup may return no comments if a comment is removed,
+      // so, need to query the root comment separately so that pushshift comments
+      // lookup can make use of its created_utc
+      let oldest_comment_promise = Promise.resolve(oldestComment)
+      if (!Object.keys(oldestComment).length && commentID) {
+        oldest_comment_promise = getRedditComments({
+          ids: [commentID],
+        }).then(oldestComments => {
+          oldestComment = oldestComments[commentID] || {}
+          Object.assign(redditComments, oldestComments)
+          return oldestComment
+        })
+      }
+      oldestComment = await oldest_comment_promise
+      const reddit_comments_promises = [
+        Promise.resolve({
+          comments: redditComments,
+          moreComments,
+          moreCommentIDs,
+        }),
+      ]
+      let root_comment_id
+      await archive_times_promise
+      const archiveTimes = global.getState().archiveTimes
+      if (commentID) {
+        root_comment_id = oldestComment.id
+        const after = oldestComment.created_utc - 1
+        // The focused comment's archive.org search runs from RestoreComment, which shows its progress
+        reveddit_comments_promise = getCommentsByThread({
+          comment_id: commentID,
+          link_id: threadID,
+          after,
+          root_comment_id,
+          num_comments: reddit_post.num_comments,
+          post_created_utc: reddit_post.created_utc,
+          turnstile_token,
+        })
+        pushshift_comments_promise = pushshiftLimiter.schedule(() =>
+          getPushshiftCommentsByThread({
+            link_id: threadID,
+            after: after,
+            archiveTimes,
+          }).catch(ignoreArchiveErrors_comments)
+        )
+      } else {
+        pushshift_comments_promise = pushshiftLimiter.schedule(() =>
+          getPushshiftCommentsByThread({
+            link_id: threadID,
+            after: reddit_post.created_utc - 1,
+            archiveTimes,
+          }).catch(ignoreArchiveErrors_comments)
+        )
+        reveddit_comments_promise = getCommentsByThread({
+          link_id: threadID,
+          after,
+          root_comment_id,
+          num_comments: reddit_post.num_comments,
+          post_created_utc: reddit_post.created_utc,
+          turnstile_token,
+        })
+      }
+      pushshift_post_promise = pushshiftLimiter.schedule(() =>
+        getPushshiftPost({ id: threadID, archiveTimes }).catch(
+          ignoreArchiveErrors
+        )
+      )
+      const { user_comments, newComments: remainingRedditIDs } =
+        await processAddUserPromises(
+          add_user_promises,
+          redditComments,
+          post_without_pushshift_data
+        )
+      const { combinedComments } = await addRemainingRedditComments_andCombine(
+        post_without_pushshift_data,
+        {},
+        redditComments,
+        Object.keys(remainingRedditIDs),
+        user_comments
+      )
+
+      const [commentTree, itemsSortedByDate] = createCommentTree(
+        threadID,
+        root_comment_id,
+        combinedComments
+      )
+      await global
+        .setState({
+          ...localStateForURLUpdate,
+          threadPost: post_without_pushshift_data,
+          items: itemsSortedByDate,
+          itemsSortedByDate,
+          itemsLookup: combinedComments,
+          commentTree,
+          initialFocusCommentID: commentID,
+          quarantined,
+        })
+        .then(() => {
+          if (Object.keys(localStateForURLUpdate).length) {
+            global.updateURLFromGivenState('thread', {
+              ...localStateForURLUpdate,
+            })
+          }
+        })
+      jumpToHash(window.location.hash)
+      // Add 100 to threshhold b/c if post.num_comments <= numCommentsWithPost, first call could return
+      // numCommentsWithPost and second call (sort by 'new') might return 50.
+      // In that case you still need to call api/info, getting 100 items per request.
+      // Needs more testing, setting numCommentsWithPost=500 seemed slower than 100
+      if (reddit_post.num_comments > numCommentsWithPost + 100 && !commentID) {
+        reddit_comments_promises.push(
+          ...sortsForRedditCommentThreadQuery.map(sort =>
+            getRedditPostWithComments({
+              ...reddit_pwc_baseArgs,
+              sort,
+            })
+          )
+        )
+      }
+      return {
+        reddit_post,
+        root_comment_id,
+        reddit_comments_promises,
+        resetPath,
+        reveddit_comments_promise,
+        pushshift_comments_promise,
+        moderators_promise,
+        modlogs_comments_promise,
+        modlogs_posts_promise,
+        user_comments,
+      }
+    }
   )
-    .catch(e => {
-      if (e.message === 'Forbidden' && !useProxy) {
-        useProxy = true
-        return getRedditPostWithComments({
-          ...reddit_pwc_baseArgs_firstQuery,
-          useProxy,
-        })
-      }
-      throw e
-    })
-    .then(
-      async ({
-        post: reddit_post,
-        comments: redditComments,
-        moreComments,
-        oldestComment,
-        moreCommentIDs,
-      }) => {
-        // No token: moderators/ is not Turnstile-gated (the page's one token
-        // is single-use and belongs to thread-comments/ below).
-        const moderators_promise = getModerators(reddit_post.subreddit)
-        const modlogs_comments_promise = getModlogsComments({
-          subreddit: reddit_post.subreddit,
-          link_id: reddit_post.id,
-          limit: 500,
-        })
-        const modlogs_posts_promise = getModlogsPosts({
-          subreddit: reddit_post.subreddit,
-          link_id: reddit_post.id,
-        })
-        document.title = reddit_post.title
-        if (reddit_post.quarantine && !quarantined) {
-          quarantined = true
-          quarantined_subreddits = reddit_post.subreddit
-          root_comment_promise = getRedditComments({
-            ids: [commentID],
-            quarantined_subreddits,
-          })
-          //      Update URL to mark thread as quarantined so future add_user params,
-          //      which will be saved below, then potentially shared, will, when queried
-          //      among the first requests of getRevdditThreadItems(), know up front that the subreddit
-          //      is quarantined
-          localStateForURLUpdate.quarantined = true
-        }
-        const resetPath = (commentID?: any) => {
-          const commentPath = commentID ? commentID + '/' : ''
-          window.history.replaceState(
-            null,
-            null,
-            convertPathSub(reddit_post.permalink) +
-              commentPath +
-              window.location.search +
-              window.location.hash
-          )
-        }
-        if ((window.location.pathname.match(/\//g) || []).length < 6) {
-          resetPath()
-        }
-        const post_without_pushshift_data = combineRedditAndPushshiftPost(
-          reddit_post,
-          undefined
-        )
-
-        // comments/article lookup may return no comments if a comment is removed,
-        // so, need to query the root comment separately so that pushshift comments
-        // lookup can make use of its created_utc
-        let oldest_comment_promise = Promise.resolve(oldestComment)
-        if (!Object.keys(oldestComment).length && commentID) {
-          oldest_comment_promise = getRedditComments({
-            ids: [commentID],
-            quarantined_subreddits,
-            useProxy,
-          }).then(oldestComments => {
-            oldestComment = oldestComments[commentID] || {}
-            Object.assign(redditComments, oldestComments)
-            return oldestComment
-          })
-        }
-        oldestComment = await oldest_comment_promise
-        const reddit_comments_promises = [
-          Promise.resolve({
-            comments: redditComments,
-            moreComments,
-            moreCommentIDs,
-          }),
-        ]
-        let root_comment_id
-        await archive_times_promise
-        const archiveTimes = global.getState().archiveTimes
-        if (commentID) {
-          root_comment_id = oldestComment.id
-          const after = oldestComment.created_utc - 1
-          // The focused comment's archive.org search runs from RestoreComment, which shows its progress
-          reveddit_comments_promise = getCommentsByThread({
-            comment_id: commentID,
-            link_id: threadID,
-            after,
-            root_comment_id,
-            num_comments: reddit_post.num_comments,
-            post_created_utc: reddit_post.created_utc,
-            turnstile_token,
-          })
-          pushshift_comments_promise = pushshiftLimiter.schedule(() =>
-            getPushshiftCommentsByThread({
-              link_id: threadID,
-              after: after,
-              archiveTimes,
-            }).catch(ignoreArchiveErrors_comments)
-          )
-        } else {
-          pushshift_comments_promise = pushshiftLimiter.schedule(() =>
-            getPushshiftCommentsByThread({
-              link_id: threadID,
-              after: reddit_post.created_utc - 1,
-              archiveTimes,
-            }).catch(ignoreArchiveErrors_comments)
-          )
-          reveddit_comments_promise = getCommentsByThread({
-            link_id: threadID,
-            after,
-            root_comment_id,
-            num_comments: reddit_post.num_comments,
-            post_created_utc: reddit_post.created_utc,
-            turnstile_token,
-          })
-        }
-        pushshift_post_promise = pushshiftLimiter.schedule(() =>
-          getPushshiftPost({ id: threadID, archiveTimes }).catch(
-            ignoreArchiveErrors
-          )
-        )
-        const { user_comments, newComments: remainingRedditIDs } =
-          await processAddUserPromises(
-            add_user_promises,
-            redditComments,
-            post_without_pushshift_data
-          )
-        const { combinedComments } =
-          await addRemainingRedditComments_andCombine(
-            quarantined_subreddits,
-            post_without_pushshift_data,
-            {},
-            redditComments,
-            Object.keys(remainingRedditIDs),
-            user_comments
-          )
-
-        const [commentTree, itemsSortedByDate] = createCommentTree(
-          threadID,
-          root_comment_id,
-          combinedComments
-        )
-        await global
-          .setState({
-            ...localStateForURLUpdate,
-            threadPost: post_without_pushshift_data,
-            items: itemsSortedByDate,
-            itemsSortedByDate,
-            itemsLookup: combinedComments,
-            commentTree,
-            initialFocusCommentID: commentID,
-            quarantined,
-            quarantined_subreddits,
-          })
-          .then(() => {
-            if (Object.keys(localStateForURLUpdate).length) {
-              global.updateURLFromGivenState('thread', {
-                ...localStateForURLUpdate,
-              })
-            }
-          })
-        jumpToHash(window.location.hash)
-        // Add 100 to threshhold b/c if post.num_comments <= numCommentsWithPost, first call could return
-        // numCommentsWithPost and second call (sort by 'new') might return 50.
-        // In that case you still need to call api/info, getting 100 items per request.
-        // Needs more testing, setting numCommentsWithPost=500 seemed slower than 100
-        if (
-          reddit_post.num_comments > numCommentsWithPost + 100 &&
-          !commentID
-        ) {
-          reddit_comments_promises.push(
-            ...sortsForRedditCommentThreadQuery.map(sort =>
-              getRedditPostWithComments({
-                ...reddit_pwc_baseArgs,
-                sort,
-                useProxy,
-              })
-            )
-          )
-        }
-        return {
-          reddit_post,
-          root_comment_id,
-          reddit_comments_promises,
-          resetPath,
-          reveddit_comments_promise,
-          pushshift_comments_promise,
-          moderators_promise,
-          modlogs_comments_promise,
-          modlogs_posts_promise,
-          user_comments,
-        }
-      }
-    )
 
   reddit_pwc_promise.then(async ({ reddit_post, modlogs_posts_promise }) => {
     const modlogsPosts = await modlogs_posts_promise
@@ -607,10 +560,7 @@ export const getRevdditThreadItems = async (
       ) {
         //if the focus comment is removed, and the author does not appear in the add_user parameter,
         //check for edits on the author's user page. Any edits will cause the URL to update
-        const aui = new AddUserItem({
-          author: focusCommentAuthor,
-          quarantined_subreddits,
-        })
+        const aui = new AddUserItem({ author: focusCommentAuthor })
         add_user_promises_forURL.push(aui.query())
       }
     }
@@ -727,7 +677,6 @@ export const getRevdditThreadItems = async (
   }
 
   const { combinedComments } = await addRemainingRedditComments_andCombine(
-    quarantined_subreddits,
     reddit_post,
     pushshiftComments,
     redditComments,
@@ -774,7 +723,6 @@ export const getRevdditThreadItems = async (
     )
     const { combinedComments, changed, new_add_user } =
       await addRemainingRedditComments_andCombine(
-        quarantined_subreddits,
         reddit_post,
         pushshiftComments,
         redditComments,
@@ -911,22 +859,13 @@ export const getRevdditThreadItems = async (
 export const insertParent = (child_id, global) => {
   let promise = Promise.resolve()
   let { commentTree } = global.getState()
-  const {
-    items,
-    itemsLookup,
-    threadPost,
-    initialFocusCommentID,
-    quarantined_subreddits,
-  } = global.getState()
+  const { items, itemsLookup, threadPost, initialFocusCommentID } =
+    global.getState()
   const child = itemsLookup[child_id]
   const [parent_kind, parent_id] = child.parent_id.split('_')
   const parent = itemsLookup[parent_id]
   if (!parent && parent_kind === 't1') {
-    promise = getRedditComments({
-      ids: [parent_id],
-      quarantined_subreddits,
-      useProxy,
-    }).then(redditComments => {
+    promise = getRedditComments({ ids: [parent_id] }).then(redditComments => {
       const comment = redditComments[parent_id]
       if (comment) {
         let combined = combinePushshiftAndRedditComments(

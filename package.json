@@ -57,7 +57,6 @@
   },
   "scripts": {
     "start": "lsof -ti:8080 | xargs kill -9 2>/dev/null || true; vite",
-    "start-staging": "lsof -ti:8080 | xargs kill -9 2>/dev/null || true; TARGET_ENV=staging vite",
     "build": "yarn clean && vite build",
     "build:local-mac": "PUPPETEER_EXECUTABLE_PATH='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' yarn build",
     "prefetch-data": "node scripts/fetch-prerender-data.js",

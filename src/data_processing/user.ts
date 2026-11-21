@@ -225,13 +225,6 @@ const getItems = async (
   const gs = global.getState()
   const { commentParentsAndPosts, userCommentsByPost } = gs
   let { oldestTimestamp, newestTimestamp } = gs
-  let quarantined_subreddits
-  if (gs.items.length) {
-    const last = gs.items[gs.items.length - 1]
-    if (last.quarantine) {
-      quarantined_subreddits = last.subreddit
-    }
-  }
   const data = await queryUserPageCombined({
     user,
     kind,
@@ -240,7 +233,6 @@ const getItems = async (
     after,
     t: time,
     limit,
-    quarantined_subreddits,
   })
   const userPageData = data.user
   if ('error' in data) {

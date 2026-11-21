@@ -122,7 +122,6 @@ export interface GlobalState {
   rate_most: number | undefined
   agg_most_recent_created_utc: number | undefined
   x_subreddit: string
-  quarantined_subreddits: string
   [key: string]: any // allow min/max dynamic keys
 }
 
@@ -356,7 +355,6 @@ export const urlParamKeys = {
   rate_more: 'rate_more',
   x_subreddit: 'x_subreddit',
   quarantined: 'quarantined',
-  quarantined_subreddits: 'quarantined_subreddits',
   ...urlParamKeys_filters_for_reset_to_show_all_items,
 }
 
@@ -555,7 +553,6 @@ const initialState: GlobalState = {
   ...urlParamKeys_max_min_defaults,
   agg_most_recent_created_utc: undefined,
   x_subreddit: '',
-  quarantined_subreddits: '',
 }
 
 // pushshift max per call is now 100 (previously was 1000)

@@ -28,7 +28,6 @@ const Comment = props => {
     created_utc,
     locked,
     link_id,
-    subreddit,
     permalink, //from reddit comment data
     quarantine,
     url,
@@ -57,10 +56,8 @@ const Comment = props => {
   } else {
     classNames.push('comment-even')
   }
-  let quarantined_subreddits
   if (quarantine) {
     classNames.push('quarantine')
-    quarantined_subreddits = subreddit
   }
   if (locked) {
     classNames.push('locked')
@@ -91,7 +88,6 @@ const Comment = props => {
       author,
       userCommentsByPost,
       link_id,
-      quarantined_subreddits,
       kind,
       sort,
       t,
@@ -205,7 +201,6 @@ export const getAddUserParamString = ({
   t,
   next,
   prev,
-  quarantined_subreddits,
 }) => {
   const addUserParam = new AddUserParam()
   const samePost_comments = userCommentsByPost[link_id] || []
@@ -234,7 +229,6 @@ export const getAddUserParamString = ({
     ...(sort && { sort }),
     ...(t && { time: t }),
     ...addUser_afterBefore,
-    quarantined_subreddits,
   })
   return addUserParam.toString()
 }

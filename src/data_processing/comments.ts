@@ -99,23 +99,11 @@ export type CommentMap = Record<string, CommentRecord>
 export type PostMap = Record<string, PostRecord>
 type ModlogMap = Record<string, ModlogItem>
 
-export let useProxy = false
-
 export const retrieveRedditComments_and_combineWithPushshiftComments = (
   pushshiftComments: CommentMap
 ) => {
-  let quarantined_subreddits
-  if (useProxy) {
-    const comments_array = Object.values(pushshiftComments)
-    if (comments_array.length) {
-      // when useProxy=true, all comments are from the same subreddit
-      quarantined_subreddits = comments_array[0].subreddit
-    }
-  }
   return getRedditComments({
     objects: pushshiftComments,
-    quarantined_subreddits,
-    useProxy,
   }).then((redditComments: CommentMap) => {
     return combinePushshiftAndRedditComments(pushshiftComments, redditComments)
   })
@@ -347,11 +335,9 @@ const setupCommentMeta = (archiveComment, redditComment) => {
 export const getPostDataForComments = ({
   comments,
   link_ids_set,
-  quarantined_subreddits = '',
 }: {
   comments?: CommentMap
   link_ids_set?: Record<string, boolean>
-  quarantined_subreddits?: string
 } = {}) => {
   if (!link_ids_set) {
     link_ids_set = Object.values(comments!).reduce<Record<string, boolean>>(
@@ -359,18 +345,9 @@ export const getPostDataForComments = ({
       {}
     )
   }
-  if (comments) {
-    const comments_array = Object.values(comments)
-    if (useProxy && comments_array.length && !quarantined_subreddits) {
-      // when useProxy=true, all comments are from the same subreddit
-      quarantined_subreddits = comments_array[0].subreddit
-    }
-  }
   return getRedditItems({
     ids: Object.keys(link_ids_set),
-    quarantined_subreddits,
     key: 'name',
-    useProxy,
   }).catch(() => {
     console.error('Unable to retrieve full titles from reddit')
   })
@@ -509,7 +486,7 @@ export const combinedGetCommentsBySubreddit = args => {
 
 export const setSubredditMeta = async (subreddit, global) => {
   const moderators_promise = getModerators(subreddit)
-  let subreddit_about_promise = getSubredditAbout(subreddit)
+  const subreddit_about_promise = getSubredditAbout(subreddit)
   let over18 = false
   let quarantined = false
   const setQuarantined = value => {
@@ -519,9 +496,7 @@ export const setSubredditMeta = async (subreddit, global) => {
   await Promise.all([moderators_promise, subreddit_about_promise])
     .catch(e => {
       if (e.reason === 'quarantined') {
-        useProxy = true
         setQuarantined(true)
-        subreddit_about_promise = getSubredditAbout(subreddit, true)
       }
       return Promise.all([moderators_promise, subreddit_about_promise])
     })

@@ -49,12 +49,9 @@ const assetCacheHeaders = () => ({
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, __dirname, '')
   const IS_PRODUCTION = mode === 'production'
-  const IS_STAGING = env.TARGET_ENV === 'staging'
 
   const API_REVEDDIT = 'https://api.reveddit.com/'
   const MODLOGS_API = API_REVEDDIT + 'short/modlogs/api/'
-  let OAUTH_REDDIT_REV = 'https://cred2.reveddit.com/'
-  const OAUTH_REDDIT_REV_STAGING = 'https://cred2-staging.reveddit.com/'
   const EXTENSION_ID_DEV = 'flebbibjihapbjipljlfkokfejgaipil'
   const EXTENSION_ID_PROD = 'ickfhlplfbipnfahjbeongebnmojbnhm'
   let EXTENSION_ID = EXTENSION_ID_PROD
@@ -66,10 +63,6 @@ export default defineConfig(({ mode }) => {
     flask_host = 'http://localhost:5000/'
     short = ''
     long = ''
-    OAUTH_REDDIT_REV = 'http://localhost:8787/'
-    if (IS_STAGING) {
-      OAUTH_REDDIT_REV = OAUTH_REDDIT_REV_STAGING
-    }
     EXTENSION_ID = EXTENSION_ID_DEV
   }
 
@@ -115,7 +108,6 @@ export default defineConfig(({ mode }) => {
       REVEDDIT_FLASK_HOST_SHORT: JSON.stringify(flask_host + short),
       REVEDDIT_FLASK_HOST_LONG: JSON.stringify(flask_host + long),
       U_MODLOGS_API: JSON.stringify(MODLOGS_API),
-      OAUTH_REDDIT_REV: JSON.stringify(OAUTH_REDDIT_REV),
       EXTENSION_ID: JSON.stringify(EXTENSION_ID),
       TURNSTILE_SITEKEY: JSON.stringify(env.TURNSTILE_SITEKEY || '1x00000000000000000000AA'),
     },
