@@ -10,17 +10,10 @@
   YARN_ENABLE_HARDENED_MODE = "1"
 
 
-# created in part using CSP Generator extension (csper.io)
-# hash obtained by console error or using https://report-uri.com/home/hash, delete only the <script></script> tags, keeping whitespace
-[[headers]]
-  for = "/*"
-  [headers.values]
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.reddit.com https://www.google-analytics.com https://ssl.google-analytics.com https://www.googletagmanager.com/gtag/js *.cloudflareinsights.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; object-src 'none'; base-uri 'self'; connect-src 'self' https://api.pushshift.io https://elastic.pushshift.io https://oauth.reddit.com https://api.reveddit.com https://www.reddit.com https://removeddit.com https://www.google-analytics.com https://region1.google-analytics.com https://region1.analytics.google.com cloudflareinsights.com https://challenges.cloudflare.com; font-src 'self' https://fonts.gstatic.com; frame-src 'self' https://www.youtube-nocookie.com/ https://challenges.cloudflare.com; img-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://region1.analytics.google.com https://pbs.twimg.com data: https:; manifest-src 'self'; media-src 'self'; worker-src 'self';"
-    X-Content-Type-Options = "nosniff"
-    X-Reveddit-Headers-Rev = "jsonp-3"
-    X-Frame-Options = "DENY"
-    X-XSS-Protection = "1; mode=block"
-    Cross-Origin-Opener-Policy = "same-origin"
+# Every page's headers (the content policy and the rest) are in the _headers
+# file the build writes (vite.config.js). Netlify stopped applying changes to
+# them here (2026-08-29, and again 2026-11-21) while it applies that file on
+# every deploy. The rules below haven't changed since.
 
 [[headers]]
   for = "/images/favicon*"

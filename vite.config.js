@@ -7,20 +7,42 @@ import path from 'path'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-// Writes dist/_headers giving each hashed asset a one-year cache. A blanket
-// /*.css rule would also cover 404s, and then an asset requested before its
-// deploy went live stays "not found" in Cloudflare and browsers for a year.
+// Every page's headers. They're here, in the _headers file the build writes,
+// because Netlify stopped applying changes to netlify.toml's headers
+// (2026-08-29, and again 2026-11-21) while it applies this file on every
+// deploy. The content policy was made in part with the CSP Generator extension
+// (csper.io). The JSONP frame (src/api/reddit/jsonp.ts) inherits it, so
+// script-src keeps https://www.reddit.com.
+const SITE_HEADERS = [
+  [
+    'Content-Security-Policy',
+    "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.reddit.com https://www.google-analytics.com https://ssl.google-analytics.com https://www.googletagmanager.com/gtag/js *.cloudflareinsights.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; object-src 'none'; base-uri 'self'; connect-src 'self' https://api.pushshift.io https://elastic.pushshift.io https://oauth.reddit.com https://api.reveddit.com https://www.reddit.com https://removeddit.com https://www.google-analytics.com https://region1.google-analytics.com https://region1.analytics.google.com cloudflareinsights.com https://challenges.cloudflare.com; font-src 'self' https://fonts.gstatic.com; frame-src 'self' https://www.youtube-nocookie.com/ https://challenges.cloudflare.com; img-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://region1.analytics.google.com https://pbs.twimg.com data: https:; manifest-src 'self'; media-src 'self'; worker-src 'self';",
+  ],
+  ['X-Content-Type-Options', 'nosniff'],
+  ['X-Frame-Options', 'DENY'],
+  ['X-XSS-Protection', '1; mode=block'],
+  // another site that opens reveddit gets no handle to its window
+  ['Cross-Origin-Opener-Policy', 'same-origin'],
+  // which file the headers came from: netlify.toml's last one said jsonp-2
+  ['X-Reveddit-Headers-Rev', 'build-1'],
+]
+
+// Writes dist/_headers: every page's headers, and a one-year cache for each
+// hashed asset. A blanket /*.css rule would also cover 404s, and then an asset
+// requested before its deploy went live stays "not found" in Cloudflare and
+// browsers for a year.
 const assetCacheHeaders = () => ({
   name: 'asset-cache-headers',
   apply: 'build',
   closeBundle() {
     const distDir = path.resolve(__dirname, 'dist')
+    const site = `/*\n${SITE_HEADERS.map(([name, value]) => `  ${name}: ${value}\n`).join('')}`
     const rules = fs
       .readdirSync(path.join(distDir, 'x-files'))
       .map(
         file => `/x-files/${file}\n  cache-control: public, max-age=31536000\n`
       )
-    fs.writeFileSync(path.join(distDir, '_headers'), rules.join(''))
+    fs.writeFileSync(path.join(distDir, '_headers'), site + rules.join(''))
   },
 })
 

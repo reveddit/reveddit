@@ -14,7 +14,7 @@ import { recordTransport } from './status'
 // The JSONP script is reddit-controlled code, so it executes inside a
 // sandboxed srcdoc iframe (allow-scripts only => opaque origin): it cannot
 // touch reveddit's DOM, cookies, or storage. A srcdoc iframe inherits the
-// parent CSP, so netlify.toml's script-src must include https://www.reddit.com
+// parent CSP, so its script-src (vite.config.js) must include https://www.reddit.com
 // (production only; the vite dev server sends no CSP).
 //
 // Not JSONP-able (script error): user/<u>/moderated_subreddits,
