@@ -1,5 +1,5 @@
 import {
-  queryUserPageCombined,
+  queryUserPage,
   usernameAvailable,
   getModeratedSubreddits,
   getUserAbout,
@@ -27,11 +27,11 @@ import {
 } from 'components/common/RemovedBy'
 import {
   itemIsRemovedOrDeleted,
+  commentIsRemoved,
   isComment,
   isPost,
   SimpleURLSearchParams,
 } from 'utils'
-import { setPostAndParentDataForComments } from 'data_processing/info'
 import { setMissingCommentMeta } from 'data_processing/missing_comments'
 
 function _lookupAndSetRemovedBy(global) {
@@ -223,9 +223,9 @@ const getItems = async (
   all = false
 ) => {
   const gs = global.getState()
-  const { commentParentsAndPosts, userCommentsByPost } = gs
+  const { userCommentsByPost } = gs
   let { oldestTimestamp, newestTimestamp } = gs
-  const data = await queryUserPageCombined({
+  const data = await queryUserPage({
     user,
     kind,
     sort,
@@ -234,7 +234,6 @@ const getItems = async (
     t: time,
     limit,
   })
-  const userPageData = data.user
   if ('error' in data) {
     let user_issue_description
     if (data.error == 404) {
@@ -254,22 +253,22 @@ const getItems = async (
     }
     return global.setError({ userIssueDescription: user_issue_description })
   }
-  if (!userPageData) {
+  if (!Array.isArray(data?.items)) {
     // no data and no HTTP error to report: every reddit transport failed.
     // (A real 429 arrives as data.message above, via the API-key path.)
     return global.setError({ userIssueDescription: 'transport_failed' })
   }
   const { comments: missingComments } = await missing_comments_promise
   const num_pages = gs.num_pages + 1
-  const userPage_item_lookup = {}
-  const ids = [],
-    comments = []
   const items = gs.items
+  // A profile lists only its owner's items. The name as reddit spells it,
+  // when an item shows it
+  const owner =
+    data.items.find(item => item.author?.toLowerCase() === user.toLowerCase())
+      ?.author || user
 
-  userPageData.items.forEach((item, i) => {
-    userPage_item_lookup[item.name] = item
+  data.items.forEach((item, i) => {
     item.rev_position = items.length + i
-    ids.push(item.name)
     if (item.removal_reason) {
       // Below ensures that posts removed only by admins do not receive a red background
       // Comments are marked in red so that the thread view and user profile view are consistent.
@@ -279,7 +278,7 @@ const getItems = async (
       item.removedby_evil = ANTI_EVIL_REMOVED
     }
     if (!oldestTimestamp) {
-      if (!item.stickied || !userPageData.after) {
+      if (!item.stickied || !data.after) {
         oldestTimestamp = item.created_utc
       }
       newestTimestamp = item.created_utc
@@ -291,12 +290,20 @@ const getItems = async (
     }
     if (isPost(item)) {
       item.selftext = ''
-      // posts do not appear in redditInfoItems
       if (itemIsRemovedOrDeleted(item, false)) {
         item.removed = true
       }
     } else {
-      comments.push(item)
+      // Reddit's own listing never reads [removed] by [deleted]: it leaves a
+      // profile's removed comments out for others and shows them to their
+      // author as if nothing happened. The extension's bridge rewrites the
+      // ones its monitoring confirmed removed (and, for a moderator, the ones
+      // removed in their communities) to how logged-out visitors see them in
+      // their threads. The author is the profile's owner.
+      if (commentIsRemoved(item)) {
+        item.removed = true
+        item.author = owner
+      }
       if (item.link_author === item.author) {
         item.is_op = true
       }
@@ -325,45 +332,15 @@ const getItems = async (
         item.next = array[index - 1].name
       }
     })
-  const redditInfoItems = data.info
-  // posts do not appear in redditInfoItems
-  Object.values(redditInfoItems).forEach((info_item: any) => {
-    const userPage_item = userPage_item_lookup[info_item.name]
-    if (itemIsRemovedOrDeleted(info_item, false)) {
-      userPage_item.removed = true
-      if (isComment(info_item)) {
-        userPage_item.rev_mod_removed = true
-      }
-    }
-    userPage_item.collapsed = info_item.collapsed
-  })
-  const commentParentsAndPosts_new = data.parents
-  Object.assign(commentParentsAndPosts, commentParentsAndPosts_new)
-  setPostAndParentDataForComments(comments, commentParentsAndPosts)
   await global.setState({
     items,
     num_pages,
-    userNext: userPageData.after,
-    commentParentsAndPosts,
+    userNext: data.after,
     oldestTimestamp,
     newestTimestamp,
-    // once any page of this user loaded without the removal check
-    removalCheckUnavailable:
-      Boolean(data.infoUnavailable) ||
-      (num_pages > 1 && Boolean(gs.removalCheckUnavailable)),
   })
-  if (userPageData.after && all) {
-    return getItems(
-      user,
-      kind,
-      global,
-      sort,
-      '',
-      userPageData.after,
-      time,
-      limit,
-      all
-    )
+  if (data.after && all) {
+    return getItems(user, kind, global, sort, '', data.after, time, limit, all)
   }
-  return userPageData.after
+  return data.after
 }

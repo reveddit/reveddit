@@ -249,14 +249,6 @@ export const kindsReverse = {
   '': '',
 }
 
-export const queryUserPageCombined = async params => {
-  return queryUserPage({
-    include_info: true,
-    include_parents: true,
-    ...params,
-  })
-}
-
 const getHost = () => {
   // Reddit deleted Reveddit's API apps in 2026: no token for oauth.reddit.com.
   // All requests go to www.reddit.com over JSONP (jsonp.ts), unless the user
@@ -273,13 +265,11 @@ export const EmptyUserPageResult = { items: [], after: null }
 export const queryUserPage = async ({
   user,
   kind,
-  sort,
-  before,
-  after,
-  t,
+  sort = '',
+  before = '',
+  after = '',
+  t = '',
   limit = 100,
-  include_info = false,
-  include_parents = false,
 }) => {
   const host = getHost()
   const params: Record<string, any> = {
@@ -299,7 +289,7 @@ export const queryUserPage = async ({
   } catch (e: any) {
     if (host !== www_reddit_slash && e.message !== 'Forbidden') {
       can_use_oauth_reddit = false
-      return queryUserPageCombined({ user, kind, ...params }) // host will be www_reddit_slash for this query
+      return queryUserPage({ user, kind, ...params }) // host will be www_reddit_slash for this query
     }
     if (!getCustomClientID() || customKeyMintFailed()) {
       // JSONP hides the HTTP status, so distinguish "account gone" (about.json
@@ -321,64 +311,9 @@ export const queryUserPage = async ({
     return e
   }
   if (json.data?.children) {
-    let items = []
-    if (!include_info && !include_parents) {
-      items = json.data.children.map(item => item.data)
-      return {
-        items,
-        after: json.data.after,
-      }
-    } else {
-      const result: Record<string, any> = {
-        user: {
-          items,
-          after: json.data.after,
-        },
-      }
-      const commentIDs = []
-      const parents_set = new Set()
-      for (const item_listing of json.data.children) {
-        const item = item_listing.data
-        items.push(item)
-        if (item.parent_id) {
-          commentIDs.push(item.name)
-          parents_set.add(item.parent_id)
-          parents_set.add(item.link_id)
-        }
-      }
-      // Both are extra lookups (api/info) on top of the listing. When one
-      // fails, the page shows the listing anyway and says what's missing:
-      // reddit's edge refused api/info.json through the extension on
-      // 2026-10-24 while the listing itself loaded, and every user page
-      // failed whole.
-      const promises = []
-      if (include_info) {
-        promises.push(
-          getItems({ ids: commentIDs })
-            .then(info => {
-              result.info = info
-            })
-            .catch(e => {
-              console.error('removal check (api/info) failed:', e)
-              result.info = {}
-              result.infoUnavailable = true
-            })
-        )
-      }
-      if (include_parents) {
-        promises.push(
-          getItems({ ids: Array.from(parents_set) })
-            .then(parents => {
-              result.parents = parents
-            })
-            .catch(e => {
-              console.error('parent lookup (api/info) failed:', e)
-              result.parents = {}
-            })
-        )
-      }
-      await Promise.all(promises)
-      return result
+    return {
+      items: json.data.children.map(item => item.data),
+      after: json.data.after,
     }
   } else {
     const empty: Record<string, any> = { ...EmptyUserPageResult }

@@ -16,6 +16,8 @@ import {
 } from 'components/ui/Links'
 import { pinPostLink } from 'pages/about/faq'
 import { ConnectErrorContent } from 'components/ConnectError'
+import { RemovedCommentsNote } from './RemovedCommentsNote'
+import { OVERVIEW, COMMENTS } from 'api/reddit'
 
 const hidePinPostNotice_var = 'hidePinPostNotice'
 
@@ -46,17 +48,14 @@ const User = ({
     after,
     hasVisitedUserPage_sortTop,
     hasVisitedSubredditPage,
-    hasClickedRemovedUserCommentContext,
     error,
-    removalCheckUnavailable,
   } = global.state
   let loadAllLink = '',
     nextLink = '',
     pagesLoaded = ''
   let errorMessage = '',
     status = '',
-    instructionalNotice = '',
-    removedCommentsLink = ''
+    instructionalNotice = ''
   let totalPages = 10
   let selectedItems = null
   if (!userNext) {
@@ -152,7 +151,6 @@ const User = ({
   }
 
   const shownItems = []
-  const removedCommentIDs = []
   const constantProps = { kind }
   viewableItems.forEach(item => {
     if (
@@ -165,9 +163,6 @@ const User = ({
         shownItems.push(
           <Comment key={item.name} {...constantProps} {...item} />
         )
-        if (item.removed) {
-          removedCommentIDs.push(item.name)
-        }
       }
     }
   })
@@ -183,10 +178,6 @@ const User = ({
         message="Sorting by top may show more results."
         htmlLink={<a href={'?sort=top&all=true'}>sort by top</a>}
       />
-    )
-  } else if (!hasClickedRemovedUserCommentContext) {
-    instructionalNotice = (
-      <TipWithBackground message="The context links of removed comments now show the comment in context even if the comment was not archived." />
     )
   } else if (!get(hidePinPostNotice_var, false)) {
     instructionalNotice = (
@@ -229,17 +220,17 @@ const User = ({
       />
     )
   }
-  if (removedCommentIDs.length > 0) {
-    removedCommentsLink =
-      '/api/info?id=' + removedCommentIDs.slice(0, 100).join(',')
-  }
-  const createRemovedCommentsLink = text => {
-    return (
-      <NewWindowLink old={true} reddit={removedCommentsLink}>
-        {text}
-      </NewWindowLink>
-    )
-  }
+  // A page that can't connect shows only that error. The Overview and
+  // Comments tabs say why removed comments aren't marked, in place of the
+  // extension's pitch; the Posts tab still marks removed posts.
+  const cantConnect = userIssueDescription === 'transport_failed'
+  const showsComments = [OVERVIEW, COMMENTS, ''].includes(kind)
+  const tips = !cantConnect && (
+    <>
+      {showsComments ? <RemovedCommentsNote user={user} /> : <Highlight />}
+      {instructionalNotice}
+    </>
+  )
   return (
     <>
       <div className="userpage">
@@ -254,33 +245,8 @@ const User = ({
             {selections}
             {summary}
           </div>
-          <Highlight />
-          {instructionalNotice}
+          {tips}
           {notShownMsg}
-          {removalCheckUnavailable && (
-            <Notice
-              title="Removal check unavailable"
-              message="Reddit refused the request that shows which of these comments were removed, so removed comments may not be marked here. Reload the page later to try again."
-            />
-          )}
-          {removedCommentsLink && (
-            <Notice
-              message={
-                <>
-                  Some comments have been removed. To view that on reddit, open{' '}
-                  {createRemovedCommentsLink('this link')} in an incognito
-                  window or while logged out. Note:{' '}
-                  <Link to="/about/faq/#user-deleted">
-                    user-deleted content
-                  </Link>{' '}
-                  does not appear on reveddit.
-                </>
-              }
-              htmlLink={createRemovedCommentsLink(
-                'view removed comments on reddit'
-              )}
-            />
-          )}
           {selectedItems && (
             <Notice
               message="showing selected items."

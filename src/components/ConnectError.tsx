@@ -17,8 +17,9 @@ const whatHappenedLink = (
 // the extension, the only way most visitors still reach Reddit, as the landing
 // page does: green when it's running (so something else failed), red when it
 // ran in this browser before but isn't running now, an update for the
-// stuck-on-old-version cohort, the store badges for visitors who never had it,
-// and a desktop-only note on mobile, where no extension can install.
+// stuck-on-old-version cohort, the store badges and what the extension adds for
+// visitors who never had it, and a desktop-only note on mobile, where no
+// extension can install.
 export const ConnectErrorContent = ({ pageError = '' }) => {
   const modal = React.useContext(ModalContext)
   const extension = useExtensionStatus()
@@ -35,6 +36,8 @@ export const ConnectErrorContent = ({ pageError = '' }) => {
     </div>
   )
   let path
+  // the path for visitors without the extension says why itself
+  let pathSaysWhy = false
   if (extension === 'not-running') {
     path = (
       <>
@@ -83,11 +86,14 @@ export const ConnectErrorContent = ({ pageError = '' }) => {
       </p>
     )
   } else {
+    pathSaysWhy = true
     path = (
       <>
         <p>
-          The Reveddit Real-Time extension reconnects this site. It also tracks
-          removals of your own content in real time and notifies you:
+          Reveddit needs its browser extension now. Reddit blocks this site's
+          own requests for most visitors, so Reveddit Real-Time makes them from
+          your browser, signed in to Reddit. It also alerts you when your own
+          posts and comments are removed.
         </p>
         {storeLinks}
       </>
@@ -114,11 +120,16 @@ export const ConnectErrorContent = ({ pageError = '' }) => {
   }
   return (
     <>
-      <p>Could not connect to Reddit.</p>
       <p>
-        Reddit restricts websites' access to its data, and the public access
-        Reveddit relies on can change without notice (see: {whatHappenedLink})
+        Could not connect to Reddit.
+        {pathSaysWhy && <> {whatHappenedLink}</>}
       </p>
+      {!pathSaysWhy && (
+        <p>
+          Reddit restricts websites' access to its data, and the public access
+          Reveddit relies on can change without notice (see: {whatHappenedLink})
+        </p>
+      )}
       {path}
       {apiKeyNote}
       <p style={{ opacity: 0.7 }}>

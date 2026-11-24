@@ -100,9 +100,9 @@ export const RedditChangeBanner = () => {
         <span className="banner-icon">⚠️</span>
         <div className="banner-body">
           <span className="banner-text">
-            Reddit restricts websites' access to its data, which limits
-            Reveddit's website and may break it without notice. Install the
-            extension for reliable tracking and alerts:
+            Reveddit's website now works through its browser extension, because
+            Reddit blocks the site's own requests for most visitors. It also
+            alerts you when your own posts and comments are removed:
           </span>{' '}
           <span className="banner-actions">
             <ExtensionLinks />
