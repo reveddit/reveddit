@@ -3,6 +3,7 @@
 // messages can say which paths failed instead of guessing at a cause.
 // In-memory only; resets on page load.
 
+import { useSyncExternalStore } from 'react'
 import {
   getShownExtensionStatus,
   getKnownExtensionVersion,
@@ -10,17 +11,37 @@ import {
 
 export type TransportName = 'jsonp' | 'bridge' | 'apikey'
 
+// The bridge's outcome when the extension refuses this tab: in Firefox, a
+// private window or a container tab, where its requests would carry the
+// regular window's Reddit login (the extension's isOtherIdentity)
+export const BRIDGE_UNSUPPORTED_CONTEXT = 'refused (unsupported_context)'
+
 const status: Record<TransportName, string> = {
   jsonp: 'untried',
   bridge: 'untried',
   apikey: 'untried',
 }
 
+const listeners = new Set<() => void>()
+
 export const recordTransport = (name: TransportName, outcome: string) => {
+  if (status[name] === outcome) return
   status[name] = outcome
+  listeners.forEach(listener => listener())
 }
 
 export const getTransportStatus = (name: TransportName): string => status[name]
+
+const subscribe = (listener: () => void) => {
+  listeners.add(listener)
+  return () => {
+    listeners.delete(listener)
+  }
+}
+
+// For UI that follows a transport's last outcome, like the site's banner
+export const useTransportStatus = (name: TransportName): string =>
+  useSyncExternalStore(subscribe, () => status[name])
 
 // One line for error UIs. The caller passes API-key state to avoid an import
 // cycle with utils.

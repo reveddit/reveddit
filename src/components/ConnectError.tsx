@@ -4,7 +4,11 @@ import { getCustomClientID } from 'utils'
 import ModalContext from 'contexts/modal'
 import { RedditOrLocalLink } from 'components/ui/Links'
 import { ExtensionLinks, isMobileDevice } from 'components/ui/Extensions'
-import { getTransportSummary, getTransportStatus } from 'api/reddit/status'
+import {
+  getTransportSummary,
+  getTransportStatus,
+  BRIDGE_UNSUPPORTED_CONTEXT,
+} from 'api/reddit/status'
 import { extensionSupportsBridge } from 'api/reddit/bridge'
 import { useExtensionStatus } from 'api/reddit/extensionStatus'
 
@@ -70,9 +74,11 @@ export const ConnectErrorContent = ({ pageError = '' }) => {
             ? "It didn't answer this page, though. Reload the page, and if that keeps happening, restart your browser."
             : bridgeStatus === 'refused (not_logged_in)'
               ? "It reaches Reddit through your Reddit login, and this browser isn't logged in to Reddit. Log in at www.reddit.com or old.reddit.com, then reload this page."
-              : bridgeStatus.startsWith('refused')
-                ? "It couldn't get this page's data from Reddit just now; the status below says why. Try again in a few minutes."
-                : 'This page could not load through it just now; the status below says why. Reload the page to try again.'}
+              : bridgeStatus === BRIDGE_UNSUPPORTED_CONTEXT
+                ? "Open this page in a regular window, outside any container. It can't reach Reddit from a Firefox private window or container tab, because its requests would carry your regular window's Reddit login instead of this tab's. If Firefox is set to never remember history, every window counts as private."
+                : bridgeStatus.startsWith('refused')
+                  ? "It couldn't get this page's data from Reddit just now; the status below says why. Try again in a few minutes."
+                  : 'This page could not load through it just now; the status below says why. Reload the page to try again.'}
         </p>
       </>
     )
