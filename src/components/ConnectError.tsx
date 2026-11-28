@@ -73,7 +73,7 @@ export const ConnectErrorContent = ({ pageError = '' }) => {
           {bridgeStatus === 'no response'
             ? "It didn't answer this page, though. Reload the page, and if that keeps happening, restart your browser."
             : bridgeStatus === 'refused (not_logged_in)'
-              ? "It reaches Reddit through your Reddit login, and this browser isn't logged in to Reddit. Log in at www.reddit.com or old.reddit.com, then reload this page."
+              ? "It reaches Reddit through your Reddit login, and this window isn't logged in to Reddit. Log in at www.reddit.com or old.reddit.com in this window, then reload this page. In Firefox, a private window has a login of its own."
               : bridgeStatus === BRIDGE_UNSUPPORTED_CONTEXT
                 ? "Open this page in a regular window, outside any container. It can't reach Reddit from a Firefox private window or container tab, because its requests would carry your regular window's Reddit login instead of this tab's. If Firefox is set to never remember history, every window counts as private."
                 : bridgeStatus.startsWith('refused')
